@@ -5,7 +5,7 @@
 HANDY.add('Object',function($){
 	
 	var Object={
-		namespace           : fNamespace,       //创建或读取命名空间，可以同时创建多个命名空间，但只能读取第一个
+		namespace           : fNamespace,       //创建或读取命名空间，可以传入用以初始化该命名空间的对象
 		checkNs             : fCheckNamespace,  //检查命名空间是否存在/正确
 		createClass         : fCreateClass,     //创建类
 		extend              : fExtend,          //对象的属性扩展
@@ -22,26 +22,27 @@ HANDY.add('Object',function($){
 		genMethod           : fGenerateMethod   //归纳生成类方法
 	}
 	/**
-    * 创建或读取命名空间，可以同时创建多个命名空间，但只能读取第一个
-    * @method namespace (sPath[,sPath，sPath...])
+    * 创建或读取命名空间，可以传入用以初始化该命名空间的对象
+    * @method namespace (sPath[,object])
     * @param {string}sPath 命名空间路径字符串
+    * @param {any}object (可选)用以初始化该命名空间的对象，默认是空对象
     * @return {object} 如果只传一个路径，返回该路径的命名空间
     */
-	function fNamespace(sPath){
-		var aArgs=arguments,nLength=aArgs.length, oObject=null, i, j, aPath, root;  
-	    for (i=0; i<nLength; ++i) {  
-	        aPath=aArgs[i].split(".");  
-	        root = aPath[0];  
-	        eval('if (typeof ' + root + ' == "undefined"){' + root + ' = {};} oObject = ' + root + ';');  
-	        //循环命名路径
-	        for (j=1; j<aPath.length; ++j) {  
+	function fNamespace(sPath,object){
+		var oObject=null, j, aPath, root,len;  
+        aPath=sPath.split(".");  
+        root = aPath[0];  
+        eval('if (typeof ' + root + ' == "undefined"){' + root + ' = {};} oObject = ' + root + ';');  
+        //循环命名路径
+        for (j=1,len=aPath.length; j<len; ++j) { 
+        	if(j==len-1&&object){
+        		oObject[aPath[j]]=object;
+        	}else{
 	            oObject[aPath[j]]=oObject[aPath[j]] || {};  
-	            oObject=oObject[aPath[j]];  
-	        } 
-	        if(nLength==1){
-	        	return oObject;
-	        }
-	    }
+        	}
+            oObject=oObject[aPath[j]];  
+        } 
+    	return oObject;
 	}
 	/**
     * 检查命名空间是否存在/正确
@@ -89,9 +90,7 @@ HANDY.add('Object',function($){
             }
         };
         if(sPath){
-        	var nIndex=sPath.lastIndexOf('.');
-        	var oNamespace=this.namespace(sPath.substring(0,nIndex));
-        	oNamespace[sPath.substring(nIndex+1)]=Class;
+        	this.namespace(sPath,Class);
         }
         return Class;
     }

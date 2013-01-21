@@ -243,14 +243,12 @@ HANDY.add("Loader",["Ajax","Debug","Function"],function($){
 	}
     /**
 	 * 加载所需的资源
-	 * @method load(className[,fCallback,aArgs,thisArg])
-	 * @param {string|array}className 类名
+	 * @method load(className[,fCallback])
+	 * @param {string|array}id 资源id
 	 * @param {function}fCallback(可选) 回调函数
-	 * @param {any}args(可选) 回调函数的参数
-	 * @param {object}thisArg(可选) 上下文对象,即this指向的对象
-	 * @return {class}返回最后一个当前已加载的类，通常用于className只有一个的情况，这样可以立即通过返回赋值
+	 * @return {any}返回最后一个当前已加载的资源，通常用于className只有一个的情况，这样可以立即通过返回赋值
 	 */
-    function fRequired(className,fCallback,args,thisArg){
+    function fRequired(id,fCallback,args,thisArg){
     	var aClasses=typeof className=="string"?[className]:className,
     		fCall=fCallback||arguments.callee.caller,
     		aArgs=(args?($.isArray(args)?args:[args]):fCall.arguments)||[],
