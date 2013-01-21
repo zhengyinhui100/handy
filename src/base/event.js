@@ -2,7 +2,7 @@
  * 事件类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add('Event',function($){
+HANDY.add('Event',['CustomEvent','Data'],function($){
 	
 	var Data=$.Data,
 	
@@ -297,4 +297,4 @@ HANDY.add('Event',function($){
 	
 	return Event;
 	
-},['CustomEvent','Data'])
+})

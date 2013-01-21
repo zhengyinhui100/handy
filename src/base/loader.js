@@ -26,28 +26,28 @@
  * $L("Test2");
  * ...
  */
-HANDY.add("Loader",function($){
+HANDY.add("Loader",["Ajax","Debug","Function"],function($){
 	
-	var _CLASS_NOT_FOUND= 'Class not found',
+	var _MODULE_NOT_FOUND= 'Module not found',
     	_nCallIndex=0,      //回调索引，用于并行加载多个资源时，保证回调函数执行一次
     	_oCallMap={},       //回调状态映射表，用于并行加载多个资源时，保证回调函数执行一次
     	_aStack=[],         //请求堆栈
 	    //TODO 是否可以去掉
 	    _oClassStatus={};   //保存请求中的class信息
+	    _cache={};          //缓存
 	
 	var Loader= {
 		traceLog                : false,                    //是否打印跟踪信息
-		define                  : fDefine,                  //定义模块资源
 		jsRoot                  : '',                       //根url
 		skinName                : 'skin',                   //皮肤名称，皮肤css的url里包含的字符串片段，用于检查css是否是皮肤
 	    showLoading				: function(bIsLoading){},	//加载中的提示，由具体逻辑重写
+		define                  : fDefine,                  //定义模块资源
 	    getClass                : fGetClass,                //获取类
 	    getScript               : fGetScript,               //获取脚本
 	    getCss                  : fGetCss,                  //获取css
-	    load                    : fLoad,                    //加载所需的资源
 	    require                 : fRequire                  //获取所需资源后执行回调
 	}
-	  
+	
     /**
 	 * 获取回调索引
 	 * @method _fGetCallIndex
@@ -226,6 +226,22 @@ HANDY.add("Loader",function($){
     	}
     }
     /**
+	 * 定义loader模块
+	 * @method define
+	 * @param {string}sId 模块id
+	 * @param {array}aDeps  依赖的模块
+	 * @param {any}module 模块，可以是函数，也可以是字符串模板
+	 * @return {number}nIndex 返回回调索引
+	 */
+	function fDefine(sId,aDeps,module){
+		
+		_cache[sId]={
+			id:sId,
+			deps:aDeps,
+			module:module
+		}
+	}
+    /**
 	 * 加载所需的资源
 	 * @method load(className[,fCallback,aArgs,thisArg])
 	 * @param {string|array}className 类名
@@ -234,7 +250,7 @@ HANDY.add("Loader",function($){
 	 * @param {object}thisArg(可选) 上下文对象,即this指向的对象
 	 * @return {class}返回最后一个当前已加载的类，通常用于className只有一个的情况，这样可以立即通过返回赋值
 	 */
-    function fLoad(className,fCallback,args,thisArg){
+    function fRequired(className,fCallback,args,thisArg){
     	var aClasses=typeof className=="string"?[className]:className,
     		fCall=fCallback||arguments.callee.caller,
     		aArgs=(args?($.isArray(args)?args:[args]):fCall.arguments)||[],
@@ -292,21 +308,7 @@ HANDY.add("Loader",function($){
     	}
     	return oClazz;
     }
-    /**
-	 * 获取所需资源后执行回调
-	 * @method require(requiredClass,fCallback[,thisArg])
-	 * @param {string|Array}requiredClass 需要的类
-	 * @param {function}fCallback 回调函数
-	 * @param {any}thisArg(可选) 回调函数绑定的对象
-	 * @return {void}
-	 */
-    function fRequire(requiredClass,fCallback,thisArg){
-    	try{
-    		Loader.load(requiredClass,fCallback,null,thisArg)
-    	}catch(e){
-    	}
-    }
     
     return Loader;
 	
-},["Ajax","Debug","Function"])
+})

@@ -9,4 +9,4 @@ HANDY.add('Core',function($){
 	
 	
 
-},[])
+})

@@ -2,7 +2,7 @@
  * 函数类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add('Function',function($){
+HANDY.add('Function',['Object'],function($){
 	
 	var Function={
 		bind                : fBind,              //函数bind方法
@@ -52,4 +52,4 @@ HANDY.add('Function',function($){
 	
 	return Function;
 	
-},['Object'])
+})

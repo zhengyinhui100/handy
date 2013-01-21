@@ -24,7 +24,11 @@
 	 * @param {object}aRequires 模块依赖资源
 	 * @retrun {void}
 	 */
-	function fAdd(sName,fDefined,aRequires){
+	function fAdd(sName,aRequires,fDefined){
+		if(!fDefined){
+			fDefined=aRequires;
+			aRequires=undefined;
+		}
 		if(!aRequires||!HANDY.Loader||true){
 			HANDY[sName]=fDefined(HANDY);
 		}else{

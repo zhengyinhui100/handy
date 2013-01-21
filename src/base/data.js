@@ -2,7 +2,7 @@
  * 数据类，设置、读取、移除dom节点的数据
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add('Data',function($){
+HANDY.add('Data',["Util","Object"],function($){
 	
 	var Data={
 		acceptData     : fAcceptData,     //判断元素是否支持expando属性(是否可以保存数据)
@@ -101,4 +101,4 @@ HANDY.add('Data',function($){
 	
 	return Data;
 	
-},["Util","Object"])
+})

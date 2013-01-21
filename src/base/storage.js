@@ -1,10 +1,10 @@
 /**
- * Ajax类
+ * Storage类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add('Ajax',function(){
+HANDY.add('Storage',function(){
 	
-	var Ajax={
+	var Storage={
 		
 	}
 	
