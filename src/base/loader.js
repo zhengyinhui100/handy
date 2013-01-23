@@ -234,12 +234,15 @@ HANDY.add("Loader",["Ajax","Debug","Function"],function($){
 	 * @return {number}nIndex 返回回调索引
 	 */
 	function fDefine(sId,aDeps,module){
-		
-		_cache[sId]={
-			id:sId,
-			deps:aDeps,
-			module:module
-		}
+		var that=this;
+		that.required(aDeps,function(){
+			
+			_cache[sId]={
+				id:sId,
+				deps:aDeps,
+				module:module
+			}
+		});
 	}
     /**
 	 * 加载所需的资源
