@@ -142,14 +142,14 @@ HANDY.add("Loader",["Debug","Function"],function($){
 	 * @param {array}aRequestIds 需要加载的模块id数组
 	 * @return {void}
 	 */
-    function _fRequest(aRequestIds){
+    function _fRequest(aRequestIds,aExisteds){
     	for(var i=0,nLen=aRequestIds.length;i<nLen;i++){
     		var sId=aRequestIds[i];
     		var sUrl=_fGetUrl(sId);
     		if(/.css$/.test(sUrl)){
     			_fGetCss(sUrl);
     		}else{
-    			_fGetScript(sUrl,$.Function.bind(_fReponse,null,sId)) ;
+    			_fGetScript(sUrl,$.Function.bind(_fReponse,null,sId,aExisteds)) ;
     		}
     	}
     	Loader.showLoading(true);
@@ -160,7 +160,7 @@ HANDY.add("Loader",["Debug","Function"],function($){
 	 * @param {string}sId 模块id
 	 * @return {void}
 	 */
-    function _fReponse(sId){
+    function _fReponse(sId,aExisteds){
     	Loader.showLoading(false);
     	//每次回调都循环上下文列表
    		for(var i=0,nLen=_aContext.length;i<nLen;i++){
@@ -236,7 +236,7 @@ HANDY.add("Loader",["Debug","Function"],function($){
     		return aExisteds;
     	}else{
     		//请求模块
-    		_fRequest(aRequestIds);
+    		_fRequest(aRequestIds,aExisteds);
     	}
     }
     
