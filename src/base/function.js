@@ -20,7 +20,7 @@ HANDY.add('Function',['Object'],function($){
 	 * @return  {function}    返回新构造的函数
 	 */
 	function fBind(fFunc,oScope,args) {
-		var aBindArgs = Array.prototype.splice.apply(arguments,0,2);
+		var aBindArgs = Array.prototype.slice.call(arguments,2);
 		return function() {
 			Array.prototype.push.apply(aBindArgs, arguments);
 			return fFunc.apply(oScope, aBindArgs);

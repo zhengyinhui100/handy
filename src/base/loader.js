@@ -6,7 +6,7 @@
  */
 HANDY.add("Loader",["Debug","Function"],function($){
 	
-	var _MODULE_NOT_FOUND= 'Module not found',
+	var _MODULE_NOT_FOUND= 'Module not found:',
     	_nCallIndex=0,      //回调索引，用于并行加载多个模块时，保证回调函数执行一次
     	_oCallMap={},       //回调状态映射表，用于并行加载多个模块时，保证回调函数执行一次
     	_aContext=[],         //请求上下文堆栈
@@ -18,8 +18,6 @@ HANDY.add("Loader",["Debug","Function"],function($){
 		skinName                : 'skin',                   //皮肤名称，皮肤css的url里包含的字符串片段，用于检查css是否是皮肤
 		urlMap                  : {},                       //id-url映射表                     
 	    showLoading				: function(bIsLoading){},	//加载中的提示，由具体逻辑重写
-	    getScript               : fGetScript,               //获取脚本
-	    getCss                  : fGetCss,                  //获取css
 		define                  : fDefine,                  //定义模块模块
 	    require                 : fRequire                  //获取所需模块后执行回调
 	}
@@ -56,7 +54,7 @@ HANDY.add("Loader",["Debug","Function"],function($){
 	 */
     function _fChkExisted(id){
     	if(typeof id=="string"){
-    		return !!_oCache[sId];
+    		return !!_oCache[id];
     	}
     	for(var i=0,nLen=id.length;i<nLen;i++){
     		if(!_oCache[id]){
@@ -79,9 +77,12 @@ HANDY.add("Loader",["Debug","Function"],function($){
     		//css文件
     		if(/.css$/.test(sId)){
     			sUrl=sId.indexOf('/')==0?sId:"/css/"+sId;
-    		}else{
+    		}else if(/.js$/.test(sId)){
     			//js文件
-    			sUrl="/"+sId.replace(/\./g,'/');
+    			sUrl="/"+sId;
+    		}else{
+    			//命名空间
+    			sUrl='/'+sId.replace(/\./g,"/")+".js";
     		}
     		sUrl=sRoot+sUrl;
     	}
@@ -170,7 +171,9 @@ HANDY.add("Loader",["Debug","Function"],function($){
 	    		_aContext.splice(i,1);
 	    	}
    		}
-		$.Debug.info("Loaded:"+sId);
+   		if(Loader.traceLog){
+			$.Debug.info("Loaded:"+sId);
+   		}
     }
     /**
 	 * 定义loader模块
@@ -182,7 +185,7 @@ HANDY.add("Loader",["Debug","Function"],function($){
 	 */
 	function fDefine(sId,aDeps,module){
 		var that=this;
-		that.required(aDeps,function(){
+		that.require(aDeps,function(){
 			var mod;
 			if(typeof module=="function"){
 				try{
@@ -203,12 +206,12 @@ HANDY.add("Loader",["Debug","Function"],function($){
 	}
     /**
 	 * 加载所需的模块
-	 * @method required(id[,fCallback])
+	 * @method require(id[,fCallback])
 	 * @param {string|array}id 模块id（数组）
 	 * @param {function}fCallback(可选) 回调函数
 	 * @return {any}返回最后一个当前已加载的模块，通常用于className只有一个的情况，这样可以立即通过返回赋值
 	 */
-    function fRequired(id,fCallback){
+    function fRequire(id,fCallback){
     	var aIds=typeof id=="string"?[id]:id;
     	//此次required待请求模块数组
     	var aRequestIds=[];
@@ -224,6 +227,9 @@ HANDY.add("Loader",["Debug","Function"],function($){
     				deps      : aIds,
     				callback  : fCallback
     			});
+    			if(Loader.traceLog){
+					$.Debug.info(_MODULE_NOT_FOUND+sId);
+		   		}
     		}else{
     			aExisteds.push(_oCache[sId].module);
     		}
