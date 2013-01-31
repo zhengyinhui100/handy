@@ -4,16 +4,16 @@
  * 
  * 
  */
-HANDY.add("Loader",["Debug","Function"],function($){
+HANDY.add("Loader",["Debug","Object","Function"],function($){
 	
-	var _MODULE_NOT_FOUND= 'Module not found:',
+	var _MODULE_NOT_FOUND= 'Module not found: ',
     	_nCallIndex=0,      //回调索引，用于并行加载多个模块时，保证回调函数执行一次
     	_oCallMap={},       //回调状态映射表，用于并行加载多个模块时，保证回调函数执行一次
     	_aContext=[],         //请求上下文堆栈
 	    _oCache={};         //缓存
 	
 	var Loader= {
-		traceLog                : false,                    //是否打印跟踪信息
+		traceLog                : true,                     //是否打印跟踪信息
 		rootPath                : '',                       //根url
 		skinName                : 'skin',                   //皮肤名称，皮肤css的url里包含的字符串片段，用于检查css是否是皮肤
 		urlMap                  : {},                       //id-url映射表                     
@@ -53,15 +53,18 @@ HANDY.add("Loader",["Debug","Function"],function($){
 	 * @return {boolean}返回true表示该模块已经被加载
 	 */
     function _fChkExisted(id){
+    	function _fChk(sId){
+    		return _oCache[sId]||$.Object.checkNs(sId);
+    	}
     	if(typeof id=="string"){
-    		return !!_oCache[id];
+    		return _fChk(id);
     	}
     	for(var i=0,nLen=id.length;i<nLen;i++){
-    		if(!_oCache[id]){
+    		if(!_fChk(id[i])){
     			return false;
     		}
     	}
-    	return false;
+    	return true;
     }
     
     /**
@@ -150,21 +153,21 @@ HANDY.add("Loader",["Debug","Function"],function($){
     		if(/.css$/.test(sUrl)){
     			_fGetCss(sUrl);
     		}else{
-    			_fGetScript(sUrl,$.Function.bind(_fReponse,null,sId,aExisteds)) ;
+    			_fGetScript(sUrl,$.Function.bind(_fResponse,null,sId,aExisteds)) ;
     		}
     	}
     	Loader.showLoading(true);
     }
     /**
 	 * 模块下载完成回调
-	 * @method _fReponse
+	 * @method _fResponse
 	 * @param {string}sId 模块id
 	 * @return {void}
 	 */
-    function _fReponse(sId,aExisteds){
+    function _fResponse(sId,aExisteds){
     	Loader.showLoading(false);
     	//每次回调都循环上下文列表
-   		for(var i=0,nLen=_aContext.length;i<nLen;i++){
+   		for(var i=_aContext.length-1;i>=0;i--){
 	    	var oContext=_aContext[i];
 	    	if(_fChkExisted(oContext.deps)){
 	    		oContext.callback();
@@ -172,7 +175,7 @@ HANDY.add("Loader",["Debug","Function"],function($){
 	    	}
    		}
    		if(Loader.traceLog){
-			$.Debug.info("Loaded:"+sId);
+			$.Debug.info("Response: "+sId);
    		}
     }
     /**
@@ -185,6 +188,11 @@ HANDY.add("Loader",["Debug","Function"],function($){
 	 */
 	function fDefine(sId,aDeps,module){
 		var that=this;
+		var nLen=arguments.length;
+		if(nLen==2){
+			module=aDeps;
+			aDeps=[];
+		}
 		that.require(aDeps,function(){
 			var mod;
 			if(typeof module=="function"){
@@ -200,8 +208,10 @@ HANDY.add("Loader",["Debug","Function"],function($){
 			_oCache[sId]={
 				id:sId,
 				deps:aDeps,
+				factory:module,
 				module:mod
 			}
+			$.Object.namespace(sId,mod);
 		});
 	}
     /**
@@ -223,7 +233,6 @@ HANDY.add("Loader",["Debug","Function"],function($){
     			//未加载模块放进队列中
     			aRequestIds.push(sId);
     			_aContext.push({
-    				id        : sId,
     				deps      : aIds,
     				callback  : fCallback
     			});

@@ -53,8 +53,11 @@ HANDY.add('Object',function($){
     */
 	function fCheckNamespace(sPath,fCheck){
         var aPath=sPath.split(".");  
-        var root = aPath[0];  
-        eval('if (typeof ' + root + ' == "undefined"){return false;');  
+        var root = aPath[0],oObject,isExist=true;  
+        eval('if(typeof ' + root + ' == "undefined"){isExist= false;}else{oObject = ' + root + ';}');  
+        if(!isExist){
+        	return false;
+        }
         //循环命名路径
         for (var j=1,nLen=aPath.length; j<nLen; ++j) {  
         	var oCurrent=oObject[aPath[j]];
