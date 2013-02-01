@@ -2,7 +2,6 @@
  * 模块加载类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * 
- * 
  */
 HANDY.add("Loader",["Debug","Object","Function"],function($){
 	
@@ -54,17 +53,21 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 */
     function _fChkExisted(id){
     	function _fChk(sId){
-    		return _oCache[sId]||$.Object.checkNs(sId);
+    		return (_oCache[sId]&&_oCache[sId].resource)||$.Object.checkNs(sId);
     	}
     	if(typeof id=="string"){
     		return _fChk(id);
     	}
+    	var aExist=[];
     	for(var i=0,nLen=id.length;i<nLen;i++){
-    		if(!_fChk(id[i])){
+    		var result=_fChk(id[i]);
+    		if(!result){
     			return false;
+    		}else{
+    			aExist.push(result);
     		}
     	}
-    	return true;
+    	return aExist;
     }
     
     /**
@@ -146,14 +149,14 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 * @param {array}aRequestIds 需要加载的模块id数组
 	 * @return {void}
 	 */
-    function _fRequest(aRequestIds,aExisteds){
+    function _fRequest(aRequestIds){
     	for(var i=0,nLen=aRequestIds.length;i<nLen;i++){
     		var sId=aRequestIds[i];
     		var sUrl=_fGetUrl(sId);
     		if(/.css$/.test(sUrl)){
     			_fGetCss(sUrl);
     		}else{
-    			_fGetScript(sUrl,$.Function.bind(_fResponse,null,sId,aExisteds)) ;
+    			_fGetScript(sUrl,$.Function.bind(_fResponse,null,sId)) ;
     		}
     	}
     	Loader.showLoading(true);
@@ -164,13 +167,14 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 * @param {string}sId 模块id
 	 * @return {void}
 	 */
-    function _fResponse(sId,aExisteds){
+    function _fResponse(sId){
     	Loader.showLoading(false);
     	//每次回调都循环上下文列表
    		for(var i=_aContext.length-1;i>=0;i--){
 	    	var oContext=_aContext[i];
-	    	if(_fChkExisted(oContext.deps)){
-	    		oContext.callback();
+	    	var aExists=_fChkExisted(oContext.deps);
+	    	if(aExists){
+	    		oContext.callback(aExists);
 	    		_aContext.splice(i,1);
 	    	}
    		}
@@ -186,32 +190,32 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 * @param {any}module 模块，可以是函数，也可以是字符串模板
 	 * @return {number}nIndex 返回回调索引
 	 */
-	function fDefine(sId,aDeps,module){
+	function fDefine(sId,aDeps,factory){
 		var that=this;
 		var nLen=arguments.length;
 		if(nLen==2){
-			module=aDeps;
+			factory=aDeps;
 			aDeps=[];
 		}
-		that.require(aDeps,function(){
-			var mod;
-			if(typeof module=="function"){
+		that.require(aDeps,function(aExists){
+			var resource;
+			if(typeof factory=="function"){
 				try{
-					mod=module();
+					resource=factory(aExists);
 				}catch(e){
 					//模块定义错误
 					return;
 				}
 			}else{
-				mod=module;
+				resource=factory;
 			}
 			_oCache[sId]={
 				id:sId,
 				deps:aDeps,
-				factory:module,
-				module:mod
+				factory:factory,
+				resource:resource
 			}
-			$.Object.namespace(sId,mod);
+			$.Object.namespace(sId,resource);
 		});
 	}
     /**
@@ -240,7 +244,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 					$.Debug.info(_MODULE_NOT_FOUND+sId);
 		   		}
     		}else{
-    			aExisteds.push(_oCache[sId].module);
+    			aExisteds.push(_oCache[sId].resource);
     		}
     	}
     	
@@ -251,7 +255,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
     		return aExisteds;
     	}else{
     		//请求模块
-    		_fRequest(aRequestIds,aExisteds);
+    		_fRequest(aRequestIds);
     	}
     }
     

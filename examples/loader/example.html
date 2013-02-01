@@ -19,13 +19,18 @@
 <script type="text/javascript" src="../../src/base/support.js"></script>
 </head>
 <body>
+<input type="button" id="button" value="异步获取模块"/>
 <script type="text/javascript">
 $.Loader.rootPath='../../examples/loader';
 $.Loader.require('module.module2',function(){
 	var module2=$.Loader.require('module.module2');
 	module2.init();
 })
-
+document.getElementById("button").onclick=function(){
+	$.Loader.require('module.module4',function(module4){
+		module4.action();
+	})
+}
 </script>
 </body>
 </html>

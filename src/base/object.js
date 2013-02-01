@@ -68,7 +68,7 @@ HANDY.add('Object',function($){
         	}
             oObject=oCurrent;  
         } 
-        return true;
+        return oObject;
 	}
 	/**
     * 创建并返回一个类
