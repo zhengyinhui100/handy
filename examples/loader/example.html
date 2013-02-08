@@ -20,17 +20,22 @@
 </head>
 <body>
 <input type="button" id="button" value="异步获取模块"/>
+<div class="load">加载css成功后变绿</div>
 <script type="text/javascript">
+
 $.Loader.rootPath='../../examples/loader';
-$.Loader.require('module.module2',function(){
+
+$.Loader.require(['module.module2','style.css'],function(aModules){
 	var module2=$.Loader.require('module.module2');
+	//module2=aModules[0];
 	module2.init();
 })
 document.getElementById("button").onclick=function(){
-	$.Loader.require('module.module4',function(module4){
-		module4.action();
+	$.Loader.require('module.module3',function(aModules){
+		aModules[0].action();
 	})
 }
+
 </script>
 </body>
 </html>

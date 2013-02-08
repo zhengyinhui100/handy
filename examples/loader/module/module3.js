@@ -3,8 +3,9 @@
 $.Loader.define('module.module3',function(){
 	return {
 		name:"module3",
+		
 		action:function(){
-			$.Loader.require("module.module1").action();
+			$.Loader.require("module.module1").action('module3');
 		}
 	}
 });

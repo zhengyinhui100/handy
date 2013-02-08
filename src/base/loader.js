@@ -1,59 +1,38 @@
 /**
- * 模块加载类
+ * 资源加载类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * 
  */
 HANDY.add("Loader",["Debug","Object","Function"],function($){
 	
-	var _MODULE_NOT_FOUND= 'Module not found: ',
-    	_nCallIndex=0,      //回调索引，用于并行加载多个模块时，保证回调函数执行一次
-    	_oCallMap={},       //回调状态映射表，用于并行加载多个模块时，保证回调函数执行一次
+	var _RESOURCE_NOT_FOUND= 'Resource not found: ',
+		_eHead=document.head ||document.getElementsByTagName('head')[0] ||document.documentElement,
+		_UA = navigator.userAgent;
+        _bIsWebKit = _UA.indexOf('AppleWebKit');
     	_aContext=[],         //请求上下文堆栈
-	    _oCache={};         //缓存
+	    _oCache={};           //缓存
 	
 	var Loader= {
 		traceLog                : true,                     //是否打印跟踪信息
 		rootPath                : '',                       //根url
+		timeout                 : 15000,
 		skinName                : 'skin',                   //皮肤名称，皮肤css的url里包含的字符串片段，用于检查css是否是皮肤
-		urlMap                  : {},                       //id-url映射表                     
+		urlMap                  : {},                       //id-url映射表    
+		
 	    showLoading				: function(bIsLoading){},	//加载中的提示，由具体逻辑重写
-		define                  : fDefine,                  //定义模块模块
-	    require                 : fRequire                  //获取所需模块后执行回调
+		define                  : fDefine,                  //定义资源资源
+	    require                 : fRequire                  //获取所需资源后执行回调
 	}
 	
-    /**
-	 * 获取回调索引
-	 * @method _fGetCallIndex
-	 * @param {void}
-	 * @return {number}nIndex 返回回调索引
-	 */
-    function _fGetCallIndex(){
-    	var nIndex=++_nCallIndex;
-    	_oCallMap[nIndex]=true;
-    	return nIndex;
-    }
      /**
-	 * 检查对应索引的回调是否可以执行
-	 * @method _fCanExec
-	 * @param {number}nCallIndex 回调索引
-	 * @return {boolean}返回true表示该回调可以执行
-	 */
-    function _fCanExec(nCallIndex){
-    	if(_oCallMap[nCallIndex]){
-    		delete _oCallMap[nCallIndex];
-    		return true;
-    	}
-    	return false;
-    }
-     /**
-	 * 检查对应的模块是否已加载
+	 * 检查对应的资源是否已加载
 	 * @method _fChkExisted
-	 * @param {string|array}id 被检查的模块id
-	 * @return {boolean}返回true表示该模块已经被加载
+	 * @param {string|array}id 被检查的资源id
+	 * @return {boolean}返回true表示该资源已经被加载
 	 */
     function _fChkExisted(id){
     	function _fChk(sId){
-    		return (_oCache[sId]&&_oCache[sId].resource)||$.Object.checkNs(sId);
+    		return /\.(css|js)$/.test(sId)?(_oCache[sId]&&_oCache[sId].status=='loaded'):$.Object.checkNs(sId);
     	}
     	if(typeof id=="string"){
     		return _fChk(id);
@@ -73,7 +52,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
     /**
 	 * 通过id获取实际url
 	 * @method _fGetUrl
-	 * @param {string}sId 模块id
+	 * @param {string}sId 资源id，可以是命名空间，也可以是url
 	 * @return {string}sUrl 实际url
 	 */
     function _fGetUrl(sId){
@@ -107,25 +86,18 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
     	eScript.async = "async";
     	eScript.src=sUrl;
     	eScript.type="text/javascript";
-    	eScript.onload = eScript.onreadystatechange = function() {
-			if (!eScript.readyState||eScript.readyState == "complete" || eScript.readyState == "loaded"){
-				eScript.onload = eScript.onreadystatechange = null;
-				//IE10下新加载的script会在此之后执行，所以此处需延迟执行
-				setTimeout(fCallback,0);
-			}
-		};
-		var eHead = document.head ||document.getElementsByTagName('head')[0] ||document.documentElement;
-		eHead.appendChild(eScript);
+    	_fAddOnload(eScript,fCallback);
+		_eHead.appendChild(eScript);
 	}
 	/**
 	 * 获取css
 	 * @method _getCss
 	 * @param {string}sUrl 请求url
+	 * @param {function}fCallback 回调函数
 	 * @return {void}
 	 */
-    function _fGetCss(sUrl) {
-    	var eHead=document.head ||document.getElementsByTagName('head')[0] ||document.documentElement;
-    	var aStyles=eHead.getElementsByTagName("link");
+    function _fGetCss(sUrl,fCallback) {
+    	var aStyles=_eHead.getElementsByTagName("link");
     	//检查是否已经加载，顺便获取皮肤节点
     	for(var i=0;i<aStyles.length;i++){
     		var sHref=aStyles[i].href;
@@ -140,35 +112,175 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
     	var eCssNode=document.createElement("link");
     	eCssNode.rel="stylesheet";
     	eCssNode.href=sUrl;
+    	_fAddOnload(eCssNode,fCallback);
     	//插入到皮肤css之前
-    	eHead.insertBefore(eCssNode,Loader.skinNode);
+    	_eHead.insertBefore(eCssNode,Loader.skinNode);
+	}
+	/**
+	 * 为css/script资源添加onload事件，包含超时处理
+	 * @method _fAddOnload
+	 * @param {element}eNode 节点
+	 * @param {function}fCallback 回调函数
+	 * @return {void}
+	 */
+	function _fAddOnload(eNode,fCallback){
+		//onload回调函数
+	    function _fCallback() {
+	      if (!_fCallback.isCalled) {
+	        _fCallback.isCalled = true;
+	        clearTimeout(nTimer);
+	        fCallback();
+	      }
+	    }
+	    
+		if (eNode.nodeName === 'SCRIPT') {
+	       _fScriptOnload(eNode, _fCallback);
+	    } else {
+	       _fStyleOnload(eNode, _fCallback);
+	    }
+	
+	    //超时处理
+	    var nTimer = setTimeout(function() {
+	      $.Debug.error('Time is out:', eNode.src);
+	      _fCallback();
+	    }, Loader.timeout);
+	
+	}
+	/**
+	 * script资源onload函数
+	 * @method _fScriptOnload
+	 * @param {element}eNode 节点
+	 * @param {function}fCallback 回调函数
+	 * @return {void}
+	 */
+	function _fScriptOnload(eNode, fCallback) {
+	    eNode.onload = eNode.onerror = eNode.onreadystatechange =function() {
+	        if (/loaded|complete|undefined/.test(eNode.readyState)) {
+	            // 保证只运行一次回调
+	            eNode.onload = eNode.onerror = eNode.onreadystatechange = null;
+	            //防止内存泄露
+	            if (eNode.parentNode) {
+	              try {
+	                if (eNode.clearAttributes) {
+	                  eNode.clearAttributes();
+	                }
+	                else {
+	                  for (var p in eNode) delete eNode[p];
+	                }
+	              } catch (e) {
+	              }
+	              //移除标签
+	              _eHead.removeChild(eNode);
+	            }
+	            eNode = undefined;
+	            //IE10下新加载的script会在此之后执行，所以此处需延迟执行
+				setTimeout(fCallback,0);
+	          }
+	      };
+	   // 注意:在opera下，当文件是404时，不会发生任何事件，回调函数会在超时的时候执行
+	}
+	/**
+	 * css资源onload函数
+	 * @method _fStyleOnload
+	 * @param {element}eNode 节点
+	 * @param {function}fCallback 回调函数
+	 * @return {void}
+	 */
+	function _fStyleOnload(eNode, fCallback) {
+	    // IE6-9 和 Opera
+	    if (window.hasOwnProperty('attachEvent')) { // see #208
+		    eNode.attachEvent('onload', fCallback);
+		    // 注意:
+		    // 1. 在IE6-9下，当文件是404时，onload会被触发，但是在这种情况下，opera下不会被出发，只会出发超时处理；
+		    // 2. onerror事件在所有浏览器中均不会触发
+	    }else {
+	    //Firefox, Chrome, Safari下，采用轮询
+	    	//在eNode插入后开始
+	        setTimeout(function() {
+	        	_fPollStyle(eNode, fCallback);
+	      	}, 0); 
+	    }
+	
+	}
+	/**
+	 * css资源轮询检测
+	 * @method _fPollStyle
+	 * @param {element}eNode 节点
+	 * @param {function}fCallback 回调函数
+	 * @return {void}
+	 */
+	function _fPollStyle(eNode, fCallback) {
+	    if (fCallback.isCalled) {
+	        return;
+	    }
+	    var bIsLoad;
+	    if (_bIsWebKit) {
+	        if (eNode['sheet']) {
+	        	bIsLoad = true;
+	        }
+	    } else if (eNode['sheet']) {
+	    // Firefox
+	        try {
+	            if (eNode['sheet'].cssRules) {
+	          		bIsLoad = true;
+	            }
+	        } catch (ex) {
+	            if (ex.name === 'SecurityError' || // firefox >= 13.0
+	                ex.name === 'NS_ERROR_DOM_SECURITY_ERR') { // 旧的firefox
+	         	    bIsLoad = true;
+	            }
+	        }
+	    }
+	
+	    setTimeout(function() {
+	        if (bIsLoad) {
+	            // 把callback放在这里是因为要给时间给渲染css
+	            fCallback();
+	        } else {
+	            _fPollStyle(eNode, fCallback);
+	        }
+	    }, 1);
 	}
     /**
-	 * 请求模块
+	 * 请求资源
 	 * @method _fRequest
-	 * @param {array}aRequestIds 需要加载的模块id数组
+	 * @param {array}aRequestIds 需要加载的资源id数组
 	 * @return {void}
 	 */
     function _fRequest(aRequestIds){
+    	var bNeedRequest=false;
     	for(var i=0,nLen=aRequestIds.length;i<nLen;i++){
     		var sId=aRequestIds[i];
-    		var sUrl=_fGetUrl(sId);
-    		if(/.css$/.test(sUrl)){
-    			_fGetCss(sUrl);
-    		}else{
-    			_fGetScript(sUrl,$.Function.bind(_fResponse,null,sId)) ;
+    		//不处理已经在请求列表里的资源
+    		if(!_oCache[sId]){
+	    		var sUrl=_fGetUrl(sId);
+    			bNeedRequest=true;
+	    		_oCache[sId]={
+					id:sId,
+					status:'loading'
+				}
+				var _fCallback=$.Function.bind(_fResponse,null,sId);
+	    		if(/.css$/.test(sUrl)){
+	    			_fGetCss(sUrl,_fCallback);
+	    		}else{
+	    			_fGetScript(sUrl,_fCallback) ;
+	    		}
     		}
     	}
-    	Loader.showLoading(true);
+    	//提示loading
+    	if(bNeedRequest){
+    		Loader.showLoading(true);
+    	}
     }
     /**
-	 * 模块下载完成回调
+	 * 资源下载完成回调
 	 * @method _fResponse
-	 * @param {string}sId 模块id
+	 * @param {string}sId 资源id
 	 * @return {void}
 	 */
     function _fResponse(sId){
     	Loader.showLoading(false);
+    	_oCache[sId].status='loaded';
     	//每次回调都循环上下文列表
    		for(var i=_aContext.length-1;i>=0;i--){
 	    	var oContext=_aContext[i];
@@ -183,11 +295,11 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
    		}
     }
     /**
-	 * 定义loader模块
-	 * @method define
-	 * @param {string}sId 模块id
-	 * @param {array}aDeps  依赖的模块
-	 * @param {any}module 模块，可以是函数，也可以是字符串模板
+	 * 定义loader资源
+	 * @method define(sId[,aDeps],factory)
+	 * @param {string}sId   资源id，可以是id、命名空间，也可以是url地址（如css）
+	 * @param {array}aDeps  依赖的资源
+	 * @param {any}factory  资源工厂，可以是函数，也可以是字符串模板
 	 * @return {number}nIndex 返回回调索引
 	 */
 	function fDefine(sId,aDeps,factory){
@@ -203,58 +315,61 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 				try{
 					resource=factory(aExists);
 				}catch(e){
-					//模块定义错误
+					//资源定义错误
 					return;
 				}
 			}else{
 				resource=factory;
 			}
-			_oCache[sId]={
-				id:sId,
-				deps:aDeps,
-				factory:factory,
-				resource:resource
-			}
+			var oCache=_oCache[sId];
+			oCache.deps=aDeps;
+			oCache.factory=factory;
+			oCache.resource=resource;
 			$.Object.namespace(sId,resource);
 		});
 	}
     /**
-	 * 加载所需的模块
+	 * 加载所需的资源
 	 * @method require(id[,fCallback])
-	 * @param {string|array}id 模块id（数组）
+	 * @param {string|array}id    资源id（数组）
 	 * @param {function}fCallback(可选) 回调函数
-	 * @return {any}返回最后一个当前已加载的模块，通常用于className只有一个的情况，这样可以立即通过返回赋值
+	 * @return {any}返回最后一个当前已加载的资源，通常用于className只有一个的情况，这样可以立即通过返回赋值
 	 */
     function fRequire(id,fCallback){
     	var aIds=typeof id=="string"?[id]:id;
-    	//此次required待请求模块数组
+    	//此次required待请求资源数组
     	var aRequestIds=[];
-    	//已加载的模块
+    	//已加载的资源
     	var aExisteds=[];
+    	//是否保存到上下文列表中，保证callback只执行一次
+    	var bNeedContext=true;
     	for(var i=0,nLen=aIds.length;i<nLen;i++){
     		var sId=aIds[i];
     		if(!_fChkExisted(sId)){
-    			//未加载模块放进队列中
+    			//未加载资源放进队列中
     			aRequestIds.push(sId);
-    			_aContext.push({
-    				deps      : aIds,
-    				callback  : fCallback
-    			});
+    			if(bNeedContext){
+    				bNeedContext=false;
+	    			_aContext.push({
+	    				deps      : aIds,
+	    				callback  : fCallback
+	    			});
+    			}
     			if(Loader.traceLog){
-					$.Debug.info(_MODULE_NOT_FOUND+sId);
+					$.Debug.info(_RESOURCE_NOT_FOUND+sId);
 		   		}
     		}else{
     			aExisteds.push(_oCache[sId].resource);
     		}
     	}
     	
-    	//没有需要加载的模块，直接执行回调或返回模块
+    	//没有需要加载的资源，直接执行回调或返回资源
     	if(aRequestIds.length==0){
     		aExisteds=aExisteds.length==1?aExisteds[0]:aExisteds;
     		fCallback&&fCallback(aExisteds);
     		return aExisteds;
     	}else{
-    		//请求模块
+    		//请求资源
     		_fRequest(aRequestIds);
     	}
     }
