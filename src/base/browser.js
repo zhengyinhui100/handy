@@ -29,8 +29,6 @@ HANDY.add("Browser",["Object"],function($){
 	/**
 	 * 初始化
 	 * @method _fInit
-	 * @param {void}
-	 * @return {void}
 	 */
 	function _fInit(){
 		var userAgent = window.navigator.userAgent;
@@ -44,7 +42,6 @@ HANDY.add("Browser",["Object"],function($){
 	 * 分析浏览器类型及版本
 	 * @method _fParseBrowser
 	 * @param {string}userAgent 浏览器userAgent
-	 * @return {void}
 	 */
 	function _fParseBrowser(userAgent){
 		var ua =userAgent;
@@ -60,7 +57,6 @@ HANDY.add("Browser",["Object"],function($){
 	 * 分析浏览器类型及版本
 	 * @method _fParseOs
 	 * @param {string}userAgent 浏览器userAgent
-	 * @return {void}
 	 */
 	function _fParseOs(userAgent){
 		var os;

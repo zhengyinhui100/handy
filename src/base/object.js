@@ -25,8 +25,8 @@ HANDY.add('Object',function($){
     * 创建或读取命名空间，可以传入用以初始化该命名空间的对象
     * @method namespace (sPath[,object])
     * @param {string}sPath 命名空间路径字符串
-    * @param {any}object (可选)用以初始化该命名空间的对象，默认是空对象
-    * @return {object} 如果只传一个路径，返回该路径的命名空间
+    * @param {*}object (可选)用以初始化该命名空间的对象，默认是空对象
+    * @return {Object} 返回该路径的命名空间
     */
 	function fNamespace(sPath,object){
 		var oObject=null, j, aPath, root,len;  
@@ -46,9 +46,9 @@ HANDY.add('Object',function($){
 	}
 	/**
     * 检查命名空间是否存在/正确
-    * @method chkNs(sPath[,fCheck])
+    * @method chkNs(sPath,fCheck=)
     * @param {string}sPath 命名空间路径字符串
-    * @param {function}fCheck (可选)附加检查函数,将该命名空间下的对象作为检查函数的参数，返回检查函数执行结果
+    * @param {function()=}fCheck (可选)附加检查函数,将该命名空间下的对象作为检查函数的参数，返回检查函数执行结果
     * @return {boolean} true表示存在/正确
     */
 	function fCheckNamespace(sPath,fCheck){
@@ -73,8 +73,8 @@ HANDY.add('Object',function($){
 	/**
     * 创建并返回一个类
     * @method createClass
-    * @param {void}
-    * @return {funciton} 返回新创建的类
+    * @param {string}sPath 类路径
+    * @return {Object} 返回新创建的类
     */
     function fCreateClass(sPath) {
         //获得一个类定义，并且绑定一个类初始化方法
@@ -99,14 +99,14 @@ HANDY.add('Object',function($){
     }
 	/**
     * 对象的属性扩展
-    * @method extend(oDestination, oSource [, oOptions])
-    * @param {object} oDestination 目标对象
-    * @param {object} oSource 源对象
-    * @param {object} oOptions(可选){
+    * @method extend(oDestination, oSource , oOptions=)
+    * @param {Object} oDestination 目标对象
+    * @param {Object} oSource 源对象
+    * @param {Object=} oOptions(可选){
     * 				notCover 不覆盖原有属性方法，仅当此参数为true时不覆盖,
     * 				notClone 不克隆，仅当此参数为true时不克隆，此时，由于目标对象里的复杂属性(数组、对象等)是源对象中的引用，源对象的修改会导致目标对象也修改
     * }
-    * @return {object} 扩展后的对象
+    * @return {Object} 扩展后的对象
     */
     function fExtend(oDestination, oSource, oOptions) {
     	var bNotCover=oOptions?oOptions.notCover:false;
@@ -122,11 +122,11 @@ HANDY.add('Object',function($){
     * 自定义的继承方式，可以继承object和prototype，prototype方式继承时，非原型链方式继承。
 	* 如需原型链方式继承使用Object.inherit。
 	* 此继承方式的继承的对象可以是对普通对象或者是prototype对象，并且可以实现多重继承
-    * @param {object} oChild 子对象
-    * @param {object} oParent 父对象
-    * @param {object} oExtend 扩展的属性方法
-    * @param {object} oPrototypeExtend 扩展的prototype属性方法
-    * @return {object} 扩展后的类
+    * @param {Object} oChild 子对象
+    * @param {Object} oParent 父对象
+    * @param {Object} oExtend 扩展的属性方法
+    * @param {Object} oPrototypeExtend 扩展的prototype属性方法
+    * @return {Object} 扩展后的类
     */
     function fMix(oChild, oParent, oExtend, oPrototypeExtend) {
         if (!oChild.superClass) {
@@ -169,9 +169,9 @@ HANDY.add('Object',function($){
     /**
     * prototype的原型链继承
     * @method inherit
-    * @param {object} oChild 子类
-    * @param {object} oParent 父类
-    * @param {object} oExtend 需要扩展的prototype方法集
+    * @param {Object} oChild 子类
+    * @param {Object} oParent 父类
+    * @param {Object} oExtend 需要扩展的prototype方法集
     */
     function fInherit(oChild, oParent, oExtend) {
         var Inheritance = function(){};
@@ -205,7 +205,7 @@ HANDY.add('Object',function($){
     /**
     * 对象是否是函数类型
     * @method isFunction
-    * @param {object} obj 对象
+    * @param {Object} obj 对象
     * @return {boolean} 返回判断结果
     */
     function fIsFunction(obj) {
@@ -214,8 +214,8 @@ HANDY.add('Object',function($){
     /**
     * 对象是否是数组类型
     * method isArray
-    * @param {object} obj 对象
-    * @return {bool} 返回判断结果
+    * @param {Object} obj 对象
+    * @return {boolean} 返回判断结果
     */
     function fIsArray(obj) {
         return window.Object.prototype.toString.call(obj) === "[object Array]";
@@ -223,8 +223,8 @@ HANDY.add('Object',function($){
     /**
     * 对比对象值是否相同
     * @method equals
-    * @param {object} o1 对象1
-    * @param {object} o2 对象2
+    * @param {Object} o1 对象1
+    * @param {Object} o2 对象2
     * @return {boolean} 返回判断结果
     */
     function fEquals(o1, o2) {
@@ -282,8 +282,8 @@ HANDY.add('Object',function($){
 	/**
     * clone一个对象
     * @method clone
-    * @param {object} oFrom 需要clone的对象
-    * @return {object} 返回克隆的对象，如果对象属性不支持克隆，将原来的对象返回
+    * @param {Object} oFrom 需要clone的对象
+    * @return {Object} 返回克隆的对象，如果对象属性不支持克隆，将原来的对象返回
     */
 	function fClone(oFrom){
 		if(oFrom == null || typeof(oFrom) != 'object'){
@@ -315,7 +315,7 @@ HANDY.add('Object',function($){
     /**
     * 对象是否是空
     * @method isEmpty
-    * @param {object}object 参数对象
+    * @param {Object}object 参数对象
     * @return {boolean} 返回判断结果
     */
     function fIsEmpty(object) {
@@ -331,10 +331,9 @@ HANDY.add('Object',function($){
     /**
     * 遍历对象
     * @method each
-    * @param {any}object 参数对象
-    * @param {object}fCallback 回调函数:fCallback(property,value),返回false时退出遍历
-    * @param {any}args  回调函数的参数
-    * @return {void}
+    * @param {*}object 参数对象
+    * @param {Object}fCallback 回调函数:fCallback(property,value),返回false时退出遍历
+    * @param {*}args  回调函数的参数
     */
     function fEach(object, fCallback, args) {
     	var sName, i = 0,
@@ -391,11 +390,11 @@ HANDY.add('Object',function($){
     }
     /**
     * 将类数组对象转换为数组，比如arguments, nodelist
-    * @method toArray(oParam[,nStart,nEnd])
+    * @method toArray(oParam,nStart=,nEnd=)
     * @param {Object}oParam 参数对象
-    * @param {number}nStart 起始位置
-    * @param {number}nEnd   结束位置
-    * @return {array} 返回转换后的数组
+    * @param {number=}nStart 起始位置
+    * @param {number=}nEnd   结束位置
+    * @return {Array} 返回转换后的数组
     */
     var fToArray=(function() {
     	var aMatch=window.navigator.userAgent.match(/MSIE ([\d.]+)/);
@@ -419,10 +418,10 @@ HANDY.add('Object',function($){
     /**
     * 归纳生成类方法
     * @method genMethod
-    * @param {object}oTarget 需要生成方法的对象
-    * @param {string|array}method 需要生成的方法列表，如果是字符串，用","作为分隔符
-    * @param {function}fDefined 方法定义函数，该函数执行后返回方法定义
-    * @return {array} 返回转换后的数组
+    * @param {Object}oTarget 需要生成方法的对象
+    * @param {string|Array.<string>}method 需要生成的方法列表，如果是字符串，用","作为分隔符
+    * @param {function()}fDefined 方法定义函数，该函数执行后返回方法定义
+    * @return {Array} 返回转换后的数组
     */
     function fGenerateMethod(oTarget,method,fDefined){
     	var aMethod=Object.isArray(method)?method:method.split(",");

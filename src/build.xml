@@ -1,0 +1,34 @@
+<project name="handy.build" default="build" basedir=".">
+  <description>Handy Build File</description>
+
+  <property name="module.name" value="handy"/>
+  <property name="module.files" value="*-pkg.js"/>
+  <property name="module.dir" location="."/>
+  <import file="../tools/common-build.xml"/>
+
+
+  <target name="concat">
+    <concat destfile="${module.name}-pkg.js"
+            encoding="${charset}"
+            outputencoding="${charset}">
+
+        <path path="base/base.js"/>
+    	<path path="base/object.js"/>
+
+    </concat>
+  </target>
+
+
+  <target name="finish">
+    <delete>
+      <fileset dir="${module.dir}" includes="${module.files}"/>
+    </delete>
+
+  </target>
+
+
+  <target name="build"
+          depends="concat,common.build,finish">
+  </target>
+
+</project>
