@@ -19,7 +19,7 @@
   </target>
 
 
-  <target name="finish">
+  <target name="clean">
     <delete>
       <fileset dir="${module.dir}" includes="${module.files}"/>
     </delete>
@@ -27,8 +27,7 @@
   </target>
 
 
-  <target name="build"
-          depends="concat,common.build,finish">
+  <target name="build" depends="concat,common.build,clean">
   </target>
 
 </project>
