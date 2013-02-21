@@ -7,8 +7,8 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	
 	var _RESOURCE_NOT_FOUND= 'Resource not found: ',
 		_eHead=document.head ||document.getElementsByTagName('head')[0] ||document.documentElement,
-		_UA = navigator.userAgent;
-        _bIsWebKit = _UA.indexOf('AppleWebKit');
+		_UA = navigator.userAgent,
+        _bIsWebKit = _UA.indexOf('AppleWebKit'),
     	_aContext=[],         //请求上下文堆栈
 	    _oCache={};           //缓存
 	
@@ -32,7 +32,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 */
     function _fChkExisted(id){
     	function _fChk(sId){
-    		return /\.(css|js)$/.test(sId)?(_oCache[sId]&&_oCache[sId].status=='loaded'):$.Object.checkNs(sId);
+    		return /\.(css|js)$/.test(sId)?(_oCache[sId]&&_oCache[sId].status=='loaded'):$.Object.namespace(sId);
     	}
     	if(typeof id=="string"){
     		return _fChk(id);

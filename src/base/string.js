@@ -202,12 +202,13 @@ HANDY.add("String",function(){
 	 * @param  {string} sParam 需要添加到url中的参数
 	 * @return {string} sStr 新组成的字符串
 	 */
-	function fUrlEncode(o, pre){   
+	function fUrlEncode(o, pre){ 
+		/*
 	    var empty,   
 	        buf = [],   
 	        e = encodeURIComponent;   
 	  
-	    Ext.iterate(o, function(key, item){   
+	    Ext.each(o, function(key, item){   
 	        empty = Ext.isEmpty(item);   
 	        Ext.each(empty ? key : item, function(val){   
 	            buf.push('&', e(key), '=', (!Ext.isEmpty(val) && (val != key || !empty)) ? (Ext.isDate(val) ? Ext.encode(val).replace(/"/g, '') : e(val)) : '');   
@@ -218,6 +219,7 @@ HANDY.add("String",function(){
 	        pre = '';   
 	    }   
 	    return pre + buf.join('');   
+	    */
 	}
 	/**
 	 * 在该字符串中增加get需要的参数，如果改字符串代表的url没有get的参数，需要在后面加?，如果有，需要在后面加&

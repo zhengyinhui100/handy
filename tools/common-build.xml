@@ -79,7 +79,7 @@
 			<fileset dir="${tmp.dir}" includes="*-pkg.js"/>
 			<arg line="-jar"/>
 			<arg path="${gcc.jar}"/>
-			<!-- <arg line="-compilation_level SIMPLE_OPTIMIZATIONS"/> -->
+			<arg line="--compilation_level SIMPLE_OPTIMIZATIONS"/>
 			<!--<arg line="-compilation_level ADVANCED_OPTIMIZATIONS"/>-->
 
 			<!-- http://code.google.com/p/closure-compiler/wiki/Warnings -->
@@ -97,6 +97,17 @@
 			<srcfile/>
 			<arg line="--js_output_file ${filename}.js"/>
 		</apply>
+		
+		<!-- 用 YUICompressor 压缩 JS 
+		<apply executable="java" verbose="true" dir="${tmp.dir}">
+			<fileset dir="${tmp.dir}" includes="*-pkg.js"/>
+			<arg line="-jar"/>
+			<arg path="${yc.jar}"/>
+			<arg line="-charset ${charset}"/>
+			<srcfile/>
+			<arg line="-o ${filename}.js"/>
+		</apply>
+		-->
 
 		<delete>
 			<fileset dir="${tmp.dir}" includes="*-pkg.js"/>

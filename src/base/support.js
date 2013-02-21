@@ -10,7 +10,7 @@ HANDY.add('Support',['Browser'],function($){
 	//解决IE6下css背景图不缓存bug
 	if($.Browser.ie()==6){   
 	    try{   
-	        DOC.execCommand("BackgroundImageCache", false, true);   
+	        document.execCommand("BackgroundImageCache", false, true);   
 	    }catch(e){}   
 	}  
 	

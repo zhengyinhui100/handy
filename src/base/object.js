@@ -6,7 +6,6 @@ HANDY.add('Object',function($){
 	
 	var Object={
 		namespace           : fNamespace,       //创建或读取命名空间，可以传入用以初始化该命名空间的对象
-		checkNs             : fCheckNamespace,  //检查命名空间是否存在/正确
 		createClass         : fCreateClass,     //创建类
 		extend              : fExtend,          //对象的属性扩展
 		mix                 : fMix,             //自定义的继承方式，可以继承object和prototype，prototype方式继承时，非原型链方式继承。
@@ -22,53 +21,30 @@ HANDY.add('Object',function($){
 		genMethod           : fGenerateMethod   //归纳生成类方法
 	}
 	/**
-    * 创建或读取命名空间，可以传入用以初始化该命名空间的对象
+    * 创建或读取命名空间
     * @method namespace (sPath[,object])
     * @param {string}sPath 命名空间路径字符串
-    * @param {*}object (可选)用以初始化该命名空间的对象，默认是空对象
-    * @return {Object} 返回该路径的命名空间
+    * @param {*}object (可选)用以初始化该命名空间的对象
+    * @return {?Object} 返回该路径的命名空间，不存在则返回undefined
     */
-	function fNamespace(sPath,object){
+	function fNamespace(sPath,obj){
 		var oObject=null, j, aPath, root,len;  
         aPath=sPath.split(".");  
-        root = aPath[0];  
-        eval('if (typeof ' + root + ' == "undefined"){' + root + ' = {};} oObject = ' + root + ';');  
+        root = aPath[0]; 
+        //考虑压缩的因素
+        oObject=eval('(function(){if (typeof ' + root + ' == "undefined"){' + root + ' = {};}return ' + root + ';})()');  
         //循环命名路径
         for (j=1,len=aPath.length; j<len; ++j) { 
-        	if(j==len-1&&object){
-        		oObject[aPath[j]]=object;
+        	if(j==len-1&&obj){
+        		oObject[aPath[j]]=obj;
+        	}else if(obj||oObject[aPath[j]]){
+	            oObject[aPath[j]]=oObject[aPath[j]]||{};  
         	}else{
-	            oObject[aPath[j]]=oObject[aPath[j]] || {};  
+        		return;
         	}
             oObject=oObject[aPath[j]];  
         } 
     	return oObject;
-	}
-	/**
-    * 检查命名空间是否存在/正确
-    * @method chkNs(sPath,fCheck=)
-    * @param {string}sPath 命名空间路径字符串
-    * @param {function()=}fCheck (可选)附加检查函数,将该命名空间下的对象作为检查函数的参数，返回检查函数执行结果
-    * @return {boolean} true表示存在/正确
-    */
-	function fCheckNamespace(sPath,fCheck){
-        var aPath=sPath.split(".");  
-        var root = aPath[0],oObject,isExist=true;  
-        eval('if(typeof ' + root + ' == "undefined"){isExist= false;}else{oObject = ' + root + ';}');  
-        if(!isExist){
-        	return false;
-        }
-        //循环命名路径
-        for (var j=1,nLen=aPath.length; j<nLen; ++j) {  
-        	var oCurrent=oObject[aPath[j]];
-        	if(!oCurrent){
-        		return false;
-        	}else if(j==nLen-1&&fCheck){
-        		return fCheck(oCurrent);
-        	}
-            oObject=oCurrent;  
-        } 
-        return oObject;
 	}
 	/**
     * 创建并返回一个类
