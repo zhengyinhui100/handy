@@ -1,46 +1,74 @@
 <project name="handy.build" default="build" basedir=".">
-  <description>Handy Build File</description>
+	<description>Handy Build File</description>
 
-  <property name="module.name" value="handy"/>
-  <property name="module.files" value="*-pkg.js"/>
-  <property name="module.dir" location="."/>
-  <import file="../tools/common-build.xml"/>
+	<property name="module.name" value="handy"/>
+	<property name="module.files" value="*-pkg.js"/>
+	<property name="module.dir" location="."/>
+	<import file="../tools/common-build.xml"/>
 
 
-  <target name="concat">
-    <concat destfile="${module.name}-pkg.js"
+	<target name="base">
+		<concat destfile="${module.name}-pkg.js"
             encoding="${charset}"
             outputencoding="${charset}">
 
-    	<!-- base -->
-        <path path="base/base.js"/>
-    	<path path="base/object.js"/>
-    	<path path="base/core.js"/>
-    	<path path="base/date.js"/>
-    	<path path="base/browser.js"/>
-    	<path path="base/string.js"/>
-    	<path path="base/cookie.js"/>
-    	<path path="base/util.js"/>
-    	<path path="base/function.js"/>
-    	<path path="base/debug.js"/>
-    	<path path="base/loader.js"/>
-    	<path path="base/support.js"/>
-    	
-    	
-    	
-    </concat>
-  </target>
+			<!-- base -->
+			<path path="base/base.js"/>
+			<path path="base/object.js"/>
+			<path path="base/core.js"/>
+			<path path="base/date.js"/>
+			<path path="base/browser.js"/>
+			<path path="base/string.js"/>
+			<path path="base/cookie.js"/>
+			<path path="base/util.js"/>
+			<path path="base/function.js"/>
+			<path path="base/debug.js"/>
+			<path path="base/loader.js"/>
+			<path path="base/support.js"/>
+
+		</concat>
+	</target>
+
+	<!--  component -->
+	<target name="component">
+		<concat destfile="${module.name}-pkg.js"
+	            encoding="${charset}"
+	            outputencoding="${charset}"
+				append="true">
+			
+			<path path="base/adapt.js"/>
+			<path path="component/component.js"/>
+			<path path="component/treemenu.js"/>
+			<path path="component/accordionmenu.js"/>
+			<path path="component/tipsbox.js"/>
+
+		</concat>
+	</target>
+	
+	<!--  module -->
+	<target name="module">
+		<concat destfile="${module.name}-pkg.js"
+	            encoding="${charset}"
+	            outputencoding="${charset}"
+				append="true">
+
+			<path path="module/modulemanager.js"/>
+
+		</concat>
+	</target>
 
 
-  <target name="clean">
-    <delete>
-      <fileset dir="${module.dir}" includes="${module.files}"/>
-    </delete>
+	<target name="clean">
+		<delete>
+			<fileset dir="${module.dir}" includes="${module.files}"/>
+		</delete>
 
-  </target>
-
-
-  <target name="build" depends="concat,common.build,clean">
-  </target>
+	</target>
+	
+	<target name="build.all" depends="base,component,module">
+	</target>
+	
+	<target name="build" depends="build.all,common.build,clean">
+	</target>
 
 </project>

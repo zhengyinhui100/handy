@@ -5,3 +5,8 @@ var console;
 
 var HANDY;
 var JSON;
+var $;
+var $H;
+var $HO;
+var $HS;
+var $G;

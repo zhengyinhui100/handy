@@ -1749,4 +1749,531 @@ HANDY.add('Support',['Browser'],function($){
 	
 	return Support;
 	
-})
+})/**
+ * 
+ */
+(function($){
+	
+	//框架全局变量
+	$H=$.noConflict();
+	$HO=$H.Object;
+	$HS=$H.String;
+
+
+	//系统全局变量
+	$G={
+			config:{}
+	};
+	
+	/*var $$=window.$;
+	var ajax=$$.ajax;
+	$$.ajax=$.Function.intercept($$.ajax,function(){
+		console.log("intercept");
+	},$$);*/
+	
+	
+})(HANDY)//组件基类
+
+
+(function(){
+	
+	var Component=$HO.createClass("hui.component.Component");
+	
+	//静态方法
+	$HO.extend(Component,{
+		
+		_expando   : "_handy_", // 组件id前缀
+		_template  : '<div id="<%=this.id%>"><%=this.html%></div>', // 组件html模板, 模板必须有一个最外层的容器
+		
+		
+		/**
+		 * 
+		 * @param {object}settings 初始化参数 {
+		 * 			{any}data 数据
+		 * }
+		 */
+		render:function(settings){
+			return new this(settings);
+		},
+		/**
+		 * 
+		 * @param {object}settings 初始化参数 {
+		 * 			{any}data 数据
+		 * }
+		 */
+		html:function(settings,parentComponent){
+			settings.notListener=true;
+			settings.notRender=true;
+			var component=new this(settings);
+			if(parentComponent){
+				parentComponent.children.push(component);
+			}
+			return component.getHtml();
+		}
+	});
+	
+	//类方法
+	$HO.extend(Component.prototype,{
+		
+		ctype:'component',
+		
+		/**
+		 * 
+		 * @param {object}settings 初始化参数 {
+		 * 			{any}data 数据
+		 * }
+		 */
+		initialize:function(settings){
+			var that=this;
+			that.doConfig(settings);
+			//组件html
+			that.initHtml(settings);
+			var cHtml=that.chtml;
+			var template=cHtml.indexOf('<%=this.id%>')>-1?cHtml:Component._template;
+			var html=that.html=$H.Template.compile(template,{
+				id:that.id,
+				html:that.chtml
+			});
+			if(settings.notRender!=true){
+				that.renderTo.append(html);
+				//缓存容器
+				that.container=$("#"+that.id);
+			}
+			
+			if(settings.notListener!=true){
+				if(that.delayInitListener){
+					setTimeout(function(){
+						that.initListener();
+					});
+				}else{
+					that.initListener();
+				}
+			}
+		},
+		
+		doConfig:function(settingParams){
+			var that=this;
+			var settings=that.settings={};
+			$HO.extend(settings,settingParams);
+			if(settings.renderTo){
+				that.renderTo=$(settings.renderTo);
+			}else{
+				that.renderTo=$(document.body);
+			}
+			that.children=[];
+			//组件id
+			that.id=Component._expando+that.constructor.ctype+"_"+$H.Util.getUuid();
+		},
+		
+		getId:function(){
+			
+		},
+		
+		initHtml:function(){
+		},
+		
+		getHtml:function(){
+			return this.html;
+		},
+		
+		initListener:function(){
+			var that=this;
+			//缓存容器
+			that.container=that.container||$("#"+that.id);
+			var children=that.children;
+			for(var i=0,len=children.length;i<len;i++){
+				if(children.settings.notListener){
+					children.initListener();
+				}
+			}
+		},
+		
+		find:function(selector){
+			return this.container.find(selector);
+		},
+		
+		hide:function(){
+			this.container.hide();
+		},
+		
+		destroy:function(){
+			this.container.remove();
+		}
+		
+	});
+	
+})();
+
+//树形菜单
+
+
+(function(){
+	
+	var TreeMenu=$HO.createClass("hui.component.TreeMenu");;
+	
+	
+	$HO.inherit(TreeMenu,$HO.namespace("hui.component.Component"),{
+		
+		/**
+		 * 
+		 * @param {object}settings 初始化参数 {
+		 * 			{any}data 数据
+		 * }
+		 */
+		initialize:function(settings){
+			var that=this;
+			TreeMenu.superClass.initialize.call(that,settings);
+		},
+		
+		initHtml:function(settings){
+			var that=this;
+			that.chtml=that.createMenu(settings.data).join('');
+		},
+		
+		createMenu:function(menus,html,marginLeft){
+			var that=this;
+			//是否是第一级菜单
+			var isFirst=!!!html;
+			var html=html||[];
+			var marginLeft=marginLeft||0;
+			//除第一级菜单外，其他默认隐藏
+			html.push('<ul class="menu-tree"',isFirst?'':' style="display:none"','>');
+			for(var i=0,len=menus.length;i<len;i++){
+				var menu=menus[i];
+				var hasChildren=!!menu.childMenus;
+				html.push(
+					'<li><a class="menu-tree-item">',
+							//每级缩进
+							'<span class="gi ',hasChildren?'gi-plus':'gi-minus','"',marginLeft?'style="margin-left:'+marginLeft+'px"':'','></span>',
+							menu.menuName,
+						'</a>'
+				);
+				if(hasChildren){
+					that.createMenu(menu.childMenus,html,marginLeft+20);
+				}
+				html.push('</li>');
+			}
+			html.push('</ul>');
+			return html;
+		},
+		
+		initListener:function(){
+			var that=this;
+			TreeMenu.superClass.initListener.call(that);
+			var container=that.container;
+			//展开/收起子菜单事件
+			container.delegate('.gi','click',function(event){
+				var icon=$(this);
+				var childMenu=icon.parent().next('ul');
+				if(childMenu.length==0){
+					return;
+				}
+				if(icon.attr("class").indexOf('gi-plus')>-1){
+					icon.attr("class","gi gi-minus");
+					childMenu.show();
+				}else{
+					icon.attr("class","gi gi-plus");
+					childMenu.hide();
+				}
+			});
+		}
+	});
+	
+	$HO.extend(TreeMenu,{
+		ctype:'treemenu'
+	});
+	
+	
+})();//手风琴菜单
+
+
+(function(){
+	
+	var AccordionMenu=$HO.createClass("hui.component.AccordionMenu");;
+	
+	$HO.inherit(AccordionMenu,$HO.namespace("hui.component.Component"),{
+		
+		/**
+		 * 
+		 * @param {object}settings 初始化参数 {
+		 * 			{any}data 数据
+		 * }
+		 */
+		initialize:function(settings){
+			var that=this;
+			AccordionMenu.superClass.initialize.call(that,settings);
+			that.setSize();
+		},
+		
+		doConfig:function(settings){
+			var that=this;
+			AccordionMenu.superClass.doConfig.call(that,settings);
+		},
+		
+		initHtml:function(settings){
+			var that=this;
+			var data=settings.data;
+			var html=[
+			    '<ul class="menu-accordion" style="height:',that.settings.height,'px">'
+			];
+			for(var i=0,len=data.length;i<len;i++){
+				var menu=data[i];
+				var childHtml=menu.childMenus.length>0?$H.TreeMenu.html({data:menu.childMenus}):'';
+				html.push(
+					'<li>',
+						'<a href="javascript:;" data-url="',menu.menuUrl,'" class="menu-accordion-item"><span class="gi ',menu.icon||'gi-Operation-maintenance','"></span>',menu.menuName,'</a>',
+						'<div class="js-content" style="display:none;','">',
+						childHtml,
+						'</div>',
+					'</li>');
+			}
+			html.push('</ul>');
+			that.chtml=html.join('');
+		},
+		
+		setSize:function(height){
+			var that=this;
+			var settings=that.settings;
+			var h=that.height=height||settings.height||that.renderTo.height();
+			var contentHeight=h-settings.data.length*43;
+			that.container.find('.js-content').height(contentHeight);
+		},
+		
+		open:function(param){
+			var that=this;
+			that.container.find(".menu-accordion-item[data-url='"+param.menuUrl+"']").click();
+		},
+		
+		initListener:function(){
+			var that=this;
+			AccordionMenu.superClass.initListener.call(that);
+			var container=that.container;
+			var settings=that.settings;
+			//展开/收起子菜单事件
+			container.delegate('.menu-accordion-item','click',function(event){
+				var menuItem=$(this);
+				var itemClick=settings.itemClick;
+				if(itemClick){
+					itemClick(menuItem);
+				}
+				var childMenu=menuItem.next('.js-content');
+				if(menuItem.attr("class").indexOf('js-open')>-1){
+					return;
+				}
+				container.find('.js-open').removeClass("js-open accordion-item-active").next('.js-content').hide();
+				menuItem.addClass('js-open accordion-item-active');
+				if(childMenu.children().length>0){
+					childMenu.show();
+				}
+			});
+		}
+	});
+	
+	$HO.extend(AccordionMenu,{
+		ctype:'accordionMenu'
+	});
+	
+	
+})();//浮层提示框
+
+
+(function(){
+	
+	var TipsBox=$HO.createClass("hui.component.TipsBox");;
+	
+	
+	$HO.inherit(TipsBox,$HO.namespace("hui.component.Component"),{
+		
+		delayInitListener:true,
+		
+		/**
+		 * 
+		 * @param {object}settings 初始化参数 {
+		 * 			{any}data 数据
+		 * }
+		 */
+		initialize:function(settings){
+			var that=this;
+			//下次调用时需要关闭之前的实例
+			if(TipsBox.current){
+				TipsBox.current.destroy();
+			}
+			TipsBox.current=that;
+			TipsBox.superClass.initialize.call(that,settings);
+			that.show();
+		},
+		
+		doConfig:function(settings){
+			var that=this;
+			TipsBox.superClass.doConfig.call(that,settings);
+		},
+		
+		initHtml:function(settings){
+			var that=this;
+			var html=[
+			    '<div id="<%=this.id%>" class="c-tipsbox ',settings.extClass||'','" style="',settings.width?'width:'+settings.width+'px':'','">',
+					'<div class="w-triangle-top">',
+						'<div class="w-triangle-top w-triangle-inner"></div>',
+					'</div>'];
+			if(!settings.noTitle){
+				html.push(
+						'<div class="c-tipsbox-header">',
+						settings.title,
+						'</div>'
+				);
+			}
+			html.push(
+					'<div class="c-tipsbox-content">',
+					settings.content,
+					'</div>',
+					'<div class="w-triangle-bottom" style="display:none">',
+						'<div class="w-triangle-bottom w-triangle-inner"></div>',
+					'</div>',
+					'</div>'
+			);
+			that.chtml=html.join('');
+		},
+		
+		show:function(){
+			// 设置定位坐标
+			var that=this;
+			var trigger=that.settings.trigger;
+			var triggerPos=trigger.position();
+			var tipsbox=that.container;
+			var doc=document;
+			
+			var width=tipsbox.width();
+			var height=tipsbox.height();
+			var bodyWidth=doc.documentElement.offsetWidth || doc.body.offsetWidth;
+			var bodyHeight=doc.documentElement.clientHeight || doc.body.clientHeight+ document.body.scrollTop;
+			var triggerWidth=trigger.width();
+			var triggerHeight=trigger.height();
+			
+			/*console.log(triggerPos)
+			console.log(triggerWidth)
+			console.log(triggerHeight)
+			console.log(bodyHeight)
+			console.log(bodyWidth)
+			console.log(width)
+			console.log(height)*/
+			
+			var x = triggerPos.left+ triggerWidth/2;
+			var y = triggerPos.top;
+			
+			//默认右下角显示
+			var passivePos="rightBottom";
+			var passiveTop=y+triggerHeight+height>bodyHeight;
+			if(x+width>bodyWidth){
+				if(passiveTop){
+					passivePos="leftTop";
+				}else{
+					passivePos="leftBottom";
+				}
+			}else if(passiveTop){
+				passivePos="rightTop";
+			}
+			
+			var posType=that.settings.position||passivePos;
+			if(posType=="leftBottom"){
+				//10是三角形尖到提示框上边界的距离
+				y=y+triggerHeight+10;
+				x=x-width;
+				tipsbox.find('.w-triangle-top').css({
+					right:'10px'
+				});
+			}else if(posType=="rightBottom"){
+				y=y+triggerHeight+10;
+				//20是三角形尖到提示框左边界的距离
+				x-=20;
+			}else if(posType=="leftTop"){
+				y=y-height;
+				x=x-width;
+				tipsbox.find('.w-triangle-top').hide();
+				tipsbox.find('.w-triangle-bottom').css({
+					right:'10px'
+				}).show();
+			}else if(posType=="rightTop"){
+				//12是三角形的高度
+				y=y-height-12;
+				//20是三角形尖到提示框左边界的距离
+				x-=20;
+				tipsbox.find('.w-triangle-top').hide();
+				tipsbox.find('.w-triangle-bottom').show();
+			}
+			
+			tipsbox.css({
+				left:x + "px",
+				top:y-(that.settings.offsetTop||0) + "px"
+			});
+		},
+		
+		position:function(){
+			
+		},
+		
+		hide:function(){
+			var that=this;
+			that.container.hide();
+		},
+		
+		initListener:function(){
+			var that=this;
+			TipsBox.superClass.initListener.call(that);
+			var notClose=false;
+			that.container.click(function(event){
+				notClose=true;
+			});
+			$(document).click(function(event){
+				if(!notClose){
+					that.hide();
+				}
+				notClose=false;
+			});
+		}
+	});
+	
+	$HO.extend(TipsBox,{
+		ctype:'TipsBox'
+	});
+	
+	
+})();
+
+(function(){
+	
+	var ModuleManager=$HO.createClass("hui.module.ModuleManager");
+	
+	$HO.extend(ModuleManager,{
+		
+		go:function(params){
+			var that=this;
+			var moduleName=params.moduleName;
+			var moduleUrl=params.moduleUrl;
+			var url=params.moduleUrl||that.getModUrl(moduleName);
+			$("#contentIframe").attr("src",url);
+			var hash=location.hash;
+			if(moduleName){
+				if(hash.indexOf("module=")>0){
+					hash=hash.replace(/module=[^&]+/, "module="+moduleName);
+				}else{
+					hash+="#module="+moduleName;
+				}
+			}
+			if(moduleUrl){
+				if(hash.indexOf("moduleUrl=")>0){
+					hash=hash.replace(/moduleUrl=[^&]+/, "moduleUrl="+moduleUrl);
+				}else{
+					hash+="#moduleUrl="+moduleUrl;
+				}
+			}
+			location.hash=hash;
+		},
+		
+		getModUrl:function(moduleName){
+			return $G.config.moduleUrl[moduleName];
+		}
+
+	});
+	
+	
+})();
