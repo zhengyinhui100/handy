@@ -2,6 +2,7 @@
 
 //fixed variable console is undeclared
 var console;
+var parent;
 
 var HANDY;
 var JSON;
@@ -10,3 +11,14 @@ var $H;
 var $HO;
 var $HS;
 var $G;
+var $gUrlPrefix;
+var jQuery;
+var $MenuConf;
+var $Url;
+var $M;
+var $TreeMenu;
+var $AccordionMenu;
+var $Dialog;
+var $TipsBox;
+var KindEditor;
+var $portalImageUrl;

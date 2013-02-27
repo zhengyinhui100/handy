@@ -1,18 +1,24 @@
 <project name="common-build" basedir=".">
 	<description>Common Build File</description>
 
-
 	<dirname property="current.dir" file="${ant.file.common-build}"/>
 	<property name="root.dir" location="${current.dir}/../"/>
-	<property name="tmp.dir" location="${root.dir}/dist/tmp/"/>
+	<property name="build.dir" location="${root.dir}/build/"/>
+	<property name="tmp.dir" location="${build.dir}/tmp/"/>
+	<property name="package.js" value="**/*-pkg.js"/>
+	<property name="package.css" value="**/*-pkg.css"/>
+
 	<property name="gcc.jar" location="${current.dir}/compiler.jar"/>
 	<property name="yc.jar" location="${current.dir}/yuicompressor.jar"/>
+	<property name="less.jar" location="${current.dir}/less2css.jar"/>
 
 	<property name="version" value="1.0.0-dev"/>
 	<property name="charset" value="utf-8"/>
-	<property name="copyright.files" value="*.css, *.js"/>
-	<property name="filename" value="${module.name}"/>
-	
+	<property name="css.files" value="**/*.css"/>
+	<property name="js.files" value="**/*.js"/>
+	<property name="all.files" value="${css.files},${js.files}"/>
+	<property name="filename" value="${project.name}"/>
+
 
 	<taskdef resource="net/sf/antcontrib/antlib.xml" >
 		<classpath>
@@ -20,21 +26,39 @@
 		</classpath>
 	</taskdef>
 
-	<!-- 用 gslint 检查 -->
+	<!-- 用 gjslint 检查 -->
 	<target name="gjslint">
 		<exec executable="/usr/local/bin/gjslint" os="Mac OS X" failonerror="true">
-			<arg line="*.js"/>
+			<arg line="${js.files}"/>
 		</exec>
 	</target>
 
+	<!-- 编译less -->
+	<target name="compile-less">
+		<java jar="${less.jar}" failonerror="true" fork="true">
+			<arg line="../less"/>
+			<arg line="../css"/>
+		</java>
+	</target>
 
 	<!-- 清空、复制等准备工作 -->
 	<target name="prepare">
 		<delete dir="${tmp.dir}"/>
 		<mkdir dir="${tmp.dir}"/>
 		<copy todir="${tmp.dir}">
-			<fileset dir="${module.dir}" includes="${module.files}"/>
+			<fileset dir="${project.dir}">
+				<include name="${package.js}"/>
+				<include name="${package.css}"/>
+			</fileset>
 		</copy>
+		<!--
+		<copy todir="${tmp.dir}/js">
+			<fileset dir="${js.dir}" includes="${package.js}"/>
+		</copy>
+		<copy todir="${tmp.dir}/css">
+			<fileset dir="${css.dir}" includes="${package.css}"/>
+		</copy>
+		-->
 
 		<!-- 版本号替换 -->
 		<replaceregexp match="%VERSION%"
@@ -54,8 +78,28 @@
 	</target>
 
 
-	<!-- 压缩代码 -->
-	<target name="compress">
+	<!-- 压缩css代码 -->
+	<target name="compress-css">
+
+		<!-- 用 YUICompressor 压缩 CSS -->
+		<apply executable="java" verbose="true" dir="${tmp.dir}/css">
+			<fileset dir="${tmp.dir}" includes="${package.css}"/>
+			<arg line="-jar"/>
+			<arg path="${yc.jar}"/>
+			<arg line="--charset ${charset}"/>
+			<srcfile/>
+			<arg line="-o ${filename}.min.css"/>
+		</apply>
+		
+		<!-- 删除CSS打包文件 -->
+		<delete>
+			<fileset dir="${tmp.dir}" includes="${package.css}"></fileset>
+		</delete>
+
+	</target>
+	
+	<!-- 压缩js代码 -->
+	<target name="compress-js">
 		<!-- DEBUG 替换 -->
 		<replaceregexp match="%DEBUG%"
                    replace=""
@@ -64,19 +108,9 @@
 			<fileset dir="${tmp.dir}" includes="*-pkg.js"/>
 		</replaceregexp>
 
-		<!-- 用 YUICompressor 压缩 CSS -->
-		<apply executable="java" verbose="true" dir="${tmp.dir}">
-			<fileset dir="${tmp.dir}" includes="*.css"/>
-			<arg line="-jar"/>
-			<arg path="${yc.jar}"/>
-			<arg line="--charset ${charset}"/>
-			<srcfile/>
-			<arg line="-o ${filename}.css"/>
-		</apply>
-
 		<!-- 用 Google Closure Compiler 压缩 JS -->
 		<apply executable="java" verbose="true" dir="${tmp.dir}" failonerror="true">
-			<fileset dir="${tmp.dir}" includes="*-pkg.js"/>
+			<fileset dir="${tmp.dir}" includes="${package.js}"/>
 			<arg line="-jar"/>
 			<arg path="${gcc.jar}"/>
 			<arg line="--compilation_level SIMPLE_OPTIMIZATIONS"/>
@@ -93,12 +127,14 @@
 
 			<arg line="--externs ${current.dir}/extern.js"/>
 
+			<arg line="--js_output_file"/>
+			<targetfile />
 			<arg line="--js"/>
-			<srcfile/>
-			<arg line="--js_output_file ${filename}.js"/>
+			<globmapper from="*-pkg.js" to="${tmp.dir}/*.min.js" />
+			
 		</apply>
-		
-		<!-- 用 YUICompressor 压缩 JS 
+
+		<!-- 用 YUICompressor 压缩 JS （后备）
 		<apply executable="java" verbose="true" dir="${tmp.dir}">
 			<fileset dir="${tmp.dir}" includes="*-pkg.js"/>
 			<arg line="-jar"/>
@@ -110,7 +146,7 @@
 		-->
 
 		<delete>
-			<fileset dir="${tmp.dir}" includes="*-pkg.js"/>
+			<fileset dir="${tmp.dir}" includes="${package.js}"/>
 		</delete>
 	</target>
 
@@ -124,12 +160,12 @@
 
 		<mkdir dir="${tmp.dir}/cp"/>
 		<move todir="${tmp.dir}/cp">
-			<fileset dir="${tmp.dir}" includes="${copyright.files}"/>
+			<fileset dir="${tmp.dir}" includes="${all.files}"/>
 		</move>
 
 		<for param="file">
 			<path>
-				<fileset dir="${tmp.dir}/cp" includes="${copyright.files}"/>
+				<fileset dir="${tmp.dir}/cp" includes="${all.files}"/>
 			</path>
 			<sequential>
 				<concat destfile="@{file}.tmp" encoding="${charset}"
@@ -143,7 +179,7 @@
 		</for>
 
 		<move todir="${tmp.dir}">
-			<fileset dir="${tmp.dir}/cp" includes="${copyright.files}"/>
+			<fileset dir="${tmp.dir}/cp" includes="${all.files}"/>
 		</move>
 		<delete dir="${tmp.dir}/cp"/>
 	</target>
@@ -152,14 +188,18 @@
 	<!-- 扫尾工作 -->
 	<target name="destroy">
 		<move todir="${tmp.dir}/../">
-			<fileset dir="${tmp.dir}" includes="*.js,*.css"/>
+			<fileset dir="${tmp.dir}" includes="${all.files}"/>
 		</move>
 		<delete dir="${tmp.dir}"/>
 	</target>
 
 
+	<target name="common.build.js"
+          depends="prepare,compress-js,copyright,destroy">
+	</target>
+	
 	<target name="common.build"
-          depends="prepare,compress,copyright,destroy">
+          depends="compile-less,prepare,compress-js,compress-css,copyright,destroy">
 	</target>
 
 </project>

@@ -1,53 +1,103 @@
-<project name="seajs.build" default="build" basedir=".">
-  <description>SeaJS Build File</description>
+<project name="project.build" default="build" basedir=".">
+	<description>Project Build File</description>
 
-  <property name="module.name" value="sea"/>
-  <property name="module.files" value="*-pkg.js"/>
-  <property name="module.dir" location="."/>
-  <import file="../tools/common-build.xml"/>
+	<property name="project.name" value="gops"/>
+	<property name="project.dir" location="../"/>
+	<property name="project.tmp.dir" location="../tmp"/>
+	<property name="js.dir" location="../js"/>
+	<property name="css.dir" location="../css"/>
+	
+	<import file="./common-build.xml"/>
 
+	
+	<target name="clean">
+		<delete dir="${project.dir}/build">
+		</delete>
+	</target>
 
-  <target name="concat">
-    <concat destfile="${module.name}-pkg.js"
-            encoding="${charset}"
-            outputencoding="${charset}">
+	<!-- 全部构建 -->
+    <target name="package">
+    	
+        <!-- 打包handy -->
+        <subant target="package.all" failonerror="false" inheritall="false">
+            <fileset dir="${js.dir}" includes="**/build.xml"/>
+        </subant>
+    	
+    	<!-- 打包初始js -->
+    	<concat destfile="${js.dir}/${project.name}-pkg.js"
+    	            encoding="${charset}"
+    	            outputencoding="${charset}">
 
-      <path path="sea.js"/>
+			<path path="${js.dir}/handy/handy-pkg.js"/>
+			<path path="${js.dir}/common/common.js"/>
+			<path path="${js.dir}/start.js"/>
+		</concat>
+    	
+    	<!-- 删除handy过程文件 -->
+    	<delete file="${js.dir}/handy/handy-pkg.js"></delete>
+    	
+    	<!-- 打包模块js -->
+    	<copy todir="${js.dir}/modules">	
+		    <fileset dir="${js.dir}/modules">
+		    	<exclude name="*-pkg.js"/>
+		    </fileset>
+		    <globmapper from="*.js" to="*-pkg.js"/>
+    	</copy>
+    	
+    	<!-- 打包第三方插件js -->
+    	<copy todir="${js.dir}/plugins">	
+		    <fileset dir="${js.dir}/plugins">
+		    	<include name="*.js"/>
+		    	<exclude name="*.min.js"/>
+		    	<exclude name="*-pkg.js"/>
+		    	<exclude name="*-debug.js"/>
+		    </fileset>
+		    <globmapper from="*.js" to="*-pkg.js"/>
+    	</copy>
+    	
+    	<!-- 打包css -->
+    	<concat destfile="${css.dir}/${project.name}-pkg.css"
+    	    	            encoding="${charset}"
+    	    	            outputencoding="${charset}">
 
-      <path path="util-lang.js"/>
-      <path path="util-error.js"/>
-      <path path="util-path.js"/>
-      <path path="util-fetch.js"/>
+			<path path="${css.dir}/reset.css"/>
+    		<path path="${css.dir}/common.css"/>
+			<path path="${css.dir}/widget.css"/>
+			<path path="${css.dir}/buttons.css"/>
+			<path path="${css.dir}/forms.css"/>
+			<path path="${css.dir}/main.css"/>
+			<path path="${css.dir}/commonsearch.css"/>
+    		
+		</concat>
+    	
+    </target>
+	
+	<!-- 其它 -->
+	<target name="other">
+		<copy todir="${build.dir}/js/kindeditor">	
+		    <fileset dir="${js.dir}/kindeditor">
+		    </fileset>
+    	</copy>
+		<copy todir="${build.dir}/js/plugins">	
+		    <fileset dir="${js.dir}/plugins">
+		    	<include name="*.min.js"/>
+		    	<include name="*-debug.js"/>
+		    </fileset>
+    	</copy>
+	</target>
+	
+	<!-- 清理临时文件 -->
+	<target name="finish">
+		<delete>
+			<fileset dir="${js.dir}" includes="${package.js}"/>
+		</delete>
+		<delete>
+			<fileset dir="${css.dir}" includes="${package.css}"/>
+		</delete>
+	</target>
 
-      <path path="fn-module.js"/>
-      <path path="fn-define.js"/>
-      <path path="fn-require.js"/>
-      <path path="fn-load.js"/>
-      <path path="fn-config.js"/>
-
-      <path path="plugins/plugin-init.js"/>
-      <path path="fn-bootstrap.js"/>
-      <path path="sea-api.js"/>
-
-    </concat>
-  </target>
-
-
-  <target name="finish">
-    <delete>
-      <fileset dir="${module.dir}" includes="${module.files}"/>
-    </delete>
-
-    <copy todir="${root.dir}/dist/" overwrite="true">
-      <fileset dir="${module.dir}/plugins"
-               includes="plugin-*.js"
-               excludes="plugin-init.js"/>
-    </copy>
-  </target>
-
-
-  <target name="build"
-          depends="gjslint,concat,common.build,finish">
-  </target>
+	<target name="build"
+          depends="clean,package,common.build,other,finish">
+	</target>
 
 </project>
