@@ -57,7 +57,7 @@ HANDY.add('Data',["Util","Object"],function($){
 		if(arguments.length==3){
 			_cache[sDataId][sKey]=value;
 		}else{
-			if(typeof sKey=='string')
+			if(typeof sKey=='string'){
 				return _cache[sDataId][sKey];
 			}else{
 				return _cache[sDataId];

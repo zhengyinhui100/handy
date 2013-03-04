@@ -5,7 +5,13 @@
 HANDY.add('Storage',function(){
 	
 	var Storage={
-		
+		init        : fInit,
+		get         : fGet,
+		set         : fSet
 	}
 	
+	
+	
+	
+	return Storage;
 })
