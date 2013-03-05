@@ -69,7 +69,6 @@ HANDY.add("Browser",["Object"],function($){
 	 * 分析浏览器内核类型
 	 * @method _fParseKernel
 	 * @param {string}userAgent 浏览器userAgent
-	 * @return {void}
 	 */
 	function _fParseKernel(userAgent){
 		var ua =userAgent;
@@ -84,7 +83,6 @@ HANDY.add("Browser",["Object"],function($){
 	 * 分析浏览器壳类型
 	 * @method _fParseShell
 	 * @param {string}userAgent 浏览器userAgent
-	 * @return {void}
 	 */
 	function _fParseShell(userAgent){
 		var matcher;
@@ -99,8 +97,6 @@ HANDY.add("Browser",["Object"],function($){
 	/**
 	 * 分析浏览器flash版本
 	 * @method _fParseFlash
-	 * @param {void}
-	 * @return {void}
 	 */
 	function _fParseFlash(){
 		var flashVersion;

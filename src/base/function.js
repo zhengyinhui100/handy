@@ -14,10 +14,10 @@ HANDY.add('Function',['Object'],function($){
 	/**
 	 * 函数bind方法
 	 * @method  bind
-	 * @param {function}fFunc 被绑定的函数
-	 * @param {object}oScope  需要绑定的对象
-	 * @param {object}args    需要绑定的参数
-	 * @return  {function}    返回新构造的函数
+	 * @param {function()}fFunc 被绑定的函数
+	 * @param {Object}oScope  需要绑定的对象
+	 * @param {Object}args    需要绑定的参数
+	 * @return  {function()}    返回新构造的函数
 	 */
 	function fBind(fFunc,oScope,args) {
 		var aBindArgs = Array.prototype.slice.call(arguments,2);
@@ -29,11 +29,11 @@ HANDY.add('Function',['Object'],function($){
 	/**
 	 * 创建函数拦截器
 	 * @method  intercept(fExecFunc,fInterceptFunc[,oExecScope,oInterceptScope])
-	 * @param {function}fExecFunc 被拦截的函数，this指向oExecScope||window
-	 * @param {function}fInterceptFunc 拦截函数,仅当当拦截函数返回false时，不执行被拦截函数；拦截函数this指向oInterceptScope||oExecScope||window
-	 * @param {object}oExecScope  被拦截的函数绑定的对象
-	 * @param {object}oInterceptScope  拦截函数绑定的对象
-	 * @return  {function}    返回新构造的函数
+	 * @param {function()}fExecFunc 被拦截的函数，this指向oExecScope||window
+	 * @param {function()}fInterceptFunc 拦截函数,仅当当拦截函数返回false时，不执行被拦截函数；拦截函数this指向oInterceptScope||oExecScope||window
+	 * @param {Object}oExecScope  被拦截的函数绑定的对象
+	 * @param {Object}oInterceptScope  拦截函数绑定的对象
+	 * @return  {function()}    返回新构造的函数
 	 */
 	function fIntercept(fExecFunc,fInterceptFunc,oExecScope,oInterceptScope) {
 		var oExecScope=oExecScope||window;

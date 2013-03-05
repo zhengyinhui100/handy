@@ -14,7 +14,6 @@ HANDY.add('Util',function($){
 	/**
 	 * 获取HANDY内部uuid
 	 * @method  getUuid
-	 * @param {void}
 	 * @return  {number}  返回uuid
 	 */
 	function fGetUuid(){
@@ -23,7 +22,7 @@ HANDY.add('Util',function($){
 	/**
 	 * 检查是否是window对象
 	 * @method  isWindow
-	 * @param {any}obj 参数对象
+	 * @param {*}obj 参数对象
 	 * @return  {boolean}
 	 */
 	function fIsWindow( obj ) {

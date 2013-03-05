@@ -13,9 +13,8 @@ HANDY.add('Cookie',function(){
 	/**
 	 * 获取cookie
 	 * @method  get
-	 * @param   {String}sName cookie的name
-	 * @param   {Boolean}bNotUnescape 不解码
-	 * @return  {void}
+	 * @param   {string}sName cookie的name
+	 * @param   {boolean}bNotUnescape 不解码
 	 */
 	function fGet(sName,bNotUnescape) {
 		var sSearch = sName + "=";
@@ -41,15 +40,14 @@ HANDY.add('Cookie',function(){
 	/**
 	 * 设置cookie
 	 * @method  set(sName, sValue[,oOptions])
-	 * @param {String}sName cookie的name
-	 * @param {String}sValue cookie的value
-	 * @param {object}oOptions{
-	 * 		{String}path    : cookie的path,根目录为"/",
-	 * 		{String}domain  : cookie的domain,
-	 * 		{String}expires : cookie的expires,值为GMT(格林威治时间)格式的日期型字符串,如：new Date().toGMTString(),
+	 * @param {string}sName cookie的name
+	 * @param {string}sValue cookie的value
+	 * @param {Object}oOptions{
+	 * 		{string}path    : cookie的path,根目录为"/",
+	 * 		{string}domain  : cookie的domain,
+	 * 		{string}expires : cookie的expires,值为GMT(格林威治时间)格式的日期型字符串,如：new Date().toGMTString(),
 	 *      {boolean}secure : 是否有secure属性
 	 * }
-	 * @return {void}
 	 */
 	function fSet(sName, sValue, oOptions) {
 		var aParam = [];
@@ -75,8 +73,7 @@ HANDY.add('Cookie',function(){
 	/**
 	 * 删除cookie
 	 * @method del
-	 * @param {String}sName cookie的name
-	 * @return {void}
+	 * @param {string}sName cookie的name
 	 */
 	function fDelete(sName){
 		//当前时间

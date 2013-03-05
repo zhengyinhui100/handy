@@ -89,7 +89,6 @@ HANDY.add("String",function(){
 	/**
 	 * 去掉字符串两边的空格
 	 * @method  trim
-	 * @param   void   
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return {string} sStr 去掉两边空格后的字符串  
 	 */
@@ -102,7 +101,7 @@ HANDY.add("String",function(){
 	 * 检查字符串是否含有"% \' \" \\ \/ "的字符
 	 * @method  check
 	 * @param  {string} sStr 需要操作的字符串
-	 * @param   {object}rKey 需要寻找的字符正则匹配	
+	 * @param   {Object}rKey 需要寻找的字符正则匹配	
 	 * @return  {boolean} 如果没有特殊字符返回false,否则返回true
 	 */
 	function fCheck(sStr,rKey){

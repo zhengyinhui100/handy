@@ -22,7 +22,7 @@
 	 * @method add
 	 * @param {string}sName 模块名称
 	 * @param {Object=}aRequires 模块依赖资源
-	 * @param {function(Object)}fDefined 模块功能定义
+	 * @param {function(Object):*}fDefined 模块功能定义
 	 */
 	function fAdd(sName,aRequires,fDefined){
 		if(!fDefined){

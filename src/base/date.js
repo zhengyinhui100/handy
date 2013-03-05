@@ -75,7 +75,7 @@ HANDY.add('Date',function(){
 	 * 返回指定格式的日期字符串
 	 * @method formate(oDate[,sFormator])
 	 * @param  {Date} oDate 需要格式化的日期对象
-	 * @param  {String}sFormator(可选)  格式化因子,如：'yyyy年 第q季 M月d日 星期w H时m分s秒S毫秒',默认是'yyyy-MM-dd HH:mm:ss'
+	 * @param  {string}sFormator(可选)  格式化因子,如：'yyyy年 第q季 M月d日 星期w H时m分s秒S毫秒',默认是'yyyy-MM-dd HH:mm:ss'
 	 * @return {string} 返回字符串日期
 	 */
 	function fFormat(oDate, sFormator) {
@@ -110,8 +110,8 @@ HANDY.add('Date',function(){
 	 * 将日期字符串转换为Date对象
 	 * @method parse(sDateStr[,sFormator])
 	 * @param  {string} sDateStr 需要分析的日期字符串，除了日期数据外不能有数字出现，如：("2012年 12/13","yyyy年 MM/dd")是正确的，("2012年 11 12/13","yyyy年 11 MM/dd")是错误的
-	 * @param  {String}sFormator(可选)  格式化因子,除了formator元素外，不能出现字母(与第一个参数类似)，如：'yyyy年 M月d日 H时m分s秒S毫秒',默认是'yyyy-MM-dd HH:mm:ss'
-	 * @return {object} 返回Date对象
+	 * @param  {string}sFormator(可选)  格式化因子,除了formator元素外，不能出现字母(与第一个参数类似)，如：'yyyy年 M月d日 H时m分s秒S毫秒',默认是'yyyy-MM-dd HH:mm:ss'
+	 * @return {Object} 返回Date对象
 	 */
 	function fParse(sDateStr, sFormator) {
 		var sFormator=sFormator||'yyyy-MM-dd HH:mm:ss';

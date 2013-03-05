@@ -20,8 +20,7 @@ HANDY.add('Element',['Object'],function($){
 	/**
     * 创建并返回一个类
     * @method createClass
-    * @param {void}
-    * @return {funciton} 返回新创建的类
+    * @return {funciton()} 返回新创建的类
     */
 	function fInitialize(selector,context){
 		var that=this,
@@ -51,7 +50,6 @@ HANDY.add('Element',['Object'],function($){
 	/**
 	 * 获取对象长度/节点数量
 	 * @method length
-	 * @param  {void}
 	 * @return {number} 返回当前对象的长度
 	 */
 	function fLength(){
@@ -60,8 +58,8 @@ HANDY.add('Element',['Object'],function($){
 	/**
 	 * 遍历对象
 	 * @method find
-	 * @param  {function}fCallback(nIndex,eNode) 回调函数
-	 * @return {object} 返回当前Element对象
+	 * @param  {function()}fCallback(nIndex,eNode) 回调函数
+	 * @return {Object} 返回当前Element对象
 	 */
 	function fEach(fCallback){
 		var that=this;
@@ -85,8 +83,8 @@ HANDY.add('Element',['Object'],function($){
 	/**
 	 * 查找子节点，注意:这里结果没有去重
 	 * @method find
-	 * @param  {String}sSelector 选择器.classname 选择class名 #id 选择id,tagName选择TagName的对象
-	 * @return {object} 返回Element的对象
+	 * @param  {string}sSelector 选择器.classname 选择class名 #id 选择id,tagName选择TagName的对象
+	 * @return {Object} 返回Element的对象
 	 */
 	function fFind(sSelector) {
 		var that=this;

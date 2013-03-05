@@ -23,10 +23,9 @@ HANDY.add("Debug",['Json'],function($){
 	/**
 	 * 输出信息
 	 * @method _fOut
-	 * @param {object} oVar	需要输出的变量
+	 * @param {Object} oVar	需要输出的变量
 	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
 	 * @param {string} sType 日志类型：log,info,error
-	 * @return {void}
 	 */
 	function _fOut(oVar,bShowInPage,sType){
 		sType = sType||'log';
@@ -67,9 +66,8 @@ HANDY.add("Debug",['Json'],function($){
 	/**
 	 * 输出日志
 	 * @method log
-	 * @param {object} oVar	需要输出的变量
+	 * @param {Object} oVar	需要输出的变量
 	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
-	 * @return {void}
 	 */
 	function fLog(oVar,bShowInPage){
 		var that=this;
@@ -81,9 +79,8 @@ HANDY.add("Debug",['Json'],function($){
 	/**
 	 * 输出信息
 	 * @method info
-	 * @param {object} oVar	需要输出的变量
+	 * @param {Object} oVar	需要输出的变量
 	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
-	 * @return {void}
 	 */
 	function fInfo(oVar,bShowInPage){
 		var that=this;
@@ -95,9 +92,8 @@ HANDY.add("Debug",['Json'],function($){
 	/**
 	 * 输出信息
 	 * @method warn
-	 * @param {object} oVar	需要输出的变量
+	 * @param {Object} oVar	需要输出的变量
 	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
-	 * @return {void}
 	 */
 	function fWarn(oVar,bShowInPage){
 		var that=this;
@@ -109,9 +105,8 @@ HANDY.add("Debug",['Json'],function($){
 	/**
 	 * 输出错误
 	 * @method error
-	 * @param {object} oVar	需要输出的变量
+	 * @param {Object} oVar	需要输出的变量
 	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
-	 * @return {void}
 	 */
 	function fError(oVar,bShowInPage){
 		var that=this;
@@ -126,7 +121,6 @@ HANDY.add("Debug",['Json'],function($){
 	 * @param {string}sMsg 输出的信息
 	 * @param {boolean}bOut 为true时，计算时间并输出信息
 	 * @param {boolean}bShowInPage 是否需要创建一个DIV输出到页面
-	 * @return {void}
 	 */
 	function fTime(sMsg,bOut,bShowInPage){
 		var that=this;
@@ -143,8 +137,7 @@ HANDY.add("Debug",['Json'],function($){
 	/**
 	 * 添加调试断点
 	 * @method debug
-	 * @param {object} fCondiction	输出断点的条件就判断是否返回true，也可以不传，不传为默认debug
-	 * @return {void}
+	 * @param {Object} fCondiction	输出断点的条件就判断是否返回true，也可以不传，不传为默认debug
 	 */
 	function fDebug(fCondiction){
 		var that=this;
@@ -161,8 +154,7 @@ HANDY.add("Debug",['Json'],function($){
 	/**
 	 * 处理异常
 	 * @method throwExp
-	 * @param {object}oExp 异常对象
-	 * @return {void}
+	 * @param {Object}oExp 异常对象
 	 */
 	function fThrowExp(oExp){
 		var that=this;

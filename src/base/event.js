@@ -50,7 +50,6 @@ HANDY.add('Event',['CustomEvent','Data'],function($){
 	 * hover纠正
 	 * @method _fHoverHack
 	 * @param {string} sEvents 事件类型
-	 * @return {void}
 	 */
 	function _fHoverHack( sEvents ) {
 		return this.special.hover ? sEvents : sEvents.replace( rHoverHack, "mouseenter$1 mouseleave$1" );
@@ -60,9 +59,8 @@ HANDY.add('Event',['CustomEvent','Data'],function($){
 	 * @method _fListen
 	 * @param {object} oElement 事件的源对象
 	 * @param {string} sName 事件名称
-	 * @param {function} fObserver 绑定的方法
+	 * @param {function()} fObserver 绑定的方法
 	 * @param {boolean} bUseCapture 是否捕获
-	 * @return {void}
 	 */
 	function fListen(oElement, sName, fObserver, bUseCapture) {
 		if (oElement.addEventListener) {

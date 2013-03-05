@@ -12,9 +12,9 @@ HANDY.add('Template',function($){
 	/**
 	 * 执行模板
 	 * @method compile
-	 * @param  {function}sTemplate 模板字符串
-	 * @param  {object}oData     	数据
-	 * @return {function}          返回结果字符串
+	 * @param  {string}sTemplate 模板字符串
+	 * @param  {Object}oData     	数据
+	 * @return {string}          返回结果字符串
 	 */
 	function fCompile(sTemplate,oData){
 		var oReg=this.simpleReg;

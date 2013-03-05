@@ -41,8 +41,8 @@ HANDY.add('Data',["Util","Object"],function($){
 	 * @method data(oEl[,sKey,value])
 	 * @param {element} oEl 需要设置/读取数据的节点
 	 * @param {string} sKey 数据名称
-	 * @param {any} value(可选) 需要设置的数据，如果未传表示是读取数据
-	 * @return{undefined|any} 返回数据(如果是读取的话)
+	 * @param {*} value(可选) 需要设置的数据，如果未传表示是读取数据
+	 * @return{?*} 返回数据(如果是读取的话)
 	 */
 	function fData(oEl,sKey,value){
 		if(!Data.acceptData()){
@@ -69,7 +69,6 @@ HANDY.add('Data',["Util","Object"],function($){
 	 * @method remove
 	 * @param {element} oEl 要操作的节点
 	 * @param {string} sKey(可选) 需要移除的数据名称
-	 * @return {void}
 	 */
 	function fRemove(oEl,sKey){
 		var sDataId=oEl[_sExpando];

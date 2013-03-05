@@ -22,10 +22,10 @@ HANDY.add('Object',function($){
 	}
 	/**
     * 创建或读取命名空间
-    * @method namespace (sPath[,object])
+    * @method namespace (sPath,object=)
     * @param {string}sPath 命名空间路径字符串
-    * @param {*}object (可选)用以初始化该命名空间的对象
-    * @return {?Object} 返回该路径的命名空间，不存在则返回undefined
+    * @param {*=}obj (可选)用以初始化该命名空间的对象
+    * @return {?*} 返回该路径的命名空间，不存在则返回undefined
     */
 	function fNamespace(sPath,obj){
 		var oObject=null, j, aPath, root,len;  
@@ -372,7 +372,7 @@ HANDY.add('Object',function($){
     * @param {number=}nEnd   结束位置
     * @return {Array} 返回转换后的数组
     */
-    var fToArray=(function() {
+    function fToArray(){
     	var aMatch=window.navigator.userAgent.match(/MSIE ([\d.]+)/);
     	if(aMatch&&parseInt(aMatch[0])<9){
     		//IE9以下，由于nodeList不是javascript对象，使用slice方法会抛异常，这里使用循环
@@ -390,7 +390,8 @@ HANDY.add('Object',function($){
     			return Array.prototype.slice.call(oParam,nStart||0,nEnd||oParam.length);
     		}
     	}
-    })()
+    }
+    fToArray=fToArray();
     /**
     * 归纳生成类方法
     * @method genMethod

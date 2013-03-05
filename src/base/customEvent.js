@@ -32,8 +32,7 @@ HANDY.add('CustomEvent',["Object"],function($){
 	 * 初始化自定义事件
 	 * @method initialize(src[, oProps])
 	 * @param {event|string}src 事件对象或者事件类型
-	 * @param {object}oProps (可选)要扩展的属性
-	 * @return {void}
+	 * @param {Object}oProps (可选)要扩展的属性
 	 */
 	function fInitialize(src, oProps){
 		var that=this;
@@ -69,8 +68,6 @@ HANDY.add('CustomEvent',["Object"],function($){
 	/**
 	 * 停止事件默认行为
 	 * @method preventDefault
-	 * @param {void}
-	 * @return {void}
 	 */
 	function fPreventDefault() {
 		var that=this;
@@ -90,8 +87,6 @@ HANDY.add('CustomEvent',["Object"],function($){
 	/**
 	 * 停止事件冒泡
 	 * @method stopPropagation
-	 * @param {void}
-	 * @return {void}
 	 */
 	function fStopPropagation() {
 		var that=this;
@@ -109,8 +104,6 @@ HANDY.add('CustomEvent',["Object"],function($){
 	/**
 	 * 当前节点开始立即停止事件冒泡
 	 * @method stopImmediatePropagation
-	 * @param {void}
-	 * @return {void}
 	 */
 	function fStopImmediatePropagation() {
 		var that=this;

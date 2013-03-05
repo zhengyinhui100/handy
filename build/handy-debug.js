@@ -23,7 +23,7 @@
 	 * @method add
 	 * @param {string}sName 模块名称
 	 * @param {Object=}aRequires 模块依赖资源
-	 * @param {function(Object)}fDefined 模块功能定义
+	 * @param {function(Object):*}fDefined 模块功能定义
 	 */
 	function fAdd(sName,aRequires,fDefined){
 		if(!fDefined){
@@ -80,10 +80,10 @@ HANDY.add('Object',function($){
 	}
 	/**
     * 创建或读取命名空间
-    * @method namespace (sPath[,object])
+    * @method namespace (sPath,object=)
     * @param {string}sPath 命名空间路径字符串
-    * @param {*}object (可选)用以初始化该命名空间的对象
-    * @return {?Object} 返回该路径的命名空间，不存在则返回undefined
+    * @param {*=}obj (可选)用以初始化该命名空间的对象
+    * @return {?Object|undefined} 返回该路径的命名空间，不存在则返回undefined
     */
 	function fNamespace(sPath,obj){
 		var oObject=null, j, aPath, root,len;  
@@ -430,7 +430,7 @@ HANDY.add('Object',function($){
     * @param {number=}nEnd   结束位置
     * @return {Array} 返回转换后的数组
     */
-    var fToArray=(function() {
+    function fToArray(){
     	var aMatch=window.navigator.userAgent.match(/MSIE ([\d.]+)/);
     	if(aMatch&&parseInt(aMatch[0])<9){
     		//IE9以下，由于nodeList不是javascript对象，使用slice方法会抛异常，这里使用循环
@@ -448,7 +448,8 @@ HANDY.add('Object',function($){
     			return Array.prototype.slice.call(oParam,nStart||0,nEnd||oParam.length);
     		}
     	}
-    })()
+    }
+    fToArray=fToArray();
     /**
     * 归纳生成类方法
     * @method genMethod
@@ -555,7 +556,7 @@ HANDY.add('Date',function(){
 	 * 返回指定格式的日期字符串
 	 * @method formate(oDate[,sFormator])
 	 * @param  {Date} oDate 需要格式化的日期对象
-	 * @param  {String}sFormator(可选)  格式化因子,如：'yyyy年 第q季 M月d日 星期w H时m分s秒S毫秒',默认是'yyyy-MM-dd HH:mm:ss'
+	 * @param  {string}sFormator(可选)  格式化因子,如：'yyyy年 第q季 M月d日 星期w H时m分s秒S毫秒',默认是'yyyy-MM-dd HH:mm:ss'
 	 * @return {string} 返回字符串日期
 	 */
 	function fFormat(oDate, sFormator) {
@@ -590,8 +591,8 @@ HANDY.add('Date',function(){
 	 * 将日期字符串转换为Date对象
 	 * @method parse(sDateStr[,sFormator])
 	 * @param  {string} sDateStr 需要分析的日期字符串，除了日期数据外不能有数字出现，如：("2012年 12/13","yyyy年 MM/dd")是正确的，("2012年 11 12/13","yyyy年 11 MM/dd")是错误的
-	 * @param  {String}sFormator(可选)  格式化因子,除了formator元素外，不能出现字母(与第一个参数类似)，如：'yyyy年 M月d日 H时m分s秒S毫秒',默认是'yyyy-MM-dd HH:mm:ss'
-	 * @return {object} 返回Date对象
+	 * @param  {string}sFormator(可选)  格式化因子,除了formator元素外，不能出现字母(与第一个参数类似)，如：'yyyy年 M月d日 H时m分s秒S毫秒',默认是'yyyy-MM-dd HH:mm:ss'
+	 * @return {Object} 返回Date对象
 	 */
 	function fParse(sDateStr, sFormator) {
 		var sFormator=sFormator||'yyyy-MM-dd HH:mm:ss';
@@ -700,7 +701,6 @@ HANDY.add("Browser",["Object"],function($){
 	 * 分析浏览器内核类型
 	 * @method _fParseKernel
 	 * @param {string}userAgent 浏览器userAgent
-	 * @return {void}
 	 */
 	function _fParseKernel(userAgent){
 		var ua =userAgent;
@@ -715,7 +715,6 @@ HANDY.add("Browser",["Object"],function($){
 	 * 分析浏览器壳类型
 	 * @method _fParseShell
 	 * @param {string}userAgent 浏览器userAgent
-	 * @return {void}
 	 */
 	function _fParseShell(userAgent){
 		var matcher;
@@ -730,8 +729,6 @@ HANDY.add("Browser",["Object"],function($){
 	/**
 	 * 分析浏览器flash版本
 	 * @method _fParseFlash
-	 * @param {void}
-	 * @return {void}
 	 */
 	function _fParseFlash(){
 		var flashVersion;
@@ -857,7 +854,6 @@ HANDY.add("String",function(){
 	/**
 	 * 去掉字符串两边的空格
 	 * @method  trim
-	 * @param   void   
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return {string} sStr 去掉两边空格后的字符串  
 	 */
@@ -870,7 +866,7 @@ HANDY.add("String",function(){
 	 * 检查字符串是否含有"% \' \" \\ \/ "的字符
 	 * @method  check
 	 * @param  {string} sStr 需要操作的字符串
-	 * @param   {object}rKey 需要寻找的字符正则匹配	
+	 * @param   {Object}rKey 需要寻找的字符正则匹配	
 	 * @return  {boolean} 如果没有特殊字符返回false,否则返回true
 	 */
 	function fCheck(sStr,rKey){
@@ -1016,9 +1012,8 @@ HANDY.add('Cookie',function(){
 	/**
 	 * 获取cookie
 	 * @method  get
-	 * @param   {String}sName cookie的name
-	 * @param   {Boolean}bNotUnescape 不解码
-	 * @return  {void}
+	 * @param   {string}sName cookie的name
+	 * @param   {boolean}bNotUnescape 不解码
 	 */
 	function fGet(sName,bNotUnescape) {
 		var sSearch = sName + "=";
@@ -1044,15 +1039,14 @@ HANDY.add('Cookie',function(){
 	/**
 	 * 设置cookie
 	 * @method  set(sName, sValue[,oOptions])
-	 * @param {String}sName cookie的name
-	 * @param {String}sValue cookie的value
-	 * @param {object}oOptions{
-	 * 		{String}path    : cookie的path,根目录为"/",
-	 * 		{String}domain  : cookie的domain,
-	 * 		{String}expires : cookie的expires,值为GMT(格林威治时间)格式的日期型字符串,如：new Date().toGMTString(),
+	 * @param {string}sName cookie的name
+	 * @param {string}sValue cookie的value
+	 * @param {Object}oOptions{
+	 * 		{string}path    : cookie的path,根目录为"/",
+	 * 		{string}domain  : cookie的domain,
+	 * 		{string}expires : cookie的expires,值为GMT(格林威治时间)格式的日期型字符串,如：new Date().toGMTString(),
 	 *      {boolean}secure : 是否有secure属性
 	 * }
-	 * @return {void}
 	 */
 	function fSet(sName, sValue, oOptions) {
 		var aParam = [];
@@ -1078,8 +1072,7 @@ HANDY.add('Cookie',function(){
 	/**
 	 * 删除cookie
 	 * @method del
-	 * @param {String}sName cookie的name
-	 * @return {void}
+	 * @param {string}sName cookie的name
 	 */
 	function fDelete(sName){
 		//当前时间
@@ -1106,7 +1099,6 @@ HANDY.add('Util',function($){
 	/**
 	 * 获取HANDY内部uuid
 	 * @method  getUuid
-	 * @param {void}
 	 * @return  {number}  返回uuid
 	 */
 	function fGetUuid(){
@@ -1115,7 +1107,7 @@ HANDY.add('Util',function($){
 	/**
 	 * 检查是否是window对象
 	 * @method  isWindow
-	 * @param {any}obj 参数对象
+	 * @param {*}obj 参数对象
 	 * @return  {boolean}
 	 */
 	function fIsWindow( obj ) {
@@ -1140,10 +1132,10 @@ HANDY.add('Function',['Object'],function($){
 	/**
 	 * 函数bind方法
 	 * @method  bind
-	 * @param {function}fFunc 被绑定的函数
-	 * @param {object}oScope  需要绑定的对象
-	 * @param {object}args    需要绑定的参数
-	 * @return  {function}    返回新构造的函数
+	 * @param {function()}fFunc 被绑定的函数
+	 * @param {Object}oScope  需要绑定的对象
+	 * @param {Object}args    需要绑定的参数
+	 * @return  {function()}    返回新构造的函数
 	 */
 	function fBind(fFunc,oScope,args) {
 		var aBindArgs = Array.prototype.slice.call(arguments,2);
@@ -1155,11 +1147,11 @@ HANDY.add('Function',['Object'],function($){
 	/**
 	 * 创建函数拦截器
 	 * @method  intercept(fExecFunc,fInterceptFunc[,oExecScope,oInterceptScope])
-	 * @param {function}fExecFunc 被拦截的函数，this指向oExecScope||window
-	 * @param {function}fInterceptFunc 拦截函数,仅当当拦截函数返回false时，不执行被拦截函数；拦截函数this指向oInterceptScope||oExecScope||window
-	 * @param {object}oExecScope  被拦截的函数绑定的对象
-	 * @param {object}oInterceptScope  拦截函数绑定的对象
-	 * @return  {function}    返回新构造的函数
+	 * @param {function()}fExecFunc 被拦截的函数，this指向oExecScope||window
+	 * @param {function()}fInterceptFunc 拦截函数,仅当当拦截函数返回false时，不执行被拦截函数；拦截函数this指向oInterceptScope||oExecScope||window
+	 * @param {Object}oExecScope  被拦截的函数绑定的对象
+	 * @param {Object}oInterceptScope  拦截函数绑定的对象
+	 * @return  {function()}    返回新构造的函数
 	 */
 	function fIntercept(fExecFunc,fInterceptFunc,oExecScope,oInterceptScope) {
 		var oExecScope=oExecScope||window;
@@ -1203,10 +1195,9 @@ HANDY.add("Debug",['Json'],function($){
 	/**
 	 * 输出信息
 	 * @method _fOut
-	 * @param {object} oVar	需要输出的变量
+	 * @param {Object} oVar	需要输出的变量
 	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
 	 * @param {string} sType 日志类型：log,info,error
-	 * @return {void}
 	 */
 	function _fOut(oVar,bShowInPage,sType){
 		sType = sType||'log';
@@ -1247,9 +1238,8 @@ HANDY.add("Debug",['Json'],function($){
 	/**
 	 * 输出日志
 	 * @method log
-	 * @param {object} oVar	需要输出的变量
+	 * @param {Object} oVar	需要输出的变量
 	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
-	 * @return {void}
 	 */
 	function fLog(oVar,bShowInPage){
 		var that=this;
@@ -1261,9 +1251,8 @@ HANDY.add("Debug",['Json'],function($){
 	/**
 	 * 输出信息
 	 * @method info
-	 * @param {object} oVar	需要输出的变量
+	 * @param {Object} oVar	需要输出的变量
 	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
-	 * @return {void}
 	 */
 	function fInfo(oVar,bShowInPage){
 		var that=this;
@@ -1275,9 +1264,8 @@ HANDY.add("Debug",['Json'],function($){
 	/**
 	 * 输出信息
 	 * @method warn
-	 * @param {object} oVar	需要输出的变量
+	 * @param {Object} oVar	需要输出的变量
 	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
-	 * @return {void}
 	 */
 	function fWarn(oVar,bShowInPage){
 		var that=this;
@@ -1289,9 +1277,8 @@ HANDY.add("Debug",['Json'],function($){
 	/**
 	 * 输出错误
 	 * @method error
-	 * @param {object} oVar	需要输出的变量
+	 * @param {Object} oVar	需要输出的变量
 	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
-	 * @return {void}
 	 */
 	function fError(oVar,bShowInPage){
 		var that=this;
@@ -1306,7 +1293,6 @@ HANDY.add("Debug",['Json'],function($){
 	 * @param {string}sMsg 输出的信息
 	 * @param {boolean}bOut 为true时，计算时间并输出信息
 	 * @param {boolean}bShowInPage 是否需要创建一个DIV输出到页面
-	 * @return {void}
 	 */
 	function fTime(sMsg,bOut,bShowInPage){
 		var that=this;
@@ -1323,8 +1309,7 @@ HANDY.add("Debug",['Json'],function($){
 	/**
 	 * 添加调试断点
 	 * @method debug
-	 * @param {object} fCondiction	输出断点的条件就判断是否返回true，也可以不传，不传为默认debug
-	 * @return {void}
+	 * @param {Object} fCondiction	输出断点的条件就判断是否返回true，也可以不传，不传为默认debug
 	 */
 	function fDebug(fCondiction){
 		var that=this;
@@ -1341,8 +1326,7 @@ HANDY.add("Debug",['Json'],function($){
 	/**
 	 * 处理异常
 	 * @method throwExp
-	 * @param {object}oExp 异常对象
-	 * @return {void}
+	 * @param {Object}oExp 异常对象
 	 */
 	function fThrowExp(oExp){
 		var that=this;
@@ -1382,7 +1366,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
      /**
 	 * 检查对应的资源是否已加载
 	 * @method _fChkExisted
-	 * @param {string|array}id 被检查的资源id
+	 * @param {string|Array}id 被检查的资源id
 	 * @return {boolean}返回true表示该资源已经被加载
 	 */
     function _fChkExisted(id){
@@ -1432,8 +1416,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 * 获取js脚本
 	 * @method _getScript
 	 * @param {string}sUrl 请求url
-	 * @param {function}fCallback 回调函数
-	 * @return {void}
+	 * @param {function()}fCallback 回调函数
 	 */
     function _fGetScript(sUrl,fCallback) {
     	var eScript=document.createElement("script");
@@ -1448,8 +1431,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 * 获取css
 	 * @method _getCss
 	 * @param {string}sUrl 请求url
-	 * @param {function}fCallback 回调函数
-	 * @return {void}
+	 * @param {function()}fCallback 回调函数
 	 */
     function _fGetCss(sUrl,fCallback) {
     	var aStyles=_eHead.getElementsByTagName("link");
@@ -1475,8 +1457,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 * 为css/script资源添加onload事件，包含超时处理
 	 * @method _fAddOnload
 	 * @param {element}eNode 节点
-	 * @param {function}fCallback 回调函数
-	 * @return {void}
+	 * @param {function()}fCallback 回调函数
 	 */
 	function _fAddOnload(eNode,fCallback){
 		//onload回调函数
@@ -1505,8 +1486,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 * script资源onload函数
 	 * @method _fScriptOnload
 	 * @param {element}eNode 节点
-	 * @param {function}fCallback 回调函数
-	 * @return {void}
+	 * @param {function()}fCallback 回调函数
 	 */
 	function _fScriptOnload(eNode, fCallback) {
 	    eNode.onload = eNode.onerror = eNode.onreadystatechange =function() {
@@ -1538,8 +1518,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 * css资源onload函数
 	 * @method _fStyleOnload
 	 * @param {element}eNode 节点
-	 * @param {function}fCallback 回调函数
-	 * @return {void}
+	 * @param {function()}fCallback 回调函数
 	 */
 	function _fStyleOnload(eNode, fCallback) {
 	    // IE6-9 和 Opera
@@ -1561,8 +1540,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 * css资源轮询检测
 	 * @method _fPollStyle
 	 * @param {element}eNode 节点
-	 * @param {function}fCallback 回调函数
-	 * @return {void}
+	 * @param {function()}fCallback 回调函数
 	 */
 	function _fPollStyle(eNode, fCallback) {
 	    if (fCallback.isCalled) {
@@ -1599,8 +1577,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
     /**
 	 * 请求资源
 	 * @method _fRequest
-	 * @param {array}aRequestIds 需要加载的资源id数组
-	 * @return {void}
+	 * @param {Array}aRequestIds 需要加载的资源id数组
 	 */
     function _fRequest(aRequestIds){
     	var bNeedRequest=false;
@@ -1631,7 +1608,6 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 * 资源下载完成回调
 	 * @method _fResponse
 	 * @param {string}sId 资源id
-	 * @return {void}
 	 */
     function _fResponse(sId){
     	Loader.showLoading(false);
@@ -1651,10 +1627,10 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
     }
     /**
 	 * 定义loader资源
-	 * @method define(sId[,aDeps],factory)
+	 * @method define(sId,aDeps=,factory)
 	 * @param {string}sId   资源id，可以是id、命名空间，也可以是url地址（如css）
-	 * @param {array}aDeps  依赖的资源
-	 * @param {any}factory  资源工厂，可以是函数，也可以是字符串模板
+	 * @param {Array=}aDeps  依赖的资源
+	 * @param {*}factory  资源工厂，可以是函数，也可以是字符串模板
 	 * @return {number}nIndex 返回回调索引
 	 */
 	function fDefine(sId,aDeps,factory){
@@ -1685,9 +1661,9 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	}
     /**
 	 * 加载所需的资源
-	 * @method require(id[,fCallback])
+	 * @method require(id,fCallback=)
 	 * @param {string|array}id    资源id（数组）
-	 * @param {function}fCallback(可选) 回调函数
+	 * @param {function()=}fCallback(可选) 回调函数
 	 * @return {any}返回最后一个当前已加载的资源，通常用于className只有一个的情况，这样可以立即通过返回赋值
 	 */
     function fRequire(id,fCallback){
@@ -1745,9 +1721,9 @@ HANDY.add('Template',function($){
 	/**
 	 * 执行模板
 	 * @method compile
-	 * @param  {function}sTemplate 模板字符串
-	 * @param  {object}oData     	数据
-	 * @return {function}          返回结果字符串
+	 * @param  {string}sTemplate 模板字符串
+	 * @param  {Object}oData     	数据
+	 * @return {string}          返回结果字符串
 	 */
 	function fCompile(sTemplate,oData){
 		var oReg=this.simpleReg;

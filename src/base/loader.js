@@ -27,7 +27,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
      /**
 	 * 检查对应的资源是否已加载
 	 * @method _fChkExisted
-	 * @param {string|array}id 被检查的资源id
+	 * @param {string|Array}id 被检查的资源id
 	 * @return {boolean}返回true表示该资源已经被加载
 	 */
     function _fChkExisted(id){
@@ -77,8 +77,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 * 获取js脚本
 	 * @method _getScript
 	 * @param {string}sUrl 请求url
-	 * @param {function}fCallback 回调函数
-	 * @return {void}
+	 * @param {function()}fCallback 回调函数
 	 */
     function _fGetScript(sUrl,fCallback) {
     	var eScript=document.createElement("script");
@@ -93,8 +92,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 * 获取css
 	 * @method _getCss
 	 * @param {string}sUrl 请求url
-	 * @param {function}fCallback 回调函数
-	 * @return {void}
+	 * @param {function()}fCallback 回调函数
 	 */
     function _fGetCss(sUrl,fCallback) {
     	var aStyles=_eHead.getElementsByTagName("link");
@@ -120,8 +118,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 * 为css/script资源添加onload事件，包含超时处理
 	 * @method _fAddOnload
 	 * @param {element}eNode 节点
-	 * @param {function}fCallback 回调函数
-	 * @return {void}
+	 * @param {function()}fCallback 回调函数
 	 */
 	function _fAddOnload(eNode,fCallback){
 		//onload回调函数
@@ -150,8 +147,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 * script资源onload函数
 	 * @method _fScriptOnload
 	 * @param {element}eNode 节点
-	 * @param {function}fCallback 回调函数
-	 * @return {void}
+	 * @param {function()}fCallback 回调函数
 	 */
 	function _fScriptOnload(eNode, fCallback) {
 	    eNode.onload = eNode.onerror = eNode.onreadystatechange =function() {
@@ -183,8 +179,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 * css资源onload函数
 	 * @method _fStyleOnload
 	 * @param {element}eNode 节点
-	 * @param {function}fCallback 回调函数
-	 * @return {void}
+	 * @param {function()}fCallback 回调函数
 	 */
 	function _fStyleOnload(eNode, fCallback) {
 	    // IE6-9 和 Opera
@@ -206,8 +201,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 * css资源轮询检测
 	 * @method _fPollStyle
 	 * @param {element}eNode 节点
-	 * @param {function}fCallback 回调函数
-	 * @return {void}
+	 * @param {function()}fCallback 回调函数
 	 */
 	function _fPollStyle(eNode, fCallback) {
 	    if (fCallback.isCalled) {
@@ -244,8 +238,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
     /**
 	 * 请求资源
 	 * @method _fRequest
-	 * @param {array}aRequestIds 需要加载的资源id数组
-	 * @return {void}
+	 * @param {Array}aRequestIds 需要加载的资源id数组
 	 */
     function _fRequest(aRequestIds){
     	var bNeedRequest=false;
@@ -276,7 +269,6 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 * 资源下载完成回调
 	 * @method _fResponse
 	 * @param {string}sId 资源id
-	 * @return {void}
 	 */
     function _fResponse(sId){
     	Loader.showLoading(false);
@@ -296,10 +288,10 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
     }
     /**
 	 * 定义loader资源
-	 * @method define(sId[,aDeps],factory)
+	 * @method define(sId,aDeps=,factory)
 	 * @param {string}sId   资源id，可以是id、命名空间，也可以是url地址（如css）
-	 * @param {array}aDeps  依赖的资源
-	 * @param {any}factory  资源工厂，可以是函数，也可以是字符串模板
+	 * @param {Array=}aDeps  依赖的资源
+	 * @param {*}factory  资源工厂，可以是函数，也可以是字符串模板
 	 * @return {number}nIndex 返回回调索引
 	 */
 	function fDefine(sId,aDeps,factory){
@@ -330,9 +322,9 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	}
     /**
 	 * 加载所需的资源
-	 * @method require(id[,fCallback])
+	 * @method require(id,fCallback=)
 	 * @param {string|array}id    资源id（数组）
-	 * @param {function}fCallback(可选) 回调函数
+	 * @param {function()=}fCallback(可选) 回调函数
 	 * @return {any}返回最后一个当前已加载的资源，通常用于className只有一个的情况，这样可以立即通过返回赋值
 	 */
     function fRequire(id,fCallback){
