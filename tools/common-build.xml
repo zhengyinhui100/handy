@@ -51,14 +51,6 @@
 				<include name="${package.css}"/>
 			</fileset>
 		</copy>
-		<!--
-		<copy todir="${tmp.dir}/js">
-			<fileset dir="${js.dir}" includes="${package.js}"/>
-		</copy>
-		<copy todir="${tmp.dir}/css">
-			<fileset dir="${css.dir}" includes="${package.css}"/>
-		</copy>
-		-->
 
 		<!-- 版本号替换 -->
 		<replaceregexp match="%VERSION%"
@@ -82,13 +74,15 @@
 	<target name="compress-css">
 
 		<!-- 用 YUICompressor 压缩 CSS -->
-		<apply executable="java" verbose="true" dir="${tmp.dir}/css">
+		<apply executable="java" verbose="true" failonerror="true" dir="${tmp.dir}/css">
 			<fileset dir="${tmp.dir}" includes="${package.css}"/>
 			<arg line="-jar"/>
 			<arg path="${yc.jar}"/>
 			<arg line="--charset ${charset}"/>
-			<srcfile/>
-			<arg line="-o ${filename}.min.css"/>
+			<srcfile/>  
+			<arg line="-o" />  
+	        <mapper type="glob" from="*-pkg.css" to="${tmp.dir}/*.min.css" />  
+	        <targetfile />  
 		</apply>
 		
 		<!-- 删除CSS打包文件 -->
@@ -199,7 +193,7 @@
 	</target>
 	
 	<target name="common.build"
-          depends="compile-less,prepare,compress-js,compress-css,copyright,destroy">
+          depends="prepare,compress-css,compress-js,copyright,destroy">
 	</target>
 
 </project>

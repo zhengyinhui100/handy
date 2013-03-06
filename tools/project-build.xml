@@ -59,7 +59,6 @@
     	<concat destfile="${css.dir}/${project.name}-pkg.css"
     	    	            encoding="${charset}"
     	    	            outputencoding="${charset}">
-
 			<path path="${css.dir}/reset.css"/>
     		<path path="${css.dir}/common.css"/>
 			<path path="${css.dir}/widget.css"/>
@@ -67,8 +66,9 @@
 			<path path="${css.dir}/forms.css"/>
 			<path path="${css.dir}/main.css"/>
 			<path path="${css.dir}/commonsearch.css"/>
-    		
 		</concat>
+    	<copy tofile="${css.dir}/ie6-pkg.css" file="${css.dir}/ie6.css"/>	
+    	<copy tofile="${css.dir}/ie7-pkg.css" file="${css.dir}/ie7.css"/>	
     	
     </target>
 	
@@ -97,7 +97,7 @@
 	</target>
 
 	<target name="build"
-          depends="clean,package,common.build,other,finish">
+          depends="clean,compile-less,package,common.build,other,finish">
 	</target>
 
 </project>
