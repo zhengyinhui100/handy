@@ -83,7 +83,7 @@ HANDY.add('Object',function($){
     * @method namespace (sPath,object=)
     * @param {string}sPath 命名空间路径字符串
     * @param {*=}obj (可选)用以初始化该命名空间的对象
-    * @return {?Object|undefined} 返回该路径的命名空间，不存在则返回undefined
+    * @return {?*} 返回该路径的命名空间，不存在则返回undefined
     */
 	function fNamespace(sPath,obj){
 		var oObject=null, j, aPath, root,len;  
@@ -958,42 +958,6 @@ HANDY.add("String",function(){
 			sStr += (sStr.indexOf("?")>-1 ? "&" : "?")+sParam;
 		}
 		return sStr;
-	}
-	/**
-	 * 在该字符串中增加get需要的参数，如果改字符串代表的url没有get的参数，需要在后面加?，如果有，需要在后面加&
-	 * @method  addParam
-	 * @param  {string} sStr 需要操作的字符串
-	 * @param  {string} sParam 需要添加到url中的参数
-	 * @return {string} sStr 新组成的字符串
-	 */
-	function fUrlEncode(o, pre){ 
-		/*
-	    var empty,   
-	        buf = [],   
-	        e = encodeURIComponent;   
-	  
-	    Ext.each(o, function(key, item){   
-	        empty = Ext.isEmpty(item);   
-	        Ext.each(empty ? key : item, function(val){   
-	            buf.push('&', e(key), '=', (!Ext.isEmpty(val) && (val != key || !empty)) ? (Ext.isDate(val) ? Ext.encode(val).replace(/"/g, '') : e(val)) : '');   
-	        });   
-	    });   
-	    if(!pre){   
-	        buf.shift();   
-	        pre = '';   
-	    }   
-	    return pre + buf.join('');   
-	    */
-	}
-	/**
-	 * 在该字符串中增加get需要的参数，如果改字符串代表的url没有get的参数，需要在后面加?，如果有，需要在后面加&
-	 * @method  addParam
-	 * @param  {string} sStr 需要操作的字符串
-	 * @param  {string} sParam 需要添加到url中的参数
-	 * @return {string} sStr 新组成的字符串
-	 */
-	function fUrlDecode(){
-		
 	}
 	
 	return String;

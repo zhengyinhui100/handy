@@ -62,7 +62,7 @@
 
 	<target name="clean">
 		<delete>
-			<fileset dir="${project.dir}" includes="${package.files}"/>
+			<fileset dir="${project.dir}" includes="${package.js}"/>
 		</delete>
 
 	</target>
