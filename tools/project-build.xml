@@ -10,7 +10,7 @@
 	<import file="./common-build.xml"/>
 
 	
-	<target name="clean">
+	<target name="remove-build">
 		<delete dir="${project.dir}/build">
 		</delete>
 	</target>
@@ -72,22 +72,8 @@
     	
     </target>
 	
-	<!-- 其它 -->
-	<target name="other">
-		<copy todir="${build.dir}/js/kindeditor">	
-		    <fileset dir="${js.dir}/kindeditor">
-		    </fileset>
-    	</copy>
-		<copy todir="${build.dir}/js/plugins">	
-		    <fileset dir="${js.dir}/plugins">
-		    	<include name="*.min.js"/>
-		    	<include name="*-debug.js"/>
-		    </fileset>
-    	</copy>
-	</target>
-	
 	<!-- 清理临时文件 -->
-	<target name="finish">
+	<target name="clean">
 		<delete>
 			<fileset dir="${js.dir}" includes="${package.js}"/>
 		</delete>
@@ -95,9 +81,9 @@
 			<fileset dir="${css.dir}" includes="${package.css}"/>
 		</delete>
 	</target>
-
+	
 	<target name="build"
-          depends="clean,compile-less,package,common.build,other,finish">
+          depends="remove-build,compile-less,package,common.build,clean">
 	</target>
 
 </project>

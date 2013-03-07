@@ -40,10 +40,9 @@
 			<arg line="../css"/>
 		</java>
 	</target>
-
-	<!-- 清空、复制等准备工作 -->
-	<target name="prepare">
-		<delete dir="${tmp.dir}"/>
+	
+	<!-- 复制(仅打包文件) -->
+	<target name="copy">
 		<mkdir dir="${tmp.dir}"/>
 		<copy todir="${tmp.dir}">
 			<fileset dir="${project.dir}">
@@ -51,8 +50,24 @@
 				<include name="${package.css}"/>
 			</fileset>
 		</copy>
+	</target>
+	
+	<!-- 复制(包括所有文件) -->
+	<target name="copy-all">
+		<mkdir dir="${tmp.dir}"/>
+		<copy todir="${tmp.dir}/js">	
+		    <fileset dir="${js.dir}">
+		    	<exclude name="*.xml"/>
+		    </fileset>
+    	</copy>
+		<copy todir="${tmp.dir}/css">	
+			<fileset dir="${css.dir}">
+		    </fileset>
+    	</copy>
+	</target>
 
-		<!-- 版本号替换 -->
+	<!-- 版本号替换 -->
+	<target name="version">
 		<replaceregexp match="%VERSION%"
                    replace="${version}"
                    flags="g"
@@ -65,7 +80,7 @@
 			<fileset dir="${tmp.dir}"/>
 			<mapper type="regexp"
               from="^(.*?)(?:-pkg)?\.(css|js)$"
-              to="\1-debug.\2"/>
+              to="\1.\2"/>
 		</copy>
 	</target>
 
@@ -189,11 +204,11 @@
 
 
 	<target name="common.build.js"
-          depends="prepare,compress-js,copyright,destroy">
+          depends="copy,version,compress-js,copyright,destroy">
 	</target>
 	
 	<target name="common.build"
-          depends="prepare,compress-css,compress-js,copyright,destroy">
+          depends="copy-all,version,compress-css,compress-js,copyright,destroy">
 	</target>
 
 </project>
