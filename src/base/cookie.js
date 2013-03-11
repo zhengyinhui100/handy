@@ -84,4 +84,4 @@ HANDY.add('Cookie',function(){
 	}
 	
 	return Cookie;
-})
+});

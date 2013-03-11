@@ -16,4 +16,4 @@ HANDY.add('Support',['Browser'],function($){
 	
 	return Support;
 	
-})
+});

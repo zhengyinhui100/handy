@@ -165,4 +165,4 @@ HANDY.add("Debug",['Json'],function($){
 	
 	return Debug;
 	
-})
+});

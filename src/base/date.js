@@ -149,4 +149,4 @@ HANDY.add('Date',function(){
 	}
 	
 	return Date;
-})
+});

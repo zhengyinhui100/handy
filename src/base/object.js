@@ -31,10 +31,17 @@ HANDY.add('Object',function($){
 		var oObject=null, j, aPath, root,len;  
         aPath=sPath.split(".");  
         root = aPath[0]; 
+        function fGet(){
+        	return eval('(function(){try{return ' + root + ';}catch(e){}})()');
+        }
         //考虑压缩的因素
-        oObject=eval('(function(){if (typeof ' + root + ' == "undefined"){' + root + ' = {};}return ' + root + ';})()');  
+        oObject=fGet();  
+        if(obj!=undefined&&!oObject){
+        	eval(root+"={}");
+        	oObject=fGet();
+        }
         //循环命名路径
-        for (j=1,len=aPath.length; j<len; ++j) { 
+        for (j=1,len=aPath.length; oObject&&j<len; ++j) { 
         	if(j==len-1&&obj){
         		oObject[aPath[j]]=obj;
         	}else if(obj||oObject[aPath[j]]){
@@ -410,4 +417,4 @@ HANDY.add('Object',function($){
 	
 	return Object;
 	
-})
+});

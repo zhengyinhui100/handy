@@ -7,6 +7,8 @@
 	$H=$.noConflict();
 	$HO=$H.Object;
 	$HS=$H.String;
+	$Require=$H.Loader.require;
+	$Define=$H.Loader.define;
 
 
 	//系统全局变量
@@ -21,4 +23,4 @@
 	},$$);*/
 	
 	
-})(HANDY)
+})(HANDY);

@@ -52,4 +52,4 @@ HANDY.add('Function',['Object'],function($){
 	
 	return Function;
 	
-})
+});

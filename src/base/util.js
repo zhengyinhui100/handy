@@ -31,4 +31,4 @@ HANDY.add('Util',function($){
 	
 	return Util;
 	
-})
+});

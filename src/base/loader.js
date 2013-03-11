@@ -14,10 +14,19 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	
 	var Loader= {
 		traceLog                : true,                     //是否打印跟踪信息
-		rootPath                : '',                       //根url
-		timeout                 : 15000,
+		rootPath                : $SysConf.staticServer,    //静态资源根目录url
+		jsDir                   : '/js/',                    //js目录
+		cssDir                  : '/css/',                   //css目录
+		timeout                 : 15000,                    //请求超时时间
 		skinName                : 'skin',                   //皮肤名称，皮肤css的url里包含的字符串片段，用于检查css是否是皮肤
-		urlMap                  : {},                       //id-url映射表    
+		namespacePrifix         : 'hui.',                   //id解析成路径时忽略的前缀
+		//isCompress              : true,                     //是否带压缩后缀，默认不压缩
+		compressSuffix          : '.min',                    //压缩文件名后缀
+		moduleConf              : {                         //资源模块配置(虚拟资源id配置)
+			//exampleId:['js1','/js/test.js','/css/test.css']
+		},                       
+		urlMap                  : {},                       //id-url映射表   
+		//version               : '',                       //追加到请求url的query里的版本号:'url?v=version'
 		
 	    showLoading				: function(bIsLoading){},	//加载中的提示，由具体逻辑重写
 		define                  : fDefine,                  //定义资源资源
@@ -46,7 +55,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
     			aExist.push(result);
     		}
     	}
-    	return aExist;
+    	return aExist.length==1?aExist[0]:aExist;
     }
     
     /**
@@ -61,15 +70,21 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
     		var sRoot=Loader.rootPath;
     		//css文件
     		if(/.css$/.test(sId)){
-    			sUrl=sId.indexOf('/')==0?sId:"/css/"+sId;
+    			sUrl=sId.indexOf('/')==0?sId:Loader.cssDir+sId;
     		}else if(/.js$/.test(sId)){
     			//js文件
-    			sUrl="/"+sId;
+    			sUrl=Loader.jsDir+sId;
     		}else{
     			//命名空间
-    			sUrl='/'+sId.replace(/\./g,"/")+".js";
+    			sUrl=Loader.jsDir+sId.replace(Loader.namespacePrifix,'').replace(/\./g,"/").toLowerCase()+".js";
     		}
     		sUrl=sRoot+sUrl;
+    	}
+    	if(Loader.isCompress){
+    		sUrl=sUrl.replace(/(?!min)\.(?=js$|css$)/,Loader.compressSuffix+".");
+    	}
+    	if(Loader.version){
+    		sUrl+="?v="+Loader.version;
     	}
 		return sUrl;
     }
@@ -295,13 +310,12 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 * @return {number}nIndex 返回回调索引
 	 */
 	function fDefine(sId,aDeps,factory){
-		var that=this;
 		var nLen=arguments.length;
 		if(nLen==2){
 			factory=aDeps;
 			aDeps=[];
 		}
-		that.require(aDeps,function(aExists){
+		Loader.require(aDeps,function(aExists){
 			var resource;
 			if(typeof factory=="function"){
 				try{
@@ -325,7 +339,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 * @method require(id,fCallback=)
 	 * @param {string|array}id    资源id（数组）
 	 * @param {function()=}fCallback(可选) 回调函数
-	 * @return {any}返回最后一个当前已加载的资源，通常用于className只有一个的情况，这样可以立即通过返回赋值
+	 * @return {?*}返回最后一个当前已加载的资源，通常用于className只有一个的情况，这样可以立即通过返回赋值
 	 */
     function fRequire(id,fCallback){
     	var aIds=typeof id=="string"?[id]:id;
@@ -335,8 +349,16 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
     	var aExisteds=[];
     	//是否保存到上下文列表中，保证callback只执行一次
     	var bNeedContext=true;
-    	for(var i=0,nLen=aIds.length;i<nLen;i++){
+    	for(var i=0;i<aIds.length;i++){
     		var sId=aIds[i];
+    		//如果是虚拟资源id，转换成实际id
+    		var idArr=Loader.moduleConf[sId];
+    		if(idArr){
+    			aIds.splice(i,1);
+    			aIds=aIds.concat(idArr);
+    			i--;
+    			continue;
+    		}
     		if(!_fChkExisted(sId)){
     			//未加载资源放进队列中
     			aRequestIds.push(sId);
@@ -368,4 +390,4 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
     
     return Loader;
 	
-})
+});
