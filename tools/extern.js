@@ -11,7 +11,8 @@ var $H;
 var $HO;
 var $HS;
 var $G;
-var $gUrlPrefix;
+var $SysConf;
+var $Conf
 var jQuery;
 var $MenuConf;
 var $Url;
@@ -21,4 +22,5 @@ var $AccordionMenu;
 var $Dialog;
 var $TipsBox;
 var KindEditor;
-var $portalImageUrl;
+var $Define;
+var	$Require;

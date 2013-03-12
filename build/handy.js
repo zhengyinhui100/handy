@@ -56,7 +56,8 @@
 		return HANDY;
 	}
 	
-})()/**
+})();
+/**
  * 对象扩展类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -89,10 +90,17 @@ HANDY.add('Object',function($){
 		var oObject=null, j, aPath, root,len;  
         aPath=sPath.split(".");  
         root = aPath[0]; 
+        function fGet(){
+        	return eval('(function(){try{return ' + root + ';}catch(e){}})()');
+        }
         //考虑压缩的因素
-        oObject=eval('(function(){if (typeof ' + root + ' == "undefined"){' + root + ' = {};}return ' + root + ';})()');  
+        oObject=fGet();  
+        if(obj!=undefined&&!oObject){
+        	eval(root+"={}");
+        	oObject=fGet();
+        }
         //循环命名路径
-        for (j=1,len=aPath.length; j<len; ++j) { 
+        for (j=1,len=aPath.length; oObject&&j<len; ++j) { 
         	if(j==len-1&&obj){
         		oObject[aPath[j]]=obj;
         	}else if(obj||oObject[aPath[j]]){
@@ -468,7 +476,8 @@ HANDY.add('Object',function($){
 	
 	return Object;
 	
-})/**
+});
+/**
  * HANDY 核心方法定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -479,7 +488,8 @@ HANDY.add('Core',function($){
 	
 	
 
-})/**
+});
+/**
  * 日期扩展类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -630,7 +640,8 @@ HANDY.add('Date',function(){
 	}
 	
 	return Date;
-})/**
+});
+/**
  * 浏览器环境类，分析浏览器类型、版本号、操作系统、内核类型、壳类型、flash版本
  * 浏览器版本，$Browser.ie/firefox/chrome/opera/safari(),如果浏览器是IE的，$.Browser.ie()的值是浏览器的版本号，!$.Browser.ie()表示非IE浏览器
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -763,7 +774,8 @@ HANDY.add("Browser",["Object"],function($){
 	_fInit();
 	return Browser;
 	
-});/**
+});
+/**
  * String工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -961,7 +973,8 @@ HANDY.add("String",function(){
 	}
 	
 	return String;
-})/**
+});
+/**
  * Cookie工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -1047,7 +1060,8 @@ HANDY.add('Cookie',function(){
 	}
 	
 	return Cookie;
-})/**
+});
+/**
  * 工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -1080,7 +1094,8 @@ HANDY.add('Util',function($){
 	
 	return Util;
 	
-})/**
+});
+/**
  * 函数类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -1134,7 +1149,8 @@ HANDY.add('Function',['Object'],function($){
 	
 	return Function;
 	
-})/**
+});
+/**
  * 调试类，方便个浏览器下调试，在发布时统一删除调试代码
  * //TODO 快捷键切换调试等级
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -1301,7 +1317,8 @@ HANDY.add("Debug",['Json'],function($){
 	
 	return Debug;
 	
-})/**
+});
+/**
  * 资源加载类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * 
@@ -1317,10 +1334,19 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	
 	var Loader= {
 		traceLog                : true,                     //是否打印跟踪信息
-		rootPath                : '',                       //根url
-		timeout                 : 15000,
+		rootPath                : '',    //静态资源根目录url
+		jsDir                   : '/js/',                    //js目录
+		cssDir                  : '/css/',                   //css目录
+		timeout                 : 15000,                    //请求超时时间
 		skinName                : 'skin',                   //皮肤名称，皮肤css的url里包含的字符串片段，用于检查css是否是皮肤
-		urlMap                  : {},                       //id-url映射表    
+		namespacePrifix         : 'hui.',                   //id解析成路径时忽略的前缀
+		//isCompress              : true,                     //是否带压缩后缀，默认不压缩
+		compressSuffix          : '.min',                    //压缩文件名后缀
+		moduleConf              : {                         //资源模块配置(虚拟资源id配置)
+			//exampleId:['js1','/js/test.js','/css/test.css']
+		},                       
+		urlMap                  : {},                       //id-url映射表   
+		//version               : '',                       //追加到请求url的query里的版本号:'url?v=version'
 		
 	    showLoading				: function(bIsLoading){},	//加载中的提示，由具体逻辑重写
 		define                  : fDefine,                  //定义资源资源
@@ -1349,7 +1375,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
     			aExist.push(result);
     		}
     	}
-    	return aExist;
+    	return aExist.length==1?aExist[0]:aExist;
     }
     
     /**
@@ -1364,15 +1390,21 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
     		var sRoot=Loader.rootPath;
     		//css文件
     		if(/.css$/.test(sId)){
-    			sUrl=sId.indexOf('/')==0?sId:"/css/"+sId;
+    			sUrl=sId.indexOf('/')==0?sId:Loader.cssDir+sId;
     		}else if(/.js$/.test(sId)){
     			//js文件
-    			sUrl="/"+sId;
+    			sUrl=Loader.jsDir+sId;
     		}else{
     			//命名空间
-    			sUrl='/'+sId.replace(/\./g,"/")+".js";
+    			sUrl=Loader.jsDir+sId.replace(Loader.namespacePrifix,'').replace(/\./g,"/").toLowerCase()+".js";
     		}
     		sUrl=sRoot+sUrl;
+    	}
+    	if(Loader.isCompress){
+    		sUrl=sUrl.replace(/(?!min)\.(?=js$|css$)/,Loader.compressSuffix+".");
+    	}
+    	if(Loader.version){
+    		sUrl+="?v="+Loader.version;
     	}
 		return sUrl;
     }
@@ -1598,13 +1630,12 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 * @return {number}nIndex 返回回调索引
 	 */
 	function fDefine(sId,aDeps,factory){
-		var that=this;
 		var nLen=arguments.length;
 		if(nLen==2){
 			factory=aDeps;
 			aDeps=[];
 		}
-		that.require(aDeps,function(aExists){
+		Loader.require(aDeps,function(aExists){
 			var resource;
 			if(typeof factory=="function"){
 				try{
@@ -1628,7 +1659,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 * @method require(id,fCallback=)
 	 * @param {string|array}id    资源id（数组）
 	 * @param {function()=}fCallback(可选) 回调函数
-	 * @return {any}返回最后一个当前已加载的资源，通常用于className只有一个的情况，这样可以立即通过返回赋值
+	 * @return {?*}返回最后一个当前已加载的资源，通常用于className只有一个的情况，这样可以立即通过返回赋值
 	 */
     function fRequire(id,fCallback){
     	var aIds=typeof id=="string"?[id]:id;
@@ -1638,8 +1669,16 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
     	var aExisteds=[];
     	//是否保存到上下文列表中，保证callback只执行一次
     	var bNeedContext=true;
-    	for(var i=0,nLen=aIds.length;i<nLen;i++){
+    	for(var i=0;i<aIds.length;i++){
     		var sId=aIds[i];
+    		//如果是虚拟资源id，转换成实际id
+    		var idArr=Loader.moduleConf[sId];
+    		if(idArr){
+    			aIds.splice(i,1);
+    			aIds=aIds.concat(idArr);
+    			i--;
+    			continue;
+    		}
     		if(!_fChkExisted(sId)){
     			//未加载资源放进队列中
     			aRequestIds.push(sId);
@@ -1671,7 +1710,8 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
     
     return Loader;
 	
-})/**
+});
+/**
  * 模板类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -1698,7 +1738,8 @@ HANDY.add('Template',function($){
 	
 	return Template;
 	
-});/**
+});
+/**
  * 支持类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -1716,7 +1757,8 @@ HANDY.add('Support',['Browser'],function($){
 	
 	return Support;
 	
-})/**
+});
+/**
  * 
  */
 (function($){
@@ -1725,6 +1767,8 @@ HANDY.add('Support',['Browser'],function($){
 	$H=$.noConflict();
 	$HO=$H.Object;
 	$HS=$H.String;
+	$Require=$H.Loader.require;
+	$Define=$H.Loader.define;
 
 
 	//系统全局变量
@@ -1739,7 +1783,8 @@ HANDY.add('Support',['Browser'],function($){
 	},$$);*/
 	
 	
-})(HANDY)//组件基类
+})(HANDY);
+//组件基类
 
 
 (function(){

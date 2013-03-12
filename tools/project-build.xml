@@ -6,6 +6,7 @@
 	<property name="project.tmp.dir" location="../tmp"/>
 	<property name="js.dir" location="../js"/>
 	<property name="css.dir" location="../css"/>
+	<property name="img.dir" location="../img"/>
 	
 	<import file="./common-build.xml"/>
 
@@ -28,7 +29,10 @@
     	            encoding="${charset}"
     	            outputencoding="${charset}">
 
-			<path path="${js.dir}/handy/handy-pkg.js"/>
+    		<path path="${js.dir}/plugins/jquery.ui.core.js"/>
+    		<path path="${js.dir}/plugins/jquery.ui.position.js"/>
+    		<path path="${js.dir}/plugins/jquery.ui.widget.js"/>
+    		<path path="${js.dir}/handy/handy-pkg.js"/>
 			<path path="${js.dir}/common/common.js"/>
 			<path path="${js.dir}/start.js"/>
 		</concat>
@@ -37,8 +41,8 @@
     	<delete file="${js.dir}/handy/handy-pkg.js"></delete>
     	
     	<!-- 打包模块js -->
-    	<copy todir="${js.dir}/modules">	
-		    <fileset dir="${js.dir}/modules">
+    	<copy todir="${js.dir}/module">	
+		    <fileset dir="${js.dir}/module">
 		    	<exclude name="*-pkg.js"/>
 		    </fileset>
 		    <globmapper from="*.js" to="*-pkg.js"/>
@@ -48,6 +52,9 @@
     	<copy todir="${js.dir}/plugins">	
 		    <fileset dir="${js.dir}/plugins">
 		    	<include name="*.js"/>
+		    	<exclude name="jquery.ui.core.js"/>
+		    	<exclude name="jquery.ui.position.js"/>
+		    	<exclude name="jquery.ui.widget.js"/>
 		    	<exclude name="*.min.js"/>
 		    	<exclude name="*-pkg.js"/>
 		    	<exclude name="*-debug.js"/>
@@ -82,8 +89,15 @@
 		</delete>
 	</target>
 	
+	<!-- 清理临时文件 -->
+	<target name="other">
+		<copy todir="${build.dir}/img">
+			<fileset dir="${img.dir}"></fileset>
+		</copy>
+	</target>
+	
 	<target name="build"
-          depends="remove-build,compile-less,package,common.build,clean">
+          depends="remove-build,compile-less,package,common.build,clean,other">
 	</target>
 
 </project>

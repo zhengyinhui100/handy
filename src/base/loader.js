@@ -14,7 +14,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	
 	var Loader= {
 		traceLog                : true,                     //是否打印跟踪信息
-		rootPath                : $SysConf.staticServer,    //静态资源根目录url
+		rootPath                : '',    //静态资源根目录url
 		jsDir                   : '/js/',                    //js目录
 		cssDir                  : '/css/',                   //css目录
 		timeout                 : 15000,                    //请求超时时间
