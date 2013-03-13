@@ -1,0 +1,153 @@
+// functions started with "fn_"
+
+@import "variables.less";
+ 
+// set the transparency
+.fn_bg_transparency(@degree){
+	opacity:@degree/100;
+	filter:alpha(opacity=@degree);
+}
+
+
+// wrapping long word - need testing
+.fn_word_break(){
+	white-space: pre;           /* CSS 2.0 */
+    white-space: pre-wrap;      /* CSS 2.1 */
+    white-space: pre-line;      /* CSS 3.0 */
+    white-space: -pre-wrap;     /* Opera 4-6 */
+    white-space: -o-pre-wrap;   /* Opera 7 */
+    white-space: -moz-pre-wrap; /* Mozilla */
+    white-space: -hp-pre-wrap;  /* HP Printers */
+    word-wrap: break-word;      /* IE 5+ */		
+    overflow: hidden;
+    word-break: break-all;
+}
+
+
+// set y scrollbar only
+.fn_overflow_y(){
+	overflow-x:hidden;
+	overflow-y:auto; 
+}
+
+
+// fnot setting shorthand
+.fn_font_shorthand(@size: @font_size_base, @line_height: @font_line_height_base, @weight: normal){
+	font-size: @size;
+    font-weight: @weight;
+    line-height: @line_height;	
+}
+    
+// set absolute position
+.fn_abs_tl_position(@top,@left){
+    position:absolute;
+    top: @top;
+    left: @left;
+}
+
+.fn_abs_tr_position(@top,@right){
+    position:absolute;
+    top: @top;
+    right: @right;
+}
+.fn_abs_bl_position(@bottom,@left){
+    position:absolute;
+    bottom: @bottom;
+    left: @left;
+}
+.fn_abs_br_position(@bottom,@right){
+    position:absolute;
+    bottom: @bottom;
+    right: @right;
+}
+//set button 
+
+.fn_button_left(@top,@pleft){
+	background-position:0 @top;
+    padding-left: @pleft;
+}
+.fn_button_right(@top,@pright){
+	background-position:right @top; 
+    padding-right: @pright;
+}
+.fn_button_text(@top,@padding:10px,@height:0,@line-height:0,@color:@color_white,@font_size:@font_size_middle){  
+	background-position:0 @top;
+	padding: 0 @padding;
+    height: @height;
+    line-height: @line-height;
+    color: @color;
+    font-size: @font_size; 
+}
+.fn_button_left_hover(@top){
+	background-position:0 @top;
+}
+.fn_button_right_hover(@top){
+ 	background-position: right @top;
+}
+.fn_button_text_hover(@top) {
+	background-position: 0 @top;
+}
+
+//set  icon
+.fn_inline_block(){
+	display:-moz-inline-stack;
+	display:inline-block;
+	zoom:1;
+	*display:inline;
+	overflow:hidden;
+}
+.fn_text_overflow(){
+	overflow: hidden;
+	white-space: nowrap;
+	-o-text-overflow: ellipsis;
+	-ms-text-overflow: ellipsis;
+	text-overflow: ellipsis;
+}
+
+
+// gird setting
+.fn_grid_left(@width,@margin:@margin_base){ 
+	width:@width;
+	float:left;	
+	margin-right:@margin;
+}
+.fn_grid_right(@width){
+	width:@width;
+	float:left;	
+}
+
+
+// set border radius
+.fn_border_radius(@radius){
+    -webkit-border-radius: @radius;
+    -moz-border-radius: @radius;
+    border-radius: @radius; 
+}
+
+.fn_border_tl_radius(@radius) {
+  -webkit-border-top-left-radius: @radius;
+      -moz-border-radius-topleft: @radius;
+          border-top-left-radius: @radius;
+}
+.fn_border_tr_radius(@radius) {
+  -webkit-border-top-right-radius: @radius;
+      -moz-border-radius-topright: @radius;
+          border-top-right-radius: @radius;
+}
+.fn_border_br_radius(@radius) {
+  -webkit-border-bottom-right-radius: @radius;
+      -moz-border-radius-bottomright: @radius;
+          border-bottom-right-radius: @radius;
+}
+.fn_border_bl_radius(@radius) {
+  -webkit-border-bottom-left-radius: @radius;
+      -moz-border-radius-bottomleft: @radius;
+          border-bottom-left-radius: @radius;
+}
+
+// Drop shadows
+.fn_box_shadow(@shadow){
+  -webkit-box-shadow: @shadow;
+     -moz-box-shadow: @shadow;
+          box-shadow: @shadow;
+}
