@@ -1,8 +1,16 @@
+/****************************************************************
+* Author:		郑银辉											*
+* Email:		zhengyinhui100@gmail.com						*
+* Created:		2013-12-14										*
+*****************************************************************/
 
-
-(function(){
+$Defined("handy.module.ModuleManager",function(){
 	
-	var ModuleManager=$HO.createClass("hui.module.ModuleManager");
+	/**
+	 * 模块管理类
+	 * @class ModuleManager
+	 */
+	var ModuleManager=$HO.createClass();
 	
 	$HO.extend(ModuleManager,{
 		
@@ -30,6 +38,8 @@
 			location.hash=hash;
 		},
 		
+		
+		
 		getModUrl:function(moduleName){
 			return $G.config.moduleUrl[moduleName];
 		}
@@ -37,4 +47,4 @@
 	});
 	
 	
-})();
+});

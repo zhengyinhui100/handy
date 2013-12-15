@@ -1,5 +1,5 @@
 /**
- * 
+ * 适配类库
  */
 (function($){
 	
@@ -7,11 +7,13 @@
 	$H=$.noConflict();
 	$HO=$H.Object;
 	$HS=$H.String;
+	$Define=$H.Loader.difine;
+	$Require=$H.Loader.require;
 
 
 	//系统全局变量
 	$G={
-			config:{}
+		config:{}
 	};
 	
 	/*var $$=window.$;
