@@ -108,6 +108,7 @@ $Define("handy.module.ModuleManager","handy.module.History",function(History){
 	function fShowMod(oMod){
 		this.hideAll();
 		oMod.wrapper.show();
+		oMod.isActive=true;
 	}
 	/**
 	 * 隐藏所有模块
@@ -118,6 +119,7 @@ $Define("handy.module.ModuleManager","handy.module.History",function(History){
 		var oModules=this.modules
 		for(module in oModules){
 			oModules[module].wrapper.hide();
+			oModules[module].isActive=false;
 		}
 	}
 	

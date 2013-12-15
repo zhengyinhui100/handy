@@ -14,6 +14,7 @@ $Define("handy.module.ModuleClass",function () {
 	
 	Object.extend(ModuleClass.prototype, {
 		isLoaded       : false,          //模块是否已载入
+		isActived      : false,          //模块是否是当前活跃的
 		//container    : null,           //模块的容器对象
 		useCache       : true,           //是否使用cache
 		//name         : null,           //模块名
