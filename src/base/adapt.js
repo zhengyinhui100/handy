@@ -7,7 +7,7 @@
 	$H=$.noConflict();
 	$HO=$H.Object;
 	$HS=$H.String;
-	$Define=$H.Loader.difine;
+	$Define=$H.Loader.define;
 	$Require=$H.Loader.require;
 
 

@@ -8,7 +8,7 @@
  * 模块管理类
  * @class ModuleManager
  */
-$Defined("handy.module.ModuleManager","handy.module.History",function(History){
+$Define("handy.module.ModuleManager","handy.module.History",function(History){
 	
 	var ModuleManager=$HO.createClass();
 	
@@ -32,9 +32,11 @@ $Defined("handy.module.ModuleManager","handy.module.History",function(History){
 	function fInitialize(oConf){
 		var that=this;
 		that.history=new History();
-		that.conf=oConf;
 		that.modules={};
-		that.container=oConf.container?$(oConf.container):$(document.body);
+		if(oConf){
+			that.conf=oConf;
+			that.container=oConf.container?$(oConf.container):$(document.body);
+		}
 	}
 	/**
 	 * 进入模块
@@ -43,7 +45,7 @@ $Defined("handy.module.ModuleManager","handy.module.History",function(History){
 	 */
 	function fGo(oParams){
 		var that=this;
-		var sModName=oParam.modName;
+		var sModName=oParams.modName;
 		var oMods=that.modules;
 		//如果在缓存模块中，直接显示该模块，并且调用该模块cache方法
 		var oMod=oMods[sModName];
@@ -60,9 +62,9 @@ $Defined("handy.module.ModuleManager","handy.module.History",function(History){
 	 * @method createMod
 	 * @param 
 	 */
-	function fCreateMod(oParam){
+	function fCreateMod(oParams){
 		var that=this;
-		var sModName=oParam.modName;
+		var sModName=oParams.modName;
 		//请求模块
 		$Require(sModName,function(Module){
 			var oMod=new Module();

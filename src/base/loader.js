@@ -14,7 +14,10 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	
 	var Loader= {
 		traceLog                : true,                     //是否打印跟踪信息
-		rootPath                : '',                       //根url
+		rootPath                : {
+			'handy'        : 'http://localhost:8081/handy/src',
+			'com.sport'    : 'http://localhost:8082/sportapp/www/js'
+		},                       //根url，根据命名空间前缀匹配替换，如果没有匹配则是空字符串''；如果rootPath是字符串则直接使用
 		timeout                 : 15000,
 		skinName                : 'skin',                   //皮肤名称，皮肤css的url里包含的字符串片段，用于检查css是否是皮肤
 		urlMap                  : {},                       //id-url映射表    
@@ -58,7 +61,18 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
     function _fGetUrl(sId){
     	var sUrl=Loader.urlMap[sId];
     	if(!sUrl){
-    		var sRoot=Loader.rootPath;
+    		var sRoot='';
+    		var rootPath=Loader.rootPath;
+    		if(typeof rootPath=='string'){
+    			sRoot=rootPath;
+    		}else{
+	    		for(prifix in rootPath){
+	    			if(sId.indexOf(prifix)==0){
+	    				sRoot=rootPath[prifix];
+	    				sId=sId.replace(prifix,'');
+	    			}
+	    		}
+    		}
     		//css文件
     		if(/.css$/.test(sId)){
     			sUrl=sId.indexOf('/')==0?sId:"/css/"+sId;
@@ -69,7 +83,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
     			//命名空间
     			sUrl='/'+sId.replace(/\./g,"/")+".js";
     		}
-    		sUrl=sRoot+sUrl;
+    		sUrl=sRoot+sUrl.toLowerCase();
     	}
 		return sUrl;
     }
@@ -278,6 +292,9 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	    	var oContext=_aContext[i];
 	    	var aExists=_fChkExisted(oContext.deps);
 	    	if(aExists){
+	    		if(aExists.length==1){
+	    			aExists=aExists[0];
+	    		}
 	    		oContext.callback(aExists);
 	    		_aContext.splice(i,1);
 	    	}
@@ -295,13 +312,12 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
 	 * @return {number}nIndex 返回回调索引
 	 */
 	function fDefine(sId,aDeps,factory){
-		var that=this;
 		var nLen=arguments.length;
 		if(nLen==2){
 			factory=aDeps;
 			aDeps=[];
 		}
-		that.require(aDeps,function(aExists){
+		Loader.require(aDeps,function(aExists){
 			var resource;
 			if(typeof factory=="function"){
 				try{
