@@ -2,7 +2,7 @@
  * Base64编码类，对字符串进行Base64编码和解码
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add("Base64", function($) {
+handy.add("Base64", function($) {
 
 	var Base64 = {
 		encode : encode64,

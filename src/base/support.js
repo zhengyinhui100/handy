@@ -2,7 +2,7 @@
  * 支持类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add('Support',['Browser'],function($){
+handy.add('Support',['Browser'],function($){
 	
 	var Support={
 	}

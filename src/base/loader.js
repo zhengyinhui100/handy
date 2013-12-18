@@ -3,7 +3,7 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * 
  */
-HANDY.add("Loader",["Debug","Object","Function"],function($){
+handy.add("Loader",["Debug","Object","Function"],function($){
 	
 	var _RESOURCE_NOT_FOUND= 'Resource not found: ',
 		_eHead=document.head ||document.getElementsByTagName('head')[0] ||document.documentElement,

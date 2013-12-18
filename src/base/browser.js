@@ -3,7 +3,7 @@
  * 浏览器版本，$Browser.ie/firefox/chrome/opera/safari(),如果浏览器是IE的，$.Browser.ie()的值是浏览器的版本号，!$.Browser.ie()表示非IE浏览器
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add("Browser",["Object"],function($){
+handy.add("Browser",["Object"],function($){
 
 	var oInfo={};
 	

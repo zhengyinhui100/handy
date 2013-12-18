@@ -2,7 +2,7 @@
  * 对象扩展类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add('Object',function($){
+handy.add('Object',function($){
 	
 	var Object={
 		namespace           : fNamespace,       //创建或读取命名空间，可以传入用以初始化该命名空间的对象

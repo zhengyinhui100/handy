@@ -2,7 +2,7 @@
  * 事件类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add('CustomEvent',["Object"],function($){
+handy.add('CustomEvent',["Object"],function($){
 	
 	var Object=$.Object;
 

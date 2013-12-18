@@ -3,7 +3,7 @@
  * //TODO 快捷键切换调试等级
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add("Debug",['Json'],function($){
+handy.add("Debug",['Json'],function($){
 	
 	var Debug={
 		level	    : 0,            //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行

@@ -2,7 +2,7 @@
  * Element类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add('Element',['Object'],function($){
+handy.add('Element',['Object'],function($){
 	
 	//用于检查是否是html字符串(是否包含html标签)
 	var oQuickExpr = /^[^<]*(<(.|\s)+>)[^>]*$/;

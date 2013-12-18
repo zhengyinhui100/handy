@@ -2,7 +2,7 @@
  * Cookie工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add('Cookie',function(){
+handy.add('Cookie',function(){
 	
 	var Cookie={
 		get     : fGet,    //获取cookie

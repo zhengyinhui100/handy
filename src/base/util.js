@@ -2,17 +2,17 @@
  * 工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add('Util',function($){
+handy.add('Util',function($){
 	
 	var Util={
 		isWindow         : fIsWindow, //检查是否是window对象
-		getUuid          : fGetUuid   //获取HANDY内部uuid
+		getUuid          : fGetUuid   //获取handy内部uuid
 	}
 	
 	var _nUuid=0;
 	
 	/**
-	 * 获取HANDY内部uuid
+	 * 获取handy内部uuid
 	 * @method  getUuid
 	 * @return  {number}  返回uuid
 	 */

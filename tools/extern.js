@@ -4,7 +4,7 @@
 var console;
 var parent;
 
-var HANDY;
+var handy;
 var JSON;
 var $;
 var $H;

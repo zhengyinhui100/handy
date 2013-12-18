@@ -2,7 +2,7 @@
  * Ajax类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add('Ajax',function(){
+handy.add('Ajax',function(){
 	
 	var Ajax={
 		

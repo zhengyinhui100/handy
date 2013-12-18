@@ -3,7 +3,7 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * 
  */
-HANDY.add("HashChange",function($H){
+handy.add("HashChange",function($H){
 
 	/**
 	 * IE6直接用location.hash取hash，可能会取少一部分内容：
@@ -63,8 +63,8 @@ HANDY.add("HashChange",function($H){
 		/**
 		 * 增加hashchange监听函数
 		 * @method listen(fListener[,sName])
-		 * @param {function}
-		 * @param {string=}监听函数的名称，删除该监听时用到
+		 * @param {function} fListener监听函数
+		 * @param {string=}  sName监听函数的名称，删除该监听时用到
 		 * @return {?string}
 		 */
 		function fListen(fListener,sName){
@@ -77,6 +77,18 @@ HANDY.add("HashChange",function($H){
 				sName=sName||$H.expando+(++_nListener);
 				HashChange.listeners[sName]=fListener;
 				return sName;
+			}
+		}
+		/**
+		 * 删除hashchange监听函数
+		 * @method unListen([sName])
+		 * @param {string=} sName监听函数的名称，不传此参数表示删除所有监听函数
+		 */
+		function fUnListen(sName){
+			for(name in HashChange.listeners){
+				if(!sName||sName==name){
+					delete HashChange.listeners[name];
+				}
 			}
 		}
 		/**

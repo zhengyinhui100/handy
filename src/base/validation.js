@@ -3,7 +3,7 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * created: 2013-12-16
  */
-HANDY.add('Validation',function($){
+handy.add('Validation',function($){
 	
 	var Validation={
 		isEmail          : fIsEmail,     //检查是否是正确的邮件地址

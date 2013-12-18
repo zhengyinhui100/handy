@@ -1,22 +1,22 @@
 /* Handy v1.0.0-dev  |  zhengyinhui100@gmail.com */
 /**
- * HANDY 基本定义
+ * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 (function(){
 	
-	var _HANDY = window.HANDY,
+	var _handy = window.handy,
 	_$ = window.$,
 	
-	HANDY=window.HANDY=window.$=function(selector,context){
-		//return new HANDY.Element(selector,context);
+	handy=window.handy=window.$=function(selector,context){
+		//return new handy.Element(selector,context);
 	};
 	
 	
-	HANDY.version    = '1.0.0';    //版本号
-	HANDY.expando    = "handy" + ( HANDY.version + Math.random() ).replace( /\D/g, "" );    //自定义属性名
-	HANDY.add        = fAdd;            //添加子模块
-	HANDY.noConflict = fNoConflict;   //处理命名冲突
+	handy.version    = '1.0.0';    //版本号
+	handy.expando    = "handy" + ( handy.version + Math.random() ).replace( /\D/g, "" );    //自定义属性名
+	handy.add        = fAdd;            //添加子模块
+	handy.noConflict = fNoConflict;   //处理命名冲突
 	
 	/**
 	 * 添加子模块
@@ -30,37 +30,37 @@
 			fDefined=aRequires;
 			aRequires=null;
 		}
-		if(!aRequires||!HANDY.Loader||true){
-			HANDY[sName]=fDefined(HANDY);
+		if(!aRequires||!handy.Loader||true){
+			handy[sName]=fDefined(handy);
 		}else{
-			HANDY.Loader.require(aRequires,function(){
-				HANDY[sName]=fDefined(HANDY);
+			handy.Loader.require(aRequires,function(){
+				handy[sName]=fDefined(handy);
 			});
 		}
 	}
 	/**
 	 * 处理命名冲突
 	 * @method noConflict
-	 * @param {boolean}isDeep 是否处理window.HANDY冲突
-	 * @retrun {Object}HANDY 返回当前定义的HANDY对象
+	 * @param {boolean}isDeep 是否处理window.handy冲突
+	 * @retrun {Object}handy 返回当前定义的handy对象
 	 */
 	function fNoConflict( isDeep ) {
-		if ( window.$ === HANDY ) {
+		if ( window.$ === handy ) {
 			window.$ = _$;
 		}
 
-		if ( isDeep && window.HANDY === HANDY ) {
-			window.HANDY = _HANDY;
+		if ( isDeep && window.handy === handy ) {
+			window.handy = _handy;
 		}
 
-		return HANDY;
+		return handy;
 	}
 	
 })()/**
  * 对象扩展类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add('Object',function($){
+handy.add('Object',function($){
 	
 	var Object={
 		namespace           : fNamespace,       //创建或读取命名空间，可以传入用以初始化该命名空间的对象
@@ -469,10 +469,10 @@ HANDY.add('Object',function($){
 	return Object;
 	
 })/**
- * HANDY 核心方法定义
+ * handy 核心方法定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add('Core',function($){
+handy.add('Core',function($){
 	
 	var Core={
 	}
@@ -483,7 +483,7 @@ HANDY.add('Core',function($){
  * 日期扩展类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add('Date',function(){
+handy.add('Date',function(){
 	
 	var WDate=window.Date;
 	
@@ -635,7 +635,7 @@ HANDY.add('Date',function(){
  * 浏览器版本，$Browser.ie/firefox/chrome/opera/safari(),如果浏览器是IE的，$.Browser.ie()的值是浏览器的版本号，!$.Browser.ie()表示非IE浏览器
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add("Browser",["Object"],function($){
+handy.add("Browser",["Object"],function($){
 
 	var oInfo={};
 	
@@ -767,7 +767,7 @@ HANDY.add("Browser",["Object"],function($){
  * String工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add("String",function(){
+handy.add("String",function(){
 	
 	var String={
 		stripTags		: fStripTags,       // 删除标签
@@ -965,7 +965,7 @@ HANDY.add("String",function(){
  * Cookie工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add('Cookie',function(){
+handy.add('Cookie',function(){
 	
 	var Cookie={
 		get     : fGet,    //获取cookie
@@ -1051,17 +1051,17 @@ HANDY.add('Cookie',function(){
  * 工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add('Util',function($){
+handy.add('Util',function($){
 	
 	var Util={
 		isWindow         : fIsWindow, //检查是否是window对象
-		getUuid          : fGetUuid   //获取HANDY内部uuid
+		getUuid          : fGetUuid   //获取handy内部uuid
 	}
 	
 	var _nUuid=0;
 	
 	/**
-	 * 获取HANDY内部uuid
+	 * 获取handy内部uuid
 	 * @method  getUuid
 	 * @return  {number}  返回uuid
 	 */
@@ -1084,7 +1084,7 @@ HANDY.add('Util',function($){
  * 函数类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add('Function',['Object'],function($){
+handy.add('Function',['Object'],function($){
 	
 	var Function={
 		bind                : fBind,              //函数bind方法
@@ -1139,7 +1139,7 @@ HANDY.add('Function',['Object'],function($){
  * //TODO 快捷键切换调试等级
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add("Debug",['Json'],function($){
+handy.add("Debug",['Json'],function($){
 	
 	var Debug={
 		level	    : 0,            //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
@@ -1306,7 +1306,7 @@ HANDY.add("Debug",['Json'],function($){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * 
  */
-HANDY.add("Loader",["Debug","Object","Function"],function($){
+handy.add("Loader",["Debug","Object","Function"],function($){
 	
 	var _RESOURCE_NOT_FOUND= 'Resource not found: ',
 		_eHead=document.head ||document.getElementsByTagName('head')[0] ||document.documentElement,
@@ -1675,7 +1675,7 @@ HANDY.add("Loader",["Debug","Object","Function"],function($){
  * 模板类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add('Template',function($){
+handy.add('Template',function($){
 	
 	var Template={
 		simpleReg       : /<%=this\.([^%>]+)%>/g,  //简单替换正则
@@ -1702,7 +1702,7 @@ HANDY.add('Template',function($){
  * 支持类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add('Support',['Browser'],function($){
+handy.add('Support',['Browser'],function($){
 	
 	var Support={
 	}
@@ -1739,7 +1739,7 @@ HANDY.add('Support',['Browser'],function($){
 	},$$);*/
 	
 	
-})(HANDY)//组件基类
+})(handy)//组件基类
 
 
 (function(){

@@ -2,7 +2,7 @@
  * String工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-HANDY.add("String",function(){
+handy.add("String",function(){
 	
 	var String={
 		stripTags		: fStripTags,       // 删除标签
