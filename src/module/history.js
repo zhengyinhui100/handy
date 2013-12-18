@@ -19,6 +19,7 @@ function(Object,HashChange){
 		getCurrentState    : fGetCurrentState  //获取当前状态
 		
 	});
+	
 	/**
 	 * 历史记录类初始化
 	 * @method initialize
@@ -27,7 +28,7 @@ function(Object,HashChange){
 	function fInitialize(sKey){
 		var that=this;
 		that.key=sKey||'handy';
-		
+		HashChange.listen();
 	}
 	/**
 	 * 保存当前状态
