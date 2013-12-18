@@ -3,9 +3,9 @@
 
 (function(){
 	
-	var AccordionMenu=$HO.createClass("hui.component.AccordionMenu");;
+	var AccordionMenu=$HO.createClass("handy.component.AccordionMenu");;
 	
-	$HO.inherit(AccordionMenu,$HO.namespace("hui.component.Component"),{
+	$HO.inherit(AccordionMenu,$HO.namespace("handy.component.Component"),{
 		
 		/**
 		 * 

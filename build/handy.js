@@ -1744,7 +1744,7 @@ handy.add('Support',['Browser'],function($){
 
 (function(){
 	
-	var Component=$HO.createClass("hui.component.Component");
+	var Component=$HO.createClass("handy.component.Component");
 	
 	//静态方法
 	$HO.extend(Component,{
@@ -1876,10 +1876,10 @@ handy.add('Support',['Browser'],function($){
 
 (function(){
 	
-	var TreeMenu=$HO.createClass("hui.component.TreeMenu");;
+	var TreeMenu=$HO.createClass("handy.component.TreeMenu");;
 	
 	
-	$HO.inherit(TreeMenu,$HO.namespace("hui.component.Component"),{
+	$HO.inherit(TreeMenu,$HO.namespace("handy.component.Component"),{
 		
 		/**
 		 * 
@@ -1956,9 +1956,9 @@ handy.add('Support',['Browser'],function($){
 
 (function(){
 	
-	var AccordionMenu=$HO.createClass("hui.component.AccordionMenu");;
+	var AccordionMenu=$HO.createClass("handy.component.AccordionMenu");;
 	
-	$HO.inherit(AccordionMenu,$HO.namespace("hui.component.Component"),{
+	$HO.inherit(AccordionMenu,$HO.namespace("handy.component.Component"),{
 		
 		/**
 		 * 
@@ -2046,10 +2046,10 @@ handy.add('Support',['Browser'],function($){
 
 (function(){
 	
-	var TipsBox=$HO.createClass("hui.component.TipsBox");;
+	var TipsBox=$HO.createClass("handy.component.TipsBox");;
 	
 	
-	$HO.inherit(TipsBox,$HO.namespace("hui.component.Component"),{
+	$HO.inherit(TipsBox,$HO.namespace("handy.component.Component"),{
 		
 		delayInitListener:true,
 		
@@ -2208,7 +2208,7 @@ handy.add('Support',['Browser'],function($){
 
 (function(){
 	
-	var ModuleManager=$HO.createClass("hui.module.ModuleManager");
+	var ModuleManager=$HO.createClass("handy.module.ModuleManager");
 	
 	$HO.extend(ModuleManager,{
 		

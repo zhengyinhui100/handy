@@ -3,7 +3,7 @@
 
 (function(){
 	
-	var Component=$HO.createClass("hui.component.Component");
+	var Component=$HO.createClass("handy.component.Component");
 	
 	//静态方法
 	$HO.extend(Component,{
