@@ -66,7 +66,7 @@ handy.add("Loader",["Debug","Object","Function"],function($){
     		if(typeof rootPath=='string'){
     			sRoot=rootPath;
     		}else{
-	    		for(prifix in rootPath){
+	    		for(var prifix in rootPath){
 	    			if(sId.indexOf(prifix)==0){
 	    				sRoot=rootPath[prifix];
 	    				sId=sId.replace(prifix,'');

@@ -31,7 +31,10 @@
 			aRequires=null;
 		}
 		if(!aRequires||!handy.Loader||true){
-			handy[sName]=fDefined(handy);
+			if(!handy.base){
+				handy.base={};
+			}
+			handy.base[sName]=handy[sName]=fDefined(handy);
 		}else{
 			handy.Loader.require(aRequires,function(){
 				handy[sName]=fDefined(handy);
@@ -1317,7 +1320,10 @@ handy.add("Loader",["Debug","Object","Function"],function($){
 	
 	var Loader= {
 		traceLog                : true,                     //是否打印跟踪信息
-		rootPath                : '',                       //根url
+		rootPath                : {
+			'handy'        : 'http://localhost:8081/handy/src',
+			'com.sport'    : 'http://localhost:8082/sportapp/www/js'
+		},                       //根url，根据命名空间前缀匹配替换，如果没有匹配则是空字符串''；如果rootPath是字符串则直接使用
 		timeout                 : 15000,
 		skinName                : 'skin',                   //皮肤名称，皮肤css的url里包含的字符串片段，用于检查css是否是皮肤
 		urlMap                  : {},                       //id-url映射表    
@@ -1361,7 +1367,18 @@ handy.add("Loader",["Debug","Object","Function"],function($){
     function _fGetUrl(sId){
     	var sUrl=Loader.urlMap[sId];
     	if(!sUrl){
-    		var sRoot=Loader.rootPath;
+    		var sRoot='';
+    		var rootPath=Loader.rootPath;
+    		if(typeof rootPath=='string'){
+    			sRoot=rootPath;
+    		}else{
+	    		for(var prifix in rootPath){
+	    			if(sId.indexOf(prifix)==0){
+	    				sRoot=rootPath[prifix];
+	    				sId=sId.replace(prifix,'');
+	    			}
+	    		}
+    		}
     		//css文件
     		if(/.css$/.test(sId)){
     			sUrl=sId.indexOf('/')==0?sId:"/css/"+sId;
@@ -1372,7 +1389,7 @@ handy.add("Loader",["Debug","Object","Function"],function($){
     			//命名空间
     			sUrl='/'+sId.replace(/\./g,"/")+".js";
     		}
-    		sUrl=sRoot+sUrl;
+    		sUrl=sRoot+sUrl.toLowerCase();
     	}
 		return sUrl;
     }
@@ -1581,6 +1598,9 @@ handy.add("Loader",["Debug","Object","Function"],function($){
 	    	var oContext=_aContext[i];
 	    	var aExists=_fChkExisted(oContext.deps);
 	    	if(aExists){
+	    		if(aExists.length==1){
+	    			aExists=aExists[0];
+	    		}
 	    		oContext.callback(aExists);
 	    		_aContext.splice(i,1);
 	    	}
@@ -1598,13 +1618,12 @@ handy.add("Loader",["Debug","Object","Function"],function($){
 	 * @return {number}nIndex 返回回调索引
 	 */
 	function fDefine(sId,aDeps,factory){
-		var that=this;
 		var nLen=arguments.length;
 		if(nLen==2){
 			factory=aDeps;
 			aDeps=[];
 		}
-		that.require(aDeps,function(aExists){
+		Loader.require(aDeps,function(aExists){
 			var resource;
 			if(typeof factory=="function"){
 				try{
@@ -1717,7 +1736,7 @@ handy.add('Support',['Browser'],function($){
 	return Support;
 	
 })/**
- * 
+ * 适配类库
  */
 (function($){
 	
@@ -1725,11 +1744,13 @@ handy.add('Support',['Browser'],function($){
 	$H=$.noConflict();
 	$HO=$H.Object;
 	$HS=$H.String;
+	$Define=$H.Loader.define;
+	$Require=$H.Loader.require;
 
 
 	//系统全局变量
 	$G={
-			config:{}
+		config:{}
 	};
 	
 	/*var $$=window.$;
@@ -2204,43 +2225,131 @@ handy.add('Support',['Browser'],function($){
 	});
 	
 	
-})();
+})();/****************************************************************
+* Author:		郑银辉											*
+* Email:		zhengyinhui100@gmail.com						*
+* Created:		2013-12-14										*
+*****************************************************************/
 
-(function(){
+/**
+ * 模块管理类
+ * @class ModuleManager
+ */
+$Define("handy.module.ModuleManager","handy.module.History",function(History){
 	
-	var ModuleManager=$HO.createClass("handy.module.ModuleManager");
+	var ModuleManager=$HO.createClass();
 	
-	$HO.extend(ModuleManager,{
+	$HO.extend(ModuleManager.prototype,{
+		//history          : null,   //历史记录
+		//conf             : null,   //配置参数
+		//modules          : null,   //缓存模块
+		//container        : null,   //默认模块容器
 		
-		go:function(params){
-			var that=this;
-			var moduleName=params.moduleName;
-			var moduleUrl=params.moduleUrl;
-			var url=params.moduleUrl||that.getModUrl(moduleName);
-			$("#contentIframe").attr("src",url);
-			var hash=location.hash;
-			if(moduleName){
-				if(hash.indexOf("module=")>0){
-					hash=hash.replace(/module=[^&]+/, "module="+moduleName);
-				}else{
-					hash+="#module="+moduleName;
-				}
-			}
-			if(moduleUrl){
-				if(hash.indexOf("moduleUrl=")>0){
-					hash=hash.replace(/moduleUrl=[^&]+/, "moduleUrl="+moduleUrl);
-				}else{
-					hash+="#moduleUrl="+moduleUrl;
-				}
-			}
-			location.hash=hash;
-		},
-		
-		getModUrl:function(moduleName){
-			return $G.config.moduleUrl[moduleName];
-		}
-
+		initialize         : fInitialize,      //初始化模块管理
+		go                 : fGo,              //进入模块
+		createMod          : fCreateMod,       //新建模块
+		getModWrapper      : fGetModWrapper,   //获取模块包装div
+		showMod            : fShowMod,         //显示模块
+		hideAll            : fHideAll          //隐藏所有模块
 	});
+	/**
+	 * 初始化模块管理
+	 * @param {object}oConf 初始化配置参数
+	 */
+	function fInitialize(oConf){
+		var that=this;
+		that.history=new History();
+		that.modules={};
+		if(oConf){
+			that.conf=oConf;
+			that.container=oConf.container?$(oConf.container):$(document.body);
+		}
+	}
+	/**
+	 * 进入模块
+	 * @method go(oParams)
+	 * @param
+	 */
+	function fGo(oParams){
+		var that=this;
+		var sModName=oParams.modName;
+		var oMods=that.modules;
+		//如果在缓存模块中，直接显示该模块，并且调用该模块cache方法
+		var oMod=oMods[sModName];
+		//如果模块有缓存
+		if(oMod&&oMod.useCache){
+			that.showMod(oMod);
+			oMod.cache(oParams);
+		}else{
+			that.createMod(oParams);
+		}
+	}
+	/**
+	 * 新建模块
+	 * @method createMod
+	 * @param 
+	 */
+	function fCreateMod(oParams){
+		var that=this;
+		var sModName=oParams.modName;
+		//请求模块
+		$Require(sModName,function(Module){
+			var oMod=new Module();
+			//模块初始化
+			oMod.init();
+			oMod.beforeRender();
+			//模块渲染
+			var oModWrapper=that.getModWrapper();
+			oMod.wrapper=oModWrapper;
+			var oContainer=oMod.container=oMod.container?$(oMod.container):that.container;
+			if(oMod.getHtml){
+				oModWrapper.html(oMod.getHtml());
+				oContainer.append(oModWrapper);
+			}
+			oMod.render(oModWrapper);
+			that.showMod(oMod);
+			oMod.afterRender();
+			that.modules[sModName]=oMod;
+		});
+	}
+	/**
+	 * 获取模块包装div
+	 * @method getModWrapper
+	 * @param {string}sModName
+	 */
+	function fGetModWrapper(sModName){
+		var that=this;
+		var sId="modWrapper_"+sModName;
+		var oDiv=$("#"+sId);
+		if(oDiv.length=0){
+			oDiv=$.createElement("div");
+			oDiv.attr("id",sId);
+		}
+		return oDiv;
+	}
+	/**
+	 * 显示模块
+	 * @method showMod
+	 * @param
+	 */
+	function fShowMod(oMod){
+		this.hideAll();
+		oMod.wrapper.show();
+		oMod.isActive=true;
+	}
+	/**
+	 * 隐藏所有模块
+	 * @method hideAll
+	 * @param
+	 */
+	function fHideAll(){
+		var oModules=this.modules
+		for(var module in oModules){
+			oModules[module].wrapper.hide();
+			oModules[module].isActive=false;
+		}
+	}
 	
+	return ModuleManager;
 	
-})();
+});

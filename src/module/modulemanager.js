@@ -72,7 +72,7 @@ $Define("handy.module.ModuleManager","handy.module.History",function(History){
 			oMod.init();
 			oMod.beforeRender();
 			//模块渲染
-			oModWrapper=that.getModWrapper();
+			var oModWrapper=that.getModWrapper();
 			oMod.wrapper=oModWrapper;
 			var oContainer=oMod.container=oMod.container?$(oMod.container):that.container;
 			if(oMod.getHtml){
@@ -117,7 +117,7 @@ $Define("handy.module.ModuleManager","handy.module.History",function(History){
 	 */
 	function fHideAll(){
 		var oModules=this.modules
-		for(module in oModules){
+		for(var module in oModules){
 			oModules[module].wrapper.hide();
 			oModules[module].isActive=false;
 		}
