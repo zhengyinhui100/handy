@@ -6,6 +6,8 @@
 handy.add("HashChange",function($H){
 
 	/**
+	 * IE8+ | FF3.6+ | Safari5+ | Chrome | Opera 10.6+ 支持hashchange
+		FF3.6+ Chrome Opera支持 oldURL 和 newURL
 	 * IE6直接用location.hash取hash，可能会取少一部分内容：
 		比如 http://www.xxx.com#stream/xxxxx?lang=zh_c
 		ie6 => location.hash = #stream/xxxxx
@@ -46,7 +48,7 @@ handy.add("HashChange",function($H){
                 	}
                 },50);
 			}else{
-				$.on("hashchange",function(){
+				$(window).on("hashchange",function(){
 					_fExecListeners(HashChange.getHash());
 				})
 			}
@@ -56,8 +58,9 @@ handy.add("HashChange",function($H){
 		 * @method _fExecListeners
 		 */
 		function _fExecListeners(sHash){
-			for(func in HashChange.listeners){
-				func(sHash);
+			var oListeners=HashChange.listeners
+			for(var func in oListeners){
+				oListeners[func](sHash);
 			}
 		}
 		/**

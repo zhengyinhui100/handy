@@ -4,13 +4,13 @@
 * Created:		2013-12-14										*
 *****************************************************************/
 
-$Define("handy.module.ModuleClass",function () {
+$Define("handy.module.ModuleClass","handy.base.Object",function (Object) {
 	/**
 	 * 模块基类
 	 * 
 	 * @class ModuleClass
 	 */
-	var ModuleClass = $HO.createClass();
+	var ModuleClass = Object.createClass();
 	
 	Object.extend(ModuleClass.prototype, {
 		isLoaded       : false,          //模块是否已载入

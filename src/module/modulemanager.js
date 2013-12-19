@@ -56,6 +56,12 @@ $Define("handy.module.ModuleManager","handy.module.History",function(History){
 		}else{
 			that.createMod(oParams);
 		}
+		//保存状态
+		that.history.saveState({
+			callback:that.go,
+			param:oParams,
+			scope:that
+		});
 	}
 	/**
 	 * 新建模块
@@ -68,8 +74,9 @@ $Define("handy.module.ModuleManager","handy.module.History",function(History){
 		//请求模块
 		$Require(sModName,function(Module){
 			var oMod=new Module();
+			oMod.initParam=oParams;
 			//模块初始化
-			oMod.init();
+			oMod.init(oParams);
 			oMod.beforeRender();
 			//模块渲染
 			var oModWrapper=that.getModWrapper();
