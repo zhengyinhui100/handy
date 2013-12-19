@@ -317,13 +317,15 @@ handy.add("Loader",["Debug","Object","Function"],function($){
 			factory=aDeps;
 			aDeps=[];
 		}
-		Loader.require(aDeps,function(aExists){
+		Loader.require(aDeps,function(aExiteds){
 			var resource;
 			if(typeof factory=="function"){
 				try{
-					resource=factory(aExists);
+					//考虑到传入依赖是数组，这里回调参数形式依然是数组
+					resource=factory(aExiteds);
 				}catch(e){
 					//资源定义错误
+					$.Debug.error(sId+":factory define error:"+e.message);
 					return;
 				}
 			}else{
@@ -353,7 +355,8 @@ handy.add("Loader",["Debug","Object","Function"],function($){
     	var bNeedContext=true;
     	for(var i=0,nLen=aIds.length;i<nLen;i++){
     		var sId=aIds[i];
-    		if(!_fChkExisted(sId)){
+    		var oExisted=_fChkExisted(sId);
+    		if(!oExisted){
     			//未加载资源放进队列中
     			aRequestIds.push(sId);
     			if(bNeedContext){
@@ -367,7 +370,7 @@ handy.add("Loader",["Debug","Object","Function"],function($){
 					$.Debug.info(_RESOURCE_NOT_FOUND+sId);
 		   		}
     		}else{
-    			aExisteds.push(_oCache[sId].resource);
+    			aExisteds.push(oExisted);
     		}
     	}
     	
