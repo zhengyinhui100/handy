@@ -10,10 +10,8 @@
  */
 $Define("handy.module.ModuleManager",
 ["handy.base.Function","handy.module.History"],
-function(aDeps){
+function(Function,History){
 	
-	var Function=aDeps[0];
-	var History=aDeps[1];
 	var ModuleManager=$HO.createClass();
 	
 	$HO.extend(ModuleManager.prototype,{
@@ -21,6 +19,7 @@ function(aDeps){
 		//conf             : null,   //配置参数
 		//modules          : null,   //缓存模块
 		//container        : null,   //默认模块容器
+		defModPackage      : "com.sport.module.",  //默认模块所在包名
 		
 		initialize         : fInitialize,      //初始化模块管理
 		go                 : fGo,              //进入模块
@@ -40,6 +39,9 @@ function(aDeps){
 		if(oConf){
 			that.conf=oConf;
 			that.container=oConf.container?$(oConf.container):$(document.body);
+			if(oConf.defModPackage){
+				that.defModPackage=oConf.defModPackage;
+			}
 		}
 	}
 	/**
@@ -50,7 +52,18 @@ function(aDeps){
 	function fGo(oParams){
 		var that=this;
 		var sModName=oParams.modName;
+		var sCurrentMod=that.currentMod;
 		var oMods=that.modules;
+		var oCurrentMod=oMods[sCurrentMod];
+		//如果正好是当前模块，调用模块reset方法
+		if(sCurrentMod==sModName){
+			oCurrentMod.reset();
+			return;
+		}
+		//当前模块不允许退出，直接返回
+		if(oCurrentMod&&!oCurrentMod.exit()){
+			return false;
+		}
 		//如果在缓存模块中，直接显示该模块，并且调用该模块cache方法
 		var oMod=oMods[sModName];
 		//如果模块有缓存
@@ -58,6 +71,7 @@ function(aDeps){
 			that.showMod(oMod);
 			oMod.cache(oParams);
 		}else{
+			//否则新建一个模块
 			that.createMod(oParams);
 		}
 		//保存状态
@@ -75,7 +89,7 @@ function(aDeps){
 		var that=this;
 		var sModName=oParams.modName;
 		//请求模块
-		$Require(sModName,function(Module){
+		$Require(that.defModPackage+sModName,function(Module){
 			var oMod=new Module();
 			oMod.initParam=oParams;
 			//模块初始化

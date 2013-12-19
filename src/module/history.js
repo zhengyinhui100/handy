@@ -9,10 +9,8 @@
  */
 $Define("handy.module.History",
 ['handy.base.Object','handy.base.HashChange'],
-function(aDeps){
+function(Object,HashChange){
 
-	var Object=aDeps[0],HashChange=aDeps[1];
-	
 	var History=Object.createClass();
 	
 	var _nIndex=0;
@@ -20,7 +18,8 @@ function(aDeps){
 	Object.extend(History.prototype,{
 		initialize         : fInitialize,      //历史记录类初始化
 		saveState          : fSaveState,       //保存当前状态
-		getCurrentState    : fGetCurrentState  //获取当前状态
+		getCurrentState    : fGetCurrentState, //获取当前状态
+		stateChange        : fStateChange      //历史状态改变
 	});
 	/**
 	 * 历史记录类初始化
@@ -31,10 +30,18 @@ function(aDeps){
 		var that=this;
 		that.key=sKey||'handy';
 		that.states=[];
-		HashChange.listen(function(sHash){
-			var oState=that.getCurrentState();
+		HashChange.listen(that.stateChange.bind(that));
+	}
+	/**
+	 * 历史状态改变
+	 * @method stateChange
+	 */
+	function fStateChange(){
+		var that=this;
+		var oState=that.getCurrentState();
+		if(oState){
 			oState.onStateChange(oState.param);
-		});
+		}
 	}
 	/**
 	 * 保存当前状态
@@ -62,8 +69,12 @@ function(aDeps){
 	 */
 	function fGetCurrentState(){
 		var that=this;
-		var oHashParam=JSON.parse(HashChange.getHash().replace("#",""));
-		return that.states[oHashParam.hKey];
+		try{
+			var oHashParam=JSON.parse(HashChange.getHash().replace("#",""));
+			return that.states[oHashParam.hKey];
+		}catch(e){
+			$H.Debug.warn("History.getCurrentState:parse hash error:"+e.message);
+		}
 	}
 	
 	
