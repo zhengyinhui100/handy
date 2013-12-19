@@ -44,12 +44,12 @@ handy.add("HashChange",function($H){
                 	var sHash=HashChange.getHash();
                 	if(sHash!=_sLastHash){
                 		_sLastHash=sHash;
-	                	_fExecListeners(sHash);
+	                	_fOnChange(sHash);
                 	}
                 },50);
 			}else{
 				$(window).on("hashchange",function(){
-					_fExecListeners(HashChange.getHash());
+					_fOnChange(HashChange.getHash());
 				})
 			}
 		}
@@ -57,10 +57,13 @@ handy.add("HashChange",function($H){
 		 * 执行监听函数
 		 * @method _fExecListeners
 		 */
-		function _fExecListeners(sHash){
-			var oListeners=HashChange.listeners
-			for(var func in oListeners){
-				oListeners[func](sHash);
+		function _fOnChange(sHash){
+			if(sHash!=_sLastHash){
+				var oListeners=HashChange.listeners
+				for(var func in oListeners){
+					oListeners[func](sHash);
+				}
+				_sLastHash=sHash;
 			}
 		}
 		/**
@@ -105,12 +108,16 @@ handy.add("HashChange",function($H){
 		 * 设置新的hash
 		 * @method setHash
 		 * @param {string} sHash要设置hash
+		 * @param {boolean=} bFireChange是否要触发hashchange事件，仅当为true时触发
 		 */
-		function fSetHash(sHash){
+		function fSetHash(sHash,bFireChange){
 			$H.Util.setHash(sHash);
 			if(!_bSupportHashChange){
 				var _oIframeWin = _oIframe.contentWindow;
                 _oIframe.document.write('<!doctype html><html><body>'+sHash+'</body></html>');
+			}
+			if(bFireChange!=true){
+				_sLastHash=sHash;
 			}
 		}
 		
