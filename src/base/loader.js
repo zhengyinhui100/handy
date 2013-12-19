@@ -373,9 +373,8 @@ handy.add("Loader",["Debug","Object","Function"],function($){
     	
     	//没有需要加载的资源，直接执行回调或返回资源
     	if(aRequestIds.length==0){
-    		aExisteds=aExisteds.length==1?aExisteds[0]:aExisteds;
-    		fCallback&&fCallback(aExisteds);
-    		return aExisteds;
+    		fCallback&&fCallback.apply(null,aExisteds);
+    		return aExisteds.length==0?aExisteds[0]:aExisteds;
     	}else{
     		//请求资源
     		_fRequest(aRequestIds);
