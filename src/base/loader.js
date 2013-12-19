@@ -292,10 +292,7 @@ handy.add("Loader",["Debug","Object","Function"],function($){
 	    	var oContext=_aContext[i];
 	    	var aExists=_fChkExisted(oContext.deps);
 	    	if(aExists){
-	    		if(aExists.length==1){
-	    			aExists=aExists[0];
-	    		}
-	    		oContext.callback(aExists);
+	    		oContext.callback.apply(null,aExists);
 	    		_aContext.splice(i,1);
 	    	}
    		}
@@ -317,12 +314,12 @@ handy.add("Loader",["Debug","Object","Function"],function($){
 			factory=aDeps;
 			aDeps=[];
 		}
-		Loader.require(aDeps,function(aExiteds){
+		Loader.require(aDeps,function(){
 			var resource;
 			if(typeof factory=="function"){
 				try{
 					//考虑到传入依赖是数组，这里回调参数形式依然是数组
-					resource=factory(aExiteds);
+					resource=factory.apply(null,arguments);
 				}catch(e){
 					//资源定义错误
 					$.Debug.error(sId+":factory define error:"+e.message);
