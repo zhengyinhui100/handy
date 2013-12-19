@@ -76,7 +76,7 @@ function(Function,History){
 		}
 		//保存状态
 		that.history.saveState({
-			callback:Function.bind(that.go,that),
+			onStateChange:Function.bind(that.go,that),
 			param:oParams
 		});
 	}
