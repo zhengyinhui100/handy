@@ -45,8 +45,9 @@ handy.add('Util',function($){
 	 * @param {string} sHash要设置的hash
 	 */
 	function fSetHash(sHash){
-		var sHash=top.location.hash;
-		return sHash.replace(/#[^\?]*/,sHash);
+		var sOrgHash=top.location.hash;
+		var sNewHash=sOrgHash.replace(/#[^\?]*/,sHash);
+		return top.location.hash=sNewHash;
 	}
 	
 	return Util;
