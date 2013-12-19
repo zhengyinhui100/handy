@@ -15,6 +15,8 @@ function(aDeps){
 	
 	var History=Object.createClass();
 	
+	var _nIndex=0;
+	
 	Object.extend(History.prototype,{
 		initialize         : fInitialize,      //历史记录类初始化
 		saveState          : fSaveState,       //保存当前状态
@@ -28,19 +30,30 @@ function(aDeps){
 	function fInitialize(sKey){
 		var that=this;
 		that.key=sKey||'handy';
+		that.states=[];
 		HashChange.listen(function(sHash){
-			var oState=JSON.parse(sHash);
-			oState.callback.call(oState.param,oState.scope);
+			var oState=that.getCurrentState();
+			oState.onStateChange(oState.param);
 		});
 	}
 	/**
 	 * 保存当前状态
 	 * @method saveState
-	 * @param {object} oState
+	 * @param {object} oState{
+	 * 				{object}param            : 进入模块的参数
+	 * 				{function}onStateChange  : 历史状态变化时的回调函数
+	 * 	}
 	 */
 	function fSaveState(oState){
-		
-		HashChange.setHash(JSON.stringify(oState));
+		var that=this;
+		var sHistoryKey=that.key+(++_nIndex);
+		that.states.push(sHistoryKey);
+		that.states[sHistoryKey]=oState;
+		var oHashParam={
+			hKey    : sHistoryKey,
+			param : oState.param
+		};
+		HashChange.setHash("#"+JSON.stringify(oHashParam));
 	}
 	/**
 	 * 获取当前状态
@@ -48,7 +61,9 @@ function(aDeps){
 	 * @return {object} 返回当前状态
 	 */
 	function fGetCurrentState(){
-		return JSON.parse(HashChange.getHash());
+		var that=this;
+		var oHashParam=JSON.parse(HashChange.getHash().replace("#",""));
+		return that.states[oHashParam.hKey];
 	}
 	
 	

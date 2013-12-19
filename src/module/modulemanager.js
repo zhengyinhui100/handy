@@ -8,8 +8,12 @@
  * 模块管理类
  * @class ModuleManager
  */
-$Define("handy.module.ModuleManager","handy.module.History",function(History){
+$Define("handy.module.ModuleManager",
+["handy.base.Function","handy.module.History"],
+function(aDeps){
 	
+	var Function=aDeps[0];
+	var History=aDeps[1];
 	var ModuleManager=$HO.createClass();
 	
 	$HO.extend(ModuleManager.prototype,{
@@ -58,9 +62,8 @@ $Define("handy.module.ModuleManager","handy.module.History",function(History){
 		}
 		//保存状态
 		that.history.saveState({
-			callback:that.go,
-			param:oParams,
-			scope:that
+			callback:Function.bind(that.go,that),
+			param:oParams
 		});
 	}
 	/**
@@ -79,7 +82,7 @@ $Define("handy.module.ModuleManager","handy.module.History",function(History){
 			oMod.init(oParams);
 			oMod.beforeRender();
 			//模块渲染
-			var oModWrapper=that.getModWrapper();
+			var oModWrapper=that.getModWrapper(sModName);
 			oMod.wrapper=oModWrapper;
 			var oContainer=oMod.container=oMod.container?$(oMod.container):that.container;
 			if(oMod.getHtml){
@@ -101,9 +104,8 @@ $Define("handy.module.ModuleManager","handy.module.History",function(History){
 		var that=this;
 		var sId="modWrapper_"+sModName;
 		var oDiv=$("#"+sId);
-		if(oDiv.length=0){
-			oDiv=$.createElement("div");
-			oDiv.attr("id",sId);
+		if(oDiv.length==0){
+			oDiv=$('<div id="'+sId+'"></div>');
 		}
 		return oDiv;
 	}

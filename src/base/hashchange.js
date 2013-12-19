@@ -100,14 +100,14 @@ handy.add("HashChange",function($H){
 		 * @return {string}返回当前hash
 		 */
 		function fGetHash(){
-			return location.hash;
+			return $H.Util.getHash();
 		}/**
 		 * 设置新的hash
 		 * @method setHash
 		 * @param {string} sHash要设置hash
 		 */
 		function fSetHash(sHash){
-			location.hash=sHash;
+			$H.Util.setHash(sHash);
 			if(!_bSupportHashChange){
 				var _oIframeWin = _oIframe.contentWindow;
                 _oIframe.document.write('<!doctype html><html><body>'+sHash+'</body></html>');
