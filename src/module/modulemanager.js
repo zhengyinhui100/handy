@@ -19,7 +19,8 @@ function(Function,History){
 		//conf             : null,   //配置参数
 		//modules          : null,   //缓存模块
 		//container        : null,   //默认模块容器
-		defModPackage      : "com.sport.module.",  //默认模块所在包名
+		//navigator        : null,   //定制模块导航类
+		//defModPackage    : "com.xxx.module",  //默认模块所在包名
 		
 		initialize         : fInitialize,      //初始化模块管理
 		go                 : fGo,              //进入模块
@@ -30,19 +31,22 @@ function(Function,History){
 	});
 	/**
 	 * 初始化模块管理
-	 * @param {object}oConf 初始化配置参数
+	 * @param {object}oConf {      //初始化配置参数
+	 * 			{string}defModPackage  : 默认模块所在包名
+	 * 			{string|element|jQuery}container  : 模块容器
+	 * 			{Navigator}navigator   : 定制导航类
+	 * }
 	 */
 	function fInitialize(oConf){
 		var that=this;
-		that.history=new History();
-		that.modules={};
 		if(oConf){
 			that.conf=oConf;
+			$HO.extend(that,oConf);
 			that.container=oConf.container?$(oConf.container):$(document.body);
-			if(oConf.defModPackage){
-				that.defModPackage=oConf.defModPackage;
-			}
 		}
+		that.defModPackage=that.defModPackage+".";
+		that.history=new History();
+		that.modules={};
 	}
 	/**
 	 * 进入模块
@@ -129,8 +133,14 @@ function(Function,History){
 	 * @param
 	 */
 	function fShowMod(oMod){
-		this.hideAll();
-		oMod.wrapper.show();
+		var that=this;
+		//如果导航类方法返回true，则不使用模块管理类的导航
+		if(that.navigator&&that.navigator.navigate(oMod,that)){
+			return false;
+		}else{
+			this.hideAll();
+			oMod.wrapper.show();
+		}
 		oMod.isActive=true;
 	}
 	/**
