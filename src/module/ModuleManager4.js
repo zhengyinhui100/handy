@@ -9,8 +9,8 @@
  * @class ModuleManager
  */
 $Define("handy.module.ModuleManager",
-["handy.base.Function","handy.module.History"],
-function(Function,History){
+"handy.module.History",
+function(History){
 	
 	var ModuleManager=$HO.createClass();
 	
@@ -80,7 +80,7 @@ function(Function,History){
 		}
 		//保存状态
 		that.history.saveState({
-			onStateChange:Function.bind(that.go,that),
+			onStateChange:$H.Function.bind(that.go,that),
 			param:oParams
 		});
 	}

@@ -5,8 +5,11 @@
 	
 	//框架全局变量
 	$H=$.noConflict();
+	$HD=$H.Debug;
+	$HF=$H.Function;
 	$HO=$H.Object;
 	$HS=$H.String;
+	$HU=$H.Util;
 	$Define=$H.Loader.define;
 	$Require=$H.Loader.require;
 

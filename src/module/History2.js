@@ -8,14 +8,14 @@
  * @class handy.module.History
  */
 $Define("handy.module.History",
-['handy.base.Object','handy.base.HashChange'],
-function(Object,HashChange){
+'handy.base.HashChange',
+function(HashChange){
 
-	var History=Object.createClass();
+	var History=$HO.createClass();
 	
 	var _nIndex=0;
 	
-	Object.extend(History.prototype,{
+	$HO.extend(History.prototype,{
 		initialize         : fInitialize,      //历史记录类初始化
 		saveState          : fSaveState,       //保存当前状态
 		getCurrentState    : fGetCurrentState, //获取当前状态
