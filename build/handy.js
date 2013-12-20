@@ -472,17 +472,6 @@ handy.add('Object',function($){
 	return Object;
 	
 })/**
- * handy 核心方法定义
- * @author 郑银辉(zhengyinhui100@gmail.com)
- */
-handy.add('Core',function($){
-	
-	var Core={
-	}
-	
-	
-
-})/**
  * 日期扩展类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -1057,12 +1046,23 @@ handy.add('Cookie',function(){
 handy.add('Util',function($){
 	
 	var Util={
-		isWindow         : fIsWindow, //检查是否是window对象
-		getUuid          : fGetUuid   //获取handy内部uuid
+		isWindow         : fIsWindow,  //检查是否是window对象
+		getUuid          : fGetUuid,   //获取handy内部uuid
+		getHash          : fGetHash,   //获取hash，不包括“？”开头的query部分
+		setHash          : fSetHash    //设置hash，不改变“？”开头的query部分
 	}
 	
 	var _nUuid=0;
 	
+	/**
+	 * 检查是否是window对象
+	 * @method  isWindow
+	 * @param {*}obj 参数对象
+	 * @return  {boolean}
+	 */
+	function fIsWindow( obj ) {
+		return obj != null && obj == obj.window;
+	}
 	/**
 	 * 获取handy内部uuid
 	 * @method  getUuid
@@ -1072,13 +1072,23 @@ handy.add('Util',function($){
 		return _nUuid++;
 	}
 	/**
-	 * 检查是否是window对象
-	 * @method  isWindow
-	 * @param {*}obj 参数对象
-	 * @return  {boolean}
+	 * 获取hash，不包括“？”开头的query部分
+	 * @method getHash
+	 * @return {?string} 返回hash
 	 */
-	function fIsWindow( obj ) {
-		return obj != null && obj == obj.window;
+	function fGetHash(){
+		var sHash=top.location.hash;
+		return sHash.replace(/\?.*/,'');
+	}
+	/**
+	 * 设置hash，不改变“？”开头的query部分
+	 * @method setHash
+	 * @param {string} sHash要设置的hash
+	 */
+	function fSetHash(sHash){
+		var sOrgHash=top.location.hash;
+		var sNewHash=sOrgHash.replace(/#[^\?]*/,sHash);
+		return top.location.hash=sNewHash;
 	}
 	
 	return Util;
@@ -1389,7 +1399,7 @@ handy.add("Loader",["Debug","Object","Function"],function($){
     			//命名空间
     			sUrl='/'+sId.replace(/\./g,"/")+".js";
     		}
-    		sUrl=sRoot+sUrl.toLowerCase();
+    		sUrl=sRoot+sUrl;
     	}
 		return sUrl;
     }
@@ -1598,10 +1608,7 @@ handy.add("Loader",["Debug","Object","Function"],function($){
 	    	var oContext=_aContext[i];
 	    	var aExists=_fChkExisted(oContext.deps);
 	    	if(aExists){
-	    		if(aExists.length==1){
-	    			aExists=aExists[0];
-	    		}
-	    		oContext.callback(aExists);
+	    		oContext.callback.apply(null,aExists);
 	    		_aContext.splice(i,1);
 	    	}
    		}
@@ -1623,13 +1630,15 @@ handy.add("Loader",["Debug","Object","Function"],function($){
 			factory=aDeps;
 			aDeps=[];
 		}
-		Loader.require(aDeps,function(aExists){
+		Loader.require(aDeps,function(){
 			var resource;
 			if(typeof factory=="function"){
 				try{
-					resource=factory(aExists);
+					//考虑到传入依赖是数组，这里回调参数形式依然是数组
+					resource=factory.apply(null,arguments);
 				}catch(e){
 					//资源定义错误
+					$.Debug.error(sId+":factory define error:"+e.message);
 					return;
 				}
 			}else{
@@ -1659,7 +1668,8 @@ handy.add("Loader",["Debug","Object","Function"],function($){
     	var bNeedContext=true;
     	for(var i=0,nLen=aIds.length;i<nLen;i++){
     		var sId=aIds[i];
-    		if(!_fChkExisted(sId)){
+    		var oExisted=_fChkExisted(sId);
+    		if(!oExisted){
     			//未加载资源放进队列中
     			aRequestIds.push(sId);
     			if(bNeedContext){
@@ -1673,15 +1683,14 @@ handy.add("Loader",["Debug","Object","Function"],function($){
 					$.Debug.info(_RESOURCE_NOT_FOUND+sId);
 		   		}
     		}else{
-    			aExisteds.push(_oCache[sId].resource);
+    			aExisteds.push(oExisted);
     		}
     	}
     	
     	//没有需要加载的资源，直接执行回调或返回资源
     	if(aRequestIds.length==0){
-    		aExisteds=aExisteds.length==1?aExisteds[0]:aExisteds;
-    		fCallback&&fCallback(aExisteds);
-    		return aExisteds;
+    		fCallback&&fCallback.apply(null,aExisteds);
+    		return aExisteds.length==0?aExisteds[0]:aExisteds;
     	}else{
     		//请求资源
     		_fRequest(aRequestIds);
@@ -1717,6 +1726,130 @@ handy.add('Template',function($){
 	
 	return Template;
 	
+});/**
+ * HashChange类，兼容IE6/7浏览器实现hashchange事件
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * 
+ */
+handy.add("HashChange",function($H){
+
+	/**
+	 * IE8+ | FF3.6+ | Safari5+ | Chrome | Opera 10.6+ 支持hashchange
+		FF3.6+ Chrome Opera支持 oldURL 和 newURL
+	 * IE6直接用location.hash取hash，可能会取少一部分内容：
+		比如 http://www.xxx.com#stream/xxxxx?lang=zh_c
+		ie6 => location.hash = #stream/xxxxx
+		其他浏览器 => location.hash = #stream/xxxxx?lang=zh_c
+		firefox 会对hash进行decodeURIComponent
+		比如 http://www.xxx.com/#!/home/q={%22thedate%22:%2220121010~20121010%22}
+		firefox 15 => #!/home/q={"thedate":"20121010~20121010"}
+		其他浏览器 => #!/home/q={%22thedate%22:%2220121010~20121010%22}
+	 */
+	var _bIsInited,_nListener=0,_oDoc = document, _oIframe,_sLastHash,
+		//这个属性的值如果是5，则表示混杂模式（即IE5模式）；如果是7，则表示IE7仿真模式；如果是8，则表示IE8标准模式
+		_nDocMode = _oDoc._nDocMode,
+	    _bSupportHashChange = ('onhashchange'   in window) && ( _nDocMode === void 0 || _nDocMode > 7 ),
+		
+	    HashChange={
+			listen   : fListen,    //绑定处理函数
+			getHash  : fGetHash,   //获取当前hash
+			setHash  : fSetHash    //设置新的hash
+		};
+		/**
+		 * HashChange初始化
+		 * @method _fInit
+		 */
+		function _fInit(){
+			_bIsInited=true;
+			HashChange.listeners={};
+			//不支持原生hashchange事件的，使用定时器+隐藏iframe形式实现
+			if(!_bSupportHashChange){
+				//创建一个隐藏的iframe，使用这博文提供的技术 http://www.paciellogroup.com/blog/?p=604.
+				_oIframe = $('<iframe tabindex="-1" style="display:none" widht=0 height=0 title="empty" />').appendTo( _oDoc.body )[0];
+                _sLastHash=HashChange.getHash();
+                HashChange.setHash(_sLastHash);
+                setInterval(function(){
+                	var sHash=HashChange.getHash();
+                	if(sHash!=_sLastHash){
+                		_sLastHash=sHash;
+	                	_fOnChange(sHash);
+                	}
+                },50);
+			}else{
+				$(window).on("hashchange",function(){
+					_fOnChange(HashChange.getHash());
+				})
+			}
+		}
+		/**
+		 * 执行监听函数
+		 * @method _fExecListeners
+		 */
+		function _fOnChange(sHash){
+			if(sHash!=_sLastHash){
+				var oListeners=HashChange.listeners
+				for(var func in oListeners){
+					oListeners[func](sHash);
+				}
+				_sLastHash=sHash;
+			}
+		}
+		/**
+		 * 增加hashchange监听函数
+		 * @method listen(fListener[,sName])
+		 * @param {function} fListener监听函数
+		 * @param {string=}  sName监听函数的名称，删除该监听时用到
+		 * @return {?string}
+		 */
+		function fListen(fListener,sName){
+			if(!_bIsInited){
+				_fInit();
+			}
+			if(sName in HashChange.listeners){
+				throw new Error("Duplicate name");
+			}else{
+				sName=sName||$H.expando+(++_nListener);
+				HashChange.listeners[sName]=fListener;
+				return sName;
+			}
+		}
+		/**
+		 * 删除hashchange监听函数
+		 * @method unListen([sName])
+		 * @param {string=} sName监听函数的名称，不传此参数表示删除所有监听函数
+		 */
+		function fUnListen(sName){
+			for(var name in HashChange.listeners){
+				if(!sName||sName==name){
+					delete HashChange.listeners[name];
+				}
+			}
+		}
+		/**
+		 * 获取当前hash
+		 * @method getHash
+		 * @return {string}返回当前hash
+		 */
+		function fGetHash(){
+			return $H.Util.getHash();
+		}/**
+		 * 设置新的hash
+		 * @method setHash
+		 * @param {string} sHash要设置hash
+		 * @param {boolean=} bFireChange是否要触发hashchange事件，仅当为true时触发
+		 */
+		function fSetHash(sHash,bFireChange){
+			$H.Util.setHash(sHash);
+			if(!_bSupportHashChange){
+				var _oIframeWin = _oIframe.contentWindow;
+                _oIframe.document.write('<!doctype html><html><body>'+sHash+'</body></html>');
+			}
+			if(bFireChange!=true){
+				_sLastHash=sHash;
+			}
+		}
+		
+	return HashChange;
 });/**
  * 支持类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -2231,11 +2364,158 @@ handy.add('Support',['Browser'],function($){
 * Created:		2013-12-14										*
 *****************************************************************/
 
+$Define("handy.module.AbstractModule","handy.base.Object",function (Object) {
+	/**
+	 * 模块基类
+	 * 
+	 * @class AbstractModule
+	 */
+	var AbstractModule = Object.createClass();
+	
+	Object.extend(AbstractModule.prototype, {
+		isLoaded       : false,          //模块是否已载入
+		isActived      : false,          //模块是否是当前活跃的
+		//container    : null,           //模块的容器对象
+		useCache       : true,           //是否使用cache
+		//name         : null,           //模块名
+		//chName       : null,           //模块的中文名称
+		//getData      : null,           //获取该模块的初始化数据
+		//clone        : null,           //克隆接口
+		//getHtml      : null,           //获取该模块的html
+		cache          : function(){},   //显示模块缓存
+		init           : function(){},   //初始化函数, 在模块创建后调用（在所有模块动作之前）
+		beforeRender   : function(){},   //模块渲染前调用
+		render         : function(){},   //模块渲染
+		afterRender    : function(){},   //模块渲染后调用
+		reset          : function(){},   //重置函数, 在该模块里进入该模块时调用
+		exit           : function(){return true},   //离开该模块前调用, 返回true允许离开, 否则不允许离开
+		initialize     : fInitialize     //模块类创建时初始化
+	});
+	/**
+	 * 构造函数
+	 * @param{any} oConf 模块配置对象
+	 * @return{void} 
+	 */
+	function fInitialize(oConf) {
+		//Object.extend(this, oConf);
+		this.conf = oConf;
+	}
+	
+	return AbstractModule;
+});/****************************************************************
+* Author:		郑银辉											*
+* Email:		zhengyinhui100@gmail.com						*
+* Created:		2013-12-20										*
+*****************************************************************/
+
+$Define("handy.module.AbstractNavigator","handy.base.Object",function (Object) {
+	/**
+	 * 模块导航效果基类
+	 * 
+	 * @class AbstractNavigator
+	 */
+	var AbstractNavigator = Object.createClass();
+	
+	Object.extend(AbstractNavigator.prototype, {
+		navigate      : function(){}      //显示导航效果，参数是当前进入的模块实例和模块管理类实例，此方法返回true表示不需要模块管理类的导航功能
+	});
+	
+	return AbstractNavigator;
+});/****************************************************************
+* Author:		郑银辉											*
+* Email:		zhengyinhui100@gmail.com						*
+* Created:		2013-12-15										*
+*****************************************************************/
+/**
+ * 历史记录类，用于记录和管理浏览历史
+ * @class handy.module.History
+ */
+$Define("handy.module.History",
+['handy.base.Object','handy.base.HashChange'],
+function(Object,HashChange){
+
+	var History=Object.createClass();
+	
+	var _nIndex=0;
+	
+	Object.extend(History.prototype,{
+		initialize         : fInitialize,      //历史记录类初始化
+		saveState          : fSaveState,       //保存当前状态
+		getCurrentState    : fGetCurrentState, //获取当前状态
+		stateChange        : fStateChange      //历史状态改变
+	});
+	/**
+	 * 历史记录类初始化
+	 * @method initialize
+	 * @param {?string} sKey历史记录类的key，用于区分可能的多个history实例
+	 */
+	function fInitialize(sKey){
+		var that=this;
+		that.key=sKey||'handy';
+		that.states=[];
+		HashChange.listen(that.stateChange.bind(that));
+	}
+	/**
+	 * 历史状态改变
+	 * @method stateChange
+	 */
+	function fStateChange(){
+		var that=this;
+		var oState=that.getCurrentState();
+		if(oState){
+			oState.onStateChange(oState.param);
+		}
+	}
+	/**
+	 * 保存当前状态
+	 * @method saveState
+	 * @param {object} oState{
+	 * 				{object}param            : 进入模块的参数
+	 * 				{function}onStateChange  : 历史状态变化时的回调函数
+	 * 	}
+	 */
+	function fSaveState(oState){
+		var that=this;
+		var sHistoryKey=that.key+(++_nIndex);
+		that.states.push(sHistoryKey);
+		that.states[sHistoryKey]=oState;
+		var oHashParam={
+			hKey    : sHistoryKey,
+			param : oState.param
+		};
+		HashChange.setHash("#"+JSON.stringify(oHashParam));
+	}
+	/**
+	 * 获取当前状态
+	 * @method getCurrentState
+	 * @return {object} 返回当前状态
+	 */
+	function fGetCurrentState(){
+		var that=this;
+		try{
+			var oHashParam=JSON.parse(HashChange.getHash().replace("#",""));
+			return that.states[oHashParam.hKey];
+		}catch(e){
+			$H.Debug.warn("History.getCurrentState:parse hash error:"+e.message);
+		}
+	}
+	
+	
+	return History;
+	
+});/****************************************************************
+* Author:		郑银辉											*
+* Email:		zhengyinhui100@gmail.com						*
+* Created:		2013-12-14										*
+*****************************************************************/
+
 /**
  * 模块管理类
  * @class ModuleManager
  */
-$Define("handy.module.ModuleManager","handy.module.History",function(History){
+$Define("handy.module.ModuleManager",
+["handy.base.Function","handy.module.History"],
+function(Function,History){
 	
 	var ModuleManager=$HO.createClass();
 	
@@ -2244,6 +2524,8 @@ $Define("handy.module.ModuleManager","handy.module.History",function(History){
 		//conf             : null,   //配置参数
 		//modules          : null,   //缓存模块
 		//container        : null,   //默认模块容器
+		//navigator        : null,   //定制模块导航类
+		//defModPackage    : "com.xxx.module",  //默认模块所在包名
 		
 		initialize         : fInitialize,      //初始化模块管理
 		go                 : fGo,              //进入模块
@@ -2254,16 +2536,22 @@ $Define("handy.module.ModuleManager","handy.module.History",function(History){
 	});
 	/**
 	 * 初始化模块管理
-	 * @param {object}oConf 初始化配置参数
+	 * @param {object}oConf {      //初始化配置参数
+	 * 			{string}defModPackage  : 默认模块所在包名
+	 * 			{string|element|jQuery}container  : 模块容器
+	 * 			{Navigator}navigator   : 定制导航类
+	 * }
 	 */
 	function fInitialize(oConf){
 		var that=this;
-		that.history=new History();
-		that.modules={};
 		if(oConf){
 			that.conf=oConf;
+			$HO.extend(that,oConf);
 			that.container=oConf.container?$(oConf.container):$(document.body);
 		}
+		that.defModPackage=that.defModPackage+".";
+		that.history=new History();
+		that.modules={};
 	}
 	/**
 	 * 进入模块
@@ -2273,7 +2561,18 @@ $Define("handy.module.ModuleManager","handy.module.History",function(History){
 	function fGo(oParams){
 		var that=this;
 		var sModName=oParams.modName;
+		var sCurrentMod=that.currentMod;
 		var oMods=that.modules;
+		var oCurrentMod=oMods[sCurrentMod];
+		//如果正好是当前模块，调用模块reset方法
+		if(sCurrentMod==sModName){
+			oCurrentMod.reset();
+			return;
+		}
+		//当前模块不允许退出，直接返回
+		if(oCurrentMod&&!oCurrentMod.exit()){
+			return false;
+		}
 		//如果在缓存模块中，直接显示该模块，并且调用该模块cache方法
 		var oMod=oMods[sModName];
 		//如果模块有缓存
@@ -2281,8 +2580,14 @@ $Define("handy.module.ModuleManager","handy.module.History",function(History){
 			that.showMod(oMod);
 			oMod.cache(oParams);
 		}else{
+			//否则新建一个模块
 			that.createMod(oParams);
 		}
+		//保存状态
+		that.history.saveState({
+			onStateChange:Function.bind(that.go,that),
+			param:oParams
+		});
 	}
 	/**
 	 * 新建模块
@@ -2293,13 +2598,14 @@ $Define("handy.module.ModuleManager","handy.module.History",function(History){
 		var that=this;
 		var sModName=oParams.modName;
 		//请求模块
-		$Require(sModName,function(Module){
+		$Require(that.defModPackage+sModName,function(Module){
 			var oMod=new Module();
+			oMod.initParam=oParams;
 			//模块初始化
-			oMod.init();
+			oMod.init(oParams);
 			oMod.beforeRender();
 			//模块渲染
-			var oModWrapper=that.getModWrapper();
+			var oModWrapper=that.getModWrapper(sModName);
 			oMod.wrapper=oModWrapper;
 			var oContainer=oMod.container=oMod.container?$(oMod.container):that.container;
 			if(oMod.getHtml){
@@ -2321,9 +2627,8 @@ $Define("handy.module.ModuleManager","handy.module.History",function(History){
 		var that=this;
 		var sId="modWrapper_"+sModName;
 		var oDiv=$("#"+sId);
-		if(oDiv.length=0){
-			oDiv=$.createElement("div");
-			oDiv.attr("id",sId);
+		if(oDiv.length==0){
+			oDiv=$('<div id="'+sId+'"></div>');
 		}
 		return oDiv;
 	}
@@ -2333,8 +2638,14 @@ $Define("handy.module.ModuleManager","handy.module.History",function(History){
 	 * @param
 	 */
 	function fShowMod(oMod){
-		this.hideAll();
-		oMod.wrapper.show();
+		var that=this;
+		//如果导航类方法返回true，则不使用模块管理类的导航
+		if(that.navigator&&that.navigator.navigate(oMod,that)){
+			return false;
+		}else{
+			this.hideAll();
+			oMod.wrapper.show();
+		}
 		oMod.isActive=true;
 	}
 	/**

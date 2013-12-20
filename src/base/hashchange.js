@@ -91,7 +91,7 @@ handy.add("HashChange",function($H){
 		 * @param {string=} sName监听函数的名称，不传此参数表示删除所有监听函数
 		 */
 		function fUnListen(sName){
-			for(name in HashChange.listeners){
+			for(var name in HashChange.listeners){
 				if(!sName||sName==name){
 					delete HashChange.listeners[name];
 				}

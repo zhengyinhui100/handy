@@ -4,15 +4,15 @@
 * Created:		2013-12-14										*
 *****************************************************************/
 
-$Define("handy.module.ModuleClass","handy.base.Object",function (Object) {
+$Define("handy.module.AbstractModule","handy.base.Object",function (Object) {
 	/**
 	 * 模块基类
 	 * 
-	 * @class ModuleClass
+	 * @class AbstractModule
 	 */
-	var ModuleClass = Object.createClass();
+	var AbstractModule = Object.createClass();
 	
-	Object.extend(ModuleClass.prototype, {
+	Object.extend(AbstractModule.prototype, {
 		isLoaded       : false,          //模块是否已载入
 		isActived      : false,          //模块是否是当前活跃的
 		//container    : null,           //模块的容器对象
@@ -41,5 +41,5 @@ $Define("handy.module.ModuleClass","handy.base.Object",function (Object) {
 		this.conf = oConf;
 	}
 	
-	return ModuleClass;
+	return AbstractModule;
 });

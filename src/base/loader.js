@@ -83,7 +83,7 @@ handy.add("Loader",["Debug","Object","Function"],function($){
     			//命名空间
     			sUrl='/'+sId.replace(/\./g,"/")+".js";
     		}
-    		sUrl=sRoot+sUrl.toLowerCase();
+    		sUrl=sRoot+sUrl;
     	}
 		return sUrl;
     }

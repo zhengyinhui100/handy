@@ -15,18 +15,19 @@
 
 			<!-- base -->
 			<path path="base/base.js"/>
-			<path path="base/object.js"/>
-			<path path="base/core.js"/>
-			<path path="base/date.js"/>
-			<path path="base/browser.js"/>
-			<path path="base/string.js"/>
-			<path path="base/cookie.js"/>
-			<path path="base/util.js"/>
-			<path path="base/function.js"/>
-			<path path="base/debug.js"/>
-			<path path="base/loader.js"/>
-			<path path="base/template.js"/>
-			<path path="base/support.js"/>
+			<path path="base/Object.js"/>
+			<path path="base/Date.js"/>
+			<path path="base/Browser.js"/>
+			<path path="base/String.js"/>
+			<path path="base/Cookie.js"/>
+			<path path="base/Util.js"/>
+			<path path="base/Function.js"/>
+			<path path="base/Debug.js"/>
+			<path path="base/Loader.js"/>
+			<path path="base/Template.js"/>
+			<path path="base/HashChange.js"/>
+			<path path="base/Support.js"/>
+			<path path="base/adapt.js"/>
 
 		</concat>
 	</target>
@@ -38,11 +39,10 @@
 	            outputencoding="${charset}"
 				append="true">
 			
-			<path path="base/adapt.js"/>
-			<path path="component/component.js"/>
-			<path path="component/treemenu.js"/>
-			<path path="component/accordionmenu.js"/>
-			<path path="component/tipsbox.js"/>
+			<path path="component/Component.js"/>
+			<path path="component/TreeMenu.js"/>
+			<path path="component/AccordionMenu.js"/>
+			<path path="component/TipsBox.js"/>
 
 		</concat>
 	</target>
@@ -54,7 +54,10 @@
 	            outputencoding="${charset}"
 				append="true">
 
-			<path path="module/modulemanager.js"/>
+		    <path path="module/AbstractModule.js"/>
+		    <path path="module/AbstractNavigator.js"/>
+		    <path path="module/History.js"/>
+			<path path="module/ModuleManager.js"/>
 
 		</concat>
 	</target>
