@@ -46,8 +46,10 @@ handy.add('Util',function($){
 	 */
 	function fSetHash(sHash){
 		var sOrgHash=top.location.hash;
-		var sNewHash=sOrgHash.replace(/#[^\?]*/,sHash);
-		return top.location.hash=sNewHash;
+		if(sOrgHash.indexOf("#")>=0){
+			sHash=sOrgHash.replace(/#[^\?]*/,sHash);
+		}
+		top.location.hash=sHash;
 	}
 	
 	return Util;

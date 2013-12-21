@@ -5,7 +5,10 @@
 	
 	//框架全局变量
 	$H=$.noConflict();
-	$HD=$H.Debug;
+	$D=$H.Debug;
+	$HB=$H.Browser;
+	$HC=$H.Cookie;
+	$HD=$H.Date;
 	$HF=$H.Function;
 	$HO=$H.Object;
 	$HS=$H.String;
