@@ -3,7 +3,7 @@
  * //TODO 快捷键切换调试等级
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add("Debug",['Json'],function($){
+handy.add("Debug",['Json'],function($H){
 	
 	var Debug={
 		level	    : 0,            //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
@@ -12,7 +12,7 @@ handy.add("Debug",['Json'],function($){
 		WARN_LEVEL  : 3,            //警告级别
 		ERROR_LEVEL	: 4,            //错误级别
 		DEBUG_LEVEL : 5,            //调试级别
-		showInPage  : false,        //是否强制在页面上输出调试信息，主要用于不支持console的浏览器，如：IE6
+		showInPage  : !("console" in window),        //是否强制在页面上输出调试信息，主要用于不支持console的浏览器，如：IE6，或者ietester里面
 		log			: fLog,		    //输出日志
 		info		: fInfo,		//输出信息
 		warn        : fWarn,        //输出警告信息
@@ -30,14 +30,14 @@ handy.add("Debug",['Json'],function($){
 	function _fOut(oVar,bShowInPage,sType){
 		sType = sType||'log';
 		//输出到页面
-		if(bShowInPage||this.showInPage){
-			var sDivId = 'debugDiv';
+		if(bShowInPage||Debug.showInPage){
+			var sDivId = $H.expando+'debugDiv';
 			var oDocument = top.document;
 			var oDebugDiv = oDocument.getElementById(sDivId);
 			if(!oDebugDiv){
 				oDebugDiv = oDocument.createElement("DIV");
 				oDebugDiv.id = sDivId;
-				oDebugDiv.innerHTML = '<a href="javascript:void(0)" onclick="this.parentNode.style.display=\'none\'">关闭</a>&nbsp;<a href="javascript:void(0)" onclick="this.parentNode.getElementsByTagName(\'DIV\')[0].innerHTML=\'\';">清空</a>&nbsp;<a href="javascript:void(0)" onclick="this.parentNode.style.height=\''+oDocument.body.offsetHeight+'px\';">全屏</a>&nbsp;<a href="javascript:void(0)" onclick="this.parentNode.style.height=\'100px\';">恢复</a><div></div>';
+				oDebugDiv.innerHTML = '<a href="javascript:void(0)" onclick="this.parentNode.style.display=\'none\'">关闭</a>&nbsp;<a href="javascript:void(0)" onclick="this.parentNode.getElementsByTagName(\'DIV\')[0].innerHTML=\'\';">清空</a>&nbsp;<a href="javascript:void(0)" onclick="this.parentNode.style.height=\''+oDocument.body.offsetHeight+'px\';">全屏</a>&nbsp;<a href="javascript:void(0)" onclick="this.parentNode.style.height=\'100px\';">收起</a><div style="padding-top:5px"></div>';
 				oDebugDiv.style.position = 'absolute';
 				oDebugDiv.style.width = (oDocument.body.offsetWidth-20)+'px';
 				oDebugDiv.style.left = 0;
@@ -48,15 +48,18 @@ handy.add("Debug",['Json'],function($){
 				oDebugDiv.style.fontSize = '12px';
 				oDebugDiv.style.padding = '10px';
 				oDebugDiv.style.overflow = 'auto';
-				oDebugDiv.style.zIndex = 999;
+				oDebugDiv.style.zIndex = 9999999;
+				oDebugDiv.style.opacity=0.5;
+				oDebugDiv.style.filter="alpha(opacity=50)";
 				oDocument.body.appendChild(oDebugDiv);
 			}else{
 				oDebugDiv.style.display = 'block';
 			}
 			var oVarDiv = oDocument.createElement("DIV");
 			//TODO JSON
-			oVarDiv.innerHTML = sType+":"+JSON.stringify(oVar, null, '<br/>');
-			oDebugDiv.getElementsByTagName('DIV')[0].innerHTML = oVarDiv.innerHTML;
+			oVarDiv.innerHTML = sType+":<br/>"+JSON.stringify(oVar, null, '<br/>');
+			var oAppender=oDebugDiv.getElementsByTagName('DIV')[0];
+			oAppender.innerHTML = oAppender.innerHTML+oVarDiv.innerHTML+"<br/>";
 		}
 		try{
 			console[sType](oVar);
@@ -70,8 +73,7 @@ handy.add("Debug",['Json'],function($){
 	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
 	 */
 	function fLog(oVar,bShowInPage){
-		var that=this;
-		if(that.level>that.LOG_LEVEL){
+		if(Debug.level>Debug.LOG_LEVEL){
 			return;
 		}
 		_fOut(oVar,!!bShowInPage,'log');
@@ -83,8 +85,7 @@ handy.add("Debug",['Json'],function($){
 	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
 	 */
 	function fInfo(oVar,bShowInPage){
-		var that=this;
-		if(this.level>that.INFO_LEVEL){
+		if(this.level>Debug.INFO_LEVEL){
 			return;
 		}
 		_fOut(oVar,!!bShowInPage,'info');
@@ -96,8 +97,7 @@ handy.add("Debug",['Json'],function($){
 	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
 	 */
 	function fWarn(oVar,bShowInPage){
-		var that=this;
-		if(that.level>that.WARN_LEVEL){
+		if(Debug.level>Debug.WARN_LEVEL){
 			return;
 		}
 		_fOut(oVar,!!bShowInPage,'warn');
@@ -109,8 +109,7 @@ handy.add("Debug",['Json'],function($){
 	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
 	 */
 	function fError(oVar,bShowInPage){
-		var that=this;
-		if(that.level>that.ERROR_LEVEL){
+		if(Debug.level>Debug.ERROR_LEVEL){
 			return;
 		}
 		_fOut(oVar,!!bShowInPage,"error");
@@ -123,8 +122,7 @@ handy.add("Debug",['Json'],function($){
 	 * @param {boolean}bShowInPage 是否需要创建一个DIV输出到页面
 	 */
 	function fTime(sMsg,bOut,bShowInPage){
-		var that=this;
-		if(that.level>that.INFO_LEVEL){
+		if(Debug.level>Debug.INFO_LEVEL){
 			return;
 		}
 		sMsg=sMsg||'';
@@ -140,8 +138,7 @@ handy.add("Debug",['Json'],function($){
 	 * @param {Object} fCondiction	输出断点的条件就判断是否返回true，也可以不传，不传为默认debug
 	 */
 	function fDebug(fCondiction){
-		var that=this;
-		if(that.level>that.DEBUG_LEVEL){
+		if(Debug.level>Debug.DEBUG_LEVEL){
 			return;
 		}
 		if(typeof fCondiction != 'undefined'){
@@ -157,8 +154,7 @@ handy.add("Debug",['Json'],function($){
 	 * @param {Object}oExp 异常对象
 	 */
 	function fThrowExp(oExp){
-		var that=this;
-		if(that.level<=that.DEBUG_LEVEL){
+		if(Debug.level<=Debug.DEBUG_LEVEL){
 			throw oExp;
 		}
 	}
