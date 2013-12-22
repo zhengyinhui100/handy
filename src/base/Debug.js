@@ -57,7 +57,7 @@ handy.add("Debug",['Json'],function($H){
 			}
 			var oVarDiv = oDocument.createElement("DIV");
 			//TODO JSON
-			oVarDiv.innerHTML = sType+":<br/>"+JSON.stringify(oVar, null, '<br/>');
+			oVarDiv.innerHTML = sType+" : "+JSON.stringify(oVar, null, '<br/>');
 			var oAppender=oDebugDiv.getElementsByTagName('DIV')[0];
 			oAppender.innerHTML = oAppender.innerHTML+oVarDiv.innerHTML+"<br/>";
 		}
