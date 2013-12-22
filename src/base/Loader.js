@@ -3,7 +3,7 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * 
  */
-handy.add("Loader",["Debug","Object","Function"],function($){
+handy.add("Loader",["Debug","Object","Function"],function($H){
 	
 	var _RESOURCE_NOT_FOUND= 'Resource not found: ',
 		_eHead=document.head ||document.getElementsByTagName('head')[0] ||document.documentElement,
@@ -35,7 +35,7 @@ handy.add("Loader",["Debug","Object","Function"],function($){
 	 */
     function _fChkExisted(id){
     	function _fChk(sId){
-    		return /\.(css|js)$/.test(sId)?(_oCache[sId]&&_oCache[sId].status=='loaded'):$.Object.namespace(sId);
+    		return /\.(css|js)$/.test(sId)?(_oCache[sId]&&_oCache[sId].status=='loaded'):$H.Object.namespace(sId);
     	}
     	if(typeof id=="string"){
     		return _fChk(id);
@@ -152,7 +152,7 @@ handy.add("Loader",["Debug","Object","Function"],function($){
 	
 	    //超时处理
 	    var nTimer = setTimeout(function() {
-	      $.Debug.error('Time is out:', eNode.src);
+	      $H.Debug.error('Time is out:', eNode.src);
 	      _fCallback();
 	    }, Loader.timeout);
 	
@@ -266,7 +266,7 @@ handy.add("Loader",["Debug","Object","Function"],function($){
 					id:sId,
 					status:'loading'
 				}
-				var _fCallback=$.Function.bind(_fResponse,null,sId);
+				var _fCallback=$H.Function.bind(_fResponse,null,sId);
 	    		if(/.css$/.test(sUrl)){
 	    			_fGetCss(sUrl,_fCallback);
 	    		}else{
@@ -297,7 +297,7 @@ handy.add("Loader",["Debug","Object","Function"],function($){
 	    	}
    		}
    		if(Loader.traceLog){
-			$.Debug.info("Response: "+sId);
+			$H.Debug.info("Response: "+sId);
    		}
     }
     /**
@@ -322,7 +322,7 @@ handy.add("Loader",["Debug","Object","Function"],function($){
 					resource=factory.apply(null,arguments);
 				}catch(e){
 					//资源定义错误
-					$.Debug.error(sId+":factory define error:"+e.message);
+					$H.Debug.error(sId+":factory define error:"+e.message);
 					return;
 				}
 			}else{
@@ -332,7 +332,7 @@ handy.add("Loader",["Debug","Object","Function"],function($){
 			oCache.deps=aDeps;
 			oCache.factory=factory;
 			oCache.resource=resource;
-			$.Object.namespace(sId,resource);
+			$H.Object.namespace(sId,resource);
 		});
 	}
     /**
@@ -364,7 +364,7 @@ handy.add("Loader",["Debug","Object","Function"],function($){
 	    			});
     			}
     			if(Loader.traceLog){
-					$.Debug.info(_RESOURCE_NOT_FOUND+sId);
+					$H.Debug.info(_RESOURCE_NOT_FOUND+sId);
 		   		}
     		}else{
     			aExisteds.push(oExisted);
