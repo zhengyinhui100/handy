@@ -51,9 +51,13 @@ function(History){
 	/**
 	 * 进入模块
 	 * @method go(oParams)
-	 * @param
+	 * @param {object}oParams{  //传入参数
+	 * 		modName:模块名称
+	 * 		...
+	 * }
+	 * @param {boolean=}bNotSaveHistory仅当为true时，不保存历史记录
 	 */
-	function fGo(oParams){
+	function fGo(oParams,bNotSaveHistory){
 		var that=this;
 		var sModName=oParams.modName;
 		var sCurrentMod=that.currentMod;
@@ -78,11 +82,13 @@ function(History){
 			//否则新建一个模块
 			that.createMod(oParams);
 		}
-		//保存状态
-		that.history.saveState({
-			onStateChange:$H.Function.bind(that.go,that),
-			param:oParams
-		});
+		if(bNotSaveHistory!=true){
+			//保存状态
+			that.history.saveState({
+				onStateChange:$H.Function.bind(that.go,that),
+				param:oParams
+			});
+		}
 	}
 	/**
 	 * 新建模块
@@ -95,6 +101,8 @@ function(History){
 		//请求模块
 		$Require(that.defModPackage+sModName,function(Module){
 			var oMod=new Module();
+			oMod.name=sModName;
+			oMod.mType=sModName;
 			oMod.initParam=oParams;
 			//模块初始化
 			oMod.init(oParams);

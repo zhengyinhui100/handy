@@ -17,9 +17,11 @@ function(HashChange){
 	
 	$HO.extend(History.prototype,{
 		initialize         : fInitialize,      //历史记录类初始化
+		stateChange        : fStateChange,     //历史状态改变
 		saveState          : fSaveState,       //保存当前状态
 		getCurrentState    : fGetCurrentState, //获取当前状态
-		stateChange        : fStateChange      //历史状态改变
+		getPreState        : fGetPreState,     //获取前一个状态
+		back               : fBack             //后退一步
 	});
 	/**
 	 * 历史记录类初始化
@@ -30,7 +32,9 @@ function(HashChange){
 		var that=this;
 		that.key=sKey||'handy';
 		that.states=[];
-		HashChange.listen(that.stateChange.bind(that));
+		//TODO 由于jQuery mobile bug，设置hashListeningEnabled无效，所以这里暂时使用jqm的hashchange
+		//HashChange.listen($H.Function.bind(that.stateChange,that));
+		$(window).hashchange($H.Function.bind(that.stateChange,that));
 	}
 	/**
 	 * 历史状态改变
@@ -40,7 +44,7 @@ function(HashChange){
 		var that=this;
 		var oState=that.getCurrentState();
 		if(oState){
-			oState.onStateChange(oState.param);
+			oState.onStateChange(oState.param,true);
 		}
 	}
 	/**
@@ -60,7 +64,7 @@ function(HashChange){
 			hKey    : sHistoryKey,
 			param : oState.param
 		};
-		HashChange.setHash("#"+JSON.stringify(oHashParam));
+		$HU.setHash("#"+JSON.stringify(oHashParam));
 	}
 	/**
 	 * 获取当前状态
@@ -70,13 +74,44 @@ function(HashChange){
 	function fGetCurrentState(){
 		var that=this;
 		try{
-			var oHashParam=JSON.parse(HashChange.getHash().replace("#",""));
+			var oHashParam=JSON.parse($HU.getHash().replace("#",""));
 			return that.states[oHashParam.hKey];
 		}catch(e){
 			$H.Debug.warn("History.getCurrentState:parse hash error:"+e.message);
 		}
 	}
-	
+	/**
+	 * 获取前一个状态
+	 * @method getPreState
+	 * @return {object} 返回前一个状态
+	 */
+	function fGetPreState(){
+		var that=this;
+		try{
+			var oHashParam=JSON.parse($HU.getHash().replace("#",""));
+			var sHKey=oHashParam.hKey;
+			var aStates=that.states;
+			var nLen=aStates.length;
+			for(var i=0;i++;i<nLen){
+				if(aStates[i]==sHKey){
+					return i>0?aStates[aStates[--i]]:null;
+				}
+			}
+		}catch(e){
+			$H.Debug.error("History.getPreState error:"+e.message);
+		}
+	}
+	/**
+	 * 后退一步
+	 * @method back
+	 */
+	function fBack(){
+		var that=this;
+		var oState=that.getPreState();
+		if(oState){
+			oState.onStateChange(oState.param);
+		}
+	}
 	
 	return History;
 	
