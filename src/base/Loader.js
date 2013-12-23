@@ -14,10 +14,10 @@ handy.add("Loader",["Debug","Object","Function"],function($H){
 	
 	var Loader= {
 		traceLog                : true,                     //是否打印跟踪信息
-		rootPath                : {
-			'handy'        : 'http://localhost:8081/handy/src',
-			'com.sport'    : 'http://localhost:8082/sportapp/www/js'
-		},                       //根url，根据命名空间前缀匹配替换，如果没有匹配则是空字符串''；如果rootPath是字符串则直接使用
+//		rootPath                : {
+//			'handy'        : 'http://localhost:8081/handy/src',
+//			'com.example'  : 'http://example.com:8082/js'
+//		},                       //根url，根据命名空间前缀匹配替换，如果没有匹配则是空字符串''；如果rootPath是字符串则直接使用
 		timeout                 : 15000,
 		skinName                : 'skin',                   //皮肤名称，皮肤css的url里包含的字符串片段，用于检查css是否是皮肤
 		urlMap                  : {},                       //id-url映射表    
@@ -65,13 +65,15 @@ handy.add("Loader",["Debug","Object","Function"],function($H){
     		var rootPath=Loader.rootPath;
     		if(typeof rootPath=='string'){
     			sRoot=rootPath;
-    		}else{
+    		}else if(typeof rootPath=="object"){
 	    		for(var prifix in rootPath){
 	    			if(sId.indexOf(prifix)==0){
 	    				sRoot=rootPath[prifix];
 	    				sId=sId.replace(prifix,'');
 	    			}
 	    		}
+    		}else{
+    			sRoot="";
     		}
     		//css文件
     		if(/.css$/.test(sId)){
