@@ -2,7 +2,7 @@
  * 函数类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Function',['Object'],function($){
+handy.add('Function','handy.base.Object',function($H){
 	
 	var Function={
 		bind                : fBind,              //函数bind方法
@@ -38,7 +38,7 @@ handy.add('Function',['Object'],function($){
 	function fIntercept(fExecFunc,fInterceptFunc,oExecScope,oInterceptScope) {
 		var oExecScope=oExecScope||window;
 		var oInterceptScope=oInterceptScope||oExecScope||window;
-		if($.Object.isFunction(fInterceptFunc)){
+		if(Object.isFunction(fInterceptFunc)){
 			return function() {
 		                var args = arguments;
 		                oInterceptScope.target = oExecScope;

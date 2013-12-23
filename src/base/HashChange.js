@@ -3,7 +3,10 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * 
  */
-handy.add("HashChange",function($H){
+//use jQuery
+handy.add("HashChange",
+['handy.base.Debug','handy.base.Util'],
+function(Debug,Util,$H){
 
 	/**
 	 * IE8+ | FF3.6+ | Safari5+ | Chrome | Opera 10.6+ 支持hashchange
@@ -40,12 +43,12 @@ handy.add("HashChange",function($H){
 				//创建一个隐藏的iframe，使用这博文提供的技术 http://www.paciellogroup.com/blog/?p=604.
 				_oIframe = $('<iframe id="fff" tabindex="-1" style="display:none" width=0 height=0 title="empty" />').appendTo( _oDoc.body )[0];
                 $(_oIframe).one("load",function(){
-                	_fSetIfrHash($HU.getHash());
+                	_fSetIfrHash(Util.getHash());
                 	setInterval(_fPoll,HashChange.delay);
                 });
 			}else{
 				$(window).on("hashchange",function(){
-					_fOnChange($HU.getHash());
+					_fOnChange(Util.getHash());
 				})
 			}
 		}
@@ -64,14 +67,14 @@ handy.add("HashChange",function($H){
             oDoc.write('<!doctype html><html><body>'+sHash+'</body></html>');
             oDoc.close();
             _sLastHash=sHash;
-            $D.log("set:"+_oIframe.contentWindow.document.body.innerText);
+            Debug.log("set:"+_oIframe.contentWindow.document.body.innerText);
 		}
 		/**
 		 * 定时检查hash有没有变化
 		 * @method _fPoll
 		 */
 		function _fPoll() {
-			var sHash=$HU.getHash();
+			var sHash=Util.getHash();
 			var sIfrHash = _oIframe.contentWindow.document.body.innerText;
 			//如果地址栏hash变化了，设置iframe的hash并处罚hashchange
 			if (sHash != _sLastHash) {
@@ -79,8 +82,8 @@ handy.add("HashChange",function($H){
 				_fOnChange(sHash);
 			}else if(sIfrHash!=_sLastHash){
 				//iframe的hash发生了变化(点击前进/后退)，更新地址栏hash
-				$D.log("update:"+_oIframe.contentWindow.document.body.innerText);
-				$HU.setHash(sIfrHash);
+				Debug.log("update:"+_oIframe.contentWindow.document.body.innerText);
+				Util.setHash(sIfrHash);
 			}
 		}
 		/**

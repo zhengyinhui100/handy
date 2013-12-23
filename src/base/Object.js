@@ -2,7 +2,7 @@
  * 对象扩展类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Object',function($){
+handy.add('Object',function($H){
 	
 	var Object={
 		namespace           : fNamespace,       //创建或读取命名空间，可以传入用以初始化该命名空间的对象
@@ -24,20 +24,26 @@ handy.add('Object',function($){
     * 创建或读取命名空间
     * @method namespace (sPath,object=)
     * @param {string}sPath 命名空间路径字符串
-    * @param {*=}obj (可选)用以初始化该命名空间的对象
+    * @param {*=}obj (可选)用以初始化该命名空间的对象，不传表示读取命名空间
     * @return {?*} 返回该路径的命名空间，不存在则返回undefined
     */
 	function fNamespace(sPath,obj){
-		var oObject=null, j, aPath, root,len;  
+		var oObject=null, j, aPath, root,bIsCreate,len;  
         aPath=sPath.split(".");  
         root = aPath[0]; 
-        //考虑压缩的因素
-        oObject=eval('(function(){if (typeof ' + root + ' == "undefined"){' + root + ' = {};}return ' + root + ';})()');  
+        bIsCreate=arguments.length==2;
+        //改这里eval的代码须考虑压缩的因素
+        if(!bIsCreate){
+        	oObject=eval('(function(){if (typeof ' + root + ' != "undefined")return ' + root + ';})()');
+        }else{
+	        oObject=eval('(function(){if (typeof ' + root + ' == "undefined"){' + root + ' = {};}return ' + root + ';})()');  
+        }
         //循环命名路径
         for (j=1,len=aPath.length; j<len; ++j) { 
-        	if(j==len-1&&obj){
+        	//obj非空
+        	if(j==len-1&&bIsCreate){
         		oObject[aPath[j]]=obj;
-        	}else if(obj||oObject[aPath[j]]){
+        	}else if(bIsCreate||(oObject&&oObject[aPath[j]])){
 	            oObject[aPath[j]]=oObject[aPath[j]]||{};  
         	}else{
         		return;

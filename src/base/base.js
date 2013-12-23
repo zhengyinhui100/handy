@@ -17,6 +17,7 @@
 	handy.add        = fAdd;            //添加子模块
 	handy.noConflict = fNoConflict;   //处理命名冲突
 	
+	
 	/**
 	 * 添加子模块
 	 * @method add
@@ -24,19 +25,32 @@
 	 * @param {Object=}aRequires 模块依赖资源
 	 * @param {function(Object):*}fDefined 模块功能定义
 	 */
-	function fAdd(sName,aRequires,fDefined){
+	function fAdd(sName,aRequires,fDefined,dds){
 		if(!fDefined){
 			fDefined=aRequires;
 			aRequires=null;
 		}
-		if(!aRequires||!handy.Loader||true){
+		//TODO 由于Loader可能还未定义，这里特殊处理，以后考虑将Loader单独抽出来
+		if(!aRequires||!handy.Loader){
 			if(!handy.base){
 				handy.base={};
 			}
-			handy.base[sName]=handy[sName]=fDefined(handy);
+			var args=[];
+			if(aRequires){
+				if(typeof aRequires=="string"){
+					args.push(handy.base.Object.namespace(aRequires));
+				}else{
+					for(var i=0;i<aRequires.length;i++){
+						args.push(handy.base.Object.namespace(aRequires[i]));
+					}
+				}
+			}
+			args.push(handy);
+			handy.base[sName]=handy[sName]=fDefined.apply(window,args);
 		}else{
-			handy.Loader.require(aRequires,function(){
-				handy[sName]=fDefined(handy);
+			handy.Loader.require(aRequires, function() {
+				Array.prototype.push.call(arguments, handy);
+				handy.base[sName] = handy[sName] = fDefined.apply(window,arguments);
 			});
 		}
 	}

@@ -2,7 +2,7 @@
  * 模板类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Template',function($){
+handy.add('Template',function($H){
 	
 	var Template={
 		simpleReg       : /<%=this\.([^%>]+)%>/g,  //简单替换正则
