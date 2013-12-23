@@ -3,7 +3,9 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * 
  */
-handy.add("Loader",["Debug","Object","Function"],function($H){
+handy.add("Loader",
+["handy.base.Debug","handy.base.Object","handy.base.Function"],
+function(Debug,Object,Function,$H){
 	
 	var _RESOURCE_NOT_FOUND= 'Resource not found: ',
 		_eHead=document.head ||document.getElementsByTagName('head')[0] ||document.documentElement,
@@ -20,7 +22,12 @@ handy.add("Loader",["Debug","Object","Function"],function($H){
 //		},                       //根url，根据命名空间前缀匹配替换，如果没有匹配则是空字符串''；如果rootPath是字符串则直接使用
 		timeout                 : 15000,
 		skinName                : 'skin',                   //皮肤名称，皮肤css的url里包含的字符串片段，用于检查css是否是皮肤
-		urlMap                  : {},                       //id-url映射表    
+//		urlMap                  : {
+//			'example':{
+//				url       : 'http://url',     //url
+//				chkExist  : function(){return true}    //验证此资源是否存在的方法
+//			}
+//		},                       //自定义资源配置   
 		
 	    showLoading				: function(bIsLoading){},	//加载中的提示，由具体逻辑重写
 		define                  : fDefine,                  //定义资源资源
@@ -35,7 +42,16 @@ handy.add("Loader",["Debug","Object","Function"],function($H){
 	 */
     function _fChkExisted(id){
     	function _fChk(sId){
-    		return /\.(css|js)$/.test(sId)?(_oCache[sId]&&_oCache[sId].status=='loaded'):$H.Object.namespace(sId);
+    		//css和js文件只验证是否加载完
+    		if(/\.(css|js)$/.test(sId)){
+    			return _oCache[sId]&&_oCache[sId].status=='loaded';
+    		}else if(Loader.urlMap&&Loader.urlMap[sId]){
+    			//自定义资源使用自定义方法验证
+    			return Loader.urlMap[sId].chkExist();
+    		}else{
+    			//标准命名空间规则验证
+	    		return Object.namespace(sId);
+    		}
     	}
     	if(typeof id=="string"){
     		return _fChk(id);
@@ -59,7 +75,7 @@ handy.add("Loader",["Debug","Object","Function"],function($H){
 	 * @return {string}sUrl 实际url
 	 */
     function _fGetUrl(sId){
-    	var sUrl=Loader.urlMap[sId];
+    	var sUrl=Loader.urlMap&&Loader.urlMap[sId]&&Loader.urlMap[sId].url;
     	if(!sUrl){
     		var sRoot='';
     		var rootPath=Loader.rootPath;
@@ -103,6 +119,9 @@ handy.add("Loader",["Debug","Object","Function"],function($H){
     	eScript.type="text/javascript";
     	_fAddOnload(eScript,fCallback);
 		_eHead.appendChild(eScript);
+		if(Loader.traceLog){
+			Debug.info("Loader request:"+sUrl);
+   		}
 	}
 	/**
 	 * 获取css
@@ -129,6 +148,9 @@ handy.add("Loader",["Debug","Object","Function"],function($H){
     	_fAddOnload(eCssNode,fCallback);
     	//插入到皮肤css之前
     	_eHead.insertBefore(eCssNode,Loader.skinNode);
+    	if(Loader.traceLog){
+			Debug.info("Loader request:"+sUrl);
+   		}
 	}
 	/**
 	 * 为css/script资源添加onload事件，包含超时处理
@@ -154,7 +176,7 @@ handy.add("Loader",["Debug","Object","Function"],function($H){
 	
 	    //超时处理
 	    var nTimer = setTimeout(function() {
-	      $H.Debug.error('Time is out:', eNode.src);
+	      Debug.error('Time is out:', eNode.src);
 	      _fCallback();
 	    }, Loader.timeout);
 	
@@ -166,36 +188,44 @@ handy.add("Loader",["Debug","Object","Function"],function($H){
 	 * @param {function()}fCallback 回调函数
 	 */
 	function _fScriptOnload(eNode, fCallback) {
-	    eNode.onload = eNode.onerror = eNode.onreadystatechange =function() {
-	        if (/loaded|complete|undefined/.test(eNode.readyState)) {
-	            // 保证只运行一次回调
-	            eNode.onload = eNode.onerror = eNode.onreadystatechange = null;
-	            //防止内存泄露
-	            if (eNode.parentNode) {
-	              try {
-	                if (eNode.clearAttributes) {
-	                  eNode.clearAttributes();
-	                }
-	                else {
-	                  for (var p in eNode) delete eNode[p];
-	                }
-	              } catch (e) {
-	              }
-	              //移除标签
-	              _eHead.removeChild(eNode);
-	            }
-	            eNode = undefined;
-	            //IE10下新加载的script会在此之后执行，所以此处需延迟执行
-				setTimeout(fCallback,0);
-	          }
-	      };
-	   // 注意:在opera下，当文件是404时，不会发生任何事件，回调函数会在超时的时候执行
+		eNode.onload = eNode.onerror = eNode.onreadystatechange = function() {
+			if (/loaded|complete|undefined/.test(eNode.readyState)) {
+				// 保证只运行一次回调
+				eNode.onload = eNode.onerror = eNode.onreadystatechange = null;
+//				//TODO 防止内存泄露
+//				if (eNode.parentNode) {
+//					try {
+//						if (eNode.clearAttributes) {
+//							eNode.clearAttributes();
+//						} else {
+//							Chrome下这里执行后eNode回变为“TypeError”，原因暂不明
+//							for (var p in eNode){
+//								console.log(p)
+//								if(eNode=="TypeError")debugger;
+//								delete eNode[p];
+//							}
+//						}
+//					} catch (e) {
+//						Debug.error("Loader script onload:"+e.message);
+//					}
+//				}
+				// 移除标签
+				_eHead.removeChild(eNode);
+				eNode = null;
+				// IE10下新加载的script会在此之后才执行，所以此处需延迟执行
+				setTimeout(fCallback, 0);
+			}
+		};
+		// 注意:在opera下，当文件是404时，不会发生任何事件，回调函数会在超时的时候执行
 	}
 	/**
 	 * css资源onload函数
+	 * 
 	 * @method _fStyleOnload
-	 * @param {element}eNode 节点
-	 * @param {function()}fCallback 回调函数
+	 * @param {element}eNode
+	 *            节点
+	 * @param {function()}fCallback
+	 *            回调函数
 	 */
 	function _fStyleOnload(eNode, fCallback) {
 	    // IE6-9 和 Opera
@@ -268,7 +298,7 @@ handy.add("Loader",["Debug","Object","Function"],function($H){
 					id:sId,
 					status:'loading'
 				}
-				var _fCallback=$H.Function.bind(_fResponse,null,sId);
+				var _fCallback=Function.bind(_fResponse,null,sId);
 	    		if(/.css$/.test(sUrl)){
 	    			_fGetCss(sUrl,_fCallback);
 	    		}else{
@@ -299,7 +329,7 @@ handy.add("Loader",["Debug","Object","Function"],function($H){
 	    	}
    		}
    		if(Loader.traceLog){
-			$H.Debug.info("Response: "+sId);
+			Debug.info("Loader Response: "+sId);
    		}
     }
     /**
@@ -324,17 +354,13 @@ handy.add("Loader",["Debug","Object","Function"],function($H){
 					resource=factory.apply(null,arguments);
 				}catch(e){
 					//资源定义错误
-					$H.Debug.error(sId+":factory define error:"+e.message);
+					Debug.error("Loader "+sId+":factory define error:"+e.message);
 					return;
 				}
 			}else{
 				resource=factory;
 			}
-			var oCache=_oCache[sId];
-			oCache.deps=aDeps;
-			oCache.factory=factory;
-			oCache.resource=resource;
-			$H.Object.namespace(sId,resource);
+			Object.namespace(sId,resource);
 		});
 	}
     /**
@@ -366,7 +392,7 @@ handy.add("Loader",["Debug","Object","Function"],function($H){
 	    			});
     			}
     			if(Loader.traceLog){
-					$H.Debug.info(_RESOURCE_NOT_FOUND+sId);
+					Debug.info(_RESOURCE_NOT_FOUND+sId);
 		   		}
     		}else{
     			aExisteds.push(oExisted);
