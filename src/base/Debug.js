@@ -3,7 +3,7 @@
  * //TODO 快捷键切换调试等级
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add("Debug",'handy.base.Json',function(Json,$H){
+handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser,$H){
 	
 	var Debug={
 		level	    : 0,            //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
@@ -12,7 +12,7 @@ handy.add("Debug",'handy.base.Json',function(Json,$H){
 		WARN_LEVEL  : 3,            //警告级别
 		ERROR_LEVEL	: 4,            //错误级别
 		DEBUG_LEVEL : 5,            //调试级别
-		showInPage  : !("console" in window),        //是否强制在页面上输出调试信息，主要用于不支持console的浏览器，如：IE6，或者ietester里面
+		showInPage  : !("console" in window)||!!Browser.mobile(),        //是否强制在页面上输出调试信息，主要用于不支持console的浏览器，如：IE6，或者ietester里面，或者移动浏览器
 		log			: fLog,		    //输出日志
 		info		: fInfo,		//输出信息
 		warn        : fWarn,        //输出警告信息
