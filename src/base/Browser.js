@@ -5,23 +5,25 @@
  */
 handy.add("Browser","handy.base.Object",function(Object,$H){
 
-	var oInfo={};
+	var _oInfo={};
 	
 	var Browser={};
 	
 	//归纳生成方法，如：Browser.ie()返回ie的版本号(默认返回整型，传入true参数时返回实际版本号，如：'20.0.1132.43')，Browser.windows()返回是否是windows系统
 	Object.genMethod(Browser,[
-			'ie','firefox','chrome','safari','opera',   //浏览器版本，@return{string}
+			'ie','firefox','chrome','safari','opera',   //浏览器版本，@return{number|string}
 			'windows','linux','mac',                    //操作系统，@return{boolean}
 			'trident','webkit','gecko','presto',        //浏览器内核类型，@return{boolean}
 			'sogou','maxthon','tt','theWorld','is360',  //浏览器壳类型，@return{boolean}
+			'mobile',                                   //移动设备类型，@return{string}'ios'|'android'|'nokian'|'webos'
+			'android','ios',                            //android或者ios版本，@return{string}
+			'iPhone','iPod','iPad',                     //ios设备版本，@return{string}
 			'flash'                                     //flash版本，@return{string}
 		],
 		function(sName){
-			
 			return function(bNotInt){
-				var sValue=oInfo[sName];
-				return !bNotInt&&typeof sValue==='string'?parseInt(sValue):sValue;
+				var sValue=_oInfo[sName];
+				return !bNotInt&&typeof sValue==='string'&&/^[\d\.]+$/.test(sValue)?parseInt(sValue):sValue;
 			}
 		}
 	);
@@ -36,6 +38,7 @@ handy.add("Browser","handy.base.Object",function(Object,$H){
 		_fParseOs(userAgent);
 	    _fParseKernel(userAgent);
 		_fParseShell(userAgent);
+		_fParseMobile(userAgent);
 		_fParseFlash();
 	}
 	/**
@@ -47,11 +50,11 @@ handy.add("Browser","handy.base.Object",function(Object,$H){
 		var ua =userAgent;
 		var matcher;
 		// 使用正则表达式在userAgent中提取浏览器版本信息
-		(matcher = ua.match(/MSIE ([\d.]+)/)) ? oInfo.ie = matcher[1] :
-		(matcher = ua.match(/Firefox\/([\d.]+)/))? oInfo.firefox = matcher[1]: 
-		(matcher = ua.match(/Chrome\/([\d.]+)/))? oInfo.chrome = matcher[1]: 
-		(matcher = ua.match(/Opera.([\d.]+)/))? oInfo.opera = matcher[1]: 
-		(matcher = ua.match(/Version\/([\d.]+).*Safari/))? oInfo.safari = matcher[1]: 0;
+		(matcher = ua.match(/MSIE ([\d.]+)/)) ? _oInfo.ie = matcher[1] :
+		(matcher = ua.match(/Firefox\/([\d.]+)/))? _oInfo.firefox = matcher[1]: 
+		(matcher = ua.match(/Chrome\/([\d.]+)/))? _oInfo.chrome = matcher[1]: 
+		(matcher = ua.match(/Opera.([\d.]+)/))? _oInfo.opera = matcher[1]: 
+		(matcher = ua.match(/Version\/([\d.]+).*Safari/))? _oInfo.safari = matcher[1]: 0;
 	}
 	/**
 	 * 分析浏览器类型及版本
@@ -61,9 +64,9 @@ handy.add("Browser","handy.base.Object",function(Object,$H){
 	function _fParseOs(userAgent){
 		var os;
 		// 读取分析操作系统
-		/windows|win32/i.test(userAgent)?oInfo.windows=true:
-		/linux/i.test(userAgent)?oInfo.linux=true:
-		/macintosh/i.test(userAgent)?oInfo.mac=true:0;
+		/windows|win32/i.test(userAgent)?_oInfo.windows=true:
+		/linux/i.test(userAgent)?_oInfo.linux=true:
+		/macintosh/i.test(userAgent)?_oInfo.mac=true:0;
 	}
 	/**
 	 * 分析浏览器内核类型
@@ -72,12 +75,11 @@ handy.add("Browser","handy.base.Object",function(Object,$H){
 	 */
 	function _fParseKernel(userAgent){
 		var ua =userAgent;
-		var matcher;
 		// 使用正则表达式在userAgent中提取浏览器版本信息
-		/trident/i.test(ua) ? oInfo.trident = true :
-		/webkit/i.test(ua)? oInfo.webkit = true: 
-		/gecko/i.test(ua)? oInfo.gecko = true: 
-		/presto/i.test(ua)? oInfo.presto = true: 0;
+		/trident/i.test(ua) ? _oInfo.trident = true :
+		/webkit/i.test(ua)? _oInfo.webkit = true: 
+		/gecko/i.test(ua)? _oInfo.gecko = true: 
+		/presto/i.test(ua)? _oInfo.presto = true: 0;
 	}
 	/**
 	 * 分析浏览器壳类型
@@ -85,24 +87,58 @@ handy.add("Browser","handy.base.Object",function(Object,$H){
 	 * @param {string}userAgent 浏览器userAgent
 	 */
 	function _fParseShell(userAgent){
-		var matcher;
 		var ua=userAgent;
 		// 使用正则表达式在userAgent中提取浏览器壳信息
-		/MetaSr/i.test(ua) ? oInfo.sogou = true :
-		/Maxthon/i.test(ua)? oInfo.maxthon = true: 
-		/TencentTraveler/i.test(ua)? oInfo.tt = true: 
-		/TheWorld/i.test(ua)? oInfo.theWorld = true: 
-		/360[S|E]E/i.test(ua)? oInfo.is360 = true: 0;
+		/MetaSr/i.test(ua) ? _oInfo.sogou = true :
+		/Maxthon/i.test(ua)? _oInfo.maxthon = true: 
+		/TencentTraveler/i.test(ua)? _oInfo.tt = true: 
+		/TheWorld/i.test(ua)? _oInfo.theWorld = true: 
+		/360[S|E]E/i.test(ua)? _oInfo.is360 = true: 0;
+	}
+	/**
+	 * 分析移动浏览器类型
+	 * @method _fParseMobile
+	 * @param {string}userAgent 浏览器userAgent
+	 */
+	function _fParseMobile(userAgent) {
+		var ua = userAgent,m;
+		if ((m = ua.match(/AppleWebKit\/([\d.]*)/)) && m[1]){
+			if (/ Mobile\//.test(ua) && ua.match(/iPad|iPod|iPhone/)) {
+				_oInfo.mobile = 'ios'; // iPad, iPhone, iPod Touch
+	
+				//版本号
+				m = ua.match(/OS ([^\s]*)/);
+				if (m && m[1]) {
+					_oInfo.ios = numberify(m[1].replace('_', '.'));
+				}
+				m = ua.match(/iPad|iPod|iPhone/);
+				if (m && m[0]) {
+					_oInfo[m[0].toLowerCase()] = _oInfo.ios;
+				}
+			} else if (/ Android/i.test(ua)) {
+				if (/Mobile/.test(ua)) {
+					_oInfo.mobile = 'android';
+				}
+				m = ua.match(/Android ([^\s]*);/);
+				if (m && m[1]) {
+					_oInfo.android = m[1];
+				}
+			} else if ((m = ua.match(/NokiaN[^\/]*|Android \d\.\d|webOS\/\d\.\d/))) {
+				_oInfo.mobile = m[0].toLowerCase(); // Nokia N-series, Android, webOS,
+												// ex: NokiaN95
+			}
+		}
 	}
 	/**
 	 * 分析浏览器flash版本
+	 * 
 	 * @method _fParseFlash
 	 */
 	function _fParseFlash(){
 		var flashVersion;
 		try{
 			// 如果是ie浏览器
-			if(oInfo.ie){
+			if(_oInfo.ie){
 				// 创建一个activeobject
 				var oFlash = new ActiveXObject('ShockwaveFlash.ShockwaveFlash');
 				if(oFlash){
@@ -125,7 +161,7 @@ handy.add("Browser","handy.base.Object",function(Object,$H){
 			}
 		}catch(e){
 		}
-		oInfo.flash = !!flashVersion?flashVersion:null;
+		_oInfo.flash = !!flashVersion?flashVersion:null;
 	}
 	
 	_fInit();
