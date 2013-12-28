@@ -13,15 +13,15 @@ $Define("handy.module.AbstractModule","handy.base.Object",function (Object) {
 	var AbstractModule = Object.createClass();
 	
 	Object.extend(AbstractModule.prototype, {
-		isLoaded       : false,          //模块是否已载入
-		isActived      : false,          //模块是否是当前活跃的
-		//container    : null,           //模块的容器对象
-		useCache       : true,           //是否使用cache
-		//name         : null,           //模块名
-		//chName       : null,           //模块的中文名称
-		//getData      : null,           //获取该模块的初始化数据
-		//clone        : null,           //克隆接口
-		//getHtml      : null,           //获取该模块的html
+		isLoaded       : false,          //{boolean}模块是否已载入
+		isActived      : false,          //{boolean}模块是否是当前活跃的
+		//container    : null,           //{jQuery}模块的容器对象
+		useCache       : true,           //{boolean}是否使用cache
+		//name         : null,           //{string}模块名
+		//chName       : null,           //{string}模块的中文名称
+		//getData      : null,           //{function()}获取该模块的初始化数据
+		//clone        : null,           //{function()}克隆接口
+		//getHtml      : null,           //{function():string}获取该模块的html
 		cache          : function(){},   //显示模块缓存
 		init           : function(){},   //初始化函数, 在模块创建后调用（在所有模块动作之前）
 		beforeRender   : function(){},   //模块渲染前调用
