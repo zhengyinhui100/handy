@@ -21,53 +21,6 @@
     word-break: break-all;
 }
 
-
-// set y scrollbar only
-.fn_overflow_y(){
-	overflow-x:hidden;
-	overflow-y:auto; 
-}
-
-.fn_abs_tl_position(@top,@left){
-    position:absolute;
-    top: @top;
-    left: @left;
-}
-
-.fn_abs_tr_position(@top,@right){
-    position:absolute;
-    top: @top;
-    right: @right;
-}
-.fn_abs_bl_position(@bottom,@left){
-    position:absolute;
-    bottom: @bottom;
-    left: @left;
-}
-.fn_abs_br_position(@bottom,@right){
-    position:absolute;
-    bottom: @bottom;
-    right: @right;
-}
-//set button 
-
-.fn_button_left(@top,@pleft){
-	background-position:0 @top;
-    padding-left: @pleft;
-}
-.fn_button_right(@top,@pright){
-	background-position:right @top; 
-    padding-right: @pright;
-}
-.fn_button_text(@top,@padding:10px,@height:0,@line-height:0,@color:@color_white,@font_size:@font_size_middle){  
-	background-position:0 @top;
-	padding: 0 @padding;
-    height: @height;
-    line-height: @line-height;
-    color: @color;
-    font-size: @font_size; 
-}
-
 .fn_inline_block(){
 	display:-moz-inline-stack;
 	display:inline-block;
@@ -75,6 +28,7 @@
 	*display:inline;
 	overflow:hidden;
 }
+
 .fn_text_overflow(){
 	overflow: hidden;
 	white-space: nowrap;
@@ -115,3 +69,15 @@
      -moz-box-shadow: @shadow;
           box-shadow: @shadow;
 }
+
+.fn_linear_gradient_top(@from,@to){
+	background-image: -webkit-gradient(linear, left top, left bottom, from( @from ), to( @to )); /* old webkit,Saf4+, Chrome */
+	background-image: -webkit-linear-gradient( @from , @to ); /* Chrome 10+, Saf5.1+ */
+	background-image:    -moz-linear-gradient( @from , @to ); /* FF3.6 */
+	background-image:     -ms-linear-gradient( @from , @to ); /* IE10 */
+	background-image:      -o-linear-gradient( @from , @to ); /* Opera 11.10+ */
+	background-image:         linear-gradient( @from , @to );
+	//filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#1471da, endColorstr=#1C85FB);/*IE<9>*/
+	//-ms-filter: "progid:DXImageTransform.Microsoft.gradient (GradientType=0, startColorstr=#1471da, endColorstr=#1C85FB)";/*IE8+*/
+}
+//http://www.cnblogs.com/lhb25/archive/2013/02/17/css3-linear-gradient.html

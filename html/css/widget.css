@@ -1,3 +1,61 @@
+.w-icon {
+  width: 18px;
+  height: 18px;
+  display: -moz-inline-stack;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
+  overflow: hidden;
+  background-image: url("../img/globle.png");
+}
+.w-button {
+  display: block;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  margin: 0.5em 0;
+  -webkit-border-radius: 1em;
+  border-radius: 1em;
+  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  font-size: 16px;
+  padding: .6em 20px;
+  min-width: .75em;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  zoom: 1;
+}
+.w-button:hover {
+  border: 1px solid 		#bbb ;
+  background: #dfdfdf ;
+  font-weight: bold;
+  color: #222 ;
+  text-shadow: 0 /*{c-bhover-shadow-x}*/ 1px /*{c-bhover-shadow-y}*/ 0 /*{c-bhover-shadow-radius}*/ #ffffff /*{c-bhover-shadow-color}*/;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#f6f6f6), to(#e0e0e0));
+  /* old webkit,Saf4+, Chrome */
+
+  background-image: -webkit-linear-gradient(#f6f6f6, #e0e0e0);
+  /* Chrome 10+, Saf5.1+ */
+
+  background-image: -moz-linear-gradient(#f6f6f6, #e0e0e0);
+  /* FF3.6 */
+
+  background-image: -ms-linear-gradient(#f6f6f6, #e0e0e0);
+  /* IE10 */
+
+  background-image: -o-linear-gradient(#f6f6f6, #e0e0e0);
+  /* Opera 11.10+ */
+
+  background-image: linear-gradient(#f6f6f6, #e0e0e0);
+}
+.w-button-inline {
+  display: -moz-inline-stack;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
+  overflow: hidden;
+}
 .w-list .w-list-item {
   position: relative;
   border-bottom: 1px solid #a1a1a1;
