@@ -1,0 +1,39 @@
+//公用less库，class以"c-"开头
+
+@import "function.less";
+
+//S 常用功能样式
+.c-clear:after{
+	clear:both;
+	content:".";
+	display:block;
+	height:0;
+	visibility:hidden;
+	overflow:hidden;
+}
+.c-clear{
+	zoom:1;
+}
+
+//常用字体颜色
+.c-error{
+	color:red;
+}
+
+//常用结构
+.c-h-middle-container{
+	text-align:center;
+}
+.c-h-middle{
+	margin-left:auto;
+	margin-right:auto;
+}
+.c-v-middle{
+	position:absolute;
+	top:50%;
+}
+.c-v-middle-line{
+	height: 4em;
+	line-height: 4em;
+	overflow: hidden;
+}
