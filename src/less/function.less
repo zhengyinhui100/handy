@@ -43,33 +43,13 @@
     border-radius: @radius; 
 }
 
-.fn_border_tl_radius(@radius) {
-  -webkit-border-top-left-radius: @radius;
-      -moz-border-radius-topleft: @radius;
-          border-top-left-radius: @radius;
-}
-.fn_border_tr_radius(@radius) {
-  -webkit-border-top-right-radius: @radius;
-      -moz-border-radius-topright: @radius;
-          border-top-right-radius: @radius;
-}
-.fn_border_br_radius(@radius) {
-  -webkit-border-bottom-right-radius: @radius;
-      -moz-border-radius-bottomright: @radius;
-          border-bottom-right-radius: @radius;
-}
-.fn_border_bl_radius(@radius) {
-  -webkit-border-bottom-left-radius: @radius;
-      -moz-border-radius-bottomleft: @radius;
-          border-bottom-left-radius: @radius;
-}
-
 .fn_box_shadow(@shadow){
   -webkit-box-shadow: @shadow;
      -moz-box-shadow: @shadow;
           box-shadow: @shadow;
 }
-
+//{box-shadow:inset x-offset y-offset blur-radius spread-radius color}
+//http://www.w3cplus.com/content/css3-box-shadow
 .fn_linear_gradient_top(@from,@to){
 	background-image: -webkit-gradient(linear, left top, left bottom, from( @from ), to( @to )); /* old webkit,Saf4+, Chrome */
 	background-image: -webkit-linear-gradient( @from , @to ); /* Chrome 10+, Saf5.1+ */
@@ -80,4 +60,20 @@
 	//filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#1471da, endColorstr=#1C85FB);/*IE<9>*/
 	//-ms-filter: "progid:DXImageTransform.Microsoft.gradient (GradientType=0, startColorstr=#1471da, endColorstr=#1C85FB)";/*IE8+*/
 }
-//http://www.cnblogs.com/lhb25/archive/2013/02/17/css3-linear-gradient.html
+//linear-gradient(start point, from , to )
+//http://www.w3cplus.com/node/44
+.fn_transition(@transition){
+	-moz-transition: @transition;
+    -webkit-transition: @transition;
+    -o-transition: @transition;
+    transition: @transition;
+}
+//transition ： [<'transition-property'> || <'transition-duration'> || <'transition-timing-function'> || <'transition-delay'> [, [<'transition-property'> || <'transition-duration'> || <'transition-timing-function'> || <'transition-delay'>]]* 
+//http://www.w3cplus.com/content/css3-transition
+.fn_transform(@transform){
+    -moz-transform: @transform;
+    -webkit-transform: @transform;
+    -o-transform: @transform;
+    -ms-transform: @transform;
+    transform: @transform;
+}

@@ -2,42 +2,63 @@
 
 @import "function.less";
 
-
+//图标
 .w-icon{
 	width:18px;
 	height:18px;
 	.fn_inline_block();
 	background-image:url("../img/globle.png");
 }
-
+//按钮
 .w-button{
 	display: block;
-	text-align: center;
-	cursor: pointer;
 	position: relative;
+	cursor: pointer;
 	margin: 0.5em 0;
-	-webkit-border-radius: 1em;
-	border-radius: 1em;
-	-webkit-box-shadow: 0 1px 3px rgba(0,0,0,.2);
-	box-shadow: 0 1px 3px rgba(0,0,0,.2);
+	.fn_border_radius(1em);
+	.fn_box_shadow( 0 1px 3px rgba(0,0,0,.2));
+	text-align: center;
 	font-size: 16px;
 	padding: .6em 20px;
 	min-width: .75em;
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space: nowrap;
-	zoom: 1;
+	zoom:1;
+	border: 1px solid #ccc;
+	background: #eee;
+	font-weight: 700;
+	color: #222;
+	text-shadow: 0 1px 0 #fff;
+	.fn_linear_gradient_top(#fff,#f1f1f1);
 	&:hover{
 		border: 1px solid 		#bbb ;
 		background: 			#dfdfdf ;
 		font-weight: bold;
 		color: 					#222 ;
-		text-shadow: 0 /*{c-bhover-shadow-x}*/ 1px /*{c-bhover-shadow-y}*/ 0 /*{c-bhover-shadow-radius}*/ #fff /*{c-bhover-shadow-color}*/;
+		text-shadow: 0 1px 0 #fff;
 		.fn_linear_gradient_top(#f6f6f6,#e0e0e0);
 	}
 }
+//内联按钮（自适应宽度）
 .w-button-inline{
 	.fn_inline_block();
+}
+//激活的按钮
+.w-button-blue{
+	border: 1px solid #044062;
+	background: #396b9e;
+	color: #fff;
+	text-shadow: 0 1px 0 #194b7e;
+	.fn_linear_gradient_top(#5f9cc5,#396b9e);
+	&:hover{
+		border: 1px solid #00415e ;
+		background: #4b88b6;
+		font-weight: bold;
+		color: #fff;
+		text-shadow: 0 1px 0 #194b7e;
+		.fn_linear_gradient_top(#6facd5,#4272a4);
+	}
 }
 
 .w-list{
