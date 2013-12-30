@@ -213,6 +213,17 @@
   top: 50%;
   margin-top: -13px;
 }
+.w-form .w-form-field {
+  margin: 1em 0;
+}
+.w-form .w-form-left {
+  width: 25%;
+  float: left;
+}
+.w-form .w-form-right {
+  width: 70%;
+  float: left;
+}
 .w-list .w-list-item {
   position: relative;
   border-bottom: 1px solid #a1a1a1;
