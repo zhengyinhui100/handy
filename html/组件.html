@@ -13,31 +13,61 @@
 <link rel="stylesheet" type="text/css"
 	href="css/widget.css" />
 </head>
-<body>
+<body style="overflow:auto;">
 	<h3>图标：</h3>
+	<br/>
 	<!-- S 图标 -->
-	<span class="w-icon"></span>
+	<span class="w-icon w-icon-location"></span>
+	<span class="w-icon w-icon-bg w-icon-edit"></span>
+	<span class="w-icon w-icon-bg w-icon-del"></span>
+	<span class="w-icon w-icon-bg w-icon-search"></span>
 	<!-- E 图标 -->
 	
 	<br/><br/><br/><br/><br/><br/><br/>
 	
 	<h3>按钮：</h3>
 	<!-- S 按钮 -->
-	<a class="w-button">
-		<span class="w-button-txt">普通按钮</span>
+	<a class="w-btn">
+		<span class="w-btn-txt">普通按钮</span>
 	</a>
-	<a class="w-button w-button-inline">
-		<span class="w-button-txt">内联按钮(宽度自适应)</span>
+	<a class="w-btn w-btn-inline">
+		<span class="w-btn-txt">内联按钮(宽度自适应)</span>
 	</a>
-	<a class="w-button w-button-inline w-button-blue">
-		<span class="w-button-txt">蓝色按钮</span>
+	<a class="w-btn w-btn-inline w-btn-blue">
+		<span class="w-btn-txt">蓝色按钮</span>
+	</a>
+	<a class="w-btn w-btn-inline w-btn-icon-left">
+		<span class="w-icon w-icon-bg w-icon-location"></span>
+		<span class="w-btn-txt">图标按钮</span>
+	</a>
+	<a class="w-btn w-btn-inline w-btn-icon-top">
+		<span class="w-icon w-icon-bg w-icon-location"></span>
+		<span class="w-btn-txt">图标按钮</span>
+	</a>
+	<a class="w-btn w-btn-inline w-btn-icon-notxt">
+		<span class="w-icon w-icon-bg w-icon-edit"></span>
 	</a>
 	<!-- S 按钮 -->
 	
 	<br/><br/><br/><br/><br/><br/><br/>
 	
 	<h3>输入框：</h3>
-	<input>
+	<div class="w-input">
+		<input type="text" class="w-input-txt"/>
+	</div>
+	<div class="w-input w-focus">
+		<input type="text" class="w-input-txt"/>
+	</div>
+	<div class="w-input w-input-left-icon">
+		<span class="w-icon w-icon-bg w-icon-search"></span>
+		<input type="text" class="w-input-txt"/>
+	</div>
+	<div class="w-input w-input-right-btn">
+		<input type="text" class="w-input-txt"/>
+		<a class="w-btn w-btn-inline w-btn-icon-notxt">
+			<span class="w-icon w-icon-bg w-icon-del"></span>
+		</a>
+	</div>
 	
 	<br/><br/><br/><br/><br/><br/><br/>
 	

@@ -2,15 +2,35 @@
 
 @import "function.less";
 
+
 //图标
 .w-icon{
 	width:18px;
 	height:18px;
 	.fn_inline_block();
-	background-image:url("../img/globle.png");
+	background-image:url("../img/global.png");
 }
+.w-icon-bg{
+	background-color: #666;
+	background-repeat: no-repeat;
+	-webkit-border-radius: 9px;
+	border-radius: 9px;
+}
+.w-icon-location{
+	background-position:-101px -15px;
+}
+.w-icon-edit{
+	background-position:-32px -15px;
+}
+.w-icon-del{
+	background-position:-67px -14px;
+}
+.w-icon-search{
+	background-position:-138px -14px;
+}
+
 //按钮
-.w-button{
+.w-btn{
 	display: block;
 	position: relative;
 	cursor: pointer;
@@ -32,20 +52,20 @@
 	text-shadow: 0 1px 0 #fff;
 	.fn_linear_gradient_top(#fff,#f1f1f1);
 	&:hover{
-		border: 1px solid 		#bbb ;
-		background: 			#dfdfdf ;
+		border: 1px solid #bbb ;
+		background: #dfdfdf ;
 		font-weight: bold;
-		color: 					#222 ;
+		color: #222 ;
 		text-shadow: 0 1px 0 #fff;
 		.fn_linear_gradient_top(#f6f6f6,#e0e0e0);
 	}
 }
 //内联按钮（自适应宽度）
-.w-button-inline{
+.w-btn-inline{
 	.fn_inline_block();
 }
 //激活的按钮
-.w-button-blue{
+.w-btn-blue{
 	border: 1px solid #044062;
 	background: #396b9e;
 	color: #fff;
@@ -60,7 +80,78 @@
 		.fn_linear_gradient_top(#6facd5,#4272a4);
 	}
 }
+//带图标按钮
+.w-btn-icon-left{
+	padding-left:40px;
+	.w-icon{
+		position:absolute;
+		top:50%;
+		margin-top:-9px;
+		left:10px;
+	}
+}
+.w-btn-icon-top{
+	padding-top:30px;
+	.w-icon{
+		position:absolute;
+		left:50%;
+		margin-left:-9px;
+		top:10px;
+	}
+}
+.w-btn-icon-notxt{
+	padding:0;
+	width:24px;
+	height:24px;
+	.w-icon{
+		margin: 3px 1px 2px 1px;
+	}
+}
 
+//输入框
+.w-input{
+	padding: 0 .4em;
+	margin: .5em 0;
+	position: relative;
+	border: 1px solid #aaa;
+	color: #333;
+	text-shadow: 0 1px 0 #fff;
+	background: #f9f9f9;
+	.fn_box_shadow(inset 0 1px 4px rgba(0,0,0,.2));
+	.fn_border_radius(.6em);
+	.w-input-txt{
+		border: 0;
+		width: 100%;
+		padding: .4em 0;
+		margin: 0;
+		background: transparent none;
+		outline: 0!important;
+		-webkit-appearance: none;
+		min-height: 1.4em;
+		line-height: 1.4em;
+		font-size: 16px;
+	}
+}
+.w-input-left-icon{
+	padding-left:40px;
+	.w-icon{
+		position:absolute;
+		left:10px;
+		top:50%;
+		margin-top:-9px;
+	}
+}
+.w-input-right-btn{
+	padding-right:40px;
+	.w-btn{
+		position:absolute;
+		right:10px;
+		top:50%;
+		margin-top:-13px;
+	}
+}
+
+//列表
 .w-list{
 	.w-list-item{
 		position:relative;
@@ -95,4 +186,8 @@
 		top:50%;
 		right:5px;
 	}
+}
+//公用效果
+.w-focus{
+	.fn_box_shadow(0 0 12px #387bbe);
 }

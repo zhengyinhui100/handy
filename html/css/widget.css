@@ -6,9 +6,27 @@
   zoom: 1;
   *display: inline;
   overflow: hidden;
-  background-image: url("../img/globle.png");
+  background-image: url("../img/global.png");
 }
-.w-button {
+.w-icon-bg {
+  background-color: #666;
+  background-repeat: no-repeat;
+  -webkit-border-radius: 9px;
+  border-radius: 9px;
+}
+.w-icon-location {
+  background-position: -101px -15px;
+}
+.w-icon-edit {
+  background-position: -32px -15px;
+}
+.w-icon-del {
+  background-position: -67px -14px;
+}
+.w-icon-search {
+  background-position: -138px -14px;
+}
+.w-btn {
   display: block;
   position: relative;
   cursor: pointer;
@@ -49,8 +67,8 @@
 
   background-image: linear-gradient(#ffffff, #f1f1f1);
 }
-.w-button:hover {
-  border: 1px solid 		#bbb ;
+.w-btn:hover {
+  border: 1px solid #bbb ;
   background: #dfdfdf ;
   font-weight: bold;
   color: #222 ;
@@ -72,14 +90,14 @@
 
   background-image: linear-gradient(#f6f6f6, #e0e0e0);
 }
-.w-button-inline {
+.w-btn-inline {
   display: -moz-inline-stack;
   display: inline-block;
   zoom: 1;
   *display: inline;
   overflow: hidden;
 }
-.w-button-blue {
+.w-btn-blue {
   border: 1px solid #044062;
   background: #396b9e;
   color: #fff;
@@ -101,7 +119,7 @@
 
   background-image: linear-gradient(#5f9cc5, #396b9e);
 }
-.w-button-blue:hover {
+.w-btn-blue:hover {
   border: 1px solid #00415e ;
   background: #4b88b6;
   font-weight: bold;
@@ -123,6 +141,77 @@
   /* Opera 11.10+ */
 
   background-image: linear-gradient(#6facd5, #4272a4);
+}
+.w-btn-icon-left {
+  padding-left: 40px;
+}
+.w-btn-icon-left .w-icon {
+  position: absolute;
+  top: 50%;
+  margin-top: -9px;
+  left: 10px;
+}
+.w-btn-icon-top {
+  padding-top: 30px;
+}
+.w-btn-icon-top .w-icon {
+  position: absolute;
+  left: 50%;
+  margin-left: -9px;
+  top: 10px;
+}
+.w-btn-icon-notxt {
+  padding: 0;
+  width: 24px;
+  height: 24px;
+}
+.w-btn-icon-notxt .w-icon {
+  margin: 3px 1px 2px 1px;
+}
+.w-input {
+  padding: 0 .4em;
+  margin: .5em 0;
+  position: relative;
+  border: 1px solid #aaa;
+  color: #333;
+  text-shadow: 0 1px 0 #fff;
+  background: #f9f9f9;
+  -webkit-box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2);
+  -webkit-border-radius: 0.6em;
+  -moz-border-radius: 0.6em;
+  border-radius: 0.6em;
+}
+.w-input .w-input-txt {
+  border: 0;
+  width: 100%;
+  padding: .4em 0;
+  margin: 0;
+  background: transparent none;
+  outline: 0!important;
+  -webkit-appearance: none;
+  min-height: 1.4em;
+  line-height: 1.4em;
+  font-size: 16px;
+}
+.w-input-left-icon {
+  padding-left: 40px;
+}
+.w-input-left-icon .w-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  margin-top: -9px;
+}
+.w-input-right-btn {
+  padding-right: 40px;
+}
+.w-input-right-btn .w-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  margin-top: -13px;
 }
 .w-list .w-list-item {
   position: relative;
@@ -164,4 +253,9 @@
   height: 36px;
   top: 50%;
   right: 5px;
+}
+.w-focus {
+  -webkit-box-shadow: 0 0 12px #387bbe;
+  -moz-box-shadow: 0 0 12px #387bbe;
+  box-shadow: 0 0 12px #387bbe;
 }
