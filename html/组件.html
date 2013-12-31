@@ -12,10 +12,14 @@
 	href="css/common.css" />
 <link rel="stylesheet" type="text/css"
 	href="css/widget.css" />
+<style type="text/css">
+	h3{
+		margin:20px 0;
+	}
+</style>
 </head>
 <body style="overflow:auto;padding:60px 20px;">
 	<h3>图标：</h3>
-	<br/>
 	<!-- S 图标 -->
 	<span class="w-icon w-icon-location"></span>
 	<span class="w-icon w-icon-bg w-icon-edit"></span>
@@ -26,34 +30,49 @@
 	<br/><br/><br/><br/><br/><br/><br/>
 	
 	<h3>按钮：</h3>
-	<!-- S 按钮 -->
+	<!-- S 按钮，效果按添加的class叠加 -->
 	<a class="w-btn">
-		<span class="w-btn-txt">普通按钮</span>
+		<span class="w-btn-txt">方形按钮</span>
 	</a>
-	<a class="w-btn w-btn-inline">
+	<a class="w-btn w-radius-little">
+		<span class="w-btn-txt">小圆角按钮</span>
+	</a>
+	<a class="w-btn w-radius">
+		<span class="w-btn-txt">普通圆角按钮</span>
+	</a>
+	<a class="w-btn w-radius-big">
+		<span class="w-btn-txt">大圆角按钮</span>
+	</a>
+	<a class="w-btn w-radius-big w-shadow">
+		<span class="w-btn-txt">阴影按钮</span>
+	</a>
+	<a class="w-btn w-shadow w-disable w-radius">
+		<span class="w-btn-txt">禁用按钮</span>
+	</a>
+	<a class="w-btn w-shadow w-btn-inline w-radius">
 		<span class="w-btn-txt">内联按钮(宽度自适应)</span>
 	</a>
-	<a class="w-btn w-btn-inline w-btn-blue">
+	<a class="w-btn w-shadow w-btn-inline w-btn-blue w-radius-big">
 		<span class="w-btn-txt">蓝色按钮</span>
 	</a>
-	<a class="w-btn w-btn-inline w-btn-black">
+	<a class="w-btn w-shadow w-btn-inline w-btn-black w-radius-big">
 		<span class="w-btn-txt">黑色按钮</span>
 	</a>
-	<a class="w-btn w-btn-inline w-btn-icon-left">
+	<a class="w-btn w-shadow w-btn-inline w-btn-icon-left w-radius-big">
 		<span class="w-icon w-icon-bg w-icon-location"></span>
 		<span class="w-btn-txt">图标按钮</span>
 	</a>
-	<a class="w-btn w-btn-inline w-btn-icon-top">
+	<a class="w-btn w-shadow w-btn-inline w-btn-icon-top w-radius-big">
 		<span class="w-icon w-icon-bg w-icon-location"></span>
 		<span class="w-btn-txt">图标按钮</span>
 	</a>
-	<a class="w-btn w-btn-inline w-btn-icon-notxt">
+	<a class="w-btn w-shadow w-btn-inline w-btn-icon-notxt w-radius-big">
 		<span class="w-icon w-icon-bg w-icon-edit"></span>
 	</a>
-	<a class="w-btn w-btn-inline w-mini">
+	<a class="w-btn w-shadow w-btn-inline w-mini w-radius-big">
 		<span class="w-btn-txt">小按钮</span>
 	</a>
-	<a class="w-btn w-btn-inline w-btn-icon-left w-mini">
+	<a class="w-btn w-shadow w-btn-inline w-btn-icon-left w-mini w-radius-big">
 		<span class="w-icon w-icon-bg w-icon-location"></span>
 		<span class="w-btn-txt">图标小按钮</span>
 	</a>
@@ -62,43 +81,44 @@
 	<br/><br/><br/><br/><br/><br/><br/>
 	
 	<h3>输入框：</h3>
-	<div class="w-input">
+	<div class="w-input w-radius">
 		<input type="text" class="w-input-txt"/>
 	</div>
 	<br/>
-	<div class="w-input w-focus">
+	<div class="w-input w-radius w-focus">
 		<input type="text" class="w-input-txt" placeholder="focus"/>
 	</div>
 	<br/>
-	<div class="w-input w-input-left-icon">
+	<div class="w-input w-input-left-icon w-radius">
 		<span class="w-icon w-icon-bg w-icon-search"></span>
 		<input type="text" class="w-input-txt" placeholder="left icon"/>
 	</div>
 	<br/>
-	<div class="w-input w-input-right-btn">
+	<div class="w-input w-input-right-btn w-radius">
 		<input type="text" class="w-input-txt" placeholder="right btn"/>
-		<a class="w-btn w-btn-inline w-btn-icon-notxt">
+		<a class="w-btn w-shadow w-btn-inline w-btn-icon-notxt w-radius-big">
 			<span class="w-icon w-icon-bg w-icon-del"></span>
 		</a>
 	</div>
 	<br/>
-	<div class="w-input w-disable">
+	<div class="w-input w-disable w-radius">
 		<input type="text" class="w-input-txt" placeholder="disable"/>
 	</div>
 	<br/>
-	<div class="w-input">
+	<div class="w-input w-radius">
 		<textarea class="w-textarea" placeholder="textarea"></textarea>
 	</div>
 	<br/>
-	<div class="w-input w-disable">
+	<div class="w-input w-disable w-radius">
 		<textarea class="w-textarea" placeholder="disable textarea"></textarea>
 	</div>
+	
 	<br/><br/><br/><br/><br/><br/><br/>
 	
 	<h3>普通表单：</h3>
 	<br/>
-	<div style="width:350px;">
-		<form class="w-form" action="">
+	<div class="w-form" style="width:350px;">
+		<form action="">
 			<div class="w-form-tips c-error">错误提示</div>
 			<div class="w-form-field">
 				<label class="w-form-left">文字：</label>
@@ -109,7 +129,7 @@
 			<div class="w-form-field">
 				<label class="w-form-left">邮箱：</label>
 				<div class="w-form-right">
-					<div class="w-input">
+					<div class="w-input w-radius">
 						<input type="text" class="w-input-txt"/>
 					</div>
 				</div>
@@ -117,7 +137,7 @@
 			<div class="w-form-field">
 				<label class="w-form-left">描述：</label>
 				<div class="w-form-right">
-					<div class="w-input">
+					<div class="w-input w-radius">
 						<textarea rows="" cols="" class="w-textarea"></textarea>
 					</div>
 				</div>
@@ -125,16 +145,16 @@
 			<div class="w-form-field">
 				<label class="w-form-left w-form-vt">上对齐：</label>
 				<div class="w-form-right">
-					<div class="w-input">
+					<div class="w-input w-radius">
 						<textarea rows="" cols="" class="w-textarea"></textarea>
 					</div>
 				</div>
 			</div>
 			<div class="w-form-action">
-				<a class="w-btn w-btn-inline w-btn-blue">
+				<a class="w-btn w-shadow w-btn-inline w-btn-blue w-radius">
 					<span class="w-btn-txt">登录</span>
 				</a>
-				<a class="w-btn w-btn-inline">
+				<a class="w-btn w-shadow w-btn-inline w-radius">
 					<span class="w-btn-txt">注册</span>
 				</a>
 			</div>
@@ -145,33 +165,79 @@
 	
 	<h3>工具栏：</h3>
 	<div class="w-tbar">
-		<a class="w-btn w-btn-inline w-mini w-btn-blue w-tbar-btn-left">
+		<a class="w-btn w-shadow w-btn-inline w-mini w-btn-blue w-tbar-btn-left w-radius-big">
 			<span class="w-btn-txt">蓝色按钮</span>
 		</a>
 		<h1 class="w-tbar-title">标题</h1>
-		<a class="w-btn w-btn-inline w-mini w-btn-black w-tbar-btn-right">
+		<a class="w-btn w-shadow w-btn-inline w-mini w-btn-black w-tbar-btn-right w-radius-big">
 			<span class="w-btn-txt">黑色按钮</span>
 		</a>
 	</div>
 	<div class="w-header w-tbar">
-		<a class="w-btn w-btn-inline w-mini w-btn-blue w-tbar-btn-left">
+		<a class="w-btn w-shadow w-btn-inline w-mini w-btn-blue w-tbar-btn-left w-radius-big">
 			<span class="w-btn-txt">蓝色按钮</span>
 		</a>
 		<h1 class="w-tbar-title">header</h1>
-		<a class="w-btn w-btn-inline w-mini w-btn-black w-tbar-btn-right">
+		<a class="w-btn w-shadow w-btn-inline w-mini w-btn-black w-tbar-btn-right w-radius-big">
 			<span class="w-btn-txt">黑色按钮</span>
 		</a>
 	</div>
 	<div class="w-footer w-tbar">
-		<a class="w-btn w-btn-inline w-mini w-btn-blue w-tbar-btn-left">
+		<a class="w-btn w-shadow w-btn-inline w-mini w-btn-blue w-tbar-btn-left w-radius-big">
 			<span class="w-btn-txt">蓝色按钮</span>
 		</a>
 		<h1 class="w-tbar-title">footer</h1>
-		<a class="w-btn w-btn-inline w-mini w-btn-black w-tbar-btn-right">
+		<a class="w-btn w-shadow w-btn-inline w-mini w-btn-black w-tbar-btn-right w-radius-big">
 			<span class="w-btn-txt">黑色按钮</span>
 		</a>
 	</div>
 	
+	<br/><br/><br/><br/><br/><br/><br/>
+	
+	<h3>导航栏：</h3>
+	
+	<div class="w-navbar">
+		<ul>
+			<li class="w-navbar-item" style="width:33.3%">
+				<a class="w-btn w-btn-active">
+					<span class="w-btn-txt">一</span>
+				</a>
+			</li>
+			<li class="w-navbar-item" style="width:33.3%">
+				<a class="w-btn">
+					<span class="w-btn-txt">二</span>
+				</a>
+			</li>
+			<li class="w-navbar-item" style="width:33.3%">
+				<a class="w-btn">
+					<span class="w-btn-txt">三</span>
+				</a>
+			</li>
+		</ul>
+	</div>
+	
+	<br/><br/>
+	
+	<div class="w-navbar">
+		<ul>
+			<li class="w-navbar-item" style="width:33.3%">
+				<a class="w-btn w-btn-active">
+					<span class="w-btn-txt">一</span>
+				</a>
+			</li>
+			<li class="w-navbar-item" style="width:33.3%">
+				<a class="w-btn">
+					<span class="w-btn-txt">二</span>
+				</a>
+			</li>
+			<li class="w-navbar-item" style="width:33.3%">
+				<a class="w-btn">
+					<span class="w-btn-txt">三</span>
+				</a>
+			</li>
+		</ul>
+	</div>
+
 	<br/><br/><br/><br/><br/><br/><br/>
 	
 	<h3>列表：</h3>

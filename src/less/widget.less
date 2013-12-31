@@ -13,8 +13,7 @@
 .w-icon-bg{
 	background-color: #666;
 	background-repeat: no-repeat;
-	-webkit-border-radius: 9px;
-	border-radius: 9px;
+	.fn_border_radius(9px);
 }
 .w-icon-location{
 	background-position:-101px -15px;
@@ -35,8 +34,6 @@
 	position: relative;
 	cursor: pointer;
 	margin: 0.5em 0;
-	.fn_border_radius(1em);
-	.fn_box_shadow( 0 1px 3px rgba(0,0,0,.2));
 	text-align: center;
 	font-size: 16px;
 	padding: .6em 20px;
@@ -64,7 +61,20 @@
 .w-btn-inline{
 	.fn_inline_block();
 }
-//激活的按钮
+//激活按钮
+.w-btn-active {
+	border: 1px solid #2373a5;
+	background: #5393c5;
+	color: #fff;
+	cursor: pointer;
+	text-shadow: 0 1px 0 #3373a5;
+	text-decoration: none;
+	.fn_linear_gradient_top(#5f9cc5,#6facd5);
+}
+.w-btn-active:hover{
+	.w-btn-active;
+}
+//蓝色按钮
 .w-btn-blue{
 	border: 1px solid #044062;
 	background: #396b9e;
@@ -80,10 +90,10 @@
 		.fn_linear_gradient_top(#6facd5,#4272a4);
 	}
 }
+//黑色
 .w-btn-black{
 	border: 1px solid #111;
 	background: #333;
-	font-weight: 700;
 	color: #fff;
 	text-shadow: 0 1px 0 #111;
 	.fn_linear_gradient_top(#444,#2d2d2d);
@@ -137,7 +147,6 @@
 	text-shadow: 0 1px 0 #fff;
 	background: #f9f9f9;
 	.w-shadow-inset();
-	.w-radius();
 	.w-input-txt,.w-textarea{
 		border: 0;
 		width: 100%;
@@ -251,6 +260,18 @@
 	bottom:0;
 	left:0
 }
+//导航栏
+.w-navbar{
+	.w-navbar-item{
+		float:left;
+		&:last-child .w-btn{
+			border-right-width:1px;
+		}
+	}
+	.w-btn{
+		border-right-width:0;
+	}
+}
 
 //列表
 .w-list{
@@ -290,10 +311,24 @@
 }
 //公用效果
 //圆角
+.w-radius-little{
+	.fn_border_radius(.3em);
+	-webkit-background-clip: padding;
+	background-clip: padding-box;
+}
 .w-radius{
 	.fn_border_radius(.6em);
 	-webkit-background-clip: padding;
 	background-clip: padding-box;
+}
+.w-radius-big{
+	.fn_border_radius(1em);
+	-webkit-background-clip: padding;
+	background-clip: padding-box;
+}
+//阴影
+.w-shadow{
+	.fn_box_shadow( 0 1px 3px rgba(0,0,0,.2));
 }
 //内阴影
 .w-shadow-inset{
