@@ -1,6 +1,7 @@
 html,
 body {
   overflow: hidden;
+  position: relative;
   height: 100%;
 }
 html,
@@ -130,3 +131,38 @@ img {
 *:focus {
   outline: none;
 }
+/*
+http://www.w3cplus.com/content/css3-box-sizing
+.submit,
+.reset,
+.button,
+.text,
+.select,
+.textarea,
+.checkbox,
+.radio {
+	margin: 0;
+	padding: 0;
+	border-width: 1px;
+	height: 17px;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-o-box-sizing: border-box;
+	-ms-box-sizing: border-box;
+	box-sizing: border-box;
+	//IE6、7不支持box-sizing
+	*height:15px; 
+    *width: 15px;
+}
+				
+.checkbox,
+.radio {
+	width: 13px;
+	height: 13px;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-o-box-sizing: border-box;
+	-ms-box-sizing: border-box;
+	box-sizing: border-box;
+}
+*/

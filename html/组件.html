@@ -13,7 +13,7 @@
 <link rel="stylesheet" type="text/css"
 	href="css/widget.css" />
 </head>
-<body style="overflow:auto;padding:20px;">
+<body style="overflow:auto;padding:60px 20px;">
 	<h3>图标：</h3>
 	<br/>
 	<!-- S 图标 -->
@@ -36,6 +36,9 @@
 	<a class="w-btn w-btn-inline w-btn-blue">
 		<span class="w-btn-txt">蓝色按钮</span>
 	</a>
+	<a class="w-btn w-btn-inline w-btn-black">
+		<span class="w-btn-txt">黑色按钮</span>
+	</a>
 	<a class="w-btn w-btn-inline w-btn-icon-left">
 		<span class="w-icon w-icon-bg w-icon-location"></span>
 		<span class="w-btn-txt">图标按钮</span>
@@ -47,6 +50,13 @@
 	<a class="w-btn w-btn-inline w-btn-icon-notxt">
 		<span class="w-icon w-icon-bg w-icon-edit"></span>
 	</a>
+	<a class="w-btn w-btn-inline w-mini">
+		<span class="w-btn-txt">小按钮</span>
+	</a>
+	<a class="w-btn w-btn-inline w-btn-icon-left w-mini">
+		<span class="w-icon w-icon-bg w-icon-location"></span>
+		<span class="w-btn-txt">图标小按钮</span>
+	</a>
 	<!-- S 按钮 -->
 	
 	<br/><br/><br/><br/><br/><br/><br/>
@@ -55,38 +65,72 @@
 	<div class="w-input">
 		<input type="text" class="w-input-txt"/>
 	</div>
+	<br/>
 	<div class="w-input w-focus">
-		<input type="text" class="w-input-txt"/>
+		<input type="text" class="w-input-txt" placeholder="focus"/>
 	</div>
+	<br/>
 	<div class="w-input w-input-left-icon">
 		<span class="w-icon w-icon-bg w-icon-search"></span>
-		<input type="text" class="w-input-txt"/>
+		<input type="text" class="w-input-txt" placeholder="left icon"/>
 	</div>
+	<br/>
 	<div class="w-input w-input-right-btn">
-		<input type="text" class="w-input-txt"/>
+		<input type="text" class="w-input-txt" placeholder="right btn"/>
 		<a class="w-btn w-btn-inline w-btn-icon-notxt">
 			<span class="w-icon w-icon-bg w-icon-del"></span>
 		</a>
 	</div>
-	
+	<br/>
+	<div class="w-input w-disable">
+		<input type="text" class="w-input-txt" placeholder="disable"/>
+	</div>
+	<br/>
+	<div class="w-input">
+		<textarea class="w-textarea" placeholder="textarea"></textarea>
+	</div>
+	<br/>
+	<div class="w-input w-disable">
+		<textarea class="w-textarea" placeholder="disable textarea"></textarea>
+	</div>
 	<br/><br/><br/><br/><br/><br/><br/>
 	
 	<h3>普通表单：</h3>
+	<br/>
 	<div style="width:350px;">
 		<form class="w-form" action="">
-			<div class="w-form-field c-clear">
-				<label class="w-form-left">邮箱：</label>
-				<div class="w-input w-form-right">
-					<input type="text" class="w-input-txt"/>
+			<div class="w-form-tips c-error">错误提示</div>
+			<div class="w-form-field">
+				<label class="w-form-left">文字：</label>
+				<div class="w-form-right">
+					文字
 				</div>
 			</div>
-			<div class="w-form-field c-clear">
+			<div class="w-form-field">
 				<label class="w-form-left">邮箱：</label>
-				<div class="w-input w-form-right">
-					<input type="text" class="w-input-txt"/>
+				<div class="w-form-right">
+					<div class="w-input">
+						<input type="text" class="w-input-txt"/>
+					</div>
 				</div>
 			</div>
-			<div class="w-action">
+			<div class="w-form-field">
+				<label class="w-form-left">描述：</label>
+				<div class="w-form-right">
+					<div class="w-input">
+						<textarea rows="" cols="" class="w-textarea"></textarea>
+					</div>
+				</div>
+			</div>
+			<div class="w-form-field">
+				<label class="w-form-left w-form-vt">上对齐：</label>
+				<div class="w-form-right">
+					<div class="w-input">
+						<textarea rows="" cols="" class="w-textarea"></textarea>
+					</div>
+				</div>
+			</div>
+			<div class="w-form-action">
 				<a class="w-btn w-btn-inline w-btn-blue">
 					<span class="w-btn-txt">登录</span>
 				</a>
@@ -95,6 +139,37 @@
 				</a>
 			</div>
 		</form>
+	</div>
+	
+	<br/><br/><br/><br/><br/><br/><br/>
+	
+	<h3>工具栏：</h3>
+	<div class="w-tbar">
+		<a class="w-btn w-btn-inline w-mini w-btn-blue w-tbar-btn-left">
+			<span class="w-btn-txt">蓝色按钮</span>
+		</a>
+		<h1 class="w-tbar-title">标题</h1>
+		<a class="w-btn w-btn-inline w-mini w-btn-black w-tbar-btn-right">
+			<span class="w-btn-txt">黑色按钮</span>
+		</a>
+	</div>
+	<div class="w-header w-tbar">
+		<a class="w-btn w-btn-inline w-mini w-btn-blue w-tbar-btn-left">
+			<span class="w-btn-txt">蓝色按钮</span>
+		</a>
+		<h1 class="w-tbar-title">header</h1>
+		<a class="w-btn w-btn-inline w-mini w-btn-black w-tbar-btn-right">
+			<span class="w-btn-txt">黑色按钮</span>
+		</a>
+	</div>
+	<div class="w-footer w-tbar">
+		<a class="w-btn w-btn-inline w-mini w-btn-blue w-tbar-btn-left">
+			<span class="w-btn-txt">蓝色按钮</span>
+		</a>
+		<h1 class="w-tbar-title">footer</h1>
+		<a class="w-btn w-btn-inline w-mini w-btn-black w-tbar-btn-right">
+			<span class="w-btn-txt">黑色按钮</span>
+		</a>
 	</div>
 	
 	<br/><br/><br/><br/><br/><br/><br/>

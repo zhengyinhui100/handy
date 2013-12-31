@@ -80,9 +80,29 @@
 		.fn_linear_gradient_top(#6facd5,#4272a4);
 	}
 }
+.w-btn-black{
+	border: 1px solid #111;
+	background: #333;
+	font-weight: 700;
+	color: #fff;
+	text-shadow: 0 1px 0 #111;
+	.fn_linear_gradient_top(#444,#2d2d2d);
+	&:hover{
+		border: 1px solid #000;
+		background: #444;
+		font-weight: bold;
+		color: #fff;
+		text-shadow: 0 1px 0 #111;
+		.fn_linear_gradient_top(#555,#383838);
+	}
+	
+}
 //带图标按钮
 .w-btn-icon-left{
 	padding-left:40px;
+	&.w-mini{
+		padding-left:30px;
+	}
 	.w-icon{
 		position:absolute;
 		top:50%;
@@ -111,15 +131,14 @@
 //输入框
 .w-input{
 	padding: 0 .4em;
-	margin: .5em 0;
 	position: relative;
 	border: 1px solid #aaa;
 	color: #333;
 	text-shadow: 0 1px 0 #fff;
 	background: #f9f9f9;
-	.fn_box_shadow(inset 0 1px 4px rgba(0,0,0,.2));
-	.fn_border_radius(.6em);
-	.w-input-txt{
+	.w-shadow-inset();
+	.w-radius();
+	.w-input-txt,.w-textarea{
 		border: 0;
 		width: 100%;
 		padding: .4em 0;
@@ -130,6 +149,11 @@
 		min-height: 1.4em;
 		line-height: 1.4em;
 		font-size: 16px;
+	}
+	.w-textarea{
+		outline: 0;
+    	.fn_transition(height 200ms linear);
+    	.fn_box_sizing();
 	}
 }
 .w-input-left-icon{
@@ -153,17 +177,79 @@
 
 //普通表单
 .w-form{
+	.w-form-tips{
+		text-align:center;
+	}
 	.w-form-field{
 		margin:1em 0;
 	}
 	.w-form-left{
-		width:25%;
-		float:left;
+		width:20%;
+		text-align:right;
+		.fn_inline_block();
+		vertical-align:middle;
+	}
+	.w-form-vt{
+		vertical-align:top;
 	}
 	.w-form-right{
-		width:70%;
-		float:left;
+		width:78%;
+		vertical-align:middle;
+		.fn_inline_block();
 	}
+	.w-form-action{
+		padding-left:22%;
+		.w-btn{
+			margin-right:30px;
+		}
+	}
+}
+
+//工具栏
+.w-tbar{
+	position: relative;
+	zoom: 1;
+	width:100%;
+	font-family: Helvetica,Arial,sans-serif;
+	border: 1px solid #333;
+	background: #111;
+	color: #fff;
+	font-weight: 700;
+	text-shadow: 0 -1px 0 #000;
+	.fn_linear_gradient_top(#3c3c3c,#111);
+	.w-tbar-title{
+		min-height: 1.1em;
+		text-align: center;
+		font-size: 16px;
+		display: block;
+		margin: .6em 30% .8em;
+		padding: 0;
+		text-overflow: ellipsis;
+		overflow: hidden;
+		white-space: nowrap;
+		outline: 0!important;
+	}
+	.w-btn{
+		position:absolute;
+		top:50%;
+		margin-top:-16px;
+	}
+	.w-tbar-btn-left{
+		left:5px;
+	}
+	.w-tbar-btn-right{
+		right:5px;
+	}
+}
+.w-header{
+	position:fixed;
+	left:0;
+	top:0;
+}
+.w-footer{
+	position:fixed;
+	bottom:0;
+	left:0
 }
 
 //列表
@@ -203,6 +289,32 @@
 	}
 }
 //公用效果
+//圆角
+.w-radius{
+	.fn_border_radius(.6em);
+	-webkit-background-clip: padding;
+	background-clip: padding-box;
+}
+//内阴影
+.w-shadow-inset{
+	.fn_box_shadow(inset 0 1px 4px rgba(0,0,0,.2));
+}
+//聚焦
 .w-focus{
 	.fn_box_shadow(0 0 12px #387bbe);
+}
+//禁止
+.w-disable{
+	cursor: default!important;
+	pointer-events: none;
+	zoom: 1;
+	.fn_opacity(0.3);
+	z-index: 1;
+}
+//小尺寸
+.w-mini{
+	margin-top: .25em;
+	margin-bottom: .25em;
+	font-size: 12.5px;
+	padding-top: .55em 11px .5em;
 }

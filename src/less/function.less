@@ -1,11 +1,5 @@
 // functions started with "fn_"
 
-// set the transparency
-.fn_bg_transparency(@degree){
-	opacity:@degree/100;
-	filter:alpha(opacity=@degree);
-}
-
 
 // wrapping long word - need testing
 .fn_word_break(){
@@ -19,6 +13,13 @@
     word-wrap: break-word;      /* IE 5+ */		
     overflow: hidden;
     word-break: break-all;
+}
+
+.fn_opacity(@degree){
+	opacity:@degree;
+	//这里写在一行会编译出错
+	@degreeP:percentage(@degree);
+	filter:alpha(opacity=@degreeP);
 }
 
 .fn_inline_block(){
@@ -76,4 +77,11 @@
     -o-transform: @transform;
     -ms-transform: @transform;
     transform: @transform;
+}
+.fn_box_sizing(@value:border-box){
+	-moz-box-sizing: @value;  /*Firefox3.5+*/
+     -webkit-box-sizing: @value; /*Safari3.2+*/
+     -o-box-sizing: @value; /*Opera9.6*/
+     -ms-box-sizing: @value; /*IE8*/
+     box-sizing: @value; /*W3C标准(IE9+，Safari5.1+,Chrome10.0+,Opera10.6+都符合box-sizing的w3c标准语法)*/
 }
