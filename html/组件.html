@@ -13,6 +13,9 @@
 <link rel="stylesheet" type="text/css"
 	href="css/widget.css" />
 <style type="text/css">
+	body{
+		padding:60px 20px;
+	}
 	h3{
 		margin:20px 0;
 		padding:5px;
@@ -20,7 +23,7 @@
 	}
 </style>
 </head>
-<body style="overflow:auto;padding:60px 20px;">
+<body>
 	<h3>图标：</h3>
 	<!-- S 图标 -->
 	<span class="w-icon w-icon-location"></span>
@@ -221,28 +224,69 @@
 	<br/><br/>
 	
 	<div class="w-navbar">
-		<ul>
+		<ul class="c-clear">
 			<li class="w-navbar-item" style="width:33.3%">
 				<a class="w-btn w-btn-icon-top w-btn-black">
 					<span class="w-icon w-shadow-surround w-icon-bg w-icon-location"></span>
-					<span class="w-btn-txt">图标按钮</span>
+					<span class="w-btn-txt">导航一</span>
 				</a>
 			</li>
 			<li class="w-navbar-item" style="width:33.3%">
 				<a class="w-btn w-btn-icon-top w-btn-active">
 					<span class="w-icon w-shadow-surround w-icon-bg w-icon-location"></span>
-					<span class="w-btn-txt">图标按钮</span>
+					<span class="w-btn-txt">导航二</span>
 				</a>
 			</li>
 			<li class="w-navbar-item" style="width:33.3%">
 				<a class="w-btn w-btn-icon-top w-btn-black">
 					<span class="w-icon w-shadow-surround w-icon-bg w-icon-location"></span>
-					<span class="w-btn-txt">图标按钮</span>
+					<span class="w-btn-txt">导航三</span>
 				</a>
 			</li>
 		</ul>
 	</div>
 
+	<br/><br/><br/><br/>
+	
+	<h3>遮罩层：</h3>
+	<a class="w-btn w-shadow w-btn-blue w-radius-big w-btn-inline" 
+	onclick="javascript:document.getElementById('maskDv').style.display='block';"> 
+		<span class="w-btn-txt">显示遮罩层</span>
+	</a> 
+	<div id="maskDv" class="w-mask" onclick="javascript:this.style.display='none';" style="display:none;"></div>
+	
+	<br/><br/><br/><br/>
+	
+	<h3>loading：</h3>
+	<div class="w-loading">
+	</div>
+	
+	<br/><br/><br/><br/>
+	
+	<h3>对话框：</h3>
+	<div class="w-dialog w-overlay-shadow w-radius">
+		<div class="w-dialog-header w-tbar w-tbar-gray">
+			<a class="w-btn w-shadow w-btn-inline w-btn-icon-notxt w-radius-big w-tbar-btn-left">
+				<span class="w-icon w-icon-bg w-icon-del"></span>
+			</a>
+			<h1 class="w-tbar-title">标题</h1>
+		</div>
+		<div class="w-dialog-body">
+			<div class="w-body-content">
+				<h1 class="w-content-title">确认？</h1>
+				<div class="w-content-msg">内容内容内容内容内容内容内容内容内容内容内容内容内容内容内容内容内容</div>
+			</div>
+			<div class="w-body-action">
+				<a class="w-btn w-shadow w-btn-blue w-radius-big"> 
+					<span class="w-btn-txt">确定</span>
+				</a> 
+				<a class="w-btn w-shadow w-radius-big"> 
+					<span class="w-btn-txt">取消</span>
+				</a>
+			</div>
+		</div>
+	</div>
+	
 	<br/><br/><br/><br/>
 	
 	<h3>列表：</h3>

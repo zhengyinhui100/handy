@@ -1,10 +1,4 @@
 html,
-body {
-  overflow: hidden;
-  position: relative;
-  height: 100%;
-}
-html,
 body,
 div,
 span,
@@ -92,6 +86,15 @@ select {
   font-size: 100%;
   vertical-align: baseline;
 }
+body {
+  overflow: auto;
+  position: relative;
+}
+body,
+input,
+textarea {
+  font-family: arial;
+}
 /* HTML5 display-role reset for older browsers */
 article,
 aside,
@@ -131,6 +134,10 @@ img {
 *:focus {
   outline: none;
 }
+input[type="text"] {
+  -webkit-appearance: none;
+}
+/* ipad/iphone设备input有阴影 */
 /*
 http://www.w3cplus.com/content/css3-box-sizing
 .submit,
@@ -166,3 +173,23 @@ http://www.w3cplus.com/content/css3-box-sizing
 	box-sizing: border-box;
 }
 */
+/*
+iPhone / iPod Touch
+@media only screen and (max-device-width: 480px) {}
+iPhone mit Retina Display
+@media only screen and (max-device-width: 480px) and (-webkit-min-device-pixel-ratio: 2) { }
+iPad
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation : landscape) {}
+oder:
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation : portrait) {}
+*/
+@media only screen and (max-width: 999px) {
+  html {
+    font-family: Helvetica, Arial, sans-serif;
+  }
+}
+@media only screen and (min-width: 999px) {
+  html {
+    font-family: Arial;
+  }
+}
