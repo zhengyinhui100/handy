@@ -624,6 +624,21 @@
   width: 100%;
   height: 100%;
   background: black;
-  opacity: 0.3;
+  opacity: 0.2;
   filter: alpha(opacity=30%);
+}
+.w-loading {
+  z-index: 9999999;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 46px;
+  height: 46px;
+  background-image: url("../img/loading.gif");
+  background-repeat: no-repeat;
+  opacity: 0.18;
+  filter: alpha(opacity=30%);
+  -webkit-border-radius: 36px;
+  -moz-border-radius: 36px;
+  border-radius: 36px;
 }
