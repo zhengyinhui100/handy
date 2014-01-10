@@ -4,23 +4,22 @@
  * @created 2013-12-28
  */
 
-$Define("handy.component.Component",function(){
+$Define("handy.component.AbstractComponent","handy.component.ComponentManager",function(ComponentManager){
 	
-	var Component=$HO.createClass();
+	var AbstractComponent=$HO.createClass();
 	
 	//静态方法
-	$HO.extend(Component,{
+	$HO.extend(AbstractComponent,{
 		
 		_expando   : $H.expando, // 组件id前缀
 		_template  : '<div id="<%=this.id%>"><%=this.html%></div>', // 组件html模板, 模板必须有一个最外层的容器
 		
 		render     : fRender,
 		html       : fHtml
-//		find
 	});
 	
 	//实例方法
-	$HO.extend(Component.prototype,{
+	$HO.extend(AbstractComponent.prototype,{
 		ctype               : 'component',
 		
 		initialize          : fInitialize,
@@ -79,7 +78,7 @@ $Define("handy.component.Component",function(){
 		//组件html
 		that.initHtml(settings);
 		var cHtml=that.chtml;
-		var template=cHtml.indexOf('<%=this.id%>')>-1?cHtml:Component._template;
+		var template=cHtml.indexOf('<%=this.id%>')>-1?cHtml:AbstractComponent._template;
 		var html=that.html=$H.Template.compile(template,{
 			id:that.id,
 			html:that.chtml
@@ -114,7 +113,7 @@ $Define("handy.component.Component",function(){
 		}
 		that.children=[];
 		//组件id
-		that.id=Component._expando+that.constructor.ctype+"_"+$H.Util.getUuid();
+		that.id=AbstractComponent._expando+that.constructor.ctype+"_"+$H.Util.getUuid();
 	}
 	
 	function fGetId(){
