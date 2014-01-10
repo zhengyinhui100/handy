@@ -1,4 +1,9 @@
 html,
+body {
+  overflow: hidden;
+  height: 100%;
+}
+html,
 body,
 div,
 span,
@@ -87,7 +92,6 @@ select {
   vertical-align: baseline;
 }
 body {
-  overflow: auto;
   position: relative;
 }
 body,
