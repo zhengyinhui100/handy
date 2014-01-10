@@ -96,10 +96,13 @@ function(Debug,Object,Function,$H){
     			sUrl=sId.indexOf('/')==0?sId:"/css/"+sId;
     		}else if(/.js$/.test(sId)){
     			//js文件
-    			sUrl="/"+sId;
+    			sUrl=sId;
     		}else{
     			//命名空间
-    			sUrl='/'+sId.replace(/\./g,"/")+".js";
+    			sUrl=sId.replace(/\./g,"/")+".js";
+    		}
+    		if(sUrl.indexOf('/')!=0){
+    			sUrl='/'+sUrl;
     		}
     		sUrl=sRoot+sUrl;
     	}
