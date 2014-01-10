@@ -32,9 +32,7 @@ function(HashChange){
 		var that=this;
 		that.key=sKey||'handy';
 		that.states=[];
-		//TODO 由于jQuery mobile bug，设置hashListeningEnabled无效，所以这里暂时使用jqm的hashchange
-		//HashChange.listen($H.Function.bind(that.stateChange,that));
-		$(window).hashchange($H.Function.bind(that.stateChange,that));
+		HashChange.listen($H.Function.bind(that.stateChange,that));
 	}
 	/**
 	 * 历史状态改变
