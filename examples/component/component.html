@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="viewport"
+	content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=320, height=device-height , target-densitydpi=142" />
+<title>组件实例</title> 
+<link rel="stylesheet" type="text/css"
+	href="../../src/css/reset.css" />
+<link rel="stylesheet" type="text/css"
+	href="../../src/css/common.css" />
+<link rel="stylesheet" type="text/css"
+	href="../../src/css/widget.css" />
+<style type="text/css">
+	html,body{
+		overflow:auto;
+		height:auto;
+	}
+	body{
+		padding:60px 20px;
+	}
+	h3{
+		margin:20px 0;
+		padding:5px;
+		background:#ccc;
+	}
+</style>
+</head>
+<body>
+	<h3>图标：</h3>
+	<div id="iconContainerDv"></div>
+	<!-- E 图标 -->
+	
+	<br/><br/><br/><br/>
+	
+	<h3>按钮：</h3>
+	
+	<br/><br/><br/><br/>
+	
+	<h3>输入框：</h3>
+	
+	<br/><br/><br/><br/>
+	
+	<h3>普通表单：</h3>
+	<br/>
+	
+	<br/><br/><br/><br/>
+	
+	<h3>工具栏：</h3>
+	
+	<br/><br/><br/><br/>
+	
+	<h3>导航栏：</h3>
+	
+	
+	<br/><br/>
+	
+
+	<br/><br/><br/><br/>
+	
+	<h3>遮罩层：</h3>
+	<a class="w-btn w-shadow w-btn-blue w-radius-big w-btn-inline" 
+	onclick="javascript:document.getElementById('maskDv').style.display='block';"> 
+		<span class="w-btn-txt">显示遮罩层</span>
+	</a> 
+	<div id="maskDv" class="w-mask" onclick="javascript:this.style.display='none';" style="display:none;"></div>
+	
+	<br/><br/><br/><br/>
+	
+	<h3>loading：</h3>
+	<a class="w-btn w-shadow w-btn-blue w-radius-big w-btn-inline" 
+	onclick="javascript:document.getElementById('loadingDv').style.display='block';"> 
+		<span class="w-btn-txt">显示loading层</span>
+	</a>
+	<div id="loadingDv" class="w-loading" style="display:none;" onclick="javascript:this.style.display='none';"></div>
+	
+	<br/><br/><br/><br/>
+	
+	<h3>对话框：</h3>
+	
+	<br/><br/><br/><br/>
+	
+	<h3>列表：</h3>
+	<br/><br/><br/><br/>
+	
+</body>
+<script type="text/javascript"
+	src="../../src/js/base/base.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Json.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Object.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Browser.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Debug.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Function.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Loader.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Date.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/String.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Cookie.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Util.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/HashChange.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/adapt.js"></script>
+<script type="text/javascript">
+$H.Loader.rootPath={
+	'handy'        : '../../src/js',
+}
+$Require("handy.component.Icon",function(Icon){
+	new Icon({
+		renderTo:'#iconContainerDv'
+	});
+});
+</script>
+</html>
