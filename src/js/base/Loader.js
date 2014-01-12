@@ -327,8 +327,8 @@ function(Debug,Object,Function,$H){
 	    	var oContext=_aContext[i];
 	    	var aExists=_fChkExisted(oContext.deps);
 	    	if(aExists){
-	    		oContext.callback.apply(null,aExists);
 	    		_aContext.splice(i,1);
+	    		oContext.callback.apply(null,aExists);
 	    	}
    		}
    		if(Loader.traceLog){
