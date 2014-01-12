@@ -86,6 +86,8 @@
 	
 </body>
 <script type="text/javascript"
+	src="../../lib/jquery.js"></script>
+<script type="text/javascript"
 	src="../../src/js/base/base.js"></script>
 <script type="text/javascript"
 	src="../../src/js/base/Json.js"></script>
@@ -108,6 +110,8 @@
 <script type="text/javascript"
 	src="../../src/js/base/Util.js"></script>
 <script type="text/javascript"
+	src="../../src/js/base/Template.js"></script>
+<script type="text/javascript"
 	src="../../src/js/base/HashChange.js"></script>
 <script type="text/javascript"
 	src="../../src/js/base/adapt.js"></script>
@@ -115,10 +119,28 @@
 $H.Loader.rootPath={
 	'handy'        : '../../src/js',
 }
-$Require("handy.component.Icon",function(Icon){
+$Require(["handy.component.ComponentManager","handy.component.Icon"],function(CM,Icon){
 	new Icon({
+		name:'location',
 		renderTo:'#iconContainerDv'
 	});
+	$('#iconContainerDv').append(Icon.html({
+		cid:'icon',
+		hasBg:true,
+		name:'edit',
+		renderTo:'#iconContainerDv',
+		listeners:[
+		           {
+		        	   type:'click',
+		        	   data:'message',
+		        	   handler:function(oEvt){
+		        		   alert(oEvt.data);
+		        	   }
+		           }
+		]
+	}));
+	var icon=CM.get('icon');
+	console.log(icon)
 });
 </script>
 </html>

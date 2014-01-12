@@ -11,7 +11,6 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	//静态方法
 	$HO.extend(AC,{
 		
-		_expando            : $H.expando+"_cp_",             // 组件id前缀
 		_template           : '<div id="<%=this.id%>"><%=this.html%></div>', // 组件html模板, 模板必须有一个最外层的容器
 		
 		html                : fHtml             //静态生成组件html
@@ -30,6 +29,8 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		autoRender          : true,              //是否默认就进行渲染
 		renderBy            : 'append',          //默认渲染方式
 //		autoShow            : true,              //是否显示
+		delayListen         : false,             //延迟初始化监听器
+//		notListen           : false,             //不自动初始化监听器
 		
 		//属性
 //		_id                 : null,              //组件id
@@ -69,8 +70,8 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 * @param {object}oSettings 初始化参数
 	 */
 	function fHtml(oSettings,parentComponent){
-		oSettings.notListener=true;
-		oSettings.notRender=true;
+		oSettings.delayListen=true;
+		oSettings.autoRender=false;
 		var component=new this(oSettings);
 		if(parentComponent){
 			parentComponent.children.push(component);
@@ -87,11 +88,9 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		var that=this;
 		that.doConfig(oSettings);
 		//组件html
-		that.initHtml(oSettings);
-		that._listeners=[];
-		var sHtml=that.html;
+		var sHtml=that.html=that.initHtml(oSettings);
 		//如果组件自己实现了模板，则不使用基类的模板
-		var template=cHtml.indexOf('<%=this.id%>')>-1?cHtml:AC._template;
+		var template=sHtml.indexOf('<%=this.id%>')>-1?sHtml:AC._template;
 		var sId=that.getId();
 		sHtml=that.html=$H.Template.compile(template,{
 			id:sId,
@@ -103,13 +102,13 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 			that._container=$("#"+sId);
 		}
 		
-		if(oSettings.notListener!=true){
-			if(that.delayInitListener){
+		if(oSettings.notListen!=true){
+			if(that.delayListen){
 				setTimeout(function(){
-					that.initListener();
+					that.initListeners();
 				});
 			}else{
-				that.initListener();
+				that.initListeners();
 			}
 		}
 		//注册组件
@@ -128,6 +127,13 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		}else{
 			that.renderTo=$(document.body);
 		}
+		//生成对象的监听器列表
+		var aListeners=that.listeners||[];
+		if(oParams.listeners){
+			that._listeners=aListeners.concat(oParams.listeners);
+		}else{
+			that._listeners=aListeners.concat();
+		}
 		that.children=[];
 	}
 	/**
@@ -137,7 +143,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fGetId(){
 		var that=this;
-		return that._id||(that._id=AC._expando+that.ctype+"_"+$H.Util.getUuid());
+		return that._id||(that._id=CM.generateId(that.cid));
 	}
 	/**
 	 * 获取组件节点
@@ -225,12 +231,13 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	}
 	/**
 	 * 初始化所有事件
+	 * @method initListeners
 	 */
 	function fInitListeners(){
 		var that=this;
 		//缓存容器，autoRender为false时需要此处获取容器
 		that._container=that._container||$("#"+that._id);
-		var aListeners=that.listeners;
+		var aListeners=that._listeners;
 		for(var i=aListeners.length-1;i>=0;i--){
 			that.listen(aListeners[i]);
 		}
@@ -243,8 +250,20 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	}
 	/**
 	 * 清除所有事件
+	 * @method clearListeners
 	 */
 	function fClearListeners(){
+		var that=this;
+		var aListeners=that._listeners;
+		for(var i=aListeners.length-1;i>=0;i--){
+			that.unlisten(aListeners[i]);
+		}
+		var children=that.children;
+		if(children){
+			for(var i=0,len=children.length;i<len;i++){
+				children.clearListeners();
+			}
+		}
 	}
 	/**
 	 * 挂起事件
@@ -305,10 +324,12 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fDestroy(){
 		var that=this;
+		that.clearListeners();
 		that.getEl().remove();
 		//注销组件
 		CM.unregister(that);
 	}
 		
+	return AC;
 	
 });

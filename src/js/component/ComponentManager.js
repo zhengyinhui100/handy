@@ -7,6 +7,7 @@
 $Define("handy.component.ComponentManager", function() {
 
 	var ComponentManager = $HO.createClass(),
+	_expando = $H.expando+"_cmp_",             // 组件id前缀
 	//存储组件类
 	_types={},
 	//存储所有组件实例
@@ -19,6 +20,7 @@ $Define("handy.component.ComponentManager", function() {
 		register      : fRegister,        //注册组件
 		unRegister    : fUnRegister,      //注销组件
 		destroy       : fDestroy,         //销毁组件，主要用于删除元素时调用
+		generateId    : fGenerateId,      //生成组件的id
 		get           : fGet              //查找组件
 	});
 	
@@ -65,12 +67,26 @@ $Define("handy.component.ComponentManager", function() {
 	function fDestroy(){
 	}
 	/**
+	 * 生成组件的id
+	 * @method generateId
+	 * @param {string=}sCid 组件的cid
+	 * @param {boolean=}bNotChk 仅当为true时不检查id是否重复
+	 */
+	function fGenerateId(sCid,bNotChk){
+		var sId=_expando+(sCid||$H.Util.getUuid());
+		if(bNotChk!=true&&_all[sId]){
+			$D.error('id重复:'+sId);
+		}else{
+			return sId;
+		}
+	}
+	/**
 	 * 查找组件
 	 * @method get
-	 * @param {string}sId 组件id
+	 * @param {string}sId 组件id或者cid
 	 */
 	function fGet(sId){
-		return _all[sId];
+		return _all[sId]||_all[ComponentManager.generateId(sId,true)];
 	}
 
 	return ComponentManager;

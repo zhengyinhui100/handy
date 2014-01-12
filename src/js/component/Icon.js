@@ -10,7 +10,6 @@ $Define('handy.component.Icon',
 ],
 function(AC,CM){
 	
-	
 	var Obj=$H.Object;
 	var Icon=Obj.createClass();
 	
@@ -34,7 +33,7 @@ function(AC,CM){
 	 */
 	function fInitHtml(){
 		var that=this;
-		return '<span id="<%=this.id%>" class="w-icon w-icon-location"></span>';
+		return '<span id="<%=this.id%>" class="w-icon w-icon-'+that.name+(that.hasBg?' w-icon-bg':'')+'"></span>';
 	}
 	
 	return Icon;
