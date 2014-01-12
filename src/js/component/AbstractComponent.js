@@ -20,7 +20,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	//实例方法
 	$HO.extend(AC.prototype,{
 		
-		ctype               : 'component',       //组件类型
+		ctype               : 'AbstractComponent',       //组件类型
 		
 		//默认配置
 		renderTo            : null,              //渲染节点
@@ -35,7 +35,9 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 //		_id                 : null,              //组件id
 		html                : null,              //组件html
 		rendered            : false,             //是否已渲染
+		isSuspend           : false,             //是否挂起事件
 //		_container          : null,              //组件容器节点
+//		_listeners          : {},                //事件池             
 		
 		initialize          : fInitialize,
 		doConfig            : fDoConfig,
@@ -86,6 +88,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		that.doConfig(oSettings);
 		//组件html
 		that.initHtml(oSettings);
+		that._listeners=[];
 		var sHtml=that.html;
 		//如果组件自己实现了模板，则不使用基类的模板
 		var template=cHtml.indexOf('<%=this.id%>')>-1?cHtml:AC._template;
@@ -152,39 +155,89 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 * 绑定事件
 	 * @method listen
 	 * @param {object}事件对象{
-	 * 			{string}name : 事件名
-	 * 			{string}selector : 选择器
-	 * 			{function}func : 监听函数
+	 * 			{string}type      : 事件名
+	 * 			{function}handler : 监听函数
+	 * 			{any=}data        : 数据
+	 * 			{jQuery=}el       : 绑定事件的节点，默认是组件容器节点
+	 * 			{string=}selector : 选择器
+	 * 			{any=}scope       : 监听函数执行的上下文对象，默认是组件对象
+	 * 			{string=}method   : 绑定方式，默认为"bind"
 	 * }
 	 */
 	function fListen(oEvent){
-		var that=this;
-		that.getEl().delegate(oEvent.selector,oEvent.name,oEvent.func);
+		var that=this,
+			sType=oEvent.type,
+			oEl=oEvent.el||that.getEl(),
+			sMethod=oEvent.method||"bind",
+			sSel=oEvent.selector,
+			oData=oEvent.data,
+			fFunc=oEvent.delegation=function(){
+			if(that.isSuspend!=true){
+				return oEvent.handler.apply(oEvent.scope||that,arguments);
+			}
+		}
+		if(sSel){
+			if(oData){
+				oEl[sMethod](sSel,sType,oData,fFunc);
+			}else{
+				oEl[sMethod](sSel,sType,fFunc);
+			}
+		}else{
+			if(oData){
+				oEl[sMethod](sType,oData,fFunc);
+			}else{
+				oEl[sMethod](sType,fFunc);
+			}
+		}
+		that._listeners.push(oEvent)
 	}
 	/**
 	 * 解除事件
 	 * @method unlisten
 	 * @param {object}事件对象{
-	 * 			{string}name : 事件名
-	 * 			{string}selector : 选择器
-	 * 			{function}func : 监听函数
+	 * 			{string}type      : 事件名
+	 * 			{function}handler : 监听函数
+	 * 			{jQuery=}el       : 绑定事件的节点，默认是组件容器节点
+	 * 			{string=}selector : 选择器
+	 * 			{string=}method   : 绑定方式，默认为"bind"
 	 * }
 	 */
 	function fUnlisten(oEvent){
-		var that=this;
-		that.getEl().delegate(oEvent.selector,oEvent.name,oEvent.func);
+		var that=this,
+			sType=oEvent.type,
+			oEl=oEvent.el||that.getEl(),
+			sMethod=oEvent.method=="delegate"?"undelegate":"unbind",
+			sSel=oEvent.selector,
+			fDelegation;
+		for(var i=that._listeners.length-1;i>=0;i--){
+			var oListener=that._listeners[i]
+			if(oListener.handler==oEvent.handler){
+				fDelegation=oListener.delegation;
+				that._listeners.splice(i,1);
+				break;
+			}
+		}
+		if(sSel){
+			oEl[sMethod](sSel,sType,fDelegation);
+		}else{
+			oEl[sMethod](sType,fDelegation);
+		}
 	}
 	/**
 	 * 初始化所有事件
 	 */
 	function fInitListeners(){
 		var that=this;
-		//缓存容器
+		//缓存容器，autoRender为false时需要此处获取容器
 		that._container=that._container||$("#"+that._id);
+		var aListeners=that.listeners;
+		for(var i=aListeners.length-1;i>=0;i--){
+			that.listen(aListeners[i]);
+		}
 		var children=that.children;
-		for(var i=0,len=children.length;i<len;i++){
-			if(children.oSettings.notListener){
-				children.initListener();
+		if(children){
+			for(var i=0,len=children.length;i<len;i++){
+				children.initListeners();
 			}
 		}
 	}
@@ -194,39 +247,57 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	function fClearListeners(){
 	}
 	/**
+	 * 挂起事件
+	 * @method suspendListeners
+	 */
+	function fSuspendListeners(){
+		this.isSuspend=true;
+	}
+	/**
+	 * 恢复事件
+	 * @method resumeListeners
+	 */
+	function fResumeListeners(){
+		this.isSuspend=false;
+	}
+	/**
 	 * 查找子元素或子组件
 	 * @method
 	 */
 	function fFind(selector){
-		return this._container.find(selector);
+		return this.getEl().find(selector);
 	}
 	/**
 	 * 隐藏
 	 * @method hide
 	 */
 	function fHide(){
-		this._container.hide();
+		this.getEl().hide();
 	}
 	/**
 	 * 显示
 	 * @method show
 	 */
 	function fShow(){
-		this._container.show();
+		this.getEl().show();
 	}
 	/**
 	 * 启用
 	 * @method enable
 	 */
 	function fEnable(){
-		
+		var that=this;
+		that.resumeListeners();
+		that.getEl().removeClass("w-disable");
 	}
 	/**
 	 * 禁用
 	 * @method disable
 	 */
 	function fDisable(){
-		
+		var that=this;
+		that.suspendListeners();
+		that.getEl().addClass("w-disable");
 	}
 	/**
 	 * 销毁组件
@@ -234,7 +305,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fDestroy(){
 		var that=this;
-		that._container.remove();
+		that.getEl().remove();
 		//注销组件
 		CM.unregister(that);
 	}
