@@ -16,6 +16,7 @@ handy.add('Object',function($H){
 		clone				: fClone,			//对象复制
 		isEmpty				: fIsEmpty, 		//判断对象是否为空
 		each				: fEach, 			//遍历对象
+		contain             : fContain,         //是否包含指定属性/数组元素
 		count				: fCount,			//计算对象长度
 		toArray				: fToArray,		    //将类数组对象转换为数组，比如arguments, nodelist
 		genMethod           : fGenerateMethod   //归纳生成类方法
@@ -85,15 +86,16 @@ handy.add('Object',function($H){
     * @param {Object} oDestination 目标对象
     * @param {Object} oSource 源对象
     * @param {Object=} oOptions(可选){
-    * 				notCover 不覆盖原有属性方法，仅当此参数为true时不覆盖,
-    * 				notClone 不克隆，仅当此参数为true时不克隆，此时，由于目标对象里的复杂属性(数组、对象等)是源对象中的引用，源对象的修改会导致目标对象也修改
+    * 				{boolean=|array=}notCover 不覆盖原有属性/方法，当此参数为true时不覆盖所有属性,当此参数为数组时，仅不覆盖数组中的属性
+    * 				{boolean=}notClone 不克隆，仅当此参数为true时不克隆，此时，由于目标对象里的复杂属性(数组、对象等)是源对象中的引用，源对象的修改会导致目标对象也修改
     * }
     * @return {Object} 扩展后的对象
     */
     function fExtend(oDestination, oSource, oOptions) {
-    	var bNotCover=oOptions?oOptions.notCover:false;
+    	var notCover=oOptions?oOptions.notCover:false;
     	var bNotClone=oOptions?oOptions.notClone:false;
         for (var sProperty in oSource) {
+        	var bNotCover=typeof notCover=='boolean'?notCover:Object.contain(notCover,sProperty);
             if (!bNotCover || !oDestination.hasOwnProperty(sProperty)) {
 				oDestination[sProperty] = bNotClone?oSource[sProperty]:Object.clone(oSource[sProperty]);
             }
@@ -352,6 +354,23 @@ handy.add('Object',function($H){
 			}
 		}
 		return object;
+    }
+    /**
+     * 是否包含指定属性/数组元素
+     * @method contain 
+     * @param {*}obj 指定对象
+     * @param {*}prop 指定属性/数组元素
+     * @return {boolean} 包含则返回true
+     */
+    function fContain(obj,prop){
+    	var bIsContain=false;
+    	Object.each(obj,function(i,p){
+    		if(p===prop){
+    			bIsContain=true;
+    			return false;
+    		}
+    	});
+    	return bIsContain;
     }
     /**
     * 计算对象长度
