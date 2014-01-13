@@ -158,8 +158,9 @@ handy.add('Object',function($H){
     * @param {Object} oParent 父类
     * @param {Object=} oStaticExtend 需要扩展的静态属性
     * @param {Object=} oExtend 需要扩展的prototype属性
+    * @param {object=} oExtendOptions 继承父类静态方法时，extend方法的设置，默认为{notCover:true}
     */
-    function fInherit(oChild, oParent, oStaticExtend,oExtend) {
+    function fInherit(oChild, oParent, oStaticExtend,oExtend,oExtendOptions) {
         var Inheritance = function(){};
         Inheritance.prototype = oParent.prototype;
 		/* 
@@ -172,7 +173,8 @@ handy.add('Object',function($H){
 			2.constructor需要重新覆盖
 		*/
         //继承静态方法
-        Object.extend(oChild, oParent,{notCover:true});
+        oExtendOptions=oExtendOptions||{notCover:true}
+        Object.extend(oChild, oParent,oExtendOptions);
         oChild.prototype = new Inheritance();
         oChild.prototype.constructor = oChild;
         oChild.superClass = oParent;
