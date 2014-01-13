@@ -90,7 +90,7 @@
 
   background-image: linear-gradient(#f6f6f6, #e0e0e0);
 }
-.w-btn-inline {
+.w-inline {
   display: -moz-inline-stack;
   display: inline-block;
   zoom: 1;
@@ -565,7 +565,7 @@
   -webkit-background-clip: padding;
   background-clip: padding-box;
 }
-.w-radius {
+.w-radius-normal {
   -webkit-border-radius: 0.6em;
   -moz-border-radius: 0.6em;
   border-radius: 0.6em;

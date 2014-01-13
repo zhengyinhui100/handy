@@ -24,7 +24,7 @@ function(AC){
 	 */
 	function fInitHtml(){
 		var that=this;
-		return '<span id="<%=this.id%>" class="w-icon w-icon-'+that.name+(that.hasBg?' w-icon-bg':'')+'"></span>';
+		return '<span class="w-icon w-icon-'+that.name+(that.hasBg?' w-icon-bg':'')+'"></span>';
 	}
 	
 	return Icon;

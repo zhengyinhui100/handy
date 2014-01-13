@@ -35,7 +35,7 @@
 	<br/><br/><br/><br/>
 	
 	<h3>按钮：</h3>
-	
+	<div id="buttonContainerDv"></div>
 	<br/><br/><br/><br/>
 	
 	<h3>输入框：</h3>
@@ -119,7 +119,11 @@
 $H.Loader.rootPath={
 	'handy'        : '../../src/js',
 }
-$Require(["handy.component.ComponentManager","handy.component.Icon"],function(CM,Icon){
+$Require([
+"handy.component.ComponentManager",
+"handy.component.Icon",
+"handy.component.Button"],
+function(CM,Icon,Button){
 	new Icon({
 		name:'location',
 		renderTo:'#iconContainerDv'
@@ -133,8 +137,9 @@ $Require(["handy.component.ComponentManager","handy.component.Icon"],function(CM
 		           {
 		        	   type:'afterRender',
 		        	   data:'message',
+		        	   notEl:true,
 		        	   handler:function(oEvt){
-		        		   alert(oEvt.data);
+		        		   $D.log(oEvt.data);
 		        	   }
 		           }
 		]
@@ -142,7 +147,22 @@ $Require(["handy.component.ComponentManager","handy.component.Icon"],function(CM
 	var icon=CM.get('icon');
 	icon.initListeners();
 	icon.fire("afterRender");
-	console.log(icon)
+	console.log(icon);
+	
+	new Button({
+		renderTo:'#buttonContainerDv',
+		text:'按钮',
+		radius:'normal',
+		listeners:[
+		          {
+		        	  type:'click',
+		        	  handler:function(){
+		        		  $D.log(1);
+		        	  }
+		          }
+		]
+	})
+	
 });
 </script>
 </html>

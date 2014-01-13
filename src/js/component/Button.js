@@ -16,6 +16,11 @@ function(AC){
 		//初始配置
 		text            : '',                  //是否有背景
 		block           : false,               //图标名称
+		////通用效果
+		radius          : 'big',               //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
+		shadow          : true,        	       //外阴影
+		shadowInset     : true,        	       //内阴影
+		isInline        : true,                //宽度自适应
 		
 		initHtml        : fInitHtml            //初始化html
 	});
