@@ -131,7 +131,7 @@ $Require(["handy.component.ComponentManager","handy.component.Icon"],function(CM
 		renderTo:'#iconContainerDv',
 		listeners:[
 		           {
-		        	   type:'click',
+		        	   type:'afterRender',
 		        	   data:'message',
 		        	   handler:function(oEvt){
 		        		   alert(oEvt.data);
@@ -140,6 +140,8 @@ $Require(["handy.component.ComponentManager","handy.component.Icon"],function(CM
 		]
 	}));
 	var icon=CM.get('icon');
+	icon.initListeners();
+	icon.fire("afterRender");
 	console.log(icon)
 });
 </script>

@@ -5,20 +5,11 @@
  */
 
 $Define('handy.component.Icon',
-['handy.component.AbstractComponent',
-'handy.component.ComponentManager'
-],
-function(AC,CM){
+'handy.component.AbstractComponent',
+function(AC){
 	
 	var Obj=$H.Object;
-	var Icon=Obj.createClass();
-	
-	Obj.inherit(Icon,AC);
-	
-	CM.registerType('Icon',Icon);
-	
-	Obj.extend(Icon,{
-	});
+	var Icon=AC.define('Icon');
 	
 	Obj.extend(Icon.prototype,{
 		//初始配置

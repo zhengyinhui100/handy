@@ -6,13 +6,12 @@
 
 $Define("handy.component.AbstractComponent","handy.component.ComponentManager",function(CM){
 	
-	var AC=$HO.createClass();
+	var AC=$HO.createClass(),
+		_template = '<div id="<%=this.id%>"><%=this.html%></div>';  // 组件html模板, 模板必须有一个最外层的容器
 	
 	//静态方法
 	$HO.extend(AC,{
-		
-		_template           : '<div id="<%=this.id%>"><%=this.html%></div>', // 组件html模板, 模板必须有一个最外层的容器
-		
+		define              : fDefine,          //定义组件
 		html                : fHtml             //静态生成组件html
 	});
 	
@@ -35,18 +34,21 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		//属性
 //		_id                 : null,              //组件id
 		html                : null,              //组件html
-		rendered            : false,             //是否已渲染
+		//rendered            : false,             //是否已渲染
 		isSuspend           : false,             //是否挂起事件
 //		_container          : null,              //组件容器节点
-//		_listeners          : {},                //事件池             
+//		_listeners          : {},                //事件池  
+//		globalEvents        : [                  //全局事件
+//			'beforeRender','afterRender','show','hide','destroy'
+//		],               
 		
-		initialize          : fInitialize,
-		doConfig            : fDoConfig,
+		initialize          : fInitialize,       //初始化
+		doConfig            : fDoConfig,         //初始化配置
 		getId               : fGetId,            //获取组件id
 		getEl               : fGetEl,            //获取组件节点
 		initHtml            : function(){},      //初始化组件html
-		getHtml             : fGetHtml,
-		find                : fFind,
+		getHtml             : fGetHtml,          //获取html
+		find                : fFind,             //查找子元素
 		hide                : fHide,             //隐藏
 		show                : fShow,             //显示
 //		update
@@ -54,6 +56,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		disable             : fDisable,          //禁用
 //		mask
 //		unmask
+		fire                : fFire,             //触发组件自定义事件
 		listen              : fListen,           //绑定事件
 		unlisten            : fUnlisten,         //解除事件
 		initListeners       : fInitListeners,    //初始化所有事件
@@ -63,7 +66,18 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		destroy             : fDestroy           //销毁
 	});
 	
-	
+	/**
+	 * 定义组件
+	 * @method define
+	 * @param {string}sCtype 组件类型
+	 * @return {class}组件类对象
+	 */
+	function fDefine(sCtype){
+		var Component=$HO.createClass();
+		$HO.inherit(Component,AC);
+		CM.registerType(sCtype,Component);
+		return Component;
+	}
 	/**
 	 * 静态生成组件html
 	 * @method html
@@ -90,16 +104,18 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		//组件html
 		var sHtml=that.html=that.initHtml(oSettings);
 		//如果组件自己实现了模板，则不使用基类的模板
-		var template=sHtml.indexOf('<%=this.id%>')>-1?sHtml:AC._template;
+		var template=sHtml.indexOf('<%=this.id%>')>-1?sHtml:_template;
 		var sId=that.getId();
 		sHtml=that.html=$H.Template.compile(template,{
 			id:sId,
 			html:that.html
 		});
+		that.fire('beforeRender');
 		if(oSettings.autoRender!=false){
 			that.renderTo[that.renderBy](sHtml);
 			//缓存容器
 			that._container=$("#"+sId);
+			that.fire('afterRender');
 		}
 		
 		if(oSettings.notListen!=true){
@@ -121,7 +137,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fDoConfig(oParams){
 		var that=this;
-		$HO.extend(that,oParams);
+		$HO.extend(that,oParams,{notCover:['listeners']});
 		if(oParams.renderTo){
 			that.renderTo=$(oParams.renderTo);
 		}else{
@@ -153,9 +169,27 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	function fGetEl(){
 		return this._container;
 	}
-	
+	/**
+	 * 获取html
+	 * @method getHtml
+	 */
 	function fGetHtml(){
 		return this.html;
+	}
+	/**
+	 * 触发组件自定义事件
+	 * @method fire
+	 * @param {string}sType 事件类型
+	 */
+	function fFire(sType){
+		var that=this;
+		for(var i=that._listeners.length-1;i>=0;i--){
+			var oListener=that._listeners[i]
+			if(oListener.type==sType){
+				fDelegation=oListener.delegation;
+				fDelegation({obj:that,data:oListener.data});
+			}
+		}
 	}
 	/**
 	 * 绑定事件
@@ -164,7 +198,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 * 			{string}type      : 事件名
 	 * 			{function}handler : 监听函数
 	 * 			{any=}data        : 数据
-	 * 			{jQuery=}el       : 绑定事件的节点，默认是组件容器节点
+	 * 			{jQuery=}el       : 绑定事件的节点，不传表示组件自定义事件
 	 * 			{string=}selector : 选择器
 	 * 			{any=}scope       : 监听函数执行的上下文对象，默认是组件对象
 	 * 			{string=}method   : 绑定方式，默认为"bind"
@@ -173,7 +207,8 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	function fListen(oEvent){
 		var that=this,
 			sType=oEvent.type,
-			oEl=oEvent.el||that.getEl(),
+			aListeners=that._listeners,
+			oEl=oEvent.el,
 			sMethod=oEvent.method||"bind",
 			sSel=oEvent.selector,
 			oData=oEvent.data,
@@ -182,20 +217,22 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 				return oEvent.handler.apply(oEvent.scope||that,arguments);
 			}
 		}
-		if(sSel){
-			if(oData){
-				oEl[sMethod](sSel,sType,oData,fFunc);
+		if(oEl){
+			if(sSel){
+				if(oData){
+					oEl[sMethod](sSel,sType,oData,fFunc);
+				}else{
+					oEl[sMethod](sSel,sType,fFunc);
+				}
 			}else{
-				oEl[sMethod](sSel,sType,fFunc);
-			}
-		}else{
-			if(oData){
-				oEl[sMethod](sType,oData,fFunc);
-			}else{
-				oEl[sMethod](sType,fFunc);
+				if(oData){
+					oEl[sMethod](sType,oData,fFunc);
+				}else{
+					oEl[sMethod](sType,fFunc);
+				}
 			}
 		}
-		that._listeners.push(oEvent)
+		aListeners.push(oEvent)
 	}
 	/**
 	 * 解除事件
@@ -203,7 +240,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 * @param {object}事件对象{
 	 * 			{string}type      : 事件名
 	 * 			{function}handler : 监听函数
-	 * 			{jQuery=}el       : 绑定事件的节点，默认是组件容器节点
+	 * 			{jQuery=}el       : 绑定事件的节点，不传表示组件自定义事件
 	 * 			{string=}selector : 选择器
 	 * 			{string=}method   : 绑定方式，默认为"bind"
 	 * }
@@ -211,7 +248,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	function fUnlisten(oEvent){
 		var that=this,
 			sType=oEvent.type,
-			oEl=oEvent.el||that.getEl(),
+			oEl=oEvent.el,
 			sMethod=oEvent.method=="delegate"?"undelegate":"unbind",
 			sSel=oEvent.selector,
 			fDelegation;
@@ -223,10 +260,12 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 				break;
 			}
 		}
-		if(sSel){
-			oEl[sMethod](sSel,sType,fDelegation);
-		}else{
-			oEl[sMethod](sType,fDelegation);
+		if(oEl){
+			if(sSel){
+				oEl[sMethod](sSel,sType,fDelegation);
+			}else{
+				oEl[sMethod](sType,fDelegation);
+			}
 		}
 	}
 	/**
@@ -238,6 +277,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		//缓存容器，autoRender为false时需要此处获取容器
 		that._container=that._container||$("#"+that._id);
 		var aListeners=that._listeners;
+		that._listeners=[];
 		for(var i=aListeners.length-1;i>=0;i--){
 			that.listen(aListeners[i]);
 		}
@@ -291,14 +331,18 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 * @method hide
 	 */
 	function fHide(){
-		this.getEl().hide();
+		var that=this;
+		that.getEl().hide();
+		that.fire('hide');
 	}
 	/**
 	 * 显示
 	 * @method show
 	 */
 	function fShow(){
-		this.getEl().show();
+		var that=this;
+		that.getEl().show();
+		that.fire('show');
 	}
 	/**
 	 * 启用
@@ -328,6 +372,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		that.getEl().remove();
 		//注销组件
 		CM.unregister(that);
+		that.fire('destroy');
 	}
 		
 	return AC;
