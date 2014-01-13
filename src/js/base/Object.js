@@ -23,7 +23,7 @@ handy.add('Object',function($H){
 	}
 	/**
     * 创建或读取命名空间
-    * @method namespace (sPath,object=)
+    * @method namespace (sPath,obj=)
     * @param {string}sPath 命名空间路径字符串
     * @param {*=}obj (可选)用以初始化该命名空间的对象，不传表示读取命名空间
     * @return {?*} 返回该路径的命名空间，不存在则返回undefined
@@ -87,6 +87,7 @@ handy.add('Object',function($H){
     * @param {Object} oSource 源对象
     * @param {Object=} oOptions(可选){
     * 				{boolean=|array=}notCover 不覆盖原有属性/方法，当此参数为true时不覆盖所有属性,当此参数为数组时，仅不覆盖数组中的属性
+    * 				{array=}ignore 忽略的属性/方法
     * 				{boolean=}notClone 不克隆，仅当此参数为true时不克隆，此时，由于目标对象里的复杂属性(数组、对象等)是源对象中的引用，源对象的修改会导致目标对象也修改
     * }
     * @return {Object} 扩展后的对象
@@ -95,8 +96,8 @@ handy.add('Object',function($H){
     	var notCover=oOptions?oOptions.notCover:false;
     	var bNotClone=oOptions?oOptions.notClone:false;
         for (var sProperty in oSource) {
-        	var bNotCover=typeof notCover=='boolean'?(notCover&&oDestination.hasOwnProperty(sProperty)):Object.contain(notCover,sProperty);
-            if (!bNotCover) {
+        	var bNotCover=typeof notCover=='array'?Object.contain(notCover,sProperty):notCover;
+            if (!(oOptions&&oOptions.ignore&&Object.contain(oOptions.ignore,sProperty))&&(!bNotCover||!oDestination.hasOwnProperty(sProperty))) {
 				oDestination[sProperty] = bNotClone?oSource[sProperty]:Object.clone(oSource[sProperty]);
             }
         }
@@ -113,16 +114,16 @@ handy.add('Object',function($H){
     * @return {Object} 扩展后的类
     */
     function fMix(oChild, oParent, oExtend, oPrototypeExtend) {
-        if (!oChild.superClass) {
-            oChild.superClass = {};
+        if (!oChild.superProt) {
+            oChild.superProt = {};
         }
         for (var sProperty in oParent) {
             if(Object.isFunction(oParent[sProperty])){// 如果是方法
-                if(!oChild.superClass[sProperty]){// superClass里面没有对应的方法，直接指向父类方法
-                    oChild.superClass[sProperty] = oParent[sProperty];
-                }else{// superClass里有对应方法，需要新建一个function依次调用
-                    var _function = oChild.superClass[sProperty];
-                    oChild.superClass[sProperty] = function (_property, fFunc) {
+                if(!oChild.superProt[sProperty]){// superProt里面没有对应的方法，直接指向父类方法
+                    oChild.superProt[sProperty] = oParent[sProperty];
+                }else{// superProt里有对应方法，需要新建一个function依次调用
+                    var _function = oChild.superProt[sProperty];
+                    oChild.superProt[sProperty] = function (_property, fFunc) {
 						return function () {
 							fFunc.apply(this, arguments);
 							oParent[_property].apply(this, arguments);
@@ -130,7 +131,7 @@ handy.add('Object',function($H){
                     }(sProperty, _function);
                 }
             }else{// 类属性，直接复制
-                oChild.superClass[sProperty] = oParent[sProperty];
+                oChild.superProt[sProperty] = oParent[sProperty];
             }
             if(!oChild[sProperty]){// 子类没有父类的方法或属性，直接拷贝
                 oChild[sProperty] = oParent[sProperty];
@@ -141,7 +142,7 @@ handy.add('Object',function($H){
         }
         // toString 单独处理
         if (oParent.toString != oParent.constructor.prototype.toString) {
-            oChild.superClass.toString = function () {
+            oChild.superProt.toString = function () {
                 oParent.toString.apply(oChild, arguments);
             };
         }
@@ -155,9 +156,10 @@ handy.add('Object',function($H){
     * @method inherit
     * @param {Object} oChild 子类
     * @param {Object} oParent 父类
-    * @param {Object} oExtend 需要扩展的prototype方法集
+    * @param {Object=} oStaticExtend 需要扩展的静态属性
+    * @param {Object=} oExtend 需要扩展的prototype属性
     */
-    function fInherit(oChild, oParent, oExtend) {
+    function fInherit(oChild, oParent, oStaticExtend,oExtend) {
         var Inheritance = function(){};
         Inheritance.prototype = oParent.prototype;
 		/* 
@@ -173,15 +175,19 @@ handy.add('Object',function($H){
         Object.extend(oChild, oParent,{notCover:true});
         oChild.prototype = new Inheritance();
         oChild.prototype.constructor = oChild;
-        oChild.superConstructor = oParent;
-        oChild.superClass = oParent.prototype;
+        oChild.superClass = oParent;
+        oChild.superProt = oParent.prototype;
         //额外的继承动作
         if(oParent._onInherit){
             try{
                 oParent._onInherit(oChild);
             }catch(e){}
         }
-        //扩展属性
+        //扩展静态属性
+        if(oStaticExtend){
+            Object.extend(oChild, oStaticExtend);
+        }
+        //扩展prototype属性
         if(oExtend){
             Object.extend(oChild.prototype, oExtend);
         }
@@ -321,7 +327,7 @@ handy.add('Object',function($H){
     */
     function fEach(object, fCallback, args) {
     	var sName, i = 0,
-			nLength = object.nLength,
+			nLength = object.length,
 			bIsObj = nLength === undefined || Object.isFunction( object );
 		if ( args ) {
 			if ( bIsObj ) {
