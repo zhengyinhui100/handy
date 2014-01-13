@@ -95,8 +95,8 @@ handy.add('Object',function($H){
     	var notCover=oOptions?oOptions.notCover:false;
     	var bNotClone=oOptions?oOptions.notClone:false;
         for (var sProperty in oSource) {
-        	var bNotCover=typeof notCover=='boolean'?notCover:Object.contain(notCover,sProperty);
-            if (!bNotCover || !oDestination.hasOwnProperty(sProperty)) {
+        	var bNotCover=typeof notCover=='boolean'?(notCover&&oDestination.hasOwnProperty(sProperty)):Object.contain(notCover,sProperty);
+            if (!bNotCover) {
 				oDestination[sProperty] = bNotClone?oSource[sProperty]:Object.clone(oSource[sProperty]);
             }
         }
