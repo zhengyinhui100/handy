@@ -8,11 +8,9 @@ $Define('handy.component.Button',
 'handy.component.AbstractComponent',
 function(AC){
 	
-	var Obj=$H.Object;
-	
 	var Button=AC.define('Button');
 	
-	Obj.extend(Button.prototype,{
+	$HO.extend(Button.prototype,{
 		//初始配置
 		text            : '',                  //按钮文字
 		color           : null,                //按钮颜色

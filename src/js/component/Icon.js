@@ -8,10 +8,9 @@ $Define('handy.component.Icon',
 'handy.component.AbstractComponent',
 function(AC){
 	
-	var Obj=$H.Object;
 	var Icon=AC.define('Icon');
 	
-	Obj.extend(Icon.prototype,{
+	$HO.extend(Icon.prototype,{
 		//初始配置
 		hasBg           : false,               //是否有背景
 		name            : '',                  //图标名称
