@@ -16,6 +16,7 @@ function(AC){
 		//初始配置
 		text            : '',                  //按钮文字
 		color           : null,                //按钮颜色
+		iconPos         : 'left',              //图标位置，"left"|"top"
 		
 		
 		////通用效果
@@ -23,7 +24,8 @@ function(AC){
 		shadow          : true,        	       //外阴影
 		isInline        : true,                //宽度自适应
 		
-		initHtml        : fInitHtml            //初始化html
+		initHtml        : fInitHtml,           //初始化html
+		parseItem       : fParseItem           //分析处理子组件
 	});
 	/**
 	 * 初始化html
@@ -32,16 +34,22 @@ function(AC){
 	function fInitHtml(){
 		var that=this;
 		var sHtml=
-		'<a class="w-btn'+(that.color?' w-btn-'+that.color:'')+(that.text?'':' w-btn-icon-notxt')+'">\
-			<span class="w-btn-txt">'+that.text+'</span>\
-		</a>';
+		'<a class="w-btn'+(that.color?' w-btn-'+that.color:'')+(that.text?'':' w-btn-icon-notxt')+
+			(that.hasIcon?' w-btn-icon-'+that.iconPos:'')+'">\
+			<span class="w-btn-txt">'+that.text+'</span>'
+			+that.childHtml+
+		'</a>';
 		return sHtml;
 	}
 	/**
-	 * 
+	 * 分析处理子组件
+	 * @method parseItem
 	 */
-	function fPreConfig(oSettings){
+	function fParseItem(oItem){
 		var that=this;
+		if(oItem.xtype=="Icon"){
+			that.hasIcon=true;
+		}
 	}
 	
 	return Button;

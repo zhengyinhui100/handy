@@ -55,7 +55,6 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		],
 		
 		initialize          : fInitialize,       //初始化
-		preConfig           : function(){},      //预先处理配置，组件类负责实现
 		doConfig            : fDoConfig,         //初始化配置
 		getId               : fGetId,            //获取组件id
 		getEl               : fGetEl,            //获取组件节点
@@ -80,9 +79,10 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		resumeListeners     : fResumeListeners,  //恢复事件
 		
 		each                : fEach,             //遍历子组件
-		callChild           : fCallChild,     //调用子组件方法
+		callChild           : fCallChild,        //调用子组件方法
 		add                 : fAdd,              //添加子组件
 		remove              : fRemove,           //删除子组件
+		parseItem           : function(){},      //分析子组件，由具体组件类实现
 		parseItems          : fParseItems,       //分析子组件列表
 		destroy             : fDestroy           //销毁
 	});
@@ -104,13 +104,9 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 * @method html
 	 * @param {object}oSettings 初始化参数
 	 */
-	function fHtml(oSettings,parentComponent){
-		oSettings.delayListen=true;
+	function fHtml(oSettings){
 		oSettings.autoRender=false;
 		var component=new this(oSettings);
-		if(parentComponent){
-			parentComponent.children.push(component);
-		}
 		return component.getHtml();
 	}
 		
@@ -121,18 +117,21 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fInitialize(oSettings){
 		var that=this;
-		that.preConfig(oSettings);
+		//初始化配置
 		that.doConfig(oSettings);
+		//分析处理子组件
 		that.parseItems();
 		//组件html
 		var sHtml=that.initHtml(oSettings);
 		var sId=that.getId();
 		//添加id
 		sHtml=sHtml.replace(_oIdReg,'$1 id="'+sId+'"');
+		//添加附加class
 		sHtml=that.html=sHtml.replace(_oClsReg,'$1'+that.getExtCls());
 		that.fire('beforeRender');
 		if(that.autoRender!=false){
 			that.renderTo[that.renderBy](sHtml);
+			//渲染后续工作
 			that.afterRender();
 		}
 		//注册组件
@@ -166,7 +165,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 					handler:oParams[sProp]
 				});
 			}
-			if(typeof value=='undefined'||typeof value=='object'||$HO.isFunction(value)){
+			if(typeof value=='undefined'||(value!=null&&typeof value=='object')||$HO.isFunction(value)){
 				return true;
 			}
 		}});
@@ -184,7 +183,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fGetId(){
 		var that=this;
-		return that._id||(that._id=CM.generateId(that.cid));
+		return that._id||(that._id=CM.generateId(that.params.cid));
 	}
 	/**
 	 * 获取组件节点
@@ -251,6 +250,8 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 			that.suspendListeners();
 		}
 		that.fire('afterRender');
+		delete that.html;
+		delete that.childHtml;
 	}
 	/**
 	 * 查找子元素或子组件
@@ -487,22 +488,23 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fParseItems(){
 		var that=this;
-		var aItems=that.items;
+		var aItems=that.params.items;
 		if(!aItems){
-			return '';
+			return that.childHtml= '';
 		}
 		aItems=aItems.length?aItems:[aItems];
 		var aHtml=[];
 		//逐个初始化子组件
 		for(var i=0,len=aItems.length;i<len;i++){
 			var oItem=aItems[i];
+			that.parseItem(oItem);
 			var Component=CM.getClass(oItem.xtype);
 			oItem.autoRender=false;
 			var oCmp=new Component(oItem);
 			that.add(oCmp);
 			aHtml.push(oCmp.getHtml());
 		}
-		return aHtml.join('');
+		return that.childHtml=aHtml.join('');
 	}
 	/**
 	 * 销毁组件
@@ -510,12 +512,15 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fDestroy(){
 		var that=this;
+		that.fire('destroy');
 		that.clearListeners();
 		that.callChild('destroy');
 		that.getEl().remove();
+		delete that._listeners;
+		delete that._contianer;
+		delete that.children;
 		//注销组件
 		CM.unregister(that);
-		that.fire('destroy');
 	}
 		
 	return AC;

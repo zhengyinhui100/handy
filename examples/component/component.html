@@ -145,22 +145,17 @@ function(CM,Icon,Button){
 		]
 	}));
 	var icon=CM.get('icon');
-	icon.initListeners();
-	icon.fire("afterRender");
+	icon.afterRender();
 	console.log(icon);
 	
 	new Button({
 		renderTo:'#buttonContainerDv',
 		text:'按钮',
+		color:'blue',
 		radius:'normal',
-		listeners:[
-		          {
-		        	  type:'click',
-		        	  handler:function(){
-		        		  $D.log(1);
-		        	  }
-		          }
-		]
+		click:function(){
+	  		  $D.log(1);
+	  	  }
 	})
 	
 	new Button({
@@ -169,6 +164,7 @@ function(CM,Icon,Button){
 		items:{
 			xtype:"Icon",
 			name:"del",
+			hasBg:true,
 			pos:'left'
 		}
 	})
