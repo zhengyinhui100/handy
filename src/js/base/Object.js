@@ -86,9 +86,10 @@ handy.add('Object',function($H){
     * @param {Object} oDestination 目标对象
     * @param {Object} oSource 源对象
     * @param {Object=} oOptions(可选){
-    * 				{boolean=|array=}notCover 不覆盖原有属性/方法，当此参数为true时不覆盖所有属性,当此参数为数组时，仅不覆盖数组中的属性
-    * 				{array=}ignore 忽略的属性/方法
-    * 				{boolean=}notClone 不克隆，仅当此参数为true时不克隆，此时，由于目标对象里的复杂属性(数组、对象等)是源对象中的引用，源对象的修改会导致目标对象也修改
+    * 				{boolean=|array=|function(sprop)=}notCover 不覆盖原有属性/方法，当此参数为true时不覆盖原有属性；当此参数为数组时，
+    * 					仅不覆盖数组中的原有属性；当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
+    * 				{boolean=}notClone 不克隆，仅当此参数为true时不克隆，此时，由于目标对象里的复杂属性(数组、对象等)是源对象中的引用，
+    * 					源对象的修改会导致目标对象也修改
     * }
     * @return {Object} 扩展后的对象
     */
@@ -96,8 +97,16 @@ handy.add('Object',function($H){
     	var notCover=oOptions?oOptions.notCover:false;
     	var bNotClone=oOptions?oOptions.notClone:false;
         for (var sProperty in oSource) {
-        	var bNotCover=typeof notCover=='array'?Object.contain(notCover,sProperty):notCover;
-            if (!(oOptions&&oOptions.ignore&&Object.contain(oOptions.ignore,sProperty))&&(!bNotCover||!oDestination.hasOwnProperty(sProperty))) {
+        	var bHas=oDestination.hasOwnProperty(sProperty);
+        	var bNotCover=notCover===true?bHas:false;
+        	//当此参数为数组时，仅不覆盖数组中的原有属性
+        	if(Object.isArray(notCover)){
+        		bNotCover=Object.contain(notCover,sProperty)&&bHas;
+        	}else if(Object.isFunction(notCover)){
+        		//当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
+        		bNotCover=notCover(sProperty);
+        	}
+            if (!bNotCover) {
 				oDestination[sProperty] = bNotClone?oSource[sProperty]:Object.clone(oSource[sProperty]);
             }
         }
@@ -324,7 +333,7 @@ handy.add('Object',function($H){
     * 遍历对象
     * @method each
     * @param {*}object 参数对象
-    * @param {Object}fCallback 回调函数:fCallback(property,value),返回false时退出遍历
+    * @param {function}fCallback 回调函数:fCallback(property,value)|fCallback(args)this=value,返回false时退出遍历
     * @param {*}args  回调函数的参数
     */
     function fEach(object, fCallback, args) {
