@@ -39,24 +39,21 @@
 	<br/><br/><br/><br/>
 	
 	<h3>输入框：</h3>
-	
+	<div id="inputContainerDv"></div>
 	<br/><br/><br/><br/>
 	
-	<h3>普通表单：</h3>
+	<h3>tab：</h3>
+	<div id="tabContainerDv"></div>
 	<br/>
 	
 	<br/><br/><br/><br/>
 	
 	<h3>工具栏：</h3>
-	
+	<div id="toolbarContainerDv"></div>
 	<br/><br/><br/><br/>
 	
 	<h3>导航栏：</h3>
-	
-	
-	<br/><br/>
-	
-
+	<div id="navBarContainer"></div>
 	<br/><br/><br/><br/>
 	
 	<h3>遮罩层：</h3>
@@ -122,8 +119,9 @@ $H.Loader.rootPath={
 $Require([
 "handy.component.ComponentManager",
 "handy.component.Icon",
-"handy.component.Button"],
-function(CM,Icon,Button){
+"handy.component.Button",
+"handy.component.Input"],
+function(CM,Icon,Button,Input){
 	new Icon({
 		name:'location',
 		renderTo:'#iconContainerDv'
@@ -168,6 +166,10 @@ function(CM,Icon,Button){
 			pos:'left'
 		}
 	})
+	
+	new Input({
+		renderTo:'#inputContainerDv'
+	});
 	
 });
 </script>

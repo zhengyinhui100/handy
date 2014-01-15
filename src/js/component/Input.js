@@ -12,8 +12,9 @@ function(AC){
 	
 	$HO.extend(Input.prototype,{
 		//初始配置
-		hasBg           : false,               //是否有背景
-		name            : '',                  //图标名称
+		type            : '',                  //图标名称
+//		placeholder     : '',                  //placeholder
+		radius          : 'normal',            //普通圆角
 		
 		initHtml        : fInitHtml            //初始化html
 	});
@@ -23,8 +24,11 @@ function(AC){
 	 */
 	function fInitHtml(){
 		var that=this;
-		return '<span class="w-icon w-icon-'+that.name+(that.hasBg?' w-icon-bg':'')+'"></span>';
+		return '<div class="w-input">\
+			<input type="text" class="w-input-txt"'+that.placeholder?' placeholder="'+that.placeholder+'"':''+'/>\
+		</div>';
 	}
+	
 	
 	return Input;
 	

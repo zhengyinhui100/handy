@@ -165,7 +165,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 					handler:oParams[sProp]
 				});
 			}
-			if(typeof value=='undefined'||(value!=null&&typeof value=='object')||$HO.isFunction(value)){
+			if((value!=null&&typeof value=='object')||$HO.isFunction(value)){
 				return true;
 			}
 		}});
@@ -183,7 +183,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fGetId(){
 		var that=this;
-		return that._id||(that._id=CM.generateId(that.params.cid));
+		return that._id||(that._id=CM.generateId(that.cid));
 	}
 	/**
 	 * 获取组件节点
@@ -512,6 +512,8 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fDestroy(){
 		var that=this;
+		//注销组件
+		CM.unregister(that);
 		that.fire('destroy');
 		that.clearListeners();
 		that.callChild('destroy');
@@ -519,8 +521,6 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		delete that._listeners;
 		delete that._contianer;
 		delete that.children;
-		//注销组件
-		CM.unregister(that);
 	}
 		
 	return AC;

@@ -12,8 +12,8 @@ function(AC){
 	
 	$HO.extend(Icon.prototype,{
 		//初始配置
-		hasBg           : false,               //是否有背景
-		name            : '',                  //图标名称
+//		hasBg           : false,               //是否有背景
+//		name            : '',                  //图标名称
 		
 		initHtml        : fInitHtml            //初始化html
 	});
