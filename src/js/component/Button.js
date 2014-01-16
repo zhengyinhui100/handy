@@ -24,7 +24,7 @@ function(AC){
 		
 		tmpl            : ['<a class="w-btn<%if(this.color){%> w-btn-<%=this.color%><%}',
 							'if(!this.text){%> w-btn-icon-notxt<%}',
-							'if(this.hasIcon){%> w-btn-icon-<%=this.iconPos%><%}%>">',
+							'if(this.hasIcon&&this.text){%> w-btn-icon-<%=this.iconPos%><%}%>">',
 							'<span class="w-btn-txt"><%=this.text%></span>',
 							'<%=this.childHtml%>',
 							'</a>'],

@@ -41,7 +41,10 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		//属性
 //		params              : null,              //初始化时传入的参数
 //		_id                 : null,              //组件id
+//		tmpl                : [],                //组件模板
+//		tmplStr             : '',                //组件模板字符串
 		html                : null,              //组件html
+		childHtml           : '',                //子组件html
 //		rendered            : false,             //是否已渲染
 //		children            : [],                //子组件
 		isSuspend           : false,             //是否挂起事件
@@ -121,7 +124,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		//分析处理子组件
 		me.parseItems();
 		//由模板生成组件html
-		var sHtml=$H.Template.tmpl({id:me.xtype,tmpl:me.tmpl.join('')},me);
+		var sHtml=$H.Template.tmpl({id:me.xtype,tmpl:me.tmplStr||(me.tmplStr=me.tmpl.join(''))},me);
 		var sId=me.getId();
 		//添加id
 		sHtml=sHtml.replace(_oIdReg,'$1 id="'+sId+'"');
@@ -497,6 +500,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		//逐个初始化子组件
 		for(var i=0,len=aItems.length;i<len;i++){
 			var oItem=aItems[i];
+			//具体组件类处理
 			me.parseItem(oItem);
 			var Component=CM.getClass(oItem.xtype);
 			oItem.autoRender=false;

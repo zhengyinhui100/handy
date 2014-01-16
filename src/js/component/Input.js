@@ -15,9 +15,13 @@ function(AC){
 		type            : '',                  //图标名称
 //		placeholder     : '',                  //placeholder
 		radius          : 'normal',            //普通圆角
+		iconPos         : 'left',              //图标位置
+		btnPos          : 'right',             //按钮位置
 		
 		tmpl            : [
-		'<div class="w-input">',
+		'<div class="w-input<%if(this.hasIcon){%> w-input-icon-<%=this.iconPos%><%}%>',
+		'<%if(this.hasBtn){%> w-input-btn-<%=this.btnPos%><%}%>">',
+			'<%=this.childHtml%>',
 			'<input type="text" class="js-input w-input-txt"<%if(this.placeholder){%> placeholder="<%=this.placeholder%><%}%>"/>',
 		'</div>'],
 		listeners       : [
@@ -36,7 +40,8 @@ function(AC){
 				}
 			}
 		],
-		doConfig        : fDoConfig         //初始化配置
+		doConfig        : fDoConfig,         //初始化配置
+		parseItem       : fParseItem         //分析处理子组件
 		
 	});
 	
@@ -47,6 +52,29 @@ function(AC){
 	function fDoConfig(oSettings){
 		var me=this;
 		me.constructor.superProt.doConfig.call(me,oSettings);
+		//搜索框快捷配置方式
+		if(me.type=='search'){
+			if(!me.params.items){
+				me.params.items=[];
+			}
+			me.params.items.push({
+				xtype:'Icon',
+				name:'search',
+				hasBg:true
+			})
+		}
+	}
+	/**
+	 * 分析处理子组件
+	 * @method parseItem
+	 */
+	function fParseItem(oItem){
+		var me=this;
+		if(oItem.xtype=="Icon"){
+			me.hasIcon=true;
+		}else if(oItem.xtype=="Button"){
+			me.hasBtn=true;
+		}
 	}
 	
 	return Input;

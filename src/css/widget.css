@@ -310,19 +310,19 @@
   /*W3C标准(IE9+，Safari5.1+,Chrome10.0+,Opera10.6+都符合box-sizing的w3c标准语法)*/
 
 }
-.w-input-left-icon {
+.w-input-icon-left {
   padding-left: 40px;
 }
-.w-input-left-icon .w-icon {
+.w-input-icon-left .w-icon {
   position: absolute;
   left: 10px;
   top: 50%;
   margin-top: -9px;
 }
-.w-input-right-btn {
+.w-input-btn-right {
   padding-right: 40px;
 }
-.w-input-right-btn .w-btn {
+.w-input-btn-right .w-btn {
   position: absolute;
   right: 10px;
   top: 50%;
@@ -447,13 +447,13 @@
   bottom: 0;
   left: 0;
 }
-.w-navbar .w-navbar-item {
+.w-tab .w-tab-item {
   float: left;
 }
-.w-navbar .w-navbar-item:last-child .w-btn {
+.w-tab .w-tab-item:last-child .w-btn {
   border-right-width: 1px;
 }
-.w-navbar .w-btn {
+.w-tab .w-btn {
   border-right-width: 0;
 }
 .w-dialog {

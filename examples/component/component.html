@@ -48,12 +48,12 @@
 	
 	<br/><br/><br/><br/>
 	
-	<h3>工具栏：</h3>
-	<div id="toolbarContainerDv"></div>
+	<h3>标签栏：</h3>
+	<div id="tabDv"></div>
 	<br/><br/><br/><br/>
 	
-	<h3>导航栏：</h3>
-	<div id="navBarContainer"></div>
+	<h3>工具栏：</h3>
+	<div id="toolbarContainerDv"></div>
 	<br/><br/><br/><br/>
 	
 	<h3>遮罩层：</h3>
@@ -120,7 +120,8 @@ $Require([
 "handy.component.ComponentManager",
 "handy.component.Icon",
 "handy.component.Button",
-"handy.component.Input"],
+"handy.component.Input",
+"handy.component.Tab"],
 function(CM,Icon,Button,Input){
 	new Icon({
 		name:'location',
@@ -162,8 +163,16 @@ function(CM,Icon,Button,Input){
 		items:{
 			xtype:"Icon",
 			name:"del",
-			hasBg:true,
-			pos:'left'
+			hasBg:true
+		}
+	})
+	
+	new Button({
+		renderTo:'#buttonContainerDv',
+		items:{
+			xtype:"Icon",
+			name:"del",
+			hasBg:true
 		}
 	})
 	
@@ -171,6 +180,31 @@ function(CM,Icon,Button,Input){
 		renderTo:'#inputContainerDv'
 	});
 	
+	new Input({
+		type:'search',
+		renderTo:'#inputContainerDv'
+	});
+	
+	new Input({
+		renderTo:'#inputContainerDv',
+		items:{
+			xtype:'Button',
+			items:{
+				xtype:"Icon",
+				name:'edit',
+				hasBg:true
+			}
+		}
+	});
+	
+	new Tab({
+		renderTo:'#tabDv',
+		items:[
+			{
+				text:'一',
+			}
+		]
+	});
 });
 </script>
 </html>
