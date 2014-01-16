@@ -58,7 +58,6 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		doConfig            : fDoConfig,         //初始化配置
 		getId               : fGetId,            //获取组件id
 		getEl               : fGetEl,            //获取组件节点
-		initHtml            : function(){},      //初始化组件html，组件类负责实现
 		getHtml             : fGetHtml,          //获取html
 		getExtCls           : fGetExtCls,        //生成通用样式
 		afterRender         : fAfterRender,      //渲染后续工作
@@ -121,7 +120,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		that.doConfig(oSettings);
 		//分析处理子组件
 		that.parseItems();
-		//组件html
+		//由模板生成组件html
 		var sHtml=$H.Template.tmpl({id:that.xtype,tmpl:that.tmpl.join('')},that);
 		var sId=that.getId();
 		//添加id
@@ -329,15 +328,16 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		var that=this,
 			sType=oEvent.type,
 			aListeners=that._listeners,
-			oEl=oEvent.el||that.getEl(),
+			oEl=oEvent.el,
 			sMethod=oEvent.method||"bind",
 			sSel=oEvent.selector,
 			oData=oEvent.data,
 			fFunc=oEvent.delegation=function(){
-			if(that.isSuspend!=true){
-				return oEvent.handler.apply(oEvent.scope||that,arguments);
-			}
-		}
+				if(that.isSuspend!=true){
+					return oEvent.handler.apply(oEvent.scope||that,arguments);
+				}
+			};
+		oEl=oEl?typeof oEl=='string'?that.find(oEl):oEl:that.getEl();
 		if(!oEvent.notEl){
 			if(sSel){
 				if(oData){

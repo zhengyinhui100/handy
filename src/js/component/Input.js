@@ -18,10 +18,35 @@ function(AC){
 		
 		tmpl            : [
 		'<div class="w-input">',
-			'<input type="text" class="w-input-txt"<%if(this.placeholder){%> placeholder="<%=this.placeholder%><%}%>"/>',
-		'</div>']
+			'<input type="text" class="js-input w-input-txt"<%if(this.placeholder){%> placeholder="<%=this.placeholder%><%}%>"/>',
+		'</div>'],
+		listeners       : [
+			{
+				type : 'focus',
+				el : '.js-input',
+				handler : function(){
+					this.getEl().addClass('w-focus');
+				}
+			},
+			{
+				type : 'blur',
+				el : '.js-input',
+				handler : function(){
+					this.getEl().removeClass('w-focus');
+				}
+			}
+		],
+		doConfig        : fDoconfig         //初始化配置
+		
 	});
 	
+	/**
+	 * 初始化配置
+	 * @method doConfig
+	 */
+	function fDoConfig(){
+		var that=this;
+	}
 	
 	return Input;
 	
