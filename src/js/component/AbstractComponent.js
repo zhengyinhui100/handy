@@ -115,26 +115,26 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 * @param {object}oSettings 初始化参数
 	 */
 	function fInitialize(oSettings){
-		var that=this;
+		var me=this;
 		//初始化配置
-		that.doConfig(oSettings);
+		me.doConfig(oSettings);
 		//分析处理子组件
-		that.parseItems();
+		me.parseItems();
 		//由模板生成组件html
-		var sHtml=$H.Template.tmpl({id:that.xtype,tmpl:that.tmpl.join('')},that);
-		var sId=that.getId();
+		var sHtml=$H.Template.tmpl({id:me.xtype,tmpl:me.tmpl.join('')},me);
+		var sId=me.getId();
 		//添加id
 		sHtml=sHtml.replace(_oIdReg,'$1 id="'+sId+'"');
 		//添加附加class
-		sHtml=that.html=sHtml.replace(_oClsReg,'$1'+that.getExtCls());
-		that.fire('beforeRender');
-		if(that.autoRender!=false){
-			that.renderTo[that.renderBy](sHtml);
+		sHtml=me.html=sHtml.replace(_oClsReg,'$1'+me.getExtCls());
+		me.fire('beforeRender');
+		if(me.autoRender!=false){
+			me.renderTo[me.renderBy](sHtml);
 			//渲染后续工作
-			that.afterRender();
+			me.afterRender();
 		}
 		//注册组件
-		CM.register(that);
+		CM.register(me);
 	}
 	/**
 	 * 初始化配置
@@ -142,23 +142,23 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 * @param {object} oParams
 	 */
 	function fDoConfig(oParams){
-		var that=this;
-		that.params=oParams;
+		var me=this;
+		me.params=oParams;
 		//生成对象的监听器列表
-		var aListeners=that.listeners||[];
+		var aListeners=me.listeners||[];
 		if(oParams.listeners){
-			that._listeners=aListeners.concat(oParams.listeners);
+			me._listeners=aListeners.concat(oParams.listeners);
 		}else{
-			that._listeners=aListeners.concat();
+			me._listeners=aListeners.concat();
 		}
 		//只覆盖已声明的基本类型的属性
-		$HO.extend(that,oParams,{notCover:function(sProp){
-			var value=that[sProp];
+		$HO.extend(me,oParams,{notCover:function(sProp){
+			var value=me[sProp];
 			//默认事件，可通过参数属性直接添加
-			var bIsCustEvt=$HO.contain(that._customEvents,sProp);
-			var bIsDefEvt=$HO.contain(that._defaultEvents,sProp);
+			var bIsCustEvt=$HO.contain(me._customEvents,sProp);
+			var bIsDefEvt=$HO.contain(me._defaultEvents,sProp);
 			if(bIsCustEvt||bIsDefEvt){
-				that._listeners.push({
+				me._listeners.push({
 					type:sProp,
 					notEl:bIsCustEvt,
 					handler:oParams[sProp]
@@ -169,11 +169,11 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 			}
 		}});
 		if(oParams.renderTo){
-			that.renderTo=$(oParams.renderTo);
+			me.renderTo=$(oParams.renderTo);
 		}else{
-			that.renderTo=$(document.body);
+			me.renderTo=$(document.body);
 		}
-		that.children=[];
+		me.children=[];
 	}
 	/**
 	 * 获取组件id
@@ -181,8 +181,8 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 * @return {string}返回组件id
 	 */
 	function fGetId(){
-		var that=this;
-		return that._id||(that._id=CM.generateId(that.cid));
+		var me=this;
+		return me._id||(me._id=CM.generateId(me.cid));
 	}
 	/**
 	 * 获取组件节点
@@ -205,30 +205,30 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 * @return {string} 返回通用样式
 	 */
 	function fGetExtCls(){
-		var that=this;
+		var me=this;
 		var aCls=[];
-		if(that.extCls){
-			aCls.push(that.extCls);
+		if(me.extCls){
+			aCls.push(me.extCls);
 		}
-		if(that.disabled){
+		if(me.disabled){
 			aCls.push('w-disable');
 		}
-		if(that.radius){
-			aCls.push('w-radius-'+that.radius);
+		if(me.radius){
+			aCls.push('w-radius-'+me.radius);
 		}
-		if(that.isMini){
+		if(me.isMini){
 			aCls.push('w-mini');
 		}
-		if(that.shadow){
+		if(me.shadow){
 			aCls.push('w-shadow');
 		}
-		if(that.shadowInset){
+		if(me.shadowInset){
 			aCls.push('w-shadow-inset');
 		}
-		if(that.isFocus){
+		if(me.isFocus){
 			aCls.push('w-focus');
 		}
-		if(that.isInline){
+		if(me.isInline){
 			aCls.push('w-inline');
 		}
 		return aCls.length>0?aCls.join(' ')+' ':'';
@@ -238,19 +238,19 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 * @method afterRender
 	 */
 	function fAfterRender(){
-		var that=this;
+		var me=this;
 		//缓存容器
-		that._container=$("#"+that.getId());
-		that.rendered=true;
-		if(that.notListen!=true){
-			that.initListeners();
+		me._container=$("#"+me.getId());
+		me.rendered=true;
+		if(me.notListen!=true){
+			me.initListeners();
 		}
-		if(that.disabled){
-			that.suspendListeners();
+		if(me.disabled){
+			me.suspendListeners();
 		}
-		that.fire('afterRender');
-		delete that.html;
-		delete that.childHtml;
+		me.fire('afterRender');
+		delete me.html;
+		delete me.childHtml;
 	}
 	/**
 	 * 查找子元素或子组件
@@ -264,36 +264,36 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 * @method hide
 	 */
 	function fHide(){
-		var that=this;
-		that.getEl().hide();
-		that.fire('hide');
+		var me=this;
+		me.getEl().hide();
+		me.fire('hide');
 	}
 	/**
 	 * 显示
 	 * @method show
 	 */
 	function fShow(){
-		var that=this;
-		that.getEl().show();
-		that.fire('show');
+		var me=this;
+		me.getEl().show();
+		me.fire('show');
 	}
 	/**
 	 * 启用
 	 * @method enable
 	 */
 	function fEnable(){
-		var that=this;
-		that.resumeListeners();
-		that.getEl().removeClass("w-disable");
+		var me=this;
+		me.resumeListeners();
+		me.getEl().removeClass("w-disable");
 	}
 	/**
 	 * 禁用
 	 * @method disable
 	 */
 	function fDisable(){
-		var that=this;
-		that.suspendListeners();
-		that.getEl().addClass("w-disable");
+		var me=this;
+		me.suspendListeners();
+		me.getEl().addClass("w-disable");
 	}
 	/**
 	 * 触发组件自定义事件
@@ -301,12 +301,12 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 * @param {string}sType 事件类型
 	 */
 	function fFire(sType){
-		var that=this;
-		for(var i=that._listeners.length-1;i>=0;i--){
-			var oListener=that._listeners[i]
+		var me=this;
+		for(var i=me._listeners.length-1;i>=0;i--){
+			var oListener=me._listeners[i]
 			if(oListener.type==sType){
 				fDelegation=oListener.delegation;
-				fDelegation({obj:that,data:oListener.data});
+				fDelegation({obj:me,data:oListener.data});
 			}
 		}
 	}
@@ -325,19 +325,19 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 * }
 	 */
 	function fListen(oEvent){
-		var that=this,
+		var me=this,
 			sType=oEvent.type,
-			aListeners=that._listeners,
+			aListeners=me._listeners,
 			oEl=oEvent.el,
 			sMethod=oEvent.method||"bind",
 			sSel=oEvent.selector,
 			oData=oEvent.data,
 			fFunc=oEvent.delegation=function(){
-				if(that.isSuspend!=true){
-					return oEvent.handler.apply(oEvent.scope||that,arguments);
+				if(me.isSuspend!=true){
+					return oEvent.handler.apply(oEvent.scope||me,arguments);
 				}
 			};
-		oEl=oEl?typeof oEl=='string'?that.find(oEl):oEl:that.getEl();
+		oEl=oEl?typeof oEl=='string'?me.find(oEl):oEl:me.getEl();
 		if(!oEvent.notEl){
 			if(sSel){
 				if(oData){
@@ -368,17 +368,17 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 * }
 	 */
 	function fUnlisten(oEvent){
-		var that=this,
+		var me=this,
 			sType=oEvent.type,
-			oEl=oEvent.el||that.getEl(),
+			oEl=oEvent.el||me.getEl(),
 			sMethod=oEvent.method=="delegate"?"undelegate":"unbind",
 			sSel=oEvent.selector,
 			fDelegation;
-		for(var i=that._listeners.length-1;i>=0;i--){
-			var oListener=that._listeners[i]
+		for(var i=me._listeners.length-1;i>=0;i--){
+			var oListener=me._listeners[i]
 			if(oListener.handler==oEvent.handler){
 				fDelegation=oListener.delegation;
-				that._listeners.splice(i,1);
+				me._listeners.splice(i,1);
 				break;
 			}
 		}
@@ -395,27 +395,27 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 * @method initListeners
 	 */
 	function fInitListeners(){
-		var that=this;
+		var me=this;
 		//缓存容器，autoRender为false时需要此处获取容器
-		that._container=that._container||$("#"+that._id);
-		var aListeners=that._listeners;
-		that._listeners=[];
+		me._container=me._container||$("#"+me._id);
+		var aListeners=me._listeners;
+		me._listeners=[];
 		for(var i=aListeners.length-1;i>=0;i--){
-			that.listen(aListeners[i]);
+			me.listen(aListeners[i]);
 		}
-		that.callChild('initListeners');
+		me.callChild('initListeners');
 	}
 	/**
 	 * 清除所有事件
 	 * @method clearListeners
 	 */
 	function fClearListeners(){
-		var that=this;
-		var aListeners=that._listeners;
+		var me=this;
+		var aListeners=me._listeners;
 		for(var i=aListeners.length-1;i>=0;i--){
-			that.unlisten(aListeners[i]);
+			me.unlisten(aListeners[i]);
 		}
-		that.callChild('clearListeners');
+		me.callChild('clearListeners');
 	}
 	/**
 	 * 挂起事件
@@ -423,7 +423,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fSuspendListeners(){
 		this.isSuspend=true;
-		that.callChild('suspendListeners');
+		me.callChild('suspendListeners');
 	}
 	/**
 	 * 恢复事件
@@ -431,7 +431,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fResumeListeners(){
 		this.isSuspend=false;
-		that.callChild('resumeListeners');
+		me.callChild('resumeListeners');
 	}
 	/**
 	 * 遍历子组件
@@ -459,9 +459,9 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 * @param {object}oCmp 组件对象
 	 */
 	function fAdd(oCmp){
-		var that=this;
-		that.children.push(oCmp);
-		oCmp.parent=that;
+		var me=this;
+		me.children.push(oCmp);
+		oCmp.parent=me;
 	}
 	/**
 	 * 删除子组件
@@ -470,8 +470,8 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 * @return {boolean} true表示删除成功
 	 */
 	function fRemove(oCmp){
-		var that=this;
-		var aChildren=that.children;
+		var me=this;
+		var aChildren=me.children;
 		var bResult=false;
 		for(var i=0,len=aChildren.length;i<len;i++){
 			if(aChildren[i]==oCmp){
@@ -487,40 +487,40 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 * @method parseItems
 	 */
 	function fParseItems(){
-		var that=this;
-		var aItems=that.params.items;
+		var me=this;
+		var aItems=me.params.items;
 		if(!aItems){
-			return that.childHtml= '';
+			return me.childHtml= '';
 		}
 		aItems=aItems.length?aItems:[aItems];
 		var aHtml=[];
 		//逐个初始化子组件
 		for(var i=0,len=aItems.length;i<len;i++){
 			var oItem=aItems[i];
-			that.parseItem(oItem);
+			me.parseItem(oItem);
 			var Component=CM.getClass(oItem.xtype);
 			oItem.autoRender=false;
 			var oCmp=new Component(oItem);
-			that.add(oCmp);
+			me.add(oCmp);
 			aHtml.push(oCmp.getHtml());
 		}
-		return that.childHtml=aHtml.join('');
+		return me.childHtml=aHtml.join('');
 	}
 	/**
 	 * 销毁组件
 	 * @method destroy
 	 */
 	function fDestroy(){
-		var that=this;
+		var me=this;
 		//注销组件
-		CM.unregister(that);
-		that.fire('destroy');
-		that.clearListeners();
-		that.callChild('destroy');
-		that.getEl().remove();
-		delete that._listeners;
-		delete that._contianer;
-		delete that.children;
+		CM.unregister(me);
+		me.fire('destroy');
+		me.clearListeners();
+		me.callChild('destroy');
+		me.getEl().remove();
+		delete me._listeners;
+		delete me._contianer;
+		delete me.children;
 	}
 		
 	return AC;

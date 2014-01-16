@@ -45,8 +45,8 @@ function(AC){
 	 * @method doConfig
 	 */
 	function fDoConfig(oSettings){
-		var that=this;
-		that.constructor.superProt.doConfig.call(that,oSettings);
+		var me=this;
+		me.constructor.superProt.doConfig.call(me,oSettings);
 	}
 	
 	return Input;

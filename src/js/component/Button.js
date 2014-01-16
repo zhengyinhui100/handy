@@ -36,9 +36,9 @@ function(AC){
 	 * @method parseItem
 	 */
 	function fParseItem(oItem){
-		var that=this;
+		var me=this;
 		if(oItem.xtype=="Icon"){
-			that.hasIcon=true;
+			me.hasIcon=true;
 		}
 	}
 	
