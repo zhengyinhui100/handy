@@ -62,17 +62,17 @@ handy.add('Object',function($H){
     function fCreateClass(sPath) {
         //获得一个类定义，并且绑定一个类初始化方法
         var Class = function(){
-        	var that,fInitialize;
+        	var me,fInitialize;
         	//获得initialize引用的对象，如果是类调用，就没有this.initialize
         	if(this.constructor==Class){
-        		that = this;
+        		me = this;
         	}else{
-        		that = arguments.callee;
+        		me = arguments.callee;
         	}
-        	fInitialize = that.initialize;
+        	fInitialize = me.initialize;
             if (fInitialize) {
                 // 返回当前class派生出来对象可以被定义
-            	return fInitialize.apply(that, arguments);
+            	return fInitialize.apply(me, arguments);
             }
         };
         if(sPath){
