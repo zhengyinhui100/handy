@@ -25,13 +25,13 @@ function(AC){
 			'<div class="w-tab">',
 				'<ul class="c-clear">',
 					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
-					'<li class="w-tab-item" style="width:<%=100/len%>%">',
+					'<li class="js-tab-item w-tab-item" style="width:<%=100/len%>%">',
 					'<%=this.children[i].getHtml()%>',
 					'</li>',
 					'<%}%>',
 				'</ul>',
 				'<%for(var i=0,len=this.children.length;i<len;i++){%>',
-					'<div class="js-tab-content">',
+					'<div class="js-tab-content"<%if(!this.children[i].active){%> style="display:none"<%}%>>',
 					'<%=this.children[i].content%>',
 					'</div>',
 				'<%}%>',
@@ -40,8 +40,16 @@ function(AC){
 		listeners       : [
 			{
 				type :'click',
-				handler : function(){
-					
+				selector : '.js-tab-item',
+				method : 'delegate',
+				handler : function(oEvt){
+					var me=this;
+					//点击tab按钮显示对应的content
+					var oCurrent=$(oEvt.currentTarget);
+					me.callChild('unactive');
+					var nIndex=oCurrent.index();
+					me.children[nIndex].active();
+					me.find('.js-tab-content').hide().eq(nIndex).show();
 				}
 			}
 		],

@@ -30,12 +30,14 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		renderBy            : 'append',          //默认渲染方式
 		notListen           : false,             //不自动初始化监听器
 		extCls              : '',                //组件附加class
+		activeCls           : 'w-active',        //激活样式
 //		defItem             : null,              //默认子组件配置
 		////通用效果
 		radius              : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 		shadow              : false,        	 //外阴影
 		shadowInset         : false,        	 //内阴影
 		isMini              : false,       	     //小号
+		isActive            : false,             //是否激活
 		isFocus             : false,        	 //聚焦
 		isInline            : false,             //是否内联(宽度自适应)
 		
@@ -71,6 +73,9 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 //		update
 		enable              : fEnable,           //启用
 		disable             : fDisable,          //禁用
+		active              : fActive,           //激活
+		unactive            : fUnactive,         //不激活
+		
 //		mask
 //		unmask
 		fire                : fFire,             //触发组件自定义事件
@@ -82,6 +87,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		resumeListeners     : fResumeListeners,  //恢复事件
 		
 		each                : fEach,             //遍历子组件
+		index               : fIndex,            //获取本身的索引，如果没有父组件则返回null
 		callChild           : fCallChild,        //调用子组件方法
 		add                 : fAdd,              //添加子组件
 		remove              : fRemove,           //删除子组件
@@ -242,6 +248,9 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		if(me.shadowInset){
 			aCls.push('w-shadow-inset');
 		}
+		if(me.isActive){
+			aCls.push(me.activeCls);
+		}
 		if(me.isFocus){
 			aCls.push('w-focus');
 		}
@@ -310,6 +319,22 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		var me=this;
 		me.suspendListeners();
 		me.getEl().addClass("w-disable");
+	}
+	/**
+	 * 激活
+	 * @method active
+	 */
+	function fActive(){
+		var me=this;
+		me.getEl().addClass(me.activeCls);
+	}
+	/**
+	 * 不激活
+	 * @method unactive
+	 */
+	function fUnactive(){
+		var me=this;
+		me.getEl().removeClass(me.activeCls);
 	}
 	/**
 	 * 触发组件自定义事件
@@ -459,6 +484,27 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fEach(fCallback, args){
 		$HO.each(this.children,fCallback, args);
+	}
+	/**
+	 * 获取本身的索引，如果没有父组件则返回null
+	 * @method index
+	 * @return {number} 返回对应的索引
+	 */
+	function fIndex(){
+		var me=this;
+		var oParent=me.parent;
+		if(!oParent){
+			return null;
+		}else{
+			var nIndex;
+			oParent.each(function(i,oCmp){
+				if(oCmp==me){
+					nIndex=i;
+					return false;
+				}
+			});
+			return nIndex;
+		}
 	}
 	/**
 	 * 调用子组件方法

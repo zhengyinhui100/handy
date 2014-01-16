@@ -202,11 +202,15 @@ function(CM,Icon,Button,Input,Tab){
 		items:[
 			{
 				text:'一',
+				isActive:true,
 				content:'内容1'
 			},
 			{
 				text:'二',
-				content:'内容2'
+				content:'内容2',
+				click:function(){
+					$D.log(this.index());
+				}
 			},
 			{
 				text:'三',
