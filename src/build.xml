@@ -14,20 +14,21 @@
             outputencoding="${charset}">
 
 			<!-- base -->
-			<path path="base/base.js"/>
-			<path path="base/Object.js"/>
-			<path path="base/Date.js"/>
-			<path path="base/Browser.js"/>
-			<path path="base/String.js"/>
-			<path path="base/Cookie.js"/>
-			<path path="base/Util.js"/>
-			<path path="base/Function.js"/>
-			<path path="base/Debug.js"/>
-			<path path="base/Loader.js"/>
-			<path path="base/Template.js"/>
-			<path path="base/HashChange.js"/>
-			<path path="base/Support.js"/>
-			<path path="base/adapt.js"/>
+			<path path="js/base/base.js"/>
+			<path path="js/base/Json.js"/>
+			<path path="js/base/Object.js"/>
+			<path path="js/base/Browser.js"/>
+			<path path="js/base/Debug.js"/>
+			<path path="js/base/Function.js"/>
+			<path path="js/base/Loader.js"/>
+			<path path="js/base/Date.js"/>
+			<path path="js/base/String.js"/>
+			<path path="js/base/Cookie.js"/>
+			<path path="js/base/Util.js"/>
+			<path path="js/base/Template.js"/>
+			<path path="js/base/HashChange.js"/>
+			<path path="js/base/Support.js"/>
+			<path path="js/base/adapt.js"/>
 
 		</concat>
 	</target>
@@ -39,10 +40,13 @@
 	            outputencoding="${charset}"
 				append="true">
 			
-			<path path="component/Component.js"/>
-			<path path="component/TreeMenu.js"/>
-			<path path="component/AccordionMenu.js"/>
-			<path path="component/TipsBox.js"/>
+			<path path="js/component/ComponentManager.js"/>
+			<path path="js/component/AbstractComponent.js"/>
+			<path path="js/component/Icon.js"/>
+			<path path="js/component/Button.js"/>
+			<path path="js/component/Input.js"/>
+			<path path="js/component/Tab.js"/>
+			<path path="js/component/Dialog.js"/>
 
 		</concat>
 	</target>
@@ -54,10 +58,10 @@
 	            outputencoding="${charset}"
 				append="true">
 
-		    <path path="module/AbstractModule.js"/>
-		    <path path="module/AbstractNavigator.js"/>
-		    <path path="module/History.js"/>
-			<path path="module/ModuleManager.js"/>
+		    <path path="js/module/AbstractModule.js"/>
+		    <path path="js/module/AbstractNavigator.js"/>
+		    <path path="js/module/History.js"/>
+			<path path="js/module/ModuleManager.js"/>
 
 		</concat>
 	</target>

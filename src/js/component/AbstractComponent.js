@@ -321,7 +321,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		for(var i=me._listeners.length-1;i>=0;i--){
 			var oListener=me._listeners[i]
 			if(oListener.type==sType){
-				fDelegation=oListener.delegation;
+				var fDelegation=oListener.delegation;
 				fDelegation({obj:me,data:oListener.data});
 			}
 		}
@@ -438,7 +438,8 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 * @method suspendListeners
 	 */
 	function fSuspendListeners(){
-		this.isSuspend=true;
+		var me=this;
+		me.isSuspend=true;
 		me.callChild('suspendListeners');
 	}
 	/**
@@ -446,7 +447,8 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 * @method resumeListeners
 	 */
 	function fResumeListeners(){
-		this.isSuspend=false;
+		var me=this;
+		me.isSuspend=false;
 		me.callChild('resumeListeners');
 	}
 	/**

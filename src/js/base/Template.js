@@ -5,7 +5,7 @@
 handy.add('Template',function($H){
 	
 	var _cache={},             //缓存
-		_valPreReg=/^=/;        //简单替换正则
+		_valPreReg=/^=/,        //简单替换正则
 		_isNewEngine = ''.trim;   // '__proto__' in {}
 		
 	var T={
@@ -27,7 +27,7 @@ handy.add('Template',function($H){
 	 * @return {string}          返回结果字符串
 	 */
 	function _fSetValue(sTmpl,oData){
-		return sTmpl.replace(_valueReg,function(){
+		return sTmpl.replace(_valPreReg,function(){
 			return oData&&oData[arguments[1]]||'';
 		});
 	}

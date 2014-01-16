@@ -1,16 +1,22 @@
 // extern file for google closure compiler
 
 //fixed variable console is undeclared
-var console;
-var parent;
+var console,
+parent,
 
-var handy;
-var JSON;
-var $;
-var jQuery;
-var $H;
-var $HO;
-var $HS;
-var $G;
-var $Define;
-var $Require;
+handy,
+JSON,
+$,
+jQuery,
+$H,
+$D,
+$HB,
+$HC,
+$HD,
+$HF,
+$HO,
+$HS,
+$HU,
+$G,
+$Define,
+$Require;

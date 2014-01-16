@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev  |  zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-01-16 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -18,6 +18,7 @@
 	handy.add        = fAdd;            //添加子模块
 	handy.noConflict = fNoConflict;   //处理命名冲突
 	
+	
 	/**
 	 * 添加子模块
 	 * @method add
@@ -25,19 +26,32 @@
 	 * @param {Object=}aRequires 模块依赖资源
 	 * @param {function(Object):*}fDefined 模块功能定义
 	 */
-	function fAdd(sName,aRequires,fDefined){
+	function fAdd(sName,aRequires,fDefined,dds){
 		if(!fDefined){
 			fDefined=aRequires;
 			aRequires=null;
 		}
-		if(!aRequires||!handy.Loader||true){
+		//TODO 由于Loader可能还未定义，这里特殊处理，以后考虑将Loader单独抽出来
+		if(!aRequires||!handy.Loader){
 			if(!handy.base){
 				handy.base={};
 			}
-			handy.base[sName]=handy[sName]=fDefined(handy);
+			var args=[];
+			if(aRequires){
+				if(typeof aRequires=="string"){
+					args.push(handy.base.Object.namespace(aRequires));
+				}else{
+					for(var i=0;i<aRequires.length;i++){
+						args.push(handy.base.Object.namespace(aRequires[i]));
+					}
+				}
+			}
+			args.push(handy);
+			handy.base[sName]=handy[sName]=fDefined.apply(window,args);
 		}else{
-			handy.Loader.require(aRequires,function(){
-				handy[sName]=fDefined(handy);
+			handy.Loader.require(aRequires, function() {
+				Array.prototype.push.call(arguments, handy);
+				handy.base[sName] = handy[sName] = fDefined.apply(window,arguments);
 			});
 		}
 	}
@@ -59,11 +73,502 @@
 		return handy;
 	}
 	
-})()/**
+})()/*
+    json2.js
+    2011-10-19
+
+    Public Domain.
+
+    NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
+
+    See http://www.JSON.org/js.html
+
+
+    This code should be minified before deployment.
+    See http://javascript.crockford.com/jsmin.html
+
+    USE YOUR OWN COPY. IT IS EXTREMELY UNWISE TO LOAD CODE FROM SERVERS YOU DO
+    NOT CONTROL.
+
+
+    This file creates a global JSON object containing two methods: stringify
+    and parse.
+
+        JSON.stringify(value, replacer, space)
+            value       any JavaScript value, usually an object or array.
+
+            replacer    an optional parameter that determines how object
+                        values are stringified for objects. It can be a
+                        function or an array of strings.
+
+            space       an optional parameter that specifies the indentation
+                        of nested structures. If it is omitted, the text will
+                        be packed without extra whitespace. If it is a number,
+                        it will specify the number of spaces to indent at each
+                        level. If it is a string (such as '\t' or '&nbsp;'),
+                        it contains the characters used to indent at each level.
+
+            This method produces a JSON text from a JavaScript value.
+
+            When an object value is found, if the object contains a toJSON
+            method, its toJSON method will be called and the result will be
+            stringified. A toJSON method does not serialize: it returns the
+            value represented by the name/value pair that should be serialized,
+            or undefined if nothing should be serialized. The toJSON method
+            will be passed the key associated with the value, and this will be
+            bound to the value
+
+            For example, this would serialize Dates as ISO strings.
+
+                Date.prototype.toJSON = function (key) {
+                    function f(n) {
+                        // Format integers to have at least two digits.
+                        return n < 10 ? '0' + n : n;
+                    }
+
+                    return this.getUTCFullYear()   + '-' +
+                         f(this.getUTCMonth() + 1) + '-' +
+                         f(this.getUTCDate())      + 'T' +
+                         f(this.getUTCHours())     + ':' +
+                         f(this.getUTCMinutes())   + ':' +
+                         f(this.getUTCSeconds())   + 'Z';
+                };
+
+            You can provide an optional replacer method. It will be passed the
+            key and value of each member, with this bound to the containing
+            object. The value that is returned from your method will be
+            serialized. If your method returns undefined, then the member will
+            be excluded from the serialization.
+
+            If the replacer parameter is an array of strings, then it will be
+            used to select the members to be serialized. It filters the results
+            such that only members with keys listed in the replacer array are
+            stringified.
+
+            Values that do not have JSON representations, such as undefined or
+            functions, will not be serialized. Such values in objects will be
+            dropped; in arrays they will be replaced with null. You can use
+            a replacer function to replace those with JSON values.
+            JSON.stringify(undefined) returns undefined.
+
+            The optional space parameter produces a stringification of the
+            value that is filled with line breaks and indentation to make it
+            easier to read.
+
+            If the space parameter is a non-empty string, then that string will
+            be used for indentation. If the space parameter is a number, then
+            the indentation will be that many spaces.
+
+            Example:
+
+            text = JSON.stringify(['e', {pluribus: 'unum'}]);
+            // text is '["e",{"pluribus":"unum"}]'
+
+
+            text = JSON.stringify(['e', {pluribus: 'unum'}], null, '\t');
+            // text is '[\n\t"e",\n\t{\n\t\t"pluribus": "unum"\n\t}\n]'
+
+            text = JSON.stringify([new Date()], function (key, value) {
+                return this[key] instanceof Date ?
+                    'Date(' + this[key] + ')' : value;
+            });
+            // text is '["Date(---current time---)"]'
+
+
+        JSON.parse(text, reviver)
+            This method parses a JSON text to produce an object or array.
+            It can throw a SyntaxError exception.
+
+            The optional reviver parameter is a function that can filter and
+            transform the results. It receives each of the keys and values,
+            and its return value is used instead of the original value.
+            If it returns what it received, then the structure is not modified.
+            If it returns undefined then the member is deleted.
+
+            Example:
+
+            // Parse the text. Values that look like ISO date strings will
+            // be converted to Date objects.
+
+            myData = JSON.parse(text, function (key, value) {
+                var a;
+                if (typeof value === 'string') {
+                    a =
+/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/.exec(value);
+                    if (a) {
+                        return new Date(Date.UTC(+a[1], +a[2] - 1, +a[3], +a[4],
+                            +a[5], +a[6]));
+                    }
+                }
+                return value;
+            });
+
+            myData = JSON.parse('["Date(09/09/2001)"]', function (key, value) {
+                var d;
+                if (typeof value === 'string' &&
+                        value.slice(0, 5) === 'Date(' &&
+                        value.slice(-1) === ')') {
+                    d = new Date(value.slice(5, -1));
+                    if (d) {
+                        return d;
+                    }
+                }
+                return value;
+            });
+
+
+    This is a reference implementation. You are free to copy, modify, or
+    redistribute.
+*/
+
+/*jslint evil: true, regexp: true */
+
+/*members "", "\b", "\t", "\n", "\f", "\r", "\"", JSON, "\\", apply,
+    call, charCodeAt, getUTCDate, getUTCFullYear, getUTCHours,
+    getUTCMinutes, getUTCMonth, getUTCSeconds, hasOwnProperty, join,
+    lastIndex, length, parse, prototype, push, replace, slice, stringify,
+    test, toJSON, toString, valueOf
+*/
+
+
+// Create a JSON object only if one does not already exist. We create the
+// methods in a closure to avoid creating global variables.
+handy.add('Json',function(){
+	var JSON;
+	if (!JSON) {
+	    JSON = {};
+	}
+	
+	(function () {
+	    'use strict';
+	
+	    function f(n) {
+	        // Format integers to have at least two digits.
+	        return n < 10 ? '0' + n : n;
+	    }
+	
+	    if (typeof Date.prototype.toJSON !== 'function') {
+	
+	        Date.prototype.toJSON = function (key) {
+	
+	            return isFinite(this.valueOf())
+	                ? this.getUTCFullYear()     + '-' +
+	                    f(this.getUTCMonth() + 1) + '-' +
+	                    f(this.getUTCDate())      + 'T' +
+	                    f(this.getUTCHours())     + ':' +
+	                    f(this.getUTCMinutes())   + ':' +
+	                    f(this.getUTCSeconds())   + 'Z'
+	                : null;
+	        };
+	
+	        String.prototype.toJSON      =
+	            Number.prototype.toJSON  =
+	            Boolean.prototype.toJSON = function (key) {
+	                return this.valueOf();
+	            };
+	    }
+	
+	    var cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
+	        escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
+	        gap,
+	        indent,
+	        meta = {    // table of character substitutions
+	            '\b': '\\b',
+	            '\t': '\\t',
+	            '\n': '\\n',
+	            '\f': '\\f',
+	            '\r': '\\r',
+	            '"' : '\\"',
+	            '\\': '\\\\'
+	        },
+	        rep;
+	
+	
+	    function quote(string) {
+	
+	// If the string contains no control characters, no quote characters, and no
+	// backslash characters, then we can safely slap some quotes around it.
+	// Otherwise we must also replace the offending characters with safe escape
+	// sequences.
+	
+	        escapable.lastIndex = 0;
+	        return escapable.test(string) ? '"' + string.replace(escapable, function (a) {
+	            var c = meta[a];
+	            return typeof c === 'string'
+	                ? c
+	                : '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+	        }) + '"' : '"' + string + '"';
+	    }
+	
+	
+	    function str(key, holder) {
+	
+	// Produce a string from holder[key].
+	
+	        var i,          // The loop counter.
+	            k,          // The member key.
+	            v,          // The member value.
+	            length,
+	            mind = gap,
+	            partial,
+	            value = holder[key];
+	
+	// If the value has a toJSON method, call it to obtain a replacement value.
+	
+	        if (value && typeof value === 'object' &&
+	                typeof value.toJSON === 'function') {
+	            value = value.toJSON(key);
+	        }
+	
+	// If we were called with a replacer function, then call the replacer to
+	// obtain a replacement value.
+	
+	        if (typeof rep === 'function') {
+	            value = rep.call(holder, key, value);
+	        }
+	
+	// What happens next depends on the value's type.
+	
+	        switch (typeof value) {
+	        case 'string':
+	            return quote(value);
+	
+	        case 'number':
+	
+	// JSON numbers must be finite. Encode non-finite numbers as null.
+	
+	            return isFinite(value) ? String(value) : 'null';
+	
+	        case 'boolean':
+	        case 'null':
+	
+	// If the value is a boolean or null, convert it to a string. Note:
+	// typeof null does not produce 'null'. The case is included here in
+	// the remote chance that this gets fixed someday.
+	
+	            return String(value);
+	
+	// If the type is 'object', we might be dealing with an object or an array or
+	// null.
+	
+	        case 'object':
+	
+	// Due to a specification blunder in ECMAScript, typeof null is 'object',
+	// so watch out for that case.
+	
+	            if (!value) {
+	                return 'null';
+	            }
+	
+	// Make an array to hold the partial results of stringifying this object value.
+	
+	            gap += indent;
+	            partial = [];
+	
+	// Is the value an array?
+	
+	            if (Object.prototype.toString.apply(value) === '[object Array]') {
+	
+	// The value is an array. Stringify every element. Use null as a placeholder
+	// for non-JSON values.
+	
+	                length = value.length;
+	                for (i = 0; i < length; i += 1) {
+	                    partial[i] = str(i, value) || 'null';
+	                }
+	
+	// Join all of the elements together, separated with commas, and wrap them in
+	// brackets.
+	
+	                v = partial.length === 0
+	                    ? '[]'
+	                    : gap
+	                    ? '[\n' + gap + partial.join(',\n' + gap) + '\n' + mind + ']'
+	                    : '[' + partial.join(',') + ']';
+	                gap = mind;
+	                return v;
+	            }
+	
+	// If the replacer is an array, use it to select the members to be stringified.
+	
+	            if (rep && typeof rep === 'object') {
+	                length = rep.length;
+	                for (i = 0; i < length; i += 1) {
+	                    if (typeof rep[i] === 'string') {
+	                        k = rep[i];
+	                        v = str(k, value);
+	                        if (v) {
+	                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
+	                        }
+	                    }
+	                }
+	            } else {
+	
+	// Otherwise, iterate through all of the keys in the object.
+	
+	                for (k in value) {
+	                    if (Object.prototype.hasOwnProperty.call(value, k)) {
+	                        v = str(k, value);
+	                        if (v) {
+	                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
+	                        }
+	                    }
+	                }
+	            }
+	
+	// Join all of the member texts together, separated with commas,
+	// and wrap them in braces.
+	
+	            v = partial.length === 0
+	                ? '{}'
+	                : gap
+	                ? '{\n' + gap + partial.join(',\n' + gap) + '\n' + mind + '}'
+	                : '{' + partial.join(',') + '}';
+	            gap = mind;
+	            return v;
+	        }
+	    }
+	
+	// If the JSON object does not yet have a stringify method, give it one.
+	
+	    if (typeof JSON.stringify !== 'function') {
+	        JSON.stringify = function (value, replacer, space) {
+	
+	// The stringify method takes a value and an optional replacer, and an optional
+	// space parameter, and returns a JSON text. The replacer can be a function
+	// that can replace values, or an array of strings that will select the keys.
+	// A default replacer method can be provided. Use of the space parameter can
+	// produce text that is more easily readable.
+	
+	            var i;
+	            gap = '';
+	            indent = '';
+	
+	// If the space parameter is a number, make an indent string containing that
+	// many spaces.
+	
+	            if (typeof space === 'number') {
+	                for (i = 0; i < space; i += 1) {
+	                    indent += ' ';
+	                }
+	
+	// If the space parameter is a string, it will be used as the indent string.
+	
+	            } else if (typeof space === 'string') {
+	                indent = space;
+	            }
+	
+	// If there is a replacer, it must be a function or an array.
+	// Otherwise, throw an error.
+	
+	            rep = replacer;
+	            if (replacer && typeof replacer !== 'function' &&
+	                    (typeof replacer !== 'object' ||
+	                    typeof replacer.length !== 'number')) {
+	                throw new Error('JSON.stringify');
+	            }
+	
+	// Make a fake root object containing our value under the key of ''.
+	// Return the result of stringifying the value.
+	
+	            return str('', {'': value});
+	        };
+	    }
+	
+	
+	// If the JSON object does not yet have a parse method, give it one.
+	
+	    if (typeof JSON.parse !== 'function') {
+	        JSON.parse = function (text, reviver) {
+	
+	// The parse method takes a text and an optional reviver function, and returns
+	// a JavaScript value if the text is a valid JSON text.
+	
+	            var j;
+	
+	            function walk(holder, key) {
+	
+	// The walk method is used to recursively walk the resulting structure so
+	// that modifications can be made.
+	
+	                var k, v, value = holder[key];
+	                if (value && typeof value === 'object') {
+	                    for (k in value) {
+	                        if (Object.prototype.hasOwnProperty.call(value, k)) {
+	                            v = walk(value, k);
+	                            if (v !== undefined) {
+	                                value[k] = v;
+	                            } else {
+	                                delete value[k];
+	                            }
+	                        }
+	                    }
+	                }
+	                return reviver.call(holder, key, value);
+	            }
+	
+	
+	// Parsing happens in four stages. In the first stage, we replace certain
+	// Unicode characters with escape sequences. JavaScript handles many characters
+	// incorrectly, either silently deleting them, or treating them as line endings.
+	
+	            text = String(text);
+	            cx.lastIndex = 0;
+	            if (cx.test(text)) {
+	                text = text.replace(cx, function (a) {
+	                    return '\\u' +
+	                        ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+	                });
+	            }
+	
+	// In the second stage, we run the text against regular expressions that look
+	// for non-JSON patterns. We are especially concerned with '()' and 'new'
+	// because they can cause invocation, and '=' because it can cause mutation.
+	// But just to be safe, we want to reject all unexpected forms.
+	
+	// We split the second stage into 4 regexp operations in order to work around
+	// crippling inefficiencies in IE's and Safari's regexp engines. First we
+	// replace the JSON backslash pairs with '@' (a non-JSON character). Second, we
+	// replace all simple value tokens with ']' characters. Third, we delete all
+	// open brackets that follow a colon or comma or that begin the text. Finally,
+	// we look to see that the remaining characters are only whitespace or ']' or
+	// ',' or ':' or '{' or '}'. If that is so, then the text is safe for eval.
+	
+	            if (/^[\],:{}\s]*$/
+	                    .test(text.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@')
+	                        .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']')
+	                        .replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
+	
+	// In the third stage we use the eval function to compile the text into a
+	// JavaScript structure. The '{' operator is subject to a syntactic ambiguity
+	// in JavaScript: it can begin a block or an object literal. We wrap the text
+	// in parens to eliminate the ambiguity.
+	
+	                j = eval('(' + text + ')');
+	
+	// In the optional fourth stage, we recursively walk the new structure, passing
+	// each name/value pair to a reviver function for possible transformation.
+	
+	                return typeof reviver === 'function'
+	                    ? walk({'': j}, '')
+	                    : j;
+	            }
+	
+	// If the text is not JSON parseable, then a SyntaxError is thrown.
+	
+	            throw new SyntaxError('JSON.parse');
+	        };
+	    }
+	}());
+
+	return JSON;
+	
+})
+/**
  * 对象扩展类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Object',function($){
+handy.add('Object',function($H){
 	
 	var Object={
 		namespace           : fNamespace,       //创建或读取命名空间，可以传入用以初始化该命名空间的对象
@@ -77,28 +582,35 @@ handy.add('Object',function($){
 		clone				: fClone,			//对象复制
 		isEmpty				: fIsEmpty, 		//判断对象是否为空
 		each				: fEach, 			//遍历对象
+		contain             : fContain,         //是否包含指定属性/数组元素
 		count				: fCount,			//计算对象长度
 		toArray				: fToArray,		    //将类数组对象转换为数组，比如arguments, nodelist
 		genMethod           : fGenerateMethod   //归纳生成类方法
 	}
 	/**
     * 创建或读取命名空间
-    * @method namespace (sPath,object=)
+    * @method namespace (sPath,obj=)
     * @param {string}sPath 命名空间路径字符串
-    * @param {*=}obj (可选)用以初始化该命名空间的对象
+    * @param {*=}obj (可选)用以初始化该命名空间的对象，不传表示读取命名空间
     * @return {?*} 返回该路径的命名空间，不存在则返回undefined
     */
 	function fNamespace(sPath,obj){
-		var oObject=null, j, aPath, root,len;  
+		var oObject=null, j, aPath, root,bIsCreate,len;  
         aPath=sPath.split(".");  
         root = aPath[0]; 
-        //考虑压缩的因素
-        oObject=eval('(function(){if (typeof ' + root + ' == "undefined"){' + root + ' = {};}return ' + root + ';})()');  
+        bIsCreate=arguments.length==2;
+        //改这里eval的代码须考虑压缩的因素
+        if(!bIsCreate){
+        	oObject=eval('(function(){if (typeof ' + root + ' != "undefined")return ' + root + ';})()');
+        }else{
+	        oObject=eval('(function(){if (typeof ' + root + ' == "undefined"){' + root + ' = {};}return ' + root + ';})()');  
+        }
         //循环命名路径
         for (j=1,len=aPath.length; j<len; ++j) { 
-        	if(j==len-1&&obj){
+        	//obj非空
+        	if(j==len-1&&bIsCreate){
         		oObject[aPath[j]]=obj;
-        	}else if(obj||oObject[aPath[j]]){
+        	}else if(bIsCreate||(oObject&&oObject[aPath[j]])){
 	            oObject[aPath[j]]=oObject[aPath[j]]||{};  
         	}else{
         		return;
@@ -116,17 +628,17 @@ handy.add('Object',function($){
     function fCreateClass(sPath) {
         //获得一个类定义，并且绑定一个类初始化方法
         var Class = function(){
-        	var that,fInitialize;
+        	var me,fInitialize;
         	//获得initialize引用的对象，如果是类调用，就没有this.initialize
         	if(this.constructor==Class){
-        		that = this;
+        		me = this;
         	}else{
-        		that = arguments.callee;
+        		me = arguments.callee;
         	}
-        	fInitialize = that.initialize;
+        	fInitialize = me.initialize;
             if (fInitialize) {
                 // 返回当前class派生出来对象可以被定义
-            	return fInitialize.apply(that, arguments);
+            	return fInitialize.apply(me, arguments);
             }
         };
         if(sPath){
@@ -140,16 +652,27 @@ handy.add('Object',function($){
     * @param {Object} oDestination 目标对象
     * @param {Object} oSource 源对象
     * @param {Object=} oOptions(可选){
-    * 				notCover 不覆盖原有属性方法，仅当此参数为true时不覆盖,
-    * 				notClone 不克隆，仅当此参数为true时不克隆，此时，由于目标对象里的复杂属性(数组、对象等)是源对象中的引用，源对象的修改会导致目标对象也修改
+    * 				{boolean=|array=|function(sprop)=}notCover 不覆盖原有属性/方法，当此参数为true时不覆盖原有属性；当此参数为数组时，
+    * 					仅不覆盖数组中的原有属性；当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
+    * 				{boolean=}notClone 不克隆，仅当此参数为true时不克隆，此时，由于目标对象里的复杂属性(数组、对象等)是源对象中的引用，
+    * 					源对象的修改会导致目标对象也修改
     * }
     * @return {Object} 扩展后的对象
     */
     function fExtend(oDestination, oSource, oOptions) {
-    	var bNotCover=oOptions?oOptions.notCover:false;
+    	var notCover=oOptions?oOptions.notCover:false;
     	var bNotClone=oOptions?oOptions.notClone:false;
         for (var sProperty in oSource) {
-            if (!bNotCover || !oDestination.hasOwnProperty(sProperty)) {
+        	var bHas=oDestination.hasOwnProperty(sProperty);
+        	var bNotCover=notCover===true?bHas:false;
+        	//当此参数为数组时，仅不覆盖数组中的原有属性
+        	if(Object.isArray(notCover)){
+        		bNotCover=Object.contain(notCover,sProperty)&&bHas;
+        	}else if(Object.isFunction(notCover)){
+        		//当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
+        		bNotCover=notCover(sProperty);
+        	}
+            if (!bNotCover) {
 				oDestination[sProperty] = bNotClone?oSource[sProperty]:Object.clone(oSource[sProperty]);
             }
         }
@@ -166,16 +689,16 @@ handy.add('Object',function($){
     * @return {Object} 扩展后的类
     */
     function fMix(oChild, oParent, oExtend, oPrototypeExtend) {
-        if (!oChild.superClass) {
-            oChild.superClass = {};
+        if (!oChild.superProt) {
+            oChild.superProt = {};
         }
         for (var sProperty in oParent) {
             if(Object.isFunction(oParent[sProperty])){// 如果是方法
-                if(!oChild.superClass[sProperty]){// superClass里面没有对应的方法，直接指向父类方法
-                    oChild.superClass[sProperty] = oParent[sProperty];
-                }else{// superClass里有对应方法，需要新建一个function依次调用
-                    var _function = oChild.superClass[sProperty];
-                    oChild.superClass[sProperty] = function (_property, fFunc) {
+                if(!oChild.superProt[sProperty]){// superProt里面没有对应的方法，直接指向父类方法
+                    oChild.superProt[sProperty] = oParent[sProperty];
+                }else{// superProt里有对应方法，需要新建一个function依次调用
+                    var _function = oChild.superProt[sProperty];
+                    oChild.superProt[sProperty] = function (_property, fFunc) {
 						return function () {
 							fFunc.apply(this, arguments);
 							oParent[_property].apply(this, arguments);
@@ -183,7 +706,7 @@ handy.add('Object',function($){
                     }(sProperty, _function);
                 }
             }else{// 类属性，直接复制
-                oChild.superClass[sProperty] = oParent[sProperty];
+                oChild.superProt[sProperty] = oParent[sProperty];
             }
             if(!oChild[sProperty]){// 子类没有父类的方法或属性，直接拷贝
                 oChild[sProperty] = oParent[sProperty];
@@ -194,7 +717,7 @@ handy.add('Object',function($){
         }
         // toString 单独处理
         if (oParent.toString != oParent.constructor.prototype.toString) {
-            oChild.superClass.toString = function () {
+            oChild.superProt.toString = function () {
                 oParent.toString.apply(oChild, arguments);
             };
         }
@@ -208,9 +731,11 @@ handy.add('Object',function($){
     * @method inherit
     * @param {Object} oChild 子类
     * @param {Object} oParent 父类
-    * @param {Object} oExtend 需要扩展的prototype方法集
+    * @param {Object=} oStaticExtend 需要扩展的静态属性
+    * @param {Object=} oExtend 需要扩展的prototype属性
+    * @param {object=} oExtendOptions 继承父类静态方法时，extend方法的设置，默认为{notCover:true}
     */
-    function fInherit(oChild, oParent, oExtend) {
+    function fInherit(oChild, oParent, oStaticExtend,oExtend,oExtendOptions) {
         var Inheritance = function(){};
         Inheritance.prototype = oParent.prototype;
 		/* 
@@ -223,18 +748,23 @@ handy.add('Object',function($){
 			2.constructor需要重新覆盖
 		*/
         //继承静态方法
-        Object.extend(oChild, oParent,{notCover:true});
+        oExtendOptions=oExtendOptions||{notCover:true}
+        Object.extend(oChild, oParent,oExtendOptions);
         oChild.prototype = new Inheritance();
         oChild.prototype.constructor = oChild;
-        oChild.superConstructor = oParent;
-        oChild.superClass = oParent.prototype;
+        oChild.superClass = oParent;
+        oChild.superProt = oParent.prototype;
         //额外的继承动作
         if(oParent._onInherit){
             try{
                 oParent._onInherit(oChild);
             }catch(e){}
         }
-        //扩展属性
+        //扩展静态属性
+        if(oStaticExtend){
+            Object.extend(oChild, oStaticExtend);
+        }
+        //扩展prototype属性
         if(oExtend){
             Object.extend(oChild.prototype, oExtend);
         }
@@ -369,12 +899,12 @@ handy.add('Object',function($){
     * 遍历对象
     * @method each
     * @param {*}object 参数对象
-    * @param {Object}fCallback 回调函数:fCallback(property,value),返回false时退出遍历
+    * @param {function}fCallback 回调函数:fCallback(property,value)|fCallback(args)this=value,返回false时退出遍历
     * @param {*}args  回调函数的参数
     */
     function fEach(object, fCallback, args) {
     	var sName, i = 0,
-			nLength = object.nLength,
+			nLength = object.length,
 			bIsObj = nLength === undefined || Object.isFunction( object );
 		if ( args ) {
 			if ( bIsObj ) {
@@ -407,6 +937,23 @@ handy.add('Object',function($){
 			}
 		}
 		return object;
+    }
+    /**
+     * 是否包含指定属性/数组元素
+     * @method contain 
+     * @param {*}obj 指定对象
+     * @param {*}prop 指定属性/数组元素
+     * @return {boolean} 包含则返回true
+     */
+    function fContain(obj,prop){
+    	var bIsContain=false;
+    	Object.each(obj,function(i,p){
+    		if(p===prop){
+    			bIsContain=true;
+    			return false;
+    		}
+    	});
+    	return bIsContain;
     }
     /**
     * 计算对象长度
@@ -470,6 +1017,808 @@ handy.add('Object',function($){
     }
 	
 	return Object;
+	
+})/**
+ * 浏览器环境类，分析浏览器类型、版本号、操作系统、内核类型、壳类型、flash版本
+ * 浏览器版本，$H.Browser.ie/firefox/chrome/opera/safari(),如果浏览器是IE的，$H.Browser.ie()的值是浏览器的版本号，!$H.Browser.ie()表示非IE浏览器
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+handy.add("Browser","handy.base.Object",function(Object,$H){
+
+	var _oInfo={};
+	
+	var Browser={};
+	
+	//归纳生成方法，如：Browser.ie()返回ie的版本号(默认返回整型，传入true参数时返回实际版本号，如：'20.0.1132.43')，Browser.windows()返回是否是windows系统
+	Object.genMethod(Browser,[
+			'ie','firefox','chrome','safari','opera',   //浏览器版本，@return{number|string}
+			'windows','linux','mac',                    //操作系统，@return{boolean}
+			'trident','webkit','gecko','presto',        //浏览器内核类型，@return{boolean}
+			'sogou','maxthon','tt','theWorld','is360',  //浏览器壳类型，@return{boolean}
+			'mobile',                                   //移动设备类型，@return{string}'ios'|'android'|'nokian'|'webos'
+			'android','ios',                            //android或者ios版本，@return{string}
+			'iPhone','iPod','iPad',                     //ios设备版本，@return{string}
+			'flash'                                     //flash版本，@return{string}
+		],
+		function(sName){
+			return function(bNotInt){
+				var sValue=_oInfo[sName];
+				return !bNotInt&&typeof sValue==='string'&&/^[\d\.]+$/.test(sValue)?parseInt(sValue):sValue;
+			}
+		}
+	);
+		
+	/**
+	 * 初始化
+	 * @method _fInit
+	 */
+	function _fInit(){
+		var userAgent = window.navigator.userAgent;
+		_fParseBrowser(userAgent);
+		_fParseOs(userAgent);
+	    _fParseKernel(userAgent);
+		_fParseShell(userAgent);
+		_fParseMobile(userAgent);
+		_fParseFlash();
+	}
+	/**
+	 * 分析浏览器类型及版本
+	 * @method _fParseBrowser
+	 * @param {string}userAgent 浏览器userAgent
+	 */
+	function _fParseBrowser(userAgent){
+		var ua =userAgent;
+		var matcher;
+		// 使用正则表达式在userAgent中提取浏览器版本信息
+		(matcher = ua.match(/MSIE ([\d.]+)/)) ? _oInfo.ie = matcher[1] :
+		(matcher = ua.match(/Firefox\/([\d.]+)/))? _oInfo.firefox = matcher[1]: 
+		(matcher = ua.match(/Chrome\/([\d.]+)/))? _oInfo.chrome = matcher[1]: 
+		(matcher = ua.match(/Opera.([\d.]+)/))? _oInfo.opera = matcher[1]: 
+		(matcher = ua.match(/Version\/([\d.]+).*Safari/))? _oInfo.safari = matcher[1]: 0;
+	}
+	/**
+	 * 分析浏览器类型及版本
+	 * @method _fParseOs
+	 * @param {string}userAgent 浏览器userAgent
+	 */
+	function _fParseOs(userAgent){
+		var os;
+		// 读取分析操作系统
+		/windows|win32/i.test(userAgent)?_oInfo.windows=true:
+		/linux/i.test(userAgent)?_oInfo.linux=true:
+		/macintosh/i.test(userAgent)?_oInfo.mac=true:0;
+	}
+	/**
+	 * 分析浏览器内核类型
+	 * @method _fParseKernel
+	 * @param {string}userAgent 浏览器userAgent
+	 */
+	function _fParseKernel(userAgent){
+		var ua =userAgent;
+		// 使用正则表达式在userAgent中提取浏览器版本信息
+		/trident/i.test(ua) ? _oInfo.trident = true :
+		/webkit/i.test(ua)? _oInfo.webkit = true: 
+		/gecko/i.test(ua)? _oInfo.gecko = true: 
+		/presto/i.test(ua)? _oInfo.presto = true: 0;
+	}
+	/**
+	 * 分析浏览器壳类型
+	 * @method _fParseShell
+	 * @param {string}userAgent 浏览器userAgent
+	 */
+	function _fParseShell(userAgent){
+		var ua=userAgent;
+		// 使用正则表达式在userAgent中提取浏览器壳信息
+		/MetaSr/i.test(ua) ? _oInfo.sogou = true :
+		/Maxthon/i.test(ua)? _oInfo.maxthon = true: 
+		/TencentTraveler/i.test(ua)? _oInfo.tt = true: 
+		/TheWorld/i.test(ua)? _oInfo.theWorld = true: 
+		/360[S|E]E/i.test(ua)? _oInfo.is360 = true: 0;
+	}
+	/**
+	 * 分析移动浏览器类型
+	 * @method _fParseMobile
+	 * @param {string}userAgent 浏览器userAgent
+	 */
+	function _fParseMobile(userAgent) {
+		var ua = userAgent,m;
+		if ((m = ua.match(/AppleWebKit\/([\d.]*)/)) && m[1]){
+			if (/ Mobile\//.test(ua) && ua.match(/iPad|iPod|iPhone/)) {
+				_oInfo.mobile = 'ios'; // iPad, iPhone, iPod Touch
+	
+				//版本号
+				m = ua.match(/OS ([^\s]*)/);
+				if (m && m[1]) {
+					_oInfo.ios = m[1].replace('_', '.');
+				}
+				m = ua.match(/iPad|iPod|iPhone/);
+				if (m && m[0]) {
+					_oInfo[m[0].toLowerCase()] = _oInfo.ios;
+				}
+			} else if (/ Android/i.test(ua)) {
+				if (/Mobile/.test(ua)) {
+					_oInfo.mobile = 'android';
+				}
+				m = ua.match(/Android ([^\s]*);/);
+				if (m && m[1]) {
+					_oInfo.android = m[1];
+				}
+			} else if ((m = ua.match(/NokiaN[^\/]*|Android \d\.\d|webOS\/\d\.\d/))) {
+				_oInfo.mobile = m[0].toLowerCase(); // Nokia N-series, Android, webOS,
+												// ex: NokiaN95
+			}
+		}
+	}
+	/**
+	 * 分析浏览器flash版本
+	 * 
+	 * @method _fParseFlash
+	 */
+	function _fParseFlash(){
+		var flashVersion;
+		try{
+			// 如果是ie浏览器
+			if(_oInfo.ie){
+				// 创建一个activeobject
+				var oFlash = new ActiveXObject('ShockwaveFlash.ShockwaveFlash');
+				if(oFlash){
+					flashVersion = oFlash.getVariable("$version").split(" ")[1];
+				}
+			// 其他浏览器
+			}else{
+				if(navigator.plugins && navigator.plugins.length > 0){
+					var oFlash=navigator.plugins["Shockwave Flash"];
+					if(oFlash){
+						var aInfo = oFlash.description.split(" ");
+						for(var i=0,m=aInfo.length;i<m;i++){
+							if(parseInt(aInfo[i])>0){
+								flashVersion = aInfo[i];
+								break;
+							}
+						}
+					}
+				}
+			}
+		}catch(e){
+		}
+		_oInfo.flash = !!flashVersion?flashVersion:null;
+	}
+	
+	_fInit();
+	return Browser;
+	
+});/**
+ * 调试类，方便个浏览器下调试，在发布时统一删除调试代码
+ * //TODO 快捷键切换调试等级
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser,$H){
+	
+	var Debug={
+		level	    : 0,            //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
+		LOG_LEVEL	: 1,            //日志级别
+		INFO_LEVEL  : 2,            //信息级别
+		WARN_LEVEL  : 3,            //警告级别
+		ERROR_LEVEL	: 4,            //错误级别
+		DEBUG_LEVEL : 5,            //调试级别
+		showInPage  : !("console" in window)||!!Browser.mobile(),        //是否强制在页面上输出调试信息，主要用于不支持console的浏览器，如：IE6，或者ietester里面，或者移动浏览器
+		log			: fLog,		    //输出日志
+		info		: fInfo,		//输出信息
+		warn        : fWarn,        //输出警告信息
+		error		: fError,		//输出错误信息
+		time        : fTime,        //输出统计时间,info级别
+		debug		: fDebug		//出现调试断点
+	}
+	/**
+	 * 输出信息
+	 * @method _fOut
+	 * @param {Object} oVar	需要输出的变量
+	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
+	 * @param {string} sType 日志类型：log,info,error
+	 */
+	function _fOut(oVar,bShowInPage,sType){
+		sType = sType||'log';
+		//输出到页面
+		if(bShowInPage||Debug.showInPage){
+			var sDivId = $H.expando+'debugDiv';
+			var oDocument = top.document;
+			var oDebugDiv = oDocument.getElementById(sDivId);
+			if(!oDebugDiv){
+				oDebugDiv = oDocument.createElement("DIV");
+				oDebugDiv.id = sDivId;
+				oDebugDiv.innerHTML = '<a href="javascript:void(0)" onclick="this.parentNode.style.display=\'none\'">关闭</a>&nbsp;<a href="javascript:void(0)" onclick="this.parentNode.getElementsByTagName(\'DIV\')[0].innerHTML=\'\';">清空</a>&nbsp;<a href="javascript:void(0)" onclick="this.parentNode.style.height=\''+oDocument.body.offsetHeight+'px\';">全屏</a>&nbsp;<a href="javascript:void(0)" onclick="this.parentNode.style.height=\'100px\';">收起</a><div style="padding-top:5px"></div>';
+				oDebugDiv.style.position = 'absolute';
+				oDebugDiv.style.width = (oDocument.body.offsetWidth-20)+'px';
+				oDebugDiv.style.left = 0;
+				oDebugDiv.style.top = 0;
+				oDebugDiv.style.right = 0;
+				oDebugDiv.style.height = '100px';
+				oDebugDiv.style.backgroundColor = '#aaa';
+				oDebugDiv.style.fontSize = '12px';
+				oDebugDiv.style.padding = '10px';
+				oDebugDiv.style.overflow = 'auto';
+				oDebugDiv.style.zIndex = 9999999;
+				oDebugDiv.style.opacity=0.5;
+				oDebugDiv.style.filter="alpha(opacity=50)";
+				oDocument.body.appendChild(oDebugDiv);
+			}else{
+				oDebugDiv.style.display = 'block';
+			}
+			var oVarDiv = oDocument.createElement("DIV");
+			//TODO JSON
+			oVarDiv.innerHTML = sType+" : "+JSON.stringify(oVar, null, '<br/>');
+			var oAppender=oDebugDiv.getElementsByTagName('DIV')[0];
+			oAppender.innerHTML = oAppender.innerHTML+oVarDiv.innerHTML+"<br/>";
+		}
+		try{
+			console[sType](oVar);
+		}catch(e){
+		}
+	}
+	/**
+	 * 输出日志
+	 * @method log
+	 * @param {Object} oVar	需要输出的变量
+	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
+	 */
+	function fLog(oVar,bShowInPage){
+		if(Debug.level>Debug.LOG_LEVEL){
+			return;
+		}
+		_fOut(oVar,!!bShowInPage,'log');
+	}
+	/**
+	 * 输出信息
+	 * @method info
+	 * @param {Object} oVar	需要输出的变量
+	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
+	 */
+	function fInfo(oVar,bShowInPage){
+		if(this.level>Debug.INFO_LEVEL){
+			return;
+		}
+		_fOut(oVar,!!bShowInPage,'info');
+	}
+	/**
+	 * 输出信息
+	 * @method warn
+	 * @param {Object} oVar	需要输出的变量
+	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
+	 */
+	function fWarn(oVar,bShowInPage){
+		if(Debug.level>Debug.WARN_LEVEL){
+			return;
+		}
+		_fOut(oVar,!!bShowInPage,'warn');
+	}
+	/**
+	 * 输出错误
+	 * @method error
+	 * @param {Object} oVar	需要输出的变量
+	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
+	 */
+	function fError(oVar,bShowInPage){
+		if(Debug.level>Debug.ERROR_LEVEL){
+			return;
+		}
+		_fOut(oVar,!!bShowInPage,"error");
+	}
+	/**
+	 * 输出统计时间
+	 * @method time
+	 * @param {string}sMsg 输出的信息
+	 * @param {boolean}bOut 为true时，计算时间并输出信息
+	 * @param {boolean}bShowInPage 是否需要创建一个DIV输出到页面
+	 */
+	function fTime(sMsg,bOut,bShowInPage){
+		if(Debug.level>Debug.INFO_LEVEL){
+			return;
+		}
+		sMsg=sMsg||'';
+		if(bOut){
+			_fOut(sMsg+", 消耗时间:"+(new Date().getTime()-(Debug.lastTime||0)),!!bShowInPage)
+		}else{
+			Debug.lastTime=new Date().getTime();
+		}
+	}
+	/**
+	 * 添加调试断点
+	 * @method debug
+	 * @param {Object} fCondiction	输出断点的条件就判断是否返回true，也可以不传，不传为默认debug
+	 */
+	function fDebug(fCondiction){
+		if(Debug.level>Debug.DEBUG_LEVEL){
+			return;
+		}
+		if(typeof fCondiction != 'undefined'){
+			if(!fCondiction()){
+				return;
+			}
+		}
+		debugger;
+	}
+	/**
+	 * 处理异常
+	 * @method throwExp
+	 * @param {Object}oExp 异常对象
+	 */
+	function fThrowExp(oExp){
+		if(Debug.level<=Debug.DEBUG_LEVEL){
+			throw oExp;
+		}
+	}
+	
+	return Debug;
+	
+})/**
+ * 函数类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+handy.add('Function','handy.base.Object',function($H){
+	
+	var Function={
+		bind                : fBind,              //函数bind方法
+		intercept           : fIntercept          //创建函数拦截器
+	}
+	
+	var _nUuid=0;
+	
+	/**
+	 * 函数bind方法
+	 * @method  bind
+	 * @param {function()}fFunc 被绑定的函数
+	 * @param {Object}oScope  需要绑定的对象
+	 * @param {Object}args    需要绑定的参数
+	 * @return  {function()}    返回新构造的函数
+	 */
+	function fBind(fFunc,oScope,args) {
+		var aBindArgs = Array.prototype.slice.call(arguments,2);
+		return function() {
+			Array.prototype.push.apply(aBindArgs, arguments);
+			return fFunc.apply(oScope, aBindArgs);
+		};
+	}
+	/**
+	 * 创建函数拦截器
+	 * @method  intercept(fExecFunc,fInterceptFunc[,oExecScope,oInterceptScope])
+	 * @param {function()}fExecFunc 被拦截的函数，this指向oExecScope||window
+	 * @param {function()}fInterceptFunc 拦截函数,仅当当拦截函数返回false时，不执行被拦截函数；拦截函数this指向oInterceptScope||oExecScope||window
+	 * @param {Object}oExecScope  被拦截的函数绑定的对象
+	 * @param {Object}oInterceptScope  拦截函数绑定的对象
+	 * @return  {function()}    返回新构造的函数
+	 */
+	function fIntercept(fExecFunc,fInterceptFunc,oExecScope,oInterceptScope) {
+		var oExecScope=oExecScope||window;
+		var oInterceptScope=oInterceptScope||oExecScope||window;
+		if(Object.isFunction(fInterceptFunc)){
+			return function() {
+		                var args = arguments;
+		                oInterceptScope.target = oExecScope;
+		                oInterceptScope.method = fExecFunc;
+		                return fInterceptFunc.apply(oInterceptScope, args) != false ?
+				                   fExecFunc.apply(oExecScope, args) :null;
+				   };
+
+		}
+	}
+	
+	return Function;
+	
+})/**
+ * 资源加载类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * 
+ */
+handy.add("Loader",
+["handy.base.Debug","handy.base.Object","handy.base.Function"],
+function(Debug,Object,Function,$H){
+	
+	var _RESOURCE_NOT_FOUND= 'Resource not found: ',
+		_eHead=document.head ||document.getElementsByTagName('head')[0] ||document.documentElement,
+		_UA = navigator.userAgent,
+        _bIsWebKit = _UA.indexOf('AppleWebKit'),
+    	_aContext=[],         //请求上下文堆栈
+	    _oCache={};           //缓存
+	
+	var Loader= {
+		traceLog                : true,                     //是否打印跟踪信息
+//		rootPath                : {
+//			'handy'        : 'http://localhost:8081/handy/src',
+//			'com.example'  : 'http://example.com:8082/js'
+//		},                       //根url，根据命名空间前缀匹配替换，如果没有匹配则是空字符串''；如果rootPath是字符串则直接使用
+		timeout                 : 15000,
+		skinName                : 'skin',                   //皮肤名称，皮肤css的url里包含的字符串片段，用于检查css是否是皮肤
+//		urlMap                  : {
+//			'example':{
+//				url       : 'http://url',     //url
+//				chkExist  : function(){return true}    //验证此资源是否存在的方法
+//			}
+//		},                       //自定义资源配置   
+		
+	    showLoading				: function(bIsLoading){},	//加载中的提示，由具体逻辑重写
+		define                  : fDefine,                  //定义资源资源
+	    require                 : fRequire                  //获取所需资源后执行回调
+	}
+	
+     /**
+	 * 检查对应的资源是否已加载
+	 * @method _fChkExisted
+	 * @param {string|Array}id 被检查的资源id
+	 * @return {boolean}返回true表示该资源已经被加载
+	 */
+    function _fChkExisted(id){
+    	function _fChk(sId){
+    		//css和js文件只验证是否加载完
+    		if(/\.(css|js)$/.test(sId)){
+    			return _oCache[sId]&&_oCache[sId].status=='loaded';
+    		}else if(Loader.urlMap&&Loader.urlMap[sId]){
+    			//自定义资源使用自定义方法验证
+    			return Loader.urlMap[sId].chkExist();
+    		}else{
+    			//标准命名空间规则验证
+	    		return Object.namespace(sId);
+    		}
+    	}
+    	if(typeof id=="string"){
+    		return _fChk(id);
+    	}
+    	var aExist=[];
+    	for(var i=0,nLen=id.length;i<nLen;i++){
+    		var result=_fChk(id[i]);
+    		if(!result){
+    			return false;
+    		}else{
+    			aExist.push(result);
+    		}
+    	}
+    	return aExist;
+    }
+    
+    /**
+	 * 通过id获取实际url
+	 * @method _fGetUrl
+	 * @param {string}sId 资源id，可以是命名空间，也可以是url
+	 * @return {string}sUrl 实际url
+	 */
+    function _fGetUrl(sId){
+    	var sUrl=Loader.urlMap&&Loader.urlMap[sId]&&Loader.urlMap[sId].url;
+    	if(!sUrl){
+    		var sRoot='';
+    		var rootPath=Loader.rootPath;
+    		if(typeof rootPath=='string'){
+    			sRoot=rootPath;
+    		}else if(typeof rootPath=="object"){
+	    		for(var prifix in rootPath){
+	    			if(sId.indexOf(prifix)==0){
+	    				sRoot=rootPath[prifix];
+	    				sId=sId.replace(prifix,'');
+	    			}
+	    		}
+    		}else{
+    			sRoot="";
+    		}
+    		//css文件
+    		if(/.css$/.test(sId)){
+    			sUrl=sId.indexOf('/')==0?sId:"/css/"+sId;
+    		}else if(/.js$/.test(sId)){
+    			//js文件
+    			sUrl=sId;
+    		}else{
+    			//命名空间
+    			sUrl=sId.replace(/\./g,"/")+".js";
+    		}
+    		if(sUrl.indexOf('/')!=0){
+    			sUrl='/'+sUrl;
+    		}
+    		sUrl=sRoot+sUrl;
+    	}
+		return sUrl;
+    }
+	/**
+	 * 获取js脚本
+	 * @method _getScript
+	 * @param {string}sUrl 请求url
+	 * @param {function()}fCallback 回调函数
+	 */
+    function _fGetScript(sUrl,fCallback) {
+    	var eScript=document.createElement("script");
+    	//脚本相对于页面的其余部分异步地执行(当页面继续进行解析时，脚本将被执行)
+    	eScript.async = "async";
+    	eScript.src=sUrl;
+    	eScript.type="text/javascript";
+    	_fAddOnload(eScript,fCallback);
+		_eHead.appendChild(eScript);
+		if(Loader.traceLog){
+			Debug.info("Loader request:"+sUrl);
+   		}
+	}
+	/**
+	 * 获取css
+	 * @method _getCss
+	 * @param {string}sUrl 请求url
+	 * @param {function()}fCallback 回调函数
+	 */
+    function _fGetCss(sUrl,fCallback) {
+    	var aStyles=_eHead.getElementsByTagName("link");
+    	//检查是否已经加载，顺便获取皮肤节点
+    	for(var i=0;i<aStyles.length;i++){
+    		var sHref=aStyles[i].href;
+    		if(!Loader.skinNode&&sHref.indexOf(Loader.skinName)>=0){
+    			Loader.skinNode=aStyles[i];
+    		}
+    		//如果已经加载了，直接返回
+    		if(sHref.indexOf(sUrl)>=0||sUrl.indexOf(sHref)>=0){
+    			return;
+    		}
+    	}
+    	var eCssNode=document.createElement("link");
+    	eCssNode.rel="stylesheet";
+    	eCssNode.href=sUrl;
+    	_fAddOnload(eCssNode,fCallback);
+    	//插入到皮肤css之前
+    	_eHead.insertBefore(eCssNode,Loader.skinNode);
+    	if(Loader.traceLog){
+			Debug.info("Loader request:"+sUrl);
+   		}
+	}
+	/**
+	 * 为css/script资源添加onload事件，包含超时处理
+	 * @method _fAddOnload
+	 * @param {element}eNode 节点
+	 * @param {function()}fCallback 回调函数
+	 */
+	function _fAddOnload(eNode,fCallback){
+		//onload回调函数
+	    function _fCallback() {
+	      if (!_fCallback.isCalled) {
+	        _fCallback.isCalled = true;
+	        clearTimeout(nTimer);
+	        fCallback();
+	      }
+	    }
+	    
+		if (eNode.nodeName === 'SCRIPT') {
+	       _fScriptOnload(eNode, _fCallback);
+	    } else {
+	       _fStyleOnload(eNode, _fCallback);
+	    }
+	
+	    //超时处理
+	    var nTimer = setTimeout(function() {
+	      Debug.error('Time is out:', eNode.src);
+	      _fCallback();
+	    }, Loader.timeout);
+	
+	}
+	/**
+	 * script资源onload函数
+	 * @method _fScriptOnload
+	 * @param {element}eNode 节点
+	 * @param {function()}fCallback 回调函数
+	 */
+	function _fScriptOnload(eNode, fCallback) {
+		eNode.onload = eNode.onerror = eNode.onreadystatechange = function() {
+			if (/loaded|complete|undefined/.test(eNode.readyState)) {
+				// 保证只运行一次回调
+				eNode.onload = eNode.onerror = eNode.onreadystatechange = null;
+//				//TODO 防止内存泄露
+//				if (eNode.parentNode) {
+//					try {
+//						if (eNode.clearAttributes) {
+//							eNode.clearAttributes();
+//						} else {
+//							Chrome下这里执行后eNode回变为“TypeError”，原因暂不明
+//							for (var p in eNode){
+//								console.log(p)
+//								if(eNode=="TypeError")debugger;
+//								delete eNode[p];
+//							}
+//						}
+//					} catch (e) {
+//						Debug.error("Loader script onload:"+e.message);
+//					}
+//				}
+				// 移除标签
+				_eHead.removeChild(eNode);
+				eNode = null;
+				// IE10下新加载的script会在此之后才执行，所以此处需延迟执行
+				setTimeout(fCallback, 0);
+			}
+		};
+		// 注意:在opera下，当文件是404时，不会发生任何事件，回调函数会在超时的时候执行
+	}
+	/**
+	 * css资源onload函数
+	 * 
+	 * @method _fStyleOnload
+	 * @param {element}eNode
+	 *            节点
+	 * @param {function()}fCallback
+	 *            回调函数
+	 */
+	function _fStyleOnload(eNode, fCallback) {
+	    // IE6-9 和 Opera
+	    if (window.hasOwnProperty('attachEvent')) { // see #208
+		    eNode.attachEvent('onload', fCallback);
+		    // 注意:
+		    // 1. 在IE6-9下，当文件是404时，onload会被触发，但是在这种情况下，opera下不会被出发，只会出发超时处理；
+		    // 2. onerror事件在所有浏览器中均不会触发
+	    }else {
+	    //Firefox, Chrome, Safari下，采用轮询
+	    	//在eNode插入后开始
+	        setTimeout(function() {
+	        	_fPollStyle(eNode, fCallback);
+	      	}, 0); 
+	    }
+	
+	}
+	/**
+	 * css资源轮询检测
+	 * @method _fPollStyle
+	 * @param {element}eNode 节点
+	 * @param {function()}fCallback 回调函数
+	 */
+	function _fPollStyle(eNode, fCallback) {
+	    if (fCallback.isCalled) {
+	        return;
+	    }
+	    var bIsLoad;
+	    if (_bIsWebKit) {
+	        if (eNode['sheet']) {
+	        	bIsLoad = true;
+	        }
+	    } else if (eNode['sheet']) {
+	    // Firefox
+	        try {
+	            if (eNode['sheet'].cssRules) {
+	          		bIsLoad = true;
+	            }
+	        } catch (ex) {
+	            if (ex.name === 'SecurityError' || // firefox >= 13.0
+	                ex.name === 'NS_ERROR_DOM_SECURITY_ERR') { // 旧的firefox
+	         	    bIsLoad = true;
+	            }
+	        }
+	    }
+	
+	    setTimeout(function() {
+	        if (bIsLoad) {
+	            // 把callback放在这里是因为要给时间给渲染css
+	            fCallback();
+	        } else {
+	            _fPollStyle(eNode, fCallback);
+	        }
+	    }, 1);
+	}
+    /**
+	 * 请求资源
+	 * @method _fRequest
+	 * @param {Array}aRequestIds 需要加载的资源id数组
+	 */
+    function _fRequest(aRequestIds){
+    	var bNeedRequest=false;
+    	for(var i=0,nLen=aRequestIds.length;i<nLen;i++){
+    		var sId=aRequestIds[i];
+    		//不处理已经在请求列表里的资源
+    		if(!_oCache[sId]){
+	    		var sUrl=_fGetUrl(sId);
+    			bNeedRequest=true;
+	    		_oCache[sId]={
+					id:sId,
+					status:'loading'
+				}
+				var _fCallback=Function.bind(_fResponse,null,sId);
+	    		if(/.css$/.test(sUrl)){
+	    			_fGetCss(sUrl,_fCallback);
+	    		}else{
+	    			_fGetScript(sUrl,_fCallback) ;
+	    		}
+    		}
+    	}
+    	//提示loading
+    	if(bNeedRequest){
+    		Loader.showLoading(true);
+    	}
+    }
+    /**
+	 * 资源下载完成回调
+	 * @method _fResponse
+	 * @param {string}sId 资源id
+	 */
+    function _fResponse(sId){
+    	Loader.showLoading(false);
+    	_oCache[sId].status='loaded';
+    	//每次回调都循环上下文列表
+   		for(var i=_aContext.length-1;i>=0;i--){
+	    	var oContext=_aContext[i];
+	    	var aExists=_fChkExisted(oContext.deps);
+	    	if(aExists){
+	    		_aContext.splice(i,1);
+	    		oContext.callback.apply(null,aExists);
+	    	}
+   		}
+   		if(Loader.traceLog){
+			Debug.info("Loader Response: "+sId);
+   		}
+    }
+    /**
+	 * 定义loader资源
+	 * @method define(sId,aDeps=,factory)
+	 * @param {string}sId   资源id，可以是id、命名空间，也可以是url地址（如css）
+	 * @param {Array=}aDeps  依赖的资源
+	 * @param {*}factory  资源工厂，可以是函数，也可以是字符串模板
+	 * @return {number}nIndex 返回回调索引
+	 */
+	function fDefine(sId,aDeps,factory){
+		var nLen=arguments.length;
+		if(nLen==2){
+			factory=aDeps;
+			aDeps=[];
+		}
+		Loader.require(aDeps,function(){
+			var resource;
+			if(typeof factory=="function"){
+				try{
+					//考虑到传入依赖是数组，这里回调参数形式依然是数组
+					resource=factory.apply(null,arguments);
+				}catch(e){
+					//资源定义错误
+					Debug.error("Loader "+sId+":factory define error:"+e.message);
+					return;
+				}
+			}else{
+				resource=factory;
+			}
+			Object.namespace(sId,resource);
+		});
+	}
+    /**
+	 * 加载所需的资源
+	 * @method require(id,fCallback=)
+	 * @param {string|array}id    资源id（数组）
+	 * @param {function()=}fCallback(可选) 回调函数
+	 * @return {any}返回最后一个当前已加载的资源，通常用于className只有一个的情况，这样可以立即通过返回赋值
+	 */
+    function fRequire(id,fCallback){
+    	var aIds=typeof id=="string"?[id]:id;
+    	//此次required待请求资源数组
+    	var aRequestIds=[];
+    	//已加载的资源
+    	var aExisteds=[];
+    	//是否保存到上下文列表中，保证callback只执行一次
+    	var bNeedContext=true;
+    	for(var i=0,nLen=aIds.length;i<nLen;i++){
+    		var sId=aIds[i];
+    		var oExisted=_fChkExisted(sId);
+    		if(!oExisted){
+    			//未加载资源放进队列中
+    			aRequestIds.push(sId);
+    			if(bNeedContext){
+    				bNeedContext=false;
+	    			_aContext.push({
+	    				deps      : aIds,
+	    				callback  : fCallback
+	    			});
+    			}
+    			if(Loader.traceLog){
+					Debug.info(_RESOURCE_NOT_FOUND+sId);
+		   		}
+    		}else{
+    			aExisteds.push(oExisted);
+    		}
+    	}
+    	
+    	//没有需要加载的资源，直接执行回调或返回资源
+    	if(aRequestIds.length==0){
+    		fCallback&&fCallback.apply(null,aExisteds);
+    		return aExisteds.length==0?aExisteds[0]:aExisteds;
+    	}else{
+    		//请求资源
+    		_fRequest(aRequestIds);
+    	}
+    }
+    
+    return Loader;
 	
 })/**
  * 日期扩展类
@@ -623,139 +1972,6 @@ handy.add('Date',function(){
 	
 	return Date;
 })/**
- * 浏览器环境类，分析浏览器类型、版本号、操作系统、内核类型、壳类型、flash版本
- * 浏览器版本，$Browser.ie/firefox/chrome/opera/safari(),如果浏览器是IE的，$.Browser.ie()的值是浏览器的版本号，!$.Browser.ie()表示非IE浏览器
- * @author 郑银辉(zhengyinhui100@gmail.com)
- */
-handy.add("Browser",["Object"],function($){
-
-	var oInfo={};
-	
-	var Browser={};
-	
-	//归纳生成方法，如：Browser.ie()返回ie的版本号(默认返回整型，传入true参数时返回实际版本号，如：'20.0.1132.43')，Browser.windows()返回是否是windows系统
-	$.Object.genMethod(Browser,[
-			'ie','firefox','chrome','safari','opera',   //浏览器版本，@return{string}
-			'windows','linux','mac',                    //操作系统，@return{boolean}
-			'trident','webkit','gecko','presto',        //浏览器内核类型，@return{boolean}
-			'sogou','maxthon','tt','theWorld','is360',  //浏览器壳类型，@return{boolean}
-			'flash'                                     //flash版本，@return{string}
-		],
-		function(sName){
-			
-			return function(bNotInt){
-				var sValue=oInfo[sName];
-				return !bNotInt&&typeof sValue==='string'?parseInt(sValue):sValue;
-			}
-		}
-	);
-		
-	/**
-	 * 初始化
-	 * @method _fInit
-	 */
-	function _fInit(){
-		var userAgent = window.navigator.userAgent;
-		_fParseBrowser(userAgent);
-		_fParseOs(userAgent);
-	    _fParseKernel(userAgent);
-		_fParseShell(userAgent);
-		_fParseFlash();
-	}
-	/**
-	 * 分析浏览器类型及版本
-	 * @method _fParseBrowser
-	 * @param {string}userAgent 浏览器userAgent
-	 */
-	function _fParseBrowser(userAgent){
-		var ua =userAgent;
-		var matcher;
-		// 使用正则表达式在userAgent中提取浏览器版本信息
-		(matcher = ua.match(/MSIE ([\d.]+)/)) ? oInfo.ie = matcher[1] :
-		(matcher = ua.match(/Firefox\/([\d.]+)/))? oInfo.firefox = matcher[1]: 
-		(matcher = ua.match(/Chrome\/([\d.]+)/))? oInfo.chrome = matcher[1]: 
-		(matcher = ua.match(/Opera.([\d.]+)/))? oInfo.opera = matcher[1]: 
-		(matcher = ua.match(/Version\/([\d.]+).*Safari/))? oInfo.safari = matcher[1]: 0;
-	}
-	/**
-	 * 分析浏览器类型及版本
-	 * @method _fParseOs
-	 * @param {string}userAgent 浏览器userAgent
-	 */
-	function _fParseOs(userAgent){
-		var os;
-		// 读取分析操作系统
-		/windows|win32/i.test(userAgent)?oInfo.windows=true:
-		/linux/i.test(userAgent)?oInfo.linux=true:
-		/macintosh/i.test(userAgent)?oInfo.mac=true:0;
-	}
-	/**
-	 * 分析浏览器内核类型
-	 * @method _fParseKernel
-	 * @param {string}userAgent 浏览器userAgent
-	 */
-	function _fParseKernel(userAgent){
-		var ua =userAgent;
-		var matcher;
-		// 使用正则表达式在userAgent中提取浏览器版本信息
-		/trident/i.test(ua) ? oInfo.trident = true :
-		/webkit/i.test(ua)? oInfo.webkit = true: 
-		/gecko/i.test(ua)? oInfo.gecko = true: 
-		/presto/i.test(ua)? oInfo.presto = true: 0;
-	}
-	/**
-	 * 分析浏览器壳类型
-	 * @method _fParseShell
-	 * @param {string}userAgent 浏览器userAgent
-	 */
-	function _fParseShell(userAgent){
-		var matcher;
-		var ua=userAgent;
-		// 使用正则表达式在userAgent中提取浏览器壳信息
-		/MetaSr/i.test(ua) ? oInfo.sogou = true :
-		/Maxthon/i.test(ua)? oInfo.maxthon = true: 
-		/TencentTraveler/i.test(ua)? oInfo.tt = true: 
-		/TheWorld/i.test(ua)? oInfo.theWorld = true: 
-		/360[S|E]E/i.test(ua)? oInfo.is360 = true: 0;
-	}
-	/**
-	 * 分析浏览器flash版本
-	 * @method _fParseFlash
-	 */
-	function _fParseFlash(){
-		var flashVersion;
-		try{
-			// 如果是ie浏览器
-			if(oInfo.ie){
-				// 创建一个activeobject
-				var oFlash = new ActiveXObject('ShockwaveFlash.ShockwaveFlash');
-				if(oFlash){
-					flashVersion = oFlash.getVariable("$version").split(" ")[1];
-				}
-			// 其他浏览器
-			}else{
-				if(navigator.plugins && navigator.plugins.length > 0){
-					var oFlash=navigator.plugins["Shockwave Flash"];
-					if(oFlash){
-						var aInfo = oFlash.description.split(" ");
-						for(var i=0,m=aInfo.length;i<m;i++){
-							if(parseInt(aInfo[i])>0){
-								flashVersion = aInfo[i];
-								break;
-							}
-						}
-					}
-				}
-			}
-		}catch(e){
-		}
-		oInfo.flash = !!flashVersion?flashVersion:null;
-	}
-	
-	_fInit();
-	return Browser;
-	
-});/**
  * String工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -1043,7 +2259,7 @@ handy.add('Cookie',function(){
  * 工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Util',function($){
+handy.add('Util',function($H){
 	
 	var Util={
 		isWindow         : fIsWindow,  //检查是否是window对象
@@ -1087,656 +2303,181 @@ handy.add('Util',function($){
 	 */
 	function fSetHash(sHash){
 		var sOrgHash=top.location.hash;
-		var sNewHash=sOrgHash.replace(/#[^\?]*/,sHash);
-		return top.location.hash=sNewHash;
+		if(sOrgHash.indexOf("#")>=0){
+			sHash=sOrgHash.replace(/#[^\?]*/,sHash);
+		}
+		top.location.hash=sHash;
 	}
 	
 	return Util;
 	
 })/**
- * 函数类
- * @author 郑银辉(zhengyinhui100@gmail.com)
- */
-handy.add('Function',['Object'],function($){
-	
-	var Function={
-		bind                : fBind,              //函数bind方法
-		intercept           : fIntercept          //创建函数拦截器
-	}
-	
-	var _nUuid=0;
-	
-	/**
-	 * 函数bind方法
-	 * @method  bind
-	 * @param {function()}fFunc 被绑定的函数
-	 * @param {Object}oScope  需要绑定的对象
-	 * @param {Object}args    需要绑定的参数
-	 * @return  {function()}    返回新构造的函数
-	 */
-	function fBind(fFunc,oScope,args) {
-		var aBindArgs = Array.prototype.slice.call(arguments,2);
-		return function() {
-			Array.prototype.push.apply(aBindArgs, arguments);
-			return fFunc.apply(oScope, aBindArgs);
-		};
-	}
-	/**
-	 * 创建函数拦截器
-	 * @method  intercept(fExecFunc,fInterceptFunc[,oExecScope,oInterceptScope])
-	 * @param {function()}fExecFunc 被拦截的函数，this指向oExecScope||window
-	 * @param {function()}fInterceptFunc 拦截函数,仅当当拦截函数返回false时，不执行被拦截函数；拦截函数this指向oInterceptScope||oExecScope||window
-	 * @param {Object}oExecScope  被拦截的函数绑定的对象
-	 * @param {Object}oInterceptScope  拦截函数绑定的对象
-	 * @return  {function()}    返回新构造的函数
-	 */
-	function fIntercept(fExecFunc,fInterceptFunc,oExecScope,oInterceptScope) {
-		var oExecScope=oExecScope||window;
-		var oInterceptScope=oInterceptScope||oExecScope||window;
-		if($.Object.isFunction(fInterceptFunc)){
-			return function() {
-		                var args = arguments;
-		                oInterceptScope.target = oExecScope;
-		                oInterceptScope.method = fExecFunc;
-		                return fInterceptFunc.apply(oInterceptScope, args) != false ?
-				                   fExecFunc.apply(oExecScope, args) :null;
-				   };
-
-		}
-	}
-	
-	return Function;
-	
-})/**
- * 调试类，方便个浏览器下调试，在发布时统一删除调试代码
- * //TODO 快捷键切换调试等级
- * @author 郑银辉(zhengyinhui100@gmail.com)
- */
-handy.add("Debug",['Json'],function($){
-	
-	var Debug={
-		level	    : 0,            //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
-		LOG_LEVEL	: 1,            //日志级别
-		INFO_LEVEL  : 2,            //信息级别
-		WARN_LEVEL  : 3,            //警告级别
-		ERROR_LEVEL	: 4,            //错误级别
-		DEBUG_LEVEL : 5,            //调试级别
-		showInPage  : false,        //是否强制在页面上输出调试信息，主要用于不支持console的浏览器，如：IE6
-		log			: fLog,		    //输出日志
-		info		: fInfo,		//输出信息
-		warn        : fWarn,        //输出警告信息
-		error		: fError,		//输出错误信息
-		time        : fTime,        //输出统计时间,info级别
-		debug		: fDebug		//出现调试断点
-	}
-	/**
-	 * 输出信息
-	 * @method _fOut
-	 * @param {Object} oVar	需要输出的变量
-	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
-	 * @param {string} sType 日志类型：log,info,error
-	 */
-	function _fOut(oVar,bShowInPage,sType){
-		sType = sType||'log';
-		//输出到页面
-		if(bShowInPage||this.showInPage){
-			var sDivId = 'debugDiv';
-			var oDocument = top.document;
-			var oDebugDiv = oDocument.getElementById(sDivId);
-			if(!oDebugDiv){
-				oDebugDiv = oDocument.createElement("DIV");
-				oDebugDiv.id = sDivId;
-				oDebugDiv.innerHTML = '<a href="javascript:void(0)" onclick="this.parentNode.style.display=\'none\'">关闭</a>&nbsp;<a href="javascript:void(0)" onclick="this.parentNode.getElementsByTagName(\'DIV\')[0].innerHTML=\'\';">清空</a>&nbsp;<a href="javascript:void(0)" onclick="this.parentNode.style.height=\''+oDocument.body.offsetHeight+'px\';">全屏</a>&nbsp;<a href="javascript:void(0)" onclick="this.parentNode.style.height=\'100px\';">恢复</a><div></div>';
-				oDebugDiv.style.position = 'absolute';
-				oDebugDiv.style.width = (oDocument.body.offsetWidth-20)+'px';
-				oDebugDiv.style.left = 0;
-				oDebugDiv.style.top = 0;
-				oDebugDiv.style.right = 0;
-				oDebugDiv.style.height = '100px';
-				oDebugDiv.style.backgroundColor = '#aaa';
-				oDebugDiv.style.fontSize = '12px';
-				oDebugDiv.style.padding = '10px';
-				oDebugDiv.style.overflow = 'auto';
-				oDebugDiv.style.zIndex = 999;
-				oDocument.body.appendChild(oDebugDiv);
-			}else{
-				oDebugDiv.style.display = 'block';
-			}
-			var oVarDiv = oDocument.createElement("DIV");
-			//TODO JSON
-			oVarDiv.innerHTML = sType+":"+JSON.stringify(oVar, null, '<br/>');
-			oDebugDiv.getElementsByTagName('DIV')[0].innerHTML = oVarDiv.innerHTML;
-		}
-		try{
-			console[sType](oVar);
-		}catch(e){
-		}
-	}
-	/**
-	 * 输出日志
-	 * @method log
-	 * @param {Object} oVar	需要输出的变量
-	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
-	 */
-	function fLog(oVar,bShowInPage){
-		var that=this;
-		if(that.level>that.LOG_LEVEL){
-			return;
-		}
-		_fOut(oVar,!!bShowInPage,'log');
-	}
-	/**
-	 * 输出信息
-	 * @method info
-	 * @param {Object} oVar	需要输出的变量
-	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
-	 */
-	function fInfo(oVar,bShowInPage){
-		var that=this;
-		if(this.level>that.INFO_LEVEL){
-			return;
-		}
-		_fOut(oVar,!!bShowInPage,'info');
-	}
-	/**
-	 * 输出信息
-	 * @method warn
-	 * @param {Object} oVar	需要输出的变量
-	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
-	 */
-	function fWarn(oVar,bShowInPage){
-		var that=this;
-		if(that.level>that.WARN_LEVEL){
-			return;
-		}
-		_fOut(oVar,!!bShowInPage,'warn');
-	}
-	/**
-	 * 输出错误
-	 * @method error
-	 * @param {Object} oVar	需要输出的变量
-	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
-	 */
-	function fError(oVar,bShowInPage){
-		var that=this;
-		if(that.level>that.ERROR_LEVEL){
-			return;
-		}
-		_fOut(oVar,!!bShowInPage,"error");
-	}
-	/**
-	 * 输出统计时间
-	 * @method time
-	 * @param {string}sMsg 输出的信息
-	 * @param {boolean}bOut 为true时，计算时间并输出信息
-	 * @param {boolean}bShowInPage 是否需要创建一个DIV输出到页面
-	 */
-	function fTime(sMsg,bOut,bShowInPage){
-		var that=this;
-		if(that.level>that.INFO_LEVEL){
-			return;
-		}
-		sMsg=sMsg||'';
-		if(bOut){
-			_fOut(sMsg+", 消耗时间:"+(new Date().getTime()-(Debug.lastTime||0)),!!bShowInPage)
-		}else{
-			Debug.lastTime=new Date().getTime();
-		}
-	}
-	/**
-	 * 添加调试断点
-	 * @method debug
-	 * @param {Object} fCondiction	输出断点的条件就判断是否返回true，也可以不传，不传为默认debug
-	 */
-	function fDebug(fCondiction){
-		var that=this;
-		if(that.level>that.DEBUG_LEVEL){
-			return;
-		}
-		if(typeof fCondiction != 'undefined'){
-			if(!fCondiction()){
-				return;
-			}
-		}
-		debugger;
-	}
-	/**
-	 * 处理异常
-	 * @method throwExp
-	 * @param {Object}oExp 异常对象
-	 */
-	function fThrowExp(oExp){
-		var that=this;
-		if(that.level<=that.DEBUG_LEVEL){
-			throw oExp;
-		}
-	}
-	
-	return Debug;
-	
-})/**
- * 资源加载类
- * @author 郑银辉(zhengyinhui100@gmail.com)
- * 
- */
-handy.add("Loader",["Debug","Object","Function"],function($){
-	
-	var _RESOURCE_NOT_FOUND= 'Resource not found: ',
-		_eHead=document.head ||document.getElementsByTagName('head')[0] ||document.documentElement,
-		_UA = navigator.userAgent,
-        _bIsWebKit = _UA.indexOf('AppleWebKit'),
-    	_aContext=[],         //请求上下文堆栈
-	    _oCache={};           //缓存
-	
-	var Loader= {
-		traceLog                : true,                     //是否打印跟踪信息
-		rootPath                : {
-			'handy'        : 'http://localhost:8081/handy/src',
-			'com.sport'    : 'http://localhost:8082/sportapp/www/js'
-		},                       //根url，根据命名空间前缀匹配替换，如果没有匹配则是空字符串''；如果rootPath是字符串则直接使用
-		timeout                 : 15000,
-		skinName                : 'skin',                   //皮肤名称，皮肤css的url里包含的字符串片段，用于检查css是否是皮肤
-		urlMap                  : {},                       //id-url映射表    
-		
-	    showLoading				: function(bIsLoading){},	//加载中的提示，由具体逻辑重写
-		define                  : fDefine,                  //定义资源资源
-	    require                 : fRequire                  //获取所需资源后执行回调
-	}
-	
-     /**
-	 * 检查对应的资源是否已加载
-	 * @method _fChkExisted
-	 * @param {string|Array}id 被检查的资源id
-	 * @return {boolean}返回true表示该资源已经被加载
-	 */
-    function _fChkExisted(id){
-    	function _fChk(sId){
-    		return /\.(css|js)$/.test(sId)?(_oCache[sId]&&_oCache[sId].status=='loaded'):$.Object.namespace(sId);
-    	}
-    	if(typeof id=="string"){
-    		return _fChk(id);
-    	}
-    	var aExist=[];
-    	for(var i=0,nLen=id.length;i<nLen;i++){
-    		var result=_fChk(id[i]);
-    		if(!result){
-    			return false;
-    		}else{
-    			aExist.push(result);
-    		}
-    	}
-    	return aExist;
-    }
-    
-    /**
-	 * 通过id获取实际url
-	 * @method _fGetUrl
-	 * @param {string}sId 资源id，可以是命名空间，也可以是url
-	 * @return {string}sUrl 实际url
-	 */
-    function _fGetUrl(sId){
-    	var sUrl=Loader.urlMap[sId];
-    	if(!sUrl){
-    		var sRoot='';
-    		var rootPath=Loader.rootPath;
-    		if(typeof rootPath=='string'){
-    			sRoot=rootPath;
-    		}else{
-	    		for(var prifix in rootPath){
-	    			if(sId.indexOf(prifix)==0){
-	    				sRoot=rootPath[prifix];
-	    				sId=sId.replace(prifix,'');
-	    			}
-	    		}
-    		}
-    		//css文件
-    		if(/.css$/.test(sId)){
-    			sUrl=sId.indexOf('/')==0?sId:"/css/"+sId;
-    		}else if(/.js$/.test(sId)){
-    			//js文件
-    			sUrl="/"+sId;
-    		}else{
-    			//命名空间
-    			sUrl='/'+sId.replace(/\./g,"/")+".js";
-    		}
-    		sUrl=sRoot+sUrl;
-    	}
-		return sUrl;
-    }
-	/**
-	 * 获取js脚本
-	 * @method _getScript
-	 * @param {string}sUrl 请求url
-	 * @param {function()}fCallback 回调函数
-	 */
-    function _fGetScript(sUrl,fCallback) {
-    	var eScript=document.createElement("script");
-    	//脚本相对于页面的其余部分异步地执行(当页面继续进行解析时，脚本将被执行)
-    	eScript.async = "async";
-    	eScript.src=sUrl;
-    	eScript.type="text/javascript";
-    	_fAddOnload(eScript,fCallback);
-		_eHead.appendChild(eScript);
-	}
-	/**
-	 * 获取css
-	 * @method _getCss
-	 * @param {string}sUrl 请求url
-	 * @param {function()}fCallback 回调函数
-	 */
-    function _fGetCss(sUrl,fCallback) {
-    	var aStyles=_eHead.getElementsByTagName("link");
-    	//检查是否已经加载，顺便获取皮肤节点
-    	for(var i=0;i<aStyles.length;i++){
-    		var sHref=aStyles[i].href;
-    		if(!Loader.skinNode&&sHref.indexOf(Loader.skinName)>=0){
-    			Loader.skinNode=aStyles[i];
-    		}
-    		//如果已经加载了，直接返回
-    		if(sHref.indexOf(sUrl)>=0||sUrl.indexOf(sHref)>=0){
-    			return;
-    		}
-    	}
-    	var eCssNode=document.createElement("link");
-    	eCssNode.rel="stylesheet";
-    	eCssNode.href=sUrl;
-    	_fAddOnload(eCssNode,fCallback);
-    	//插入到皮肤css之前
-    	_eHead.insertBefore(eCssNode,Loader.skinNode);
-	}
-	/**
-	 * 为css/script资源添加onload事件，包含超时处理
-	 * @method _fAddOnload
-	 * @param {element}eNode 节点
-	 * @param {function()}fCallback 回调函数
-	 */
-	function _fAddOnload(eNode,fCallback){
-		//onload回调函数
-	    function _fCallback() {
-	      if (!_fCallback.isCalled) {
-	        _fCallback.isCalled = true;
-	        clearTimeout(nTimer);
-	        fCallback();
-	      }
-	    }
-	    
-		if (eNode.nodeName === 'SCRIPT') {
-	       _fScriptOnload(eNode, _fCallback);
-	    } else {
-	       _fStyleOnload(eNode, _fCallback);
-	    }
-	
-	    //超时处理
-	    var nTimer = setTimeout(function() {
-	      $.Debug.error('Time is out:', eNode.src);
-	      _fCallback();
-	    }, Loader.timeout);
-	
-	}
-	/**
-	 * script资源onload函数
-	 * @method _fScriptOnload
-	 * @param {element}eNode 节点
-	 * @param {function()}fCallback 回调函数
-	 */
-	function _fScriptOnload(eNode, fCallback) {
-	    eNode.onload = eNode.onerror = eNode.onreadystatechange =function() {
-	        if (/loaded|complete|undefined/.test(eNode.readyState)) {
-	            // 保证只运行一次回调
-	            eNode.onload = eNode.onerror = eNode.onreadystatechange = null;
-	            //防止内存泄露
-	            if (eNode.parentNode) {
-	              try {
-	                if (eNode.clearAttributes) {
-	                  eNode.clearAttributes();
-	                }
-	                else {
-	                  for (var p in eNode) delete eNode[p];
-	                }
-	              } catch (e) {
-	              }
-	              //移除标签
-	              _eHead.removeChild(eNode);
-	            }
-	            eNode = undefined;
-	            //IE10下新加载的script会在此之后执行，所以此处需延迟执行
-				setTimeout(fCallback,0);
-	          }
-	      };
-	   // 注意:在opera下，当文件是404时，不会发生任何事件，回调函数会在超时的时候执行
-	}
-	/**
-	 * css资源onload函数
-	 * @method _fStyleOnload
-	 * @param {element}eNode 节点
-	 * @param {function()}fCallback 回调函数
-	 */
-	function _fStyleOnload(eNode, fCallback) {
-	    // IE6-9 和 Opera
-	    if (window.hasOwnProperty('attachEvent')) { // see #208
-		    eNode.attachEvent('onload', fCallback);
-		    // 注意:
-		    // 1. 在IE6-9下，当文件是404时，onload会被触发，但是在这种情况下，opera下不会被出发，只会出发超时处理；
-		    // 2. onerror事件在所有浏览器中均不会触发
-	    }else {
-	    //Firefox, Chrome, Safari下，采用轮询
-	    	//在eNode插入后开始
-	        setTimeout(function() {
-	        	_fPollStyle(eNode, fCallback);
-	      	}, 0); 
-	    }
-	
-	}
-	/**
-	 * css资源轮询检测
-	 * @method _fPollStyle
-	 * @param {element}eNode 节点
-	 * @param {function()}fCallback 回调函数
-	 */
-	function _fPollStyle(eNode, fCallback) {
-	    if (fCallback.isCalled) {
-	        return;
-	    }
-	    var bIsLoad;
-	    if (_bIsWebKit) {
-	        if (eNode['sheet']) {
-	        	bIsLoad = true;
-	        }
-	    } else if (eNode['sheet']) {
-	    // Firefox
-	        try {
-	            if (eNode['sheet'].cssRules) {
-	          		bIsLoad = true;
-	            }
-	        } catch (ex) {
-	            if (ex.name === 'SecurityError' || // firefox >= 13.0
-	                ex.name === 'NS_ERROR_DOM_SECURITY_ERR') { // 旧的firefox
-	         	    bIsLoad = true;
-	            }
-	        }
-	    }
-	
-	    setTimeout(function() {
-	        if (bIsLoad) {
-	            // 把callback放在这里是因为要给时间给渲染css
-	            fCallback();
-	        } else {
-	            _fPollStyle(eNode, fCallback);
-	        }
-	    }, 1);
-	}
-    /**
-	 * 请求资源
-	 * @method _fRequest
-	 * @param {Array}aRequestIds 需要加载的资源id数组
-	 */
-    function _fRequest(aRequestIds){
-    	var bNeedRequest=false;
-    	for(var i=0,nLen=aRequestIds.length;i<nLen;i++){
-    		var sId=aRequestIds[i];
-    		//不处理已经在请求列表里的资源
-    		if(!_oCache[sId]){
-	    		var sUrl=_fGetUrl(sId);
-    			bNeedRequest=true;
-	    		_oCache[sId]={
-					id:sId,
-					status:'loading'
-				}
-				var _fCallback=$.Function.bind(_fResponse,null,sId);
-	    		if(/.css$/.test(sUrl)){
-	    			_fGetCss(sUrl,_fCallback);
-	    		}else{
-	    			_fGetScript(sUrl,_fCallback) ;
-	    		}
-    		}
-    	}
-    	//提示loading
-    	if(bNeedRequest){
-    		Loader.showLoading(true);
-    	}
-    }
-    /**
-	 * 资源下载完成回调
-	 * @method _fResponse
-	 * @param {string}sId 资源id
-	 */
-    function _fResponse(sId){
-    	Loader.showLoading(false);
-    	_oCache[sId].status='loaded';
-    	//每次回调都循环上下文列表
-   		for(var i=_aContext.length-1;i>=0;i--){
-	    	var oContext=_aContext[i];
-	    	var aExists=_fChkExisted(oContext.deps);
-	    	if(aExists){
-	    		oContext.callback.apply(null,aExists);
-	    		_aContext.splice(i,1);
-	    	}
-   		}
-   		if(Loader.traceLog){
-			$.Debug.info("Response: "+sId);
-   		}
-    }
-    /**
-	 * 定义loader资源
-	 * @method define(sId,aDeps=,factory)
-	 * @param {string}sId   资源id，可以是id、命名空间，也可以是url地址（如css）
-	 * @param {Array=}aDeps  依赖的资源
-	 * @param {*}factory  资源工厂，可以是函数，也可以是字符串模板
-	 * @return {number}nIndex 返回回调索引
-	 */
-	function fDefine(sId,aDeps,factory){
-		var nLen=arguments.length;
-		if(nLen==2){
-			factory=aDeps;
-			aDeps=[];
-		}
-		Loader.require(aDeps,function(){
-			var resource;
-			if(typeof factory=="function"){
-				try{
-					//考虑到传入依赖是数组，这里回调参数形式依然是数组
-					resource=factory.apply(null,arguments);
-				}catch(e){
-					//资源定义错误
-					$.Debug.error(sId+":factory define error:"+e.message);
-					return;
-				}
-			}else{
-				resource=factory;
-			}
-			var oCache=_oCache[sId];
-			oCache.deps=aDeps;
-			oCache.factory=factory;
-			oCache.resource=resource;
-			$.Object.namespace(sId,resource);
-		});
-	}
-    /**
-	 * 加载所需的资源
-	 * @method require(id,fCallback=)
-	 * @param {string|array}id    资源id（数组）
-	 * @param {function()=}fCallback(可选) 回调函数
-	 * @return {any}返回最后一个当前已加载的资源，通常用于className只有一个的情况，这样可以立即通过返回赋值
-	 */
-    function fRequire(id,fCallback){
-    	var aIds=typeof id=="string"?[id]:id;
-    	//此次required待请求资源数组
-    	var aRequestIds=[];
-    	//已加载的资源
-    	var aExisteds=[];
-    	//是否保存到上下文列表中，保证callback只执行一次
-    	var bNeedContext=true;
-    	for(var i=0,nLen=aIds.length;i<nLen;i++){
-    		var sId=aIds[i];
-    		var oExisted=_fChkExisted(sId);
-    		if(!oExisted){
-    			//未加载资源放进队列中
-    			aRequestIds.push(sId);
-    			if(bNeedContext){
-    				bNeedContext=false;
-	    			_aContext.push({
-	    				deps      : aIds,
-	    				callback  : fCallback
-	    			});
-    			}
-    			if(Loader.traceLog){
-					$.Debug.info(_RESOURCE_NOT_FOUND+sId);
-		   		}
-    		}else{
-    			aExisteds.push(oExisted);
-    		}
-    	}
-    	
-    	//没有需要加载的资源，直接执行回调或返回资源
-    	if(aRequestIds.length==0){
-    		fCallback&&fCallback.apply(null,aExisteds);
-    		return aExisteds.length==0?aExisteds[0]:aExisteds;
-    	}else{
-    		//请求资源
-    		_fRequest(aRequestIds);
-    	}
-    }
-    
-    return Loader;
-	
-})/**
  * 模板类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Template',function($){
+handy.add('Template',function($H){
 	
-	var Template={
-		simpleReg       : /<%=this\.([^%>]+)%>/g,  //简单替换正则
-		compile         : fCompile //执行模板
+	var _cache={},             //缓存
+		_valPreReg=/^=/,        //简单替换正则
+		_isNewEngine = ''.trim;   // '__proto__' in {}
+		
+	var T={
+		openTag         : '<%',            //模板语法开始标签
+		closeTag        : '%>',            //模板语法结束标签
+		
+		_setValue       : _fSetValue,      //设置变量
+		_add            : _fAdd,           //结果函数添加一行字符串
+		_parseHtml      : _fParseHtml,     //处理html
+		_parseScript    : _fParseScript,   //处理脚本
+		_compile        : _fCompile,       //编译模板
+		tmpl            : fTmpl            //渲染模板
 	};
-	
 	/**
-	 * 执行模板
-	 * @method compile
-	 * @param  {string}sTemplate 模板字符串
+	 * 设置变量
+	 * @method _setValue
+	 * @param  {string}sTmpl 模板字符串
 	 * @param  {Object}oData     	数据
 	 * @return {string}          返回结果字符串
 	 */
-	function fCompile(sTemplate,oData){
-		var oReg=this.simpleReg;
-		return sTemplate.replace(oReg,function(){
+	function _fSetValue(sTmpl,oData){
+		return sTmpl.replace(_valPreReg,function(){
 			return oData&&oData[arguments[1]]||'';
 		});
 	}
+	/**
+	 * 结果函数添加一行字符串
+	 * @method _add
+	 * @param {string}sCode 要添加的代码
+	 * @return {string} 返回添加好的代码
+	 */
+	function _fAdd(sCode){
+		//旧浏览器使用数组方式拼接字符串
+        return _isNewEngine?'$r+='+sCode+';\n':'$r.push('+sCode+');\n';
+	}
+	/**
+	 * 处理html
+	 * @method _parseHtml
+	 * @param {string}sHtml html字符串
+	 * @return {string} 返回处理过的html
+	 */
+	function _fParseHtml(sHtml){
+		sHtml=sHtml
+			// 引号与反斜杠转义
+            .replace(/("|\\)/g, '\\$1')
+            // 换行符转义(windows + linux)
+            .replace(/\r/g, '\\r')
+            .replace(/\n/g, '\\n')
+		var sCode=T._add('"'+sHtml+'"');
+		return sCode;
+	}
+	/**
+	 * 处理脚本
+	 * @method _parseScript
+	 * @param {string}sScript script字符串
+	 * @return {string} 返回处理过的脚本
+	 */
+	function _fParseScript(sScript){
+		sScript=sScript.replace(/this/g,'$data');
+		if(sScript.indexOf('=')==0){
+			sScript=T._add(sScript.replace(_valPreReg,''));
+		}
+		return sScript+"\n";
+	}
+	/**
+	 * 编译模板
+	 * @method _compile
+	 * @param  {string}sTmpl 模板字符串
+	 * @return {string}      返回结果字符串
+	 */
+	function _fCompile(sTmpl){
+		//旧浏览器使用数组方式拼接字符串
+		var sCode='var $r='+(_isNewEngine?'""':'[]')+';\n';
+		var oMatch;
+		//循环处理模板，分离html和script部分
+		$H.Object.each(sTmpl.split(T.openTag),function(i,sValue){
+			var aCode=sValue.split(T.closeTag);
+			//[html]
+			if(aCode.length==1){
+				sCode+=T._parseHtml(aCode[0]);
+			}else{
+				//[script,html]
+				sCode+=T._parseScript(aCode[0]);
+				if(aCode[1]){
+					sCode+=T._parseHtml(aCode[1]);
+				}
+			}
+		})
+		sCode+='return '+(_isNewEngine?'$r;':'$r.join("");');
+		//TODO
+		$D.log(sCode)
+		return new Function('$data',sCode);
+	}
+	/**
+	 * 执行模板
+	 * @method tmpl
+	 * @param {object|string}tmpl 当tmpl为字符串时，表示模板内容，为对象时如下：
+	 * {
+	 * 		{string}id : 模板的id，要使用缓存，就必须传入id
+	 * 		{string=}tmpl : 模板字符串，以id为缓存key，此参数为空时，表示内容为根据id查找到的script标签的内容
+	 * }
+	 * @param {object}oData 数据
+	 * @return {function|string} 当oData为空时返回编译后的模板函数，不为空时返回渲染后的字符串
+	 */
+	function fTmpl(tmpl,oData){
+		var sTmpl,fTmpl,sId;
+		if(typeof tmpl=='string'){
+			sTmpl=tmpl;
+		}else{
+			sTmpl=tmpl.tmpl;
+			if(sId=tmpl.id){
+			    if (_cache[sId]) {
+			        fTmpl = _cache[sId];
+			    } else {
+			    	//从script标签获取模板
+			        var oEl = document.getElementById(sId);
+			        if (oEl) {
+			            sTmpl = (oEl.value || oEl.innerHTML).replace(/\s/g, '');
+			        }
+			    }
+			}
+		}
+		if(!fTmpl){
+			if(!sTmpl){
+				$H.Debug.error('模板未定义');
+				return;
+			}
+			fTmpl=T._compile(sTmpl);
+			//根据id缓存
+			if(sId){
+				_cache[sId]=fTmpl;
+			}
+		}
+		//TODO
+		$D.log(fTmpl);
+		//渲染数据
+		if(oData){
+			return fTmpl(oData);
+		}else{
+			return fTmpl;
+		}
+	}
 	
-	return Template;
+	return T;
 	
 });/**
  * HashChange类，兼容IE6/7浏览器实现hashchange事件
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * 
  */
-handy.add("HashChange",function($H){
+//use jQuery
+handy.add("HashChange",
+['handy.base.Debug','handy.base.Util'],
+function(Debug,Util,$H){
 
 	/**
 	 * IE8+ | FF3.6+ | Safari5+ | Chrome | Opera 10.6+ 支持hashchange
 		FF3.6+ Chrome Opera支持 oldURL 和 newURL
-	 * IE6直接用location.hash取hash，可能会取少一部分内容：
+	    IE6直接用location.hash取hash，可能会取少一部分内容：
 		比如 http://www.xxx.com#stream/xxxxx?lang=zh_c
 		ie6 => location.hash = #stream/xxxxx
 		其他浏览器 => location.hash = #stream/xxxxx?lang=zh_c
@@ -1747,13 +2488,14 @@ handy.add("HashChange",function($H){
 	 */
 	var _bIsInited,_nListener=0,_oDoc = document, _oIframe,_sLastHash,
 		//这个属性的值如果是5，则表示混杂模式（即IE5模式）；如果是7，则表示IE7仿真模式；如果是8，则表示IE8标准模式
-		_nDocMode = _oDoc._nDocMode,
-	    _bSupportHashChange = ('onhashchange'   in window) && ( _nDocMode === void 0 || _nDocMode > 7 ),
+		_nDocMode = _oDoc.documentMode,
+	    _bSupportHashChange = ('onhashchange' in window) && ( _nDocMode === void 0 || _nDocMode > 7 ),
 		
 	    HashChange={
-			listen   : fListen,    //绑定处理函数
-			getHash  : fGetHash,   //获取当前hash
-			setHash  : fSetHash    //设置新的hash
+	    	delay    : 50,         //定时查看iframe内容的时间
+	    	
+			listen   : fListen,    //绑定hashchange监听函数
+			unListen : fUnListen   //删除hashchange监听函数
 		};
 		/**
 		 * HashChange初始化
@@ -1765,37 +2507,63 @@ handy.add("HashChange",function($H){
 			//不支持原生hashchange事件的，使用定时器+隐藏iframe形式实现
 			if(!_bSupportHashChange){
 				//创建一个隐藏的iframe，使用这博文提供的技术 http://www.paciellogroup.com/blog/?p=604.
-				_oIframe = $('<iframe tabindex="-1" style="display:none" widht=0 height=0 title="empty" />').appendTo( _oDoc.body )[0];
-                _sLastHash=HashChange.getHash();
-                HashChange.setHash(_sLastHash);
-                setInterval(function(){
-                	var sHash=HashChange.getHash();
-                	if(sHash!=_sLastHash){
-                		_sLastHash=sHash;
-	                	_fOnChange(sHash);
-                	}
-                },50);
+				_oIframe = $('<iframe id="fff" tabindex="-1" style="display:none" width=0 height=0 title="empty" />').appendTo( _oDoc.body )[0];
+                $(_oIframe).one("load",function(){
+                	_fSetIfrHash(Util.getHash());
+                	setInterval(_fPoll,HashChange.delay);
+                });
 			}else{
 				$(window).on("hashchange",function(){
-					_fOnChange(HashChange.getHash());
+					_fOnChange(Util.getHash());
 				})
 			}
 		}
 		/**
-		 * 执行监听函数
-		 * @method _fExecListeners
+		 * 设置新的iframe的hash
+		 * @method setHash
+		 * @param {string} sHash要设置hash
 		 */
-		function _fOnChange(sHash){
-			if(sHash!=_sLastHash){
-				var oListeners=HashChange.listeners
-				for(var func in oListeners){
-					oListeners[func](sHash);
-				}
-				_sLastHash=sHash;
+		function _fSetIfrHash(sHash){
+			if(sHash==_sLastHash){
+				return false;
+			}
+			var _oIframeWin = _oIframe.contentWindow;
+			var oDoc=_oIframeWin.document;
+			oDoc.open();
+            oDoc.write('<!doctype html><html><body>'+sHash+'</body></html>');
+            oDoc.close();
+            _sLastHash=sHash;
+            Debug.log("set:"+_oIframe.contentWindow.document.body.innerText);
+		}
+		/**
+		 * 定时检查hash有没有变化
+		 * @method _fPoll
+		 */
+		function _fPoll() {
+			var sHash=Util.getHash();
+			var sIfrHash = _oIframe.contentWindow.document.body.innerText;
+			//如果地址栏hash变化了，设置iframe的hash并处罚hashchange
+			if (sHash != _sLastHash) {
+				_fSetIfrHash(sHash);
+				_fOnChange(sHash);
+			}else if(sIfrHash!=_sLastHash){
+				//iframe的hash发生了变化(点击前进/后退)，更新地址栏hash
+				Debug.log("update:"+_oIframe.contentWindow.document.body.innerText);
+				Util.setHash(sIfrHash);
 			}
 		}
 		/**
-		 * 增加hashchange监听函数
+		 * 执行监听函数
+		 * @method _fOnChange
+		 */
+		function _fOnChange(sHash){
+			var oListeners=HashChange.listeners
+			for(var func in oListeners){
+				oListeners[func](sHash);
+			}
+		}
+		/**
+		 * 绑定hashchange监听函数
 		 * @method listen(fListener[,sName])
 		 * @param {function} fListener监听函数
 		 * @param {string=}  sName监听函数的名称，删除该监听时用到
@@ -1825,42 +2593,19 @@ handy.add("HashChange",function($H){
 				}
 			}
 		}
-		/**
-		 * 获取当前hash
-		 * @method getHash
-		 * @return {string}返回当前hash
-		 */
-		function fGetHash(){
-			return $H.Util.getHash();
-		}/**
-		 * 设置新的hash
-		 * @method setHash
-		 * @param {string} sHash要设置hash
-		 * @param {boolean=} bFireChange是否要触发hashchange事件，仅当为true时触发
-		 */
-		function fSetHash(sHash,bFireChange){
-			$H.Util.setHash(sHash);
-			if(!_bSupportHashChange){
-				var _oIframeWin = _oIframe.contentWindow;
-                _oIframe.document.write('<!doctype html><html><body>'+sHash+'</body></html>');
-			}
-			if(bFireChange!=true){
-				_sLastHash=sHash;
-			}
-		}
 		
 	return HashChange;
 });/**
  * 支持类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Support',['Browser'],function($){
+handy.add('Support','Browser',function(Browser,$H){
 	
 	var Support={
 	}
 	
 	//解决IE6下css背景图不缓存bug
-	if($.Browser.ie()==6){   
+	if(Browser.ie()==6){   
 	    try{   
 	        document.execCommand("BackgroundImageCache", false, true);   
 	    }catch(e){}   
@@ -1875,8 +2620,14 @@ handy.add('Support',['Browser'],function($){
 	
 	//框架全局变量
 	$H=$.noConflict();
+	$D=$H.Debug;
+	$HB=$H.Browser;
+	$HC=$H.Cookie;
+	$HD=$H.Date;
+	$HF=$H.Function;
 	$HO=$H.Object;
 	$HS=$H.String;
+	$HU=$H.Util;
 	$Define=$H.Loader.define;
 	$Require=$H.Loader.require;
 
@@ -1893,472 +2644,858 @@ handy.add('Support',['Browser'],function($){
 	},$$);*/
 	
 	
-})(handy)//组件基类
+})(handy)/**
+ * 组件管理类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-01-10
+ */
+ 
+$Define("handy.component.ComponentManager", function() {
 
+	var ComponentManager = $HO.createClass(),
+	_expando = $H.expando+"_cmp_",             // 组件id前缀
+	//存储组件类
+	_types={},
+	//存储所有组件实例
+	_all={};
 
-(function(){
+	// 静态方法
+	$HO.extend(ComponentManager, {
+		registerType  : fRegisterType,    //注册组件类
+		getClass      : fGetClass,        //根据xtype获取组件类
+		register      : fRegister,        //注册组件
+		unRegister    : fUnRegister,      //注销组件
+		destroy       : fDestroy,         //销毁组件，主要用于删除元素时调用
+		generateId    : fGenerateId,      //生成组件的id
+		get           : fGet              //查找组件
+	});
 	
-	var Component=$HO.createClass("handy.component.Component");
+	/**
+	 * 注册组件类型
+	 * @method registerType
+	 * @param {string}sXType 组件类型
+	 * @param {object}oClass 组件类
+	 */
+	function fRegisterType(sXType,oClass){
+		_types[sXType]=oClass;
+		oClass.prototype.xtype=sXType;
+	}
+	/**
+	 * 根据xtype获取组件类
+	 * @method getClass
+	 * @param {string}sXType 组件类型
+	 * @return {object} 返回对应的组件类
+	 */
+	function fGetClass(sXType){
+		return _types[sXType];
+	}
+	/**
+	 * 注册组件
+	 * @method register
+	 * @param {object}oComponent 组件对象
+	 */
+	function fRegister(oComponent){
+		_all[oComponent.getId()]=oComponent;
+	}
+	/**
+	 * 注销组件
+	 * @method unRegister
+	 * @param {object}oComponent 组件对象
+	 */
+	function fUnRegister(oComponent){
+		delete _all[oComponent.getId()];
+	}
+	/**
+	 * 销毁组件，主要用于删除元素时调用
+	 * @method destroy
+	 * @param 
+	 */
+	function fDestroy(){
+	}
+	/**
+	 * 生成组件的id
+	 * @method generateId
+	 * @param {string=}sCid 组件的cid
+	 * @param {boolean=}bNotChk 仅当为true时不检查id是否重复
+	 */
+	function fGenerateId(sCid,bNotChk){
+		var sId=_expando+(sCid||$H.Util.getUuid());
+		if(bNotChk!=true&&_all[sId]){
+			$D.error('id重复:'+sId);
+		}else{
+			return sId;
+		}
+	}
+	/**
+	 * 查找组件
+	 * @method get
+	 * @param {string}sId 组件id或者cid
+	 */
+	function fGet(sId){
+		return _all[sId]||_all[ComponentManager.generateId(sId,true)];
+	}
+
+	return ComponentManager;
+	
+});/**
+ * 组件基类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2013-12-28
+ */
+
+$Define("handy.component.AbstractComponent","handy.component.ComponentManager",function(CM){
+	
+	var AC=$HO.createClass(),
+	_oIdReg=/^(<[a-zA-Z]+)/,
+	_oClsReg=/(class=")/;
 	
 	//静态方法
-	$HO.extend(Component,{
+	$HO.extend(AC,{
+		define              : fDefine,           //定义组件
+		html                : fHtml              //静态生成组件html
+	});
+	
+	//实例方法
+	$HO.extend(AC.prototype,{
 		
-		_expando   : "_handy_", // 组件id前缀
-		_template  : '<div id="<%=this.id%>"><%=this.html%></div>', // 组件html模板, 模板必须有一个最外层的容器
+		xtype               : 'AbstractComponent',       //组件类型
 		
+		//默认配置
+		renderTo            : null,              //渲染节点
+		hidden              : false,             //是否隐藏
+		disabled            : false,             //是否禁用
+		hideMode            : 'display',         //隐藏方式
+		autoRender          : true,              //是否默认就进行渲染
+		renderBy            : 'append',          //默认渲染方式
+		notListen           : false,             //不自动初始化监听器
+		extCls              : '',                //组件附加class
+//		defItem             : null,              //默认子组件配置
+		////通用效果
+		radius              : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
+		shadow              : false,        	 //外阴影
+		shadowInset         : false,        	 //内阴影
+		isMini              : false,       	     //小号
+		isFocus             : false,        	 //聚焦
+		isInline            : false,             //是否内联(宽度自适应)
 		
-		/**
-		 * 
-		 * @param {object}settings 初始化参数 {
-		 * 			{any}data 数据
-		 * }
-		 */
-		render:function(settings){
-			return new this(settings);
-		},
-		/**
-		 * 
-		 * @param {object}settings 初始化参数 {
-		 * 			{any}data 数据
-		 * }
-		 */
-		html:function(settings,parentComponent){
-			settings.notListener=true;
-			settings.notRender=true;
-			var component=new this(settings);
-			if(parentComponent){
-				parentComponent.children.push(component);
-			}
-			return component.getHtml();
+		//属性
+//		params              : null,              //初始化时传入的参数
+//		_id                 : null,              //组件id
+//		tmpl                : [],                //组件模板
+//		tmplStr             : '',                //组件模板字符串
+		html                : null,              //组件html
+//		rendered            : false,             //是否已渲染
+//		children            : [],                //子组件
+		isSuspend           : false,             //是否挂起事件
+//		_container          : null,              //组件容器节点
+//		_listeners          : {},                //事件池  
+		_customEvents       : [                  //自定义事件,可以通过参数属性的方式直接进行添加
+			'beforeRender','afterRender','show','hide','destroy'
+		],  
+		_defaultEvents      : [                  //默认事件，可以通过参数属性的方式直接进行添加
+			'click','mouseover','focus'
+		],
+		
+		initialize          : fInitialize,       //初始化
+		doConfig            : fDoConfig,         //初始化配置
+		getId               : fGetId,            //获取组件id
+		getEl               : fGetEl,            //获取组件节点
+		getHtml             : fGetHtml,          //获取html
+		getChildrenHtml     : fGetChildrenHtml,  //获取所有子组件拼接后的html
+		getExtCls           : fGetExtCls,        //生成通用样式
+		afterRender         : fAfterRender,      //渲染后续工作
+		find                : fFind,             //查找子元素
+		hide                : fHide,             //隐藏
+		show                : fShow,             //显示
+//		update
+		enable              : fEnable,           //启用
+		disable             : fDisable,          //禁用
+//		mask
+//		unmask
+		fire                : fFire,             //触发组件自定义事件
+		listen              : fListen,           //绑定事件
+		unlisten            : fUnlisten,         //解除事件
+		initListeners       : fInitListeners,    //初始化所有事件
+		clearListeners      : fClearListeners,   //清除所有事件
+		suspendListeners    : fSuspendListeners, //挂起事件
+		resumeListeners     : fResumeListeners,  //恢复事件
+		
+		each                : fEach,             //遍历子组件
+		callChild           : fCallChild,        //调用子组件方法
+		add                 : fAdd,              //添加子组件
+		remove              : fRemove,           //删除子组件
+		parseItem           : function(){},      //分析子组件，由具体组件类实现
+		parseItems          : fParseItems,       //分析子组件列表
+		destroy             : fDestroy           //销毁
+	});
+	
+	/**
+	 * 定义组件
+	 * @method define
+	 * @param {string}sXtype 组件类型
+	 * @return {class}组件类对象
+	 */
+	function fDefine(sXtype){
+		var Component=$HO.createClass();
+		$HO.inherit(Component,AC,null,null,{ignore:['define']});
+		CM.registerType(sXtype,Component);
+		return Component;
+	}
+	/**
+	 * 静态生成组件html
+	 * @method html
+	 * @param {object}oSettings 初始化参数
+	 */
+	function fHtml(oSettings){
+		oSettings.autoRender=false;
+		var component=new this(oSettings);
+		return component.getHtml();
+	}
+		
+	/**
+	 * 初始化
+	 * @method initialize
+	 * @param {object}oSettings 初始化参数
+	 */
+	function fInitialize(oSettings){
+		var me=this;
+		//初始化配置
+		me.doConfig(oSettings);
+		//分析处理子组件
+		me.parseItems();
+		//由模板生成组件html
+		var sHtml=$H.Template.tmpl({id:me.xtype,tmpl:me.tmplStr||(me.tmplStr=me.tmpl.join(''))},me);
+		var sId=me.getId();
+		//添加id
+		sHtml=sHtml.replace(_oIdReg,'$1 id="'+sId+'"');
+		//添加附加class
+		sHtml=me.html=sHtml.replace(_oClsReg,'$1'+me.getExtCls());
+		me.fire('beforeRender');
+		if(me.autoRender!=false){
+			me.renderTo[me.renderBy](sHtml);
+			//渲染后续工作
+			me.afterRender();
 		}
-	});
-	
-	//类方法
-	$HO.extend(Component.prototype,{
-		
-		ctype:'component',
-		
-		/**
-		 * 
-		 * @param {object}settings 初始化参数 {
-		 * 			{any}data 数据
-		 * }
-		 */
-		initialize:function(settings){
-			var that=this;
-			that.doConfig(settings);
-			//组件html
-			that.initHtml(settings);
-			var cHtml=that.chtml;
-			var template=cHtml.indexOf('<%=this.id%>')>-1?cHtml:Component._template;
-			var html=that.html=$H.Template.compile(template,{
-				id:that.id,
-				html:that.chtml
-			});
-			if(settings.notRender!=true){
-				that.renderTo.append(html);
-				//缓存容器
-				that.container=$("#"+that.id);
-			}
-			
-			if(settings.notListener!=true){
-				if(that.delayInitListener){
-					setTimeout(function(){
-						that.initListener();
-					});
-				}else{
-					that.initListener();
-				}
-			}
-		},
-		
-		doConfig:function(settingParams){
-			var that=this;
-			var settings=that.settings={};
-			$HO.extend(settings,settingParams);
-			if(settings.renderTo){
-				that.renderTo=$(settings.renderTo);
-			}else{
-				that.renderTo=$(document.body);
-			}
-			that.children=[];
-			//组件id
-			that.id=Component._expando+that.constructor.ctype+"_"+$H.Util.getUuid();
-		},
-		
-		getId:function(){
-			
-		},
-		
-		initHtml:function(){
-		},
-		
-		getHtml:function(){
-			return this.html;
-		},
-		
-		initListener:function(){
-			var that=this;
-			//缓存容器
-			that.container=that.container||$("#"+that.id);
-			var children=that.children;
-			for(var i=0,len=children.length;i<len;i++){
-				if(children.settings.notListener){
-					children.initListener();
-				}
-			}
-		},
-		
-		find:function(selector){
-			return this.container.find(selector);
-		},
-		
-		hide:function(){
-			this.container.hide();
-		},
-		
-		destroy:function(){
-			this.container.remove();
+		//注册组件
+		CM.register(me);
+	}
+	/**
+	 * 初始化配置
+	 * @method doConfig
+	 * @param {object} oParams
+	 */
+	function fDoConfig(oParams){
+		var me=this;
+		me.params=oParams;
+		//生成对象的监听器列表
+		var aListeners=me.listeners||[];
+		if(oParams.listeners){
+			me._listeners=aListeners.concat(oParams.listeners);
+		}else{
+			me._listeners=aListeners.concat();
 		}
-		
-	});
-	
-})();
-
-//树形菜单
-
-
-(function(){
-	
-	var TreeMenu=$HO.createClass("handy.component.TreeMenu");;
-	
-	
-	$HO.inherit(TreeMenu,$HO.namespace("handy.component.Component"),{
-		
-		/**
-		 * 
-		 * @param {object}settings 初始化参数 {
-		 * 			{any}data 数据
-		 * }
-		 */
-		initialize:function(settings){
-			var that=this;
-			TreeMenu.superClass.initialize.call(that,settings);
-		},
-		
-		initHtml:function(settings){
-			var that=this;
-			that.chtml=that.createMenu(settings.data).join('');
-		},
-		
-		createMenu:function(menus,html,marginLeft){
-			var that=this;
-			//是否是第一级菜单
-			var isFirst=!!!html;
-			var html=html||[];
-			var marginLeft=marginLeft||0;
-			//除第一级菜单外，其他默认隐藏
-			html.push('<ul class="menu-tree"',isFirst?'':' style="display:none"','>');
-			for(var i=0,len=menus.length;i<len;i++){
-				var menu=menus[i];
-				var hasChildren=!!menu.childMenus;
-				html.push(
-					'<li><a class="menu-tree-item">',
-							//每级缩进
-							'<span class="gi ',hasChildren?'gi-plus':'gi-minus','"',marginLeft?'style="margin-left:'+marginLeft+'px"':'','></span>',
-							menu.menuName,
-						'</a>'
-				);
-				if(hasChildren){
-					that.createMenu(menu.childMenus,html,marginLeft+20);
-				}
-				html.push('</li>');
-			}
-			html.push('</ul>');
-			return html;
-		},
-		
-		initListener:function(){
-			var that=this;
-			TreeMenu.superClass.initListener.call(that);
-			var container=that.container;
-			//展开/收起子菜单事件
-			container.delegate('.gi','click',function(event){
-				var icon=$(this);
-				var childMenu=icon.parent().next('ul');
-				if(childMenu.length==0){
-					return;
-				}
-				if(icon.attr("class").indexOf('gi-plus')>-1){
-					icon.attr("class","gi gi-minus");
-					childMenu.show();
-				}else{
-					icon.attr("class","gi gi-plus");
-					childMenu.hide();
-				}
-			});
-		}
-	});
-	
-	$HO.extend(TreeMenu,{
-		ctype:'treemenu'
-	});
-	
-	
-})();//手风琴菜单
-
-
-(function(){
-	
-	var AccordionMenu=$HO.createClass("handy.component.AccordionMenu");;
-	
-	$HO.inherit(AccordionMenu,$HO.namespace("handy.component.Component"),{
-		
-		/**
-		 * 
-		 * @param {object}settings 初始化参数 {
-		 * 			{any}data 数据
-		 * }
-		 */
-		initialize:function(settings){
-			var that=this;
-			AccordionMenu.superClass.initialize.call(that,settings);
-			that.setSize();
-		},
-		
-		doConfig:function(settings){
-			var that=this;
-			AccordionMenu.superClass.doConfig.call(that,settings);
-		},
-		
-		initHtml:function(settings){
-			var that=this;
-			var data=settings.data;
-			var html=[
-			    '<ul class="menu-accordion" style="height:',that.settings.height,'px">'
-			];
-			for(var i=0,len=data.length;i<len;i++){
-				var menu=data[i];
-				var childHtml=menu.childMenus.length>0?$H.TreeMenu.html({data:menu.childMenus}):'';
-				html.push(
-					'<li>',
-						'<a href="javascript:;" data-url="',menu.menuUrl,'" class="menu-accordion-item"><span class="gi ',menu.icon||'gi-Operation-maintenance','"></span>',menu.menuName,'</a>',
-						'<div class="js-content" style="display:none;','">',
-						childHtml,
-						'</div>',
-					'</li>');
-			}
-			html.push('</ul>');
-			that.chtml=html.join('');
-		},
-		
-		setSize:function(height){
-			var that=this;
-			var settings=that.settings;
-			var h=that.height=height||settings.height||that.renderTo.height();
-			var contentHeight=h-settings.data.length*43;
-			that.container.find('.js-content').height(contentHeight);
-		},
-		
-		open:function(param){
-			var that=this;
-			that.container.find(".menu-accordion-item[data-url='"+param.menuUrl+"']").click();
-		},
-		
-		initListener:function(){
-			var that=this;
-			AccordionMenu.superClass.initListener.call(that);
-			var container=that.container;
-			var settings=that.settings;
-			//展开/收起子菜单事件
-			container.delegate('.menu-accordion-item','click',function(event){
-				var menuItem=$(this);
-				var itemClick=settings.itemClick;
-				if(itemClick){
-					itemClick(menuItem);
-				}
-				var childMenu=menuItem.next('.js-content');
-				if(menuItem.attr("class").indexOf('js-open')>-1){
-					return;
-				}
-				container.find('.js-open').removeClass("js-open accordion-item-active").next('.js-content').hide();
-				menuItem.addClass('js-open accordion-item-active');
-				if(childMenu.children().length>0){
-					childMenu.show();
-				}
-			});
-		}
-	});
-	
-	$HO.extend(AccordionMenu,{
-		ctype:'accordionMenu'
-	});
-	
-	
-})();//浮层提示框
-
-
-(function(){
-	
-	var TipsBox=$HO.createClass("handy.component.TipsBox");;
-	
-	
-	$HO.inherit(TipsBox,$HO.namespace("handy.component.Component"),{
-		
-		delayInitListener:true,
-		
-		/**
-		 * 
-		 * @param {object}settings 初始化参数 {
-		 * 			{any}data 数据
-		 * }
-		 */
-		initialize:function(settings){
-			var that=this;
-			//下次调用时需要关闭之前的实例
-			if(TipsBox.current){
-				TipsBox.current.destroy();
-			}
-			TipsBox.current=that;
-			TipsBox.superClass.initialize.call(that,settings);
-			that.show();
-		},
-		
-		doConfig:function(settings){
-			var that=this;
-			TipsBox.superClass.doConfig.call(that,settings);
-		},
-		
-		initHtml:function(settings){
-			var that=this;
-			var html=[
-			    '<div id="<%=this.id%>" class="c-tipsbox ',settings.extClass||'','" style="',settings.width?'width:'+settings.width+'px':'','">',
-					'<div class="w-triangle-top">',
-						'<div class="w-triangle-top w-triangle-inner"></div>',
-					'</div>'];
-			if(!settings.noTitle){
-				html.push(
-						'<div class="c-tipsbox-header">',
-						settings.title,
-						'</div>'
-				);
-			}
-			html.push(
-					'<div class="c-tipsbox-content">',
-					settings.content,
-					'</div>',
-					'<div class="w-triangle-bottom" style="display:none">',
-						'<div class="w-triangle-bottom w-triangle-inner"></div>',
-					'</div>',
-					'</div>'
-			);
-			that.chtml=html.join('');
-		},
-		
-		show:function(){
-			// 设置定位坐标
-			var that=this;
-			var trigger=that.settings.trigger;
-			var triggerPos=trigger.position();
-			var tipsbox=that.container;
-			var doc=document;
-			
-			var width=tipsbox.width();
-			var height=tipsbox.height();
-			var bodyWidth=doc.documentElement.offsetWidth || doc.body.offsetWidth;
-			var bodyHeight=doc.documentElement.clientHeight || doc.body.clientHeight+ document.body.scrollTop;
-			var triggerWidth=trigger.width();
-			var triggerHeight=trigger.height();
-			
-			/*console.log(triggerPos)
-			console.log(triggerWidth)
-			console.log(triggerHeight)
-			console.log(bodyHeight)
-			console.log(bodyWidth)
-			console.log(width)
-			console.log(height)*/
-			
-			var x = triggerPos.left+ triggerWidth/2;
-			var y = triggerPos.top;
-			
-			//默认右下角显示
-			var passivePos="rightBottom";
-			var passiveTop=y+triggerHeight+height>bodyHeight;
-			if(x+width>bodyWidth){
-				if(passiveTop){
-					passivePos="leftTop";
-				}else{
-					passivePos="leftBottom";
-				}
-			}else if(passiveTop){
-				passivePos="rightTop";
-			}
-			
-			var posType=that.settings.position||passivePos;
-			if(posType=="leftBottom"){
-				//10是三角形尖到提示框上边界的距离
-				y=y+triggerHeight+10;
-				x=x-width;
-				tipsbox.find('.w-triangle-top').css({
-					right:'10px'
+		//只覆盖已声明的基本类型的属性
+		$HO.extend(me,oParams,{notCover:function(sProp){
+			var value=me[sProp];
+			//默认事件，可通过参数属性直接添加
+			var bIsCustEvt=$HO.contain(me._customEvents,sProp);
+			var bIsDefEvt=$HO.contain(me._defaultEvents,sProp);
+			if(bIsCustEvt||bIsDefEvt){
+				me._listeners.push({
+					type:sProp,
+					notEl:bIsCustEvt,
+					handler:oParams[sProp]
 				});
-			}else if(posType=="rightBottom"){
-				y=y+triggerHeight+10;
-				//20是三角形尖到提示框左边界的距离
-				x-=20;
-			}else if(posType=="leftTop"){
-				y=y-height;
-				x=x-width;
-				tipsbox.find('.w-triangle-top').hide();
-				tipsbox.find('.w-triangle-bottom').css({
-					right:'10px'
-				}).show();
-			}else if(posType=="rightTop"){
-				//12是三角形的高度
-				y=y-height-12;
-				//20是三角形尖到提示框左边界的距离
-				x-=20;
-				tipsbox.find('.w-triangle-top').hide();
-				tipsbox.find('.w-triangle-bottom').show();
 			}
-			
-			tipsbox.css({
-				left:x + "px",
-				top:y-(that.settings.offsetTop||0) + "px"
-			});
-		},
-		
-		position:function(){
-			
-		},
-		
-		hide:function(){
-			var that=this;
-			that.container.hide();
-		},
-		
-		initListener:function(){
-			var that=this;
-			TipsBox.superClass.initListener.call(that);
-			var notClose=false;
-			that.container.click(function(event){
-				notClose=true;
-			});
-			$(document).click(function(event){
-				if(!notClose){
-					that.hide();
-				}
-				notClose=false;
-			});
+			if((value!=null&&typeof value=='object')||$HO.isFunction(value)){
+				return true;
+			}
+		}});
+		if(oParams.renderTo){
+			me.renderTo=$(oParams.renderTo);
+		}else{
+			me.renderTo=$(document.body);
 		}
+		me.children=[];
+	}
+	/**
+	 * 获取组件id
+	 * @method getId
+	 * @return {string}返回组件id
+	 */
+	function fGetId(){
+		var me=this;
+		return me._id||(me._id=CM.generateId(me.cid));
+	}
+	/**
+	 * 获取组件节点
+	 * @method getEl
+	 * @return {jQuery} 返回组件节点
+	 */
+	function fGetEl(){
+		return this._container;
+	}
+	/**
+	 * 获取html
+	 * @method getHtml
+	 */
+	function fGetHtml(){
+		return this.html;
+	}
+	/**
+	 * 获取所有子组件拼接后的html
+	 * @method getChildrenHtml
+	 * @return {string} 返回子组件html
+	 */
+	function fGetChildrenHtml(){
+		var aChildren=this.children;
+		var aHtml=[];
+		for(var i=0;i<aChildren.length;i++){
+			aHtml.push(aChildren[i].getHtml());
+		}
+		return aHtml.join('');
+	}
+	/**
+	 * 生成通用样式
+	 * @method getExtCls
+	 * @return {string} 返回通用样式
+	 */
+	function fGetExtCls(){
+		var me=this;
+		var aCls=[];
+		if(me.extCls){
+			aCls.push(me.extCls);
+		}
+		if(me.disabled){
+			aCls.push('w-disable');
+		}
+		if(me.radius){
+			aCls.push('w-radius-'+me.radius);
+		}
+		if(me.isMini){
+			aCls.push('w-mini');
+		}
+		if(me.shadow){
+			aCls.push('w-shadow');
+		}
+		if(me.shadowInset){
+			aCls.push('w-shadow-inset');
+		}
+		if(me.isFocus){
+			aCls.push('w-focus');
+		}
+		if(me.isInline){
+			aCls.push('w-inline');
+		}
+		return aCls.length>0?aCls.join(' ')+' ':'';
+	}
+	/**
+	 * 渲染后续工作
+	 * @method afterRender
+	 */
+	function fAfterRender(){
+		var me=this;
+		//缓存容器
+		me._container=$("#"+me.getId());
+		me.rendered=true;
+		if(me.notListen!=true){
+			me.initListeners();
+		}
+		if(me.disabled){
+			me.suspendListeners();
+		}
+		me.fire('afterRender');
+		delete me.html;
+	}
+	/**
+	 * 查找子元素或子组件
+	 * @method
+	 */
+	function fFind(selector){
+		return this.getEl().find(selector);
+	}
+	/**
+	 * 隐藏
+	 * @method hide
+	 */
+	function fHide(){
+		var me=this;
+		me.getEl().hide();
+		me.fire('hide');
+	}
+	/**
+	 * 显示
+	 * @method show
+	 */
+	function fShow(){
+		var me=this;
+		me.getEl().show();
+		me.fire('show');
+	}
+	/**
+	 * 启用
+	 * @method enable
+	 */
+	function fEnable(){
+		var me=this;
+		me.resumeListeners();
+		me.getEl().removeClass("w-disable");
+	}
+	/**
+	 * 禁用
+	 * @method disable
+	 */
+	function fDisable(){
+		var me=this;
+		me.suspendListeners();
+		me.getEl().addClass("w-disable");
+	}
+	/**
+	 * 触发组件自定义事件
+	 * @method fire
+	 * @param {string}sType 事件类型
+	 */
+	function fFire(sType){
+		var me=this;
+		for(var i=me._listeners.length-1;i>=0;i--){
+			var oListener=me._listeners[i]
+			if(oListener.type==sType){
+				var fDelegation=oListener.delegation;
+				fDelegation({obj:me,data:oListener.data});
+			}
+		}
+	}
+	/**
+	 * 绑定事件
+	 * @method listen
+	 * @param {object}事件对象{
+	 * 			{string}type      : 事件名
+	 * 			{function}handler : 监听函数
+	 * 			{any=}data        : 数据
+	 * 			{jQuery=}el       : 绑定事件的节点，不传表示组件容器节点
+	 * 			{boolean=}notEl    : 为true时是自定义事件
+	 * 			{string=}selector : 选择器
+	 * 			{any=}scope       : 监听函数执行的上下文对象，默认是组件对象
+	 * 			{string=}method   : 绑定方式，默认为"bind"
+	 * }
+	 */
+	function fListen(oEvent){
+		var me=this,
+			sType=oEvent.type,
+			aListeners=me._listeners,
+			oEl=oEvent.el,
+			sMethod=oEvent.method||"bind",
+			sSel=oEvent.selector,
+			oData=oEvent.data,
+			fFunc=oEvent.delegation=function(){
+				if(me.isSuspend!=true){
+					return oEvent.handler.apply(oEvent.scope||me,arguments);
+				}
+			};
+		oEl=oEl?typeof oEl=='string'?me.find(oEl):oEl:me.getEl();
+		if(!oEvent.notEl){
+			if(sSel){
+				if(oData){
+					oEl[sMethod](sSel,sType,oData,fFunc);
+				}else{
+					oEl[sMethod](sSel,sType,fFunc);
+				}
+			}else{
+				if(oData){
+					oEl[sMethod](sType,oData,fFunc);
+				}else{
+					oEl[sMethod](sType,fFunc);
+				}
+			}
+		}
+		aListeners.push(oEvent)
+	}
+	/**
+	 * 解除事件
+	 * @method unlisten
+	 * @param {object}事件对象{
+	 * 			{string}type      : 事件名
+	 * 			{function}handler : 监听函数
+	 * 			{jQuery=}el       : 绑定事件的节点，不传表示组件容器节点
+	 * 			{boolean=}notEl    : 为true时是自定义事件
+	 * 			{string=}selector : 选择器
+	 * 			{string=}method   : 绑定方式，默认为"bind"
+	 * }
+	 */
+	function fUnlisten(oEvent){
+		var me=this,
+			sType=oEvent.type,
+			oEl=oEvent.el||me.getEl(),
+			sMethod=oEvent.method=="delegate"?"undelegate":"unbind",
+			sSel=oEvent.selector,
+			fDelegation;
+		for(var i=me._listeners.length-1;i>=0;i--){
+			var oListener=me._listeners[i]
+			if(oListener.handler==oEvent.handler){
+				fDelegation=oListener.delegation;
+				me._listeners.splice(i,1);
+				break;
+			}
+		}
+		if(!oEvent.notEl){
+			if(sSel){
+				oEl[sMethod](sSel,sType,fDelegation);
+			}else{
+				oEl[sMethod](sType,fDelegation);
+			}
+		}
+	}
+	/**
+	 * 初始化所有事件
+	 * @method initListeners
+	 */
+	function fInitListeners(){
+		var me=this;
+		//缓存容器，autoRender为false时需要此处获取容器
+		me._container=me._container||$("#"+me._id);
+		var aListeners=me._listeners;
+		me._listeners=[];
+		for(var i=aListeners.length-1;i>=0;i--){
+			me.listen(aListeners[i]);
+		}
+		me.callChild('initListeners');
+	}
+	/**
+	 * 清除所有事件
+	 * @method clearListeners
+	 */
+	function fClearListeners(){
+		var me=this;
+		var aListeners=me._listeners;
+		for(var i=aListeners.length-1;i>=0;i--){
+			me.unlisten(aListeners[i]);
+		}
+		me.callChild('clearListeners');
+	}
+	/**
+	 * 挂起事件
+	 * @method suspendListeners
+	 */
+	function fSuspendListeners(){
+		var me=this;
+		me.isSuspend=true;
+		me.callChild('suspendListeners');
+	}
+	/**
+	 * 恢复事件
+	 * @method resumeListeners
+	 */
+	function fResumeListeners(){
+		var me=this;
+		me.isSuspend=false;
+		me.callChild('resumeListeners');
+	}
+	/**
+	 * 遍历子组件
+	 * @method each
+     * @param {function}fCallback 回调函数:fCallback(i,oChild)|fCallback(args)this=oChild,返回false时退出遍历
+     * @param {*}args  回调函数的参数
+	 */
+	function fEach(fCallback, args){
+		$HO.each(this.children,fCallback, args);
+	}
+	/**
+	 * 调用子组件方法
+	 * @method callChild
+	 * @param {string}sMethod 调用的子组件的方法名
+	 */
+	function fCallChild(sMethod){
+		var aChildren=this.children;
+		for(var i=0,len=aChildren.length;i<len;i++){
+			aChildren[i][sMethod]();
+		}
+	}
+	/**
+	 * 添加子组件
+	 * @method add
+	 * @param {object}oCmp 组件对象
+	 */
+	function fAdd(oCmp){
+		var me=this;
+		me.children.push(oCmp);
+		oCmp.parent=me;
+	}
+	/**
+	 * 删除子组件
+	 * @method remove
+	 * @param {object}oCmp 组件对象
+	 * @return {boolean} true表示删除成功
+	 */
+	function fRemove(oCmp){
+		var me=this;
+		var aChildren=me.children;
+		var bResult=false;
+		for(var i=0,len=aChildren.length;i<len;i++){
+			if(aChildren[i]==oCmp){
+				aChildren.splice(i,1);
+				oCmp.destroy();
+				bResult=true;
+			}
+		}
+		return bResult;
+	}
+	/**
+	 * 分析子组件列表
+	 * @method parseItems
+	 */
+	function fParseItems(){
+		var me=this;
+		var aItems=me.params.items;
+		if(!aItems){
+			return;
+		}
+		aItems=aItems.length?aItems:[aItems];
+		//逐个初始化子组件
+		for(var i=0,len=aItems.length;i<len;i++){
+			var oItem=aItems[i];
+			//默认子组件配置
+			if(me.defItem){
+				$HO.extend(oItem,me.defItem,{notCover:true});
+			}
+			//具体组件类处理
+			me.parseItem(oItem);
+			var Component=CM.getClass(oItem.xtype);
+			oItem.autoRender=false;
+			var oCmp=new Component(oItem);
+			me.add(oCmp);
+		}
+	}
+	/**
+	 * 销毁组件
+	 * @method destroy
+	 */
+	function fDestroy(){
+		var me=this;
+		//注销组件
+		CM.unregister(me);
+		me.fire('destroy');
+		me.clearListeners();
+		me.callChild('destroy');
+		me.getEl().remove();
+		delete me._listeners;
+		delete me._contianer;
+		delete me.children;
+	}
+		
+	return AC;
+	
+});/**
+ * 图标类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-01-01
+ */
+
+$Define('handy.component.Icon',
+'handy.component.AbstractComponent',
+function(AC){
+	
+	var Icon=AC.define('Icon');
+	
+	$HO.extend(Icon.prototype,{
+		//初始配置
+//		hasBg           : false,               //是否有背景
+//		name            : '',                  //图标名称
+		
+		tmpl            : ['<span class="w-icon w-icon-<%=this.name%><%if(this.hasBg){%> w-icon-bg<%}%>"></span>']
+		
 	});
 	
-	$HO.extend(TipsBox,{
-		ctype:'TipsBox'
+	return Icon;
+	
+});/**
+ * 按钮类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-01-13
+ */
+
+$Define('handy.component.Button',
+'handy.component.AbstractComponent',
+function(AC){
+	
+	var Button=AC.define('Button');
+	
+	$HO.extend(Button.prototype,{
+		//初始配置
+		text            : '',                  //按钮文字
+		color           : null,                //按钮颜色
+		iconPos         : 'left',              //图标位置，"left"|"top"
+		
+		
+		////通用效果
+		radius          : 'big',               //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
+		shadow          : true,        	       //外阴影
+		isInline        : true,                //宽度自适应
+		
+		tmpl            : ['<a class="w-btn<%if(this.color){%> w-btn-<%=this.color%><%}',
+							'if(!this.text){%> w-btn-icon-notxt<%}',
+							'if(this.hasIcon&&this.text){%> w-btn-icon-<%=this.iconPos%><%}%>">',
+							'<span class="w-btn-txt"><%=this.text%></span>',
+							'<%=this.getChildrenHtml()%>',
+							'</a>'],
+		
+		parseItem       : fParseItem           //分析处理子组件
+	});
+	/**
+	 * 分析处理子组件
+	 * @method parseItem
+	 */
+	function fParseItem(oItem){
+		var me=this;
+		if(oItem.xtype=="Icon"){
+			me.hasIcon=true;
+		}
+	}
+	
+	return Button;
+	
+});/**
+ * 输入框类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-01-14
+ */
+
+$Define('handy.component.Input',
+'handy.component.AbstractComponent',
+function(AC){
+	
+	var Input=AC.define('Input');
+	
+	$HO.extend(Input.prototype,{
+		//初始配置
+		type            : '',                  //图标名称
+//		placeholder     : '',                  //placeholder
+		radius          : 'normal',            //普通圆角
+		iconPos         : 'left',              //图标位置
+		btnPos          : 'right',             //按钮位置
+		
+		tmpl            : [
+		'<div class="w-input<%if(this.hasIcon){%> w-input-icon-<%=this.iconPos%><%}%>',
+		'<%if(this.hasBtn){%> w-input-btn-<%=this.btnPos%><%}%>">',
+			'<%=this.getChildrenHtml()%>',
+			'<input type="text" class="js-input w-input-txt"<%if(this.placeholder){%> placeholder="<%=this.placeholder%><%}%>"/>',
+		'</div>'],
+		listeners       : [
+			{
+				type : 'focus',
+				el : '.js-input',
+				handler : function(){
+					this.getEl().addClass('w-focus');
+				}
+			},
+			{
+				type : 'blur',
+				el : '.js-input',
+				handler : function(){
+					this.getEl().removeClass('w-focus');
+				}
+			}
+		],
+		doConfig        : fDoConfig,         //初始化配置
+		parseItem       : fParseItem         //分析处理子组件
+		
 	});
 	
+	/**
+	 * 初始化配置
+	 * @method doConfig
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		me.constructor.superProt.doConfig.call(me,oSettings);
+		//搜索框快捷配置方式
+		if(me.type=='search'){
+			if(!me.params.items){
+				me.params.items=[];
+			}
+			me.params.items.push({
+				xtype:'Icon',
+				name:'search',
+				hasBg:true
+			})
+		}
+	}
+	/**
+	 * 分析处理子组件
+	 * @method parseItem
+	 */
+	function fParseItem(oItem){
+		var me=this;
+		if(oItem.xtype=="Icon"){
+			me.hasIcon=true;
+		}else if(oItem.xtype=="Button"){
+			me.hasBtn=true;
+		}
+	}
 	
-})();/****************************************************************
+	return Input;
+	
+});/**
+ * 标签类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-01-16
+ */
+
+$Define('handy.component.Tab',
+'handy.component.AbstractComponent',
+function(AC){
+	
+	var Tab=AC.define('Tab');
+	
+	$HO.extend(Tab.prototype,{
+		//初始配置
+//		hasBg           : false,               //是否有背景
+//		name            : '',                  //图标名称
+		defItem         : {                    //默认子组件是Button
+			xtype:'Button',
+			radius:null,
+			isInline:false,
+			shadow:false
+		},
+		
+		tmpl            : [
+			'<div class="w-tab">',
+				'<ul class="c-clear">',
+					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
+					'<li class="w-tab-item" style="width:<%=100/len%>%">',
+					'<%=this.children[i].getHtml()%>',
+					'</li>',
+					'<%}%>',
+				'</ul>',
+				'<%for(var i=0,len=this.children.length;i<len;i++){%>',
+					'<div class="js-tab-content">',
+					'<%=this.children[i].content%>',
+					'</div>',
+				'<%}%>',
+			'</div>'
+		],
+		listeners       : [
+			{
+				type :'click',
+				handler : function(){
+					
+				}
+			}
+		],
+		
+		parseItem       : fParseItem           //分析处理子组件
+	});
+	/**
+	 * 分析处理子组件
+	 * @method parseItem
+	 */
+	function fParseItem(oItem){
+		var me=this;
+	}
+	
+	
+	return Tab;
+	
+});/****************************************************************
 * Author:		郑银辉											*
 * Email:		zhengyinhui100@gmail.com						*
 * Created:		2013-12-14										*
@@ -2373,15 +3510,15 @@ $Define("handy.module.AbstractModule","handy.base.Object",function (Object) {
 	var AbstractModule = Object.createClass();
 	
 	Object.extend(AbstractModule.prototype, {
-		isLoaded       : false,          //模块是否已载入
-		isActived      : false,          //模块是否是当前活跃的
-		//container    : null,           //模块的容器对象
-		useCache       : true,           //是否使用cache
-		//name         : null,           //模块名
-		//chName       : null,           //模块的中文名称
-		//getData      : null,           //获取该模块的初始化数据
-		//clone        : null,           //克隆接口
-		//getHtml      : null,           //获取该模块的html
+		isLoaded       : false,          //{boolean}模块是否已载入
+		isActived      : false,          //{boolean}模块是否是当前活跃的
+		//container    : null,           //{jQuery}模块的容器对象
+		useCache       : true,           //{boolean}是否使用cache
+		//name         : null,           //{string}模块名
+		//chName       : null,           //{string}模块的中文名称
+		//getData      : null,           //{function()}获取该模块的初始化数据
+		//clone        : null,           //{function()}克隆接口
+		//getHtml      : null,           //{function():string}获取该模块的html
 		cache          : function(){},   //显示模块缓存
 		init           : function(){},   //初始化函数, 在模块创建后调用（在所有模块动作之前）
 		beforeRender   : function(){},   //模块渲染前调用
@@ -2431,18 +3568,20 @@ $Define("handy.module.AbstractNavigator","handy.base.Object",function (Object) {
  * @class handy.module.History
  */
 $Define("handy.module.History",
-['handy.base.Object','handy.base.HashChange'],
-function(Object,HashChange){
+'handy.base.HashChange',
+function(HashChange){
 
-	var History=Object.createClass();
+	var History=$HO.createClass();
 	
 	var _nIndex=0;
 	
-	Object.extend(History.prototype,{
+	$HO.extend(History.prototype,{
 		initialize         : fInitialize,      //历史记录类初始化
+		stateChange        : fStateChange,     //历史状态改变
 		saveState          : fSaveState,       //保存当前状态
 		getCurrentState    : fGetCurrentState, //获取当前状态
-		stateChange        : fStateChange      //历史状态改变
+		getPreState        : fGetPreState,     //获取前一个状态
+		back               : fBack             //后退一步
 	});
 	/**
 	 * 历史记录类初始化
@@ -2453,7 +3592,7 @@ function(Object,HashChange){
 		var that=this;
 		that.key=sKey||'handy';
 		that.states=[];
-		HashChange.listen(that.stateChange.bind(that));
+		HashChange.listen($H.Function.bind(that.stateChange,that));
 	}
 	/**
 	 * 历史状态改变
@@ -2463,7 +3602,7 @@ function(Object,HashChange){
 		var that=this;
 		var oState=that.getCurrentState();
 		if(oState){
-			oState.onStateChange(oState.param);
+			oState.onStateChange(oState.param,true);
 		}
 	}
 	/**
@@ -2483,7 +3622,7 @@ function(Object,HashChange){
 			hKey    : sHistoryKey,
 			param : oState.param
 		};
-		HashChange.setHash("#"+JSON.stringify(oHashParam));
+		$HU.setHash("#"+JSON.stringify(oHashParam));
 	}
 	/**
 	 * 获取当前状态
@@ -2493,13 +3632,44 @@ function(Object,HashChange){
 	function fGetCurrentState(){
 		var that=this;
 		try{
-			var oHashParam=JSON.parse(HashChange.getHash().replace("#",""));
+			var oHashParam=JSON.parse($HU.getHash().replace("#",""));
 			return that.states[oHashParam.hKey];
 		}catch(e){
 			$H.Debug.warn("History.getCurrentState:parse hash error:"+e.message);
 		}
 	}
-	
+	/**
+	 * 获取前一个状态
+	 * @method getPreState
+	 * @return {object} 返回前一个状态
+	 */
+	function fGetPreState(){
+		var that=this;
+		try{
+			var oHashParam=JSON.parse($HU.getHash().replace("#",""));
+			var sHKey=oHashParam.hKey;
+			var aStates=that.states;
+			var nLen=aStates.length;
+			for(var i=0;i++;i<nLen){
+				if(aStates[i]==sHKey){
+					return i>0?aStates[aStates[--i]]:null;
+				}
+			}
+		}catch(e){
+			$H.Debug.error("History.getPreState error:"+e.message);
+		}
+	}
+	/**
+	 * 后退一步
+	 * @method back
+	 */
+	function fBack(){
+		var that=this;
+		var oState=that.getPreState();
+		if(oState){
+			oState.onStateChange(oState.param);
+		}
+	}
 	
 	return History;
 	
@@ -2514,8 +3684,8 @@ function(Object,HashChange){
  * @class ModuleManager
  */
 $Define("handy.module.ModuleManager",
-["handy.base.Function","handy.module.History"],
-function(Function,History){
+"handy.module.History",
+function(History){
 	
 	var ModuleManager=$HO.createClass();
 	
@@ -2556,9 +3726,13 @@ function(Function,History){
 	/**
 	 * 进入模块
 	 * @method go(oParams)
-	 * @param
+	 * @param {object}oParams{  //传入参数
+	 * 		modName:模块名称
+	 * 		...
+	 * }
+	 * @param {boolean=}bNotSaveHistory仅当为true时，不保存历史记录
 	 */
-	function fGo(oParams){
+	function fGo(oParams,bNotSaveHistory){
 		var that=this;
 		var sModName=oParams.modName;
 		var sCurrentMod=that.currentMod;
@@ -2583,11 +3757,13 @@ function(Function,History){
 			//否则新建一个模块
 			that.createMod(oParams);
 		}
-		//保存状态
-		that.history.saveState({
-			onStateChange:Function.bind(that.go,that),
-			param:oParams
-		});
+		if(bNotSaveHistory!=true){
+			//保存状态
+			that.history.saveState({
+				onStateChange:$H.Function.bind(that.go,that),
+				param:oParams
+			});
+		}
 	}
 	/**
 	 * 新建模块
@@ -2600,6 +3776,8 @@ function(Function,History){
 		//请求模块
 		$Require(that.defModPackage+sModName,function(Module){
 			var oMod=new Module();
+			oMod.name=sModName;
+			oMod.mType=sModName;
 			oMod.initParam=oParams;
 			//模块初始化
 			oMod.init(oParams);

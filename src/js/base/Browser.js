@@ -109,7 +109,7 @@ handy.add("Browser","handy.base.Object",function(Object,$H){
 				//版本号
 				m = ua.match(/OS ([^\s]*)/);
 				if (m && m[1]) {
-					_oInfo.ios = numberify(m[1].replace('_', '.'));
+					_oInfo.ios = m[1].replace('_', '.');
 				}
 				m = ua.match(/iPad|iPod|iPhone/);
 				if (m && m[0]) {

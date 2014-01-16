@@ -163,8 +163,7 @@
 	<!-- 替换版本信息以及给文件加上版权信息 -->
 	<target name="copyright">
 		<tstamp>
-			<format property="stamp.time" pattern="MMM d HH:mm" locale="en,UK"/>
-			<format property="build.year" pattern="yyyy"/>
+			<format property="build.time" pattern="yyyy-MM-dd" locale="en,UK"/>
 		</tstamp>
 
 		<mkdir dir="${tmp.dir}/cp"/>
@@ -179,7 +178,7 @@
 			<sequential>
 				<concat destfile="@{file}.tmp" encoding="${charset}"
                 outputencoding="${charset}">
-					<header filtering="no" trimleading="yes">/* Handy v${version}  |  zhengyinhui100@gmail.com */
+					<header filtering="no" trimleading="yes">/* Handy v${version} | ${build.time} | zhengyinhui100@gmail.com */
           			</header>
 					<fileset file="@{file}"/>
 				</concat>
