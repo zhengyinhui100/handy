@@ -203,10 +203,16 @@ function(CM,Icon,Button,Input,Tab){
 			{
 				text:'一',
 				isActive:true,
+				items:{
+					name:'edit'
+				},
 				content:'内容1'
 			},
 			{
 				text:'二',
+				items:{
+					name:'edit'
+				},
 				content:'内容2',
 				click:function(){
 					$D.log(this.index());
@@ -214,6 +220,9 @@ function(CM,Icon,Button,Input,Tab){
 			},
 			{
 				text:'三',
+				items:{
+					name:'edit'
+				},
 				content:'内容3'
 			}
 		]

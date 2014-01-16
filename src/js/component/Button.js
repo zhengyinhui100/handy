@@ -17,6 +17,10 @@ function(AC){
 		isActive          : false,               //是否是激活状态
 		iconPos         : 'left',              //图标位置，"left"|"top"
 		activeCls       : 'w-btn-blue',        //激活样式
+		defItem         : {
+			xtype       : 'Icon',
+			hasBg       : true
+		},
 		
 		////通用效果
 		radius          : 'big',               //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角

@@ -18,6 +18,7 @@ function(AC){
 			xtype:'Button',
 			radius:null,
 			isInline:false,
+			iconPos:'top',
 			shadow:false
 		},
 		
