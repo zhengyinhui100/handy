@@ -30,6 +30,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		renderBy            : 'append',          //默认渲染方式
 		notListen           : false,             //不自动初始化监听器
 		extCls              : '',                //组件附加class
+//		defItem             : null,              //默认子组件配置
 		////通用效果
 		radius              : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 		shadow              : false,        	 //外阴影
@@ -44,7 +45,6 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 //		tmpl                : [],                //组件模板
 //		tmplStr             : '',                //组件模板字符串
 		html                : null,              //组件html
-		childHtml           : '',                //子组件html
 //		rendered            : false,             //是否已渲染
 //		children            : [],                //子组件
 		isSuspend           : false,             //是否挂起事件
@@ -62,6 +62,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		getId               : fGetId,            //获取组件id
 		getEl               : fGetEl,            //获取组件节点
 		getHtml             : fGetHtml,          //获取html
+		getChildrenHtml     : fGetChildrenHtml,  //获取所有子组件拼接后的html
 		getExtCls           : fGetExtCls,        //生成通用样式
 		afterRender         : fAfterRender,      //渲染后续工作
 		find                : fFind,             //查找子元素
@@ -203,6 +204,19 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		return this.html;
 	}
 	/**
+	 * 获取所有子组件拼接后的html
+	 * @method getChildrenHtml
+	 * @return {string} 返回子组件html
+	 */
+	function fGetChildrenHtml(){
+		var aChildren=this.children;
+		var aHtml=[];
+		for(var i=0;i<aChildren.length;i++){
+			aHtml.push(aChildren[i].getHtml());
+		}
+		return aHtml.join('');
+	}
+	/**
 	 * 生成通用样式
 	 * @method getExtCls
 	 * @return {string} 返回通用样式
@@ -253,7 +267,6 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		}
 		me.fire('afterRender');
 		delete me.html;
-		delete me.childHtml;
 	}
 	/**
 	 * 查找子元素或子组件
@@ -493,22 +506,23 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		var me=this;
 		var aItems=me.params.items;
 		if(!aItems){
-			return me.childHtml= '';
+			return;
 		}
 		aItems=aItems.length?aItems:[aItems];
-		var aHtml=[];
 		//逐个初始化子组件
 		for(var i=0,len=aItems.length;i<len;i++){
 			var oItem=aItems[i];
+			//默认子组件配置
+			if(me.defItem){
+				$HO.extend(oItem,me.defItem,{notCover:true});
+			}
 			//具体组件类处理
 			me.parseItem(oItem);
 			var Component=CM.getClass(oItem.xtype);
 			oItem.autoRender=false;
 			var oCmp=new Component(oItem);
 			me.add(oCmp);
-			aHtml.push(oCmp.getHtml());
 		}
-		return me.childHtml=aHtml.join('');
 	}
 	/**
 	 * 销毁组件

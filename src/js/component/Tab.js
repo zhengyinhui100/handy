@@ -14,14 +14,36 @@ function(AC){
 		//初始配置
 //		hasBg           : false,               //是否有背景
 //		name            : '',                  //图标名称
+		defItem         : {                    //默认子组件是Button
+			xtype:'Button',
+			radius:null,
+			isInline:false,
+			shadow:false
+		},
 		
 		tmpl            : [
 			'<div class="w-tab">',
 				'<ul class="c-clear">',
-					'<li class="w-tab-item" style="width:33.3%">',
+					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
+					'<li class="w-tab-item" style="width:<%=100/len%>%">',
+					'<%=this.children[i].getHtml()%>',
 					'</li>',
+					'<%}%>',
 				'</ul>',
+				'<%for(var i=0,len=this.children.length;i<len;i++){%>',
+					'<div class="js-tab-content">',
+					'<%=this.children[i].content%>',
+					'</div>',
+				'<%}%>',
 			'</div>'
+		],
+		listeners       : [
+			{
+				type :'click',
+				handler : function(){
+					
+				}
+			}
 		],
 		
 		parseItem       : fParseItem           //分析处理子组件
@@ -32,9 +54,6 @@ function(AC){
 	 */
 	function fParseItem(oItem){
 		var me=this;
-		if(oItem.xtype=="Icon"){
-			me.hasIcon=true;
-		}
 	}
 	
 	
