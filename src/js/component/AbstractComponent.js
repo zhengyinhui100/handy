@@ -122,7 +122,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		//分析处理子组件
 		that.parseItems();
 		//组件html
-		var sHtml=that.initHtml(oSettings);
+		var sHtml=$H.Template.tmpl({id:that.xtype,tmpl:that.tmpl.join('')},that);
 		var sId=that.getId();
 		//添加id
 		sHtml=sHtml.replace(_oIdReg,'$1 id="'+sId+'"');

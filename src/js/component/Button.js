@@ -22,23 +22,15 @@ function(AC){
 		shadow          : true,        	       //外阴影
 		isInline        : true,                //宽度自适应
 		
-		initHtml        : fInitHtml,           //初始化html
+		tmpl            : ['<a class="w-btn<%if(this.color){%> w-btn-<%=this.color%><%}',
+							'if(!this.text){%> w-btn-icon-notxt<%}',
+							'if(this.hasIcon){%> w-btn-icon-<%=this.iconPos%><%}%>">',
+							'<span class="w-btn-txt"><%=this.text%></span>',
+							'<%=this.childHtml%>',
+							'</a>'],
+		
 		parseItem       : fParseItem           //分析处理子组件
 	});
-	/**
-	 * 初始化html
-	 * @method initHtml
-	 */
-	function fInitHtml(){
-		var that=this;
-		var sHtml=
-		'<a class="w-btn'+(that.color?' w-btn-'+that.color:'')+(that.text?'':' w-btn-icon-notxt')+
-			(that.hasIcon?' w-btn-icon-'+that.iconPos:'')+'">\
-			<span class="w-btn-txt">'+that.text+'</span>'
-			+that.childHtml+
-		'</a>';
-		return sHtml;
-	}
 	/**
 	 * 分析处理子组件
 	 * @method parseItem

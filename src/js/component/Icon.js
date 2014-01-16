@@ -15,16 +15,9 @@ function(AC){
 //		hasBg           : false,               //是否有背景
 //		name            : '',                  //图标名称
 		
-		initHtml        : fInitHtml            //初始化html
+		tmpl            : ['<span class="w-icon w-icon-<%=this.name%><%if(this.hasBg){%> w-icon-bg<%}%>"></span>']
+		
 	});
-	/**
-	 * 初始化html
-	 * @method initHtml
-	 */
-	function fInitHtml(){
-		var that=this;
-		return '<span class="w-icon w-icon-'+that.name+(that.hasBg?' w-icon-bg':'')+'"></span>';
-	}
 	
 	return Icon;
 	

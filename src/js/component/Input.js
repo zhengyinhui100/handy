@@ -16,18 +16,11 @@ function(AC){
 //		placeholder     : '',                  //placeholder
 		radius          : 'normal',            //普通圆角
 		
-		initHtml        : fInitHtml            //初始化html
+		tmpl            : [
+		'<div class="w-input">',
+			'<input type="text" class="w-input-txt"<%if(this.placeholder){%> placeholder="<%=this.placeholder%><%}%>"/>',
+		'</div>']
 	});
-	/**
-	 * 初始化html
-	 * @method initHtml
-	 */
-	function fInitHtml(){
-		var that=this;
-		return '<div class="w-input">\
-			<input type="text" class="w-input-txt"'+that.placeholder?' placeholder="'+that.placeholder+'"':''+'/>\
-		</div>';
-	}
 	
 	
 	return Input;
