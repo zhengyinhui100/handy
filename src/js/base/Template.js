@@ -6,12 +6,14 @@ handy.add('Template',function($H){
 	
 	var _cache={},             //缓存
 		_valPreReg=/^=/;        //简单替换正则
+		_isNewEngine = ''.trim;   // '__proto__' in {}
 		
 	var T={
 		openTag         : '<%',            //模板语法开始标签
 		closeTag        : '%>',            //模板语法结束标签
 		
 		_setValue       : _fSetValue,      //设置变量
+		_add            : _fAdd,           //结果函数添加一行字符串
 		_parseHtml      : _fParseHtml,     //处理html
 		_parseScript    : _fParseScript,   //处理脚本
 		_compile        : _fCompile,       //编译模板
@@ -30,24 +32,41 @@ handy.add('Template',function($H){
 		});
 	}
 	/**
+	 * 结果函数添加一行字符串
+	 * @method _add
+	 * @param {string}sCode 要添加的代码
+	 * @return {string} 返回添加好的代码
+	 */
+	function _fAdd(sCode){
+		//旧浏览器使用数组方式拼接字符串
+        return _isNewEngine?'$r+='+sCode+';\n':'$r.push('+sCode+');\n';
+	}
+	/**
 	 * 处理html
 	 * @method _parseHtml
-	 * @param {string}sHtml
-	 * @return {string}
+	 * @param {string}sHtml html字符串
+	 * @return {string} 返回处理过的html
 	 */
 	function _fParseHtml(sHtml){
-		var sCode='r.push(\''+sHtml+'\');\n';
+		sHtml=sHtml
+			// 引号与反斜杠转义
+            .replace(/("|\\)/g, '\\$1')
+            // 换行符转义(windows + linux)
+            .replace(/\r/g, '\\r')
+            .replace(/\n/g, '\\n')
+		var sCode=T._add('"'+sHtml+'"');
 		return sCode;
 	}
 	/**
 	 * 处理脚本
 	 * @method _parseScript
-	 * @param {string}sScript
-	 * @return {string}
+	 * @param {string}sScript script字符串
+	 * @return {string} 返回处理过的脚本
 	 */
 	function _fParseScript(sScript){
+		sScript=sScript.replace(/this/g,'$data');
 		if(sScript.indexOf('=')==0){
-			sScript='r.push('+sScript.replace(_valPreReg,'')+')';
+			sScript=T._add(sScript.replace(_valPreReg,''));
 		}
 		return sScript+"\n";
 	}
@@ -58,8 +77,10 @@ handy.add('Template',function($H){
 	 * @return {string}      返回结果字符串
 	 */
 	function _fCompile(sTmpl){
-		var sCode='var r=[];\nwith(oData){\n';
+		//旧浏览器使用数组方式拼接字符串
+		var sCode='var $r='+(_isNewEngine?'""':'[]')+';\n';
 		var oMatch;
+		//循环处理模板，分离html和script部分
 		$H.Object.each(sTmpl.split(T.openTag),function(i,sValue){
 			var aCode=sValue.split(T.closeTag);
 			//[html]
@@ -73,9 +94,10 @@ handy.add('Template',function($H){
 				}
 			}
 		})
-		sCode+='}\nreturn r.join("");';
-		$D.log(sCode);
-		return new Function('oData',sCode);
+		sCode+='return '+(_isNewEngine?'$r;':'$r.join("");');
+		//TODO
+		$D.log(sCode)
+		return new Function('$data',sCode);
 	}
 	/**
 	 * 执行模板
@@ -97,21 +119,28 @@ handy.add('Template',function($H){
 			if(sId=tmpl.id){
 			    if (_cache[sId]) {
 			        fTmpl = _cache[sId];
-			    } else if ('document' in global) {
+			    } else {
+			    	//从script标签获取模板
 			        var oEl = document.getElementById(sId);
 			        if (oEl) {
-			            sTmpl = (oEl.value || oEl.innerHTML).replace(/^\s*|\s*$/g, '');
+			            sTmpl = (oEl.value || oEl.innerHTML).replace(/\s/g, '');
 			        }
 			    }
 			}
 		}
 		if(!fTmpl){
+			if(!sTmpl){
+				$H.Debug.error('模板未定义');
+				return;
+			}
 			fTmpl=T._compile(sTmpl);
 			//根据id缓存
 			if(sId){
 				_cache[sId]=fTmpl;
 			}
 		}
+		//TODO
+		$D.log(fTmpl);
 		//渲染数据
 		if(oData){
 			return fTmpl(oData);

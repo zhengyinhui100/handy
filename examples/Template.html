@@ -33,14 +33,15 @@
 	src="../src/js/base/HashChange.js"></script>
 <script type="text/javascript"
 	src="../src/js/base/adapt.js"></script>
+<script type="text/javascript" src="/Users/hui/Documents/workspace/study/src/main/webapp/lib/artTemplate/src/template.js"></script>
 <script id="tmpl" type="text/html">
 
 </script>
 </head>
 <body>
 <script type="text/javascript">
-var tmpl = '<% for(var i = 0; i < posts.length; i++) {' +　
-'var post = posts[i]; %>' +
+var tmpl = '<% for(var i = 0; i < this.posts.length; i++) {' +　
+'var post = this.posts[i]; %>' +
 '<% if(!post.expert){ %>' +
     '<span>post is null</span>' +
 '<% } else { %>' +
@@ -63,6 +64,22 @@ var data = {
 	    }]
 	};
 $D.log($H.Template.tmpl(tmpl,data));
+var source =
+	  '<ul>'
+	+    '<% var e=1;for (var i = 0; i < list.length; i ++) { %>'
+	+        '<li>索引 <%= i + 1 %> ：<%= list[i] %><%= ee %><%= e %></li>'
+	+    '<% } %>'
+	+ '</ul>';
+
+	var data = {
+			ee:'',
+	    list: ['文艺', '博客', '摄影', '电影', '民谣', '旅行', '吉他']
+	};
+
+	var render = template.compile(source);
+	console.log(render)
+	var html = render(data);
+	console.log(html)
 </script>
 </body>
 </html>
