@@ -145,51 +145,6 @@
 
   background-image: linear-gradient(#5f9cc5, #6facd5);
 }
-.w-btn-blue {
-  border: 1px solid #044062;
-  background: #396b9e;
-  color: #fff;
-  text-shadow: 0 1px 0 #194b7e;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#5f9cc5), to(#396b9e));
-  /* old webkit,Saf4+, Chrome */
-
-  background-image: -webkit-linear-gradient(#5f9cc5, #396b9e);
-  /* Chrome 10+, Saf5.1+ */
-
-  background-image: -moz-linear-gradient(#5f9cc5, #396b9e);
-  /* FF3.6 */
-
-  background-image: -ms-linear-gradient(#5f9cc5, #396b9e);
-  /* IE10 */
-
-  background-image: -o-linear-gradient(#5f9cc5, #396b9e);
-  /* Opera 11.10+ */
-
-  background-image: linear-gradient(#5f9cc5, #396b9e);
-}
-.w-btn-blue:hover {
-  border: 1px solid #00415e ;
-  background: #4b88b6;
-  font-weight: bold;
-  color: #fff;
-  text-shadow: 0 1px 0 #194b7e;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#6facd5), to(#4272a4));
-  /* old webkit,Saf4+, Chrome */
-
-  background-image: -webkit-linear-gradient(#6facd5, #4272a4);
-  /* Chrome 10+, Saf5.1+ */
-
-  background-image: -moz-linear-gradient(#6facd5, #4272a4);
-  /* FF3.6 */
-
-  background-image: -ms-linear-gradient(#6facd5, #4272a4);
-  /* IE10 */
-
-  background-image: -o-linear-gradient(#6facd5, #4272a4);
-  /* Opera 11.10+ */
-
-  background-image: linear-gradient(#6facd5, #4272a4);
-}
 .w-btn-black {
   border: 1px solid #111;
   background: #333;
@@ -234,6 +189,51 @@
   /* Opera 11.10+ */
 
   background-image: linear-gradient(#555555, #383838);
+}
+.w-btn-blue {
+  border: 1px solid #044062;
+  background: #396b9e;
+  color: #fff;
+  text-shadow: 0 1px 0 #194b7e;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#5f9cc5), to(#396b9e));
+  /* old webkit,Saf4+, Chrome */
+
+  background-image: -webkit-linear-gradient(#5f9cc5, #396b9e);
+  /* Chrome 10+, Saf5.1+ */
+
+  background-image: -moz-linear-gradient(#5f9cc5, #396b9e);
+  /* FF3.6 */
+
+  background-image: -ms-linear-gradient(#5f9cc5, #396b9e);
+  /* IE10 */
+
+  background-image: -o-linear-gradient(#5f9cc5, #396b9e);
+  /* Opera 11.10+ */
+
+  background-image: linear-gradient(#5f9cc5, #396b9e);
+}
+.w-btn-blue:hover {
+  border: 1px solid #00415e ;
+  background: #4b88b6;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 1px 0 #194b7e;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#6facd5), to(#4272a4));
+  /* old webkit,Saf4+, Chrome */
+
+  background-image: -webkit-linear-gradient(#6facd5, #4272a4);
+  /* Chrome 10+, Saf5.1+ */
+
+  background-image: -moz-linear-gradient(#6facd5, #4272a4);
+  /* FF3.6 */
+
+  background-image: -ms-linear-gradient(#6facd5, #4272a4);
+  /* IE10 */
+
+  background-image: -o-linear-gradient(#6facd5, #4272a4);
+  /* Opera 11.10+ */
+
+  background-image: linear-gradient(#6facd5, #4272a4);
 }
 .w-btn-icon-left {
   padding-left: 40px;
