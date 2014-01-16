@@ -53,18 +53,8 @@ function(AC){
 					me.find('.js-tab-content').hide().eq(nIndex).show();
 				}
 			}
-		],
-		
-		parseItem       : fParseItem           //分析处理子组件
+		]
 	});
-	/**
-	 * 分析处理子组件
-	 * @method parseItem
-	 */
-	function fParseItem(oItem){
-		var me=this;
-	}
-	
 	
 	return Tab;
 	
