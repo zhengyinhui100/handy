@@ -12,8 +12,6 @@ function(AC){
 	
 	$HO.extend(Tab.prototype,{
 		//初始配置
-//		hasBg           : false,               //是否有背景
-//		name            : '',                  //图标名称
 		defItem         : {                    //默认子组件是Button
 			xtype:'Button',
 			radius:null,

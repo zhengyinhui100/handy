@@ -36,7 +36,6 @@
   display: block;
   position: relative;
   cursor: pointer;
-  margin: 0.5em 0;
   text-align: center;
   font-size: 16px;
   padding: .6em 20px;
@@ -367,7 +366,6 @@
   zoom: 1;
   width: 100%;
   font-family: Helvetica, Arial, sans-serif;
-  border: 1px solid #333;
   background: #111;
   color: #fff;
   font-weight: 700;
@@ -394,14 +392,14 @@
   text-align: center;
   font-size: 16px;
   display: block;
-  margin: .6em 30% .8em;
-  padding: 0;
+  padding: .6em 30% .8em;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
   outline: 0!important;
 }
-.w-tbar .w-btn {
+.w-tbar .w-tbar-btn-left,
+.w-tbar .w-tbar-btn-right {
   position: absolute;
   top: 50%;
   margin-top: -16px;

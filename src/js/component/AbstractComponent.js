@@ -36,6 +36,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		radius              : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 		shadow              : false,        	 //外阴影
 		shadowInset         : false,        	 //内阴影
+		shadowSurround      : false,             //外围亮阴影，主要用于黑色工具栏内的按钮
 		isMini              : false,       	     //小号
 		isActive            : false,             //是否激活
 		isFocus             : false,        	 //聚焦
@@ -244,6 +245,9 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		}
 		if(me.shadow){
 			aCls.push('w-shadow');
+		}
+		if(me.shadowSurround){
+			aCls.push('w-shadow-surround');
 		}
 		if(me.shadowInset){
 			aCls.push('w-shadow-inset');

@@ -66,7 +66,7 @@ handy.add('Template',function($H){
 	function _fParseScript(sScript){
 		sScript=sScript.replace(/this/g,'$data');
 		if(sScript.indexOf('=')==0){
-			sScript=T._add(sScript.replace(_valPreReg,''));
+			sScript=T._add(sScript.replace(_valPreReg,'')+'||""');
 		}
 		return sScript+"\n";
 	}
@@ -95,6 +95,7 @@ handy.add('Template',function($H){
 			}
 		})
 		sCode+='return '+(_isNewEngine?'$r;':'$r.join("");');
+		$D.log(sCode)
 		return new Function('$data',sCode);
 	}
 	/**

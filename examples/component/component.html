@@ -42,18 +42,12 @@
 	<div id="inputContainerDv"></div>
 	<br/><br/><br/><br/>
 	
-	<h3>tab：</h3>
-	<div id="tabContainerDv"></div>
-	<br/>
-	
-	<br/><br/><br/><br/>
-	
 	<h3>标签栏：</h3>
 	<div id="tabDv"></div>
 	<br/><br/><br/><br/>
 	
 	<h3>工具栏：</h3>
-	<div id="toolbarContainerDv"></div>
+	<div id="toolbarDv"></div>
 	<br/><br/><br/><br/>
 	
 	<h3>遮罩层：</h3>
@@ -121,8 +115,9 @@ $Require([
 "handy.component.Icon",
 "handy.component.Button",
 "handy.component.Input",
-"handy.component.Tab"],
-function(CM,Icon,Button,Input,Tab){
+"handy.component.Tab",
+"handy.component.Toolbar"],
+function(CM,Icon,Button,Input,Tab,Toolbar){
 	new Icon({
 		name:'location',
 		renderTo:'#iconContainerDv'
@@ -203,6 +198,7 @@ function(CM,Icon,Button,Input,Tab){
 			{
 				text:'一',
 				isActive:true,
+				color:'black',
 				items:{
 					name:'edit'
 				},
@@ -210,6 +206,7 @@ function(CM,Icon,Button,Input,Tab){
 			},
 			{
 				text:'二',
+				color:'black',
 				items:{
 					name:'edit'
 				},
@@ -220,6 +217,7 @@ function(CM,Icon,Button,Input,Tab){
 			},
 			{
 				text:'三',
+				color:'black',
 				items:{
 					name:'edit'
 				},
@@ -227,6 +225,58 @@ function(CM,Icon,Button,Input,Tab){
 			}
 		]
 	});
+	
+	new Toolbar({
+		renderTo:'#toolbarDv',
+		title:'标题',
+		items:[{
+			xtype:'Button',
+			text:'按钮',
+			isMini:true,
+			pos:'left',
+			color:'blue'
+		},{
+			xtype:'Button',
+			text:'按钮',
+			isMini:true,
+			pos:'right',
+			color:'black'
+		}]
+	})
+	
+	new Toolbar({
+		renderTo:'#toolbarDv',
+		items:[{
+			xtype:'Tab',
+			items:[
+					{
+						text:'一',
+						isActive:true,
+						color:'black',
+						items:{
+							name:'edit'
+						}
+					},
+					{
+						text:'二',
+						color:'black',
+						items:{
+							name:'edit'
+						},
+						click:function(){
+							$D.log(this.index());
+						}
+					},
+					{
+						text:'三',
+						color:'black',
+						items:{
+							name:'edit'
+						}
+					}
+				]
+		}]
+	})
 });
 </script>
 </html>
