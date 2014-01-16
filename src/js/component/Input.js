@@ -36,7 +36,7 @@ function(AC){
 				}
 			}
 		],
-		doConfig        : fDoconfig         //初始化配置
+		doConfig        : fDoConfig         //初始化配置
 		
 	});
 	
@@ -44,8 +44,9 @@ function(AC){
 	 * 初始化配置
 	 * @method doConfig
 	 */
-	function fDoConfig(){
+	function fDoConfig(oSettings){
 		var that=this;
+		that.constructor.superProt.doConfig.call(that,oSettings);
 	}
 	
 	return Input;
