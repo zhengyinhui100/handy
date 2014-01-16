@@ -13,9 +13,11 @@ function(AC){
 	$HO.extend(Toolbar.prototype,{
 		//初始配置
 //		title            : '',                  //标题
+		type             : null,                //null|'header'|'footer'
 		
 		tmpl             : [
-			'<div class="w-tbar"><%=this.getChildrenHtml()%>',
+			'<div class="w-tbar<%if(this.type=="header"){%> w-header<%}else if(this.type=="footer"){%> w-footer<%}%>">',
+				'<%=this.getChildrenHtml()%>',
 				'<%if(this.title){%><h1 class="w-tbar-title"><%=this.title%></h1><%}%>',
 			'</div>'
 		],
