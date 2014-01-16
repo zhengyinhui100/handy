@@ -95,8 +95,6 @@ handy.add('Template',function($H){
 			}
 		})
 		sCode+='return '+(_isNewEngine?'$r;':'$r.join("");');
-		//TODO
-		$D.log(sCode)
 		return new Function('$data',sCode);
 	}
 	/**
@@ -139,8 +137,6 @@ handy.add('Template',function($H){
 				_cache[sId]=fTmpl;
 			}
 		}
-		//TODO
-		$D.log(fTmpl);
 		//渲染数据
 		if(oData){
 			return fTmpl(oData);
