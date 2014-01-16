@@ -156,7 +156,7 @@ handy.add('Object',function($H){
             };
         }
         if (oPrototypeExtend && oChild.prototype && oParent.prototype) {
-            Object.inherit(oChild, oParent, oPrototypeExtend);
+            Object.inherit(oChild, oParent,null, oPrototypeExtend);
         }
         return oChild;
     };
