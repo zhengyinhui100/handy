@@ -28,7 +28,7 @@ function(AC){
 			'<div class="w-dialog w-overlay-shadow">',
 				'<div class="w-dialog-header w-tbar w-tbar-gray">',
 					'<a class="w-btn w-shadow w-inline w-btn-icon-notxt w-radius-big w-tbar-btn-left">',
-						'<span class="w-icon w-icon-bg w-icon-del"></span>',
+						'<span class="w-icon w-icon-bg w-icon-dellete"></span>',
 					'</a>',
 					'<h1 class="w-tbar-title"><%=this.title%></h1>',
 				'</div>',
@@ -41,7 +41,8 @@ function(AC){
 					'</div>',
 				'</div>',
 			'</div>'
-		]
+		],
+		doConfig         : fDoConfig        //处理配置
 		
 	});
 	
@@ -59,6 +60,15 @@ function(AC){
 	 * 
 	 */
 	function fPrompt(){
+	}
+	/**
+	 * 处理配置
+	 * @method doConfig
+	 * @param {object}oSettings 设置参数
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		me.callSuper(oSettings);
 	}
 	
 	return Dialog;

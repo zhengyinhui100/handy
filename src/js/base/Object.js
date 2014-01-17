@@ -75,6 +75,17 @@ handy.add('Object',function($H){
             	return fInitialize.apply(me, arguments);
             }
         };
+        //便捷访问父类方法
+        Class.prototype.callSuper=function(){
+        	var me=this,oSuper,
+        	sMethod=arguments.callee.caller.$name;
+        	if(oSuper=me.constructor.superProt){
+        		var fMethod=oSuper[sMethod];
+        		if(Object.isFunction(fMethod)){
+        			return fMethod.apply(me,arguments);
+        		}
+        	}
+        };
         if(sPath){
         	this.namespace(sPath,Class);
         }
@@ -96,6 +107,8 @@ handy.add('Object',function($H){
     function fExtend(oDestination, oSource, oOptions) {
     	var notCover=oOptions?oOptions.notCover:false;
     	var bNotClone=oOptions?oOptions.notClone:false;
+    	//如果是类扩展，添加方法元数据
+    	var bAddMeta=!!oDestination.callSuper;
         for (var sProperty in oSource) {
         	var bHas=oDestination.hasOwnProperty(sProperty);
         	var bNotCover=notCover===true?bHas:false;
@@ -107,7 +120,11 @@ handy.add('Object',function($H){
         		bNotCover=notCover(sProperty);
         	}
             if (!bNotCover) {
-				oDestination[sProperty] = bNotClone?oSource[sProperty]:Object.clone(oSource[sProperty]);
+            	var value=bNotClone?oSource[sProperty]:Object.clone(oSource[sProperty]);
+				if(bAddMeta&&Object.isFunction(value)){
+					value.$name=sProperty;
+				}
+				oDestination[sProperty] = value;
             }
         }
         return oDestination;

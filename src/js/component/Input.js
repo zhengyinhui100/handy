@@ -51,7 +51,7 @@ function(AC){
 	 */
 	function fDoConfig(oSettings){
 		var me=this;
-		me.constructor.superProt.doConfig.call(me,oSettings);
+		me.callSuper(oSettings);
 		//搜索框快捷配置方式
 		if(me.type=='search'){
 			if(!me.params.items){
