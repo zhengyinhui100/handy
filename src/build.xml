@@ -3,13 +3,15 @@
 
 	<property name="project.name" value="handy"/>
 	<property name="project.dir" location="."/>
-	<property name="js.dir" location="./"/>
-	<property name="css.dir" location="../css"/>
+	<property name="js.dir" location="./js"/>
+	<property name="css.dir" location="./css"/>
+	<property name="build.dir" location="../build"/>
+	<property name="tmp.dir" location="${build.dir}/tmp"/>
 	<import file="../tools/common-build.xml"/>
 
 
 	<target name="base">
-		<concat destfile="${project.name}-pkg.js"
+		<concat destfile="${tmp.dir}/${project.name}-pkg.js"
             encoding="${charset}"
             outputencoding="${charset}">
 
@@ -35,7 +37,7 @@
 
 	<!--  component -->
 	<target name="component">
-		<concat destfile="${project.name}-pkg.js"
+		<concat destfile="${tmp.dir}/${project.name}-pkg.js"
 	            encoding="${charset}"
 	            outputencoding="${charset}"
 				append="true">
@@ -53,7 +55,7 @@
 	
 	<!--  module -->
 	<target name="module">
-		<concat destfile="${project.name}-pkg.js"
+		<concat destfile="${tmp.dir}/${project.name}-pkg.js"
 	            encoding="${charset}"
 	            outputencoding="${charset}"
 				append="true">
@@ -65,19 +67,43 @@
 
 		</concat>
 	</target>
+	
+	<!--  module -->
+	<target name="package-css">
+		<concat destfile="${tmp.dir}/${project.name}-pkg.css"
+	            encoding="${charset}"
+	            outputencoding="${charset}"
+				append="true">
 
+		    <path path="css/reset.css"/>
+		    <path path="css/common.css"/>
+		    <path path="css/icon.css"/>
+			<path path="css/widget.css"/>
 
+		</concat>
+	</target>
+	
+	<target name="package-js" depends="base,component,module">
+	</target>
+	
+	<target name="copy-img">
+		<copy todir="${tmp.dir}/img">	
+		    <fileset dir="${project.dir}/img">
+		    </fileset>
+    	</copy>
+	</target>
+	
 	<target name="clean">
-		<delete>
-			<fileset dir="${project.dir}" includes="${package.js}"/>
-		</delete>
+		<delete dir="${build.dir}"></delete>
+	</target>
 
+	<target name="build-complete" depends="compile-less,build-fast">
 	</target>
 	
-	<target name="package.all" depends="base,component,module">
+	<target name="build-fast" depends="clean,package-js,package-css,common-build">
 	</target>
 	
-	<target name="build" depends="package.all,common.build.js,clean">
+	<target name="build" depends="build-fast">
 	</target>
 
 </project>

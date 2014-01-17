@@ -141,7 +141,7 @@ img {
 input[type="text"] {
   -webkit-appearance: none;
 }
-/* ipad/iphone设备input有阴影 */
+/* ipad/iphone设�??input?????�影 */
 /*
 http://www.w3cplus.com/content/css3-box-sizing
 .submit,
@@ -161,7 +161,7 @@ http://www.w3cplus.com/content/css3-box-sizing
 	-o-box-sizing: border-box;
 	-ms-box-sizing: border-box;
 	box-sizing: border-box;
-	//IE6、7不支持box-sizing
+	//IE6???7�???????box-sizing
 	*height:15px; 
     *width: 15px;
 }

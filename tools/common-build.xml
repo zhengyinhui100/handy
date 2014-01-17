@@ -1,16 +1,14 @@
 <project name="common-build" basedir=".">
 	<description>Common Build File</description>
 
-	<dirname property="current.dir" file="${ant.file.common-build}"/>
-	<property name="root.dir" location="${current.dir}/../"/>
-	<property name="build.dir" location="${root.dir}/build/"/>
-	<property name="tmp.dir" location="${build.dir}/tmp/"/>
+	<dirname property="tools.dir" file="${ant.file.common-build}"/>
+	
 	<property name="package.js" value="**/*-pkg.js"/>
 	<property name="package.css" value="**/*-pkg.css"/>
 
-	<property name="gcc.jar" location="${current.dir}/compiler.jar"/>
-	<property name="yc.jar" location="${current.dir}/yuicompressor.jar"/>
-	<property name="less.jar" location="${current.dir}/less2css.jar"/>
+	<property name="gcc.jar" location="${tools.dir}/compiler.jar"/>
+	<property name="yc.jar" location="${tools.dir}/yuicompressor.jar"/>
+	<property name="less.jar" location="${tools.dir}/less2css.jar"/>
 
 	<property name="version" value="1.0.0-dev"/>
 	<property name="charset" value="utf-8"/>
@@ -22,7 +20,7 @@
 
 	<taskdef resource="net/sf/antcontrib/antlib.xml" >
 		<classpath>
-			<pathelement location="${current.dir}/ant-contrib-1.0b3.jar" />
+			<pathelement location="${tools.dir}/ant-contrib-1.0b3.jar" />
 		</classpath>
 	</taskdef>
 
@@ -36,8 +34,8 @@
 	<!-- 编译less -->
 	<target name="compile-less">
 		<java jar="${less.jar}" failonerror="true" fork="true">
-			<arg line="../less"/>
-			<arg line="../css"/>
+			<arg line="${project.dir}/less"/>
+			<arg line="${project.dir}/css"/>
 		</java>
 	</target>
 	
@@ -89,7 +87,7 @@
 	<target name="compress-css">
 
 		<!-- 用 YUICompressor 压缩 CSS -->
-		<apply executable="java" verbose="true" failonerror="true" dir="${tmp.dir}/css">
+		<apply executable="java" verbose="true" failonerror="true" dir="${tmp.dir}">
 			<fileset dir="${tmp.dir}" includes="${package.css}"/>
 			<arg line="-jar"/>
 			<arg path="${yc.jar}"/>
@@ -134,7 +132,7 @@
 			<!--<arg line="-define='seajs.version=&quot;${version}&quot;'"/>-->
 			<!--<arg line="-define='seajs._data.config.debug=false'"/>-->
 
-			<arg line="--externs ${current.dir}/extern.js"/>
+			<arg line="--externs ${tools.dir}/extern.js"/>
 
 			<arg line="--js_output_file"/>
 			<targetfile />
@@ -195,18 +193,21 @@
 
 	<!-- 扫尾工作 -->
 	<target name="destroy">
-		<move todir="${tmp.dir}/../">
-			<fileset dir="${tmp.dir}" includes="${all.files}"/>
+	    <tstamp>
+			<format property="build.version" pattern="yyyyMMddhhmmss" locale="en,UK"/>
+		</tstamp>
+		<move todir="${build.dir}">
+			<fileset dir="${tmp.dir}" includes="**/*"/>
 		</move>
 		<delete dir="${tmp.dir}"/>
 	</target>
 
 
-	<target name="common.build.js"
-          depends="copy,version,compress-js,copyright,destroy">
+	<target name="common-build"
+          depends="version,compress-css,compress-js,copyright,destroy">
 	</target>
 	
-	<target name="common.build"
+	<target name="common-build-all"
           depends="copy-all,version,compress-css,compress-js,copyright,destroy">
 	</target>
 

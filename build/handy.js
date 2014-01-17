@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-01-16 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-01-17 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -722,7 +722,7 @@ handy.add('Object',function($H){
             };
         }
         if (oPrototypeExtend && oChild.prototype && oParent.prototype) {
-            Object.inherit(oChild, oParent, oPrototypeExtend);
+            Object.inherit(oChild, oParent,null, oPrototypeExtend);
         }
         return oChild;
     };
@@ -2379,7 +2379,7 @@ handy.add('Template',function($H){
 	function _fParseScript(sScript){
 		sScript=sScript.replace(/this/g,'$data');
 		if(sScript.indexOf('=')==0){
-			sScript=T._add(sScript.replace(_valPreReg,''));
+			sScript=T._add(sScript.replace(_valPreReg,'')+'||""');
 		}
 		return sScript+"\n";
 	}
@@ -2408,8 +2408,6 @@ handy.add('Template',function($H){
 			}
 		})
 		sCode+='return '+(_isNewEngine?'$r;':'$r.join("");');
-		//TODO
-		$D.log(sCode)
 		return new Function('$data',sCode);
 	}
 	/**
@@ -2452,8 +2450,6 @@ handy.add('Template',function($H){
 				_cache[sId]=fTmpl;
 			}
 		}
-		//TODO
-		$D.log(fTmpl);
 		//渲染数据
 		if(oData){
 			return fTmpl(oData);
@@ -2599,13 +2595,13 @@ function(Debug,Util,$H){
  * 支持类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Support','Browser',function(Browser,$H){
+handy.add('Support',function($H){
 	
 	var Support={
 	}
 	
 	//解决IE6下css背景图不缓存bug
-	if(Browser.ie()==6){   
+	if($H.Browser.ie()==6){   
 	    try{   
 	        document.execCommand("BackgroundImageCache", false, true);   
 	    }catch(e){}   
@@ -2769,12 +2765,15 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		renderBy            : 'append',          //默认渲染方式
 		notListen           : false,             //不自动初始化监听器
 		extCls              : '',                //组件附加class
+		activeCls           : 'w-active',        //激活样式
 //		defItem             : null,              //默认子组件配置
 		////通用效果
 		radius              : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 		shadow              : false,        	 //外阴影
 		shadowInset         : false,        	 //内阴影
+		shadowSurround      : false,             //外围亮阴影，主要用于黑色工具栏内的按钮
 		isMini              : false,       	     //小号
+		isActive            : false,             //是否激活
 		isFocus             : false,        	 //聚焦
 		isInline            : false,             //是否内联(宽度自适应)
 		
@@ -2810,6 +2809,9 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 //		update
 		enable              : fEnable,           //启用
 		disable             : fDisable,          //禁用
+		active              : fActive,           //激活
+		unactive            : fUnactive,         //不激活
+		
 //		mask
 //		unmask
 		fire                : fFire,             //触发组件自定义事件
@@ -2821,6 +2823,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		resumeListeners     : fResumeListeners,  //恢复事件
 		
 		each                : fEach,             //遍历子组件
+		index               : fIndex,            //获取本身的索引，如果没有父组件则返回null
 		callChild           : fCallChild,        //调用子组件方法
 		add                 : fAdd,              //添加子组件
 		remove              : fRemove,           //删除子组件
@@ -2978,8 +2981,14 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		if(me.shadow){
 			aCls.push('w-shadow');
 		}
+		if(me.shadowSurround){
+			aCls.push('w-shadow-surround');
+		}
 		if(me.shadowInset){
 			aCls.push('w-shadow-inset');
+		}
+		if(me.isActive){
+			aCls.push(me.activeCls);
 		}
 		if(me.isFocus){
 			aCls.push('w-focus');
@@ -3049,6 +3058,22 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		var me=this;
 		me.suspendListeners();
 		me.getEl().addClass("w-disable");
+	}
+	/**
+	 * 激活
+	 * @method active
+	 */
+	function fActive(){
+		var me=this;
+		me.getEl().addClass(me.activeCls);
+	}
+	/**
+	 * 不激活
+	 * @method unactive
+	 */
+	function fUnactive(){
+		var me=this;
+		me.getEl().removeClass(me.activeCls);
 	}
 	/**
 	 * 触发组件自定义事件
@@ -3200,6 +3225,27 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		$HO.each(this.children,fCallback, args);
 	}
 	/**
+	 * 获取本身的索引，如果没有父组件则返回null
+	 * @method index
+	 * @return {number} 返回对应的索引
+	 */
+	function fIndex(){
+		var me=this;
+		var oParent=me.parent;
+		if(!oParent){
+			return null;
+		}else{
+			var nIndex;
+			oParent.each(function(i,oCmp){
+				if(oCmp==me){
+					nIndex=i;
+					return false;
+				}
+			});
+			return nIndex;
+		}
+	}
+	/**
 	 * 调用子组件方法
 	 * @method callChild
 	 * @param {string}sMethod 调用的子组件的方法名
@@ -3298,7 +3344,7 @@ function(AC){
 	
 	$HO.extend(Icon.prototype,{
 		//初始配置
-//		hasBg           : false,               //是否有背景
+		hasBg           : true,               //是否有背景
 //		name            : '',                  //图标名称
 		
 		tmpl            : ['<span class="w-icon w-icon-<%=this.name%><%if(this.hasBg){%> w-icon-bg<%}%>"></span>']
@@ -3323,11 +3369,16 @@ function(AC){
 		//初始配置
 		text            : '',                  //按钮文字
 		color           : null,                //按钮颜色
+		isActive        : false,               //是否是激活状态
 		iconPos         : 'left',              //图标位置，"left"|"top"
-		
+		activeCls       : 'w-btn-blue',        //激活样式
+		defItem         : {
+			xtype       : 'Icon',
+			hasBg       : true
+		},
 		
 		////通用效果
-		radius          : 'big',               //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
+		radius          : 'normal',               //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 		shadow          : true,        	       //外阴影
 		isInline        : true,                //宽度自适应
 		
@@ -3448,12 +3499,11 @@ function(AC){
 	
 	$HO.extend(Tab.prototype,{
 		//初始配置
-//		hasBg           : false,               //是否有背景
-//		name            : '',                  //图标名称
 		defItem         : {                    //默认子组件是Button
 			xtype:'Button',
 			radius:null,
 			isInline:false,
+			iconPos:'top',
 			shadow:false
 		},
 		
@@ -3461,13 +3511,13 @@ function(AC){
 			'<div class="w-tab">',
 				'<ul class="c-clear">',
 					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
-					'<li class="w-tab-item" style="width:<%=100/len%>%">',
+					'<li class="js-tab-item w-tab-item" style="width:<%=100/len%>%">',
 					'<%=this.children[i].getHtml()%>',
 					'</li>',
 					'<%}%>',
 				'</ul>',
 				'<%for(var i=0,len=this.children.length;i<len;i++){%>',
-					'<div class="js-tab-content">',
+					'<div class="js-tab-content"<%if(!this.children[i].active){%> style="display:none"<%}%>>',
 					'<%=this.children[i].content%>',
 					'</div>',
 				'<%}%>',
@@ -3476,24 +3526,87 @@ function(AC){
 		listeners       : [
 			{
 				type :'click',
-				handler : function(){
-					
+				selector : '.js-tab-item',
+				method : 'delegate',
+				handler : function(oEvt){
+					var me=this;
+					//点击tab按钮显示对应的content
+					var oCurrent=$(oEvt.currentTarget);
+					me.callChild('unactive');
+					var nIndex=oCurrent.index();
+					me.children[nIndex].active();
+					me.find('.js-tab-content').hide().eq(nIndex).show();
 				}
 			}
-		],
-		
-		parseItem       : fParseItem           //分析处理子组件
+		]
 	});
-	/**
-	 * 分析处理子组件
-	 * @method parseItem
-	 */
-	function fParseItem(oItem){
-		var me=this;
-	}
-	
 	
 	return Tab;
+	
+});/**
+ * 对话框类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-01-17
+ */
+
+$Define('handy.component.Dialog',
+'handy.component.AbstractComponent',
+function(AC){
+	
+	var Dialog=AC.define('Dialog');
+	
+	$HO.extend(Dialog,{
+		alert           : fAlert,
+		confirm         : fConfirm,
+		prompt          : fPrompt
+	});
+	
+	$HO.extend(Dialog.prototype,{
+		//初始配置
+//		title           : '',        //标题
+//		content         : '',        //内容
+//		contentTitle    : '',        //内容框的标题
+//		contentMsg      : '',        //内容框的描述
+		
+		
+		tmpl            : [
+			'<div class="w-dialog w-overlay-shadow">',
+				'<div class="w-dialog-header w-tbar w-tbar-gray">',
+					'<a class="w-btn w-shadow w-inline w-btn-icon-notxt w-radius-big w-tbar-btn-left">',
+						'<span class="w-icon w-icon-bg w-icon-del"></span>',
+					'</a>',
+					'<h1 class="w-tbar-title"><%=this.title%></h1>',
+				'</div>',
+				'<div class="w-dialog-body">',
+					'<div class="w-body-content">',
+						'<h1 class="w-content-title"><%=this.contentTitle%></h1>',
+						'<div class="w-content-msg"><%=this.contentMsg%></div>',
+					'</div>',
+					'<div class="w-body-action">',
+					'</div>',
+				'</div>',
+			'</div>'
+		]
+		
+	});
+	
+	/**
+	 * 
+	 */
+	function fAlert(){
+	}
+	/**
+	 * 
+	 */
+	function fConfirm(){
+	}
+	/**
+	 * 
+	 */
+	function fPrompt(){
+	}
+	
+	return Dialog;
 	
 });/****************************************************************
 * Author:		郑银辉											*
