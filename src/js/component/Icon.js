@@ -12,7 +12,7 @@ function(AC){
 	
 	$HO.extend(Icon.prototype,{
 		//初始配置
-//		hasBg           : false,               //是否有背景
+		hasBg           : true,               //是否有背景
 //		name            : '',                  //图标名称
 		
 		tmpl            : ['<span class="w-icon w-icon-<%=this.name%><%if(this.hasBg){%> w-icon-bg<%}%>"></span>']

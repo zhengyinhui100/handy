@@ -10,12 +10,56 @@ function(AC){
 	
 	var Dialog=AC.define('Dialog');
 	
+	$HO.extend(Dialog,{
+		alert           : fAlert,
+		confirm         : fConfirm,
+		prompt          : fPrompt
+	});
+	
 	$HO.extend(Dialog.prototype,{
 		//初始配置
+//		title           : '',        //标题
+//		content         : '',        //内容
+//		contentTitle    : '',        //内容框的标题
+//		contentMsg      : '',        //内容框的描述
 		
-		tmpl            : ['']
+		
+		tmpl            : [
+			'<div class="w-dialog w-overlay-shadow">',
+				'<div class="w-dialog-header w-tbar w-tbar-gray">',
+					'<a class="w-btn w-shadow w-inline w-btn-icon-notxt w-radius-big w-tbar-btn-left">',
+						'<span class="w-icon w-icon-bg w-icon-del"></span>',
+					'</a>',
+					'<h1 class="w-tbar-title"><%=this.title%></h1>',
+				'</div>',
+				'<div class="w-dialog-body">',
+					'<div class="w-body-content">',
+						'<h1 class="w-content-title"><%=this.contentTitle%></h1>',
+						'<div class="w-content-msg"><%=this.contentMsg%></div>',
+					'</div>',
+					'<div class="w-body-action">',
+					'</div>',
+				'</div>',
+			'</div>'
+		]
 		
 	});
+	
+	/**
+	 * 
+	 */
+	function fAlert(){
+	}
+	/**
+	 * 
+	 */
+	function fConfirm(){
+	}
+	/**
+	 * 
+	 */
+	function fPrompt(){
+	}
 	
 	return Dialog;
 	

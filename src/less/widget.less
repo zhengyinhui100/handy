@@ -6,29 +6,19 @@
 
 //图标
 .w-icon{
-	width:18px;
-	height:18px;
+	width:22px;
+	height:22px;
 	.fn_inline_block();
-	background-image:url("../img/global.png");
+	background-position:center center;
+	background-repeat: no-repeat;
+	vertical-align:middle;
+	//background-image:url("../img/global.png");
 }
 .w-icon-bg{
 	background-color: #666;
 	background-color:rgba(0,0,0,.4);
 	background-repeat: no-repeat;
-	.fn_border_radius(9px);
-}
-.w-icon-location{
-	background-position:-101px -15px;
-}
-.w-icon-edit{
-	background-position:-32px -15px;
-}
-.w-icon-del{
-	.icons-18-white();
-	background-position:-144px 0px;
-}
-.w-icon-search{
-	background-position:-138px -14px;
+	.fn_border_radius(1em);
 }
 
 //按钮
@@ -38,7 +28,8 @@
 	cursor: pointer;
 	text-align: center;
 	font-size: 16px;
-	padding: .6em 20px;
+	margin: .5em 0;
+	padding: .4em 20px;
 	min-width: .75em;
 	text-overflow: ellipsis;
 	overflow: hidden;
@@ -118,7 +109,7 @@
 	.w-icon{
 		position:absolute;
 		top:50%;
-		margin-top:-9px;
+		margin-top:-11px;
 		left:10px;
 	}
 }
@@ -127,14 +118,14 @@
 	.w-icon{
 		position:absolute;
 		left:50%;
-		margin-left:-9px;
-		top:10px;
+		margin-left:-11px;
+		top:5px;
 	}
 }
 .w-btn-icon-notxt{
 	padding:0;
-	width:24px;
-	height:24px;
+	width:28px;
+	height:28px;
 	.w-icon{
 		margin: 3px 1px 2px 1px;
 	}
@@ -173,7 +164,7 @@
 		position:absolute;
 		left:10px;
 		top:50%;
-		margin-top:-9px;
+		margin-top:-11px;
 	}
 }
 .w-input-btn-right{
@@ -183,6 +174,9 @@
 		right:10px;
 		top:50%;
 		margin-top:-13px;
+	}
+	.w-btn-icon-notxt{
+		margin-top:-15px;
 	}
 }
 
@@ -250,7 +244,7 @@
 		right:5px;
 	}
 	.w-btn-icon-notxt{
-		margin-top:-13px;
+		margin-top:-15px;
 	}
 }
 .w-tbar-gray{
@@ -273,6 +267,9 @@
 //标签栏
 .w-tab{
 	.w-tab-item{
+		.w-btn{
+			margin:0;
+		}
 		float:left;
 		&:last-child .w-btn{
 			border-right-width:1px;
@@ -301,7 +298,6 @@
 		color: #333;
 		text-shadow: 0 1px 0 #fff;
 		background: #f9f9f9;
-		padding:15px;
 		display: block;
 		position: relative;
 		width: auto;
@@ -311,6 +307,9 @@
 		overflow-x: hidden;
 		.fn_border_radius_bottom(inherit);
 		.fn_linear_gradient_top(#f9f9f9,#eee);
+	}
+	.w-body-content{
+		padding:15px;
 	}
 	.w-content-title{
 		font-size:2em;
@@ -364,7 +363,7 @@
 	background-clip: padding-box;
 }
 .w-radius-normal{
-	.fn_border_radius(.6em);
+	.fn_border_radius(.4em);
 	-webkit-background-clip: padding;
 	background-clip: padding-box;
 }
