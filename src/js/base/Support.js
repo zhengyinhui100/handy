@@ -4,8 +4,12 @@
  */
 handy.add('Support',function($H){
 	
+	
 	var Support={
+		testSvg               : fTestSvg          //检查是否支持svg
 	}
+	
+	var _supportSvg; //标记是否支持svg
 	
 	//解决IE6下css背景图不缓存bug
 	if($H.Browser.ie()==6){   
@@ -13,6 +17,39 @@ handy.add('Support',function($H){
 	        document.execCommand("BackgroundImageCache", false, true);   
 	    }catch(e){}   
 	}  
+	/**
+	 * 检查是否支持svg
+	 * @method testSvg
+	 * @param {function(boolean)} fCall 回调函数，如果支持svg则回调参数为true，反之则为false
+	 */
+	function fTestSvg(fCall) {
+		if(_supportSvg!=undefined){
+			fCall(_supportSvg);
+			return;
+		}
+		//this method is from jquery mobile 1.4.0
+		// Thanks Modernizr & Erik Dahlstrom
+		var w = window,
+		//opera 通过createElementNS方式检测的确不准
+			bSvg = !!w.document.createElementNS && !!w.document.createElementNS( "http://www.w3.org/2000/svg", "svg" ).createSVGRect && !( w.opera && navigator.userAgent.indexOf( "Chrome" ) === -1 ),
+			support = function( data ) {
+				if ( !( data && bSvg ) ) {
+					_supportSvg=false;
+				}else{
+					_supportSvg=true;
+				}
+				fCall(_supportSvg);
+			},
+			img = new w.Image();
+	
+		img.onerror = function() {
+			support( false );
+		};
+		img.onload = function() {
+			support( img.width === 1 && img.height === 1 );
+		};
+		img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+	}
 	
 	return Support;
 	
