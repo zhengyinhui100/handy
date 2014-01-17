@@ -178,23 +178,24 @@ function(CM,Icon,Button,Input,Tab,Toolbar,Dialog){
 	new Input({
 		renderTo:'#inputContainerDv'
 	});
-	
+	$('#inputContainerDv').append('<br/>');
 	new Input({
 		type:'search',
 		renderTo:'#inputContainerDv'
 	});
-	
+	$('#inputContainerDv').append('<br/>');
 	new Input({
 		renderTo:'#inputContainerDv',
 		items:{
 			xtype:'Button',
+			radius:'big',
 			items:{
 				xtype:"Icon",
 				name:'edit'
 			}
 		}
 	});
-	
+
 	new Tab({
 		renderTo:'#tabDv',
 		items:[

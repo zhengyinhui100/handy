@@ -237,13 +237,14 @@
   left: 10px;
 }
 .w-btn-icon-top {
-  padding-top: 30px;
+  padding-top: 25px;
+  padding-bottom: 0;
 }
 .w-btn-icon-top .w-icon {
   position: absolute;
   left: 50%;
   margin-left: -11px;
-  top: 5px;
+  top: 2px;
 }
 .w-btn-icon-notxt {
   padding: 0;
