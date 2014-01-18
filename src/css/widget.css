@@ -227,14 +227,17 @@
 .w-btn-icon-left {
   padding-left: 40px;
 }
-.w-btn-icon-left.w-mini {
-  padding-left: 30px;
-}
 .w-btn-icon-left .w-icon {
   position: absolute;
   top: 50%;
   margin-top: -11px;
   left: 10px;
+}
+.w-btn-icon-left.w-mini {
+  padding-left: 35px;
+}
+.w-btn-icon-left.w-mini .w-icon {
+  margin-top: -9px;
 }
 .w-btn-icon-top {
   padding-top: 25px;
@@ -297,7 +300,7 @@
   /*IE8*/
 
   box-sizing: border-box;
-  /*W3C??????(IE9+�?Safari5.1+,Chrome10.0+,Opera10.6+??��?????box-sizing???w3c??????�?�?)*/
+  /*W3C标准(IE9+，Safari5.1+,Chrome10.0+,Opera10.6+都符合box-sizing的w3c标准语法)*/
 
 }
 .w-input-icon-left {
@@ -614,6 +617,10 @@
   margin-bottom: .25em;
   font-size: 12.5px;
   padding-top: .55em 11px .5em;
+}
+.w-mini .w-icon {
+  width: 18px;
+  height: 18px;
 }
 .w-mask {
   position: absolute;

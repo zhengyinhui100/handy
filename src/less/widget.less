@@ -103,14 +103,17 @@
 //带图标按钮
 .w-btn-icon-left{
 	padding-left:40px;
-	&.w-mini{
-		padding-left:30px;
-	}
 	.w-icon{
 		position:absolute;
 		top:50%;
 		margin-top:-11px;
 		left:10px;
+	}
+	&.w-mini{
+		.w-icon{
+			margin-top:-9px;
+		}
+		padding-left:35px;
 	}
 }
 .w-btn-icon-top{
@@ -407,6 +410,10 @@
 	margin-bottom: .25em;
 	font-size: 12.5px;
 	padding-top: .55em 11px .5em;
+	.w-icon{
+		width:18px;
+		height:18px;
+	}
 }
 //遮罩层
 .w-mask{
