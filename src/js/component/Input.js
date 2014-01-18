@@ -21,7 +21,7 @@ function(AC){
 		tmpl            : [
 		'<div class="w-input<%if(this.hasIcon){%> w-input-icon-<%=this.iconPos%><%}%>',
 		'<%if(this.hasBtn){%> w-input-btn-<%=this.btnPos%><%}%>">',
-			'<%=this.getChildrenHtml()%>',
+			'<%=this.getHtml(">*")%>',
 			'<input type="text" class="js-input w-input-txt"<%if(this.placeholder){%> placeholder="<%=this.placeholder%><%}%>"/>',
 		'</div>'],
 		listeners       : [

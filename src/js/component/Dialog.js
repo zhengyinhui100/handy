@@ -32,18 +32,14 @@ function(AC){
 		
 		tmpl            : [
 			'<div class="w-dialog w-overlay-shadow">',
-				'<div class="w-dialog-header w-tbar w-tbar-gray">',
-					'<a class="w-btn w-shadow w-inline w-btn-icon-notxt w-radius-big w-tbar-btn-left">',
-						'<span class="w-icon w-icon-bg w-icon-dellete"></span>',
-					'</a>',
-					'<h1 class="w-tbar-title"><%=this.title%></h1>',
-				'</div>',
+				'this.getHtml("$>Toolbar")',
 				'<div class="w-dialog-body">',
 					'<div class="w-body-content">',
 						'<h1 class="w-content-title"><%=this.contentTitle%></h1>',
 						'<div class="w-content-msg"><%=this.contentMsg%></div>',
 					'</div>',
 					'<div class="w-body-action">',
+					'this.getHtml("$>Button")',
 					'</div>',
 				'</div>',
 			'</div>'

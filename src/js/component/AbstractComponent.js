@@ -65,8 +65,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		doConfig            : fDoConfig,         //初始化配置
 		getId               : fGetId,            //获取组件id
 		getEl               : fGetEl,            //获取组件节点
-		getHtml             : fGetHtml,          //获取html
-		getChildrenHtml     : fGetChildrenHtml,  //获取子组件拼接后的html
+		getHtml             : fGetHtml,          //获取组件或子组件html
 		getExtCls           : fGetExtCls,        //生成通用样式
 		afterRender         : fAfterRender,      //渲染后续工作
 		hide                : fHide,             //隐藏
@@ -214,21 +213,17 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		return this._container;
 	}
 	/**
-	 * 获取html
+	 * 获取组件或子组件html
 	 * @method getHtml
-	 */
-	function fGetHtml(){
-		return this.html;
-	}
-	/**
-	 * 获取子组件拼接后的html
-	 * @method getChildrenHtml
-	 * @param {string=}sSel 选择器，不传表示所有子组件
+	 * @param {string=}sSel 选择器，不传表示返回自身的html
 	 * @return {string} 返回子组件html
 	 */
-	function fGetChildrenHtml(sSel){
+	function fGetHtml(sSel){
 		var me=this;
-		var aChildren=sSel?me.find(sSel):me.children;
+		if(!sSel){
+			return me.html;
+		}
+		var aChildren=sSel==">*"?me.children:me.find(sSel);
 		var aHtml=[];
 		for(var i=0;i<aChildren.length;i++){
 			aHtml.push(aChildren[i].getHtml());

@@ -19,7 +19,7 @@ $Define("handy.component.ComponentManager", function() {
 		getClass      : fGetClass,        //根据xtype获取组件类
 		register      : fRegister,        //注册组件
 		unRegister    : fUnRegister,      //注销组件
-		destroy       : fDestroy,         //销毁组件，主要用于删除元素时调用
+		destroy       : fDestroy,         //TODO 销毁组件，主要用于删除元素时调用
 		generateId    : fGenerateId,      //生成组件的id
 		get           : fGet              //根据id或cid查找组件
 	});

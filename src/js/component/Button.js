@@ -32,7 +32,7 @@ function(AC){
 							'if(!this.text){%> w-btn-icon-notxt<%}',
 							'if(this.hasIcon&&this.text){%> w-btn-icon-<%=this.iconPos%><%}%>">',
 							'<span class="w-btn-txt"><%=this.text%></span>',
-							'<%=this.getChildrenHtml()%>',
+							'<%=this.getHtml(">*")%>',
 							'</a>'],
 							
 		parseItem       : fParseItem           //分析处理子组件

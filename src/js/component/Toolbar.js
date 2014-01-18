@@ -17,7 +17,7 @@ function(AC){
 		
 		tmpl             : [
 			'<div class="w-tbar<%if(this.type=="header"){%> w-header<%}else if(this.type=="footer"){%> w-footer<%}%>">',
-				'<%=this.getChildrenHtml()%>',
+				'<%=this.getHtml(">*")%>',
 				'<%if(this.title){%><h1 class="w-tbar-title"><%=this.title%></h1><%}%>',
 			'</div>'
 		],
