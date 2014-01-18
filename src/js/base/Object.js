@@ -400,7 +400,7 @@ handy.add('Object',function($H){
     function fContains(obj,prop){
     	var bIsContain=false;
     	Object.each(obj,function(i,p){
-    		if(Object.isEquals(p,prop)){
+    		if(Object.equals(p,prop)){
     			bIsContain=true;
     			return false;
     		}
