@@ -508,7 +508,8 @@
 
   background-image: linear-gradient(#f9f9f9, #eeeeee);
 }
-.w-dialog .w-body-content {
+.w-dialog .w-body-content,
+.w-dialog .w-body-action {
   padding: 15px;
 }
 .w-dialog .w-content-title {
@@ -516,7 +517,7 @@
   font-weight: bold;
 }
 .w-dialog .w-content-msg {
-  margin: 10px 0 25px 0;
+  margin: 10px 0 0 0;
 }
 .w-list .w-list-item {
   position: relative;
