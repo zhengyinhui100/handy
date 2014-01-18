@@ -66,7 +66,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		getId               : fGetId,            //获取组件id
 		getEl               : fGetEl,            //获取组件节点
 		getHtml             : fGetHtml,          //获取html
-		getChildrenHtml     : fGetChildrenHtml,  //获取所有子组件拼接后的html
+		getChildrenHtml     : fGetChildrenHtml,  //获取子组件拼接后的html
 		getExtCls           : fGetExtCls,        //生成通用样式
 		afterRender         : fAfterRender,      //渲染后续工作
 		hide                : fHide,             //隐藏
@@ -221,12 +221,14 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		return this.html;
 	}
 	/**
-	 * 获取所有子组件拼接后的html
+	 * 获取子组件拼接后的html
 	 * @method getChildrenHtml
+	 * @param {string=}sSel 选择器，不传表示所有子组件
 	 * @return {string} 返回子组件html
 	 */
-	function fGetChildrenHtml(){
-		var aChildren=this.children;
+	function fGetChildrenHtml(sSel){
+		var me=this;
+		var aChildren=sSel?me.find(sSel):me.children;
 		var aHtml=[];
 		for(var i=0;i<aChildren.length;i++){
 			aHtml.push(aChildren[i].getHtml());
@@ -500,6 +502,9 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 * @return {boolean} 匹配则返回true
 	 */
 	function fMatch(sSel){
+		if(sSel=="*"){
+			return true;
+		}
 		var me=this,m,prop,op,value;
 		//'Button[attr=value]'=>'[xtype=Button][attr=value]'
 		sSel=sSel.replace(/^([^\[]+)/,'[xtype="$1"]');
@@ -547,7 +552,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 				//已匹配所有表达式，加入结果集
 				if(!sExtSel){
 					aResult.push(oChild);
-				}else if(bOnlyChildren){
+				}else{
 					//还有未匹配的表达式，继续查找
 					oChild.find('$'+sExtSel,aResult);
 				}
