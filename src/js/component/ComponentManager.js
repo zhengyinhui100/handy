@@ -21,7 +21,7 @@ $Define("handy.component.ComponentManager", function() {
 		unRegister    : fUnRegister,      //注销组件
 		destroy       : fDestroy,         //销毁组件，主要用于删除元素时调用
 		generateId    : fGenerateId,      //生成组件的id
-		get           : fGet              //查找组件
+		get           : fGet              //根据id或cid查找组件
 	});
 	
 	/**
@@ -81,7 +81,7 @@ $Define("handy.component.ComponentManager", function() {
 		}
 	}
 	/**
-	 * 查找组件
+	 * 根据id或cid查找组件
 	 * @method get
 	 * @param {string}sId 组件id或者cid
 	 */
