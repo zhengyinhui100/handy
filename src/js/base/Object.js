@@ -16,7 +16,8 @@ handy.add('Object',function($H){
 		clone				: fClone,			//对象复制
 		isEmpty				: fIsEmpty, 		//判断对象是否为空
 		each				: fEach, 			//遍历对象
-		contain             : fContain,         //是否包含指定属性/数组元素
+		contains            : fContains,        //是否包含指定属性/数组元素
+		largeThan           : fLargeThan,       //是否大于另一个对象|数组（包含另一个对象的所有属性或包含另一个数组的所有元素）
 		count				: fCount,			//计算对象长度
 		toArray				: fToArray,		    //将类数组对象转换为数组，比如arguments, nodelist
 		genMethod           : fGenerateMethod   //归纳生成类方法
@@ -114,7 +115,7 @@ handy.add('Object',function($H){
         	var bNotCover=notCover===true?bHas:false;
         	//当此参数为数组时，仅不覆盖数组中的原有属性
         	if(Object.isArray(notCover)){
-        		bNotCover=Object.contain(notCover,sProperty)&&bHas;
+        		bNotCover=Object.contains(notCover,sProperty)&&bHas;
         	}else if(Object.isFunction(notCover)){
         		//当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
         		bNotCover=notCover(sProperty);
@@ -391,20 +392,37 @@ handy.add('Object',function($H){
     }
     /**
      * 是否包含指定属性/数组元素
-     * @method contain 
+     * @method contains 
      * @param {*}obj 指定对象
      * @param {*}prop 指定属性/数组元素
      * @return {boolean} 包含则返回true
      */
-    function fContain(obj,prop){
+    function fContains(obj,prop){
     	var bIsContain=false;
     	Object.each(obj,function(i,p){
-    		if(p===prop){
+    		if(Object.isEquals(p,prop)){
     			bIsContain=true;
     			return false;
     		}
     	});
     	return bIsContain;
+    }
+    /**
+     * 是否大于另一个对象|数组（包含另一个对象的所有属性或包含另一个数组的所有元素）
+     * @method largeThan
+     * @param {Object|Array}o1 要比较的对象
+     * @param {Object|Array}o2 比较的对象
+     */
+    function fLargeThan(o1,o2){
+    	if(typeof o1=='object'&&typeof o2=='object'){
+    		var bResult=true;
+    		Object.each(o2,function(p,v){
+    			if(!Object.equals(o2[p],o1[p])){
+    				return bResult=false;
+    			}
+    		});
+    		return bResult;
+    	}
     }
     /**
     * 计算对象长度
