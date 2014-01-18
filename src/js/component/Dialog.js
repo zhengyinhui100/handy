@@ -19,9 +19,15 @@ function(AC){
 	$HO.extend(Dialog.prototype,{
 		//初始配置
 //		title           : '',        //标题
+//		noClose         : false,     //true时没有close图标
 //		content         : '',        //内容
 //		contentTitle    : '',        //内容框的标题
 //		contentMsg      : '',        //内容框的描述
+//		noAction        : false,     //true时没有底部按钮
+//		noOk            : false,     //true时没有确定按钮
+//		noCancel        : false,     //true时没有取消按钮
+		okTxt           : '确定',     //确定按钮文字
+		cancelTxt       : '取消',     //取消按钮文字
 		
 		
 		tmpl            : [
@@ -69,16 +75,34 @@ function(AC){
 	function fDoConfig(oSettings){
 		var me=this;
 		me.callSuper(oSettings);
-		var aItems=[
-			{
+		if(me.title){
+			me.addItem({
 				xtype:'Toolbar',
 				title:me.title,
-				items:{
+				items:!me.noClose&&{
 					xtype:'Button',
-					
+					icon:'close'
 				}
+			})
+		}
+		if(!me.noAction){
+			if(!me.noOk){
+				me.addItem({
+					xtype:'Button',
+					isActive:true,
+					text:me.okTxt,
+					click:function(){
+						
+					}
+				});
 			}
-		]
+			if(!me.noCancel){
+				me.addItem({
+					xtype:'Button',
+					text:me.cancelTxt
+				});
+			}
+		}
 	}
 	
 	return Dialog;
