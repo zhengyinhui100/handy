@@ -32,6 +32,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		extCls              : '',                //组件附加class
 		activeCls           : 'w-active',        //激活样式
 //		defItem             : null,              //默认子组件配置
+//		icon                : null,              //图标
 		////通用效果
 		radius              : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 		shadow              : false,        	 //外阴影
@@ -92,6 +93,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		callChild           : fCallChild,        //调用子组件方法
 		add                 : fAdd,              //添加子组件
 		remove              : fRemove,           //删除子组件
+		addItem             : fAddItem,          //添加子组件配置
 		parseItem           : function(){},      //分析子组件，由具体组件类实现
 		parseItems          : fParseItems,       //分析子组件列表
 		destroy             : fDestroy           //销毁
@@ -154,7 +156,10 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fDoConfig(oParams){
 		var me=this;
+		//保存参数
 		me.params=oParams;
+		//复制参数
+		me.settings=$HO.extend({},oParams);
 		//生成对象的监听器列表
 		var aListeners=me.listeners||[];
 		if(oParams.listeners){
@@ -162,7 +167,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		}else{
 			me._listeners=aListeners.concat();
 		}
-		//只覆盖已声明的基本类型的属性
+		//只覆盖基本类型的属性
 		$HO.extend(me,oParams,{notCover:function(sProp){
 			var value=me[sProp];
 			//默认事件，可通过参数属性直接添加
@@ -551,12 +556,31 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		return bResult;
 	}
 	/**
+	 * 添加子组件配置
+	 * @method addItem
+	 * @param {object}oItem 子组件配置
+	 */
+	function fAddItem(oItem){
+		var me=this;
+		if(!me.settings.items){
+			me.settings.items=[];
+		}
+		me.settings.items.push(oItem)
+	}
+	/**
 	 * 分析子组件列表
 	 * @method parseItems
 	 */
 	function fParseItems(){
 		var me=this;
-		var aItems=me.params.items;
+		//图标组件快捷添加
+		if(me.icon){
+			me.addItem({
+				xtype:'Icon',
+				name:me.icon
+			})
+		}
+		var aItems=me.settings.items;
 		if(!aItems){
 			return;
 		}

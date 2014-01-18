@@ -15,6 +15,7 @@ function(AC){
 		text            : '',                  //按钮文字
 		color           : null,                //按钮颜色
 		isActive        : false,               //是否是激活状态
+		icon            : null,                //
 		iconPos         : 'left',              //图标位置，"left"|"top"
 		activeCls       : 'w-btn-blue',        //激活样式
 		defItem         : {
@@ -33,7 +34,7 @@ function(AC){
 							'<span class="w-btn-txt"><%=this.text%></span>',
 							'<%=this.getChildrenHtml()%>',
 							'</a>'],
-		
+							
 		parseItem       : fParseItem           //分析处理子组件
 	});
 	/**

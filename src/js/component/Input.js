@@ -54,14 +54,7 @@ function(AC){
 		me.callSuper(oSettings);
 		//搜索框快捷配置方式
 		if(me.type=='search'){
-			if(!me.params.items){
-				me.params.items=[];
-			}
-			me.params.items.push({
-				xtype:'Icon',
-				name:'search',
-				hasBg:true
-			})
+			me.icon='search';
 		}
 	}
 	/**

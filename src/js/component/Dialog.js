@@ -69,6 +69,16 @@ function(AC){
 	function fDoConfig(oSettings){
 		var me=this;
 		me.callSuper(oSettings);
+		var aItems=[
+			{
+				xtype:'Toolbar',
+				title:me.title,
+				items:{
+					xtype:'Button',
+					
+				}
+			}
+		]
 	}
 	
 	return Dialog;
