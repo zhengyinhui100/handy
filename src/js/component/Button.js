@@ -12,12 +12,14 @@ function(AC){
 	
 	$HO.extend(Button.prototype,{
 		//初始配置
-		text            : '',                  //按钮文字
-		color           : null,                //按钮颜色
-		isActive        : false,               //是否是激活状态
-		icon            : null,                //
+//		text            : '',                  //按钮文字
+//		color           : null,                //按钮颜色
+//		isActive        : false,               //是否是激活状态
+//		icon            : null,                //图标名称
 		iconPos         : 'left',              //图标位置，"left"|"top"
 		activeCls       : 'w-btn-blue',        //激活样式
+		cls             : 'btn',               //组件样式名
+		
 		defItem         : {
 			xtype       : 'Icon',
 			hasBg       : true
@@ -28,8 +30,8 @@ function(AC){
 		shadow          : true,        	       //外阴影
 		isInline        : true,                //宽度自适应
 		
-		tmpl            : ['<a class="w-btn<%if(this.color){%> w-btn-<%=this.color%><%}',
-							'if(!this.text){%> w-btn-icon-notxt<%}',
+		tmpl            : ['<a class="w-btn',
+							'<%if(!this.text){%> w-btn-icon-notxt<%}',
 							'if(this.hasIcon&&this.text){%> w-btn-icon-<%=this.iconPos%><%}%>">',
 							'<span class="w-btn-txt"><%=this.text%></span>',
 							'<%=this.getHtml(">*")%>',

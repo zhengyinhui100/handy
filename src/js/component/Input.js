@@ -12,7 +12,7 @@ function(AC){
 	
 	$HO.extend(Input.prototype,{
 		//初始配置
-		type            : '',                  //图标名称
+//		type            : '',                  //图标名称
 //		placeholder     : '',                  //placeholder
 		radius          : 'normal',            //普通圆角
 		iconPos         : 'left',              //图标位置

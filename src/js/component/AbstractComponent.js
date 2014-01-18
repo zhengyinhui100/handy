@@ -22,36 +22,39 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		xtype               : 'AbstractComponent',       //组件类型
 		
 		//默认配置
-		renderTo            : null,              //渲染节点
-		hidden              : false,             //是否隐藏
-		disabled            : false,             //是否禁用
-		hideMode            : 'display',         //隐藏方式
+//		renderTo            : null,              //渲染节点
+		//TODO
+//		hidden              : false,             //是否隐藏
+//		hideMode            : 'display',         //隐藏方式
+
+//		disabled            : false,             //是否禁用
 		autoRender          : true,              //是否默认就进行渲染
 		renderBy            : 'append',          //默认渲染方式
-		notListen           : false,             //不自动初始化监听器
-		extCls              : '',                //组件附加class
+//		notListen           : false,             //不自动初始化监听器
+//		extCls              : '',                //组件附加class
 		activeCls           : 'w-active',        //激活样式
 //		defItem             : null,              //默认子组件配置
 //		icon                : null,              //图标
 		////通用效果
-		radius              : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
-		shadow              : false,        	 //外阴影
-		shadowInset         : false,        	 //内阴影
-		shadowSurround      : false,             //外围亮阴影，主要用于黑色工具栏内的按钮
-		isMini              : false,       	     //小号
-		isActive            : false,             //是否激活
-		isFocus             : false,        	 //聚焦
-		isInline            : false,             //是否内联(宽度自适应)
+//		color               : null,              //组件颜色
+//		radius              : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
+//		shadow              : false,        	 //外阴影
+//		shadowInset         : false,        	 //内阴影
+//		shadowSurround      : false,             //外围亮阴影，主要用于黑色工具栏内的按钮
+//		isMini              : false,       	     //小号
+//		isActive            : false,             //是否激活
+//		isFocus             : false,        	 //聚焦
+//		isInline            : false,             //是否内联(宽度自适应)
 		
 		//属性
 //		params              : null,              //初始化时传入的参数
 //		_id                 : null,              //组件id
 //		tmpl                : [],                //组件模板
 //		tmplStr             : '',                //组件模板字符串
-		html                : null,              //组件html
+//		html                : null,              //组件html
 //		rendered            : false,             //是否已渲染
 //		children            : [],                //子组件
-		isSuspend           : false,             //是否挂起事件
+//		isSuspend           : false,             //是否挂起事件
 //		_container          : null,              //组件容器节点
 //		_listeners          : {},                //事件池  
 		_customEvents       : [                  //自定义事件,可以通过参数属性的方式直接进行添加
@@ -216,7 +219,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 * 获取组件或子组件html
 	 * @method getHtml
 	 * @param {string=}sSel 选择器，不传表示返回自身的html
-	 * @return {string} 返回子组件html
+	 * @return {string} 返回对应html
 	 */
 	function fGetHtml(sSel){
 		var me=this;
@@ -240,6 +243,9 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		var aCls=[];
 		if(me.extCls){
 			aCls.push(me.extCls);
+		}
+		if(me.color){
+			aCls.push('w-'+me.cls+'-'+me.color);
 		}
 		if(me.disabled){
 			aCls.push('w-disable');

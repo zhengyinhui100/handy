@@ -32,15 +32,19 @@ function(AC){
 		
 		tmpl            : [
 			'<div class="w-dialog w-overlay-shadow">',
-				'this.getHtml("$>Toolbar")',
+				'<%=this.getHtml("$>Toolbar")%>',
 				'<div class="w-dialog-body">',
-					'<div class="w-body-content">',
-						'<h1 class="w-content-title"><%=this.contentTitle%></h1>',
-						'<div class="w-content-msg"><%=this.contentMsg%></div>',
-					'</div>',
-					'<div class="w-body-action">',
-					'this.getHtml("$>Button")',
-					'</div>',
+					'<%if(this.content){%><%=this.content%><%}else{%>',
+						'<div class="w-body-content">',
+							'<h1 class="w-content-title"><%=this.contentTitle%></h1>',
+							'<div class="w-content-msg"><%=this.contentMsg%></div>',
+						'</div>',
+					'<%}%>',
+					'<%if(!this.noAction){%>',
+						'<div class="w-body-action">',
+						'<%=this.getHtml("$>Button")%>',
+						'</div>',
+					'<%}%>',
 				'</div>',
 			'</div>'
 		],
@@ -77,7 +81,9 @@ function(AC){
 				title:me.title,
 				items:!me.noClose&&{
 					xtype:'Button',
-					icon:'close'
+					radius:'big',
+					extCls:'w-tbar-btn-left',
+					icon:'delete'
 				}
 			})
 		}
@@ -87,6 +93,7 @@ function(AC){
 					xtype:'Button',
 					isActive:true,
 					text:me.okTxt,
+					isInline:false,
 					click:function(){
 						
 					}
@@ -95,6 +102,7 @@ function(AC){
 			if(!me.noCancel){
 				me.addItem({
 					xtype:'Button',
+					isInline:false,
 					text:me.cancelTxt
 				});
 			}
