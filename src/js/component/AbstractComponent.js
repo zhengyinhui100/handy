@@ -69,7 +69,6 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		getChildrenHtml     : fGetChildrenHtml,  //获取所有子组件拼接后的html
 		getExtCls           : fGetExtCls,        //生成通用样式
 		afterRender         : fAfterRender,      //渲染后续工作
-		find                : fFind,             //查找子元素
 		hide                : fHide,             //隐藏
 		show                : fShow,             //显示
 //		update
@@ -89,6 +88,8 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		resumeListeners     : fResumeListeners,  //恢复事件
 		
 		each                : fEach,             //遍历子组件
+		match               : fMatch,            //匹配选择器
+		find                : fFind,             //查找子元素
 		index               : fIndex,            //获取本身的索引，如果没有父组件则返回null
 		callChild           : fCallChild,        //调用子组件方法
 		add                 : fAdd,              //添加子组件
@@ -133,8 +134,12 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		me.doConfig(oSettings);
 		//分析处理子组件
 		me.parseItems();
+		//将组件数组方式的模板转为字符串
+		if(typeof me.tmpl!='string'){
+			me.constructor.prototype.tmpl=me.tmpl.join('');
+		}
 		//由模板生成组件html
-		var sHtml=$H.Template.tmpl({id:me.xtype,tmpl:me.tmplStr||(me.tmplStr=me.tmpl.join(''))},me);
+		var sHtml=$H.Template.tmpl({id:me.xtype,tmpl:me.tmpl},me);
 		var sId=me.getId();
 		//添加id
 		sHtml=sHtml.replace(_oIdReg,'$1 id="'+sId+'"');
@@ -171,8 +176,8 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		$HO.extend(me,oParams,{notCover:function(sProp){
 			var value=me[sProp];
 			//默认事件，可通过参数属性直接添加
-			var bIsCustEvt=$HO.contain(me._customEvents,sProp);
-			var bIsDefEvt=$HO.contain(me._defaultEvents,sProp);
+			var bIsCustEvt=$HO.contains(me._customEvents,sProp);
+			var bIsDefEvt=$HO.contains(me._defaultEvents,sProp);
 			if(bIsCustEvt||bIsDefEvt){
 				me._listeners.push({
 					type:sProp,
@@ -283,15 +288,9 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		if(me.disabled){
 			me.suspendListeners();
 		}
+		me.callChild('afterRender');
 		me.fire('afterRender');
 		delete me.html;
-	}
-	/**
-	 * 查找子元素或子组件
-	 * @method
-	 */
-	function fFind(selector){
-		return this.getEl().find(selector);
 	}
 	/**
 	 * 隐藏
@@ -493,6 +492,72 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fEach(fCallback, args){
 		$HO.each(this.children,fCallback, args);
+	}
+	/**
+	 * 匹配选择器
+	 * @method match
+	 * @param {string}sSel 选择器，只支持一级选择器 xtype[attr=value]
+	 * @return {boolean} 匹配则返回true
+	 */
+	function fMatch(sSel){
+		var me=this,m,prop,op,value;
+		//'Button[attr=value]'=>'[xtype=Button][attr=value]'
+		sSel=sSel.replace(/^([^\[]+)/,'[xtype="$1"]');
+		//循环检查
+		var r=/\[([^=|\!]+)(=|\!=)([^=]+)\]/g;
+		while(m=r.exec(sSel)){
+			prop=m[1];
+			//操作符：=|!=
+			op=m[2];
+			value=eval(m[3]);
+			if(op==="="?me[prop]!=value:me[prop]==value){
+				return false;
+			}
+		}
+		return true;
+	}
+	/**
+	 * 查找子元素或子组件
+	 * @method find
+	 * @param {string}sSel '$'开头表示查找组件，如：'$xtype[attr=value]'、'$ancestor descendant'、'$parent>child'，
+	 * 				'$>Button'表示仅查找当前子节点中的按钮，'$Button'表示查找所有后代节点中的按钮，
+	 * @param {Array=}aResult 用于存储结果集的数组
+	 */
+	function fFind(sSel,aResult){
+		var me=this;
+		//查找元素
+		if(sSel.indexOf('$')!=0){
+			return me.getEl().find(sSel);
+		}
+		//查找组件
+		var aResult=aResult||[];
+		var bOnlyChildren=sSel.indexOf('>')==1;
+		var sCurSel=sSel.replace(/^\$>?\s?/,'');
+		//分割当前选择器及后代选择器
+		var nIndex=sCurSel.search(/\s|>/);
+		var sCurSel,sExtSel;
+		if(nIndex>0){
+			sExtSel=sCurSel.substring(nIndex);
+			sCurSel=sCurSel.substring(0,nIndex);
+		}
+		//匹配子组件
+		me.each(function(i,oChild){
+			var bMatch=oChild.match(sCurSel);
+			if(bMatch){
+				//已匹配所有表达式，加入结果集
+				if(!sExtSel){
+					aResult.push(oChild);
+				}else if(bOnlyChildren){
+					//还有未匹配的表达式，继续查找
+					oChild.find('$'+sExtSel,aResult);
+				}
+			}
+			if(!bOnlyChildren){
+				//如果不是仅限当前子节点，继续从后代开始查找
+				oChild.find(sSel,aResult);
+			}
+		});
+		return aResult;
 	}
 	/**
 	 * 获取本身的索引，如果没有父组件则返回null
