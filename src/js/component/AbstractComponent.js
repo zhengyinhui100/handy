@@ -46,6 +46,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 //		isInline            : false,             //是否内联(宽度自适应)
 		
 		//属性
+//		role                : '',                //保留属性，用于模板中筛选组件的选择器，如this.getHtml("$>[role='content']")
 //		params              : null,              //初始化时传入的参数
 //		_id                 : null,              //组件id
 //		tmpl                : [],                //组件模板，首次初始化前为数组，初始化后为字符串
