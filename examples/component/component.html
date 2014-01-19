@@ -241,7 +241,10 @@ function(CM,Icon,Button,Input,Tab,Toolbar,Dialog){
 			text:'按钮',
 			isMini:true,
 			pos:'left',
-			color:'blue'
+			color:'blue',
+			click:function(){
+				$D.log(1);
+			}
 		},{
 			xtype:'Button',
 			text:'按钮',
@@ -269,9 +272,6 @@ function(CM,Icon,Button,Input,Tab,Toolbar,Dialog){
 						color:'black',
 						items:{
 							name:'edit'
-						},
-						click:function(){
-							$D.log(this.index());
 						}
 					},
 					{
@@ -291,7 +291,8 @@ function(CM,Icon,Button,Input,Tab,Toolbar,Dialog){
 		click:function(){
 			new Dialog({
 				title:'警告',
-				contentMsg:'内容'
+				contentTitle:'注意!',
+				contentMsg:'内容内容内容内容内容内容内容内容内容'
 			});
 		}
 	})

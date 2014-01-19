@@ -135,18 +135,15 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 	/**
 	 * 添加调试断点
 	 * @method debug
-	 * @param {Object} fCondiction	输出断点的条件就判断是否返回true，也可以不传，不传为默认debug
+	 * @param {boolean}isDebug	仅为false时不进入debug
 	 */
-	function fDebug(fCondiction){
+	function fDebug(isDebug){
 		if(Debug.level>Debug.DEBUG_LEVEL){
 			return;
 		}
-		if(typeof fCondiction != 'undefined'){
-			if(!fCondiction()){
-				return;
-			}
+		if(isDebug!==false){
+			debugger;
 		}
-		debugger;
 	}
 	/**
 	 * 处理异常

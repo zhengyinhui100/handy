@@ -7,7 +7,7 @@
 $Define("handy.component.AbstractComponent","handy.component.ComponentManager",function(CM){
 	
 	var AC=$HO.createClass(),
-	_oIdReg=/^(<[a-zA-Z]+)/,
+	_oTagReg=/^(<[a-zA-Z]+)/,
 	_oClsReg=/(class=")/;
 	
 	//静态方法
@@ -23,10 +23,8 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		
 		//默认配置
 //		renderTo            : null,              //渲染节点
-		//TODO
 //		hidden              : false,             //是否隐藏
-//		hideMode            : 'display',         //隐藏方式
-
+//		hideMode            : 'display',         //隐藏方式,'display'|'visibility'
 //		disabled            : false,             //是否禁用
 		autoRender          : true,              //是否默认就进行渲染
 		renderBy            : 'append',          //默认渲染方式
@@ -35,6 +33,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		activeCls           : 'w-active',        //激活样式
 //		defItem             : null,              //默认子组件配置
 //		icon                : null,              //图标
+//		withMask            : false,             //是否有遮罩层
 		////通用效果
 //		color               : null,              //组件颜色
 //		radius              : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
@@ -49,10 +48,11 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		//属性
 //		params              : null,              //初始化时传入的参数
 //		_id                 : null,              //组件id
-//		tmpl                : [],                //组件模板
-//		tmplStr             : '',                //组件模板字符串
+//		tmpl                : [],                //组件模板，首次初始化前为数组，初始化后为字符串
 //		html                : null,              //组件html
 //		rendered            : false,             //是否已渲染
+//      listened            : false,             //是否已初始化事件
+//      showed              : false,             //是否已显示
 //		children            : [],                //子组件
 //		isSuspend           : false,             //是否挂起事件
 //		_container          : null,              //组件容器节点
@@ -63,24 +63,25 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		_defaultEvents      : [                  //默认事件，可以通过参数属性的方式直接进行添加
 			'click','mouseover','focus'
 		],
-		
+		//组件初始化相关
 		initialize          : fInitialize,       //初始化
 		doConfig            : fDoConfig,         //初始化配置
+		initHtml            : fInitHtml,         //初始化html
 		getId               : fGetId,            //获取组件id
 		getEl               : fGetEl,            //获取组件节点
 		getHtml             : fGetHtml,          //获取组件或子组件html
 		getExtCls           : fGetExtCls,        //生成通用样式
 		afterRender         : fAfterRender,      //渲染后续工作
+		//组件公用功能
 		hide                : fHide,             //隐藏
 		show                : fShow,             //显示
-//		update
 		enable              : fEnable,           //启用
 		disable             : fDisable,          //禁用
 		active              : fActive,           //激活
 		unactive            : fUnactive,         //不激活
-		
-//		mask
-//		unmask
+		mask                : fMask,             //显示遮罩层
+		unmask              : fUnmask,           //隐藏遮罩层
+		//事件相关
 		fire                : fFire,             //触发组件自定义事件
 		listen              : fListen,           //绑定事件
 		unlisten            : fUnlisten,         //解除事件
@@ -88,7 +89,8 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		clearListeners      : fClearListeners,   //清除所有事件
 		suspendListeners    : fSuspendListeners, //挂起事件
 		resumeListeners     : fResumeListeners,  //恢复事件
-		
+		//组件管理相关
+//		update
 		each                : fEach,             //遍历子组件
 		match               : fMatch,            //匹配选择器
 		find                : fFind,             //查找子元素
@@ -110,7 +112,9 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fDefine(sXtype){
 		var Component=$HO.createClass();
-		$HO.inherit(Component,AC,null,null,{ignore:['define']});
+		$HO.inherit(Component,AC,null,null,{notCover:function(p){
+			return p=='define';
+		}});
 		CM.registerType(sXtype,Component);
 		return Component;
 	}
@@ -136,20 +140,10 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		me.doConfig(oSettings);
 		//分析处理子组件
 		me.parseItems();
-		//将组件数组方式的模板转为字符串
-		if(typeof me.tmpl!='string'){
-			me.constructor.prototype.tmpl=me.tmpl.join('');
-		}
-		//由模板生成组件html
-		var sHtml=$H.Template.tmpl({id:me.xtype,tmpl:me.tmpl},me);
-		var sId=me.getId();
-		//添加id
-		sHtml=sHtml.replace(_oIdReg,'$1 id="'+sId+'"');
-		//添加附加class
-		sHtml=me.html=sHtml.replace(_oClsReg,'$1'+me.getExtCls());
+		me.initHtml();
 		me.fire('beforeRender');
 		if(me.autoRender!=false){
-			me.renderTo[me.renderBy](sHtml);
+			me.renderTo[me.renderBy](me.getHtml());
 			//渲染后续工作
 			me.afterRender();
 		}
@@ -197,6 +191,33 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 			me.renderTo=$(document.body);
 		}
 		me.children=[];
+	}
+	/**
+	 * 初始化html
+	 * @method initHtml
+	 */
+	function fInitHtml(){
+		var me=this;
+		//将组件数组方式的模板转为字符串
+		if(typeof me.tmpl!='string'){
+			me.constructor.prototype.tmpl=me.tmpl.join('');
+		}
+		//由模板生成组件html
+		var sHtml=$H.Template.tmpl({id:me.xtype,tmpl:me.tmpl},me);
+		var sId=me.getId();
+		//添加id
+		sHtml=sHtml.replace(_oTagReg,'$1 id="'+sId+'"');
+		//添加附加class
+		sHtml=sHtml.replace(_oClsReg,'$1'+me.getExtCls());
+		//添加style
+		var sStyle;
+		if(me.displayMode=='visibility'){
+			sStyle='visibility:hidden';
+		}else{
+			sStyle='display:none';
+		}
+		sHtml=sHtml.replace(_oTagReg,'$1 style="'+sStyle+'"');
+		me.html=sHtml;
 	}
 	/**
 	 * 获取组件id
@@ -282,6 +303,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fAfterRender(){
 		var me=this;
+		me.callChild();
 		//缓存容器
 		me._container=$("#"+me.getId());
 		me.rendered=true;
@@ -291,7 +313,9 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		if(me.disabled){
 			me.suspendListeners();
 		}
-		me.callChild('afterRender');
+		if(!me.hidden){
+			me.show();
+		}
 		me.fire('afterRender');
 		delete me.html;
 	}
@@ -301,7 +325,20 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fHide(){
 		var me=this;
-		me.getEl().hide();
+		//已经隐藏，直接退回
+		if(!me.showed){
+			return;
+		}
+		me.showed=false;
+		var oEl=me.getEl();
+		if(me.displayMode=='visibility'){
+			oEl.css({visibility:"hidden"})
+		}else{
+			oEl.hide();
+		}
+		if(me.withMask){
+			me.unmask();
+		}
 		me.fire('hide');
 	}
 	/**
@@ -310,8 +347,22 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fShow(){
 		var me=this;
-		me.getEl().show();
+		//已经显示，直接退回
+		if(me.showed){
+			return;
+		}
+		me.showed=true;
+		var oEl=me.getEl();
+		if(me.displayMode=='visibility'){
+			oEl.css({visibility:"visible"})
+		}else{
+			oEl.show();
+		}
+		if(me.withMask){
+			me.mask();
+		}
 		me.fire('show');
+		me.callChild();
 	}
 	/**
 	 * 启用
@@ -346,6 +397,25 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	function fUnactive(){
 		var me=this;
 		me.getEl().removeClass(me.activeCls);
+	}
+	/**
+	 * 显示遮罩层
+	 * @method mask
+	 */
+	function fMask(){
+		if(!AC.mask){
+			AC.mask=$(document.body).append('<div id="maskDv" class="w-mask" style="display:none;"></div>');
+		}
+		AC.mask.show();
+	}
+	/**
+	 * 隐藏遮罩层
+	 * @method unmask
+	 */
+	function fUnmask(){
+		if(AC.mask){
+			AC.mask.hide();
+		}
 	}
 	/**
 	 * 触发组件自定义事件
@@ -405,7 +475,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 				}
 			}
 		}
-		aListeners.push(oEvent)
+		aListeners.push(oEvent);
 	}
 	/**
 	 * 解除事件
@@ -448,14 +518,17 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fInitListeners(){
 		var me=this;
-		//缓存容器，autoRender为false时需要此处获取容器
-		me._container=me._container||$("#"+me._id);
+		//已经初始化，直接退回
+		if(me.listened){
+			return;
+		}
+		me.listened=true;
 		var aListeners=me._listeners;
 		me._listeners=[];
 		for(var i=aListeners.length-1;i>=0;i--){
 			me.listen(aListeners[i]);
 		}
-		me.callChild('initListeners');
+		me.callChild();
 	}
 	/**
 	 * 清除所有事件
@@ -467,7 +540,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		for(var i=aListeners.length-1;i>=0;i--){
 			me.unlisten(aListeners[i]);
 		}
-		me.callChild('clearListeners');
+		me.callChild();
 	}
 	/**
 	 * 挂起事件
@@ -475,8 +548,12 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fSuspendListeners(){
 		var me=this;
+		//已经挂起，直接退回
+		if(me.isSuspend){
+			return;
+		}
 		me.isSuspend=true;
-		me.callChild('suspendListeners');
+		me.callChild();
 	}
 	/**
 	 * 恢复事件
@@ -484,8 +561,12 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fResumeListeners(){
 		var me=this;
+		//已经恢复，直接退回
+		if(!me.isSuspend){
+			return;
+		}
 		me.isSuspend=false;
-		me.callChild('resumeListeners');
+		me.callChild();
 	}
 	/**
 	 * 遍历子组件
@@ -589,10 +670,11 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	/**
 	 * 调用子组件方法
 	 * @method callChild
-	 * @param {string}sMethod 调用的子组件的方法名
+	 * @param {string=}sMethod 方法名，不传则使用调用者同名函数
 	 */
 	function fCallChild(sMethod){
 		var aChildren=this.children;
+		sMethod=sMethod||arguments.callee.caller.$name;
 		for(var i=0,len=aChildren.length;i<len;i++){
 			aChildren[i][sMethod]();
 		}
@@ -681,7 +763,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		CM.unregister(me);
 		me.fire('destroy');
 		me.clearListeners();
-		me.callChild('destroy');
+		me.callChild();
 		me.getEl().remove();
 		delete me._listeners;
 		delete me._contianer;

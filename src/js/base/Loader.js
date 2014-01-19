@@ -204,7 +204,7 @@ function(Debug,Object,Function,$H){
 //							Chrome下这里执行后eNode回变为“TypeError”，原因暂不明
 //							for (var p in eNode){
 //								console.log(p)
-//								if(eNode=="TypeError")debugger;
+//								if(eNode=="TypeError")Debug.debug();
 //								delete eNode[p];
 //							}
 //						}

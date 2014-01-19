@@ -95,7 +95,7 @@ handy.add('Template',function($H){
 			}
 		})
 		sCode+='return '+(_isNewEngine?'$r;':'$r.join("");');
-		$D.log(sCode);
+//		$D.log(sCode);
 		return new Function('$data',sCode);
 	}
 	/**
