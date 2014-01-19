@@ -404,7 +404,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fMask(){
 		if(!AC.mask){
-			AC.mask=$(document.body).append('<div id="maskDv" class="w-mask" style="display:none;"></div>');
+			AC.mask=$('<div class="w-mask" style="display:none;"></div>').appendTo(document.body);
 		}
 		AC.mask.show();
 	}
@@ -715,10 +715,14 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fAddItem(oItem){
 		var me=this;
-		if(!me.settings.items){
-			me.settings.items=[];
+		var oSettings=me.settings;
+		var items=oSettings.items;
+		if(!items){
+			oSettings.items=[];
+		}else if(!$HO.isArray(items)){
+			oSettings.items=[items];
 		}
-		me.settings.items.push(oItem)
+		oSettings.items.push(oItem);
 	}
 	/**
 	 * 分析子组件列表

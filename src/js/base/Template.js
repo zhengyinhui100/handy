@@ -12,7 +12,7 @@ handy.add('Template',function($H){
 		openTag         : '<%',            //模板语法开始标签
 		closeTag        : '%>',            //模板语法结束标签
 		
-		_setValue       : _fSetValue,      //设置变量
+//		_setValue       : _fSetValue,      //设置变量
 		_add            : _fAdd,           //结果函数添加一行字符串
 		_parseHtml      : _fParseHtml,     //处理html
 		_parseScript    : _fParseScript,   //处理脚本

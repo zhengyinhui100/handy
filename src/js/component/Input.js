@@ -13,7 +13,9 @@ function(AC){
 	$HO.extend(Input.prototype,{
 		//初始配置
 //		type            : '',                  //图标名称
+//		value           : '',                  //默认值
 //		placeholder     : '',                  //placeholder
+//		withClear       : false,               //带有清除按钮
 		radius          : 'normal',            //普通圆角
 		iconPos         : 'left',              //图标位置
 		btnPos          : 'right',             //按钮位置
@@ -22,7 +24,7 @@ function(AC){
 		'<div class="w-input<%if(this.hasIcon){%> w-input-icon-<%=this.iconPos%><%}%>',
 		'<%if(this.hasBtn){%> w-input-btn-<%=this.btnPos%><%}%>">',
 			'<%=this.getHtml(">*")%>',
-			'<input type="text" class="js-input w-input-txt"<%if(this.placeholder){%> placeholder="<%=this.placeholder%><%}%>"/>',
+			'<input type="text" class="js-input w-input-txt" value="<%=this.value%>"<%if(this.placeholder){%> placeholder="<%=this.placeholder%><%}%>"/>',
 		'</div>'],
 		listeners       : [
 			{
@@ -41,8 +43,9 @@ function(AC){
 			}
 		],
 		doConfig        : fDoConfig,         //初始化配置
-		parseItem       : fParseItem         //分析处理子组件
-		
+		parseItem       : fParseItem,        //分析处理子组件
+		val             : fVal,              //获取/设置输入框的值
+		focus           : fFocus             //聚焦
 	});
 	
 	/**
@@ -56,6 +59,17 @@ function(AC){
 		if(me.type=='search'){
 			me.icon='search';
 		}
+		//清除按钮快捷配置方式
+		if(me.withClear){
+			me.addItem({
+				xtype:'Button',
+				radius:'big',
+				icon:'delete',
+				click:function(){
+					this.parent.find('input').val('').focus();
+				}
+			});
+		}
 	}
 	/**
 	 * 分析处理子组件
@@ -68,6 +82,27 @@ function(AC){
 		}else if(oItem.xtype=="Button"){
 			me.hasBtn=true;
 		}
+	}
+	/**
+	 * 获取/设置输入框的值
+	 * @method val
+	 * @param {string=}sValue 要设置的值，不传表示读取输入框的值
+	 * @return {string=} 如果是读取操作，返回当前值
+	 */
+	function fVal(sValue){
+		var oInput=this.find('input');
+		if(sValue){
+			oInput.val(sValue);
+		}else{
+			return oInput.val();
+		}
+	}
+	/**
+	 * 聚焦
+	 * @method focus
+	 */
+	function fFocus(){
+		this.find('input').focus();
 	}
 	
 	return Input;

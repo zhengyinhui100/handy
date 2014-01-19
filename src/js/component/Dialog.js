@@ -22,7 +22,7 @@ function(AC){
 		//对话框初始配置
 //		title           : '',             //标题
 //		noClose         : false,          //true时没有close图标
-//		content         : '',             //内容
+//		content         : '',             //html内容，传入此值时将忽略contentTitle和contentMsg
 //		contentTitle    : '',             //内容框的标题
 //		contentMsg      : '',             //内容框的描述
 //		noAction        : false,          //true时没有底部按钮
@@ -31,7 +31,7 @@ function(AC){
 		okTxt           : '确定',          //确定按钮文字
 		cancelTxt       : '取消',          //取消按钮文字
 //		okCall          : function(){},   //确定按钮事件函数
-//		okCall          : function(){},   //取消按钮事件函数
+//		cancelCall      : function(){},   //取消按钮事件函数
 		
 		//组件共有配置
 		radius          : 'normal',
@@ -47,6 +47,7 @@ function(AC){
 						'<div class="w-body-content">',
 							'<h1 class="w-content-title"><%=this.contentTitle%></h1>',
 							'<div class="w-content-msg"><%=this.contentMsg%></div>',
+							'<%=this.getHtml("$>[role=\'content\']")%>',
 						'</div>',
 					'<%}%>',
 					'<%if(!this.noAction){%>',
@@ -65,20 +66,61 @@ function(AC){
 	/**
 	 * 弹出警告框
 	 * @method alert
+	 * @param {string}sMsg 提示信息
 	 */
-	function fAlert(){
+	function fAlert(sMsg){
+		return new Dialog({
+			title:'&nbsp;',
+			contentMsg:sMsg,
+			noClose:true,
+			noCancel:true
+		});
 	}
 	/**
 	 * 弹出确认框
 	 * @method confirm
+	 * @param {string}sMsg 提示信息
+	 * @param {function(boolean)}fCall 回调函数，参数为true表示点击的是"确定"按钮，false则为"取消"按钮
 	 */
-	function fConfirm(){
+	function fConfirm(sMsg,fCall){
+		return new Dialog({
+			title:'&nbsp;',
+			contentMsg:sMsg,
+			noClose:true,
+			okCall:function(){
+				return fCall&&fCall(true);
+			},
+			cancelCall:function(){
+				return fCall&&fCall(false);
+			}
+		});
 	}
 	/**
 	 * 弹出输入框
 	 * @method prompt
+	 * @param {string}sMsg 提示信息
+	 * @param {string=}sDefault 输入框默认值
+	 * @param {function(string)}fCall 回调函数，参数为输入框的值
 	 */
-	function fPrompt(){
+	function fPrompt(sMsg,sDefault,fCall){
+		if(!fCall){
+			fCall=sDefault;
+			sDefault='';
+		}
+		return new Dialog({
+			title:'&nbsp;',
+			contentMsg:sMsg,
+			noClose:true,
+			items:{
+				xtype:'Input',
+				role:'content',
+				value:sDefault
+			},
+			okCall:function(){
+				var value=this.find('$Input')[0].val();
+				return fCall&&fCall(value);
+			}
+		});
 	}
 	/**
 	 * 处理配置
@@ -99,7 +141,10 @@ function(AC){
 					xtype:'Button',
 					radius:'big',
 					extCls:'w-tbar-btn-left',
-					icon:'delete'
+					icon:'delete',
+					click:function(){
+						me.hide();
+					}
 				}
 			})
 		}
@@ -112,8 +157,9 @@ function(AC){
 					text:me.okTxt,
 					isInline:false,
 					click:function(){
-						var me=this;
-						me.hide();
+						if((me.okCall&&me.okCall())!=false){
+							me.hide();
+						}
 					}
 				});
 			}
@@ -122,7 +168,12 @@ function(AC){
 				me.addItem({
 					xtype:'Button',
 					isInline:false,
-					text:me.cancelTxt
+					text:me.cancelTxt,
+					click:function(){
+						if((me.cancelCall&&me.cancelCall())!=false){
+							me.hide();
+						}
+					}
 				});
 			}
 		}
@@ -143,8 +194,7 @@ function(AC){
 			left:x + "px",
 			top:y-(me.offsetTop||0) + "px"
 		});
-		//me.mask=$("#dialogMask").height($(oDoc.body).height());
-		me.callParent();
+		me.callSuper();
 	}
 	
 	return Dialog;
