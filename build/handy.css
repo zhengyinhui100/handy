@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-01-17 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-01-19 | zhengyinhui100@gmail.com */
 html,
 body {
   overflow: hidden;
@@ -586,359 +586,359 @@ html .w-alt-icon .w-btn.w-checkbox-on {
 }
 /* PNG icons */
 .w-nosvg .w-icon-action {
-  background-image: url(images/icons-png/action-white.png);
+  background-image: url(../img/icons-png/action-white.png);
 }
 .w-nosvg .w-icon-arrow-d-l {
-  background-image: url(images/icons-png/arrow-d-l-white.png);
+  background-image: url(../img/icons-png/arrow-d-l-white.png);
 }
 .w-nosvg .w-icon-arrow-d-r {
-  background-image: url(images/icons-png/arrow-d-r-white.png);
+  background-image: url(../img/icons-png/arrow-d-r-white.png);
 }
 .w-nosvg .w-icon-arrow-d {
-  background-image: url(images/icons-png/arrow-d-white.png);
+  background-image: url(../img/icons-png/arrow-d-white.png);
 }
 .w-nosvg .w-icon-arrow-l {
-  background-image: url(images/icons-png/arrow-l-white.png);
+  background-image: url(../img/icons-png/arrow-l-white.png);
 }
 .w-nosvg .w-icon-arrow-r {
-  background-image: url(images/icons-png/arrow-r-white.png);
+  background-image: url(../img/icons-png/arrow-r-white.png);
 }
 .w-nosvg .w-icon-arrow-u-l {
-  background-image: url(images/icons-png/arrow-u-l-white.png);
+  background-image: url(../img/icons-png/arrow-u-l-white.png);
 }
 .w-nosvg .w-icon-arrow-u-r {
-  background-image: url(images/icons-png/arrow-u-r-white.png);
+  background-image: url(../img/icons-png/arrow-u-r-white.png);
 }
 .w-nosvg .w-icon-arrow-u {
-  background-image: url(images/icons-png/arrow-u-white.png);
+  background-image: url(../img/icons-png/arrow-u-white.png);
 }
 .w-nosvg .w-icon-audio {
-  background-image: url(images/icons-png/audio-white.png);
+  background-image: url(../img/icons-png/audio-white.png);
 }
 .w-nosvg .w-icon-calendar {
-  background-image: url(images/icons-png/calendar-white.png);
+  background-image: url(../img/icons-png/calendar-white.png);
 }
 .w-nosvg .w-icon-camera {
-  background-image: url(images/icons-png/camera-white.png);
+  background-image: url(../img/icons-png/camera-white.png);
 }
 .w-nosvg .w-icon-carat-d {
-  background-image: url(images/icons-png/carat-d-white.png);
+  background-image: url(../img/icons-png/carat-d-white.png);
 }
 .w-nosvg .w-icon-carat-l {
-  background-image: url(images/icons-png/carat-l-white.png);
+  background-image: url(../img/icons-png/carat-l-white.png);
 }
 .w-nosvg .w-icon-carat-r {
-  background-image: url(images/icons-png/carat-r-white.png);
+  background-image: url(../img/icons-png/carat-r-white.png);
 }
 .w-nosvg .w-icon-carat-u {
-  background-image: url(images/icons-png/carat-u-white.png);
+  background-image: url(../img/icons-png/carat-u-white.png);
 }
 .w-nosvg .w-icon-check,
 html.w-nosvg .w-btn.w-checkbox-on {
-  background-image: url(images/icons-png/check-white.png);
+  background-image: url(../img/icons-png/check-white.png);
 }
 .w-nosvg .w-icon-clock {
-  background-image: url(images/icons-png/clock-white.png);
+  background-image: url(../img/icons-png/clock-white.png);
 }
 .w-nosvg .w-icon-cloud {
-  background-image: url(images/icons-png/cloud-white.png);
+  background-image: url(../img/icons-png/cloud-white.png);
 }
 .w-nosvg .w-icon-grid {
-  background-image: url(images/icons-png/grid-white.png);
+  background-image: url(../img/icons-png/grid-white.png);
 }
 .w-nosvg .w-icon-mail {
-  background-image: url(images/icons-png/mail-white.png);
+  background-image: url(../img/icons-png/mail-white.png);
 }
 .w-nosvg .w-icon-eye {
-  background-image: url(images/icons-png/eye-white.png);
+  background-image: url(../img/icons-png/eye-white.png);
 }
 .w-nosvg .w-icon-gear {
-  background-image: url(images/icons-png/gear-white.png);
+  background-image: url(../img/icons-png/gear-white.png);
 }
 .w-nosvg .w-icon-heart {
-  background-image: url(images/icons-png/heart-white.png);
+  background-image: url(../img/icons-png/heart-white.png);
 }
 .w-nosvg .w-icon-home {
-  background-image: url(images/icons-png/home-white.png);
+  background-image: url(../img/icons-png/home-white.png);
 }
 .w-nosvg .w-icon-info {
-  background-image: url(images/icons-png/info-white.png);
+  background-image: url(../img/icons-png/info-white.png);
 }
 .w-nosvg .w-icon-bullets {
-  background-image: url(images/icons-png/bullets-white.png);
+  background-image: url(../img/icons-png/bullets-white.png);
 }
 .w-nosvg .w-icon-bars {
-  background-image: url(images/icons-png/bars-white.png);
+  background-image: url(../img/icons-png/bars-white.png);
 }
 .w-nosvg .w-icon-navigation {
-  background-image: url(images/icons-png/navigation-white.png);
+  background-image: url(../img/icons-png/navigation-white.png);
 }
 .w-nosvg .w-icon-lock {
-  background-image: url(images/icons-png/lock-white.png);
+  background-image: url(../img/icons-png/lock-white.png);
 }
 .w-nosvg .w-icon-search {
-  background-image: url(images/icons-png/search-white.png);
+  background-image: url(../img/icons-png/search-white.png);
 }
 .w-nosvg .w-icon-location {
-  background-image: url(images/icons-png/location-white.png);
+  background-image: url(../img/icons-png/location-white.png);
 }
 .w-nosvg .w-icon-minus {
-  background-image: url(images/icons-png/minus-white.png);
+  background-image: url(../img/icons-png/minus-white.png);
 }
 .w-nosvg .w-icon-forbidden {
-  background-image: url(images/icons-png/forbidden-white.png);
+  background-image: url(../img/icons-png/forbidden-white.png);
 }
 .w-nosvg .w-icon-edit {
-  background-image: url(images/icons-png/edit-white.png);
+  background-image: url(../img/icons-png/edit-white.png);
 }
 .w-nosvg .w-icon-user {
-  background-image: url(images/icons-png/user-white.png);
+  background-image: url(../img/icons-png/user-white.png);
 }
 .w-nosvg .w-icon-phone {
-  background-image: url(images/icons-png/phone-white.png);
+  background-image: url(../img/icons-png/phone-white.png);
 }
 .w-nosvg .w-icon-plus {
-  background-image: url(images/icons-png/plus-white.png);
+  background-image: url(../img/icons-png/plus-white.png);
 }
 .w-nosvg .w-icon-power {
-  background-image: url(images/icons-png/power-white.png);
+  background-image: url(../img/icons-png/power-white.png);
 }
 .w-nosvg .w-icon-recycle {
-  background-image: url(images/icons-png/recycle-white.png);
+  background-image: url(../img/icons-png/recycle-white.png);
 }
 .w-nosvg .w-icon-forward {
-  background-image: url(images/icons-png/forward-white.png);
+  background-image: url(../img/icons-png/forward-white.png);
 }
 .w-nosvg .w-icon-refresh {
-  background-image: url(images/icons-png/refresh-white.png);
+  background-image: url(../img/icons-png/refresh-white.png);
 }
 .w-nosvg .w-icon-shop {
-  background-image: url(images/icons-png/shop-white.png);
+  background-image: url(../img/icons-png/shop-white.png);
 }
 .w-nosvg .w-icon-comment {
-  background-image: url(images/icons-png/comment-white.png);
+  background-image: url(../img/icons-png/comment-white.png);
 }
 .w-nosvg .w-icon-star {
-  background-image: url(images/icons-png/star-white.png);
+  background-image: url(../img/icons-png/star-white.png);
 }
 .w-nosvg .w-icon-tag {
-  background-image: url(images/icons-png/tag-white.png);
+  background-image: url(../img/icons-png/tag-white.png);
 }
 .w-nosvg .w-icon-back {
-  background-image: url(images/icons-png/back-white.png);
+  background-image: url(../img/icons-png/back-white.png);
 }
 .w-nosvg .w-icon-video {
-  background-image: url(images/icons-png/video-white.png);
+  background-image: url(../img/icons-png/video-white.png);
 }
 .w-nosvg .w-icon-alert {
-  background-image: url(images/icons-png/alert-white.png);
+  background-image: url(../img/icons-png/alert-white.png);
 }
 .w-nosvg .w-icon-delete {
-  background-image: url(images/icons-png/delete-white.png);
+  background-image: url(../img/icons-png/delete-white.png);
 }
 /* Alt icons */
 .w-nosvg .w-alt-icon.w-icon-action,
 .w-nosvg .w-alt-icon .w-icon-action {
-  background-image: url(images/icons-png/action-black.png);
+  background-image: url(../img/icons-png/action-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-arrow-d,
 .w-nosvg .w-alt-icon .w-icon-arrow-d {
-  background-image: url(images/icons-png/arrow-d-black.png);
+  background-image: url(../img/icons-png/arrow-d-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-arrow-d-l,
 .w-nosvg .w-alt-icon .w-icon-arrow-d-l {
-  background-image: url(images/icons-png/arrow-d-l-black.png);
+  background-image: url(../img/icons-png/arrow-d-l-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-arrow-d-r,
 .w-nosvg .w-alt-icon .w-icon-arrow-d-r {
-  background-image: url(images/icons-png/arrow-d-r-black.png);
+  background-image: url(../img/icons-png/arrow-d-r-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-arrow-l,
 .w-nosvg .w-alt-icon .w-icon-arrow-l {
-  background-image: url(images/icons-png/arrow-l-black.png);
+  background-image: url(../img/icons-png/arrow-l-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-arrow-r,
 .w-nosvg .w-alt-icon .w-icon-arrow-r {
-  background-image: url(images/icons-png/arrow-r-black.png);
+  background-image: url(../img/icons-png/arrow-r-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-arrow-u,
 .w-nosvg .w-alt-icon .w-icon-arrow-u {
-  background-image: url(images/icons-png/arrow-u-black.png);
+  background-image: url(../img/icons-png/arrow-u-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-arrow-u-l,
 .w-nosvg .w-alt-icon .w-icon-arrow-u-l {
-  background-image: url(images/icons-png/arrow-u-l-black.png);
+  background-image: url(../img/icons-png/arrow-u-l-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-arrow-u-r,
 .w-nosvg .w-alt-icon .w-icon-arrow-u-r {
-  background-image: url(images/icons-png/arrow-u-r-black.png);
+  background-image: url(../img/icons-png/arrow-u-r-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-audio,
 .w-nosvg .w-alt-icon .w-icon-audio {
-  background-image: url(images/icons-png/audio-black.png);
+  background-image: url(../img/icons-png/audio-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-calendar,
 .w-nosvg .w-alt-icon .w-icon-calendar {
-  background-image: url(images/icons-png/calendar-black.png);
+  background-image: url(../img/icons-png/calendar-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-camera,
 .w-nosvg .w-alt-icon .w-icon-camera {
-  background-image: url(images/icons-png/camera-black.png);
+  background-image: url(../img/icons-png/camera-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-carat-d,
 .w-nosvg .w-alt-icon .w-icon-carat-d {
-  background-image: url(images/icons-png/carat-d-black.png);
+  background-image: url(../img/icons-png/carat-d-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-carat-l,
 .w-nosvg .w-alt-icon .w-icon-carat-l {
-  background-image: url(images/icons-png/carat-l-black.png);
+  background-image: url(../img/icons-png/carat-l-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-carat-r,
 .w-nosvg .w-alt-icon .w-icon-carat-r {
-  background-image: url(images/icons-png/carat-r-black.png);
+  background-image: url(../img/icons-png/carat-r-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-carat-u,
 .w-nosvg .w-alt-icon .w-icon-carat-u {
-  background-image: url(images/icons-png/carat-u-black.png);
+  background-image: url(../img/icons-png/carat-u-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-check,
 .w-nosvg .w-alt-icon .w-icon-check,
 .w-nosvg .w-alt-icon.w-btn.w-checkbox-on,
 .w-nosvg .w-alt-icon .w-btn.w-checkbox-on {
-  background-image: url(images/icons-png/check-black.png);
+  background-image: url(../img/icons-png/check-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-clock,
 .w-nosvg .w-alt-icon .w-icon-clock {
-  background-image: url(images/icons-png/clock-black.png);
+  background-image: url(../img/icons-png/clock-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-cloud,
 .w-nosvg .w-alt-icon .w-icon-cloud {
-  background-image: url(images/icons-png/cloud-black.png);
+  background-image: url(../img/icons-png/cloud-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-grid,
 .w-nosvg .w-alt-icon .w-icon-grid {
-  background-image: url(images/icons-png/grid-black.png);
+  background-image: url(../img/icons-png/grid-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-mail,
 .w-nosvg .w-alt-icon .w-icon-mail {
-  background-image: url(images/icons-png/mail-black.png);
+  background-image: url(../img/icons-png/mail-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-eye,
 .w-nosvg .w-alt-icon .w-icon-eye {
-  background-image: url(images/icons-png/eye-black.png);
+  background-image: url(../img/icons-png/eye-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-gear,
 .w-nosvg .w-alt-icon .w-icon-gear {
-  background-image: url(images/icons-png/gear-black.png);
+  background-image: url(../img/icons-png/gear-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-heart,
 .w-nosvg .w-alt-icon .w-icon-heart {
-  background-image: url(images/icons-png/heart-black.png);
+  background-image: url(../img/icons-png/heart-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-home,
 .w-nosvg .w-alt-icon .w-icon-home {
-  background-image: url(images/icons-png/home-black.png);
+  background-image: url(../img/icons-png/home-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-info,
 .w-nosvg .w-alt-icon .w-icon-info {
-  background-image: url(images/icons-png/info-black.png);
+  background-image: url(../img/icons-png/info-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-bars,
 .w-nosvg .w-alt-icon .w-icon-bars {
-  background-image: url(images/icons-png/bars-black.png);
+  background-image: url(../img/icons-png/bars-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-bullets,
 .w-nosvg .w-alt-icon .w-icon-bullets {
-  background-image: url(images/icons-png/bullets-black.png);
+  background-image: url(../img/icons-png/bullets-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-navigation,
 .w-nosvg .w-alt-icon .w-icon-navigation {
-  background-image: url(images/icons-png/navigation-black.png);
+  background-image: url(../img/icons-png/navigation-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-lock,
 .w-nosvg .w-alt-icon .w-icon-lock {
-  background-image: url(images/icons-png/lock-black.png);
+  background-image: url(../img/icons-png/lock-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-search,
 .w-nosvg .w-alt-icon .w-icon-search,
 .w-nosvg .w-input-search {
-  background-image: url(images/icons-png/search-black.png);
+  background-image: url(../img/icons-png/search-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-location,
 .w-nosvg .w-alt-icon .w-icon-location {
-  background-image: url(images/icons-png/location-black.png);
+  background-image: url(../img/icons-png/location-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-minus,
 .w-nosvg .w-alt-icon .w-icon-minus {
-  background-image: url(images/icons-png/minus-black.png);
+  background-image: url(../img/icons-png/minus-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-forbidden,
 .w-nosvg .w-alt-icon .w-icon-forbidden {
-  background-image: url(images/icons-png/forbidden-black.png);
+  background-image: url(../img/icons-png/forbidden-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-edit,
 .w-nosvg .w-alt-icon .w-icon-edit {
-  background-image: url(images/icons-png/edit-black.png);
+  background-image: url(../img/icons-png/edit-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-user,
 .w-nosvg .w-alt-icon .w-icon-user {
-  background-image: url(images/icons-png/user-black.png);
+  background-image: url(../img/icons-png/user-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-phone,
 .w-nosvg .w-alt-icon .w-icon-phone {
-  background-image: url(images/icons-png/phone-black.png);
+  background-image: url(../img/icons-png/phone-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-plus,
 .w-nosvg .w-alt-icon .w-icon-plus {
-  background-image: url(images/icons-png/plus-black.png);
+  background-image: url(../img/icons-png/plus-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-power,
 .w-nosvg .w-alt-icon .w-icon-power {
-  background-image: url(images/icons-png/power-black.png);
+  background-image: url(../img/icons-png/power-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-recycle,
 .w-nosvg .w-alt-icon .w-icon-recycle {
-  background-image: url(images/icons-png/recycle-black.png);
+  background-image: url(../img/icons-png/recycle-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-forward,
 .w-nosvg .w-alt-icon .w-icon-forward {
-  background-image: url(images/icons-png/forward-black.png);
+  background-image: url(../img/icons-png/forward-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-refresh,
 .w-nosvg .w-alt-icon .w-icon-refresh {
-  background-image: url(images/icons-png/refresh-black.png);
+  background-image: url(../img/icons-png/refresh-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-shop,
 .w-nosvg .w-alt-icon .w-icon-shop {
-  background-image: url(images/icons-png/shop-black.png);
+  background-image: url(../img/icons-png/shop-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-comment,
 .w-nosvg .w-alt-icon .w-icon-comment {
-  background-image: url(images/icons-png/comment-black.png);
+  background-image: url(../img/icons-png/comment-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-star,
 .w-nosvg .w-alt-icon .w-icon-star {
-  background-image: url(images/icons-png/star-black.png);
+  background-image: url(../img/icons-png/star-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-tag,
 .w-nosvg .w-alt-icon .w-icon-tag {
-  background-image: url(images/icons-png/tag-black.png);
+  background-image: url(../img/icons-png/tag-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-back,
 .w-nosvg .w-alt-icon .w-icon-back {
-  background-image: url(images/icons-png/back-black.png);
+  background-image: url(../img/icons-png/back-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-video,
 .w-nosvg .w-alt-icon .w-icon-video {
-  background-image: url(images/icons-png/video-black.png);
+  background-image: url(../img/icons-png/video-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-alert,
 .w-nosvg .w-alt-icon .w-icon-alert {
-  background-image: url(images/icons-png/alert-black.png);
+  background-image: url(../img/icons-png/alert-black.png);
 }
 .w-nosvg .w-alt-icon.w-icon-delete,
 .w-nosvg .w-alt-icon .w-icon-delete {
-  background-image: url(images/icons-png/delete-black.png);
+  background-image: url(../img/icons-png/delete-black.png);
 }
 .icons-18-white {
   background-image: url("data:image/png;base64,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");
@@ -1169,14 +1169,17 @@ html.w-nosvg .w-btn.w-checkbox-on {
 .w-btn-icon-left {
   padding-left: 40px;
 }
-.w-btn-icon-left.w-mini {
-  padding-left: 30px;
-}
 .w-btn-icon-left .w-icon {
   position: absolute;
   top: 50%;
   margin-top: -11px;
   left: 10px;
+}
+.w-btn-icon-left.w-mini {
+  padding-left: 35px;
+}
+.w-btn-icon-left.w-mini .w-icon {
+  margin-top: -9px;
 }
 .w-btn-icon-top {
   padding-top: 25px;
@@ -1239,7 +1242,7 @@ html.w-nosvg .w-btn.w-checkbox-on {
   /*IE8*/
 
   box-sizing: border-box;
-  /*W3C??????(IE9+�?Safari5.1+,Chrome10.0+,Opera10.6+??��?????box-sizing???w3c??????�?�?)*/
+  /*W3C标准(IE9+，Safari5.1+,Chrome10.0+,Opera10.6+都符合box-sizing的w3c标准语法)*/
 
 }
 .w-input-icon-left {
@@ -1447,7 +1450,8 @@ html.w-nosvg .w-btn.w-checkbox-on {
 
   background-image: linear-gradient(#f9f9f9, #eeeeee);
 }
-.w-dialog .w-body-content {
+.w-dialog .w-body-content,
+.w-dialog .w-body-action {
   padding: 15px;
 }
 .w-dialog .w-content-title {
@@ -1455,7 +1459,7 @@ html.w-nosvg .w-btn.w-checkbox-on {
   font-weight: bold;
 }
 .w-dialog .w-content-msg {
-  margin: 10px 0 25px 0;
+  margin: 10px 0 0 0;
 }
 .w-list .w-list-item {
   position: relative;
@@ -1556,6 +1560,10 @@ html.w-nosvg .w-btn.w-checkbox-on {
   margin-bottom: .25em;
   font-size: 12.5px;
   padding-top: .55em 11px .5em;
+}
+.w-mini .w-icon {
+  width: 18px;
+  height: 18px;
 }
 .w-mask {
   position: absolute;
