@@ -69,7 +69,7 @@ function(AC){
 		var me=this,oActive;
 		me.callChild('unactive');
 		if(typeof item=='number'){
-			oActive=me.children[nIndex];
+			oActive=me.children[item];
 		}else{
 			oActive=me.find(item)[0];
 		}
