@@ -10,6 +10,9 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	_oTagReg=/^(<[a-zA-Z]+)/,
 	_oClsReg=/(class=")/;
 	
+	//快捷别名
+	$H.CM=AC;
+	
 	//静态方法
 	$HO.extend(AC,{
 		define              : fDefine,           //定义组件

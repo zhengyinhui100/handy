@@ -12,6 +12,9 @@ $Define("handy.component.ComponentManager", function() {
 	_types={},
 	//存储所有组件实例
 	_all={};
+	
+	//全局快捷别名
+	$C=ComponentManager;
 
 	// 静态方法
 	$HO.extend(ComponentManager, {
@@ -30,9 +33,11 @@ $Define("handy.component.ComponentManager", function() {
 	 * @param {string}sXType 组件类型
 	 * @param {object}oClass 组件类
 	 */
-	function fRegisterType(sXType,oClass){
-		_types[sXType]=oClass;
-		oClass.prototype.xtype=sXType;
+	function fRegisterType(sXtype,oClass){
+		_types[sXtype]=oClass;
+		oClass.prototype.xtype=sXtype;
+		//快捷别名
+		$C[sXtype]=oClass;
 	}
 	/**
 	 * 根据xtype获取组件类
@@ -40,8 +45,8 @@ $Define("handy.component.ComponentManager", function() {
 	 * @param {string}sXType 组件类型
 	 * @return {object} 返回对应的组件类
 	 */
-	function fGetClass(sXType){
-		return _types[sXType];
+	function fGetClass(sXtype){
+		return _types[sXtype];
 	}
 	/**
 	 * 注册组件
