@@ -324,6 +324,9 @@ function(Debug,Object,Function,$H){
     function _fResponse(sId){
     	Loader.showLoading(false);
     	_oCache[sId].status='loaded';
+    	if(Loader.traceLog){
+			Debug.info("Loader Response: "+sId);
+   		}
     	//每次回调都循环上下文列表
    		for(var i=_aContext.length-1;i>=0;i--){
 	    	var oContext=_aContext[i];
@@ -332,9 +335,6 @@ function(Debug,Object,Function,$H){
 	    		_aContext.splice(i,1);
 	    		oContext.callback.apply(null,aExists);
 	    	}
-   		}
-   		if(Loader.traceLog){
-			Debug.info("Loader Response: "+sId);
    		}
     }
     /**
