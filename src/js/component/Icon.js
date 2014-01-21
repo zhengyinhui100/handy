@@ -4,8 +4,8 @@
  * @created 2014-01-01
  */
 
-$Define('handy.component.Icon',
-'handy.component.AbstractComponent',
+$Define('c.Icon',
+'c.AbstractComponent',
 function(AC){
 	
 	var Icon=AC.define('Icon');

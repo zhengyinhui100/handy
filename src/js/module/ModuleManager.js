@@ -8,8 +8,9 @@
  * 模块管理类
  * @class ModuleManager
  */
-$Define("handy.module.ModuleManager",
-"handy.module.History",
+//handy.module.ModuleManager
+$Define("m.ModuleManager",
+"m.History",
 function(History){
 	
 	var ModuleManager=$HO.createClass();
@@ -111,10 +112,8 @@ function(History){
 			var oModWrapper=that.getModWrapper(sModName);
 			oMod.wrapper=oModWrapper;
 			var oContainer=oMod.container=oMod.container?$(oMod.container):that.container;
-			if(oMod.getHtml){
-				oModWrapper.html(oMod.getHtml());
-				oContainer.append(oModWrapper);
-			}
+			oModWrapper.html(oMod.getHtml());
+			oContainer.append(oModWrapper);
 			oMod.render(oModWrapper);
 			that.showMod(oMod);
 			oMod.afterRender();

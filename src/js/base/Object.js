@@ -5,7 +5,12 @@
 handy.add('Object',function($H){
 	
 	var Object={
+		_alias              : {                 //存储别名
+			'c'             : 'handy.component',
+			'm'             : 'handy.module'
+		},               
 		namespace           : fNamespace,       //创建或读取命名空间，可以传入用以初始化该命名空间的对象
+		alias               : fAlias,           //创建别名/读取实名
 		createClass         : fCreateClass,     //创建类
 		extend              : fExtend,          //对象的属性扩展
 		mix                 : fMix,             //自定义的继承方式，可以继承object和prototype，prototype方式继承时，非原型链方式继承。
@@ -30,7 +35,9 @@ handy.add('Object',function($H){
     * @return {?*} 返回该路径的命名空间，不存在则返回undefined
     */
 	function fNamespace(sPath,obj){
-		var oObject=null, j, aPath, root,bIsCreate,len;  
+		var oObject=null, j, aPath, root,bIsCreate,len; 
+		//尝试转换别名
+		sPath=Object.alias(sPath);
         aPath=sPath.split(".");  
         root = aPath[0]; 
         bIsCreate=arguments.length==2;
@@ -53,6 +60,38 @@ handy.add('Object',function($H){
             oObject=oObject[aPath[j]];  
         } 
     	return oObject;
+	}
+	/**
+	 * 创建别名/读取实名，别名没有对应的存储空间，需要先转换为原始名字才能获取对应的存储空间，
+	 * Loader自动会优先尝试转换别名，因此，别名不能与现有的命名空间重叠
+	 * @method alias
+	 * @param {string=}sAlias 别名，如'b.Object'，为空时表示读取所有存储的别名
+	 * @param {string=}sOrig 原名，如'handy.base.Object'，为空时表示读取实名
+	 */
+	function fAlias(sAlias,sOrig){
+		var oAlias=Object._alias;
+		//创建别名
+		if(sOrig){
+			if(oAlias[sAlias]){
+				$D.error('别名已被使用'+sAlias+':'+oAlias[sAlias]);
+			}else{
+				oAlias[sAlias]=sOrig;
+			}
+		}else if(sAlias){
+			//转换别名
+			var sName=sAlias,nIndex=sAlias.length-1,sSuffix='';
+			do{
+				//找到别名返回实名
+				if(oAlias[sName]){
+					return oAlias[sName]+sAlias.substring(nIndex);
+				}
+				//截掉最后一截再尝试
+				nIndex=sName.lastIndexOf('.');
+			}while(nIndex>0&&(sName=sName.substring(0,nIndex)))
+			return sAlias;
+		}else{
+			return oAlias;
+		}
 	}
 	/**
     * 创建并返回一个类

@@ -78,6 +78,8 @@ function(Debug,Object,Function,$H){
     	var sUrl=Loader.urlMap&&Loader.urlMap[sId]&&Loader.urlMap[sId].url;
     	if(!sUrl){
     		var sRoot='';
+    		//读取实名
+    		sId=$H.Object.alias(sId);
     		var rootPath=Loader.rootPath;
     		if(typeof rootPath=='string'){
     			sRoot=rootPath;

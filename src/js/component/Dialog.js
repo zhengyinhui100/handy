@@ -4,8 +4,8 @@
  * @created 2014-01-17
  */
 
-$Define('handy.component.Dialog',
-'handy.component.AbstractComponent',
+$Define('c.Dialog',
+'c.AbstractComponent',
 function(AC){
 	
 	var Dialog=AC.define('Dialog');

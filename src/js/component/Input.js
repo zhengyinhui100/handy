@@ -4,8 +4,8 @@
  * @created 2014-01-14
  */
 
-$Define('handy.component.Input',
-'handy.component.AbstractComponent',
+$Define('c.Input',
+'c.AbstractComponent',
 function(AC){
 	
 	var Input=AC.define('Input');

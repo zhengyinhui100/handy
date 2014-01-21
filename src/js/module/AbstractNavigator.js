@@ -3,8 +3,8 @@
 * Email:		zhengyinhui100@gmail.com						*
 * Created:		2013-12-20										*
 *****************************************************************/
-
-$Define("handy.module.AbstractNavigator","handy.base.Object",function (Object) {
+//handy.module.AbstractNavigator
+$Define("m.AbstractNavigator","handy.base.Object",function (Object) {
 	/**
 	 * 模块导航效果基类
 	 * 

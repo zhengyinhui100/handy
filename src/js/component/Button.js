@@ -4,8 +4,8 @@
  * @created 2014-01-13
  */
 
-$Define('handy.component.Button',
-'handy.component.AbstractComponent',
+$Define('c.Button',
+'c.AbstractComponent',
 function(AC){
 	
 	var Button=AC.define('Button');

@@ -7,7 +7,8 @@
  * 历史记录类，用于记录和管理浏览历史
  * @class handy.module.History
  */
-$Define("handy.module.History",
+//handy.module.History
+$Define("m.History",
 'handy.base.HashChange',
 function(HashChange){
 

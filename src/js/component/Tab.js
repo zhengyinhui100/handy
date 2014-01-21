@@ -4,8 +4,8 @@
  * @created 2014-01-16
  */
 
-$Define('handy.component.Tab',
-'handy.component.AbstractComponent',
+$Define('c.Tab',
+'c.AbstractComponent',
 function(AC){
 	
 	var Tab=AC.define('Tab');

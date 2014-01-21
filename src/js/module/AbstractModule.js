@@ -3,8 +3,8 @@
 * Email:		zhengyinhui100@gmail.com						*
 * Created:		2013-12-14										*
 *****************************************************************/
-
-$Define("handy.module.AbstractModule","handy.base.Object",function (Object) {
+//handy.module.AbstractModule
+$Define("m.AbstractModule","handy.base.Object",function (Object) {
 	/**
 	 * 模块基类
 	 * 
@@ -21,7 +21,6 @@ $Define("handy.module.AbstractModule","handy.base.Object",function (Object) {
 		//chName       : null,           //{string}模块的中文名称
 		//getData      : null,           //{function()}获取该模块的初始化数据
 		//clone        : null,           //{function()}克隆接口
-		//getHtml      : null,           //{function():string}获取该模块的html
 		cache          : function(){},   //显示模块缓存
 		init           : function(){},   //初始化函数, 在模块创建后调用（在所有模块动作之前）
 		beforeRender   : function(){},   //模块渲染前调用
@@ -29,7 +28,8 @@ $Define("handy.module.AbstractModule","handy.base.Object",function (Object) {
 		afterRender    : function(){},   //模块渲染后调用
 		reset          : function(){},   //重置函数, 在该模块里进入该模块时调用
 		exit           : function(){return true},   //离开该模块前调用, 返回true允许离开, 否则不允许离开
-		initialize     : fInitialize     //模块类创建时初始化
+		initialize     : fInitialize,    //模块类创建时初始化
+		getHtml        : fGetHtml        //获取该模块的html
 	});
 	/**
 	 * 构造函数
@@ -39,6 +39,24 @@ $Define("handy.module.AbstractModule","handy.base.Object",function (Object) {
 	function fInitialize(oConf) {
 		//Object.extend(this, oConf);
 		this.conf = oConf;
+	}
+	/**
+	 * 获取该模块的html
+	 * @method getHtml
+	 * @return {string} 返回模板html
+	 */
+	function fGetHtml(){
+		var me=this;
+		if(!me.tmpl){
+			return '';
+		}
+		//将组件数组方式的模板转为字符串
+		if(typeof me.tmpl!='string'){
+			me.constructor.prototype.tmpl=me.tmpl.join('');
+		}
+		//由模板生成组件html
+		var sHtml=$H.Template.tmpl({id:me.xtype,tmpl:me.tmpl},me);
+		return sHtml;
 	}
 	
 	return AbstractModule;

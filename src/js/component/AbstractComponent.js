@@ -3,8 +3,8 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2013-12-28
  */
-
-$Define("handy.component.AbstractComponent","handy.component.ComponentManager",function(CM){
+//"handy.component.AbstractComponent"
+$Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	
 	var AC=$HO.createClass(),
 	_oTagReg=/^(<[a-zA-Z]+)/,
@@ -213,14 +213,16 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		sHtml=sHtml.replace(_oTagReg,'$1 id="'+sId+'"');
 		//添加附加class
 		sHtml=sHtml.replace(_oClsReg,'$1'+me.getExtCls());
-		//添加style
-		var sStyle;
-		if(me.displayMode=='visibility'){
-			sStyle='visibility:hidden';
-		}else{
-			sStyle='display:none';
+		if(me.hidden){
+			//添加style
+			var sStyle;
+			if(me.displayMode=='visibility'){
+				sStyle='visibility:hidden';
+			}else{
+				sStyle='display:none';
+			}
+			sHtml=sHtml.replace(_oTagReg,'$1 style="'+sStyle+'"');
 		}
-		sHtml=sHtml.replace(_oTagReg,'$1 style="'+sStyle+'"');
 		me.html=sHtml;
 	}
 	/**

@@ -3,8 +3,8 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-10
  */
- 
-$Define("handy.component.ComponentManager", function() {
+//"handy.component.ComponentManager"
+$Define("c.ComponentManager", function() {
 
 	var ComponentManager = $HO.createClass(),
 	_expando = $H.expando+"_cmp_",             // 组件id前缀

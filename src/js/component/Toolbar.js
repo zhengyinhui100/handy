@@ -4,8 +4,8 @@
  * @created 2014-01-16
  */
 
-$Define('handy.component.Toolbar',
-'handy.component.AbstractComponent',
+$Define('c.Toolbar',
+'c.AbstractComponent',
 function(AC){
 	
 	var Toolbar=AC.define('Toolbar');
