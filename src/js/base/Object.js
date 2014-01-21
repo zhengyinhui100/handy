@@ -25,7 +25,7 @@ handy.add('Object',function($H){
 		largeThan           : fLargeThan,       //是否大于另一个对象|数组（包含另一个对象的所有属性或包含另一个数组的所有元素）
 		count				: fCount,			//计算对象长度
 		toArray				: fToArray,		    //将类数组对象转换为数组，比如arguments, nodelist
-		genMethod           : fGenerateMethod   //归纳生成类方法
+		generateMethod      : fGenerateMethod   //归纳生成类方法
 	}
 	/**
     * 创建或读取命名空间
@@ -510,7 +510,7 @@ handy.add('Object',function($H){
     fToArray=fToArray();
     /**
     * 归纳生成类方法
-    * @method genMethod
+    * @method generateMethod
     * @param {Object}oTarget 需要生成方法的对象
     * @param {string|Array.<string>}method 需要生成的方法列表，如果是字符串，用","作为分隔符
     * @param {function()}fDefined 方法定义函数，该函数执行后返回方法定义
