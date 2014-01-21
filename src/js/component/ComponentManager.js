@@ -22,7 +22,7 @@ $Define("c.ComponentManager", function() {
 		registerType  : fRegisterType,    //注册组件类
 		getClass      : fGetClass,        //根据xtype获取组件类
 		register      : fRegister,        //注册组件
-		unRegister    : fUnRegister,      //注销组件
+		unregister    : fUnRegister,      //注销组件
 		destroy       : fDestroy,         //TODO 销毁组件，主要用于删除元素时调用
 		generateId    : fGenerateId,      //生成组件的id
 		get           : fGet              //根据id或cid查找组件
@@ -91,7 +91,7 @@ $Define("c.ComponentManager", function() {
 			oEl=$(oEl);
 			var sId=oEl.attr('id');
 			var oCmp=CM.get(sId);
-			$D.log(oCmp);
+			oCmp.destroy(true);
 		})
 	}
 	/**

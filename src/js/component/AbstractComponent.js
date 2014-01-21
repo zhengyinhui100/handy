@@ -767,17 +767,23 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	/**
 	 * 销毁组件
 	 * @method destroy
+	 * @param {boolean}bOnlySelf 仅当为true时只删除自己，不删除子组件及dom节点
 	 */
-	function fDestroy(){
+	function fDestroy(bOnlySelf){
 		var me=this;
 		//注销组件
 		CM.unregister(me);
 		me.fire('destroy');
 		me.clearListeners();
-		me.callChild();
-		me.getEl().remove();
+		if(!bOnlySelf){
+			me.callChild();
+			me.getEl().remove();
+		}
+		delete me.params;
+		delete me.settings;
+		delete me._container;
+		delete me.renderTo;
 		delete me._listeners;
-		delete me._contianer;
 		delete me.children;
 	}
 		
