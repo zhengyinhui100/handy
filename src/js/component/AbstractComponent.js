@@ -310,6 +310,9 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	 */
 	function fAfterRender(){
 		var me=this;
+		if(me.rendered){
+			return;
+		}
 		me.callChild();
 		//缓存容器
 		me._container=$("#"+me.getId());

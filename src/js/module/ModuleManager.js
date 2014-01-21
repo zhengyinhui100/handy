@@ -114,6 +114,7 @@ function(History){
 			var oContainer=oMod.container=oMod.container?$(oMod.container):that.container;
 			oModWrapper.html(oMod.getHtml());
 			oContainer.append(oModWrapper);
+			$HL.fire('afterRender',oModWrapper);
 			oMod.render(oModWrapper);
 			that.showMod(oMod);
 			oMod.afterRender();

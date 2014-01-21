@@ -23,7 +23,9 @@ $Define("c.ComponentManager", function() {
 		getClass      : fGetClass,        //根据xtype获取组件类
 		register      : fRegister,        //注册组件
 		unregister    : fUnRegister,      //注销组件
-		destroy       : fDestroy,         //TODO 销毁组件，主要用于删除元素时调用
+		eachInEl      : fEachInEl,        //遍历指定节点里的所有组件
+		afterRender   : fAfterRender,     //调用指定dom节点包含的组件的afterRender方法
+		destroy       : fDestroy,         //销毁组件，主要用于删除元素时调用
 		generateId    : fGenerateId,      //生成组件的id
 		get           : fGet              //根据id或cid查找组件
 	});
@@ -36,7 +38,12 @@ $Define("c.ComponentManager", function() {
 	 * @method init
 	 */
 	function fInit(){
-		//监听document上的remove事件，jQuery的remove方法被拦截(base/adapt.js)，执行时先触发此事件
+		//监听afterRender自定义事件，调用相关组件的afterRender方法
+		$HL.add("afterRender",function(oEl){
+			//调用包含的组件的afterRender方法
+			CM.afterRender(oEl);
+		})
+		//监听removeEl自定义事件，jQuery的remove方法被拦截(base/adapt.js)，执行时先触发此事件
 		$HL.add('removeEl',function(oEl){
 			//销毁包含的组件
 			CM.destroy(oEl);
@@ -80,19 +87,40 @@ $Define("c.ComponentManager", function() {
 		delete _all[oComponent.getId()];
 	}
 	/**
+	 * 遍历指定节点里的所有组件
+	 * @method eachInEl
+	 * @param {jQuery}oEl 指定的节点
+	 * @param {function(Component)}fCall
+	 */
+	function fEachInEl(oEl,fCall){
+		//获取组件el
+		var oCmpEl=oEl.find('.js-component');
+		oCmpEl.each(function(i,oEl){
+			oEl=$(oEl);
+			var sId=oEl.attr('id');
+			var oCmp=CM.get(sId);
+			fCall(oCmp);
+		})
+	}
+	/**
+	 * 调用指定dom节点包含的组件的afterRender方法
+	 * @method afterRender
+	 * @param {jQuery}oEl 指定的节点
+	 */
+	function fAfterRender(oEl){
+		CM.eachInEl(oEl,function(oCmp){
+			oCmp.afterRender();
+		});
+	}
+	/**
 	 * 销毁组件，主要用于删除元素时调用
 	 * @method destroy
 	 * @param {jQuery}oRemoveEl 需要移除组件的节点
 	 */
 	function fDestroy(oRemoveEl){
-		//获取组件相关el
-		var oCmpEl=oRemoveEl.find('.js-component');
-		oCmpEl.each(function(i,oEl){
-			oEl=$(oEl);
-			var sId=oEl.attr('id');
-			var oCmp=CM.get(sId);
+		CM.eachInEl(oRemoveEl,function(oCmp){
 			oCmp.destroy(true);
-		})
+		});
 	}
 	/**
 	 * 生成组件的id
