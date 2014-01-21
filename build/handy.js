@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-01-19 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-01-22 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -571,7 +571,13 @@ handy.add('Json',function(){
 handy.add('Object',function($H){
 	
 	var Object={
+		_alias              : {                 //存储别名
+			'b'             : 'handy.base',
+			'c'             : 'handy.component',
+			'm'             : 'handy.module'
+		},               
 		namespace           : fNamespace,       //创建或读取命名空间，可以传入用以初始化该命名空间的对象
+		alias               : fAlias,           //创建别名/读取实名
 		createClass         : fCreateClass,     //创建类
 		extend              : fExtend,          //对象的属性扩展
 		mix                 : fMix,             //自定义的继承方式，可以继承object和prototype，prototype方式继承时，非原型链方式继承。
@@ -586,7 +592,7 @@ handy.add('Object',function($H){
 		largeThan           : fLargeThan,       //是否大于另一个对象|数组（包含另一个对象的所有属性或包含另一个数组的所有元素）
 		count				: fCount,			//计算对象长度
 		toArray				: fToArray,		    //将类数组对象转换为数组，比如arguments, nodelist
-		genMethod           : fGenerateMethod   //归纳生成类方法
+		generateMethod      : fGenerateMethod   //归纳生成类方法
 	}
 	/**
     * 创建或读取命名空间
@@ -596,7 +602,9 @@ handy.add('Object',function($H){
     * @return {?*} 返回该路径的命名空间，不存在则返回undefined
     */
 	function fNamespace(sPath,obj){
-		var oObject=null, j, aPath, root,bIsCreate,len;  
+		var oObject=null, j, aPath, root,bIsCreate,len; 
+		//尝试转换别名
+		sPath=Object.alias(sPath);
         aPath=sPath.split(".");  
         root = aPath[0]; 
         bIsCreate=arguments.length==2;
@@ -619,6 +627,38 @@ handy.add('Object',function($H){
             oObject=oObject[aPath[j]];  
         } 
     	return oObject;
+	}
+	/**
+	 * 创建别名/读取实名，别名没有对应的存储空间，需要先转换为原始名字才能获取对应的存储空间，
+	 * Loader自动会优先尝试转换别名，因此，别名不能与现有的命名空间重叠
+	 * @method alias
+	 * @param {string=}sAlias 别名，如'b.Object'，为空时表示读取所有存储的别名
+	 * @param {string=}sOrig 原名，如'handy.base.Object'，为空时表示读取实名
+	 */
+	function fAlias(sAlias,sOrig){
+		var oAlias=Object._alias;
+		//创建别名
+		if(sOrig){
+			if(oAlias[sAlias]){
+				$D.error('别名已被使用'+sAlias+':'+oAlias[sAlias]);
+			}else{
+				oAlias[sAlias]=sOrig;
+			}
+		}else if(sAlias){
+			//转换别名
+			var sName=sAlias,nIndex=sAlias.length-1,sSuffix='';
+			do{
+				//找到别名返回实名
+				if(oAlias[sName]){
+					return oAlias[sName]+sAlias.substring(nIndex);
+				}
+				//截掉最后一截再尝试
+				nIndex=sName.lastIndexOf('.');
+			}while(nIndex>0&&(sName=sName.substring(0,nIndex)))
+			return sAlias;
+		}else{
+			return oAlias;
+		}
 	}
 	/**
     * 创建并返回一个类
@@ -1037,7 +1077,7 @@ handy.add('Object',function($H){
     fToArray=fToArray();
     /**
     * 归纳生成类方法
-    * @method genMethod
+    * @method generateMethod
     * @param {Object}oTarget 需要生成方法的对象
     * @param {string|Array.<string>}method 需要生成的方法列表，如果是字符串，用","作为分隔符
     * @param {function()}fDefined 方法定义函数，该函数执行后返回方法定义
@@ -1065,7 +1105,7 @@ handy.add("Browser","handy.base.Object",function(Object,$H){
 	var Browser={};
 	
 	//归纳生成方法，如：Browser.ie()返回ie的版本号(默认返回整型，传入true参数时返回实际版本号，如：'20.0.1132.43')，Browser.windows()返回是否是windows系统
-	Object.genMethod(Browser,[
+	Object.generateMethod(Browser,[
 			'ie','firefox','chrome','safari','opera',   //浏览器版本，@return{number|string}
 			'windows','linux','mac',                    //操作系统，@return{boolean}
 			'trident','webkit','gecko','presto',        //浏览器内核类型，@return{boolean}
@@ -1386,7 +1426,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
  * 函数类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Function','handy.base.Object',function($H){
+handy.add('Function',function($H){
 	
 	var Function={
 		bind                : fBind,              //函数bind方法
@@ -1420,17 +1460,17 @@ handy.add('Function','handy.base.Object',function($H){
 	 * @return  {function()}    返回新构造的函数
 	 */
 	function fIntercept(fExecFunc,fInterceptFunc,oExecScope,oInterceptScope) {
-		var oExecScope=oExecScope||window;
-		var oInterceptScope=oInterceptScope||oExecScope||window;
-		if(Object.isFunction(fInterceptFunc)){
+		if($H.Object.isFunction(fInterceptFunc)){
 			return function() {
+						var oExScope=oExecScope||this;
+						var oInterScope={};
 		                var args = arguments;
-		                oInterceptScope.target = oExecScope;
-		                oInterceptScope.method = fExecFunc;
-		                return fInterceptFunc.apply(oInterceptScope, args) != false ?
-				                   fExecFunc.apply(oExecScope, args) :null;
+						oInterScope.scope=oInterceptScope;
+		                oInterScope.target = oExScope;
+		                oInterScope.method = fExecFunc;
+		                return fInterceptFunc.apply(oInterScope, args) != false ?
+				                   fExecFunc.apply(oExScope, args) :null;
 				   };
-
 		}
 	}
 	
@@ -1516,6 +1556,8 @@ function(Debug,Object,Function,$H){
     	var sUrl=Loader.urlMap&&Loader.urlMap[sId]&&Loader.urlMap[sId].url;
     	if(!sUrl){
     		var sRoot='';
+    		//读取实名
+    		sId=$H.Object.alias(sId);
     		var rootPath=Loader.rootPath;
     		if(typeof rootPath=='string'){
     			sRoot=rootPath;
@@ -1760,6 +1802,9 @@ function(Debug,Object,Function,$H){
     function _fResponse(sId){
     	Loader.showLoading(false);
     	_oCache[sId].status='loaded';
+    	if(Loader.traceLog){
+			Debug.info("Loader Response: "+sId);
+   		}
     	//每次回调都循环上下文列表
    		for(var i=_aContext.length-1;i>=0;i--){
 	    	var oContext=_aContext[i];
@@ -1768,9 +1813,6 @@ function(Debug,Object,Function,$H){
 	    		_aContext.splice(i,1);
 	    		oContext.callback.apply(null,aExists);
 	    	}
-   		}
-   		if(Loader.traceLog){
-			Debug.info("Loader Response: "+sId);
    		}
     }
     /**
@@ -1853,6 +1895,83 @@ function(Debug,Object,Function,$H){
     return Loader;
 	
 })/**
+ * 自定义事件类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+handy.add('Listener',function($H){
+	
+	var _cache={};             //自定义事件池
+		
+	var Listener={
+		add            : fAdd,            //添加事件
+		remove         : fRemove,         //移除事件
+		fire           : fFire            //触发事件
+	};
+	
+	/**
+	 * 添加事件
+	 * @method add
+	 * @param {string}sName 事件名
+	 * @param {function}fHandler 事件函数
+	 */
+	function fAdd(sName,fHandler){
+		var aCache=_cache[sName];
+		if(!aCache){
+			aCache=_cache[sName]=[]
+		}
+		aCache.push(fHandler);
+		
+	}
+	/**
+	 * 移除事件
+	 * @method remove
+	 * @param {string}sName 事件名
+	 * @param {function=}fHandler 事件函数，如果此参数为空，表示删除指定事件名下的所有函数
+	 * @param {boolean} true表示删除成功，false表示失败
+	 */
+	function fRemove(sName,fHandler){
+		var aCache=_cache[sName];
+		if(!aCache){
+			return false;
+		}
+		if(!fHandler){
+			delete _cache[sName];
+		}else{
+			for(var i=0,len=aCache.length;i<len;i++){
+				if(aCache[i]==fHandler){
+					aCache.splice(i,1);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	/**
+	 * 触发事件
+	 * @method fire(sName[,data,..])
+	 * @param {string}sName 事件名
+	 * @param {*}data 传递参数
+	 * @return {*}只是返回最后一个函数的结果
+	 */
+	function fFire(sName,data){
+		var aCache=_cache[sName];
+		if(!aCache){
+			return false;
+		}
+		var aArgs=Array.prototype.slice.call(arguments,1);
+		for(var i=0,len=aCache.length;i<len;i++){
+			//只是返回最后一个函数的结果
+			if(i==len-1){
+				return aCache[i].apply(null,aArgs);
+			}else{
+				aCache[i].apply(null,aArgs);
+			}
+		}
+	}
+	
+	return Listener;
+	
+});/**
  * 日期扩展类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -2357,7 +2476,7 @@ handy.add('Template',function($H){
 		openTag         : '<%',            //模板语法开始标签
 		closeTag        : '%>',            //模板语法结束标签
 		
-		_setValue       : _fSetValue,      //设置变量
+//		_setValue       : _fSetValue,      //设置变量
 		_add            : _fAdd,           //结果函数添加一行字符串
 		_parseHtml      : _fParseHtml,     //处理html
 		_parseScript    : _fParseScript,   //处理脚本
@@ -2694,6 +2813,7 @@ handy.add('Support',function($H){
 	$HO=$H.Object;
 	$HS=$H.String;
 	$HU=$H.Util;
+	$HL=$H.Listener;
 	$Define=$H.Loader.define;
 	$Require=$H.Loader.require;
 
@@ -2709,42 +2829,76 @@ handy.add('Support',function($H){
 		console.log("intercept");
 	},$$);*/
 	
+	//拦截jQuery的remove方法，通知组件元素删除
+	var $$=window.$
+	$$.fn.remove=$HF.intercept($$.fn.remove,function(){
+		var oEl=this.target;
+		$HL.fire('removeEl',oEl);
+	});
+	
 	
 })(handy)/**
  * 组件管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-10
  */
- 
-$Define("handy.component.ComponentManager", function() {
+//"handy.component.ComponentManager"
+$Define("c.ComponentManager", function() {
 
-	var ComponentManager = $HO.createClass(),
+	var CM = $HO.createClass(),
 	_expando = $H.expando+"_cmp_",             // 组件id前缀
 	//存储组件类
 	_types={},
 	//存储所有组件实例
 	_all={};
+	
+	//全局快捷别名
+	$C=CM;
 
 	// 静态方法
-	$HO.extend(ComponentManager, {
+	$HO.extend(CM, {
+		init          : fInit,            //初始化
 		registerType  : fRegisterType,    //注册组件类
 		getClass      : fGetClass,        //根据xtype获取组件类
 		register      : fRegister,        //注册组件
-		unRegister    : fUnRegister,      //注销组件
-		destroy       : fDestroy,         //TODO 销毁组件，主要用于删除元素时调用
+		unregister    : fUnRegister,      //注销组件
+		eachInEl      : fEachInEl,        //遍历指定节点里的所有组件
+		afterRender   : fAfterRender,     //调用指定dom节点包含的组件的afterRender方法
+		destroy       : fDestroy,         //销毁组件，主要用于删除元素时调用
 		generateId    : fGenerateId,      //生成组件的id
 		get           : fGet              //根据id或cid查找组件
 	});
 	
+	//初始化监听document上的remove事件
+	CM.init();
+	
+	/**
+	 * 初始化
+	 * @method init
+	 */
+	function fInit(){
+		//监听afterRender自定义事件，调用相关组件的afterRender方法
+		$HL.add("afterRender",function(oEl){
+			//调用包含的组件的afterRender方法
+			CM.afterRender(oEl);
+		})
+		//监听removeEl自定义事件，jQuery的remove方法被拦截(base/adapt.js)，执行时先触发此事件
+		$HL.add('removeEl',function(oEl){
+			//销毁包含的组件
+			CM.destroy(oEl);
+		})
+	}
 	/**
 	 * 注册组件类型
 	 * @method registerType
 	 * @param {string}sXType 组件类型
 	 * @param {object}oClass 组件类
 	 */
-	function fRegisterType(sXType,oClass){
-		_types[sXType]=oClass;
-		oClass.prototype.xtype=sXType;
+	function fRegisterType(sXtype,oClass){
+		_types[sXtype]=oClass;
+		oClass.prototype.xtype=sXtype;
+		//快捷别名
+		$C[sXtype]=oClass;
 	}
 	/**
 	 * 根据xtype获取组件类
@@ -2752,8 +2906,8 @@ $Define("handy.component.ComponentManager", function() {
 	 * @param {string}sXType 组件类型
 	 * @return {object} 返回对应的组件类
 	 */
-	function fGetClass(sXType){
-		return _types[sXType];
+	function fGetClass(sXtype){
+		return _types[sXtype];
 	}
 	/**
 	 * 注册组件
@@ -2772,11 +2926,40 @@ $Define("handy.component.ComponentManager", function() {
 		delete _all[oComponent.getId()];
 	}
 	/**
+	 * 遍历指定节点里的所有组件
+	 * @method eachInEl
+	 * @param {jQuery}oEl 指定的节点
+	 * @param {function(Component)}fCall
+	 */
+	function fEachInEl(oEl,fCall){
+		//获取组件el
+		var oCmpEl=oEl.find('.js-component');
+		oCmpEl.each(function(i,oEl){
+			oEl=$(oEl);
+			var sId=oEl.attr('id');
+			var oCmp=CM.get(sId);
+			fCall(oCmp);
+		})
+	}
+	/**
+	 * 调用指定dom节点包含的组件的afterRender方法
+	 * @method afterRender
+	 * @param {jQuery}oEl 指定的节点
+	 */
+	function fAfterRender(oEl){
+		CM.eachInEl(oEl,function(oCmp){
+			oCmp.afterRender();
+		});
+	}
+	/**
 	 * 销毁组件，主要用于删除元素时调用
 	 * @method destroy
-	 * @param 
+	 * @param {jQuery}oRemoveEl 需要移除组件的节点
 	 */
-	function fDestroy(){
+	function fDestroy(oRemoveEl){
+		CM.eachInEl(oRemoveEl,function(oCmp){
+			oCmp.destroy(true);
+		});
 	}
 	/**
 	 * 生成组件的id
@@ -2798,22 +2981,25 @@ $Define("handy.component.ComponentManager", function() {
 	 * @param {string}sId 组件id或者cid
 	 */
 	function fGet(sId){
-		return _all[sId]||_all[ComponentManager.generateId(sId,true)];
+		return _all[sId]||_all[CM.generateId(sId,true)];
 	}
 
-	return ComponentManager;
+	return CM;
 	
 });/**
  * 组件基类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2013-12-28
  */
-
-$Define("handy.component.AbstractComponent","handy.component.ComponentManager",function(CM){
+//"handy.component.AbstractComponent"
+$Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	
 	var AC=$HO.createClass(),
 	_oTagReg=/^(<[a-zA-Z]+)/,
 	_oClsReg=/(class=")/;
+	
+	//快捷别名
+	$H.CM=AC;
 	
 	//静态方法
 	$HO.extend(AC,{
@@ -2851,6 +3037,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 //		isInline            : false,             //是否内联(宽度自适应)
 		
 		//属性
+//		role                : '',                //保留属性，用于模板中筛选组件的选择器，如this.getHtml("$>[role='content']")
 //		params              : null,              //初始化时传入的参数
 //		_id                 : null,              //组件id
 //		tmpl                : [],                //组件模板，首次初始化前为数组，初始化后为字符串
@@ -3014,14 +3201,16 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 		sHtml=sHtml.replace(_oTagReg,'$1 id="'+sId+'"');
 		//添加附加class
 		sHtml=sHtml.replace(_oClsReg,'$1'+me.getExtCls());
-		//添加style
-		var sStyle;
-		if(me.displayMode=='visibility'){
-			sStyle='visibility:hidden';
-		}else{
-			sStyle='display:none';
+		if(me.hidden){
+			//添加style
+			var sStyle;
+			if(me.displayMode=='visibility'){
+				sStyle='visibility:hidden';
+			}else{
+				sStyle='display:none';
+			}
+			sHtml=sHtml.replace(_oTagReg,'$1 style="'+sStyle+'"');
 		}
-		sHtml=sHtml.replace(_oTagReg,'$1 style="'+sStyle+'"');
 		me.html=sHtml;
 	}
 	/**
@@ -3066,7 +3255,8 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fGetExtCls(){
 		var me=this;
-		var aCls=[];
+		//组件标志class
+		var aCls=['js-component'];
 		if(me.extCls){
 			aCls.push(me.extCls);
 		}
@@ -3108,6 +3298,9 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fAfterRender(){
 		var me=this;
+		if(me.rendered){
+			return;
+		}
 		me.callChild();
 		//缓存容器
 		me._container=$("#"+me.getId());
@@ -3209,7 +3402,7 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fMask(){
 		if(!AC.mask){
-			AC.mask=$(document.body).append('<div id="maskDv" class="w-mask" style="display:none;"></div>');
+			AC.mask=$('<div class="w-mask" style="display:none;"></div>').appendTo(document.body);
 		}
 		AC.mask.show();
 	}
@@ -3520,10 +3713,14 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	 */
 	function fAddItem(oItem){
 		var me=this;
-		if(!me.settings.items){
-			me.settings.items=[];
+		var oSettings=me.settings;
+		var items=oSettings.items;
+		if(!items){
+			oSettings.items=[];
+		}else if(!$HO.isArray(items)){
+			oSettings.items=[items];
 		}
-		me.settings.items.push(oItem)
+		oSettings.items.push(oItem);
 	}
 	/**
 	 * 分析子组件列表
@@ -3561,17 +3758,23 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
 	/**
 	 * 销毁组件
 	 * @method destroy
+	 * @param {boolean}bOnlySelf 仅当为true时只删除自己，不删除子组件及dom节点
 	 */
-	function fDestroy(){
+	function fDestroy(bOnlySelf){
 		var me=this;
 		//注销组件
 		CM.unregister(me);
 		me.fire('destroy');
 		me.clearListeners();
-		me.callChild();
-		me.getEl().remove();
+		if(!bOnlySelf){
+			me.callChild();
+			me.getEl().remove();
+		}
+		delete me.params;
+		delete me.settings;
+		delete me._container;
+		delete me.renderTo;
 		delete me._listeners;
-		delete me._contianer;
 		delete me.children;
 	}
 		
@@ -3583,8 +3786,8 @@ $Define("handy.component.AbstractComponent","handy.component.ComponentManager",f
  * @created 2014-01-01
  */
 
-$Define('handy.component.Icon',
-'handy.component.AbstractComponent',
+$Define('c.Icon',
+'c.AbstractComponent',
 function(AC){
 	
 	var Icon=AC.define('Icon');
@@ -3612,8 +3815,8 @@ function(AC){
  * @created 2014-01-13
  */
 
-$Define('handy.component.Button',
-'handy.component.AbstractComponent',
+$Define('c.Button',
+'c.AbstractComponent',
 function(AC){
 	
 	var Button=AC.define('Button');
@@ -3666,8 +3869,8 @@ function(AC){
  * @created 2014-01-14
  */
 
-$Define('handy.component.Input',
-'handy.component.AbstractComponent',
+$Define('c.Input',
+'c.AbstractComponent',
 function(AC){
 	
 	var Input=AC.define('Input');
@@ -3675,7 +3878,9 @@ function(AC){
 	$HO.extend(Input.prototype,{
 		//初始配置
 //		type            : '',                  //图标名称
+//		value           : '',                  //默认值
 //		placeholder     : '',                  //placeholder
+//		withClear       : false,               //带有清除按钮
 		radius          : 'normal',            //普通圆角
 		iconPos         : 'left',              //图标位置
 		btnPos          : 'right',             //按钮位置
@@ -3684,7 +3889,7 @@ function(AC){
 		'<div class="w-input<%if(this.hasIcon){%> w-input-icon-<%=this.iconPos%><%}%>',
 		'<%if(this.hasBtn){%> w-input-btn-<%=this.btnPos%><%}%>">',
 			'<%=this.getHtml(">*")%>',
-			'<input type="text" class="js-input w-input-txt"<%if(this.placeholder){%> placeholder="<%=this.placeholder%><%}%>"/>',
+			'<input type="text" class="js-input w-input-txt" value="<%=this.value%>"<%if(this.placeholder){%> placeholder="<%=this.placeholder%><%}%>"/>',
 		'</div>'],
 		listeners       : [
 			{
@@ -3703,8 +3908,9 @@ function(AC){
 			}
 		],
 		doConfig        : fDoConfig,         //初始化配置
-		parseItem       : fParseItem         //分析处理子组件
-		
+		parseItem       : fParseItem,        //分析处理子组件
+		val             : fVal,              //获取/设置输入框的值
+		focus           : fFocus             //聚焦
 	});
 	
 	/**
@@ -3717,6 +3923,17 @@ function(AC){
 		//搜索框快捷配置方式
 		if(me.type=='search'){
 			me.icon='search';
+		}
+		//清除按钮快捷配置方式
+		if(me.withClear){
+			me.addItem({
+				xtype:'Button',
+				radius:'big',
+				icon:'delete',
+				click:function(){
+					this.parent.find('input').val('').focus();
+				}
+			});
 		}
 	}
 	/**
@@ -3731,6 +3948,27 @@ function(AC){
 			me.hasBtn=true;
 		}
 	}
+	/**
+	 * 获取/设置输入框的值
+	 * @method val
+	 * @param {string=}sValue 要设置的值，不传表示读取输入框的值
+	 * @return {string=} 如果是读取操作，返回当前值
+	 */
+	function fVal(sValue){
+		var oInput=this.find('input');
+		if(sValue){
+			oInput.val(sValue);
+		}else{
+			return oInput.val();
+		}
+	}
+	/**
+	 * 聚焦
+	 * @method focus
+	 */
+	function fFocus(){
+		this.find('input').focus();
+	}
 	
 	return Input;
 	
@@ -3740,14 +3978,15 @@ function(AC){
  * @created 2014-01-16
  */
 
-$Define('handy.component.Tab',
-'handy.component.AbstractComponent',
+$Define('c.Tab',
+'c.AbstractComponent',
 function(AC){
 	
 	var Tab=AC.define('Tab');
 	
 	$HO.extend(Tab.prototype,{
 		//初始配置
+//		itemClick       : function(){},        //标签项点击事件，函数参数为TabItem子组件对象
 		defItem         : {                    //默认子组件是Button
 			xtype:'Button',
 			radius:null,
@@ -3780,15 +4019,53 @@ function(AC){
 				handler : function(oEvt){
 					var me=this;
 					//点击tab按钮显示对应的content
-					var oCurrent=$(oEvt.currentTarget);
-					me.callChild('unactive');
-					var nIndex=oCurrent.index();
-					me.children[nIndex].active();
+					var oCurrentEl=$(oEvt.currentTarget);
+					var nIndex=oCurrentEl.index();
+					me.setActiveItem(nIndex);
 					me.find('.js-tab-content').hide().eq(nIndex).show();
+					if(me.itemClick){
+						var oCmp=me.children[nIndex];
+						me.itemClick(oCmp);
+					}
 				}
 			}
-		]
+		],
+		
+		setActiveItem          : fSetActiveItem,       //激活指定标签项
+		getActiveItem          : fGetActiveItem        //获取激活的标签项
 	});
+	/**
+	 * 激活指定标签项
+	 * @method setActiveItem
+	 * @param {number|string}item number表示索引，string表示选择器
+	 */
+	function fSetActiveItem(item){
+		var me=this,oActive;
+		me.callChild('unactive');
+		if(typeof item=='number'){
+			oActive=me.children[item];
+		}else{
+			oActive=me.find(item)[0];
+		}
+		oActive.active();
+	}
+	/**
+	 * 获取激活的标签项
+	 * @method getActiveItem
+	 * @param {boolean=}bIsIndex 仅当true时返回索引
+	 * @return {Component} 返回当前激活的组件
+	 */
+	function fGetActiveItem(bIsIndex){
+		var me=this,nIndex,oItem;
+		me.each(function(i,item){
+			if(item.isActive){
+				oItem=item;
+				nIndex=i;
+				return false;
+			}
+		});
+		return bIsIndex?nIndex:oItem;
+	}
 	
 	return Tab;
 	
@@ -3798,8 +4075,8 @@ function(AC){
  * @created 2014-01-17
  */
 
-$Define('handy.component.Dialog',
-'handy.component.AbstractComponent',
+$Define('c.Dialog',
+'c.AbstractComponent',
 function(AC){
 	
 	var Dialog=AC.define('Dialog');
@@ -3816,7 +4093,7 @@ function(AC){
 		//对话框初始配置
 //		title           : '',             //标题
 //		noClose         : false,          //true时没有close图标
-//		content         : '',             //内容
+//		content         : '',             //html内容，传入此值时将忽略contentTitle和contentMsg
 //		contentTitle    : '',             //内容框的标题
 //		contentMsg      : '',             //内容框的描述
 //		noAction        : false,          //true时没有底部按钮
@@ -3825,7 +4102,7 @@ function(AC){
 		okTxt           : '确定',          //确定按钮文字
 		cancelTxt       : '取消',          //取消按钮文字
 //		okCall          : function(){},   //确定按钮事件函数
-//		okCall          : function(){},   //取消按钮事件函数
+//		cancelCall      : function(){},   //取消按钮事件函数
 		
 		//组件共有配置
 		radius          : 'normal',
@@ -3841,6 +4118,7 @@ function(AC){
 						'<div class="w-body-content">',
 							'<h1 class="w-content-title"><%=this.contentTitle%></h1>',
 							'<div class="w-content-msg"><%=this.contentMsg%></div>',
+							'<%=this.getHtml("$>[role=\'content\']")%>',
 						'</div>',
 					'<%}%>',
 					'<%if(!this.noAction){%>',
@@ -3859,20 +4137,61 @@ function(AC){
 	/**
 	 * 弹出警告框
 	 * @method alert
+	 * @param {string}sMsg 提示信息
 	 */
-	function fAlert(){
+	function fAlert(sMsg){
+		return new Dialog({
+			title:'&nbsp;',
+			contentMsg:sMsg,
+			noClose:true,
+			noCancel:true
+		});
 	}
 	/**
 	 * 弹出确认框
 	 * @method confirm
+	 * @param {string}sMsg 提示信息
+	 * @param {function(boolean)}fCall 回调函数，参数为true表示点击的是"确定"按钮，false则为"取消"按钮
 	 */
-	function fConfirm(){
+	function fConfirm(sMsg,fCall){
+		return new Dialog({
+			title:'&nbsp;',
+			contentMsg:sMsg,
+			noClose:true,
+			okCall:function(){
+				return fCall&&fCall(true);
+			},
+			cancelCall:function(){
+				return fCall&&fCall(false);
+			}
+		});
 	}
 	/**
 	 * 弹出输入框
 	 * @method prompt
+	 * @param {string}sMsg 提示信息
+	 * @param {string=}sDefault 输入框默认值
+	 * @param {function(string)}fCall 回调函数，参数为输入框的值
 	 */
-	function fPrompt(){
+	function fPrompt(sMsg,sDefault,fCall){
+		if(!fCall){
+			fCall=sDefault;
+			sDefault='';
+		}
+		return new Dialog({
+			title:'&nbsp;',
+			contentMsg:sMsg,
+			noClose:true,
+			items:{
+				xtype:'Input',
+				role:'content',
+				value:sDefault
+			},
+			okCall:function(){
+				var value=this.find('$Input')[0].val();
+				return fCall&&fCall(value);
+			}
+		});
 	}
 	/**
 	 * 处理配置
@@ -3893,7 +4212,10 @@ function(AC){
 					xtype:'Button',
 					radius:'big',
 					extCls:'w-tbar-btn-left',
-					icon:'delete'
+					icon:'delete',
+					click:function(){
+						me.hide();
+					}
 				}
 			})
 		}
@@ -3906,8 +4228,9 @@ function(AC){
 					text:me.okTxt,
 					isInline:false,
 					click:function(){
-						var me=this;
-						me.hide();
+						if((me.okCall&&me.okCall())!=false){
+							me.hide();
+						}
 					}
 				});
 			}
@@ -3916,7 +4239,12 @@ function(AC){
 				me.addItem({
 					xtype:'Button',
 					isInline:false,
-					text:me.cancelTxt
+					text:me.cancelTxt,
+					click:function(){
+						if((me.cancelCall&&me.cancelCall())!=false){
+							me.hide();
+						}
+					}
 				});
 			}
 		}
@@ -3937,8 +4265,7 @@ function(AC){
 			left:x + "px",
 			top:y-(me.offsetTop||0) + "px"
 		});
-		//me.mask=$("#dialogMask").height($(oDoc.body).height());
-		me.callParent();
+		me.callSuper();
 	}
 	
 	return Dialog;
@@ -3948,8 +4275,8 @@ function(AC){
 * Email:		zhengyinhui100@gmail.com						*
 * Created:		2013-12-14										*
 *****************************************************************/
-
-$Define("handy.module.AbstractModule","handy.base.Object",function (Object) {
+//handy.module.AbstractModule
+$Define("m.AbstractModule","handy.base.Object",function (Object) {
 	/**
 	 * 模块基类
 	 * 
@@ -3966,7 +4293,6 @@ $Define("handy.module.AbstractModule","handy.base.Object",function (Object) {
 		//chName       : null,           //{string}模块的中文名称
 		//getData      : null,           //{function()}获取该模块的初始化数据
 		//clone        : null,           //{function()}克隆接口
-		//getHtml      : null,           //{function():string}获取该模块的html
 		cache          : function(){},   //显示模块缓存
 		init           : function(){},   //初始化函数, 在模块创建后调用（在所有模块动作之前）
 		beforeRender   : function(){},   //模块渲染前调用
@@ -3974,7 +4300,8 @@ $Define("handy.module.AbstractModule","handy.base.Object",function (Object) {
 		afterRender    : function(){},   //模块渲染后调用
 		reset          : function(){},   //重置函数, 在该模块里进入该模块时调用
 		exit           : function(){return true},   //离开该模块前调用, 返回true允许离开, 否则不允许离开
-		initialize     : fInitialize     //模块类创建时初始化
+		initialize     : fInitialize,    //模块类创建时初始化
+		getHtml        : fGetHtml        //获取该模块的html
 	});
 	/**
 	 * 构造函数
@@ -3985,6 +4312,24 @@ $Define("handy.module.AbstractModule","handy.base.Object",function (Object) {
 		//Object.extend(this, oConf);
 		this.conf = oConf;
 	}
+	/**
+	 * 获取该模块的html
+	 * @method getHtml
+	 * @return {string} 返回模板html
+	 */
+	function fGetHtml(){
+		var me=this;
+		if(!me.tmpl){
+			return '';
+		}
+		//将组件数组方式的模板转为字符串
+		if(typeof me.tmpl!='string'){
+			me.constructor.prototype.tmpl=me.tmpl.join('');
+		}
+		//由模板生成组件html
+		var sHtml=$H.Template.tmpl({id:me.xtype,tmpl:me.tmpl},me);
+		return sHtml;
+	}
 	
 	return AbstractModule;
 });/****************************************************************
@@ -3992,8 +4337,8 @@ $Define("handy.module.AbstractModule","handy.base.Object",function (Object) {
 * Email:		zhengyinhui100@gmail.com						*
 * Created:		2013-12-20										*
 *****************************************************************/
-
-$Define("handy.module.AbstractNavigator","handy.base.Object",function (Object) {
+//handy.module.AbstractNavigator
+$Define("m.AbstractNavigator","handy.base.Object",function (Object) {
 	/**
 	 * 模块导航效果基类
 	 * 
@@ -4015,7 +4360,8 @@ $Define("handy.module.AbstractNavigator","handy.base.Object",function (Object) {
  * 历史记录类，用于记录和管理浏览历史
  * @class handy.module.History
  */
-$Define("handy.module.History",
+//handy.module.History
+$Define("m.History",
 'handy.base.HashChange',
 function(HashChange){
 
@@ -4131,8 +4477,9 @@ function(HashChange){
  * 模块管理类
  * @class ModuleManager
  */
-$Define("handy.module.ModuleManager",
-"handy.module.History",
+//handy.module.ModuleManager
+$Define("m.ModuleManager",
+"m.History",
 function(History){
 	
 	var ModuleManager=$HO.createClass();
@@ -4234,10 +4581,9 @@ function(History){
 			var oModWrapper=that.getModWrapper(sModName);
 			oMod.wrapper=oModWrapper;
 			var oContainer=oMod.container=oMod.container?$(oMod.container):that.container;
-			if(oMod.getHtml){
-				oModWrapper.html(oMod.getHtml());
-				oContainer.append(oModWrapper);
-			}
+			oModWrapper.html(oMod.getHtml());
+			oContainer.append(oModWrapper);
+			$HL.fire('afterRender',oModWrapper);
 			oMod.render(oModWrapper);
 			that.showMod(oMod);
 			oMod.afterRender();

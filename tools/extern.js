@@ -17,6 +17,8 @@ $HF,
 $HO,
 $HS,
 $HU,
+$HL,
+$C,
 $G,
 $Define,
 $Require;
