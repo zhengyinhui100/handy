@@ -6,6 +6,7 @@ handy.add('Object',function($H){
 	
 	var Object={
 		_alias              : {                 //存储别名
+			'b'             : 'handy.base',
 			'c'             : 'handy.component',
 			'm'             : 'handy.module'
 		},               
