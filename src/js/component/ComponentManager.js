@@ -6,7 +6,7 @@
 //"handy.component.ComponentManager"
 $Define("c.ComponentManager", function() {
 
-	var ComponentManager = $HO.createClass(),
+	var CM = $HO.createClass(),
 	_expando = $H.expando+"_cmp_",             // 组件id前缀
 	//存储组件类
 	_types={},
@@ -14,10 +14,11 @@ $Define("c.ComponentManager", function() {
 	_all={};
 	
 	//全局快捷别名
-	$C=ComponentManager;
+	$C=CM;
 
 	// 静态方法
-	$HO.extend(ComponentManager, {
+	$HO.extend(CM, {
+		init          : fInit,            //初始化
 		registerType  : fRegisterType,    //注册组件类
 		getClass      : fGetClass,        //根据xtype获取组件类
 		register      : fRegister,        //注册组件
@@ -27,6 +28,20 @@ $Define("c.ComponentManager", function() {
 		get           : fGet              //根据id或cid查找组件
 	});
 	
+	//初始化监听document上的remove事件
+	CM.init();
+	
+	/**
+	 * 初始化
+	 * @method init
+	 */
+	function fInit(){
+		//监听document上的remove事件，jQuery的remove方法被拦截(base/adapt.js)，执行时先触发此事件
+		$(document).bind('remove',function(oEvt,oEl){
+			//销毁包含的组件
+			CM.destroy(oEl);
+		})
+	}
 	/**
 	 * 注册组件类型
 	 * @method registerType
@@ -67,9 +82,17 @@ $Define("c.ComponentManager", function() {
 	/**
 	 * 销毁组件，主要用于删除元素时调用
 	 * @method destroy
-	 * @param 
+	 * @param {jQuery}oRemoveEl 需要移除组件的节点
 	 */
-	function fDestroy(){
+	function fDestroy(oRemoveEl){
+		//获取组件相关el
+		var oCmpEl=oRemoveEl.find('.js-component');
+		oCmpEl.each(function(i,oEl){
+			oEl=$(oEl);
+			var sId=oEl.attr('id');
+			var oCmp=CM.get(sId);
+			$D.log(oCmp);
+		})
 	}
 	/**
 	 * 生成组件的id
@@ -91,9 +114,9 @@ $Define("c.ComponentManager", function() {
 	 * @param {string}sId 组件id或者cid
 	 */
 	function fGet(sId){
-		return _all[sId]||_all[ComponentManager.generateId(sId,true)];
+		return _all[sId]||_all[CM.generateId(sId,true)];
 	}
 
-	return ComponentManager;
+	return CM;
 	
 });

@@ -267,7 +267,8 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	 */
 	function fGetExtCls(){
 		var me=this;
-		var aCls=[];
+		//组件标志class
+		var aCls=['js-component'];
 		if(me.extCls){
 			aCls.push(me.extCls);
 		}

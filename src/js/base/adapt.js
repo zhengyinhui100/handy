@@ -28,5 +28,12 @@
 		console.log("intercept");
 	},$$);*/
 	
+	//拦截jQuery的remove方法，通知组件元素删除
+	var $$=window.$
+	$$.fn.remove=$HF.intercept($$.fn.remove,function(){
+		var oEl=this.target;
+		$$(document).trigger('remove',[oEl]);
+	});
+	
 	
 })(handy)
