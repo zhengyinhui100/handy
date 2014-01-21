@@ -13,6 +13,7 @@
 	$HO=$H.Object;
 	$HS=$H.String;
 	$HU=$H.Util;
+	$HL=$H.Listener;
 	$Define=$H.Loader.define;
 	$Require=$H.Loader.require;
 
@@ -32,7 +33,7 @@
 	var $$=window.$
 	$$.fn.remove=$HF.intercept($$.fn.remove,function(){
 		var oEl=this.target;
-		$$(document).trigger('remove',[oEl]);
+		$HL.fire('removeEl',oEl);
 	});
 	
 	

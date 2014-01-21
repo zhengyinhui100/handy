@@ -37,7 +37,7 @@ $Define("c.ComponentManager", function() {
 	 */
 	function fInit(){
 		//监听document上的remove事件，jQuery的remove方法被拦截(base/adapt.js)，执行时先触发此事件
-		$(document).bind('remove',function(oEvt,oEl){
+		$HL.add('removeEl',function(oEl){
 			//销毁包含的组件
 			CM.destroy(oEl);
 		})

@@ -23,6 +23,7 @@
 			<path path="js/base/Debug.js"/>
 			<path path="js/base/Function.js"/>
 			<path path="js/base/Loader.js"/>
+			<path path="js/base/Listener.js"/>
 			<path path="js/base/Date.js"/>
 			<path path="js/base/String.js"/>
 			<path path="js/base/Cookie.js"/>
