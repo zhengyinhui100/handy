@@ -12,7 +12,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 		WARN_LEVEL  : 3,            //警告级别
 		ERROR_LEVEL	: 4,            //错误级别
 		DEBUG_LEVEL : 5,            //调试级别
-		showInPage  : !("console" in window)||!!Browser.mobile(),        //是否强制在页面上输出调试信息，主要用于不支持console的浏览器，如：IE6，或者ietester里面，或者移动浏览器
+//		showInPage  : !("console" in window)||!!Browser.mobile(),        //是否强制在页面上输出调试信息，主要用于不支持console的浏览器，如：IE6，或者ietester里面，或者移动浏览器
 		log			: fLog,		    //输出日志
 		info		: fInfo,		//输出信息
 		warn        : fWarn,        //输出警告信息
