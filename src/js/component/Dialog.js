@@ -135,7 +135,7 @@ function(AC){
 			me.addItem({
 				xtype:'Toolbar',
 				title:me.title,
-				color:'gray',
+				theme:'gray',
 				extCls:'w-dialog-header',
 				items:!me.noClose&&{
 					xtype:'Button',

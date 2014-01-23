@@ -22,8 +22,10 @@
   border-radius: 1em;
 }
 .w-btn {
-  display: block;
   position: relative;
+  text-decoration: none;
+  outline: none;
+  display: block;
   cursor: pointer;
   text-align: center;
   font-size: 16px;
@@ -78,6 +80,9 @@
   /* Opera 11.10+ */
 
   background-image: linear-gradient(#f6f6f6, #e0e0e0);
+}
+.w-btn .w-btn-txt {
+  outline: none;
 }
 .w-inline {
   display: -moz-inline-stack;
@@ -242,6 +247,7 @@
 .w-btn-icon-top {
   padding-top: 25px;
   padding-bottom: 0;
+  font-size: 12px;
 }
 .w-btn-icon-top .w-icon {
   position: absolute;
@@ -435,7 +441,7 @@
 .w-header {
   position: fixed;
   left: 0;
-  top: 0;
+  top: 5px;
 }
 .w-footer {
   position: fixed;
@@ -447,6 +453,8 @@
 }
 .w-tab .w-tab-item .w-btn {
   margin: 0;
+  padding-left: 0;
+  padding-right: 0;
 }
 .w-tab .w-tab-item:last-child .w-btn {
   border-right-width: 1px;

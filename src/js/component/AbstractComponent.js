@@ -38,7 +38,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 //		icon                : null,              //图标
 //		withMask            : false,             //是否有遮罩层
 		////通用效果
-//		color               : null,              //组件颜色
+//		theme               : null,              //组件颜色
 //		radius              : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 //		shadow              : false,        	 //外阴影
 //		shadowInset         : false,        	 //内阴影
@@ -272,8 +272,8 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		if(me.extCls){
 			aCls.push(me.extCls);
 		}
-		if(me.color){
-			aCls.push('w-'+me.cls+'-'+me.color);
+		if(me.theme){
+			aCls.push('w-'+me.cls+'-'+me.theme);
 		}
 		if(me.disabled){
 			aCls.push('w-disable');
