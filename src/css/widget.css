@@ -24,7 +24,6 @@
 .w-btn {
   position: relative;
   text-decoration: none;
-  outline: none;
   display: block;
   cursor: pointer;
   text-align: center;
@@ -40,6 +39,10 @@
   background: #eee;
   font-weight: 700;
   color: #222;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
   text-shadow: 0 1px 0 #fff;
   background-image: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#f1f1f1));
   /* old webkit,Saf4+, Chrome */
@@ -80,9 +83,6 @@
   /* Opera 11.10+ */
 
   background-image: linear-gradient(#f6f6f6, #e0e0e0);
-}
-.w-btn .w-btn-txt {
-  outline: none;
 }
 .w-inline {
   display: -moz-inline-stack;
@@ -441,7 +441,7 @@
 .w-header {
   position: fixed;
   left: 0;
-  top: 5px;
+  top: 0;
 }
 .w-footer {
   position: fixed;

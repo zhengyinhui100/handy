@@ -37,7 +37,12 @@
 	-ms-text-overflow: ellipsis;
 	text-overflow: ellipsis;
 }
-
+.fn_user_select(@value:none){
+	-webkit-user-select: @value;
+	-moz-user-select: @value;
+	-ms-user-select: @value;
+	user-select: @value;
+}
 .fn_border_radius(@radius){
     -webkit-border-radius: @radius;
     -moz-border-radius: @radius;

@@ -25,7 +25,6 @@
 .w-btn{
 	position: relative;
 	text-decoration:none;
-	outline:none;
 	display: block;
 	cursor: pointer;
 	text-align: center;
@@ -41,6 +40,7 @@
 	background: #eee;
 	font-weight: 700;
 	color: #222;
+	.fn_user_select();
 	text-shadow: 0 1px 0 #fff;
 	.fn_linear_gradient_top(#fff,#f1f1f1);
 	&:hover{
@@ -50,9 +50,6 @@
 		color: #222 ;
 		text-shadow: 0 1px 0 #fff;
 		.fn_linear_gradient_top(#f6f6f6,#e0e0e0);
-	}
-	.w-btn-txt{
-		outline:none;
 	}
 }
 //内联按钮（自适应宽度）
@@ -267,7 +264,7 @@
 .w-header{
 	position:fixed;
 	left:0;
-	top:5px;
+	top:0;
 }
 .w-footer{
 	position:fixed;
