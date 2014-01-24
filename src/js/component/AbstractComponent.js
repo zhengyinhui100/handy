@@ -469,6 +469,12 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 					return oEvent.handler.apply(oEvent.scope||me,arguments);
 				}
 			};
+		//移动浏览器由于click可能会有延迟，这里转换为touchend事件
+		if($H.Browser.mobile()){
+			if(sType=="click"){
+				sType="touchend";
+			}
+		}
 		oEl=oEl?typeof oEl=='string'?me.find(oEl):oEl:me.getEl();
 		if(!oEvent.notEl){
 			if(sSel){
@@ -506,6 +512,12 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 			sMethod=oEvent.method=="delegate"?"undelegate":"unbind",
 			sSel=oEvent.selector,
 			fDelegation;
+		//移动浏览器由于click可能会有延迟，这里转换为touchend事件
+		if($H.Browser.mobile()){
+			if(sType=="click"){
+				sType="touchend";
+			}
+		}
 		for(var i=me._listeners.length-1;i>=0;i--){
 			var oListener=me._listeners[i]
 			if(oListener.handler==oEvent.handler){
