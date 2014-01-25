@@ -20,6 +20,7 @@ function(HashChange){
 		initialize         : fInitialize,      //历史记录类初始化
 		stateChange        : fStateChange,     //历史状态改变
 		saveState          : fSaveState,       //保存当前状态
+		getHashParam       : fGetHashParam,    //获取当前hash参数
 		getCurrentState    : fGetCurrentState, //获取当前状态
 		getPreState        : fGetPreState,     //获取前一个状态
 		back               : fBack             //后退一步
@@ -30,18 +31,25 @@ function(HashChange){
 	 * @param {?string} sKey历史记录类的key，用于区分可能的多个history实例
 	 */
 	function fInitialize(sKey){
-		var that=this;
-		that.key=sKey||'handy';
-		that.states=[];
-		HashChange.listen($H.Function.bind(that.stateChange,that));
+		var me=this;
+		me.key=sKey||'handy';
+		me.states=[];
+		HashChange.listen($H.Function.bind(me.stateChange,me));
 	}
 	/**
 	 * 历史状态改变
 	 * @method stateChange
 	 */
 	function fStateChange(){
-		var that=this;
-		var oState=that.getCurrentState();
+		var me=this;
+		var oHashParam=me.getHashParam();
+		var sKey=oHashParam.hKey;
+		var aStates=me.states;
+		//跟当前状态一致，不需要调用stateChange，可能是saveState触发的hashchange
+		if(sKey==aStates[aStates.length-1]){
+			//return;
+		}
+		var oState=aStates[sKey];
 		if(oState){
 			oState.onStateChange(oState.param,true);
 		}
@@ -55,10 +63,10 @@ function(HashChange){
 	 * 	}
 	 */
 	function fSaveState(oState){
-		var that=this;
-		var sHistoryKey=that.key+(++_nIndex);
-		that.states.push(sHistoryKey);
-		that.states[sHistoryKey]=oState;
+		var me=this;
+		var sHistoryKey=me.key+(++_nIndex);
+		me.states.push(sHistoryKey);
+		me.states[sHistoryKey]=oState;
 		var oHashParam={
 			hKey    : sHistoryKey,
 			param : oState.param
@@ -66,15 +74,30 @@ function(HashChange){
 		$HU.setHash("#"+JSON.stringify(oHashParam));
 	}
 	/**
+	 * 获取当前hash参数
+	 * @method getHashParam
+	 * @return {object} 返回当前hash参数
+	 */
+	function fGetHashParam(){
+		var me=this;
+		try{
+			var sHash=$HU.getHash().replace("#","");
+			var oHashParam=JSON.parse(sHash);
+			return oHashParam;
+		}catch(e){
+			$H.Debug.warn("History.getCurrentState:parse hash error:"+e.message);
+		}
+	}
+	/**
 	 * 获取当前状态
 	 * @method getCurrentState
 	 * @return {object} 返回当前状态
 	 */
 	function fGetCurrentState(){
-		var that=this;
+		var me=this;
 		try{
-			var oHashParam=JSON.parse($HU.getHash().replace("#",""));
-			return that.states[oHashParam.hKey];
+			var oHashParam=me.getHashParam();
+			return me.states[oHashParam.hKey];
 		}catch(e){
 			$H.Debug.warn("History.getCurrentState:parse hash error:"+e.message);
 		}
@@ -85,11 +108,11 @@ function(HashChange){
 	 * @return {object} 返回前一个状态
 	 */
 	function fGetPreState(){
-		var that=this;
+		var me=this;
 		try{
 			var oHashParam=JSON.parse($HU.getHash().replace("#",""));
 			var sHKey=oHashParam.hKey;
-			var aStates=that.states;
+			var aStates=me.states;
 			var nLen=aStates.length;
 			for(var i=0;i++;i<nLen){
 				if(aStates[i]==sHKey){
@@ -105,8 +128,8 @@ function(HashChange){
 	 * @method back
 	 */
 	function fBack(){
-		var that=this;
-		var oState=that.getPreState();
+		var me=this;
+		var oState=me.getPreState();
 		if(oState){
 			oState.onStateChange(oState.param);
 		}
