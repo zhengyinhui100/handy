@@ -135,16 +135,15 @@ table {
 img {
   border: none;
 }
-*:focus {
+*,
+*:focus,
+*:active {
   outline: none;
 }
 a,
 input,
 textarea {
   outline: none;
-}
-a:focus {
-  outline: thin dotted;
 }
 a:focus,
 a:active {
