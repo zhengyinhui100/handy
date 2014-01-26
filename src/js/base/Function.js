@@ -48,6 +48,7 @@ handy.add('Function',function($H){
 				                   fExecFunc.apply(oExScope, args) :false;
 				   };
 		}
+		return fExecFunc;
 	}
 	
 	return Function;
