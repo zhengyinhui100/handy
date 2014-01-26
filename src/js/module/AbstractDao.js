@@ -12,16 +12,24 @@ $Define('m.AbstractDao',function(){
 	var AbstractDao=$HO.createClass();
 	
 	$HO.extend(AbstractDao.prototype,{
-		ajax         : fAjax        //ajax方法
+		ajax         : fAjax,        //ajax方法
+		beforeSend   : $H.noop,      //发送前处理
+		error        : $H.noop,      //错误处理
+		success      : $H.noop       //成功处理
 	});
 	
 	/**
 	 * ajax
-	 * @method
+	 * @method ajax
+	 * @param {Object}oParams
 	 * 
 	 */
-	function fAjax(){
-		return ;
+	function fAjax(oParams){
+		var me=this;
+		me.beforeSend(oParams);
+		oParams.error=$HF.intercept(me.error,oParams.error);
+		oParams.success=$HF.intercept(me.success,oParams.error);
+		return $.ajax(oParams);
 	}
 	
 	return AbstractDao;
