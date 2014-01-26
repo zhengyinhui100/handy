@@ -40,18 +40,18 @@ function(AC){
 		
 		
 		tmpl            : [
-			'<div class="w-dialog w-overlay-shadow">',
+			'<div class="hui-dialog hui-overlay-shadow">',
 				'<%=this.getHtml("$>Toolbar")%>',
-				'<div class="w-dialog-body">',
+				'<div class="hui-dialog-body">',
 					'<%if(this.content){%><%=this.content%><%}else{%>',
-						'<div class="w-body-content">',
-							'<h1 class="w-content-title"><%=this.contentTitle%></h1>',
-							'<div class="w-content-msg"><%=this.contentMsg%></div>',
+						'<div class="hui-body-content">',
+							'<h1 class="hui-content-title"><%=this.contentTitle%></h1>',
+							'<div class="hui-content-msg"><%=this.contentMsg%></div>',
 							'<%=this.getHtml("$>[role=\'content\']")%>',
 						'</div>',
 					'<%}%>',
 					'<%if(!this.noAction){%>',
-						'<div class="w-body-action">',
+						'<div class="hui-body-action">',
 						'<%=this.getHtml("$>Button")%>',
 						'</div>',
 					'<%}%>',
@@ -136,11 +136,11 @@ function(AC){
 				xtype:'Toolbar',
 				title:me.title,
 				theme:'gray',
-				extCls:'w-dialog-header',
+				extCls:'hui-dialog-header',
 				items:!me.noClose&&{
 					xtype:'Button',
 					radius:'big',
-					extCls:'w-tbar-btn-left',
+					extCls:'hui-tbar-btn-left',
 					icon:'delete',
 					click:function(){
 						me.hide();

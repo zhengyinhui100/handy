@@ -22,10 +22,10 @@ function(AC){
 		},
 		
 		tmpl            : [
-			'<div class="w-tab">',
+			'<div class="hui-tab">',
 				'<ul class="c-clear">',
 					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
-					'<li class="js-tab-item w-tab-item" style="width:<%=100/len%>%">',
+					'<li class="js-tab-item hui-tab-item" style="width:<%=100/len%>%">',
 					'<%=this.children[i].getHtml()%>',
 					'</li>',
 					'<%}%>',

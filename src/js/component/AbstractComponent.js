@@ -33,7 +33,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		renderBy            : 'append',          //默认渲染方式
 //		notListen           : false,             //不自动初始化监听器
 //		extCls              : '',                //组件附加class
-		activeCls           : 'w-active',        //激活样式
+		activeCls           : 'hui-active',        //激活样式
 //		defItem             : null,              //默认子组件配置
 //		icon                : null,              //图标
 //		withMask            : false,             //是否有遮罩层
@@ -273,34 +273,34 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 			aCls.push(me.extCls);
 		}
 		if(me.theme){
-			aCls.push('w-'+me.cls+'-'+me.theme);
+			aCls.push('hui-'+me.cls+'-'+me.theme);
 		}
 		if(me.disabled){
-			aCls.push('w-disable');
+			aCls.push('hui-disable');
 		}
 		if(me.radius){
-			aCls.push('w-radius-'+me.radius);
+			aCls.push('hui-radius-'+me.radius);
 		}
 		if(me.isMini){
-			aCls.push('w-mini');
+			aCls.push('hui-mini');
 		}
 		if(me.shadow){
-			aCls.push('w-shadow');
+			aCls.push('hui-shadow');
 		}
 		if(me.shadowSurround){
-			aCls.push('w-shadow-surround');
+			aCls.push('hui-shadohui-surround');
 		}
 		if(me.shadowInset){
-			aCls.push('w-shadow-inset');
+			aCls.push('hui-shadohui-inset');
 		}
 		if(me.isActive){
 			aCls.push(me.activeCls);
 		}
 		if(me.isFocus){
-			aCls.push('w-focus');
+			aCls.push('hui-focus');
 		}
 		if(me.isInline){
-			aCls.push('w-inline');
+			aCls.push('hui-inline');
 		}
 		return aCls.length>0?aCls.join(' ')+' ':'';
 	}
@@ -381,7 +381,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	function fEnable(){
 		var me=this;
 		me.resumeListeners();
-		me.getEl().removeClass("w-disable");
+		me.getEl().removeClass("hui-disable");
 	}
 	/**
 	 * 禁用
@@ -390,7 +390,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	function fDisable(){
 		var me=this;
 		me.suspendListeners();
-		me.getEl().addClass("w-disable");
+		me.getEl().addClass("hui-disable");
 	}
 	/**
 	 * 激活
@@ -414,7 +414,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	 */
 	function fMask(){
 		if(!AC.mask){
-			AC.mask=$('<div class="w-mask" style="display:none;"></div>').appendTo(document.body);
+			AC.mask=$('<div class="hui-mask" style="display:none;"></div>').appendTo(document.body);
 		}
 		AC.mask.show();
 	}

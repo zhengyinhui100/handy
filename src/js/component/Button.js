@@ -16,7 +16,7 @@ function(AC){
 //		isActive        : false,               //是否是激活状态
 //		icon            : null,                //图标名称
 		iconPos         : 'left',              //图标位置，"left"|"top"
-		activeCls       : 'w-btn-blue',        //激活样式
+		activeCls       : 'hui-btn-blue',        //激活样式
 		cls             : 'btn',               //组件样式名
 		
 		defItem         : {
@@ -29,10 +29,10 @@ function(AC){
 		shadow          : true,        	       //外阴影
 		isInline        : true,                //宽度自适应
 		
-		tmpl            : ['<a href="javascript:;" hidefocus="true" class="w-btn',
-							'<%if(!this.text){%> w-btn-icon-notxt<%}',
-							'if(this.hasIcon&&this.text){%> w-btn-icon-<%=this.iconPos%><%}%>">',
-							'<span class="w-btn-txt"><%=this.text%></span>',
+		tmpl            : ['<a href="javascript:;" hidefocus="true" class="hui-btn',
+							'<%if(!this.text){%> hui-btn-icon-notxt<%}',
+							'if(this.hasIcon&&this.text){%> hui-btn-icon-<%=this.iconPos%><%}%>">',
+							'<span class="hui-btn-txt"><%=this.text%></span>',
 							'<%=this.getHtml(">*")%>',
 							'</a>'],
 							

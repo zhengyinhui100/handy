@@ -36,8 +36,8 @@
 			var that=this;
 			var html=[
 			    '<div id="<%=this.id%>" class="c-tipsbox ',settings.extClass||'','" style="',settings.width?'width:'+settings.width+'px':'','">',
-					'<div class="w-triangle-top">',
-						'<div class="w-triangle-top w-triangle-inner"></div>',
+					'<div class="hui-triangle-top">',
+						'<div class="hui-triangle-top hui-triangle-inner"></div>',
 					'</div>'];
 			if(!settings.noTitle){
 				html.push(
@@ -50,8 +50,8 @@
 					'<div class="c-tipsbox-content">',
 					settings.content,
 					'</div>',
-					'<div class="w-triangle-bottom" style="display:none">',
-						'<div class="w-triangle-bottom w-triangle-inner"></div>',
+					'<div class="hui-triangle-bottom" style="display:none">',
+						'<div class="hui-triangle-bottom hui-triangle-inner"></div>',
 					'</div>',
 					'</div>'
 			);
@@ -102,7 +102,7 @@
 				//10是三角形尖到提示框上边界的距离
 				y=y+triggerHeight+10;
 				x=x-width;
-				tipsbox.find('.w-triangle-top').css({
+				tipsbox.find('.hui-triangle-top').css({
 					right:'10px'
 				});
 			}else if(posType=="rightBottom"){
@@ -112,8 +112,8 @@
 			}else if(posType=="leftTop"){
 				y=y-height;
 				x=x-width;
-				tipsbox.find('.w-triangle-top').hide();
-				tipsbox.find('.w-triangle-bottom').css({
+				tipsbox.find('.hui-triangle-top').hide();
+				tipsbox.find('.hui-triangle-bottom').css({
 					right:'10px'
 				}).show();
 			}else if(posType=="rightTop"){
@@ -121,8 +121,8 @@
 				y=y-height-12;
 				//20是三角形尖到提示框左边界的距离
 				x-=20;
-				tipsbox.find('.w-triangle-top').hide();
-				tipsbox.find('.w-triangle-bottom').show();
+				tipsbox.find('.hui-triangle-top').hide();
+				tipsbox.find('.hui-triangle-bottom').show();
 			}
 			
 			tipsbox.css({

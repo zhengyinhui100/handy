@@ -1,11 +1,11 @@
-//组件，class以"w-"开头，次级以上级名称为命名前缀，如上级名为w-list-item,则次级以w-item-为前缀
+//组件，class以"hui-"开头，次级以上级名称为命名前缀，如上级名为hui-list-item,则次级以hui-item-为前缀
 
 @import "function.less";
 @import "base64img.less";
 
 
 //图标
-.w-icon{
+.hui-icon{
 	width:22px;
 	height:22px;
 	.fn_inline_block();
@@ -14,7 +14,7 @@
 	vertical-align:middle;
 	//background-image:url("../img/global.png");
 }
-.w-icon-bg{
+.hui-icon-bg{
 	background-color: #666;
 	background-color:rgba(0,0,0,.4);
 	background-repeat: no-repeat;
@@ -22,7 +22,7 @@
 }
 
 //按钮
-.w-btn{
+.hui-btn{
 	position: relative;
 	text-decoration:none;
 	display: block;
@@ -53,11 +53,11 @@
 	}
 }
 //内联按钮（自适应宽度）
-.w-inline{
+.hui-inline{
 	.fn_inline_block();
 }
 //激活按钮
-.w-btn-active {
+.hui-btn-active {
 	border: 1px solid #2373a5;
 	background: #5393c5;
 	color: #fff;
@@ -66,11 +66,11 @@
 	text-decoration: none;
 	.fn_linear_gradient_top(#5f9cc5,#6facd5);
 }
-.w-btn-active:hover{
-	.w-btn-active;
+.hui-btn-active:hover{
+	.hui-btn-active;
 }
 //黑色
-.w-btn-black{
+.hui-btn-black{
 	border: 1px solid #111;
 	background: #333;
 	color: #fff;
@@ -87,17 +87,17 @@
 	
 }
 //后退箭头按钮
-.w-btn-back.w-btn-black{
+.hui-btn-back.hui-btn-black{
 	overflow:visible;
 	margin-left:15px;
 }
-.w-btn-back.w-btn-black:before{
+.hui-btn-back.hui-btn-black:before{
 	content:'';
 	position:absolute;
 }
 //支持css3
 .hui-mi-csstransforms{
-	.w-btn-back.w-btn-black:before{
+	.hui-btn-back.hui-btn-black:before{
 		left:-0.65em;
 		top:0.25em;
 		width:1.33em;
@@ -108,24 +108,24 @@
 		.fn_transform(~"rotate(135deg)");
 		.fn_linear_gradient_deg45(#444,#2d2d2d);
 	}
-	.w-btn-back.w-btn-black.w-shadow-surround:before{
+	.hui-btn-back.hui-btn-black.hui-shadohui-surround:before{
 		left:-11px;
 		top:5px;
 		//.fn_box_shadow(~"1px 0 0 rgba(255,255,255,.3),inset 0 -1px 0 rgba(255,255,255,.3)");
 	}
-	.w-btn-back.w-btn-black:hover:before{
+	.hui-btn-back.hui-btn-black:hover:before{
 		background-color:#444;
 		.fn_linear_gradient_deg45(#555,#383838);
 	}
 	//小号后退按钮
-	.w-btn-back.w-btn-black.w-mini:before{
+	.hui-btn-back.hui-btn-black.hui-mini:before{
 		left:-10px;
 		top:4px;
 	}
 }
 //不支持css3时直接用border实现不渐变的三角形
 .hui-mi-no-csstransforms{
-	.w-btn-back.w-btn-black{
+	.hui-btn-back.hui-btn-black{
 		border-left:0;
 		&:before{
 			left:-2em;
@@ -137,13 +137,13 @@
 			border-right-color:#444;
 		}
 	}
-	.w-btn-back.w-btn-black.w-mini:before{
+	.hui-btn-back.hui-btn-black.hui-mini:before{
 		left:-2.1em;
 		border-width:1.105em;
 	}
 }
 //蓝色按钮
-.w-btn-blue{
+.hui-btn-blue{
 	border: 1px solid #044062;
 	background: #396b9e;
 	color: #fff;
@@ -159,51 +159,51 @@
 	}
 }
 //带图标按钮
-.w-btn-icon-left{
+.hui-btn-icon-left{
 	padding-left:40px;
-	.w-icon{
+	.hui-icon{
 		position:absolute;
 		top:50%;
 		margin-top:-11px;
 		left:10px;
 	}
-	&.w-mini{
-		.w-icon{
+	&.hui-mini{
+		.hui-icon{
 			margin-top:-9px;
 		}
 		padding-left:35px;
 	}
 }
-.w-btn-icon-top{
+.hui-btn-icon-top{
 	padding-top:25px;
 	padding-bottom:0;
 	font-size:12px;
-	.w-icon{
+	.hui-icon{
 		position:absolute;
 		left:50%;
 		margin-left:-11px;
 		top:2px;
 	}
 }
-.w-btn-icon-notxt{
+.hui-btn-icon-notxt{
 	padding:0;
 	width:28px;
 	height:28px;
-	.w-icon{
+	.hui-icon{
 		margin: 3px 1px 2px 1px;
 	}
 }
 
 //输入框
-.w-input{
+.hui-input{
 	padding: 0 .4em;
 	position: relative;
 	border: 1px solid #aaa;
 	color: #333;
 	text-shadow: 0 1px 0 #fff;
 	background: #f9f9f9;
-	.w-shadow-inset();
-	.w-input-txt,.w-textarea{
+	.hui-shadohui-inset();
+	.hui-input-txt,.hui-textarea{
 		border: 0;
 		width: 100%;
 		padding: .4em 0;
@@ -215,66 +215,66 @@
 		line-height: 1.4em;
 		font-size: 16px;
 	}
-	.w-textarea{
+	.hui-textarea{
 		outline: 0;
     	.fn_transition(height 200ms linear);
     	.fn_box_sizing();
 	}
 }
-.w-input-icon-left{
+.hui-input-icon-left{
 	padding-left:40px;
-	.w-icon{
+	.hui-icon{
 		position:absolute;
 		left:10px;
 		top:50%;
 		margin-top:-11px;
 	}
 }
-.w-input-btn-right{
+.hui-input-btn-right{
 	padding-right:40px;
-	.w-btn{
+	.hui-btn{
 		position:absolute;
 		right:10px;
 		top:50%;
 		margin-top:-13px;
 	}
-	.w-btn-icon-notxt{
+	.hui-btn-icon-notxt{
 		margin-top:-15px;
 	}
 }
 
 //普通表单
-.w-form{
-	.w-form-tips{
+.hui-form{
+	.hui-form-tips{
 		text-align:center;
 	}
-	.w-form-field{
+	.hui-form-field{
 		margin:1em 0;
 	}
-	.w-form-left{
+	.hui-form-left{
 		width:20%;
 		text-align:right;
 		.fn_inline_block();
 		vertical-align:middle;
 	}
-	.w-form-vt{
+	.hui-form-vt{
 		vertical-align:top;
 	}
-	.w-form-right{
+	.hui-form-right{
 		width:78%;
 		vertical-align:middle;
 		.fn_inline_block();
 	}
-	.w-form-action{
+	.hui-form-action{
 		padding-left:22%;
-		.w-btn{
+		.hui-btn{
 			margin-right:30px;
 		}
 	}
 }
 
 //工具栏
-.w-tbar{
+.hui-tbar{
 	position: relative;
 	zoom: 1;
 	width:100%;
@@ -284,7 +284,7 @@
 	font-weight: 700;
 	text-shadow: 0 -1px 0 #000;
 	.fn_linear_gradient_top(#3c3c3c,#111);
-	.w-tbar-title{
+	.hui-tbar-title{
 		min-height: 1.1em;
 		text-align: center;
 		font-size: 16px;
@@ -295,70 +295,70 @@
 		white-space: nowrap;
 		outline: 0!important;
 	}
-	.w-tbar-btn-left,.w-tbar-btn-right{
+	.hui-tbar-btn-left,.hui-tbar-btn-right{
 		position:absolute;
 		top:50%;
 		margin-top:-16px;
 	}
-	.w-tbar-btn-left{
+	.hui-tbar-btn-left{
 		left:5px;
 	}
-	.w-tbar-btn-right{
+	.hui-tbar-btn-right{
 		right:5px;
 	}
-	.w-btn-icon-notxt{
+	.hui-btn-icon-notxt{
 		margin-top:-15px;
 	}
 }
-.w-tbar-gray{
+.hui-tbar-gray{
 	border: 1px solid #bbb;
 	background: #bbb;
 	color: #333;
 	text-shadow: 0 1px 0 #eee;
 	.fn_linear_gradient_top(#ddd,#bbb);
 }
-.w-header{
+.hui-header{
 	position:fixed;
 	left:0;
 	top:0;
 }
-.w-footer{
+.hui-footer{
 	position:fixed;
 	bottom:0;
 	left:0
 }
 //标签栏
-.w-tab{
-	.w-tab-item{
-		.w-btn{
+.hui-tab{
+	.hui-tab-item{
+		.hui-btn{
 			margin:0;
 			padding-left:0;
 			padding-right:0;
 		}
 		float:left;
-		&:last-child .w-btn{
+		&:last-child .hui-btn{
 			border-right-width:1px;
 		}
 	}
-	.w-btn{
+	.hui-btn{
 		border-right-width:0;
 	}
 }
 //对话框
-.w-dialog{
+.hui-dialog{
 	width: 92.5%;
 	max-width: 500px;
 	padding: 0;
 	position: absolute;
 	top: -15px;
 	z-index: 1000;
-	.w-dialog-header{
+	.hui-dialog-header{
 		border: 0;
 		overflow: hidden;
 		padding: 0;
 		.fn_border_radius_top(inherit);
 	}
-	.w-dialog-body{
+	.hui-dialog-body{
 		color: #333;
 		text-shadow: 0 1px 0 #fff;
 		background: #f9f9f9;
@@ -368,51 +368,51 @@
 		margin: 0;
 		border-width: 0;
 		overflow: visible;
-		overflow-x: hidden;
+		overflohui-x: hidden;
 		.fn_border_radius_bottom(inherit);
 		.fn_linear_gradient_top(#f9f9f9,#eee);
 	}
-	.w-body-content{
+	.hui-body-content{
 		padding:15px;
 	}
-	.w-body-action{
+	.hui-body-action{
 		padding:0 15px 15px 15px;
 	}
-	.w-content-title{
+	.hui-content-title{
 		font-size:2em;
 		font-weight:bold;
 	}
-	.w-content-msg{
+	.hui-content-msg{
 		margin:10px 0 10px 0;
 	}
 }
 
 //列表
-.w-list{
-	.w-list-item{
+.hui-list{
+	.hui-list-item{
 		position:relative;
 		border-bottom:1px solid #a1a1a1;
 		padding:5px;
 	}
-	.w-item-image{
+	.hui-item-image{
 		float:left;
 	}
-	.w-item-content{
+	.hui-item-content{
 		float:left;
 	}
-	.w-item-title{
+	.hui-item-title{
 		.fn_text_overflow();
 		color:#505050;
 		font-size:16px;
 		padding-bottom:5px;
 	}
-	.w-item-desc{
+	.hui-item-desc{
 		.fn_text_overflow();
 		font-size:12px;
 		color:#7a7a7a;
 		padding-bottom:1px;
 	}
-	.w-item-link{
+	.hui-item-link{
 		position:absolute;
 		background-position:-215px -36px;
 		margin-top:-18px;
@@ -424,43 +424,43 @@
 }
 //公用效果
 //圆角
-.w-radius-little{
+.hui-radius-little{
 	.fn_border_radius(.3em);
 	-webkit-background-clip: padding;
 	background-clip: padding-box;
 }
-.w-radius-normal{
+.hui-radius-normal{
 	.fn_border_radius(.4em);
 	-webkit-background-clip: padding;
 	background-clip: padding-box;
 }
-.w-radius-big{
+.hui-radius-big{
 	.fn_border_radius(1em);
 	-webkit-background-clip: padding;
 	background-clip: padding-box;
 }
 //阴影
-.w-shadow{
+.hui-shadow{
 	.fn_box_shadow( 0 1px 3px rgba(0,0,0,.2));
 }
 //内阴影
-.w-shadow-inset{
+.hui-shadohui-inset{
 	.fn_box_shadow(inset 0 1px 4px rgba(0,0,0,.2));
 }
 //覆盖层阴影
-.w-overlay-shadow{
+.hui-overlay-shadow{
 	.fn_box_shadow(0 0px 12px rgba(0,0,0,.6));
 }
 //（黑色工具栏内按钮）亮阴影
-.w-shadow-surround {
+.hui-shadohui-surround {
 	.fn_box_shadow(~"0 1px 0 rgba(255,255,255,.3),inset 0 1px 0 rgba(255,255,255,.3)");
 }
 //聚焦
-.w-focus{
+.hui-focus{
 	.fn_box_shadow(0 0 12px #387bbe);
 }
 //禁止
-.w-disable{
+.hui-disable{
 	cursor: default!important;
 	pointer-events: none;
 	zoom: 1;
@@ -468,18 +468,18 @@
 	z-index: 1;
 }
 //小尺寸
-.w-mini{
+.hui-mini{
 	margin-top: .25em;
 	margin-bottom: .25em;
 	font-size: 12.5px;
 	padding-top: .55em 11px .5em;
-	.w-icon{
+	.hui-icon{
 		width:18px;
 		height:18px;
 	}
 }
 //遮罩层
-.w-mask{
+.hui-mask{
 	position: absolute;
 	z-index: 998;
 	left: 0;
@@ -492,7 +492,7 @@
 	.fn_opacity(0.2);
 }
 //loading
-.w-loading{
+.hui-loading{
 	z-index: 9999999;
 	position: fixed;
 	top: 50%;

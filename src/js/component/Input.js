@@ -21,24 +21,24 @@ function(AC){
 		btnPos          : 'right',             //按钮位置
 		
 		tmpl            : [
-		'<div class="w-input<%if(this.hasIcon){%> w-input-icon-<%=this.iconPos%><%}%>',
-		'<%if(this.hasBtn){%> w-input-btn-<%=this.btnPos%><%}%>">',
+		'<div class="hui-input<%if(this.hasIcon){%> hui-input-icon-<%=this.iconPos%><%}%>',
+		'<%if(this.hasBtn){%> hui-input-btn-<%=this.btnPos%><%}%>">',
 			'<%=this.getHtml(">*")%>',
-			'<input type="text" class="js-input w-input-txt" value="<%=this.value%>"<%if(this.placeholder){%> placeholder="<%=this.placeholder%><%}%>"/>',
+			'<input type="text" class="js-input hui-input-txt" value="<%=this.value%>"<%if(this.placeholder){%> placeholder="<%=this.placeholder%><%}%>"/>',
 		'</div>'],
 		listeners       : [
 			{
 				type : 'focus',
 				el : '.js-input',
 				handler : function(){
-					this.getEl().addClass('w-focus');
+					this.getEl().addClass('hui-focus');
 				}
 			},
 			{
 				type : 'blur',
 				el : '.js-input',
 				handler : function(){
-					this.getEl().removeClass('w-focus');
+					this.getEl().removeClass('hui-focus');
 				}
 			}
 		],

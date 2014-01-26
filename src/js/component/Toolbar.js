@@ -17,9 +17,9 @@ function(AC){
 //		type             : null,                //null|'header'|'footer'
 		
 		tmpl             : [
-			'<div class="w-tbar<%if(this.type=="header"){%> w-header<%}else if(this.type=="footer"){%> w-footer<%}%>">',
+			'<div class="hui-tbar<%if(this.type=="header"){%> hui-header<%}else if(this.type=="footer"){%> hui-footer<%}%>">',
 				'<%=this.getHtml(">*")%>',
-				'<%if(this.title){%><h1 class="w-tbar-title"><%=this.title%></h1><%}%>',
+				'<%if(this.title){%><h1 class="hui-tbar-title"><%=this.title%></h1><%}%>',
 			'</div>'
 		],
 		
@@ -35,9 +35,9 @@ function(AC){
 		if(oItem.xtype=='Button'){
 			oItem.shadowSurround=true;
 			if(oItem.pos=='left'){
-				oItem.extCls=(oItem.extCls||"")+'w-tbar-btn-left';
+				oItem.extCls=(oItem.extCls||"")+'hui-tbar-btn-left';
 			}else if(oItem.pos=="right"){
-				oItem.extCls=(oItem.extCls||"")+'w-tbar-btn-right';
+				oItem.extCls=(oItem.extCls||"")+'hui-tbar-btn-right';
 			}
 		}
 	}

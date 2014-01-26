@@ -62,10 +62,10 @@
 				html.push(
 					'<div class="action">');
 				if(!settings.noOkBtn){
-					html.push('<a class="w-button w-button-blue to-right js-ok">',settings.okTxt||'确定','</a>');
+					html.push('<a class="hui-button hui-button-blue to-right js-ok">',settings.okTxt||'确定','</a>');
 				}
 				if(!settings.noCancelBtn){
-					html.push('<a class="w-button w-button-gray js-cancel">',settings.cancelTxt||'取消','</a>');
+					html.push('<a class="hui-button hui-button-gray js-cancel">',settings.cancelTxt||'取消','</a>');
 				}
 				html.push(
 					'</div>');
