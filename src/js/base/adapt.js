@@ -5,6 +5,8 @@
 	
 	//框架全局变量
 	$H=$.noConflict();
+	H=$H;
+	Hui=$H;
 	$D=$H.Debug;
 	$HB=$H.Browser;
 	$HC=$H.Cookie;
