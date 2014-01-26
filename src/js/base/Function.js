@@ -45,7 +45,7 @@ handy.add('Function',function($H){
 		                oInterScope.target = oExScope;
 		                oInterScope.method = fExecFunc;
 		                return fInterceptFunc.apply(oInterScope, args) != false ?
-				                   fExecFunc.apply(oExScope, args) :null;
+				                   fExecFunc.apply(oExScope, args) :false;
 				   };
 		}
 	}
