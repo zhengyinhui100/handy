@@ -86,6 +86,62 @@
 	}
 	
 }
+//后退箭头按钮
+.w-btn-back.w-btn-black{
+	overflow:visible;
+	margin-left:15px;
+}
+.w-btn-back.w-btn-black:before{
+	content:'';
+	position:absolute;
+}
+//支持css3
+.hui-mi-csstransforms{
+	.w-btn-back.w-btn-black:before{
+		left:-0.65em;
+		top:0.25em;
+		width:1.33em;
+		height:1.33em;
+		border-right: 1px solid #111;
+		border-bottom: 1px solid #111;
+		background-color:#333;
+		.fn_transform(~"rotate(135deg)");
+		.fn_linear_gradient_deg45(#444,#2d2d2d);
+	}
+	.w-btn-back.w-btn-black.w-shadow-surround:before{
+		left:-11px;
+		top:5px;
+		//.fn_box_shadow(~"1px 0 0 rgba(255,255,255,.3),inset 0 -1px 0 rgba(255,255,255,.3)");
+	}
+	.w-btn-back.w-btn-black:hover:before{
+		background-color:#444;
+		.fn_linear_gradient_deg45(#555,#383838);
+	}
+	//小号后退按钮
+	.w-btn-back.w-btn-black.w-mini:before{
+		left:-10px;
+		top:4px;
+	}
+}
+//不支持css3时直接用border实现不渐变的三角形
+.hui-mi-no-csstransforms{
+	.w-btn-back.w-btn-black{
+		border-left:0;
+		&:before{
+			left:-2em;
+			top:0;
+			border:1.01em solid transparent;
+			border-right:1.01em solid #333;
+		}
+		&:hover:before{
+			border-right-color:#444;
+		}
+	}
+	.w-btn-back.w-btn-black.w-mini:before{
+		left:-2.1em;
+		border-width:1.105em;
+	}
+}
 //蓝色按钮
 .w-btn-blue{
 	border: 1px solid #044062;

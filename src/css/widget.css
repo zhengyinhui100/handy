@@ -184,6 +184,67 @@
 
   background-image: linear-gradient(#555555, #383838);
 }
+.w-btn-back.w-btn-black {
+  overflow: visible;
+  margin-left: 15px;
+}
+.w-btn-back.w-btn-black:before {
+  content: '';
+  position: absolute;
+}
+.hui-mi-csstransforms .w-btn-back.w-btn-black:before {
+  left: -0.65em;
+  top: 0.25em;
+  width: 1.33em;
+  height: 1.33em;
+  border-right: 1px solid #111;
+  border-bottom: 1px solid #111;
+  background-color: #333;
+  -moz-transform: rotate(135deg);
+  -webkit-transform: rotate(135deg);
+  -o-transform: rotate(135deg);
+  -ms-transform: rotate(135deg);
+  transform: rotate(135deg);
+  background-image: -webkit-gradient(linear, 0 100%, 100% 0%, from(#444444), to(#2d2d2d));
+  background-image: -webkit-linear-gradient(45deg, #444444, #2d2d2d);
+  background-image: -moz-linear-gradient(45deg, #444444, #2d2d2d);
+  background-image: -ms-linear-gradient(45deg, #444444, #2d2d2d);
+  background-image: -o-linear-gradient(45deg, #444444, #2d2d2d);
+  background-image: linear-gradient(45deg, #444444, #2d2d2d);
+}
+.hui-mi-csstransforms .w-btn-back.w-btn-black.w-shadow-surround:before {
+  left: -11px;
+  top: 5px;
+}
+.hui-mi-csstransforms .w-btn-back.w-btn-black:hover:before {
+  background-color: #444;
+  background-image: -webkit-gradient(linear, 0 100%, 100% 0%, from(#555555), to(#383838));
+  background-image: -webkit-linear-gradient(45deg, #555555, #383838);
+  background-image: -moz-linear-gradient(45deg, #555555, #383838);
+  background-image: -ms-linear-gradient(45deg, #555555, #383838);
+  background-image: -o-linear-gradient(45deg, #555555, #383838);
+  background-image: linear-gradient(45deg, #555555, #383838);
+}
+.hui-mi-csstransforms .w-btn-back.w-btn-black.w-mini:before {
+  left: -10px;
+  top: 4px;
+}
+.hui-mi-no-csstransforms .w-btn-back.w-btn-black {
+  border-left: 0;
+}
+.hui-mi-no-csstransforms .w-btn-back.w-btn-black:before {
+  left: -2em;
+  top: 0;
+  border: 1.01em solid transparent;
+  border-right: 1.01em solid #333;
+}
+.hui-mi-no-csstransforms .w-btn-back.w-btn-black:hover:before {
+  border-right-color: #444;
+}
+.hui-mi-no-csstransforms .w-btn-back.w-btn-black.w-mini:before {
+  left: -2.1em;
+  border-width: 1.105em;
+}
 .w-btn-blue {
   border: 1px solid #044062;
   background: #396b9e;

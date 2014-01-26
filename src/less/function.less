@@ -82,6 +82,14 @@
 	//filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#1471da, endColorstr=#1C85FB);/*IE<9>*/
 	//-ms-filter: "progid:DXImageTransform.Microsoft.gradient (GradientType=0, startColorstr=#1471da, endColorstr=#1C85FB)";/*IE8+*/
 }
+.fn_linear_gradient_deg45(@from,@to){
+  background-image: -webkit-gradient(linear,0 100%,100% 0%,from(@from),to(@to));
+  background-image: -webkit-linear-gradient(45deg, @from , @to);
+  background-image:    -moz-linear-gradient(45deg, @from , @to);
+  background-image:     -ms-linear-gradient(45deg, @from , @to );
+  background-image:      -o-linear-gradient(45deg, @from , @to);
+  background-image:         linear-gradient(45deg, @from , @to );
+}
 //linear-gradient(start point, from , to )
 //http://www.w3cplus.com/node/44
 .fn_transition(@transition){
