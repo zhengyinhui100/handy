@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-01-22 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-01-27 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -16,7 +16,8 @@
 	handy.version    = '1.0.0';    //版本号
 	handy.expando    = "handy" + ( handy.version + Math.random() ).replace( /\D/g, "" );    //自定义属性名
 	handy.add        = fAdd;            //添加子模块
-	handy.noConflict = fNoConflict;   //处理命名冲突
+	handy.noConflict = fNoConflict;     //处理命名冲突
+	handy.noop       = function(){};    //空函数
 	
 	
 	/**
@@ -1276,7 +1277,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 		WARN_LEVEL  : 3,            //警告级别
 		ERROR_LEVEL	: 4,            //错误级别
 		DEBUG_LEVEL : 5,            //调试级别
-		showInPage  : !("console" in window)||!!Browser.mobile(),        //是否强制在页面上输出调试信息，主要用于不支持console的浏览器，如：IE6，或者ietester里面，或者移动浏览器
+//		showInPage  : !("console" in window)||!!Browser.mobile(),        //是否强制在页面上输出调试信息，主要用于不支持console的浏览器，如：IE6，或者ietester里面，或者移动浏览器
 		log			: fLog,		    //输出日志
 		info		: fInfo,		//输出信息
 		warn        : fWarn,        //输出警告信息
@@ -1460,7 +1461,7 @@ handy.add('Function',function($H){
 	 * @return  {function()}    返回新构造的函数
 	 */
 	function fIntercept(fExecFunc,fInterceptFunc,oExecScope,oInterceptScope) {
-		if($H.Object.isFunction(fInterceptFunc)){
+		if($H.Object.isFunction(fExecFunc)&&$H.Object.isFunction(fInterceptFunc)){
 			return function() {
 						var oExScope=oExecScope||this;
 						var oInterScope={};
@@ -1469,9 +1470,10 @@ handy.add('Function',function($H){
 		                oInterScope.target = oExScope;
 		                oInterScope.method = fExecFunc;
 		                return fInterceptFunc.apply(oInterScope, args) != false ?
-				                   fExecFunc.apply(oExScope, args) :null;
+				                   fExecFunc.apply(oExScope, args) :false;
 				   };
 		}
+		return fExecFunc;
 	}
 	
 	return Function;
@@ -2805,6 +2807,8 @@ handy.add('Support',function($H){
 	
 	//框架全局变量
 	$H=$.noConflict();
+	H=$H;
+	Hui=$H;
 	$D=$H.Debug;
 	$HB=$H.Browser;
 	$HC=$H.Cookie;
@@ -3021,12 +3025,12 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		renderBy            : 'append',          //默认渲染方式
 //		notListen           : false,             //不自动初始化监听器
 //		extCls              : '',                //组件附加class
-		activeCls           : 'w-active',        //激活样式
+		activeCls           : 'hui-active',        //激活样式
 //		defItem             : null,              //默认子组件配置
 //		icon                : null,              //图标
 //		withMask            : false,             //是否有遮罩层
 		////通用效果
-//		color               : null,              //组件颜色
+//		theme               : null,              //组件颜色
 //		radius              : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 //		shadow              : false,        	 //外阴影
 //		shadowInset         : false,        	 //内阴影
@@ -3260,35 +3264,35 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		if(me.extCls){
 			aCls.push(me.extCls);
 		}
-		if(me.color){
-			aCls.push('w-'+me.cls+'-'+me.color);
+		if(me.theme){
+			aCls.push('hui-'+me.cls+'-'+me.theme);
 		}
 		if(me.disabled){
-			aCls.push('w-disable');
+			aCls.push('hui-disable');
 		}
 		if(me.radius){
-			aCls.push('w-radius-'+me.radius);
+			aCls.push('hui-radius-'+me.radius);
 		}
 		if(me.isMini){
-			aCls.push('w-mini');
+			aCls.push('hui-mini');
 		}
 		if(me.shadow){
-			aCls.push('w-shadow');
+			aCls.push('hui-shadow');
 		}
 		if(me.shadowSurround){
-			aCls.push('w-shadow-surround');
+			aCls.push('hui-shadow-surround');
 		}
 		if(me.shadowInset){
-			aCls.push('w-shadow-inset');
+			aCls.push('hui-shadow-inset');
 		}
 		if(me.isActive){
 			aCls.push(me.activeCls);
 		}
 		if(me.isFocus){
-			aCls.push('w-focus');
+			aCls.push('hui-focus');
 		}
 		if(me.isInline){
-			aCls.push('w-inline');
+			aCls.push('hui-inline');
 		}
 		return aCls.length>0?aCls.join(' ')+' ':'';
 	}
@@ -3369,7 +3373,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	function fEnable(){
 		var me=this;
 		me.resumeListeners();
-		me.getEl().removeClass("w-disable");
+		me.getEl().removeClass("hui-disable");
 	}
 	/**
 	 * 禁用
@@ -3378,7 +3382,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	function fDisable(){
 		var me=this;
 		me.suspendListeners();
-		me.getEl().addClass("w-disable");
+		me.getEl().addClass("hui-disable");
 	}
 	/**
 	 * 激活
@@ -3402,7 +3406,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	 */
 	function fMask(){
 		if(!AC.mask){
-			AC.mask=$('<div class="w-mask" style="display:none;"></div>').appendTo(document.body);
+			AC.mask=$('<div class="hui-mask" style="display:none;"></div>').appendTo(document.body);
 		}
 		AC.mask.show();
 	}
@@ -3457,6 +3461,12 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 					return oEvent.handler.apply(oEvent.scope||me,arguments);
 				}
 			};
+		//移动浏览器由于click可能会有延迟，这里转换为touchend事件
+		if($H.Browser.mobile()){
+			if(sType=="click"){
+				sType="touchend";
+			}
+		}
 		oEl=oEl?typeof oEl=='string'?me.find(oEl):oEl:me.getEl();
 		if(!oEvent.notEl){
 			if(sSel){
@@ -3494,6 +3504,12 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 			sMethod=oEvent.method=="delegate"?"undelegate":"unbind",
 			sSel=oEvent.selector,
 			fDelegation;
+		//移动浏览器由于click可能会有延迟，这里转换为touchend事件
+		if($H.Browser.mobile()){
+			if(sType=="click"){
+				sType="touchend";
+			}
+		}
 		for(var i=me._listeners.length-1;i>=0;i--){
 			var oListener=me._listeners[i]
 			if(oListener.handler==oEvent.handler){
@@ -3794,7 +3810,7 @@ function(AC){
 	//检查浏览器是否支持svg，不支持则添加标记class
 	$H.Support.testSvg(function(bSupport){
 		if(!bSupport){
-			$('html').addClass('w-nosvg');
+			$('html').addClass('hui-nosvg');
 		}
 	})
 	
@@ -3803,7 +3819,7 @@ function(AC){
 		hasBg           : true,               //是否有背景
 //		name            : '',                  //图标名称
 		
-		tmpl            : ['<span class="w-icon w-icon-<%=this.name%><%if(this.hasBg){%> w-icon-bg<%}%>"></span>']
+		tmpl            : ['<span class="hui-icon hui-icon-<%=this.name%><%if(this.hasBg){%> hui-icon-bg<%}%>"></span>']
 		
 	});
 	
@@ -3824,12 +3840,13 @@ function(AC){
 	$HO.extend(Button.prototype,{
 		//初始配置
 //		text            : '',                  //按钮文字
-//		color           : null,                //按钮颜色
 //		isActive        : false,               //是否是激活状态
 //		icon            : null,                //图标名称
 		iconPos         : 'left',              //图标位置，"left"|"top"
-		activeCls       : 'w-btn-blue',        //激活样式
+		theme           : 'gray',
+		activeCls       : 'hui-btn-blue',      //激活样式
 		cls             : 'btn',               //组件样式名
+//		isBack          : false,               //是否是后退按钮
 		
 		defItem         : {
 			xtype       : 'Icon',
@@ -3841,10 +3858,11 @@ function(AC){
 		shadow          : true,        	       //外阴影
 		isInline        : true,                //宽度自适应
 		
-		tmpl            : ['<a class="w-btn',
-							'<%if(!this.text){%> w-btn-icon-notxt<%}',
-							'if(this.hasIcon&&this.text){%> w-btn-icon-<%=this.iconPos%><%}%>">',
-							'<span class="w-btn-txt"><%=this.text%></span>',
+		tmpl            : ['<a href="javascript:;" hidefocus="true" class="hui-btn',
+							'<%if(!this.text){%> hui-btn-icon-notxt<%}',
+							'if(this.isBack){%> hui-btn-back<%}',
+							'if(this.hasIcon&&this.text){%> hui-btn-icon-<%=this.iconPos%><%}%>">',
+							'<span class="hui-btn-txt"><%=this.text%></span>',
 							'<%=this.getHtml(">*")%>',
 							'</a>'],
 							
@@ -3886,24 +3904,24 @@ function(AC){
 		btnPos          : 'right',             //按钮位置
 		
 		tmpl            : [
-		'<div class="w-input<%if(this.hasIcon){%> w-input-icon-<%=this.iconPos%><%}%>',
-		'<%if(this.hasBtn){%> w-input-btn-<%=this.btnPos%><%}%>">',
+		'<div class="hui-input<%if(this.hasIcon){%> hui-input-icon-<%=this.iconPos%><%}%>',
+		'<%if(this.hasBtn){%> hui-input-btn-<%=this.btnPos%><%}%>">',
 			'<%=this.getHtml(">*")%>',
-			'<input type="text" class="js-input w-input-txt" value="<%=this.value%>"<%if(this.placeholder){%> placeholder="<%=this.placeholder%><%}%>"/>',
+			'<input type="text" class="js-input hui-input-txt" value="<%=this.value%>"<%if(this.placeholder){%> placeholder="<%=this.placeholder%><%}%>"/>',
 		'</div>'],
 		listeners       : [
 			{
 				type : 'focus',
 				el : '.js-input',
 				handler : function(){
-					this.getEl().addClass('w-focus');
+					this.getEl().addClass('hui-focus');
 				}
 			},
 			{
 				type : 'blur',
 				el : '.js-input',
 				handler : function(){
-					this.getEl().removeClass('w-focus');
+					this.getEl().removeClass('hui-focus');
 				}
 			}
 		],
@@ -3996,10 +4014,10 @@ function(AC){
 		},
 		
 		tmpl            : [
-			'<div class="w-tab">',
+			'<div class="hui-tab">',
 				'<ul class="c-clear">',
 					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
-					'<li class="js-tab-item w-tab-item" style="width:<%=100/len%>%">',
+					'<li class="js-tab-item hui-tab-item" style="width:<%=100/len%>%">',
 					'<%=this.children[i].getHtml()%>',
 					'</li>',
 					'<%}%>',
@@ -4070,6 +4088,52 @@ function(AC){
 	return Tab;
 	
 });/**
+ * 工具栏类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-01-16
+ */
+
+$Define('c.Toolbar',
+'c.AbstractComponent',
+function(AC){
+	
+	var Toolbar=AC.define('Toolbar');
+	
+	$HO.extend(Toolbar.prototype,{
+		//初始配置
+//		title            : '',                  //标题
+		cls              : 'tbar',
+//		type             : null,                //null|'header'|'footer'
+		
+		tmpl             : [
+			'<div class="hui-tbar<%if(this.type=="header"){%> hui-header<%}else if(this.type=="footer"){%> hui-footer<%}%>">',
+				'<%=this.getHtml(">*")%>',
+				'<%if(this.title){%><h1 class="hui-tbar-title"><%=this.title%></h1><%}%>',
+			'</div>'
+		],
+		
+		parseItem        : fParseItem           //处理子组件配置
+		
+	});
+	/**
+	 * 处理子组件配置
+	 * @method parseItem
+	 * @param {object}oItem 子组件配置
+	 */
+	function fParseItem(oItem){
+		if(oItem.xtype=='Button'){
+			oItem.shadowSurround=true;
+			if(oItem.pos=='left'){
+				oItem.extCls=(oItem.extCls||"")+'hui-tbar-btn-left';
+			}else if(oItem.pos=="right"){
+				oItem.extCls=(oItem.extCls||"")+'hui-tbar-btn-right';
+			}
+		}
+	}
+	
+	return Toolbar;
+	
+});/**
  * 对话框类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-17
@@ -4111,18 +4175,18 @@ function(AC){
 		
 		
 		tmpl            : [
-			'<div class="w-dialog w-overlay-shadow">',
+			'<div class="hui-dialog hui-overlay-shadow">',
 				'<%=this.getHtml("$>Toolbar")%>',
-				'<div class="w-dialog-body">',
+				'<div class="hui-dialog-body">',
 					'<%if(this.content){%><%=this.content%><%}else{%>',
-						'<div class="w-body-content">',
-							'<h1 class="w-content-title"><%=this.contentTitle%></h1>',
-							'<div class="w-content-msg"><%=this.contentMsg%></div>',
+						'<div class="hui-body-content">',
+							'<h1 class="hui-content-title"><%=this.contentTitle%></h1>',
+							'<div class="hui-content-msg"><%=this.contentMsg%></div>',
 							'<%=this.getHtml("$>[role=\'content\']")%>',
 						'</div>',
 					'<%}%>',
 					'<%if(!this.noAction){%>',
-						'<div class="w-body-action">',
+						'<div class="hui-body-action">',
 						'<%=this.getHtml("$>Button")%>',
 						'</div>',
 					'<%}%>',
@@ -4206,12 +4270,12 @@ function(AC){
 			me.addItem({
 				xtype:'Toolbar',
 				title:me.title,
-				color:'gray',
-				extCls:'w-dialog-header',
+				theme:'gray',
+				extCls:'hui-dialog-header',
 				items:!me.noClose&&{
 					xtype:'Button',
 					radius:'big',
-					extCls:'w-tbar-btn-left',
+					extCls:'hui-tbar-btn-left',
 					icon:'delete',
 					click:function(){
 						me.hide();
@@ -4285,14 +4349,18 @@ $Define("m.AbstractModule","handy.base.Object",function (Object) {
 	var AbstractModule = Object.createClass();
 	
 	Object.extend(AbstractModule.prototype, {
-		isLoaded       : false,          //{boolean}模块是否已载入
-		isActived      : false,          //{boolean}模块是否是当前活跃的
-		//container    : null,           //{jQuery}模块的容器对象
+		
+//		_container     : null,           //{jQuery}模块的容器对象
+//		isLoaded       : false,          //{boolean}模块是否已载入
+//		isActived      : false,          //{boolean}模块是否是当前活跃的
+//		renderTo       : null,           //自定义模块容器，{jQuery}对象或选择器
+		                                 //模块初始化后以_container为准，获取需用getEl方法
 		useCache       : true,           //{boolean}是否使用cache
-		//name         : null,           //{string}模块名
-		//chName       : null,           //{string}模块的中文名称
-		//getData      : null,           //{function()}获取该模块的初始化数据
-		//clone        : null,           //{function()}克隆接口
+//		name           : null,           //{string}模块名
+//		chName         : null,           //{string}模块的中文名称
+		
+//		getData        : null,           //{function()}获取该模块的初始化数据
+//		clone          : null,           //{function()}克隆接口
 		cache          : function(){},   //显示模块缓存
 		init           : function(){},   //初始化函数, 在模块创建后调用（在所有模块动作之前）
 		beforeRender   : function(){},   //模块渲染前调用
@@ -4300,8 +4368,10 @@ $Define("m.AbstractModule","handy.base.Object",function (Object) {
 		afterRender    : function(){},   //模块渲染后调用
 		reset          : function(){},   //重置函数, 在该模块里进入该模块时调用
 		exit           : function(){return true},   //离开该模块前调用, 返回true允许离开, 否则不允许离开
+		destroy        : function(){},   //模块销毁
 		initialize     : fInitialize,    //模块类创建时初始化
-		getHtml        : fGetHtml        //获取该模块的html
+		getHtml        : fGetHtml,       //获取该模块的html
+		getEl          : fGetEl          //获取模块的容器节点
 	});
 	/**
 	 * 构造函数
@@ -4330,8 +4400,67 @@ $Define("m.AbstractModule","handy.base.Object",function (Object) {
 		var sHtml=$H.Template.tmpl({id:me.xtype,tmpl:me.tmpl},me);
 		return sHtml;
 	}
+	/**
+	 * 获取模块的容器节点
+	 * @method getEl
+	 */
+	function fGetEl(){
+		return this._container;
+	}
 	
 	return AbstractModule;
+});/****************************************************************
+* Author:		郑银辉											*
+* Email:		zhengyinhui100@gmail.com						*
+* Created:		2013-01-25										*
+*****************************************************************/
+/**
+ * 数据访问对象抽象类，模块的dao都要继承此类，dao内的方法只可以使用此类的方法进行数据操作，以便进行统一的管理
+ */
+//handy.module.AbstractDao
+$Define('m.AbstractDao',function(){
+	
+	var AbstractDao=$HO.createClass();
+	
+	$HO.extend(AbstractDao.prototype,{
+		ajax         : fAjax,        //ajax方法
+		beforeSend   : $H.noop,      //发送前处理
+		error        : $H.noop,      //错误处理
+		success      : $H.noop       //成功处理
+	});
+	
+	/**
+	 * ajax
+	 * @method ajax
+	 * @param {Object}oParams
+	 * 
+	 */
+	function fAjax(oParams){
+		var me=this;
+		me.beforeSend(oParams);
+		oParams.error=$HF.intercept(me.error,oParams.error);
+		oParams.success=$HF.intercept(me.success,oParams.error);
+		return $.ajax(oParams);
+	}
+	
+	return AbstractDao;
+	
+});/****************************************************************
+* Author:		郑银辉											*
+* Email:		zhengyinhui100@gmail.com						*
+* Created:		2013-01-25										*
+*****************************************************************/
+/**
+ * 视图抽象类，模块的视图都要继承此类
+ */
+//handy.module.AbstractView
+$Define('m.AbstractView',function(){
+	
+	var AbstractView=$HO.createClass();
+	
+	$HO.extend(AbstractView.prototype,{
+	});
+	
 });/****************************************************************
 * Author:		郑银辉											*
 * Email:		zhengyinhui100@gmail.com						*
@@ -4373,6 +4502,7 @@ function(HashChange){
 		initialize         : fInitialize,      //历史记录类初始化
 		stateChange        : fStateChange,     //历史状态改变
 		saveState          : fSaveState,       //保存当前状态
+		getHashParam       : fGetHashParam,    //获取当前hash参数
 		getCurrentState    : fGetCurrentState, //获取当前状态
 		getPreState        : fGetPreState,     //获取前一个状态
 		back               : fBack             //后退一步
@@ -4383,18 +4513,25 @@ function(HashChange){
 	 * @param {?string} sKey历史记录类的key，用于区分可能的多个history实例
 	 */
 	function fInitialize(sKey){
-		var that=this;
-		that.key=sKey||'handy';
-		that.states=[];
-		HashChange.listen($H.Function.bind(that.stateChange,that));
+		var me=this;
+		me.key=sKey||'handy';
+		me.states=[];
+		HashChange.listen($H.Function.bind(me.stateChange,me));
 	}
 	/**
 	 * 历史状态改变
 	 * @method stateChange
 	 */
 	function fStateChange(){
-		var that=this;
-		var oState=that.getCurrentState();
+		var me=this;
+		var oHashParam=me.getHashParam();
+		var sKey=oHashParam.hKey;
+		var aStates=me.states;
+		//跟当前状态一致，不需要调用stateChange，可能是saveState触发的hashchange
+		if(sKey==aStates[aStates.length-1]){
+			//return;
+		}
+		var oState=aStates[sKey];
 		if(oState){
 			oState.onStateChange(oState.param,true);
 		}
@@ -4408,10 +4545,10 @@ function(HashChange){
 	 * 	}
 	 */
 	function fSaveState(oState){
-		var that=this;
-		var sHistoryKey=that.key+(++_nIndex);
-		that.states.push(sHistoryKey);
-		that.states[sHistoryKey]=oState;
+		var me=this;
+		var sHistoryKey=me.key+(++_nIndex);
+		me.states.push(sHistoryKey);
+		me.states[sHistoryKey]=oState;
 		var oHashParam={
 			hKey    : sHistoryKey,
 			param : oState.param
@@ -4419,15 +4556,30 @@ function(HashChange){
 		$HU.setHash("#"+JSON.stringify(oHashParam));
 	}
 	/**
+	 * 获取当前hash参数
+	 * @method getHashParam
+	 * @return {object} 返回当前hash参数
+	 */
+	function fGetHashParam(){
+		var me=this;
+		try{
+			var sHash=$HU.getHash().replace("#","");
+			var oHashParam=JSON.parse(sHash);
+			return oHashParam;
+		}catch(e){
+			$H.Debug.warn("History.getCurrentState:parse hash error:"+e.message);
+		}
+	}
+	/**
 	 * 获取当前状态
 	 * @method getCurrentState
 	 * @return {object} 返回当前状态
 	 */
 	function fGetCurrentState(){
-		var that=this;
+		var me=this;
 		try{
-			var oHashParam=JSON.parse($HU.getHash().replace("#",""));
-			return that.states[oHashParam.hKey];
+			var oHashParam=me.getHashParam();
+			return me.states[oHashParam.hKey];
 		}catch(e){
 			$H.Debug.warn("History.getCurrentState:parse hash error:"+e.message);
 		}
@@ -4438,11 +4590,11 @@ function(HashChange){
 	 * @return {object} 返回前一个状态
 	 */
 	function fGetPreState(){
-		var that=this;
+		var me=this;
 		try{
 			var oHashParam=JSON.parse($HU.getHash().replace("#",""));
 			var sHKey=oHashParam.hKey;
-			var aStates=that.states;
+			var aStates=me.states;
 			var nLen=aStates.length;
 			for(var i=0;i++;i<nLen){
 				if(aStates[i]==sHKey){
@@ -4458,8 +4610,8 @@ function(HashChange){
 	 * @method back
 	 */
 	function fBack(){
-		var that=this;
-		var oState=that.getPreState();
+		var me=this;
+		var oState=me.getPreState();
 		if(oState){
 			oState.onStateChange(oState.param);
 		}
@@ -4492,13 +4644,92 @@ function(History){
 		//navigator        : null,   //定制模块导航类
 		//defModPackage    : "com.xxx.module",  //默认模块所在包名
 		
+		_getModWrapper     : _fGetModWrapper,   //获取模块包装div
+		_createMod         : _fCreateMod,       //新建模块
+		_showMod           : _fShowMod,         //显示模块
+		_hideAll           : _fHideAll,         //隐藏所有模块
+		
 		initialize         : fInitialize,      //初始化模块管理
-		go                 : fGo,              //进入模块
-		createMod          : fCreateMod,       //新建模块
-		getModWrapper      : fGetModWrapper,   //获取模块包装div
-		showMod            : fShowMod,         //显示模块
-		hideAll            : fHideAll          //隐藏所有模块
+		go                 : fGo               //进入模块
 	});
+	
+	/**
+	 * 新建模块
+	 * @method _createMod
+	 * @param 
+	 */
+	function _fCreateMod(oParams){
+		var me=this;
+		var sModName=oParams.modName;
+		//先标记为正在准备中，新建成功后赋值为模块对象
+		me.modules[sModName]={waiting:true};
+		//请求模块
+		$Require(me.defModPackage+sModName,function(Module){
+			var oMod=new Module();
+			oMod.name=sModName;
+			oMod.mType=sModName;
+			oMod.initParam=oParams;
+			me.modules[sModName]=oMod;
+			//模块初始化
+			oMod.init(oParams);
+			oMod.beforeRender();
+			//模块渲染
+			var oModWrapper=me._getModWrapper(sModName);
+			oMod._container=oModWrapper;
+			var oContainer=oMod.renderTo?$(oMod.renderTo):me.container;
+			oModWrapper.html(oMod.getHtml());
+			oContainer.append(oModWrapper);
+			$HL.fire('afterRender',oModWrapper);
+			oMod.render(oModWrapper);
+			//可能加载完时，已切换到其它模块了
+			if(me.currentMod==sModName){
+				me._showMod(oMod);
+			}
+			oMod.afterRender();
+		});
+	}
+	/**
+	 * 获取模块包装div
+	 * @method _getModWrapper
+	 * @param {string}sModName
+	 */
+	function _fGetModWrapper(sModName){
+		var me=this;
+		var sId="modWrapper_"+sModName;
+		var oDiv=$("#"+sId);
+		if(oDiv.length==0){
+			oDiv=$('<div id="'+sId+'"></div>');
+		}
+		return oDiv;
+	}
+	/**
+	 * 显示模块
+	 * @method _showMod
+	 * @param
+	 */
+	function _fShowMod(oMod){
+		var me=this;
+		//如果导航类方法返回true，则不使用模块管理类的导航
+		if(me.navigator&&me.navigator.navigate(oMod,me)){
+			return false;
+		}else{
+			this._hideAll();
+			oMod._container.show();
+		}
+		oMod.isActive=true;
+	}
+	/**
+	 * 隐藏所有模块
+	 * @method _hideAll
+	 * @param
+	 */
+	function _fHideAll(){
+		var oModules=this.modules
+		for(var module in oModules){
+			oModules[module]._container.hide();
+			oModules[module].isActive=false;
+		}
+	}
 	/**
 	 * 初始化模块管理
 	 * @param {object}oConf {      //初始化配置参数
@@ -4508,15 +4739,15 @@ function(History){
 	 * }
 	 */
 	function fInitialize(oConf){
-		var that=this;
+		var me=this;
 		if(oConf){
-			that.conf=oConf;
-			$HO.extend(that,oConf);
-			that.container=oConf.container?$(oConf.container):$(document.body);
+			me.conf=oConf;
+			$HO.extend(me,oConf);
+			me.container=oConf.container?$(oConf.container):$(document.body);
 		}
-		that.defModPackage=that.defModPackage+".";
-		that.history=new History();
-		that.modules={};
+		me.defModPackage=me.defModPackage+".";
+		me.history=new History();
+		me.modules={};
 	}
 	/**
 	 * 进入模块
@@ -4528,109 +4759,52 @@ function(History){
 	 * @param {boolean=}bNotSaveHistory仅当为true时，不保存历史记录
 	 */
 	function fGo(oParams,bNotSaveHistory){
-		var that=this;
+		var me=this;
 		var sModName=oParams.modName;
-		var sCurrentMod=that.currentMod;
-		var oMods=that.modules;
+		//当前显示的模块名
+		var sCurrentMod=me.currentMod;
+		var oMods=me.modules;
 		var oCurrentMod=oMods[sCurrentMod];
-		//如果正好是当前模块，调用模块reset方法
+		//如果要进入的正好是当前显示模块，调用模块reset方法
 		if(sCurrentMod==sModName){
-			oCurrentMod.reset();
+			if(!oCurrentMod.waiting){
+				oCurrentMod.reset();
+			}
 			return;
 		}
-		//当前模块不允许退出，直接返回
-		if(oCurrentMod&&!oCurrentMod.exit()){
+		
+		//当前显示模块不允许退出，直接返回
+		if(oCurrentMod&&!oCurrentMod.waiting&&!oCurrentMod.exit()){
 			return false;
 		}
+		
 		//如果在缓存模块中，直接显示该模块，并且调用该模块cache方法
 		var oMod=oMods[sModName];
 		//如果模块有缓存
-		if(oMod&&oMod.useCache){
-			that.showMod(oMod);
-			oMod.cache(oParams);
+		if(oMod){
+			//标记使用缓存，要调用cache方法
+			if(oMod.useCache){
+				me._showMod(oMod);
+				oMod.cache(oParams);
+			}else if(!oMod.waiting){
+				//标记不使用缓存，销毁新建
+				oMod.destroy();
+				me._createMod(oParams);
+			}
+			//如果模块已在请求中，直接略过，等待新建模块的回调函数处理
 		}else{
 			//否则新建一个模块
-			that.createMod(oParams);
+			me._createMod(oParams);
 		}
 		if(bNotSaveHistory!=true){
 			//保存状态
-			that.history.saveState({
-				onStateChange:$H.Function.bind(that.go,that),
+			me.history.saveState({
+				onStateChange:$H.Function.bind(me.go,me),
 				param:oParams
 			});
 		}
-	}
-	/**
-	 * 新建模块
-	 * @method createMod
-	 * @param 
-	 */
-	function fCreateMod(oParams){
-		var that=this;
-		var sModName=oParams.modName;
-		//请求模块
-		$Require(that.defModPackage+sModName,function(Module){
-			var oMod=new Module();
-			oMod.name=sModName;
-			oMod.mType=sModName;
-			oMod.initParam=oParams;
-			//模块初始化
-			oMod.init(oParams);
-			oMod.beforeRender();
-			//模块渲染
-			var oModWrapper=that.getModWrapper(sModName);
-			oMod.wrapper=oModWrapper;
-			var oContainer=oMod.container=oMod.container?$(oMod.container):that.container;
-			oModWrapper.html(oMod.getHtml());
-			oContainer.append(oModWrapper);
-			$HL.fire('afterRender',oModWrapper);
-			oMod.render(oModWrapper);
-			that.showMod(oMod);
-			oMod.afterRender();
-			that.modules[sModName]=oMod;
-		});
-	}
-	/**
-	 * 获取模块包装div
-	 * @method getModWrapper
-	 * @param {string}sModName
-	 */
-	function fGetModWrapper(sModName){
-		var that=this;
-		var sId="modWrapper_"+sModName;
-		var oDiv=$("#"+sId);
-		if(oDiv.length==0){
-			oDiv=$('<div id="'+sId+'"></div>');
-		}
-		return oDiv;
-	}
-	/**
-	 * 显示模块
-	 * @method showMod
-	 * @param
-	 */
-	function fShowMod(oMod){
-		var that=this;
-		//如果导航类方法返回true，则不使用模块管理类的导航
-		if(that.navigator&&that.navigator.navigate(oMod,that)){
-			return false;
-		}else{
-			this.hideAll();
-			oMod.wrapper.show();
-		}
-		oMod.isActive=true;
-	}
-	/**
-	 * 隐藏所有模块
-	 * @method hideAll
-	 * @param
-	 */
-	function fHideAll(){
-		var oModules=this.modules
-		for(var module in oModules){
-			oModules[module].wrapper.hide();
-			oModules[module].isActive=false;
-		}
+		//重新标记当前模块
+		me.currentMod=sModName;
 	}
 	
 	return ModuleManager;

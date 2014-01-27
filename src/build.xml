@@ -49,6 +49,7 @@
 			<path path="js/component/Button.js"/>
 			<path path="js/component/Input.js"/>
 			<path path="js/component/Tab.js"/>
+			<path path="js/component/Toolbar.js"/>
 			<path path="js/component/Dialog.js"/>
 
 		</concat>
@@ -62,6 +63,8 @@
 				append="true">
 
 		    <path path="js/module/AbstractModule.js"/>
+		    <path path="js/module/AbstractDao.js"/>
+		    <path path="js/module/AbstractView.js"/>
 		    <path path="js/module/AbstractNavigator.js"/>
 		    <path path="js/module/History.js"/>
 			<path path="js/module/ModuleManager.js"/>
