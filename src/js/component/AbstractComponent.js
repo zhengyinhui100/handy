@@ -288,10 +288,10 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 			aCls.push('hui-shadow');
 		}
 		if(me.shadowSurround){
-			aCls.push('hui-shadohui-surround');
+			aCls.push('hui-shadow-surround');
 		}
 		if(me.shadowInset){
-			aCls.push('hui-shadohui-inset');
+			aCls.push('hui-shadow-inset');
 		}
 		if(me.isActive){
 			aCls.push(me.activeCls);

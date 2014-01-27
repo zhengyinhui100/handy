@@ -71,6 +71,8 @@
 	
 </body>
 <script type="text/javascript"
+	src="../../lib/modernizr.js"></script>
+<script type="text/javascript"
 	src="../../lib/jquery.js"></script>
 <script type="text/javascript"
 	src="../../src/js/base/base.js"></script>
@@ -242,11 +244,12 @@ function(CM,Icon,Button,Input,Tab,Toolbar,Dialog){
 	
 	new Toolbar({
 		renderTo:'#toolbarDv',
-		title:'标题',
+		title:'header标题',
 		type:'header',
 		items:[{
 			xtype:'Button',
-			text:'按钮',
+			isBack:true,
+			text:'后退',
 			isMini:true,
 			pos:'left',
 			color:'blue',

@@ -64,6 +64,14 @@
     border-bottom-left-radius: @radius;
     border-bottom-right-radius: @radius;
 }
+.fn_border_radius_left(@radius){
+	-moz-border-radius-topleft: @radius;
+    -moz-border-radius-bottomleft: @radius;
+    -webkit-border-bottom-left-radius: @radius;
+    -webkit-border-top-left-radius: @radius;
+    border-bottom-left-radius: @radius;
+    border-top-left-radius: @radius;
+}
 
 .fn_box_shadow(@shadow){
   -webkit-box-shadow: @shadow;

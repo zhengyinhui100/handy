@@ -16,8 +16,10 @@ function(AC){
 //		isActive        : false,               //是否是激活状态
 //		icon            : null,                //图标名称
 		iconPos         : 'left',              //图标位置，"left"|"top"
-		activeCls       : 'hui-btn-blue',        //激活样式
+		theme           : 'gray',
+		activeCls       : 'hui-btn-blue',      //激活样式
 		cls             : 'btn',               //组件样式名
+//		isBack          : false,               //是否是后退按钮
 		
 		defItem         : {
 			xtype       : 'Icon',
@@ -31,6 +33,7 @@ function(AC){
 		
 		tmpl            : ['<a href="javascript:;" hidefocus="true" class="hui-btn',
 							'<%if(!this.text){%> hui-btn-icon-notxt<%}',
+							'if(this.isBack){%> hui-btn-back<%}',
 							'if(this.hasIcon&&this.text){%> hui-btn-icon-<%=this.iconPos%><%}%>">',
 							'<span class="hui-btn-txt"><%=this.text%></span>',
 							'<%=this.getHtml(">*")%>',
