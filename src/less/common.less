@@ -3,6 +3,12 @@
 @import "function.less";
 
 //S 常用功能样式
+.c-left{
+	float:left;
+}
+.c-right{
+	float:right;
+}
 .c-clear:after{
 	clear:both;
 	content:".";
@@ -14,12 +20,31 @@
 .c-clear{
 	zoom:1;
 }
-
-//常用字体颜色
-.c-error{
-	color:red;
+.c-inline{
+	.fn_inline_block();
 }
-
+//常用字体颜色
+.c-error,.c-red{
+	color:#c00;
+}
+.c-warn,.c-yellow{
+	color:#ffd306;
+}
+.c-default{
+	color:#222;
+}
+.c-dimgray{
+	color:#333;
+}
+.c-dark{
+	color:#505050;
+}
+.c-gray{
+	color:#6a6a6a;
+}
+.c-light{
+	color:#888;
+}
 //常用结构
 .c-h-middle-container{
 	text-align:center;

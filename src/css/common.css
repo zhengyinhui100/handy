@@ -1,3 +1,9 @@
+.c-left {
+  float: left;
+}
+.c-right {
+  float: right;
+}
 .c-clear:after {
   clear: both;
   content: ".";
@@ -9,8 +15,35 @@
 .c-clear {
   zoom: 1;
 }
-.c-error {
-  color: red;
+.c-inline {
+  display: -moz-inline-stack;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
+  overflow: hidden;
+}
+.c-error,
+.c-red {
+  color: #c00;
+}
+.c-warn,
+.c-yellow {
+  color: #ffd306;
+}
+.c-default {
+  color: #222;
+}
+.c-dimgray {
+  color: #333;
+}
+.c-dark {
+  color: #505050;
+}
+.c-gray {
+  color: #6a6a6a;
+}
+.c-light {
+  color: #888;
 }
 .c-h-middle-container {
   text-align: center;

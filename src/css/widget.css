@@ -559,15 +559,17 @@
 
   background-image: linear-gradient(#dddddd, #bbbbbb);
 }
-.hui-header {
+.hui-header,
+.hui-footer {
   position: fixed;
   left: 0;
+  z-index: 100;
+}
+.hui-header {
   top: 0;
 }
 .hui-footer {
-  position: fixed;
   bottom: 0;
-  left: 0;
 }
 .hui-tab .hui-tab-item {
   float: left;
@@ -651,11 +653,19 @@
 }
 .hui-list .hui-list-item {
   position: relative;
-  border-bottom: 1px solid #a1a1a1;
+  border-bottom: 1px solid #d5d6d7;
   padding: 5px;
+}
+.hui-list .hui-list-item:hover,
+.hui-list .hui-list-item:active {
+  background: #f3f3f3;
 }
 .hui-list .hui-item-image {
   float: left;
+  margin-right: 10px;
+}
+.hui-list .hui-item-image img {
+  height: 75px;
 }
 .hui-list .hui-item-content {
   float: left;
@@ -666,7 +676,7 @@
   -o-text-overflow: ellipsis;
   -ms-text-overflow: ellipsis;
   text-overflow: ellipsis;
-  color: #505050;
+  color: #222;
   font-size: 16px;
   padding-bottom: 5px;
 }
@@ -677,17 +687,29 @@
   -ms-text-overflow: ellipsis;
   text-overflow: ellipsis;
   font-size: 12px;
-  color: #7a7a7a;
+  color: #6a6a6a;
+  vertical-align: bottom;
   padding-bottom: 1px;
+}
+.hui-list .hui-item-desc .hui-icon {
+  margin-right: 2px;
 }
 .hui-list .hui-item-link {
   position: absolute;
-  background-position: -215px -36px;
   margin-top: -18px;
   width: 36px;
   height: 36px;
   top: 50%;
   right: 5px;
+  text-align: center;
+  vertical-align: middle;
+}
+.hui-list .hui-item-link .hui-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -11px;
+  margin-left: -11px;
 }
 .hui-mask {
   position: absolute;
@@ -783,7 +805,13 @@
   margin-bottom: .25em;
   font-size: 12.5px;
 }
+.hui-mini.hui-icon,
 .hui-mini .hui-icon {
+  margin: 0;
   width: 18px;
   height: 18px;
+}
+.hui-light {
+  opacity: 0.5;
+  filter: alpha(opacity=20%);
 }
