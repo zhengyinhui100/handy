@@ -16,7 +16,7 @@ function(AC){
 //		value           : '',                  //默认值
 //		placeholder     : '',                  //placeholder
 //		withClear       : false,               //带有清除按钮
-		radius          : 'normal',            //普通圆角
+		radius          : 'little',            //普通圆角
 		iconPos         : 'left',              //图标位置
 		btnPos          : 'right',             //按钮位置
 		
