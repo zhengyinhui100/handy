@@ -1,6 +1,7 @@
 //组件，class以"hui-"开头，次级以上级名称为命名前缀，如上级名为hui-list-item,则次级以hui-item-为前缀
 
 @import "function.less";
+@import "common.less";
 @import "base64img.less";
 
 
@@ -244,6 +245,57 @@
 	height:28px;
 	.hui-icon{
 		margin: 3px 1px 2px 1px;
+	}
+}
+
+//控制组
+.hui-ctrlgp{
+	border: 1px solid #ccc;
+	>*{
+		margin:0;
+		.fn_border_radius(inherit);
+	}
+}
+.hui-ctrlgp-h{
+	.fn_inline_block();
+	.hui-btn{
+		float:left;
+		margin:0;
+		border-right:0;
+		border-top:0;
+		border-bottom:0;
+		&:first-child{
+			border-left:0;
+		}
+	}
+}
+.hui-ctrlgp-v{
+	.hui-btn{
+		margin:0;
+		border-bottom:0;
+		border-left:0;
+		border-right:0;
+		&:first-child{
+			border-top:0;
+		}
+	}
+}
+
+//单选框
+.hui-radio{
+	&.hui-btn{
+		text-align:left;
+		margin:0;
+	}
+	input{
+		display:none;
+	}
+}
+
+//复选框
+.hui-checkbox{
+	input{
+		display:none;
 	}
 }
 
