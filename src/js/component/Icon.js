@@ -9,12 +9,6 @@ $Define('c.Icon',
 function(AC){
 	
 	var Icon=AC.define('Icon');
-	//检查浏览器是否支持svg，不支持则添加标记class
-	$H.Support.testSvg(function(bSupport){
-		if(!bSupport){
-			$('html').addClass('hui-nosvg');
-		}
-	})
 	
 	$HO.extend(Icon.prototype,{
 		//初始配置
