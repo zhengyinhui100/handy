@@ -253,7 +253,6 @@
 	border: 1px solid #ccc;
 	>*{
 		margin:0;
-		.fn_border_radius(inherit);
 	}
 }
 .hui-ctrlgp-h{
@@ -266,6 +265,10 @@
 		border-bottom:0;
 		&:first-child{
 			border-left:0;
+			.fn_border_radius_left(inherit);
+		}
+		&:last-child{
+			.fn_border_radius_right(inherit);
 		}
 	}
 }
@@ -277,23 +280,28 @@
 		border-right:0;
 		&:first-child{
 			border-top:0;
+			.fn_border_radius_top(inherit);
+		}
+		&:last-child{
+			.fn_border_radius_bottom(inherit);
 		}
 	}
 }
 
 //单选框
-.hui-radio{
+.hui-radio,.hui-chkbox{
 	&.hui-btn{
+		padding-left:35px;
 		text-align:left;
+		vertical-align:bottom;
 		margin:0;
 	}
-	input{
-		display:none;
+	.hui-icon{
+		position:absolute;
+		top:50%;
+		margin-top:-11px;
+		left:10px;
 	}
-}
-
-//复选框
-.hui-checkbox{
 	input{
 		display:none;
 	}
