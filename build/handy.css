@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-01-27 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-02-01 | zhengyinhui100@gmail.com */
 html,
 body {
   overflow: hidden;
@@ -210,6 +210,12 @@ oder:
     font-family: Arial;
   }
 }
+.c-left {
+  float: left;
+}
+.c-right {
+  float: right;
+}
 .c-clear:after {
   clear: both;
   content: ".";
@@ -221,8 +227,35 @@ oder:
 .c-clear {
   zoom: 1;
 }
-.c-error {
-  color: red;
+.c-inline {
+  display: -moz-inline-stack;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
+  overflow: hidden;
+}
+.c-error,
+.c-red {
+  color: #c00;
+}
+.c-warn,
+.c-yellow {
+  color: #ffd306;
+}
+.c-default {
+  color: #222;
+}
+.c-dimgray {
+  color: #333;
+}
+.c-dark {
+  color: #505050;
+}
+.c-gray {
+  color: #6a6a6a;
+}
+.c-light {
+  color: #888;
 }
 .c-h-middle-container {
   text-align: center;
@@ -596,361 +629,448 @@ html .hui-alt-icon .hui-btn.hui-checkbox-on {
 .hui-alt-icon .hui-icon-delete {
   background-image: url('data:image/svg+xml;charset=US-ASCII,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22iso-8859-1%22%3F%3E%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%3Csvg%20version%3D%221.1%22%20id%3D%22Layer_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%20%20width%3D%2214px%22%20height%3D%2214px%22%20viewBox%3D%220%200%2014%2014%22%20style%3D%22enable-background%3Anew%200%200%2014%2014%3B%22%20xml%3Aspace%3D%22preserve%22%3E%3Cpolygon%20points%3D%2214%2C3%2011%2C0%207%2C4%203%2C0%200%2C3%204%2C7%200%2C11%203%2C14%207%2C10%2011%2C14%2014%2C11%2010%2C7%20%22%2F%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3C%2Fsvg%3E');
 }
+.hui-icon-radio {
+  background-image: url('data:image/svg+xml;charset=utf-8,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C%21--%20Generator%3A%20Adobe%20Illustrator%2017.0.0%2C%20SVG%20Export%20Plug-In%20.%20SVG%20Version%3A%206.00%20Build%200%29%20%20--%3E%0D%0A%3C%21DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22%E5%9B%BE%E5%B1%82_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2216px%22%20height%3D%2216px%22%20viewBox%3D%220%200%2016%2016%22%20enable-background%3D%22new%200%200%2016%2016%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Ccircle%20fill%3D%22%23D0D0D0%22%20cx%3D%228%22%20cy%3D%228%22%20r%3D%228%22%2F%3E%0D%0A%3C%2Fsvg%3E');
+}
+.hui-radio-on .hui-icon-radio {
+  background-image: url('data:image/svg+xml;charset=utf-8,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C%21--%20Generator%3A%20Adobe%20Illustrator%2017.0.0%2C%20SVG%20Export%20Plug-In%20.%20SVG%20Version%3A%206.00%20Build%200%29%20%20--%3E%0D%0A%3C%21DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22%E5%9B%BE%E5%B1%82_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2216px%22%20height%3D%2216px%22%20viewBox%3D%220%200%2016%2016%22%20enable-background%3D%22new%200%200%2016%2016%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Ccircle%20fill%3D%22%23376796%22%20cx%3D%228%22%20cy%3D%228%22%20r%3D%228%22%2F%3E%0D%0A%3Ccircle%20fill%3D%22%23FFFFFF%22%20cx%3D%228%22%20cy%3D%228%22%20r%3D%222.5%22%2F%3E%0D%0A%3C%2Fsvg%3E');
+}
+.hui-icon-chkbox {
+  background-image: url('data:image/svg+xml;charset=utf-8,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C%21--%20Generator%3A%20Adobe%20Illustrator%2017.0.0%2C%20SVG%20Export%20Plug-In%20.%20SVG%20Version%3A%206.00%20Build%200%29%20%20--%3E%0D%0A%3C%21DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22%E5%9B%BE%E5%B1%82_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2216px%22%20height%3D%2216px%22%20viewBox%3D%220%200%2016%2016%22%20enable-background%3D%22new%200%200%2016%2016%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M16%2C8c0%2C4.418-3.582%2C8-8%2C8l0%2C0c-4.418%2C0-8-3.582-8-8l0%2C0c0-4.418%2C3.582-8%2C8-8l0%2C0C12.418%2C0%2C16%2C3.582%2C16%2C8%0D%0A%09L16%2C8z%22%2F%3E%0D%0A%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M16%2C15c0%2C0.552-0.448%2C1-1%2C1H1c-0.552%2C0-1-0.448-1-1V1c0-0.552%2C0.448-1%2C1-1h14c0.552%2C0%2C1%2C0.448%2C1%2C1V15z%22%2F%3E%0D%0A%3Cpath%20fill%3D%22%23D0D0D0%22%20d%3D%22M16%2C14c0%2C1.105-0.895%2C2-2%2C2H2c-1.105%2C0-2-0.895-2-2V2c0-1.105%2C0.895-2%2C2-2h12c1.105%2C0%2C2%2C0.895%2C2%2C2V14z%22%2F%3E%0D%0A%3C%2Fsvg%3E');
+}
+.hui-chkbox-on .hui-icon-chkbox {
+  background-image: url('data:image/svg+xml;charset=utf-8,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C%21--%20Generator%3A%20Adobe%20Illustrator%2017.0.0%2C%20SVG%20Export%20Plug-In%20.%20SVG%20Version%3A%206.00%20Build%200%29%20%20--%3E%0D%0A%3C%21DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22%E5%9B%BE%E5%B1%82_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2216px%22%20height%3D%2216px%22%20viewBox%3D%220%200%2016%2016%22%20enable-background%3D%22new%200%200%2016%2016%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M16%2C14c0%2C1.105-0.895%2C2-2%2C2H2c-1.105%2C0-2-0.895-2-2V2c0-1.105%2C0.895-2%2C2-2h12c1.105%2C0%2C2%2C0.895%2C2%2C2V14z%22%2F%3E%0D%0A%3Cpolygon%20fill%3D%22%23FFFFFF%22%20points%3D%2214.264%2C10.84%2014.264%2C10.84%2014.42%2C10.84%2014.42%2C10.84%2014.42%2C10.84%2014.42%2C10.84%2014.264%2C10.84%20%0D%0A%0914.264%2C10.84%20%22%2F%3E%0D%0A%3Cpath%20fill%3D%22%2336638F%22%20d%3D%22M16%2C14c0%2C1.105-0.895%2C2-2%2C2H2c-1.105%2C0-2-0.895-2-2V2c0-1.105%2C0.895-2%2C2-2h12c1.105%2C0%2C2%2C0.895%2C2%2C2V14z%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23FFFFFF%22%20stroke-width%3D%223%22%20stroke-miterlimit%3D%2210%22%20x1%3D%2213.054%22%20y1%3D%223.142%22%20x2%3D%226.276%22%20y2%3D%229.959%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23FFFFFF%22%20stroke-width%3D%223%22%20stroke-miterlimit%3D%2210%22%20x1%3D%222.688%22%20y1%3D%226.842%22%20x2%3D%227.105%22%20y2%3D%2211.258%22%2F%3E%0D%0A%3C%2Fsvg%3E');
+}
 /* PNG icons */
-.hui-nosvg .hui-icon-action {
+.hui-mi-no-svg .hui-icon-action {
   background-image: url(../img/icons-png/action-white.png);
 }
-.hui-nosvg .hui-icon-arrow-d-l {
+.hui-mi-no-svg .hui-icon-arrow-d-l {
   background-image: url(../img/icons-png/arrow-d-l-white.png);
 }
-.hui-nosvg .hui-icon-arrow-d-r {
+.hui-mi-no-svg .hui-icon-arrow-d-r {
   background-image: url(../img/icons-png/arrow-d-r-white.png);
 }
-.hui-nosvg .hui-icon-arrow-d {
+.hui-mi-no-svg .hui-icon-arrow-d {
   background-image: url(../img/icons-png/arrow-d-white.png);
 }
-.hui-nosvg .hui-icon-arrow-l {
+.hui-mi-no-svg .hui-icon-arrow-l {
   background-image: url(../img/icons-png/arrow-l-white.png);
 }
-.hui-nosvg .hui-icon-arrow-r {
+.hui-mi-no-svg .hui-icon-arrow-r {
   background-image: url(../img/icons-png/arrow-r-white.png);
 }
-.hui-nosvg .hui-icon-arrow-u-l {
+.hui-mi-no-svg .hui-icon-arrow-u-l {
   background-image: url(../img/icons-png/arrow-u-l-white.png);
 }
-.hui-nosvg .hui-icon-arrow-u-r {
+.hui-mi-no-svg .hui-icon-arrow-u-r {
   background-image: url(../img/icons-png/arrow-u-r-white.png);
 }
-.hui-nosvg .hui-icon-arrow-u {
+.hui-mi-no-svg .hui-icon-arrow-u {
   background-image: url(../img/icons-png/arrow-u-white.png);
 }
-.hui-nosvg .hui-icon-audio {
+.hui-mi-no-svg .hui-icon-audio {
   background-image: url(../img/icons-png/audio-white.png);
 }
-.hui-nosvg .hui-icon-calendar {
+.hui-mi-no-svg .hui-icon-calendar {
   background-image: url(../img/icons-png/calendar-white.png);
 }
-.hui-nosvg .hui-icon-camera {
+.hui-mi-no-svg .hui-icon-camera {
   background-image: url(../img/icons-png/camera-white.png);
 }
-.hui-nosvg .hui-icon-carat-d {
+.hui-mi-no-svg .hui-icon-carat-d {
   background-image: url(../img/icons-png/carat-d-white.png);
 }
-.hui-nosvg .hui-icon-carat-l {
+.hui-mi-no-svg .hui-icon-carat-l {
   background-image: url(../img/icons-png/carat-l-white.png);
 }
-.hui-nosvg .hui-icon-carat-r {
+.hui-mi-no-svg .hui-icon-carat-r {
   background-image: url(../img/icons-png/carat-r-white.png);
 }
-.hui-nosvg .hui-icon-carat-u {
+.hui-mi-no-svg .hui-icon-carat-u {
   background-image: url(../img/icons-png/carat-u-white.png);
 }
-.hui-nosvg .hui-icon-check,
-html.hui-nosvg .hui-btn.hui-checkbox-on {
+.hui-mi-no-svg .hui-icon-check,
+html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   background-image: url(../img/icons-png/check-white.png);
 }
-.hui-nosvg .hui-icon-clock {
+.hui-mi-no-svg .hui-icon-clock {
   background-image: url(../img/icons-png/clock-white.png);
 }
-.hui-nosvg .hui-icon-cloud {
+.hui-mi-no-svg .hui-icon-cloud {
   background-image: url(../img/icons-png/cloud-white.png);
 }
-.hui-nosvg .hui-icon-grid {
+.hui-mi-no-svg .hui-icon-grid {
   background-image: url(../img/icons-png/grid-white.png);
 }
-.hui-nosvg .hui-icon-mail {
+.hui-mi-no-svg .hui-icon-mail {
   background-image: url(../img/icons-png/mail-white.png);
 }
-.hui-nosvg .hui-icon-eye {
+.hui-mi-no-svg .hui-icon-eye {
   background-image: url(../img/icons-png/eye-white.png);
 }
-.hui-nosvg .hui-icon-gear {
+.hui-mi-no-svg .hui-icon-gear {
   background-image: url(../img/icons-png/gear-white.png);
 }
-.hui-nosvg .hui-icon-heart {
+.hui-mi-no-svg .hui-icon-heart {
   background-image: url(../img/icons-png/heart-white.png);
 }
-.hui-nosvg .hui-icon-home {
+.hui-mi-no-svg .hui-icon-home {
   background-image: url(../img/icons-png/home-white.png);
 }
-.hui-nosvg .hui-icon-info {
+.hui-mi-no-svg .hui-icon-info {
   background-image: url(../img/icons-png/info-white.png);
 }
-.hui-nosvg .hui-icon-bullets {
+.hui-mi-no-svg .hui-icon-bullets {
   background-image: url(../img/icons-png/bullets-white.png);
 }
-.hui-nosvg .hui-icon-bars {
+.hui-mi-no-svg .hui-icon-bars {
   background-image: url(../img/icons-png/bars-white.png);
 }
-.hui-nosvg .hui-icon-navigation {
+.hui-mi-no-svg .hui-icon-navigation {
   background-image: url(../img/icons-png/navigation-white.png);
 }
-.hui-nosvg .hui-icon-lock {
+.hui-mi-no-svg .hui-icon-lock {
   background-image: url(../img/icons-png/lock-white.png);
 }
-.hui-nosvg .hui-icon-search {
+.hui-mi-no-svg .hui-icon-search {
   background-image: url(../img/icons-png/search-white.png);
 }
-.hui-nosvg .hui-icon-location {
+.hui-mi-no-svg .hui-icon-location {
   background-image: url(../img/icons-png/location-white.png);
 }
-.hui-nosvg .hui-icon-minus {
+.hui-mi-no-svg .hui-icon-minus {
   background-image: url(../img/icons-png/minus-white.png);
 }
-.hui-nosvg .hui-icon-forbidden {
+.hui-mi-no-svg .hui-icon-forbidden {
   background-image: url(../img/icons-png/forbidden-white.png);
 }
-.hui-nosvg .hui-icon-edit {
+.hui-mi-no-svg .hui-icon-edit {
   background-image: url(../img/icons-png/edit-white.png);
 }
-.hui-nosvg .hui-icon-user {
+.hui-mi-no-svg .hui-icon-user {
   background-image: url(../img/icons-png/user-white.png);
 }
-.hui-nosvg .hui-icon-phone {
+.hui-mi-no-svg .hui-icon-phone {
   background-image: url(../img/icons-png/phone-white.png);
 }
-.hui-nosvg .hui-icon-plus {
+.hui-mi-no-svg .hui-icon-plus {
   background-image: url(../img/icons-png/plus-white.png);
 }
-.hui-nosvg .hui-icon-power {
+.hui-mi-no-svg .hui-icon-power {
   background-image: url(../img/icons-png/power-white.png);
 }
-.hui-nosvg .hui-icon-recycle {
+.hui-mi-no-svg .hui-icon-recycle {
   background-image: url(../img/icons-png/recycle-white.png);
 }
-.hui-nosvg .hui-icon-forward {
+.hui-mi-no-svg .hui-icon-forward {
   background-image: url(../img/icons-png/forward-white.png);
 }
-.hui-nosvg .hui-icon-refresh {
+.hui-mi-no-svg .hui-icon-refresh {
   background-image: url(../img/icons-png/refresh-white.png);
 }
-.hui-nosvg .hui-icon-shop {
+.hui-mi-no-svg .hui-icon-shop {
   background-image: url(../img/icons-png/shop-white.png);
 }
-.hui-nosvg .hui-icon-comment {
+.hui-mi-no-svg .hui-icon-comment {
   background-image: url(../img/icons-png/comment-white.png);
 }
-.hui-nosvg .hui-icon-star {
+.hui-mi-no-svg .hui-icon-star {
   background-image: url(../img/icons-png/star-white.png);
 }
-.hui-nosvg .hui-icon-tag {
+.hui-mi-no-svg .hui-icon-tag {
   background-image: url(../img/icons-png/tag-white.png);
 }
-.hui-nosvg .hui-icon-back {
+.hui-mi-no-svg .hui-icon-back {
   background-image: url(../img/icons-png/back-white.png);
 }
-.hui-nosvg .hui-icon-video {
+.hui-mi-no-svg .hui-icon-video {
   background-image: url(../img/icons-png/video-white.png);
 }
-.hui-nosvg .hui-icon-alert {
+.hui-mi-no-svg .hui-icon-alert {
   background-image: url(../img/icons-png/alert-white.png);
 }
-.hui-nosvg .hui-icon-delete {
+.hui-mi-no-svg .hui-icon-delete {
   background-image: url(../img/icons-png/delete-white.png);
 }
 /* Alt icons */
-.hui-nosvg .hui-alt-icon.hui-icon-action,
-.hui-nosvg .hui-alt-icon .hui-icon-action {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-action,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-action {
   background-image: url(../img/icons-png/action-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-arrow-d,
-.hui-nosvg .hui-alt-icon .hui-icon-arrow-d {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-arrow-d,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-arrow-d {
   background-image: url(../img/icons-png/arrow-d-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-arrow-d-l,
-.hui-nosvg .hui-alt-icon .hui-icon-arrow-d-l {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-arrow-d-l,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-arrow-d-l {
   background-image: url(../img/icons-png/arrow-d-l-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-arrow-d-r,
-.hui-nosvg .hui-alt-icon .hui-icon-arrow-d-r {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-arrow-d-r,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-arrow-d-r {
   background-image: url(../img/icons-png/arrow-d-r-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-arrow-l,
-.hui-nosvg .hui-alt-icon .hui-icon-arrow-l {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-arrow-l,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-arrow-l {
   background-image: url(../img/icons-png/arrow-l-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-arrow-r,
-.hui-nosvg .hui-alt-icon .hui-icon-arrow-r {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-arrow-r,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-arrow-r {
   background-image: url(../img/icons-png/arrow-r-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-arrow-u,
-.hui-nosvg .hui-alt-icon .hui-icon-arrow-u {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-arrow-u,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-arrow-u {
   background-image: url(../img/icons-png/arrow-u-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-arrow-u-l,
-.hui-nosvg .hui-alt-icon .hui-icon-arrow-u-l {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-arrow-u-l,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-arrow-u-l {
   background-image: url(../img/icons-png/arrow-u-l-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-arrow-u-r,
-.hui-nosvg .hui-alt-icon .hui-icon-arrow-u-r {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-arrow-u-r,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-arrow-u-r {
   background-image: url(../img/icons-png/arrow-u-r-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-audio,
-.hui-nosvg .hui-alt-icon .hui-icon-audio {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-audio,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-audio {
   background-image: url(../img/icons-png/audio-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-calendar,
-.hui-nosvg .hui-alt-icon .hui-icon-calendar {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-calendar,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-calendar {
   background-image: url(../img/icons-png/calendar-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-camera,
-.hui-nosvg .hui-alt-icon .hui-icon-camera {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-camera,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-camera {
   background-image: url(../img/icons-png/camera-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-carat-d,
-.hui-nosvg .hui-alt-icon .hui-icon-carat-d {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-carat-d,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-carat-d {
   background-image: url(../img/icons-png/carat-d-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-carat-l,
-.hui-nosvg .hui-alt-icon .hui-icon-carat-l {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-carat-l,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-carat-l {
   background-image: url(../img/icons-png/carat-l-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-carat-r,
-.hui-nosvg .hui-alt-icon .hui-icon-carat-r {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-carat-r,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-carat-r {
   background-image: url(../img/icons-png/carat-r-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-carat-u,
-.hui-nosvg .hui-alt-icon .hui-icon-carat-u {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-carat-u,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-carat-u {
   background-image: url(../img/icons-png/carat-u-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-check,
-.hui-nosvg .hui-alt-icon .hui-icon-check,
-.hui-nosvg .hui-alt-icon.hui-btn.hui-checkbox-on,
-.hui-nosvg .hui-alt-icon .hui-btn.hui-checkbox-on {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-check,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-check,
+.hui-mi-no-svg .hui-alt-icon.hui-btn.hui-checkbox-on,
+.hui-mi-no-svg .hui-alt-icon .hui-btn.hui-checkbox-on {
   background-image: url(../img/icons-png/check-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-clock,
-.hui-nosvg .hui-alt-icon .hui-icon-clock {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-clock,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-clock {
   background-image: url(../img/icons-png/clock-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-cloud,
-.hui-nosvg .hui-alt-icon .hui-icon-cloud {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-cloud,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-cloud {
   background-image: url(../img/icons-png/cloud-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-grid,
-.hui-nosvg .hui-alt-icon .hui-icon-grid {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-grid,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-grid {
   background-image: url(../img/icons-png/grid-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-mail,
-.hui-nosvg .hui-alt-icon .hui-icon-mail {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-mail,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-mail {
   background-image: url(../img/icons-png/mail-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-eye,
-.hui-nosvg .hui-alt-icon .hui-icon-eye {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-eye,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-eye {
   background-image: url(../img/icons-png/eye-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-gear,
-.hui-nosvg .hui-alt-icon .hui-icon-gear {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-gear,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-gear {
   background-image: url(../img/icons-png/gear-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-heart,
-.hui-nosvg .hui-alt-icon .hui-icon-heart {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-heart,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-heart {
   background-image: url(../img/icons-png/heart-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-home,
-.hui-nosvg .hui-alt-icon .hui-icon-home {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-home,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-home {
   background-image: url(../img/icons-png/home-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-info,
-.hui-nosvg .hui-alt-icon .hui-icon-info {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-info,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-info {
   background-image: url(../img/icons-png/info-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-bars,
-.hui-nosvg .hui-alt-icon .hui-icon-bars {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-bars,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-bars {
   background-image: url(../img/icons-png/bars-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-bullets,
-.hui-nosvg .hui-alt-icon .hui-icon-bullets {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-bullets,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-bullets {
   background-image: url(../img/icons-png/bullets-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-navigation,
-.hui-nosvg .hui-alt-icon .hui-icon-navigation {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-navigation,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-navigation {
   background-image: url(../img/icons-png/navigation-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-lock,
-.hui-nosvg .hui-alt-icon .hui-icon-lock {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-lock,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-lock {
   background-image: url(../img/icons-png/lock-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-search,
-.hui-nosvg .hui-alt-icon .hui-icon-search,
-.hui-nosvg .hui-input-search {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-search,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-search,
+.hui-mi-no-svg .hui-input-search {
   background-image: url(../img/icons-png/search-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-location,
-.hui-nosvg .hui-alt-icon .hui-icon-location {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-location,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-location {
   background-image: url(../img/icons-png/location-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-minus,
-.hui-nosvg .hui-alt-icon .hui-icon-minus {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-minus,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-minus {
   background-image: url(../img/icons-png/minus-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-forbidden,
-.hui-nosvg .hui-alt-icon .hui-icon-forbidden {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-forbidden,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-forbidden {
   background-image: url(../img/icons-png/forbidden-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-edit,
-.hui-nosvg .hui-alt-icon .hui-icon-edit {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-edit,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-edit {
   background-image: url(../img/icons-png/edit-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-user,
-.hui-nosvg .hui-alt-icon .hui-icon-user {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-user,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-user {
   background-image: url(../img/icons-png/user-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-phone,
-.hui-nosvg .hui-alt-icon .hui-icon-phone {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-phone,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-phone {
   background-image: url(../img/icons-png/phone-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-plus,
-.hui-nosvg .hui-alt-icon .hui-icon-plus {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-plus,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-plus {
   background-image: url(../img/icons-png/plus-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-power,
-.hui-nosvg .hui-alt-icon .hui-icon-power {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-power,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-power {
   background-image: url(../img/icons-png/power-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-recycle,
-.hui-nosvg .hui-alt-icon .hui-icon-recycle {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-recycle,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-recycle {
   background-image: url(../img/icons-png/recycle-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-forward,
-.hui-nosvg .hui-alt-icon .hui-icon-forward {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-forward,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-forward {
   background-image: url(../img/icons-png/forward-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-refresh,
-.hui-nosvg .hui-alt-icon .hui-icon-refresh {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-refresh,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-refresh {
   background-image: url(../img/icons-png/refresh-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-shop,
-.hui-nosvg .hui-alt-icon .hui-icon-shop {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-shop,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-shop {
   background-image: url(../img/icons-png/shop-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-comment,
-.hui-nosvg .hui-alt-icon .hui-icon-comment {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-comment,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-comment {
   background-image: url(../img/icons-png/comment-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-star,
-.hui-nosvg .hui-alt-icon .hui-icon-star {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-star,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-star {
   background-image: url(../img/icons-png/star-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-tag,
-.hui-nosvg .hui-alt-icon .hui-icon-tag {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-tag,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-tag {
   background-image: url(../img/icons-png/tag-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-back,
-.hui-nosvg .hui-alt-icon .hui-icon-back {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-back,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-back {
   background-image: url(../img/icons-png/back-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-video,
-.hui-nosvg .hui-alt-icon .hui-icon-video {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-video,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-video {
   background-image: url(../img/icons-png/video-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-alert,
-.hui-nosvg .hui-alt-icon .hui-icon-alert {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-alert,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-alert {
   background-image: url(../img/icons-png/alert-black.png);
 }
-.hui-nosvg .hui-alt-icon.hui-icon-delete,
-.hui-nosvg .hui-alt-icon .hui-icon-delete {
+.hui-mi-no-svg .hui-alt-icon.hui-icon-delete,
+.hui-mi-no-svg .hui-alt-icon .hui-icon-delete {
   background-image: url(../img/icons-png/delete-black.png);
+}
+.hui-mi-no-svg .hui-icon-radio {
+  background-image: url(../img/icons-png/radio-off.png);
+}
+.hui-mi-no-svg .hui-radio-on .hui-icon-radio {
+  background-image: url(../img/icons-png/radio-on.png);
+}
+.hui-mi-no-svg .hui-icon-chkbox {
+  background-image: url(../img/icons-png/checkbox-off.png);
+}
+.hui-mi-no-svg .hui-chkbox-on .hui-icon-chkbox {
+  background-image: url(../img/icons-png/checkbox-on.png);
+}
+.c-left {
+  float: left;
+}
+.c-right {
+  float: right;
+}
+.c-clear:after {
+  clear: both;
+  content: ".";
+  display: block;
+  height: 0;
+  visibility: hidden;
+  overflow: hidden;
+}
+.c-clear {
+  zoom: 1;
+}
+.c-inline {
+  display: -moz-inline-stack;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
+  overflow: hidden;
+}
+.c-error,
+.c-red {
+  color: #c00;
+}
+.c-warn,
+.c-yellow {
+  color: #ffd306;
+}
+.c-default {
+  color: #222;
+}
+.c-dimgray {
+  color: #333;
+}
+.c-dark {
+  color: #505050;
+}
+.c-gray {
+  color: #6a6a6a;
+}
+.c-light {
+  color: #888;
+}
+.c-h-middle-container {
+  text-align: center;
+}
+.c-h-middle {
+  margin-left: auto;
+  margin-right: auto;
+}
+.c-v-middle {
+  position: absolute;
+  top: 50%;
+}
+.c-v-middle-line {
+  height: 4em;
+  line-height: 4em;
+  overflow: hidden;
 }
 .icons-18-white {
   background-image: url("data:image/png;base64,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");
@@ -1338,6 +1458,84 @@ html.hui-nosvg .hui-btn.hui-checkbox-on {
 .hui-btn-icon-notxt .hui-icon {
   margin: 3px 1px 2px 1px;
 }
+.hui-ctrlgp {
+  border: 1px solid #ccc;
+}
+.hui-ctrlgp > * {
+  margin: 0;
+}
+.hui-ctrlgp-h {
+  display: -moz-inline-stack;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
+  overflow: hidden;
+}
+.hui-ctrlgp-h .hui-btn {
+  float: left;
+  margin: 0;
+  border-right: 0;
+  border-top: 0;
+  border-bottom: 0;
+}
+.hui-ctrlgp-h .hui-btn:first-child {
+  border-left: 0;
+  -moz-border-radius-topleft: inherit;
+  -moz-border-radius-bottomleft: inherit;
+  -webkit-border-bottom-left-radius: inherit;
+  -webkit-border-top-left-radius: inherit;
+  border-bottom-left-radius: inherit;
+  border-top-left-radius: inherit;
+}
+.hui-ctrlgp-h .hui-btn:last-child {
+  -moz-border-radius-topright: inherit;
+  -moz-border-radius-bottomright: inherit;
+  -webkit-border-bottom-right-radius: inherit;
+  -webkit-border-top-right-radius: inherit;
+  border-bottom-right-radius: inherit;
+  border-top-right-radius: inherit;
+}
+.hui-ctrlgp-v .hui-btn {
+  margin: 0;
+  border-bottom: 0;
+  border-left: 0;
+  border-right: 0;
+}
+.hui-ctrlgp-v .hui-btn:first-child {
+  border-top: 0;
+  -moz-border-radius-topleft: inherit;
+  -moz-border-radius-topright: inherit;
+  -webkit-border-top-left-radius: inherit;
+  -webkit-border-top-right-radius: inherit;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+.hui-ctrlgp-v .hui-btn:last-child {
+  -moz-border-radius-bottomright: inherit;
+  -moz-border-radius-bottomleft: inherit;
+  -webkit-border-bottom-left-radius: inherit;
+  -webkit-border-bottom-right-radius: inherit;
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+}
+.hui-radio.hui-btn,
+.hui-chkbox.hui-btn {
+  padding-left: 35px;
+  text-align: left;
+  vertical-align: bottom;
+  margin: 0;
+}
+.hui-radio .hui-icon,
+.hui-chkbox .hui-icon {
+  position: absolute;
+  top: 50%;
+  margin-top: -11px;
+  left: 10px;
+}
+.hui-radio input,
+.hui-chkbox input {
+  display: none;
+}
 .hui-input {
   padding: 0 .4em;
   position: relative;
@@ -1513,15 +1711,17 @@ html.hui-nosvg .hui-btn.hui-checkbox-on {
 
   background-image: linear-gradient(#dddddd, #bbbbbb);
 }
-.hui-header {
+.hui-header,
+.hui-footer {
   position: fixed;
   left: 0;
+  z-index: 100;
+}
+.hui-header {
   top: 0;
 }
 .hui-footer {
-  position: fixed;
   bottom: 0;
-  left: 0;
 }
 .hui-tab .hui-tab-item {
   float: left;
@@ -1605,11 +1805,19 @@ html.hui-nosvg .hui-btn.hui-checkbox-on {
 }
 .hui-list .hui-list-item {
   position: relative;
-  border-bottom: 1px solid #a1a1a1;
+  border-bottom: 1px solid #d5d6d7;
   padding: 5px;
+}
+.hui-list .hui-list-item:hover,
+.hui-list .hui-list-item:active {
+  background: #f3f3f3;
 }
 .hui-list .hui-item-image {
   float: left;
+  margin-right: 10px;
+}
+.hui-list .hui-item-image img {
+  height: 75px;
 }
 .hui-list .hui-item-content {
   float: left;
@@ -1620,7 +1828,7 @@ html.hui-nosvg .hui-btn.hui-checkbox-on {
   -o-text-overflow: ellipsis;
   -ms-text-overflow: ellipsis;
   text-overflow: ellipsis;
-  color: #505050;
+  color: #222;
   font-size: 16px;
   padding-bottom: 5px;
 }
@@ -1631,17 +1839,29 @@ html.hui-nosvg .hui-btn.hui-checkbox-on {
   -ms-text-overflow: ellipsis;
   text-overflow: ellipsis;
   font-size: 12px;
-  color: #7a7a7a;
+  color: #6a6a6a;
+  vertical-align: bottom;
   padding-bottom: 1px;
+}
+.hui-list .hui-item-desc .hui-icon {
+  margin-right: 2px;
 }
 .hui-list .hui-item-link {
   position: absolute;
-  background-position: -215px -36px;
   margin-top: -18px;
   width: 36px;
   height: 36px;
   top: 50%;
   right: 5px;
+  text-align: center;
+  vertical-align: middle;
+}
+.hui-list .hui-item-link .hui-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -11px;
+  margin-left: -11px;
 }
 .hui-mask {
   position: absolute;
@@ -1737,7 +1957,13 @@ html.hui-nosvg .hui-btn.hui-checkbox-on {
   margin-bottom: .25em;
   font-size: 12.5px;
 }
+.hui-mini.hui-icon,
 .hui-mini .hui-icon {
+  margin: 0;
   width: 18px;
   height: 18px;
+}
+.hui-light {
+  opacity: 0.5;
+  filter: alpha(opacity=20%);
 }

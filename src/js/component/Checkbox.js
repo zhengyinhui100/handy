@@ -52,7 +52,15 @@ function(AC){
 		var me=this;
 		bChecked=!(bChecked==false);
 		me.checked=bChecked;
-		me.getEl()[bChecked?"addClass":"removeClass"]('hui-chkbox-on');
+		var oInput=me.find('input');
+		var oEl=me.getEl();
+		if(bChecked){
+			oInput.attr("checked",true);
+			oEl.addClass('hui-chkbox-on');
+		}else{
+			oInput.removeAttr("checked");
+			oEl.removeClass('hui-chkbox-on');
+		}
 	}
 	/**
 	 * 获取/设置输入框的值

@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-01-27 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-02-01 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -2753,10 +2753,10 @@ handy.add('Support',function($H){
 	
 	
 	var Support={
-		testSvg               : fTestSvg          //检查是否支持svg
+//		testSvg               : fTestSvg          //检查是否支持svg
 	}
 	
-	var _supportSvg; //标记是否支持svg
+//	var _supportSvg; //标记是否支持svg
 	
 	//解决IE6下css背景图不缓存bug
 	if($H.Browser.ie()==6){   
@@ -2768,7 +2768,7 @@ handy.add('Support',function($H){
 	 * 检查是否支持svg
 	 * @method testSvg
 	 * @param {function(boolean)} fCall 回调函数，如果支持svg则回调参数为true，反之则为false
-	 */
+	 
 	function fTestSvg(fCall) {
 		if(_supportSvg!=undefined){
 			fCall(_supportSvg);
@@ -2797,6 +2797,8 @@ handy.add('Support',function($H){
 		};
 		img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
 	}
+	*/
+	
 	
 	return Support;
 	
@@ -3025,7 +3027,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		renderBy            : 'append',          //默认渲染方式
 //		notListen           : false,             //不自动初始化监听器
 //		extCls              : '',                //组件附加class
-		activeCls           : 'hui-active',        //激活样式
+		activeCls           : 'hui-active',      //激活样式
 //		defItem             : null,              //默认子组件配置
 //		icon                : null,              //图标
 //		withMask            : false,             //是否有遮罩层
@@ -3181,6 +3183,10 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 				return true;
 			}
 		}});
+		//覆盖子组件配置
+		if(oParams.defItem){
+			$HO.extend(me.defItem,oParams.defItem);
+		}
 		if(oParams.renderTo){
 			me.renderTo=$(oParams.renderTo);
 		}else{
@@ -3620,7 +3626,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	/**
 	 * 查找子元素或子组件
 	 * @method find
-	 * @param {string}sSel '$'开头表示查找组件，如：'$xtype[attr=value]'、'$ancestor descendant'、'$parent>child'，
+	 * @param {string}sSel '$'开头表示查找组件，多个选择期间用","隔开('$sel1,$sel2,...')，语法类似jQuery，如：'$xtype[attr=value]'、'$ancestor descendant'、'$parent>child'，
 	 * 				'$>Button'表示仅查找当前子节点中的按钮，'$Button'表示查找所有后代节点中的按钮，
 	 * @param {Array=}aResult 用于存储结果集的数组
 	 */
@@ -3630,8 +3636,15 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		if(sSel.indexOf('$')!=0){
 			return me.getEl().find(sSel);
 		}
-		//查找组件
 		var aResult=aResult||[];
+		//多个选择器
+		if(sSel.indexOf(",")>0){
+			$HO.each(sSel.split(","),function(i,val){
+				aResult=aResult.concat(me.find(val));
+			})
+			return aResult;
+		}
+		//查找组件
 		var bOnlyChildren=sSel.indexOf('>')==1;
 		var sCurSel=sSel.replace(/^\$>?\s?/,'');
 		//分割当前选择器及后代选择器
@@ -3685,12 +3698,19 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	 * 调用子组件方法
 	 * @method callChild
 	 * @param {string=}sMethod 方法名，不传则使用调用者同名函数
+	 * @param {Array=}aArgs 参数数组
 	 */
-	function fCallChild(sMethod){
+	function fCallChild(sMethod,aArgs){
 		var aChildren=this.children;
+		//没传方法名
+		if($HO.isArray(sMethod)){
+			aArgs=sMethod;
+			sMethod=null;
+		}
 		sMethod=sMethod||arguments.callee.caller.$name;
 		for(var i=0,len=aChildren.length;i<len;i++){
-			aChildren[i][sMethod]();
+			var oChild=aChildren[i];
+			oChild[sMethod].apply(oChild,aArgs);
 		}
 	}
 	/**
@@ -3807,12 +3827,6 @@ $Define('c.Icon',
 function(AC){
 	
 	var Icon=AC.define('Icon');
-	//检查浏览器是否支持svg，不支持则添加标记class
-	$H.Support.testSvg(function(bSupport){
-		if(!bSupport){
-			$('html').addClass('hui-nosvg');
-		}
-	})
 	
 	$HO.extend(Icon.prototype,{
 		//初始配置
@@ -3882,6 +3896,292 @@ function(AC){
 	return Button;
 	
 });/**
+ * 图标类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-01-29
+ */
+
+$Define('c.Radio',
+'c.AbstractComponent',
+function(AC){
+	
+	var Radio=AC.define('Radio');
+	
+	$HO.extend(Radio.prototype,{
+		//初始配置
+//		name            : '',                  //选项名
+		text            : '',                  //文字
+		value           : '',                  //选项值
+		checked         : false,               //是否选中
+		
+		tmpl            : [
+			'<div class="hui-radio hui-btn hui-btn-gray<%if(this.checked){%> hui-radio-on<%}%>">',
+				'<span class="hui-icon hui-icon-radio"></span>',
+				'<input type="radio"<%if(this.checked){%> checked=true<%}%>',
+				'<%if(this.disabled){%> disabled="<%=this.disabled%>"<%}%>',
+				'<%if(this.name){%> name="<%=this.name%>"<%}%>',
+				'<%if(this.value){%> value="<%=this.value%>"<%}%>/>',
+				'<span class="hui-radio-txt"><%=this.text%></span>',
+			'</div>'
+		],
+		
+		listeners       : [
+			{
+				type:'click',
+				handler:function(){
+					this.setChecked();
+				}
+			}
+		],
+		
+		setChecked      : fSetChecked,          //选中
+		val             : fVal                  //获取/设置输入框的值
+	});
+	
+	/**
+	 * 选中
+	 * @method setChecked
+	 * @param {boolean}bChecked 仅当为false时取消选中
+	 */
+	function fSetChecked(bChecked){
+		var me=this;
+		bChecked=!(bChecked==false);
+		var oParent;
+		//要选中，先取消同组的单选框选中
+		if(bChecked&&(oParent=me.parent)&&oParent.xtype=="ControlGroup"){
+			oParent.callChild([false]);
+		}
+		me.checked=bChecked;
+		me.getEl()[bChecked?"addClass":"removeClass"]('hui-radio-on');
+	}
+	/**
+	 * 获取/设置输入框的值
+	 * @method val
+	 * @param {string=}sValue 要设置的值，不传表示读取值
+	 * @return {string=} 如果是读取操作，返回当前值
+	 */
+	function fVal(sValue){
+		var me=this;
+		if(sValue){
+			me.value=sValue;
+			me.find('input').val(sValue);
+		}else{
+			return me.value;
+		}
+	}
+	
+	return Radio;
+	
+});/**
+ * 多选框类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-01-31
+ */
+
+$Define('c.Checkbox',
+'c.AbstractComponent',
+function(AC){
+	
+	var Checkbox=AC.define('Checkbox');
+	
+	$HO.extend(Checkbox.prototype,{
+		//初始配置
+//		name            : '',                  //选项名
+		text            : '',                  //文字
+		value           : '',                  //选项值
+		checked         : false,               //是否选中
+		
+		cls             : 'chkbox',            //组件样式名
+		tmpl            : [
+			'<div class="hui-chkbox hui-btn hui-btn-gray<%if(this.checked){%> hui-chkbox-on<%}%>">',
+				'<span class="hui-icon hui-icon-chkbox"></span>',
+				'<input type="checkbox"<%if(this.checked){%> checked=true<%}%>',
+				'<%if(this.disabled){%> disabled="<%=this.disabled%>"<%}%>',
+				'<%if(this.name){%> name="<%=this.name%>"<%}%>',
+				'<%if(this.value){%> value="<%=this.value%>"<%}%>/>',
+				'<span class="hui-chkbox-txt"><%=this.text%></span>',
+			'</div>'
+		],
+		
+		listeners       : [
+			{
+				type:'click',
+				handler:function(){
+					var me=this;
+					me.setChecked(!me.checked);
+				}
+			}
+		],
+		
+		setChecked      : fSetChecked,          //选中
+		val             : fVal                  //获取/设置输入框的值
+	});
+	
+	/**
+	 * 选中
+	 * @method setChecked
+	 * @param {boolean}bChecked 仅当为false时取消选中
+	 */
+	function fSetChecked(bChecked){
+		var me=this;
+		bChecked=!(bChecked==false);
+		me.checked=bChecked;
+		me.getEl()[bChecked?"addClass":"removeClass"]('hui-chkbox-on');
+	}
+	/**
+	 * 获取/设置输入框的值
+	 * @method val
+	 * @param {string=}sValue 要设置的值，不传表示读取值
+	 * @return {string=} 如果是读取操作，返回当前值
+	 */
+	function fVal(sValue){
+		var me=this;
+		if(sValue){
+			me.value=sValue;
+			me.find('input').val(sValue);
+		}else{
+			return me.value;
+		}
+	}
+	
+	return Checkbox;
+	
+});/**
+ * 图标类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-02-01
+ */
+
+$Define('c.Select',
+'c.AbstractComponent',
+function(AC){
+	
+	var Select=AC.define('Select');
+	
+	$HO.extend(Select.prototype,{
+		//初始配置
+//		name            : '',                  //选项名
+		text            : '',                  //文字
+		value           : '',                  //选项值
+		checked         : false,               //是否选中
+		
+		tmpl            : [
+			'<div class="hui-radio hui-btn hui-btn-gray<%if(this.checked){%> hui-radio-on<%}%>">',
+				'<span class="hui-icon hui-icon-radio"></span>',
+				'<input type="radio"<%if(this.checked){%> checked=true<%}%>',
+				'<%if(this.disabled){%> disabled="<%=this.disabled%>"<%}%>',
+				'<%if(this.name){%> name="<%=this.name%>"<%}%>',
+				'<%if(this.value){%> value="<%=this.value%>"<%}%>/>',
+				'<span class="hui-radio-txt"><%=this.text%></span>',
+			'</div>'
+		],
+		
+		listeners       : [
+			{
+				type:'click',
+				handler:function(){
+					this.setChecked();
+				}
+			}
+		],
+		
+		setChecked      : fSetChecked,          //选中
+		val             : fVal                  //获取/设置输入框的值
+	});
+	
+	/**
+	 * 选中
+	 * @method setChecked
+	 * @param {boolean}bChecked 仅当为false时取消选中
+	 */
+	function fSetChecked(bChecked){
+		var me=this;
+		bChecked=!(bChecked==false);
+		var oParent;
+		//要选中，先取消同组的单选框选中
+		if(bChecked&&(oParent=me.parent)&&oParent.xtype=="ControlGroup"){
+			oParent.callChild([false]);
+		}
+		me.checked=bChecked;
+		me.getEl()[bChecked?"addClass":"removeClass"]('hui-radio-on');
+	}
+	/**
+	 * 获取/设置输入框的值
+	 * @method val
+	 * @param {string=}sValue 要设置的值，不传表示读取值
+	 * @return {string=} 如果是读取操作，返回当前值
+	 */
+	function fVal(sValue){
+		var me=this;
+		if(sValue){
+			me.value=sValue;
+			me.find('input').val(sValue);
+		}else{
+			return me.value;
+		}
+	}
+	
+	return Select;
+	
+});/**
+ * 控制组类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-01-31
+ */
+
+$Define('c.ControlGroup',
+'c.AbstractComponent',
+function(AC){
+	
+	var ControlGroup=AC.define('ControlGroup');
+	
+	$HO.extend(ControlGroup.prototype,{
+		//初始配置
+//		direction            : 'v',                  //排列方向，'v'表示垂直方向，'h'表示水平方向
+		radius               : 'little',             //圆角
+		
+		//默认子组件配置
+		defItem              : {
+			xtype            : 'Button',
+			radius           : null,
+			shadow           : false,
+			isInline         : false
+		},
+		
+		tmpl                 : [
+			'<div class="hui-ctrlgp<%if(this.direction=="h"){%> hui-ctrlgp-h<%}else{%> hui-ctrlgp-v<%}%>">',
+			'<%=this.getHtml("$>*")%>',
+			'</div>'
+		],
+		
+		val                  : fVal                 //获取/设置值
+	});
+	/**
+	 * 获取/设置值
+	 * @method val
+	 * @param {string=}sValue 要设置的值，不传表示读取值，如果是多个值，用","隔开
+	 * @return {string=} 如果是读取操作，返回当前值
+	 */
+	function fVal(sValue){
+		var me=this;
+		if(sValue){
+			var aValues=sValue.split(','),aSel=[];
+			me.each(function(i,oCmp){
+				oCmp.setChecked($HO.contains(aValues,oCmp.value));
+			});
+		}else{
+			var aCmp=me.find('$>[checked=true]');
+			var aValues=[];
+			$HO.each(aCmp,function(i,oCmp){
+				aValues.push(oCmp.value);
+			})
+			return aValues.join(',');
+		}
+	}
+	
+	return ControlGroup;
+	
+});/**
  * 输入框类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-14
@@ -3899,7 +4199,7 @@ function(AC){
 //		value           : '',                  //默认值
 //		placeholder     : '',                  //placeholder
 //		withClear       : false,               //带有清除按钮
-		radius          : 'normal',            //普通圆角
+		radius          : 'little',            //普通圆角
 		iconPos         : 'left',              //图标位置
 		btnPos          : 'right',             //按钮位置
 		
@@ -4132,6 +4432,29 @@ function(AC){
 	}
 	
 	return Toolbar;
+	
+});/**
+ * 弹出层类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-02-01
+ */
+
+$Define('c.Popup',
+'c.AbstractComponent',
+function(AC){
+	
+	var Popup=AC.define('Popup');
+	
+	$HO.extend(Popup.prototype,{
+		//初始配置
+//		name            : '',                  //图标名称
+		
+		tmpl            : [
+		]
+		
+	});
+	
+	return Popup;
 	
 });/**
  * 对话框类
