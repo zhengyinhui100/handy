@@ -42,6 +42,18 @@
 	<div id="buttonContainerDv"></div>
 	<br/><br/><br/><br/>
 	
+	<h3>控制组：</h3>
+	<div id="controlGroupDv"></div>
+	<br/><br/><br/><br/>
+	
+	<h3>单选框：</h3>
+	<div id="radioDv"></div>
+	<br/><br/><br/><br/>
+	
+	<h3>复选框：</h3>
+	<div id="checkboxDv"></div>
+	<br/><br/><br/><br/>
+	
 	<h3>输入框：</h3>
 	<div id="inputContainerDv"></div>
 	<br/><br/><br/><br/>
@@ -114,11 +126,14 @@ $Require([
 "c.ComponentManager",
 "c.Icon",
 "c.Button",
+"c.ControlGroup",
+"c.Radio",
+"c.Checkbox",
 "c.Input",
 "c.Tab",
 "c.Toolbar",
 "c.Dialog"],
-function(CM,Icon,Button,Input,Tab,Toolbar,Dialog){
+function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Input,Tab,Toolbar,Dialog){
 	
 	$('#iconContainerDv').append(Icon.html({
 		cid:'icon',
@@ -181,6 +196,95 @@ function(CM,Icon,Button,Input,Tab,Toolbar,Dialog){
 		}
 	})
 	
+	new ControlGroup({
+		renderTo:'#controlGroupDv',
+		direction:'h',
+		items:[{
+			xtype:'Button',
+			text:'按钮一'
+		},{
+			xtype:'Button',
+			text:'按钮二'
+		},{
+			xtype:'Button',
+			text:'按钮三'
+		}]
+	});
+	
+	//单选框
+	var radios=new ControlGroup({
+		renderTo:'#radioDv',
+		defItem:{
+			xtype:'Radio',
+			name:'radio'
+		},
+		items:[{
+			value:'1',
+			text:'选项一'
+		},{
+			value:'2',
+			checked:true,
+			text:'选项二'
+		},{
+			value:'3',
+			text:'选项三'
+		}]
+	});
+	
+	new Button({
+		renderTo:'#radioDv',
+		text:'获取选中值',
+		click:function(){
+			alert(radios.val());
+		}
+	})
+	
+	new Button({
+		renderTo:'#radioDv',
+		text:'选中第一个',
+		click:function(){
+			radios.val('1');
+		}
+	})
+	
+	//多选框
+	var checkboxs=new ControlGroup({
+		renderTo:'#checkboxDv',
+		defItem:{
+			xtype:'Checkbox',
+			name:'checkbox'
+		},
+		items:[{
+			value:'1',
+			text:'选项一'
+		},{
+			value:'2',
+			checked:true,
+			text:'选项二'
+		},{
+			value:'3',
+			checked:true,
+			text:'选项三'
+		}]
+	});
+	
+	new Button({
+		renderTo:'#checkboxDv',
+		text:'获取选中值',
+		click:function(){
+			alert(checkboxs.val());
+		}
+	})
+	
+	new Button({
+		renderTo:'#checkboxDv',
+		text:'选中前两个',
+		click:function(){
+			checkboxs.val('1,2');
+		}
+	})
+	
+	//输入框
 	new Input({
 		renderTo:'#inputContainerDv'
 	});

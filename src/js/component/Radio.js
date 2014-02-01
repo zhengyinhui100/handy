@@ -9,21 +9,69 @@ $Define('c.Radio',
 function(AC){
 	
 	var Radio=AC.define('Radio');
-	//检查浏览器是否支持svg，不支持则添加标记class
-	$H.Support.testSvg(function(bSupport){
-		if(!bSupport){
-			$('html').addClass('hui-nosvg');
-		}
-	})
 	
 	$HO.extend(Radio.prototype,{
 		//初始配置
-		hasBg           : true,               //是否有背景
-//		name            : '',                  //图标名称
+//		name            : '',                  //选项名
+		text            : '',                  //文字
+		value           : '',                  //选项值
+		checked         : false,               //是否选中
 		
-		tmpl            : ['<span class="hui-icon hui-icon-<%=this.name%><%if(this.hasBg){%> hui-icon-bg<%}%>"></span>']
+		tmpl            : [
+			'<div class="hui-radio hui-btn hui-btn-gray<%if(this.checked){%> hui-radio-on<%}%>">',
+				'<span class="hui-icon hui-icon-radio"></span>',
+				'<input type="radio"<%if(this.checked){%> checked=true<%}%>',
+				'<%if(this.disabled){%> disabled="<%=this.disabled%>"<%}%>',
+				'<%if(this.name){%> name="<%=this.name%>"<%}%>',
+				'<%if(this.value){%> value="<%=this.value%>"<%}%>/>',
+				'<span class="hui-radio-txt"><%=this.text%></span>',
+			'</div>'
+		],
 		
+		listeners       : [
+			{
+				type:'click',
+				handler:function(){
+					this.setChecked();
+				}
+			}
+		],
+		
+		setChecked      : fSetChecked,          //选中
+		val             : fVal                  //获取/设置输入框的值
 	});
+	
+	/**
+	 * 选中
+	 * @method setChecked
+	 * @param {boolean}bChecked 仅当为false时取消选中
+	 */
+	function fSetChecked(bChecked){
+		var me=this;
+		bChecked=!(bChecked==false);
+		var oParent;
+		//要选中，先取消同组的单选框选中
+		if(bChecked&&(oParent=me.parent)&&oParent.xtype=="ControlGroup"){
+			oParent.callChild([false]);
+		}
+		me.checked=bChecked;
+		me.getEl()[bChecked?"addClass":"removeClass"]('hui-radio-on');
+	}
+	/**
+	 * 获取/设置输入框的值
+	 * @method val
+	 * @param {string=}sValue 要设置的值，不传表示读取值
+	 * @return {string=} 如果是读取操作，返回当前值
+	 */
+	function fVal(sValue){
+		var me=this;
+		if(sValue){
+			me.value=sValue;
+			me.find('input').val(sValue);
+		}else{
+			return me.value;
+		}
+	}
 	
 	return Radio;
 	

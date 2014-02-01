@@ -33,7 +33,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		renderBy            : 'append',          //默认渲染方式
 //		notListen           : false,             //不自动初始化监听器
 //		extCls              : '',                //组件附加class
-		activeCls           : 'hui-active',        //激活样式
+		activeCls           : 'hui-active',      //激活样式
 //		defItem             : null,              //默认子组件配置
 //		icon                : null,              //图标
 //		withMask            : false,             //是否有遮罩层
@@ -189,6 +189,10 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 				return true;
 			}
 		}});
+		//覆盖子组件配置
+		if(oParams.defItem){
+			$HO.extend(me.defItem,oParams.defItem);
+		}
 		if(oParams.renderTo){
 			me.renderTo=$(oParams.renderTo);
 		}else{
@@ -628,7 +632,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	/**
 	 * 查找子元素或子组件
 	 * @method find
-	 * @param {string}sSel '$'开头表示查找组件，如：'$xtype[attr=value]'、'$ancestor descendant'、'$parent>child'，
+	 * @param {string}sSel '$'开头表示查找组件，多个选择期间用","隔开('$sel1,$sel2,...')，语法类似jQuery，如：'$xtype[attr=value]'、'$ancestor descendant'、'$parent>child'，
 	 * 				'$>Button'表示仅查找当前子节点中的按钮，'$Button'表示查找所有后代节点中的按钮，
 	 * @param {Array=}aResult 用于存储结果集的数组
 	 */
@@ -638,8 +642,15 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		if(sSel.indexOf('$')!=0){
 			return me.getEl().find(sSel);
 		}
-		//查找组件
 		var aResult=aResult||[];
+		//多个选择器
+		if(sSel.indexOf(",")>0){
+			$HO.each(sSel.split(","),function(i,val){
+				aResult=aResult.concat(me.find(val));
+			})
+			return aResult;
+		}
+		//查找组件
 		var bOnlyChildren=sSel.indexOf('>')==1;
 		var sCurSel=sSel.replace(/^\$>?\s?/,'');
 		//分割当前选择器及后代选择器
@@ -693,12 +704,19 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	 * 调用子组件方法
 	 * @method callChild
 	 * @param {string=}sMethod 方法名，不传则使用调用者同名函数
+	 * @param {Array=}aArgs 参数数组
 	 */
-	function fCallChild(sMethod){
+	function fCallChild(sMethod,aArgs){
 		var aChildren=this.children;
+		//没传方法名
+		if($HO.isArray(sMethod)){
+			aArgs=sMethod;
+			sMethod=null;
+		}
 		sMethod=sMethod||arguments.callee.caller.$name;
 		for(var i=0,len=aChildren.length;i<len;i++){
-			aChildren[i][sMethod]();
+			var oChild=aChildren[i];
+			oChild[sMethod].apply(oChild,aArgs);
 		}
 	}
 	/**
