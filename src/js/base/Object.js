@@ -116,14 +116,24 @@ handy.add('Object',function($H){
             	return fInitialize.apply(me, arguments);
             }
         };
-        //便捷访问父类方法
-        Class.prototype.callSuper=function(){
-        	var me=this,oSuper,
+        /**
+         * 便捷访问父类方法，ps：在多重继承的场景中，需要通过参数指定父类，避免死循环
+         * @method callSuper
+         * @param {Class=}oSuper 指定父类，默认为实际调用对象的父类
+         * @param {Array}aArgs 参数数组
+         */
+        Class.prototype.callSuper=function(oSuper,aArgs){
+        	var me=this;
+        	if(Object.isArray(oSuper)){
+        		aArgs=oSuper;
+        		oSuper=null;
+        	}
+        	oSuper=oSuper||me.constructor.superProt
         	sMethod=arguments.callee.caller.$name;
-        	if(oSuper=me.constructor.superProt){
+        	if(oSuper){
         		var fMethod=oSuper[sMethod];
         		if(Object.isFunction(fMethod)){
-        			return fMethod.apply(me,arguments);
+        			return fMethod.apply(me,aArgs);
         		}
         	}
         };
