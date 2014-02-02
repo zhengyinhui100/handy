@@ -138,7 +138,7 @@ $Require([
 "c.Radio",
 "c.Checkbox",
 "c.Menu",
-"c.Select"
+"c.Select",
 "c.Input",
 "c.Tab",
 "c.Toolbar",
@@ -297,20 +297,24 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 	//菜单
 	new Button({
 		renderTo:"#menuDv",
-		text:"普通菜单"
+		text:"普通菜单",
 		click:function(){
-			new Menu({
-				itemClick:function(){
-					alert(this.value);
-				},
-				items:[{
-					text:"菜单一",
-					value:"1"
-				},{
-					text:"菜单二",
-					value:"2"
-				}]
-			})
+			if(this.menu){
+				this.menu.show();
+			}else{
+				this.menu=new Menu({
+					itemClick:function(){
+						alert(this.value);
+					},
+					items:[{
+						text:"菜单一",
+						value:"1"
+					},{
+						text:"菜单二",
+						value:"2"
+					}]
+				})
+			}
 		}
 	})
 	

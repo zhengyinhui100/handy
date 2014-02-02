@@ -15,7 +15,6 @@ function(AC,Popup,ControlGroup){
 	
 	$HO.extend(Menu.prototype,{
 		//初始配置
-//		name            : '',                 //图标名称
 		
 		tmpl            : [
 			'<div class="hui-menu">',

@@ -5,10 +5,11 @@
  */
 
 $Define('c.Dialog',
-'c.AbstractComponent',
-function(AC){
+['c.AbstractComponent',
+'c.Popup'],
+function(AC,Popup){
 	
-	var Dialog=AC.define('Dialog');
+	var Dialog=AC.define('Dialog',Popup);
 	
 	//快捷静态方法
 	$HO.extend(Dialog,{
@@ -33,12 +34,11 @@ function(AC){
 //		okCall          : function(){},   //确定按钮事件函数
 //		cancelCall      : function(){},   //取消按钮事件函数
 		
+		clickHide       : false,          //点击不隐藏
+		
 		//组件共有配置
 		radius          : 'normal',
 		cls             : 'dialog',
-		withMask        : true,
-		
-		
 		tmpl            : [
 			'<div class="hui-dialog hui-overlay-shadow">',
 				'<%=this.getHtml("$>Toolbar")%>',
@@ -58,9 +58,7 @@ function(AC){
 				'</div>',
 			'</div>'
 		],
-		doConfig         : fDoConfig,        //处理配置
-		show             : fShow             //显示
-		
+		doConfig         : fDoConfig        //处理配置
 	});
 	
 	/**
@@ -129,7 +127,7 @@ function(AC){
 	 */
 	function fDoConfig(oSettings){
 		var me=this;
-		me.callSuper(oSettings);
+		me.callSuper([oSettings]);
 		if(me.title){
 			//顶部标题栏
 			me.addItem({
@@ -177,24 +175,6 @@ function(AC){
 				});
 			}
 		}
-	}
-	/**
-	 * 显示
-	 * @method show
-	 */
-	function fShow(){
-		// 设置定位坐标
-		var me=this;
-		var oEl=me.getEl();
-		var oDoc=document;
-		var x = ((oDoc.documentElement.offsetWidth || oDoc.body.offsetWidth) - oEl.width())/2;
-		var y = ((oDoc.documentElement.clientHeight || oDoc.body.clientHeight) - oEl.height())/2 + oDoc.body.scrollTop;
-		y = y < 10 ? window.screen.height/2-200 : y;
-		oEl.css({
-			left:x + "px",
-			top:y-(me.offsetTop||0) + "px"
-		});
-		me.callSuper();
 	}
 	
 	return Dialog;

@@ -51,7 +51,7 @@ function(AC,ControlGroup){
 		me.setActiveItem(nIndex);
 		//点击tab按钮显示对应的content
 		me.find('.js-tab-content').hide().eq(nIndex).show();
-		me.callSuper(oEvt,nIndex);
+		me.callSuper([oEvt,nIndex]);
 	}
 	
 	return Tab;
