@@ -413,31 +413,61 @@
 .hui-mi-no-csstransforms .hui-btn-back.hui-btn-blue:hover:before {
   border-right-color: #4b88b6;
 }
-.hui-btn-icon-left {
-  padding-left: 40px;
-}
-.hui-btn-icon-left .hui-icon {
+.hui-btn-icon-left .hui-icon,
+.hui-btn-icon-right .hui-icon {
   position: absolute;
   top: 50%;
   margin-top: -11px;
-  left: 10px;
 }
-.hui-btn-icon-left.hui-mini {
-  padding-left: 35px;
-}
-.hui-btn-icon-left.hui-mini .hui-icon {
+.hui-btn-icon-left.hui-mini .hui-icon,
+.hui-btn-icon-right.hui-mini .hui-icon {
   margin-top: -9px;
 }
-.hui-btn-icon-top {
-  padding-top: 25px;
-  padding-bottom: 0;
-  font-size: 12px;
+.hui-btn-icon-left {
+  padding-left: 2.3em;
 }
-.hui-btn-icon-top .hui-icon {
+.hui-btn-icon-left .hui-icon {
+  left: 0.7em;
+}
+.hui-btn-icon-right {
+  padding-right: 2.3em;
+}
+.hui-btn-icon-right .hui-icon {
+  right: 0.7em;
+}
+.hui-btn-icon-top .hui-icon,
+.hui-btn-icon-bottom .hui-icon {
   position: absolute;
   left: 50%;
   margin-left: -11px;
+}
+.hui-btn-icon-top.hui-mini .hui-icon,
+.hui-btn-icon-bottom.hui-mini .hui-icon {
+  margin-left: -9px;
+}
+.hui-btn-icon-top {
+  padding-top: 1.8em;
+}
+.hui-btn-icon-top .hui-icon {
+  top: 5px;
+}
+.hui-btn-icon-top.hui-mini {
+  padding-top: 1.5em;
+}
+.hui-btn-icon-top.hui-mini .hui-icon {
   top: 2px;
+}
+.hui-btn-icon-bottom {
+  padding-bottom: 1.8em;
+}
+.hui-btn-icon-bottom .hui-icon {
+  bottom: 5px;
+}
+.hui-btn-icon-bottom.hui-mini {
+  padding-bottom: 1.5em;
+}
+.hui-btn-icon-bottom.hui-mini .hui-icon {
+  bottom: 2px;
 }
 .hui-btn-icon-notxt {
   padding: 0;
@@ -524,6 +554,41 @@
 .hui-radio input,
 .hui-chkbox input {
   display: none;
+}
+.hui-menu {
+  position: absolute;
+  z-index: 1000;
+  border: 1px solid #ccc;
+}
+.hui-menu .hui-btn {
+  margin: 0;
+  border-bottom: 0;
+  border-left: 0;
+  border-right: 0;
+}
+.hui-menu .hui-menu-item:first-child .hui-btn {
+  border-top: 0;
+  -moz-border-radius-topleft: inherit;
+  -moz-border-radius-topright: inherit;
+  -webkit-border-top-left-radius: inherit;
+  -webkit-border-top-right-radius: inherit;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+.hui-menu .hui-menu-item:last-child .hui-btn {
+  -moz-border-radius-bottomright: inherit;
+  -moz-border-radius-bottomleft: inherit;
+  -webkit-border-bottom-left-radius: inherit;
+  -webkit-border-bottom-right-radius: inherit;
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+}
+.hui-select select {
+  display: none;
+}
+.hui-popup {
+  position: absolute;
+  z-index: 1000;
 }
 .hui-input {
   padding: 0 .4em;

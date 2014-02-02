@@ -13,18 +13,15 @@ function(AC){
 	$HO.extend(Select.prototype,{
 		//初始配置
 //		name            : '',                  //选项名
-		text            : '',                  //文字
+		text            : '请选择...',          //文字
+		defaultValue    : '',                  //默认值
 		value           : '',                  //选项值
-		checked         : false,               //是否选中
 		
 		tmpl            : [
-			'<div class="hui-radio hui-btn hui-btn-gray<%if(this.checked){%> hui-radio-on<%}%>">',
-				'<span class="hui-icon hui-icon-radio"></span>',
-				'<input type="radio"<%if(this.checked){%> checked=true<%}%>',
-				'<%if(this.disabled){%> disabled="<%=this.disabled%>"<%}%>',
-				'<%if(this.name){%> name="<%=this.name%>"<%}%>',
-				'<%if(this.value){%> value="<%=this.value%>"<%}%>/>',
-				'<span class="hui-radio-txt"><%=this.text%></span>',
+			'<div class="hui-select hui-btn hui-btn-gray hui-btn-icon-right">',
+				'<span class="hui-icon hui-icon-carat-d hui-icon-bg"></span>',
+				'<select value="<%=this.value%>"></select>',
+				'<span class="hui-btn-txt"><%=this.text%></span>',
 			'</div>'
 		],
 		
@@ -32,30 +29,22 @@ function(AC){
 			{
 				type:'click',
 				handler:function(){
-					this.setChecked();
+					this.showOptions();
 				}
 			}
 		],
 		
-		setChecked      : fSetChecked,          //选中
-		val             : fVal                  //获取/设置输入框的值
+		showOptions      : fShowOptions,          //显示选项菜单
+		val              : fVal                   //获取/设置值
 	});
 	
 	/**
-	 * 选中
+	 * 显示选项菜单
 	 * @method setChecked
 	 * @param {boolean}bChecked 仅当为false时取消选中
 	 */
-	function fSetChecked(bChecked){
+	function fShowOptions(){
 		var me=this;
-		bChecked=!(bChecked==false);
-		var oParent;
-		//要选中，先取消同组的单选框选中
-		if(bChecked&&(oParent=me.parent)&&oParent.xtype=="ControlGroup"){
-			oParent.callChild([false]);
-		}
-		me.checked=bChecked;
-		me.getEl()[bChecked?"addClass":"removeClass"]('hui-radio-on');
 	}
 	/**
 	 * 获取/设置输入框的值

@@ -5,14 +5,14 @@
  */
 
 $Define('c.Tab',
-'c.AbstractComponent',
-function(AC){
+['c.AbstractComponent',
+'c.ControlGroup'],
+function(AC,ControlGroup){
 	
-	var Tab=AC.define('Tab');
+	var Tab=AC.define('Tab',ControlGroup);
 	
 	$HO.extend(Tab.prototype,{
 		//初始配置
-//		itemClick       : function(){},        //标签项点击事件，函数参数为TabItem子组件对象
 		defItem         : {                    //默认子组件是Button
 			xtype:'Button',
 			radius:null,
@@ -25,7 +25,7 @@ function(AC){
 			'<div class="hui-tab">',
 				'<ul class="c-clear">',
 					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
-					'<li class="js-tab-item hui-tab-item" style="width:<%=100/len%>%">',
+					'<li class="js-item hui-tab-item" style="width:<%=100/len%>%">',
 					'<%=this.children[i].getHtml()%>',
 					'</li>',
 					'<%}%>',
@@ -37,60 +37,21 @@ function(AC){
 				'<%}%>',
 			'</div>'
 		],
-		listeners       : [
-			{
-				type :'click',
-				selector : '.js-tab-item',
-				method : 'delegate',
-				handler : function(oEvt){
-					var me=this;
-					//点击tab按钮显示对应的content
-					var oCurrentEl=$(oEvt.currentTarget);
-					var nIndex=oCurrentEl.index();
-					me.setActiveItem(nIndex);
-					me.find('.js-tab-content').hide().eq(nIndex).show();
-					if(me.itemClick){
-						var oCmp=me.children[nIndex];
-						me.itemClick(oCmp);
-					}
-				}
-			}
-		],
 		
-		setActiveItem          : fSetActiveItem,       //激活指定标签项
-		getActiveItem          : fGetActiveItem        //获取激活的标签项
+		onItemClick     : fOnItemClick         //子项点击事件处理
 	});
 	/**
-	 * 激活指定标签项
-	 * @method setActiveItem
-	 * @param {number|string}item number表示索引，string表示选择器
+	 * 子项点击事件处理
+	 * @method onItemClick
+	 * @param {jQ:Event}oEvt jQ事件对象
+	 * @param {number}nIndex 子项目索引
 	 */
-	function fSetActiveItem(item){
-		var me=this,oActive;
-		me.callChild('unactive');
-		if(typeof item=='number'){
-			oActive=me.children[item];
-		}else{
-			oActive=me.find(item)[0];
-		}
-		oActive.active();
-	}
-	/**
-	 * 获取激活的标签项
-	 * @method getActiveItem
-	 * @param {boolean=}bIsIndex 仅当true时返回索引
-	 * @return {Component} 返回当前激活的组件
-	 */
-	function fGetActiveItem(bIsIndex){
-		var me=this,nIndex,oItem;
-		me.each(function(i,item){
-			if(item.isActive){
-				oItem=item;
-				nIndex=i;
-				return false;
-			}
-		});
-		return bIsIndex?nIndex:oItem;
+	function fOnItemClick(oEvt,nIndex){
+		var me=this;
+		me.setActiveItem(nIndex);
+		//点击tab按钮显示对应的content
+		me.find('.js-tab-content').hide().eq(nIndex).show();
+		me.callSuper(oEvt,nIndex);
 	}
 	
 	return Tab;

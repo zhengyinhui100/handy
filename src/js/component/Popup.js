@@ -17,9 +17,18 @@ function(AC){
 		withMask        : true,
 		
 		tmpl            : [
-		]
+			'<div class="hui-popup"><%=this.getHtml("$>*")%></div>'
+		],
+		listeners       : [{
+			type:'click',
+			el: $(document),
+			handler:function(){
+				this.hide();
+			}
+		}]
 		
 	});
+	
 	
 	return Popup;
 	

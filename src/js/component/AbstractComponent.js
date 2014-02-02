@@ -37,7 +37,9 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 //		defItem             : null,              //默认子组件配置
 //		icon                : null,              //图标
 //		withMask            : false,             //是否有遮罩层
-		////通用效果
+		////通用样式，ps:组件模板容器节点上不能带有style属性
+//		width               : null,              //宽度(默认单位是px)
+//		height              : null,              //高度(默认单位是px)
 //		theme               : null,              //组件颜色
 //		radius              : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 //		shadow              : false,        	 //外阴影
@@ -112,11 +114,12 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	 * 定义组件
 	 * @method define
 	 * @param {string}sXtype 组件类型
+	 * @param {Component=}oSuperCls 父类，默认是AbstractComponent
 	 * @return {class}组件类对象
 	 */
-	function fDefine(sXtype){
+	function fDefine(sXtype,oSuperCls){
 		var Component=$HO.createClass();
-		$HO.inherit(Component,AC,null,null,{notCover:function(p){
+		$HO.inherit(Component,oSuperCls||AC,null,null,{notCover:function(p){
 			return p=='define';
 		}});
 		CM.registerType(sXtype,Component);
@@ -165,13 +168,21 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		me.params=oParams;
 		//复制参数
 		me.settings=$HO.extend({},oParams);
-		//生成对象的监听器列表
-		var aListeners=me.listeners||[];
+		//事件列表对象特殊处理，不影响类定义
+		var aListeners=me.listeners?me.listeners.concat():[];
+		//添加参数中的事件
 		if(oParams.listeners){
-			me._listeners=aListeners.concat(oParams.listeners);
-		}else{
-			me._listeners=aListeners.concat();
+			aListeners=aListeners.concat(oParams.listeners);
 		}
+		//继承父类事件
+		var oSuper=me.superProp;
+		while(oSuper){
+			if(oSuper.listeners){
+				aListeners=aListeners.concat(oSuper.listeners);
+			}
+			oSuper=oSuper.superProp;
+		}
+		me._listeners=aListeners;
 		//只覆盖基本类型的属性
 		$HO.extend(me,oParams,{notCover:function(sProp){
 			var value=me[sProp];
@@ -217,14 +228,22 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		sHtml=sHtml.replace(_oTagReg,'$1 id="'+sId+'"');
 		//添加附加class
 		sHtml=sHtml.replace(_oClsReg,'$1'+me.getExtCls());
+		//添加style
+		var sStyle='';
 		if(me.hidden){
-			//添加style
-			var sStyle;
 			if(me.displayMode=='visibility'){
-				sStyle='visibility:hidden';
+				sStyle+='visibility:hidden;';
 			}else{
-				sStyle='display:none';
+				sStyle+='display:none;';
 			}
+		}
+		if(me.width!=undefined){
+			sStyle+="width:"+me.width+(typeof me.width=='number'?"px;":";");
+		}
+		if(me.height!=undefined){
+			sStyle+="height:"+(typeof me.height=='number'?"px;":";");
+		}
+		if(sStyle){
 			sHtml=sHtml.replace(_oTagReg,'$1 style="'+sStyle+'"');
 		}
 		me.html=sHtml;

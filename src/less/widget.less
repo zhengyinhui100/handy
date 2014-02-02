@@ -213,30 +213,66 @@
 	}
 }
 //带图标按钮
-.hui-btn-icon-left{
-	padding-left:40px;
+.hui-btn-icon-left,.hui-btn-icon-right{
 	.hui-icon{
 		position:absolute;
 		top:50%;
 		margin-top:-11px;
-		left:10px;
 	}
 	&.hui-mini{
 		.hui-icon{
 			margin-top:-9px;
 		}
-		padding-left:35px;
 	}
 }
-.hui-btn-icon-top{
-	padding-top:25px;
-	padding-bottom:0;
-	font-size:12px;
+.hui-btn-icon-left{
+	padding-left:2.3em;
+	.hui-icon{
+		left:0.7em;
+	}
+}
+.hui-btn-icon-right{
+	padding-right:2.3em;
+	.hui-icon{
+		right:0.7em;
+	}
+}
+.hui-btn-icon-top,.hui-btn-icon-bottom{
 	.hui-icon{
 		position:absolute;
 		left:50%;
 		margin-left:-11px;
-		top:2px;
+	}
+	&.hui-mini{
+		.hui-icon{
+			margin-left:-9px;
+		}
+		
+	}
+}
+.hui-btn-icon-top{
+	padding-top:1.8em;
+	.hui-icon{
+		top:5px;
+	}
+	&.hui-mini{
+		padding-top:1.5em;
+		.hui-icon{
+			top:2px;
+		}
+		
+	}
+}
+.hui-btn-icon-bottom{
+	padding-bottom:1.8em;
+	.hui-icon{
+		bottom:5px;
+	}
+	&.hui-mini{
+		padding-bottom:1.5em;
+		.hui-icon{
+			bottom:2px;
+		}
 	}
 }
 .hui-btn-icon-notxt{
@@ -305,6 +341,38 @@
 	input{
 		display:none;
 	}
+}
+
+//菜单
+.hui-menu{
+	.hui-popup();
+	border: 1px solid #ccc;
+	.hui-btn{
+		margin:0;
+		border-bottom:0;
+		border-left:0;
+		border-right:0;
+	}
+	.hui-menu-item:first-child .hui-btn{
+		border-top:0;
+		.fn_border_radius_top(inherit);
+	}
+	.hui-menu-item:last-child .hui-btn{
+		.fn_border_radius_bottom(inherit);
+	}
+}
+
+//下拉选择框
+.hui-select{
+	select{
+		display:none;
+	}
+}
+
+//弹出层
+.hui-popup{
+	position:absolute;
+	z-index: 1000;
 }
 
 //输入框

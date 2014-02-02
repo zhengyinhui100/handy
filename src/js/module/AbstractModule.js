@@ -61,7 +61,7 @@ $Define("m.AbstractModule","handy.base.Object",function (Object) {
 			me.constructor.prototype.tmpl=me.tmpl.join('');
 		}
 		//由模板生成组件html
-		var sHtml=$H.Template.tmpl({id:me.xtype,tmpl:me.tmpl},me);
+		var sHtml=$H.Template.tmpl({id:me.name,tmpl:me.tmpl},me);
 		return sHtml;
 	}
 	/**

@@ -54,6 +54,14 @@
 	<div id="checkboxDv"></div>
 	<br/><br/><br/><br/>
 	
+	<h3>菜单：</h3>
+	<div id="menuDv"></div>
+	<br/><br/><br/><br/>
+	
+	<h3>下拉选择框：</h3>
+	<div id="selectDv"></div>
+	<br/><br/><br/><br/>
+	
 	<h3>输入框：</h3>
 	<div id="inputContainerDv"></div>
 	<br/><br/><br/><br/>
@@ -129,11 +137,13 @@ $Require([
 "c.ControlGroup",
 "c.Radio",
 "c.Checkbox",
+"c.Menu",
+"c.Select"
 "c.Input",
 "c.Tab",
 "c.Toolbar",
 "c.Dialog"],
-function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Input,Tab,Toolbar,Dialog){
+function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolbar,Dialog){
 	
 	$('#iconContainerDv').append(Icon.html({
 		cid:'icon',
@@ -281,6 +291,26 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Input,Tab,Toolbar,Dialog){
 		text:'选中前两个',
 		click:function(){
 			checkboxs.val('1,2');
+		}
+	})
+	
+	//菜单
+	new Button({
+		renderTo:"#menuDv",
+		text:"普通菜单"
+		click:function(){
+			new Menu({
+				itemClick:function(){
+					alert(this.value);
+				},
+				items:[{
+					text:"菜单一",
+					value:"1"
+				},{
+					text:"菜单二",
+					value:"2"
+				}]
+			})
 		}
 	})
 	
