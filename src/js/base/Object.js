@@ -161,22 +161,25 @@ handy.add('Object',function($H){
     	//如果是类扩展，添加方法元数据
     	var bAddMeta=!!oDestination.callSuper;
         for (var sProperty in oSource) {
-        	var bHas=sProperty in oDestination;
-        	var bNotCover=notCover===true?bHas:false;
-        	//当此参数为数组时，仅不覆盖数组中的原有属性
-        	if(Object.isArray(notCover)){
-        		bNotCover=Object.contains(notCover,sProperty)&&bHas;
-        	}else if(Object.isFunction(notCover)){
-        		//当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
-        		bNotCover=notCover(sProperty);
+        	//不复制深层prototype
+        	if(oSource.hasOwnProperty(sProperty)){
+	        	var bHas=oDestination.hasOwnProperty(sProperty);
+	        	var bNotCover=notCover===true?bHas:false;
+	        	//当此参数为数组时，仅不覆盖数组中的原有属性
+	        	if(Object.isArray(notCover)){
+	        		bNotCover=Object.contains(notCover,sProperty)&&bHas;
+	        	}else if(Object.isFunction(notCover)){
+	        		//当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
+	        		bNotCover=notCover(sProperty);
+	        	}
+	            if (!bNotCover) {
+	            	var value=bNotClone?oSource[sProperty]:Object.clone(oSource[sProperty]);
+					if(bAddMeta&&Object.isFunction(value)){
+						value.$name=sProperty;
+					}
+					oDestination[sProperty] = value;
+	            }
         	}
-            if (!bNotCover) {
-            	var value=bNotClone?oSource[sProperty]:Object.clone(oSource[sProperty]);
-				if(bAddMeta&&Object.isFunction(value)){
-					value.$name=sProperty;
-				}
-				oDestination[sProperty] = value;
-            }
         }
         return oDestination;
     };
