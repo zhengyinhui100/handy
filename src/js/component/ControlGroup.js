@@ -15,6 +15,7 @@ function(CM,AC){
 		//初始配置
 //		direction            : 'v',                  //排列方向，'v'表示垂直方向，'h'表示水平方向
 		radius               : 'little',             //圆角
+		multi                : false,                //是否多选
 //		itemClick            : function(oCmp,nIndex){},         //子项点击事件函数，函数参数为子组件对象及索引
 		
 		//默认子组件配置
@@ -23,6 +24,7 @@ function(CM,AC){
 			extCls           : 'js-item',
 			radius           : null,
 			shadow           : false,
+//			isSelected       : false,             //是否选中
 			isInline         : false
 		},
 		
@@ -46,43 +48,77 @@ function(CM,AC){
 			}
 		],
 		
-		setActiveItem        : fSetActiveItem,       //激活指定标签项
-		getActiveItem        : fGetActiveItem,       //获取激活的标签项
+		select               : fSelect,              //选中指定项
+		getSelected          : fGetSelected,         //获取选中项/索引
+		selectItem           : fSelectItem,          //选中/取消选中
 		val                  : fVal,                 //获取/设置值
 		onItemClick          : fOnItemClick          //子项点击事件处理
 	});
 	
 	/**
-	 * 激活指定标签项
-	 * @method setActiveItem
+	 * 选中指定项
+	 * @method select
 	 * @param {number|string}item number表示索引，string表示选择器
 	 */
-	function fSetActiveItem(item){
-		var me=this,oActive;
-		me.callChild('unactive');
+	function fSelect(item){
+		var me=this,oItem;
 		if(typeof item=='number'){
-			oActive=me.children[item];
+			oItem=me.children[item];
 		}else{
-			oActive=me.find(item)[0];
+			oItem=me.find(item)[0];
 		}
-		oActive.active();
+		if(!me.multi&&!oItem.multi){
+			//单选操作要先取消别的选中
+			var oSelected=me.getSelected();
+			if(oSelected){
+				me.selectItem(oSelected,false);
+			}
+			me.selectItem(oItem);
+		}else{
+			me.selectItem(oItem,!oItem.selected);
+		}
 	}
 	/**
-	 * 获取激活的标签项
-	 * @method getActiveItem
+	 * 获取选中项/索引
+	 * @method getSelected
 	 * @param {boolean=}bIsIndex 仅当true时返回索引
-	 * @return {Component} 返回当前激活的组件
+	 * @return {Component|number|Array} 返回当前选中的组件或索引，单选返回单个对象，复选返回数组(不管实际选中几个),
+	 * 									无选中则返回null
 	 */
-	function fGetActiveItem(bIsIndex){
-		var me=this,nIndex,oItem;
+	function fGetSelected(bIsIndex){
+		var me=this,aItem=[];
 		me.each(function(i,item){
-			if(item.isActive){
-				oItem=item;
-				nIndex=i;
-				return false;
+			if(item.selected){
+				aItem.push(bIsIndex?i:item);
 			}
 		});
-		return bIsIndex?nIndex:oItem;
+		return aItem.length>0?me.multi?aItem:aItem[0]:null;
+	}
+	/**
+	 * 选中/取消选中
+	 * @method selectItem
+	 * @param {Component}oItem 要操作的组件
+	 * @param {boolean=}bSelect 仅当为false时表示移除选中效果
+	 */
+	function fSelectItem(oItem,bSelect){
+		bSelect=bSelect!=false;
+		if(bSelect){
+			oItem.selected=bSelect;
+			//优先使用子组件定义的接口
+			if(oItem.select){
+				oItem.select();
+			}else{
+				oItem.active();
+			}
+		}else{
+			oItem.selected=bSelect;
+			//优先使用子组件定义的接口
+			if(oItem.select){
+				oItem.select(bSelect);
+			}else{
+				oItem.unactive();
+			}
+		}
 	}
 	/**
 	 * 获取/设置值
@@ -95,10 +131,10 @@ function(CM,AC){
 		if(sValue){
 			var aValues=sValue.split(','),aSel=[];
 			me.each(function(i,oCmp){
-				oCmp.setChecked($HO.contains(aValues,oCmp.value));
+				oCmp.select($HO.contains(aValues,oCmp.value));
 			});
 		}else{
-			var aCmp=me.find('$>[checked=true]');
+			var aCmp=me.find('$>[selected=true]');
 			var aValues=[];
 			$HO.each(aCmp,function(i,oCmp){
 				aValues.push(oCmp.value);
@@ -114,6 +150,7 @@ function(CM,AC){
 	 */
 	function fOnItemClick(oEvt,nIndex){
 		var me=this;
+		me.select(nIndex);
 		if(me.itemClick){
 			var oCmp=me.children[nIndex];
 			me.itemClick(oCmp,nIndex);

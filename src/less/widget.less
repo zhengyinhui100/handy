@@ -358,12 +358,35 @@
 	ul{
 		.fn_border_radius(inherit);
 	}
-	.hui-menu-item:first-child,.hui-menu-item:first-child .hui-btn{
-		border-top:0;
-		.fn_border_radius_top(inherit);
+	.hui-menu-item{
+		position:relative;
+		&:first-child{
+			&, .hui-btn{
+				border-top:0;
+				.fn_border_radius_top(inherit);
+			}
+		}
+		&:last-child{
+			&, .hui-btn{
+				.fn_border_radius_bottom(inherit);
+			}
+		}
 	}
-	.hui-menu-item:last-child,.hui-menu-item:last-child .hui-btn{
-		.fn_border_radius_bottom(inherit);
+	&.hui-menu-mark{
+		.hui-icon-mark{
+			position:absolute;
+			display:none;
+			background:#222;
+			left:10px;
+			top:50%;
+			margin-top:-3px;
+			width:6px;
+			height:6px;
+			.fn_border_radius(3px);
+		}
+		.hui-item-mark .hui-icon-mark{
+			display:block;
+		}
 	}
 }
 

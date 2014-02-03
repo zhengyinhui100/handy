@@ -571,6 +571,9 @@
   -moz-border-radius: inherit;
   border-radius: inherit;
 }
+.hui-menu .hui-menu-item {
+  position: relative;
+}
 .hui-menu .hui-menu-item:first-child,
 .hui-menu .hui-menu-item:first-child .hui-btn {
   border-top: 0;
@@ -589,6 +592,22 @@
   -webkit-border-bottom-right-radius: inherit;
   border-bottom-left-radius: inherit;
   border-bottom-right-radius: inherit;
+}
+.hui-menu.hui-menu-mark .hui-icon-mark {
+  position: absolute;
+  display: none;
+  background: #222;
+  left: 10px;
+  top: 50%;
+  margin-top: -3px;
+  width: 6px;
+  height: 6px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+.hui-menu.hui-menu-mark .hui-item-mark .hui-icon-mark {
+  display: block;
 }
 .hui-select select {
   display: none;

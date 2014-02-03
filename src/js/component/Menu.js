@@ -17,20 +17,45 @@ function(AC,Popup,ControlGroup){
 	
 	$HO.extend(Menu.prototype,{
 		//初始配置
+//		markType        : null,         //选中的标记类型，默认不带选中效果，'active'是组件active效果，'dot'是点选效果
 		
 		tmpl            : [
-			'<div class="hui-menu">',
+			'<div class="hui-menu<%if(this.markType){%> hui-menu-mark<%}%>">',
 				'<ul>',
 					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
 						'<li class="hui-menu-item">',
 							'<%=this.children[i].getHtml()%>',
+							'<%if(this.markType){%><span class="hui-icon-mark"></span><%}%>',
 						'</li>',
 					'<%}%>',
 				'</ul>',
 			'</div>'
-		]
-	
+		],
+		
+		selectItem      : fSelectItem         //选中/取消选中
 	});
+	
+	/**
+	 * 选中/取消选中
+	 * @method selectItem
+	 * @param {Component}oItem 要操作的组件
+	 * @param {boolean=}bSelect 仅当为false时表示移除选中效果
+	 */
+	function fSelectItem(oItem,bSelect){
+		var me=this;
+		bSelect=bSelect!=false;
+		//优先使用配置的效果
+		if(me.markType=="dot"){
+			oItem.selected=bSelect;
+			var oLi=oItem.getEl().parent();
+			oLi[bSelect==false?"removeClass":"addClass"]('hui-item-mark');
+		}else if(me.markType=='active'){
+			ControlGroup.prototype.selectItem.call(me,oItem,bSelect);
+		}else{
+			//无选中效果
+			oItem.selected=bSelect;
+		}
+	}
 	
 	return Menu;
 	

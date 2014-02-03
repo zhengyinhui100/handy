@@ -3949,6 +3949,7 @@ function(CM,AC){
 		//初始配置
 //		direction            : 'v',                  //排列方向，'v'表示垂直方向，'h'表示水平方向
 		radius               : 'little',             //圆角
+		multi                : false,                //是否多选
 //		itemClick            : function(oCmp,nIndex){},         //子项点击事件函数，函数参数为子组件对象及索引
 		
 		//默认子组件配置
@@ -3957,6 +3958,7 @@ function(CM,AC){
 			extCls           : 'js-item',
 			radius           : null,
 			shadow           : false,
+//			isSelected       : false,             //是否选中
 			isInline         : false
 		},
 		
@@ -3980,43 +3982,77 @@ function(CM,AC){
 			}
 		],
 		
-		setActiveItem        : fSetActiveItem,       //激活指定标签项
-		getActiveItem        : fGetActiveItem,       //获取激活的标签项
+		select               : fSelect,              //选中指定项
+		getSelected          : fGetSelected,         //获取选中项/索引
+		selectItem           : fSelectItem,          //选中/取消选中
 		val                  : fVal,                 //获取/设置值
 		onItemClick          : fOnItemClick          //子项点击事件处理
 	});
 	
 	/**
-	 * 激活指定标签项
-	 * @method setActiveItem
+	 * 选中指定项
+	 * @method select
 	 * @param {number|string}item number表示索引，string表示选择器
 	 */
-	function fSetActiveItem(item){
-		var me=this,oActive;
-		me.callChild('unactive');
+	function fSelect(item){
+		var me=this,oItem;
 		if(typeof item=='number'){
-			oActive=me.children[item];
+			oItem=me.children[item];
 		}else{
-			oActive=me.find(item)[0];
+			oItem=me.find(item)[0];
 		}
-		oActive.active();
+		if(!me.multi&&!oItem.multi){
+			//单选操作要先取消别的选中
+			var oSelected=me.getSelected();
+			if(oSelected){
+				me.selectItem(oSelected,false);
+			}
+			me.selectItem(oItem);
+		}else{
+			me.selectItem(oItem,!oItem.selected);
+		}
 	}
 	/**
-	 * 获取激活的标签项
-	 * @method getActiveItem
+	 * 获取选中项/索引
+	 * @method getSelected
 	 * @param {boolean=}bIsIndex 仅当true时返回索引
-	 * @return {Component} 返回当前激活的组件
+	 * @return {Component|number|Array} 返回当前选中的组件或索引，单选返回单个对象，复选返回数组(不管实际选中几个),
+	 * 									无选中则返回null
 	 */
-	function fGetActiveItem(bIsIndex){
-		var me=this,nIndex,oItem;
+	function fGetSelected(bIsIndex){
+		var me=this,aItem=[];
 		me.each(function(i,item){
-			if(item.isActive){
-				oItem=item;
-				nIndex=i;
-				return false;
+			if(item.selected){
+				aItem.push(bIsIndex?i:item);
 			}
 		});
-		return bIsIndex?nIndex:oItem;
+		return aItem.length>0?me.multi?aItem:aItem[0]:null;
+	}
+	/**
+	 * 选中/取消选中
+	 * @method selectItem
+	 * @param {Component}oItem 要操作的组件
+	 * @param {boolean=}bSelect 仅当为false时表示移除选中效果
+	 */
+	function fSelectItem(oItem,bSelect){
+		bSelect=bSelect!=false;
+		if(bSelect){
+			oItem.selected=bSelect;
+			//优先使用子组件定义的接口
+			if(oItem.select){
+				oItem.select();
+			}else{
+				oItem.active();
+			}
+		}else{
+			oItem.selected=bSelect;
+			//优先使用子组件定义的接口
+			if(oItem.select){
+				oItem.select(bSelect);
+			}else{
+				oItem.unactive();
+			}
+		}
 	}
 	/**
 	 * 获取/设置值
@@ -4029,10 +4065,10 @@ function(CM,AC){
 		if(sValue){
 			var aValues=sValue.split(','),aSel=[];
 			me.each(function(i,oCmp){
-				oCmp.setChecked($HO.contains(aValues,oCmp.value));
+				oCmp.select($HO.contains(aValues,oCmp.value));
 			});
 		}else{
-			var aCmp=me.find('$>[checked=true]');
+			var aCmp=me.find('$>[selected=true]');
 			var aValues=[];
 			$HO.each(aCmp,function(i,oCmp){
 				aValues.push(oCmp.value);
@@ -4048,6 +4084,7 @@ function(CM,AC){
 	 */
 	function fOnItemClick(oEvt,nIndex){
 		var me=this;
+		me.select(nIndex);
 		if(me.itemClick){
 			var oCmp=me.children[nIndex];
 			me.itemClick(oCmp,nIndex);
@@ -4153,12 +4190,12 @@ function(AC){
 //		name            : '',                  //选项名
 		text            : '',                  //文字
 		value           : '',                  //选项值
-		checked         : false,               //是否选中
+		selected        : false,               //是否选中
 		
 		tmpl            : [
-			'<div class="hui-radio hui-btn hui-btn-gray<%if(this.checked){%> hui-radio-on<%}%>">',
+			'<div class="hui-radio hui-btn hui-btn-gray<%if(this.selected){%> hui-radio-on<%}%>">',
 				'<span class="hui-icon hui-icon-radio"></span>',
-				'<input type="radio"<%if(this.checked){%> checked=true<%}%>',
+				'<input type="radio"<%if(this.selected){%> checked=true<%}%>',
 				'<%if(this.disabled){%> disabled="<%=this.disabled%>"<%}%>',
 				'<%if(this.name){%> name="<%=this.name%>"<%}%>',
 				'<%if(this.value){%> value="<%=this.value%>"<%}%>/>',
@@ -4166,36 +4203,22 @@ function(AC){
 			'</div>'
 		],
 		
-		listeners       : [
-			{
-				type:'click',
-				handler:function(){
-					this.setChecked();
-				}
-			}
-		],
-		
-		setChecked      : fSetChecked,          //选中
+		select          : fSelect,          //选中
 		val             : fVal                  //获取/设置输入框的值
 	});
 	
 	/**
 	 * 选中
-	 * @method setChecked
-	 * @param {boolean}bChecked 仅当为false时取消选中
+	 * @method select
+	 * @param {boolean}bSelect 仅当为false时取消选中
 	 */
-	function fSetChecked(bChecked){
+	function fSelect(bSelect){
 		var me=this;
-		bChecked=!(bChecked==false);
-		var oParent;
-		//要选中，先取消同组的单选框选中
-		if(bChecked&&(oParent=me.parent)&&oParent.xtype=="ControlGroup"){
-			oParent.callChild([false]);
-		}
-		me.checked=bChecked;
+		bSelect=!(bSelect==false);
+		me.selected=bSelect;
 		var oInput=me.find('input');
 		var oEl=me.getEl();
-		if(bChecked){
+		if(bSelect){
 			oInput.attr("checked",true);
 			oEl.addClass('hui-radio-on');
 		}else{
@@ -4238,13 +4261,14 @@ function(AC){
 //		name            : '',                  //选项名
 		text            : '',                  //文字
 		value           : '',                  //选项值
-		checked         : false,               //是否选中
+		selected        : false,               //是否选中
+		multi           : true,                //多选
 		
 		cls             : 'chkbox',            //组件样式名
 		tmpl            : [
-			'<div class="hui-chkbox hui-btn hui-btn-gray<%if(this.checked){%> hui-chkbox-on<%}%>">',
+			'<div class="hui-chkbox hui-btn hui-btn-gray<%if(this.selected){%> hui-chkbox-on<%}%>">',
 				'<span class="hui-icon hui-icon-chkbox"></span>',
-				'<input type="checkbox"<%if(this.checked){%> checked=true<%}%>',
+				'<input type="checkbox"<%if(this.selected){%> checked=true<%}%>',
 				'<%if(this.disabled){%> disabled="<%=this.disabled%>"<%}%>',
 				'<%if(this.name){%> name="<%=this.name%>"<%}%>',
 				'<%if(this.value){%> value="<%=this.value%>"<%}%>/>',
@@ -4252,32 +4276,22 @@ function(AC){
 			'</div>'
 		],
 		
-		listeners       : [
-			{
-				type:'click',
-				handler:function(){
-					var me=this;
-					me.setChecked(!me.checked);
-				}
-			}
-		],
-		
-		setChecked      : fSetChecked,          //选中
+		select          : fSelect,          //选中
 		val             : fVal                  //获取/设置输入框的值
 	});
 	
 	/**
 	 * 选中
-	 * @method setChecked
-	 * @param {boolean}bChecked 仅当为false时取消选中
+	 * @method select
+	 * @param {boolean}bSelected 仅当为false时取消选中
 	 */
-	function fSetChecked(bChecked){
+	function fSelect(bSelected){
 		var me=this;
-		bChecked=!(bChecked==false);
-		me.checked=bChecked;
+		bSelected=!(bSelected==false);
+		me.selected=bSelected;
 		var oInput=me.find('input');
 		var oEl=me.getEl();
-		if(bChecked){
+		if(bSelected){
 			oInput.attr("checked",true);
 			oEl.addClass('hui-chkbox-on');
 		}else{
@@ -4512,15 +4526,27 @@ function(AC,ControlGroup){
 					'<%}%>',
 				'</ul>',
 				'<%for(var i=0,len=this.children.length;i<len;i++){%>',
-					'<div class="js-tab-content"<%if(!this.children[i].active){%> style="display:none"<%}%>>',
+					'<div class="js-tab-content"<%if(!this.children[i].selected){%> style="display:none"<%}%>>',
 					'<%=this.children[i].content%>',
 					'</div>',
 				'<%}%>',
 			'</div>'
 		],
 		
+		parseItem       : fParseItem,          //处理子组件配置
 		onItemClick     : fOnItemClick         //子项点击事件处理
 	});
+	
+	/**
+	 * 处理子组件配置
+	 * @method parseItem
+	 * @param {object}oItem 子组件配置
+	 */
+	function fParseItem(oItem){
+		if(oItem.selected){
+			oItem.isActive=true;
+		}
+	}
 	/**
 	 * 子项点击事件处理
 	 * @method onItemClick
@@ -4529,7 +4555,6 @@ function(AC,ControlGroup){
 	 */
 	function fOnItemClick(oEvt,nIndex){
 		var me=this;
-		me.setActiveItem(nIndex);
 		//点击tab按钮显示对应的content
 		me.find('.js-tab-content').hide().eq(nIndex).show();
 		me.callSuper([oEvt,nIndex]);
@@ -4854,20 +4879,45 @@ function(AC,Popup,ControlGroup){
 	
 	$HO.extend(Menu.prototype,{
 		//初始配置
+//		markType        : null,         //选中的标记类型，默认不带选中效果，'active'是组件active效果，'dot'是点选效果
 		
 		tmpl            : [
-			'<div class="hui-menu">',
+			'<div class="hui-menu<%if(this.markType){%> hui-menu-mark<%}%>">',
 				'<ul>',
 					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
 						'<li class="hui-menu-item">',
 							'<%=this.children[i].getHtml()%>',
+							'<%if(this.markType){%><span class="hui-icon-mark"></span><%}%>',
 						'</li>',
 					'<%}%>',
 				'</ul>',
 			'</div>'
-		]
-	
+		],
+		
+		selectItem      : fSelectItem         //选中/取消选中
 	});
+	
+	/**
+	 * 选中/取消选中
+	 * @method selectItem
+	 * @param {Component}oItem 要操作的组件
+	 * @param {boolean=}bSelect 仅当为false时表示移除选中效果
+	 */
+	function fSelectItem(oItem,bSelect){
+		var me=this;
+		bSelect=bSelect!=false;
+		//优先使用配置的效果
+		if(me.markType=="dot"){
+			oItem.selected=bSelect;
+			var oLi=oItem.getEl().parent();
+			oLi[bSelect==false?"removeClass":"addClass"]('hui-item-mark');
+		}else if(me.markType=='active'){
+			ControlGroup.prototype.selectItem.call(me,oItem,bSelect);
+		}else{
+			//无选中效果
+			oItem.selected=bSelect;
+		}
+	}
 	
 	return Menu;
 	

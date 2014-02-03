@@ -15,13 +15,14 @@ function(AC){
 //		name            : '',                  //选项名
 		text            : '',                  //文字
 		value           : '',                  //选项值
-		checked         : false,               //是否选中
+		selected        : false,               //是否选中
+		multi           : true,                //多选
 		
 		cls             : 'chkbox',            //组件样式名
 		tmpl            : [
-			'<div class="hui-chkbox hui-btn hui-btn-gray<%if(this.checked){%> hui-chkbox-on<%}%>">',
+			'<div class="hui-chkbox hui-btn hui-btn-gray<%if(this.selected){%> hui-chkbox-on<%}%>">',
 				'<span class="hui-icon hui-icon-chkbox"></span>',
-				'<input type="checkbox"<%if(this.checked){%> checked=true<%}%>',
+				'<input type="checkbox"<%if(this.selected){%> checked=true<%}%>',
 				'<%if(this.disabled){%> disabled="<%=this.disabled%>"<%}%>',
 				'<%if(this.name){%> name="<%=this.name%>"<%}%>',
 				'<%if(this.value){%> value="<%=this.value%>"<%}%>/>',
@@ -29,32 +30,22 @@ function(AC){
 			'</div>'
 		],
 		
-		listeners       : [
-			{
-				type:'click',
-				handler:function(){
-					var me=this;
-					me.setChecked(!me.checked);
-				}
-			}
-		],
-		
-		setChecked      : fSetChecked,          //选中
+		select          : fSelect,          //选中
 		val             : fVal                  //获取/设置输入框的值
 	});
 	
 	/**
 	 * 选中
-	 * @method setChecked
-	 * @param {boolean}bChecked 仅当为false时取消选中
+	 * @method select
+	 * @param {boolean}bSelected 仅当为false时取消选中
 	 */
-	function fSetChecked(bChecked){
+	function fSelect(bSelected){
 		var me=this;
-		bChecked=!(bChecked==false);
-		me.checked=bChecked;
+		bSelected=!(bSelected==false);
+		me.selected=bSelected;
 		var oInput=me.find('input');
 		var oEl=me.getEl();
-		if(bChecked){
+		if(bSelected){
 			oInput.attr("checked",true);
 			oEl.addClass('hui-chkbox-on');
 		}else{

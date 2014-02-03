@@ -15,12 +15,12 @@ function(AC){
 //		name            : '',                  //选项名
 		text            : '',                  //文字
 		value           : '',                  //选项值
-		checked         : false,               //是否选中
+		selected        : false,               //是否选中
 		
 		tmpl            : [
-			'<div class="hui-radio hui-btn hui-btn-gray<%if(this.checked){%> hui-radio-on<%}%>">',
+			'<div class="hui-radio hui-btn hui-btn-gray<%if(this.selected){%> hui-radio-on<%}%>">',
 				'<span class="hui-icon hui-icon-radio"></span>',
-				'<input type="radio"<%if(this.checked){%> checked=true<%}%>',
+				'<input type="radio"<%if(this.selected){%> checked=true<%}%>',
 				'<%if(this.disabled){%> disabled="<%=this.disabled%>"<%}%>',
 				'<%if(this.name){%> name="<%=this.name%>"<%}%>',
 				'<%if(this.value){%> value="<%=this.value%>"<%}%>/>',
@@ -28,36 +28,22 @@ function(AC){
 			'</div>'
 		],
 		
-		listeners       : [
-			{
-				type:'click',
-				handler:function(){
-					this.setChecked();
-				}
-			}
-		],
-		
-		setChecked      : fSetChecked,          //选中
+		select          : fSelect,          //选中
 		val             : fVal                  //获取/设置输入框的值
 	});
 	
 	/**
 	 * 选中
-	 * @method setChecked
-	 * @param {boolean}bChecked 仅当为false时取消选中
+	 * @method select
+	 * @param {boolean}bSelect 仅当为false时取消选中
 	 */
-	function fSetChecked(bChecked){
+	function fSelect(bSelect){
 		var me=this;
-		bChecked=!(bChecked==false);
-		var oParent;
-		//要选中，先取消同组的单选框选中
-		if(bChecked&&(oParent=me.parent)&&oParent.xtype=="ControlGroup"){
-			oParent.callChild([false]);
-		}
-		me.checked=bChecked;
+		bSelect=!(bSelect==false);
+		me.selected=bSelect;
 		var oInput=me.find('input');
 		var oEl=me.getEl();
-		if(bChecked){
+		if(bSelect){
 			oInput.attr("checked",true);
 			oEl.addClass('hui-radio-on');
 		}else{

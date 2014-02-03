@@ -32,15 +32,27 @@ function(AC,ControlGroup){
 					'<%}%>',
 				'</ul>',
 				'<%for(var i=0,len=this.children.length;i<len;i++){%>',
-					'<div class="js-tab-content"<%if(!this.children[i].active){%> style="display:none"<%}%>>',
+					'<div class="js-tab-content"<%if(!this.children[i].selected){%> style="display:none"<%}%>>',
 					'<%=this.children[i].content%>',
 					'</div>',
 				'<%}%>',
 			'</div>'
 		],
 		
+		parseItem       : fParseItem,          //处理子组件配置
 		onItemClick     : fOnItemClick         //子项点击事件处理
 	});
+	
+	/**
+	 * 处理子组件配置
+	 * @method parseItem
+	 * @param {object}oItem 子组件配置
+	 */
+	function fParseItem(oItem){
+		if(oItem.selected){
+			oItem.isActive=true;
+		}
+	}
 	/**
 	 * 子项点击事件处理
 	 * @method onItemClick
@@ -49,7 +61,6 @@ function(AC,ControlGroup){
 	 */
 	function fOnItemClick(oEvt,nIndex){
 		var me=this;
-		me.setActiveItem(nIndex);
 		//点击tab按钮显示对应的content
 		me.find('.js-tab-content').hide().eq(nIndex).show();
 		me.callSuper([oEvt,nIndex]);

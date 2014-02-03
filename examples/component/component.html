@@ -233,7 +233,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 			text:'选项一'
 		},{
 			value:'2',
-			checked:true,
+			selected:true,
 			text:'选项二'
 		},{
 			value:'3',
@@ -269,11 +269,11 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 			text:'选项一'
 		},{
 			value:'2',
-			checked:true,
+			selected:true,
 			text:'选项二'
 		},{
 			value:'3',
-			checked:true,
+			selected:true,
 			text:'选项三'
 		}]
 	});
@@ -306,6 +306,48 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 					itemClick:function(menuItem){
 						alert(menuItem.value);
 					},
+					items:[{
+						text:"菜单一",
+						value:"1"
+					},{
+						text:"菜单二",
+						value:"2"
+					}]
+				})
+			}
+		}
+	})
+	
+	new Button({
+		renderTo:"#menuDv",
+		text:"active选中效果菜单",
+		click:function(){
+			if(this.menu){
+				this.menu.show();
+			}else{
+				this.menu=new Menu({
+					markType:'active',
+					items:[{
+						text:"菜单一",
+						value:"1"
+					},{
+						text:"菜单二",
+						value:"2"
+					}]
+				})
+			}
+		}
+	})
+	
+	new Button({
+		renderTo:"#menuDv",
+		text:"点选效果菜单",
+		click:function(){
+			if(this.menu){
+				this.menu.show();
+			}else{
+				this.menu=new Menu({
+					markType:'dot',
 					items:[{
 						text:"菜单一",
 						value:"1"
@@ -351,7 +393,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 		items:[
 			{
 				text:'一',
-				isActive:true,
+				selected:true,
 				color:'black',
 				items:{
 					name:'edit'
@@ -410,7 +452,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 			items:[
 					{
 						text:'一',
-						isActive:true,
+						selected:true,
 						color:'black',
 						items:{
 							name:'edit'
