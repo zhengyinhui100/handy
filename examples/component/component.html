@@ -360,6 +360,20 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 		}
 	})
 	
+	//下拉选择框
+	new Select({
+		renderTo:'#selectDv',
+		name:'select',
+		value:'1',
+		options:[{
+			text:"选项一",
+			value:"1"
+		},{
+			text:"选项二",
+			value:"2"
+		}]
+	});
+	
 	//输入框
 	new Input({
 		renderTo:'#inputContainerDv'

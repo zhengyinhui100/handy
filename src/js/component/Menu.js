@@ -20,12 +20,12 @@ function(AC,Popup,ControlGroup){
 //		markType        : null,         //选中的标记类型，默认不带选中效果，'active'是组件active效果，'dot'是点选效果
 		
 		tmpl            : [
-			'<div class="hui-menu<%if(this.markType){%> hui-menu-mark<%}%>">',
+			'<div class="hui-menu<%if(this.markType=="dot"){%> hui-menu-mark<%}%>">',
 				'<ul>',
 					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
 						'<li class="hui-menu-item">',
 							'<%=this.children[i].getHtml()%>',
-							'<%if(this.markType){%><span class="hui-icon-mark"></span><%}%>',
+							'<%if(this.markType=="dot"){%><span class="hui-icon-mark"></span><%}%>',
 						'</li>',
 					'<%}%>',
 				'</ul>',

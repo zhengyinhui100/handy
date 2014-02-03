@@ -382,12 +382,17 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	/**
 	 * 显示
 	 * @method show
-	 * @param {boolean}bNotDelay 仅当为true时强制不延迟显示
+	 * @param {boolean=}bNotDelay 仅当为true时强制不延迟显示
+	 * @param {boolean=}bParentCall true表示是父组件通过callChild调用
 	 */
-	function fShow(bNotDelay){
+	function fShow(bNotDelay,bParentCall){
 		var me=this;
 		//已经显示，直接退回
 		if(me.showed){
+			return;
+		}
+		if(bParentCall&&me.hidden){
+			//设置了hidden=true的组件不随父组件显示而显示
 			return;
 		}
 		if(!bNotDelay&&me.delayShow){
@@ -408,7 +413,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 			me.mask();
 		}
 		me.fire('show');
-		me.callChild();
+		me.callChild([null,true]);
 	}
 	/**
 	 * 启用
@@ -824,7 +829,9 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 			//具体组件类处理
 			me.parseItem(oItem);
 			var Component=CM.getClass(oItem.xtype);
-			oItem.autoRender=false;
+			if(!oItem.renderTo){
+				oItem.autoRender=false;
+			}
 			var oCmp=new Component(oItem);
 			me.add(oCmp);
 		}

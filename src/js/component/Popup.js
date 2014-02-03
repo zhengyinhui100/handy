@@ -46,8 +46,8 @@ function(AC){
 		var me=this;
 		//默认居中显示
 		me.showAtCenter();
-		//指定父类，避免死循环
-		me.callSuper(Popup.superClass);
+		//指定父类，避免死循环，如果是父组件通过callChild调用的会有参数，要传进去
+		me.callSuper(Popup.superClass,arguments);
 	}
 	/**
 	 * 居中显示

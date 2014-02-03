@@ -14,13 +14,21 @@ function(AC){
 		//初始配置
 //		name            : '',                  //选项名
 		text            : '请选择...',          //文字
-		defaultValue    : '',                  //默认值
 		value           : '',                  //选项值
+		defItem         : {
+			xtype       : 'Menu',
+			hidden      : true,
+			markType    : 'dot',
+			renderTo    : "body",              //子组件须设置renderTo才会自动render
+			itemClick   : function(){
+				
+			}
+		},
 		
 		tmpl            : [
 			'<div class="hui-select hui-btn hui-btn-gray hui-btn-icon-right">',
 				'<span class="hui-icon hui-icon-carat-d hui-icon-bg"></span>',
-				'<select value="<%=this.value%>"></select>',
+				'<select value="<%=this.value%>" name="<%=this.name%>"></select>',
 				'<span class="hui-btn-txt"><%=this.text%></span>',
 			'</div>'
 		],
@@ -34,10 +42,27 @@ function(AC){
 			}
 		],
 		
+		doConfig         : fDoConfig,             //初始化配置
 		showOptions      : fShowOptions,          //显示选项菜单
 		val              : fVal                   //获取/设置值
 	});
 	
+	/**
+	 * 初始化配置
+	 * @method doConfig
+	 * @param {Object}oParams
+	 */
+	function fDoConfig(oParams){
+		var me=this;
+		me.callSuper([oParams]);
+		//options配置成菜单
+		var oOptions=oParams.options;
+		if(oOptions){
+			me.addItem({
+				items:oOptions
+			})
+		}
+	}
 	/**
 	 * 显示选项菜单
 	 * @method setChecked
@@ -45,6 +70,7 @@ function(AC){
 	 */
 	function fShowOptions(){
 		var me=this;
+		me.children[0].show();
 	}
 	/**
 	 * 获取/设置输入框的值
