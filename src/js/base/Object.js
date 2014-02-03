@@ -129,7 +129,7 @@ handy.add('Object',function($H){
         		oSuper=null;
         	}
         	oSuper=oSuper?oSuper.prototype:me.constructor.superProt;
-        	sMethod=arguments.callee.caller.$name;
+        	var sMethod=arguments.callee.caller.$name;
         	if(oSuper){
         		var fMethod=oSuper[sMethod];
         		if(Object.isFunction(fMethod)){
