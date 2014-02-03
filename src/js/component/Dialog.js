@@ -40,7 +40,7 @@ function(AC,Popup){
 		radius          : 'normal',
 		cls             : 'dialog',
 		tmpl            : [
-			'<div class="hui-dialog hui-overlay-shadow">',
+			'<div class="hui-dialog">',
 				'<%=this.getHtml("$>Toolbar")%>',
 				'<div class="hui-dialog-body">',
 					'<%if(this.content){%><%=this.content%><%}else{%>',

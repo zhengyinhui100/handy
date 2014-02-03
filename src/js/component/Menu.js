@@ -11,7 +11,9 @@ $Define('c.Menu',
 function(AC,Popup,ControlGroup){
 	
 	var Menu=AC.define('Menu',Popup);
-	$HO.inherit(Menu,ControlGroup);
+	
+	//扩展取得ControlGroup的属性及方法
+	$HO.extend(Menu.prototype,ControlGroup.prototype,{notCover:true});
 	
 	$HO.extend(Menu.prototype,{
 		//初始配置

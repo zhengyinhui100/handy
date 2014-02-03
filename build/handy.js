@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-02-01 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-02-03 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -683,14 +683,24 @@ handy.add('Object',function($H){
             	return fInitialize.apply(me, arguments);
             }
         };
-        //便捷访问父类方法
-        Class.prototype.callSuper=function(){
-        	var me=this,oSuper,
-        	sMethod=arguments.callee.caller.$name;
-        	if(oSuper=me.constructor.superProt){
+        /**
+         * 便捷访问父类方法，ps：在多重继承的场景中，需要通过参数指定父类，避免死循环
+         * @method callSuper
+         * @param {Class=}oSuper 指定父类，默认为实际调用对象的父类
+         * @param {Array}aArgs 参数数组
+         */
+        Class.prototype.callSuper=function(oSuper,aArgs){
+        	var me=this;
+        	if(Object.isArray(oSuper)){
+        		aArgs=oSuper;
+        		oSuper=null;
+        	}
+        	oSuper=oSuper?oSuper.prototype:me.constructor.superProt;
+        	var sMethod=arguments.callee.caller.$name;
+        	if(oSuper){
         		var fMethod=oSuper[sMethod];
         		if(Object.isFunction(fMethod)){
-        			return fMethod.apply(me,arguments);
+        			return fMethod.apply(me,aArgs);
         		}
         	}
         };
@@ -718,22 +728,25 @@ handy.add('Object',function($H){
     	//如果是类扩展，添加方法元数据
     	var bAddMeta=!!oDestination.callSuper;
         for (var sProperty in oSource) {
-        	var bHas=oDestination.hasOwnProperty(sProperty);
-        	var bNotCover=notCover===true?bHas:false;
-        	//当此参数为数组时，仅不覆盖数组中的原有属性
-        	if(Object.isArray(notCover)){
-        		bNotCover=Object.contains(notCover,sProperty)&&bHas;
-        	}else if(Object.isFunction(notCover)){
-        		//当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
-        		bNotCover=notCover(sProperty);
+        	//不复制深层prototype
+        	if(oSource.hasOwnProperty(sProperty)){
+	        	var bHas=oDestination.hasOwnProperty(sProperty);
+	        	var bNotCover=notCover===true?bHas:false;
+	        	//当此参数为数组时，仅不覆盖数组中的原有属性
+	        	if(Object.isArray(notCover)){
+	        		bNotCover=Object.contains(notCover,sProperty)&&bHas;
+	        	}else if(Object.isFunction(notCover)){
+	        		//当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
+	        		bNotCover=notCover(sProperty);
+	        	}
+	            if (!bNotCover) {
+	            	var value=bNotClone?oSource[sProperty]:Object.clone(oSource[sProperty]);
+					if(bAddMeta&&Object.isFunction(value)){
+						value.$name=sProperty;
+					}
+					oDestination[sProperty] = value;
+	            }
         	}
-            if (!bNotCover) {
-            	var value=bNotClone?oSource[sProperty]:Object.clone(oSource[sProperty]);
-				if(bAddMeta&&Object.isFunction(value)){
-					value.$name=sProperty;
-				}
-				oDestination[sProperty] = value;
-            }
         }
         return oDestination;
     };
@@ -3026,17 +3039,21 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		autoRender          : true,              //是否默认就进行渲染
 		renderBy            : 'append',          //默认渲染方式
 //		notListen           : false,             //不自动初始化监听器
+//		delayShow           : false,             //是否延迟显示，主要用于弹出层
 //		extCls              : '',                //组件附加class
 		activeCls           : 'hui-active',      //激活样式
 //		defItem             : null,              //默认子组件配置
 //		icon                : null,              //图标
 //		withMask            : false,             //是否有遮罩层
-		////通用效果
+		////通用样式，ps:组件模板容器节点上不能带有style属性
+//		width               : null,              //宽度(默认单位是px)
+//		height              : null,              //高度(默认单位是px)
 //		theme               : null,              //组件颜色
 //		radius              : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 //		shadow              : false,        	 //外阴影
 //		shadowInset         : false,        	 //内阴影
 //		shadowSurround      : false,             //外围亮阴影，主要用于黑色工具栏内的按钮
+//		shadowOverlay       : false,             //遮罩层里组件的阴影效果，主要用于弹出层
 //		isMini              : false,       	     //小号
 //		isActive            : false,             //是否激活
 //		isFocus             : false,        	 //聚焦
@@ -3106,11 +3123,12 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	 * 定义组件
 	 * @method define
 	 * @param {string}sXtype 组件类型
+	 * @param {Component=}oSuperCls 父类，默认是AbstractComponent
 	 * @return {class}组件类对象
 	 */
-	function fDefine(sXtype){
+	function fDefine(sXtype,oSuperCls){
 		var Component=$HO.createClass();
-		$HO.inherit(Component,AC,null,null,{notCover:function(p){
+		$HO.inherit(Component,oSuperCls||AC,null,null,{notCover:function(p){
 			return p=='define';
 		}});
 		CM.registerType(sXtype,Component);
@@ -3144,6 +3162,10 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 			me.renderTo[me.renderBy](me.getHtml());
 			//渲染后续工作
 			me.afterRender();
+			//显示
+			if(!me.hidden){
+				me.show();
+			}
 		}
 		//注册组件
 		CM.register(me);
@@ -3159,13 +3181,22 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		me.params=oParams;
 		//复制参数
 		me.settings=$HO.extend({},oParams);
-		//生成对象的监听器列表
-		var aListeners=me.listeners||[];
+		//事件列表对象特殊处理，不影响类定义
+		var aListeners=me.listeners?me.listeners.concat():[];
+		//添加参数中的事件
 		if(oParams.listeners){
-			me._listeners=aListeners.concat(oParams.listeners);
-		}else{
-			me._listeners=aListeners.concat();
+			aListeners=aListeners.concat(oParams.listeners);
 		}
+		//继承父类事件
+		var oSuper=me.constructor.superClass;
+		while(oSuper){
+			var aSuperListeners=oSuper.prototype.listeners;
+			if(aSuperListeners){
+				aListeners=aListeners.concat(aSuperListeners);
+			}
+			oSuper=oSuper.superClass;
+		}
+		me._listeners=aListeners;
 		//只覆盖基本类型的属性
 		$HO.extend(me,oParams,{notCover:function(sProp){
 			var value=me[sProp];
@@ -3211,14 +3242,20 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		sHtml=sHtml.replace(_oTagReg,'$1 id="'+sId+'"');
 		//添加附加class
 		sHtml=sHtml.replace(_oClsReg,'$1'+me.getExtCls());
-		if(me.hidden){
-			//添加style
-			var sStyle;
-			if(me.displayMode=='visibility'){
-				sStyle='visibility:hidden';
-			}else{
-				sStyle='display:none';
-			}
+		//添加style
+		var sStyle='';
+		if(me.displayMode=='visibility'){
+			sStyle+='visibility:hidden;';
+		}else{
+			sStyle+='display:none;';
+		}
+		if(me.width!=undefined){
+			sStyle+="width:"+me.width+(typeof me.width=='number'?"px;":";");
+		}
+		if(me.height!=undefined){
+			sStyle+="height:"+(typeof me.height=='number'?"px;":";");
+		}
+		if(sStyle){
 			sHtml=sHtml.replace(_oTagReg,'$1 style="'+sStyle+'"');
 		}
 		me.html=sHtml;
@@ -3288,6 +3325,9 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		if(me.shadowSurround){
 			aCls.push('hui-shadow-surround');
 		}
+		if(me.shadowOverlay){
+			aCls.push('hui-shadow-overlay');
+		}
 		if(me.shadowInset){
 			aCls.push('hui-shadow-inset');
 		}
@@ -3321,9 +3361,6 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		if(me.disabled){
 			me.suspendListeners();
 		}
-		if(!me.hidden){
-			me.show();
-		}
 		me.fire('afterRender');
 		delete me.html;
 	}
@@ -3352,11 +3389,19 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	/**
 	 * 显示
 	 * @method show
+	 * @param {boolean}bNotDelay 仅当为true时强制不延迟显示
 	 */
-	function fShow(){
+	function fShow(bNotDelay){
 		var me=this;
 		//已经显示，直接退回
 		if(me.showed){
+			return;
+		}
+		if(!bNotDelay&&me.delayShow){
+			setTimeout(function(){
+				//这里必须指定基类的方法，不然会调用到组件自定义的show方法
+				AC.prototype.show.call(me,true);
+			},0);
 			return;
 		}
 		me.showed=true;
@@ -3817,6 +3862,202 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	return AC;
 	
 });/**
+ * 弹出层类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-02-01
+ */
+
+$Define('c.Popup',
+'c.AbstractComponent',
+function(AC){
+	
+	var Popup=AC.define('Popup');
+	
+	$HO.extend(Popup.prototype,{
+		//初始配置
+		delayShow       : true,            //延迟显示
+		clickHide       : true,            //是否点击就隐藏
+		
+		//组件共有配置
+		withMask        : true,
+		shadowOverlay   : true,
+		
+		tmpl            : [
+			'<div class="hui-popup"><%=this.getHtml("$>*")%></div>'
+		],
+		listeners       : [{
+			type:'click',
+			el: $(document),
+			handler:function(){
+				var me=this;
+				if(me.clickHide){
+					this.hide();
+				}
+			}
+		}],
+		
+		show             : fShow,            //显示
+		showAtCenter     : fShowAtCenter     //居中显示
+	});
+	
+	/**
+	 * 显示
+	 * @method show
+	 */
+	function fShow(){
+		// 设置定位坐标
+		var me=this;
+		//默认居中显示
+		me.showAtCenter();
+		//指定父类，避免死循环
+		me.callSuper(Popup.superClass);
+	}
+	/**
+	 * 居中显示
+	 * @method showAtCenter
+	 */
+	function fShowAtCenter(){
+		// 设置定位坐标
+		var me=this;
+		var oEl=me.getEl();
+		var oDoc=document;
+		var x = ((oDoc.documentElement.offsetWidth || oDoc.body.offsetWidth) - oEl.width())/2;
+		var y = ((oDoc.documentElement.clientHeight || oDoc.body.clientHeight) - oEl.height())/2 + oDoc.body.scrollTop;
+		y = y < 10 ? window.screen.height/2-200 : y;
+		oEl.css({
+			left:x + "px",
+			top:y-(me.offsetTop||0) + "px"
+		});
+	}
+	
+	return Popup;
+	
+});/**
+ * 控制组类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-01-31
+ */
+
+$Define('c.ControlGroup',
+['c.ComponentManager',
+'c.AbstractComponent'],
+function(CM,AC){
+	
+	var ControlGroup=AC.define('ControlGroup');
+	
+	$HO.extend(ControlGroup.prototype,{
+		//初始配置
+//		direction            : 'v',                  //排列方向，'v'表示垂直方向，'h'表示水平方向
+		radius               : 'little',             //圆角
+//		itemClick            : function(oCmp,nIndex){},         //子项点击事件函数，函数参数为子组件对象及索引
+		
+		//默认子组件配置
+		defItem              : {
+			xtype            : 'Button',
+			extCls           : 'js-item',
+			radius           : null,
+			shadow           : false,
+			isInline         : false
+		},
+		
+		tmpl                 : [
+			'<div class="hui-ctrlgp<%if(this.direction=="h"){%> hui-ctrlgp-h<%}else{%> hui-ctrlgp-v<%}%>">',
+			'<%=this.getHtml("$>*")%>',
+			'</div>'
+		],
+		
+		listeners       : [
+			{
+				type :'click',
+				selector : '.js-item',
+				method : 'delegate',
+				handler : function(oEvt){
+					var me=this;
+					var oCurrentEl=$(oEvt.currentTarget);
+					var nIndex=CM.get(oCurrentEl.attr("id")).index();
+					me.onItemClick(oEvt,nIndex);
+				}
+			}
+		],
+		
+		setActiveItem        : fSetActiveItem,       //激活指定标签项
+		getActiveItem        : fGetActiveItem,       //获取激活的标签项
+		val                  : fVal,                 //获取/设置值
+		onItemClick          : fOnItemClick          //子项点击事件处理
+	});
+	
+	/**
+	 * 激活指定标签项
+	 * @method setActiveItem
+	 * @param {number|string}item number表示索引，string表示选择器
+	 */
+	function fSetActiveItem(item){
+		var me=this,oActive;
+		me.callChild('unactive');
+		if(typeof item=='number'){
+			oActive=me.children[item];
+		}else{
+			oActive=me.find(item)[0];
+		}
+		oActive.active();
+	}
+	/**
+	 * 获取激活的标签项
+	 * @method getActiveItem
+	 * @param {boolean=}bIsIndex 仅当true时返回索引
+	 * @return {Component} 返回当前激活的组件
+	 */
+	function fGetActiveItem(bIsIndex){
+		var me=this,nIndex,oItem;
+		me.each(function(i,item){
+			if(item.isActive){
+				oItem=item;
+				nIndex=i;
+				return false;
+			}
+		});
+		return bIsIndex?nIndex:oItem;
+	}
+	/**
+	 * 获取/设置值
+	 * @method val
+	 * @param {string=}sValue 要设置的值，不传表示读取值，如果是多个值，用","隔开
+	 * @return {string=} 如果是读取操作，返回当前值
+	 */
+	function fVal(sValue){
+		var me=this;
+		if(sValue){
+			var aValues=sValue.split(','),aSel=[];
+			me.each(function(i,oCmp){
+				oCmp.setChecked($HO.contains(aValues,oCmp.value));
+			});
+		}else{
+			var aCmp=me.find('$>[checked=true]');
+			var aValues=[];
+			$HO.each(aCmp,function(i,oCmp){
+				aValues.push(oCmp.value);
+			})
+			return aValues.join(',');
+		}
+	}
+	/**
+	 * 子项点击事件处理
+	 * @method onItemClick
+	 * @param {jQ:Event}oEvt jQ事件对象
+	 * @param {number}nIndex 子项目索引
+	 */
+	function fOnItemClick(oEvt,nIndex){
+		var me=this;
+		if(me.itemClick){
+			var oCmp=me.children[nIndex];
+			me.itemClick(oCmp,nIndex);
+		}
+	}
+	
+	
+	return ControlGroup;
+	
+});/**
  * 图标类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-01
@@ -3952,7 +4193,15 @@ function(AC){
 			oParent.callChild([false]);
 		}
 		me.checked=bChecked;
-		me.getEl()[bChecked?"addClass":"removeClass"]('hui-radio-on');
+		var oInput=me.find('input');
+		var oEl=me.getEl();
+		if(bChecked){
+			oInput.attr("checked",true);
+			oEl.addClass('hui-radio-on');
+		}else{
+			oInput.removeAttr("checked");
+			oEl.removeClass('hui-radio-on');
+		}
 	}
 	/**
 	 * 获取/设置输入框的值
@@ -4026,7 +4275,15 @@ function(AC){
 		var me=this;
 		bChecked=!(bChecked==false);
 		me.checked=bChecked;
-		me.getEl()[bChecked?"addClass":"removeClass"]('hui-chkbox-on');
+		var oInput=me.find('input');
+		var oEl=me.getEl();
+		if(bChecked){
+			oInput.attr("checked",true);
+			oEl.addClass('hui-chkbox-on');
+		}else{
+			oInput.removeAttr("checked");
+			oEl.removeClass('hui-chkbox-on');
+		}
 	}
 	/**
 	 * 获取/设置输入框的值
@@ -4061,18 +4318,15 @@ function(AC){
 	$HO.extend(Select.prototype,{
 		//初始配置
 //		name            : '',                  //选项名
-		text            : '',                  //文字
+		text            : '请选择...',          //文字
+		defaultValue    : '',                  //默认值
 		value           : '',                  //选项值
-		checked         : false,               //是否选中
 		
 		tmpl            : [
-			'<div class="hui-radio hui-btn hui-btn-gray<%if(this.checked){%> hui-radio-on<%}%>">',
-				'<span class="hui-icon hui-icon-radio"></span>',
-				'<input type="radio"<%if(this.checked){%> checked=true<%}%>',
-				'<%if(this.disabled){%> disabled="<%=this.disabled%>"<%}%>',
-				'<%if(this.name){%> name="<%=this.name%>"<%}%>',
-				'<%if(this.value){%> value="<%=this.value%>"<%}%>/>',
-				'<span class="hui-radio-txt"><%=this.text%></span>',
+			'<div class="hui-select hui-btn hui-btn-gray hui-btn-icon-right">',
+				'<span class="hui-icon hui-icon-carat-d hui-icon-bg"></span>',
+				'<select value="<%=this.value%>"></select>',
+				'<span class="hui-btn-txt"><%=this.text%></span>',
 			'</div>'
 		],
 		
@@ -4080,30 +4334,22 @@ function(AC){
 			{
 				type:'click',
 				handler:function(){
-					this.setChecked();
+					this.showOptions();
 				}
 			}
 		],
 		
-		setChecked      : fSetChecked,          //选中
-		val             : fVal                  //获取/设置输入框的值
+		showOptions      : fShowOptions,          //显示选项菜单
+		val              : fVal                   //获取/设置值
 	});
 	
 	/**
-	 * 选中
+	 * 显示选项菜单
 	 * @method setChecked
 	 * @param {boolean}bChecked 仅当为false时取消选中
 	 */
-	function fSetChecked(bChecked){
+	function fShowOptions(){
 		var me=this;
-		bChecked=!(bChecked==false);
-		var oParent;
-		//要选中，先取消同组的单选框选中
-		if(bChecked&&(oParent=me.parent)&&oParent.xtype=="ControlGroup"){
-			oParent.callChild([false]);
-		}
-		me.checked=bChecked;
-		me.getEl()[bChecked?"addClass":"removeClass"]('hui-radio-on');
 	}
 	/**
 	 * 获取/设置输入框的值
@@ -4122,64 +4368,6 @@ function(AC){
 	}
 	
 	return Select;
-	
-});/**
- * 控制组类
- * @author 郑银辉(zhengyinhui100@gmail.com)
- * @created 2014-01-31
- */
-
-$Define('c.ControlGroup',
-'c.AbstractComponent',
-function(AC){
-	
-	var ControlGroup=AC.define('ControlGroup');
-	
-	$HO.extend(ControlGroup.prototype,{
-		//初始配置
-//		direction            : 'v',                  //排列方向，'v'表示垂直方向，'h'表示水平方向
-		radius               : 'little',             //圆角
-		
-		//默认子组件配置
-		defItem              : {
-			xtype            : 'Button',
-			radius           : null,
-			shadow           : false,
-			isInline         : false
-		},
-		
-		tmpl                 : [
-			'<div class="hui-ctrlgp<%if(this.direction=="h"){%> hui-ctrlgp-h<%}else{%> hui-ctrlgp-v<%}%>">',
-			'<%=this.getHtml("$>*")%>',
-			'</div>'
-		],
-		
-		val                  : fVal                 //获取/设置值
-	});
-	/**
-	 * 获取/设置值
-	 * @method val
-	 * @param {string=}sValue 要设置的值，不传表示读取值，如果是多个值，用","隔开
-	 * @return {string=} 如果是读取操作，返回当前值
-	 */
-	function fVal(sValue){
-		var me=this;
-		if(sValue){
-			var aValues=sValue.split(','),aSel=[];
-			me.each(function(i,oCmp){
-				oCmp.setChecked($HO.contains(aValues,oCmp.value));
-			});
-		}else{
-			var aCmp=me.find('$>[checked=true]');
-			var aValues=[];
-			$HO.each(aCmp,function(i,oCmp){
-				aValues.push(oCmp.value);
-			})
-			return aValues.join(',');
-		}
-	}
-	
-	return ControlGroup;
 	
 });/**
  * 输入框类
@@ -4237,7 +4425,7 @@ function(AC){
 	 */
 	function fDoConfig(oSettings){
 		var me=this;
-		me.callSuper(oSettings);
+		me.callSuper([oSettings]);
 		//搜索框快捷配置方式
 		if(me.type=='search'){
 			me.icon='search';
@@ -4297,18 +4485,19 @@ function(AC){
  */
 
 $Define('c.Tab',
-'c.AbstractComponent',
-function(AC){
+['c.AbstractComponent',
+'c.ControlGroup'],
+function(AC,ControlGroup){
 	
-	var Tab=AC.define('Tab');
+	var Tab=AC.define('Tab',ControlGroup);
 	
 	$HO.extend(Tab.prototype,{
 		//初始配置
-//		itemClick       : function(){},        //标签项点击事件，函数参数为TabItem子组件对象
 		defItem         : {                    //默认子组件是Button
 			xtype:'Button',
 			radius:null,
 			isInline:false,
+			extCls:'js-item',
 			iconPos:'top',
 			shadow:false
 		},
@@ -4317,7 +4506,7 @@ function(AC){
 			'<div class="hui-tab">',
 				'<ul class="c-clear">',
 					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
-					'<li class="js-tab-item hui-tab-item" style="width:<%=100/len%>%">',
+					'<li class="hui-tab-item" style="width:<%=100/len%>%">',
 					'<%=this.children[i].getHtml()%>',
 					'</li>',
 					'<%}%>',
@@ -4329,60 +4518,21 @@ function(AC){
 				'<%}%>',
 			'</div>'
 		],
-		listeners       : [
-			{
-				type :'click',
-				selector : '.js-tab-item',
-				method : 'delegate',
-				handler : function(oEvt){
-					var me=this;
-					//点击tab按钮显示对应的content
-					var oCurrentEl=$(oEvt.currentTarget);
-					var nIndex=oCurrentEl.index();
-					me.setActiveItem(nIndex);
-					me.find('.js-tab-content').hide().eq(nIndex).show();
-					if(me.itemClick){
-						var oCmp=me.children[nIndex];
-						me.itemClick(oCmp);
-					}
-				}
-			}
-		],
 		
-		setActiveItem          : fSetActiveItem,       //激活指定标签项
-		getActiveItem          : fGetActiveItem        //获取激活的标签项
+		onItemClick     : fOnItemClick         //子项点击事件处理
 	});
 	/**
-	 * 激活指定标签项
-	 * @method setActiveItem
-	 * @param {number|string}item number表示索引，string表示选择器
+	 * 子项点击事件处理
+	 * @method onItemClick
+	 * @param {jQ:Event}oEvt jQ事件对象
+	 * @param {number}nIndex 子项目索引
 	 */
-	function fSetActiveItem(item){
-		var me=this,oActive;
-		me.callChild('unactive');
-		if(typeof item=='number'){
-			oActive=me.children[item];
-		}else{
-			oActive=me.find(item)[0];
-		}
-		oActive.active();
-	}
-	/**
-	 * 获取激活的标签项
-	 * @method getActiveItem
-	 * @param {boolean=}bIsIndex 仅当true时返回索引
-	 * @return {Component} 返回当前激活的组件
-	 */
-	function fGetActiveItem(bIsIndex){
-		var me=this,nIndex,oItem;
-		me.each(function(i,item){
-			if(item.isActive){
-				oItem=item;
-				nIndex=i;
-				return false;
-			}
-		});
-		return bIsIndex?nIndex:oItem;
+	function fOnItemClick(oEvt,nIndex){
+		var me=this;
+		me.setActiveItem(nIndex);
+		//点击tab按钮显示对应的content
+		me.find('.js-tab-content').hide().eq(nIndex).show();
+		me.callSuper([oEvt,nIndex]);
 	}
 	
 	return Tab;
@@ -4447,12 +4597,60 @@ function(AC){
 	
 	$HO.extend(Popup.prototype,{
 		//初始配置
-//		name            : '',                  //图标名称
+		delayShow       : true,            //延迟显示
+		clickHide       : true,            //是否点击就隐藏
+		
+		//组件共有配置
+		withMask        : true,
+		shadowOverlay   : true,
 		
 		tmpl            : [
-		]
+			'<div class="hui-popup"><%=this.getHtml("$>*")%></div>'
+		],
+		listeners       : [{
+			type:'click',
+			el: $(document),
+			handler:function(){
+				var me=this;
+				if(me.clickHide){
+					this.hide();
+				}
+			}
+		}],
 		
+		show             : fShow,            //显示
+		showAtCenter     : fShowAtCenter     //居中显示
 	});
+	
+	/**
+	 * 显示
+	 * @method show
+	 */
+	function fShow(){
+		// 设置定位坐标
+		var me=this;
+		//默认居中显示
+		me.showAtCenter();
+		//指定父类，避免死循环
+		me.callSuper(Popup.superClass);
+	}
+	/**
+	 * 居中显示
+	 * @method showAtCenter
+	 */
+	function fShowAtCenter(){
+		// 设置定位坐标
+		var me=this;
+		var oEl=me.getEl();
+		var oDoc=document;
+		var x = ((oDoc.documentElement.offsetWidth || oDoc.body.offsetWidth) - oEl.width())/2;
+		var y = ((oDoc.documentElement.clientHeight || oDoc.body.clientHeight) - oEl.height())/2 + oDoc.body.scrollTop;
+		y = y < 10 ? window.screen.height/2-200 : y;
+		oEl.css({
+			left:x + "px",
+			top:y-(me.offsetTop||0) + "px"
+		});
+	}
 	
 	return Popup;
 	
@@ -4463,10 +4661,11 @@ function(AC){
  */
 
 $Define('c.Dialog',
-'c.AbstractComponent',
-function(AC){
+['c.AbstractComponent',
+'c.Popup'],
+function(AC,Popup){
 	
-	var Dialog=AC.define('Dialog');
+	var Dialog=AC.define('Dialog',Popup);
 	
 	//快捷静态方法
 	$HO.extend(Dialog,{
@@ -4491,14 +4690,13 @@ function(AC){
 //		okCall          : function(){},   //确定按钮事件函数
 //		cancelCall      : function(){},   //取消按钮事件函数
 		
+		clickHide       : false,          //点击不隐藏
+		
 		//组件共有配置
 		radius          : 'normal',
 		cls             : 'dialog',
-		withMask        : true,
-		
-		
 		tmpl            : [
-			'<div class="hui-dialog hui-overlay-shadow">',
+			'<div class="hui-dialog">',
 				'<%=this.getHtml("$>Toolbar")%>',
 				'<div class="hui-dialog-body">',
 					'<%if(this.content){%><%=this.content%><%}else{%>',
@@ -4516,9 +4714,7 @@ function(AC){
 				'</div>',
 			'</div>'
 		],
-		doConfig         : fDoConfig,        //处理配置
-		show             : fShow             //显示
-		
+		doConfig         : fDoConfig        //处理配置
 	});
 	
 	/**
@@ -4587,7 +4783,7 @@ function(AC){
 	 */
 	function fDoConfig(oSettings){
 		var me=this;
-		me.callSuper(oSettings);
+		me.callSuper([oSettings]);
 		if(me.title){
 			//顶部标题栏
 			me.addItem({
@@ -4636,26 +4832,44 @@ function(AC){
 			}
 		}
 	}
-	/**
-	 * 显示
-	 * @method show
-	 */
-	function fShow(){
-		// 设置定位坐标
-		var me=this;
-		var oEl=me.getEl();
-		var oDoc=document;
-		var x = ((oDoc.documentElement.offsetWidth || oDoc.body.offsetWidth) - oEl.width())/2;
-		var y = ((oDoc.documentElement.clientHeight || oDoc.body.clientHeight) - oEl.height())/2 + oDoc.body.scrollTop;
-		y = y < 10 ? window.screen.height/2-200 : y;
-		oEl.css({
-			left:x + "px",
-			top:y-(me.offsetTop||0) + "px"
-		});
-		me.callSuper();
-	}
 	
 	return Dialog;
+	
+});/**
+ * 菜单类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-02-02
+ */
+
+$Define('c.Menu',
+['c.AbstractComponent',
+'c.Popup',
+'c.ControlGroup'],
+function(AC,Popup,ControlGroup){
+	
+	var Menu=AC.define('Menu',Popup);
+	
+	//扩展取得ControlGroup的属性及方法
+	$HO.extend(Menu.prototype,ControlGroup.prototype,{notCover:true});
+	
+	$HO.extend(Menu.prototype,{
+		//初始配置
+		
+		tmpl            : [
+			'<div class="hui-menu">',
+				'<ul>',
+					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
+						'<li class="hui-menu-item">',
+							'<%=this.children[i].getHtml()%>',
+						'</li>',
+					'<%}%>',
+				'</ul>',
+			'</div>'
+		]
+	
+	});
+	
+	return Menu;
 	
 });/****************************************************************
 * Author:		郑银辉											*
@@ -4720,7 +4934,7 @@ $Define("m.AbstractModule","handy.base.Object",function (Object) {
 			me.constructor.prototype.tmpl=me.tmpl.join('');
 		}
 		//由模板生成组件html
-		var sHtml=$H.Template.tmpl({id:me.xtype,tmpl:me.tmpl},me);
+		var sHtml=$H.Template.tmpl({id:me.name,tmpl:me.tmpl},me);
 		return sHtml;
 	}
 	/**

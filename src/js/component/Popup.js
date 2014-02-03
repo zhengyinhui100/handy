@@ -12,10 +12,12 @@ function(AC){
 	
 	$HO.extend(Popup.prototype,{
 		//初始配置
+		delayShow       : true,            //延迟显示
 		clickHide       : true,            //是否点击就隐藏
 		
 		//组件共有配置
 		withMask        : true,
+		shadowOverlay   : true,
 		
 		tmpl            : [
 			'<div class="hui-popup"><%=this.getHtml("$>*")%></div>'
@@ -38,16 +40,14 @@ function(AC){
 	/**
 	 * 显示
 	 * @method show
-	 * @param {boolean=}bShowed 是否已调用过显示方法，仅当为true时不再调用默认显示方法
 	 */
-	function fShow(bShowed){
+	function fShow(){
 		// 设置定位坐标
 		var me=this;
-		if(!bShowed){
-			//默认居中显示
-			me.showAtCenter();
-		}
-		me.callSuper(Popup.superClass,[true]);
+		//默认居中显示
+		me.showAtCenter();
+		//指定父类，避免死循环
+		me.callSuper(Popup.superClass);
 	}
 	/**
 	 * 居中显示

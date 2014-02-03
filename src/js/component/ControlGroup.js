@@ -5,8 +5,9 @@
  */
 
 $Define('c.ControlGroup',
-'c.AbstractComponent',
-function(AC){
+['c.ComponentManager',
+'c.AbstractComponent'],
+function(CM,AC){
 	
 	var ControlGroup=AC.define('ControlGroup');
 	
@@ -19,6 +20,7 @@ function(AC){
 		//默认子组件配置
 		defItem              : {
 			xtype            : 'Button',
+			extCls           : 'js-item',
 			radius           : null,
 			shadow           : false,
 			isInline         : false
@@ -38,7 +40,7 @@ function(AC){
 				handler : function(oEvt){
 					var me=this;
 					var oCurrentEl=$(oEvt.currentTarget);
-					var nIndex=oCurrentEl.index();
+					var nIndex=CM.get(oCurrentEl.attr("id")).index();
 					me.onItemClick(oEvt,nIndex);
 				}
 			}

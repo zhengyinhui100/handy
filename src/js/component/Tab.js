@@ -17,6 +17,7 @@ function(AC,ControlGroup){
 			xtype:'Button',
 			radius:null,
 			isInline:false,
+			extCls:'js-item',
 			iconPos:'top',
 			shadow:false
 		},
@@ -25,7 +26,7 @@ function(AC,ControlGroup){
 			'<div class="hui-tab">',
 				'<ul class="c-clear">',
 					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
-					'<li class="js-item hui-tab-item" style="width:<%=100/len%>%">',
+					'<li class="hui-tab-item" style="width:<%=100/len%>%">',
 					'<%=this.children[i].getHtml()%>',
 					'</li>',
 					'<%}%>',

@@ -32,6 +32,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		autoRender          : true,              //是否默认就进行渲染
 		renderBy            : 'append',          //默认渲染方式
 //		notListen           : false,             //不自动初始化监听器
+//		delayShow           : false,             //是否延迟显示，主要用于弹出层
 //		extCls              : '',                //组件附加class
 		activeCls           : 'hui-active',      //激活样式
 //		defItem             : null,              //默认子组件配置
@@ -45,6 +46,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 //		shadow              : false,        	 //外阴影
 //		shadowInset         : false,        	 //内阴影
 //		shadowSurround      : false,             //外围亮阴影，主要用于黑色工具栏内的按钮
+//		shadowOverlay       : false,             //遮罩层里组件的阴影效果，主要用于弹出层
 //		isMini              : false,       	     //小号
 //		isActive            : false,             //是否激活
 //		isFocus             : false,        	 //聚焦
@@ -153,6 +155,10 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 			me.renderTo[me.renderBy](me.getHtml());
 			//渲染后续工作
 			me.afterRender();
+			//显示
+			if(!me.hidden){
+				me.show();
+			}
 		}
 		//注册组件
 		CM.register(me);
@@ -175,12 +181,13 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 			aListeners=aListeners.concat(oParams.listeners);
 		}
 		//继承父类事件
-		var oSuper=me.superProp;
+		var oSuper=me.constructor.superClass;
 		while(oSuper){
-			if(oSuper.listeners){
-				aListeners=aListeners.concat(oSuper.listeners);
+			var aSuperListeners=oSuper.prototype.listeners;
+			if(aSuperListeners){
+				aListeners=aListeners.concat(aSuperListeners);
 			}
-			oSuper=oSuper.superProp;
+			oSuper=oSuper.superClass;
 		}
 		me._listeners=aListeners;
 		//只覆盖基本类型的属性
@@ -230,12 +237,10 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		sHtml=sHtml.replace(_oClsReg,'$1'+me.getExtCls());
 		//添加style
 		var sStyle='';
-		if(me.hidden){
-			if(me.displayMode=='visibility'){
-				sStyle+='visibility:hidden;';
-			}else{
-				sStyle+='display:none;';
-			}
+		if(me.displayMode=='visibility'){
+			sStyle+='visibility:hidden;';
+		}else{
+			sStyle+='display:none;';
 		}
 		if(me.width!=undefined){
 			sStyle+="width:"+me.width+(typeof me.width=='number'?"px;":";");
@@ -313,6 +318,9 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		if(me.shadowSurround){
 			aCls.push('hui-shadow-surround');
 		}
+		if(me.shadowOverlay){
+			aCls.push('hui-shadow-overlay');
+		}
 		if(me.shadowInset){
 			aCls.push('hui-shadow-inset');
 		}
@@ -346,9 +354,6 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		if(me.disabled){
 			me.suspendListeners();
 		}
-		if(!me.hidden){
-			me.show();
-		}
 		me.fire('afterRender');
 		delete me.html;
 	}
@@ -377,11 +382,19 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	/**
 	 * 显示
 	 * @method show
+	 * @param {boolean}bNotDelay 仅当为true时强制不延迟显示
 	 */
-	function fShow(){
+	function fShow(bNotDelay){
 		var me=this;
 		//已经显示，直接退回
 		if(me.showed){
+			return;
+		}
+		if(!bNotDelay&&me.delayShow){
+			setTimeout(function(){
+				//这里必须指定基类的方法，不然会调用到组件自定义的show方法
+				AC.prototype.show.call(me,true);
+			},0);
 			return;
 		}
 		me.showed=true;

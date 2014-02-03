@@ -303,8 +303,8 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 				this.menu.show();
 			}else{
 				this.menu=new Menu({
-					itemClick:function(){
-						alert(this.value);
+					itemClick:function(menuItem){
+						alert(menuItem.value);
 					},
 					items:[{
 						text:"菜单一",
