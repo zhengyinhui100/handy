@@ -10,26 +10,26 @@ function(AC){
 	
 	var Select=AC.define('Select');
 	
-	$HO.extend(Select.prototype,{
+	Select.extend({
 		//初始配置
 //		name            : '',                  //选项名
-		text            : '请选择...',          //文字
-		value           : '',                  //选项值
+		text            : '请选择...',          //为选择时的文字
+		value           : '',                  //默认值
+//		options         : [{text:"文字",value:"值"}],    //选项
+		optionClick     : function(){},
 		defItem         : {
 			xtype       : 'Menu',
 			hidden      : true,
 			markType    : 'dot',
-			renderTo    : "body",              //子组件须设置renderTo才会自动render
-			itemClick   : function(){
-				
-			}
+			renderTo    : "body"              //子组件须设置renderTo才会自动render
 		},
 		
+		_customEvents   : ['change'],
 		tmpl            : [
 			'<div class="hui-select hui-btn hui-btn-gray hui-btn-icon-right">',
 				'<span class="hui-icon hui-icon-carat-d hui-icon-bg"></span>',
 				'<select value="<%=this.value%>" name="<%=this.name%>"></select>',
-				'<span class="hui-btn-txt"><%=this.text%></span>',
+				'<span class="hui-btn-txt js-select-txt"><%=this.text%></span>',
 			'</div>'
 		],
 		
@@ -59,6 +59,10 @@ function(AC){
 		var oOptions=oParams.options;
 		if(oOptions){
 			me.addItem({
+				itemClick:function(oButton,nIndex){
+					var sValue=oButton.value;
+					me.val(sValue);
+				},
 				items:oOptions
 			})
 		}
@@ -80,11 +84,17 @@ function(AC){
 	 */
 	function fVal(sValue){
 		var me=this;
+		var oSel=me.find('select');
 		if(sValue){
-			me.value=sValue;
-			me.find('input').val(sValue);
+			if(me.value!=sValue){
+				me.fire("selectedchange");
+				me.value=sValue;
+				oSel.val(sValue);
+				//更新菜单选中状态
+				me.children[0].select('$>[value="'+sValue+'"]');
+			}
 		}else{
-			return me.value;
+			return oSel.val();
 		}
 	}
 	

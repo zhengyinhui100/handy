@@ -10,7 +10,7 @@ function(AC){
 	
 	var Checkbox=AC.define('Checkbox');
 	
-	$HO.extend(Checkbox.prototype,{
+	Checkbox.extend({
 		//初始配置
 //		name            : '',                  //选项名
 		text            : '',                  //文字

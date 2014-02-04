@@ -16,6 +16,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	//静态方法
 	$HO.extend(AC,{
 		define              : fDefine,           //定义组件
+		extend              : fExtend,           //扩展组件原型对象
 		html                : fHtml              //静态生成组件html
 	});
 	
@@ -53,6 +54,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 //		isInline            : false,             //是否内联(宽度自适应)
 		
 		//属性
+//		cls                 : '',                //组件样式名，空则使用xtype的小写，如Dialog，cls为"dialog"，因此样式前缀是“hui-dialog-”
 //		role                : '',                //保留属性，用于模板中筛选组件的选择器，如this.getHtml("$>[role='content']")
 //		params              : null,              //初始化时传入的参数
 //		_id                 : null,              //组件id
@@ -64,7 +66,8 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 //		children            : [],                //子组件
 //		isSuspend           : false,             //是否挂起事件
 //		_container          : null,              //组件容器节点
-//		_listeners          : {},                //事件池  
+//      listeners           : [],                //类事件配置
+//		_listeners          : {},                //实例事件池  
 		_customEvents       : [                  //自定义事件,可以通过参数属性的方式直接进行添加
 			'beforeRender','afterRender','show','hide','destroy'
 		],  
@@ -89,6 +92,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		unactive            : fUnactive,         //不激活
 		mask                : fMask,             //显示遮罩层
 		unmask              : fUnmask,           //隐藏遮罩层
+		txt                 : fTxt,              //设置/读取文字
 		//事件相关
 		fire                : fFire,             //触发组件自定义事件
 		listen              : fListen,           //绑定事件
@@ -121,11 +125,29 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	 */
 	function fDefine(sXtype,oSuperCls){
 		var Component=$HO.createClass();
-		$HO.inherit(Component,oSuperCls||AC,null,null,{notCover:function(p){
-			return p=='define';
+		var oSuper=oSuperCls||AC;
+		$HO.inherit(Component,oSuper,null,null,{notCover:function(p){
+			return p == 'define';
 		}});
 		CM.registerType(sXtype,Component);
 		return Component;
+	}
+	/**
+	 * 扩展组件原型对象
+	 * @method extend
+	 * @param {Object}oExtend 扩展源
+	 */
+	function fExtend(oExtend){
+		var oProt=this.prototype;
+		$HO.extend(oProt, oExtend,{notCover:function(p){
+			//继承父类的事件
+			if(p=='_customEvents'||p=='listeners'){
+				oProt[p]=(oExtend[p]||[]).concat(oProt[p]||[]);
+				return true;
+			}else if(p=='xtype'||p=='constructor'){
+				return true;
+			}
+		}});
 	}
 	/**
 	 * 静态生成组件html
@@ -173,23 +195,16 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		//保存参数
 		me.params=oParams;
 		//复制参数
-		me.settings=$HO.extend({},oParams);
+		me.settings=$HO.clone(oParams);
+		
 		//事件列表对象特殊处理，不影响类定义
 		var aListeners=me.listeners?me.listeners.concat():[];
 		//添加参数中的事件
 		if(oParams.listeners){
 			aListeners=aListeners.concat(oParams.listeners);
 		}
-		//继承父类事件
-		var oSuper=me.constructor.superClass;
-		while(oSuper){
-			var aSuperListeners=oSuper.prototype.listeners;
-			if(aSuperListeners){
-				aListeners=aListeners.concat(aSuperListeners);
-			}
-			oSuper=oSuper.superClass;
-		}
 		me._listeners=aListeners;
+		
 		//只覆盖基本类型的属性
 		$HO.extend(me,oParams,{notCover:function(sProp){
 			var value=me[sProp];
@@ -207,6 +222,11 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 				return true;
 			}
 		}});
+		
+		//样式名
+		if(!me.cls){
+			me.cls=me.xtype.toLowerCase();
+		}
 		//覆盖子组件配置
 		if(oParams.defItem){
 			$HO.extend(me.defItem,oParams.defItem);
@@ -466,6 +486,25 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	function fUnmask(){
 		if(AC.mask){
 			AC.mask.hide();
+		}
+	}
+	/**
+	 * 设置/读取文字
+	 * @method txt
+	 * @param {string=}sTxt
+	 * @return {string} 
+	 */
+	function fTxt(sTxt){
+		//先寻找js私有的class
+		var oTxtEl=me.find('.js-'+me.cls+'-txt');
+		//如果找不到，再通过css的class查找
+		if(oTxtEl.length==0){
+			oTxtEl=me.find('.hui-'+me.cls+'-txt')
+		}
+		if(sTxt!=undefined){
+			oTxtEl.text(sTxt);
+		}else{
+			return oTxtEl.text();
 		}
 	}
 	/**

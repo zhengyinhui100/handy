@@ -10,7 +10,7 @@ function(AC){
 	
 	var Input=AC.define('Input');
 	
-	$HO.extend(Input.prototype,{
+	Input.extend({
 		//初始配置
 //		type            : '',                  //图标名称
 //		value           : '',                  //默认值

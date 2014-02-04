@@ -18,7 +18,7 @@ function(AC,Popup){
 		prompt          : fPrompt    //弹出输入框
 	});
 	
-	$HO.extend(Dialog.prototype,{
+	Dialog.extend({
 		
 		//对话框初始配置
 //		title           : '',             //标题
@@ -38,7 +38,7 @@ function(AC,Popup){
 		
 		//组件共有配置
 		radius          : 'normal',
-		cls             : 'dialog',
+		
 		tmpl            : [
 			'<div class="hui-dialog">',
 				'<%=this.getHtml("$>Toolbar")%>',

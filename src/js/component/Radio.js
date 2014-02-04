@@ -10,7 +10,7 @@ function(AC){
 	
 	var Radio=AC.define('Radio');
 	
-	$HO.extend(Radio.prototype,{
+	Radio.extend({
 		//初始配置
 //		name            : '',                  //选项名
 		text            : '',                  //文字

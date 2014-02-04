@@ -11,7 +11,7 @@ function(CM,AC){
 	
 	var ControlGroup=AC.define('ControlGroup');
 	
-	$HO.extend(ControlGroup.prototype,{
+	ControlGroup.extend({
 		//初始配置
 //		direction            : 'v',                  //排列方向，'v'表示垂直方向，'h'表示水平方向
 		radius               : 'little',             //圆角

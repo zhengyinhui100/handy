@@ -10,7 +10,7 @@ function(AC){
 	
 	var Button=AC.define('Button');
 	
-	$HO.extend(Button.prototype,{
+	Button.extend({
 		//初始配置
 //		text            : '',                  //按钮文字
 //		isActive        : false,               //是否是激活状态

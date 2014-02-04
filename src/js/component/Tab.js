@@ -11,7 +11,7 @@ function(AC,ControlGroup){
 	
 	var Tab=AC.define('Tab',ControlGroup);
 	
-	$HO.extend(Tab.prototype,{
+	Tab.extend({
 		//初始配置
 		defItem         : {                    //默认子组件是Button
 			xtype:'Button',

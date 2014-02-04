@@ -13,9 +13,9 @@ function(AC,Popup,ControlGroup){
 	var Menu=AC.define('Menu',Popup);
 	
 	//扩展取得ControlGroup的属性及方法
-	$HO.extend(Menu.prototype,ControlGroup.prototype,{notCover:true});
+	Menu.extend(ControlGroup.prototype);
 	
-	$HO.extend(Menu.prototype,{
+	Menu.extend({
 		//初始配置
 //		markType        : null,         //选中的标记类型，默认不带选中效果，'active'是组件active效果，'dot'是点选效果
 		

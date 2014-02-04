@@ -10,7 +10,7 @@ function(AC){
 	
 	var Icon=AC.define('Icon');
 	
-	$HO.extend(Icon.prototype,{
+	Icon.extend({
 		//初始配置
 		hasBg           : true,               //是否有背景
 //		name            : '',                  //图标名称

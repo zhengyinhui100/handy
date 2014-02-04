@@ -10,7 +10,7 @@ function(AC){
 	
 	var Popup=AC.define('Popup');
 	
-	$HO.extend(Popup.prototype,{
+	Popup.extend({
 		//初始配置
 		delayShow       : true,            //延迟显示
 		clickHide       : true,            //是否点击就隐藏

@@ -10,7 +10,7 @@ function(AC){
 	
 	var Toolbar=AC.define('Toolbar');
 	
-	$HO.extend(Toolbar.prototype,{
+	Toolbar.extend({
 		//初始配置
 //		title            : '',                  //标题
 		cls              : 'tbar',
@@ -19,7 +19,7 @@ function(AC){
 		tmpl             : [
 			'<div class="hui-tbar<%if(this.type=="header"){%> hui-header<%}else if(this.type=="footer"){%> hui-footer<%}%>">',
 				'<%=this.getHtml(">*")%>',
-				'<%if(this.title){%><h1 class="hui-tbar-title"><%=this.title%></h1><%}%>',
+				'<%if(this.title){%><h1 class="hui-tbar-title js-tbar-txt"><%=this.title%></h1><%}%>',
 			'</div>'
 		],
 		
