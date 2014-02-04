@@ -104,7 +104,7 @@ handy.add('Object',function($H){
         //获得一个类定义，并且绑定一个类初始化方法
         var Class = function(){
         	var me,fInitialize;
-        	//获得initialize引用的对象，如果是类调用，就没有this.initialize
+        	//获得initialize引用的对象，如果不是通过new调用(比如:Class())，就没有this.initialize
         	if(this.constructor==Class){
         		me = this;
         	}else{
