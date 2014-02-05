@@ -11,7 +11,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	_oClsReg=/(class=")/;
 	
 	//快捷别名
-	$H.CM=AC;
+	$C.AbstractComponent=AC;
 	
 	//静态方法
 	$HO.extend(AC,{
@@ -495,6 +495,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	 * @return {string} 
 	 */
 	function fTxt(sTxt){
+		var me=this;
 		//先寻找js私有的class
 		var oTxtEl=me.find('.js-'+me.cls+'-txt');
 		//如果找不到，再通过css的class查找
@@ -511,14 +512,19 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	 * 触发组件自定义事件
 	 * @method fire
 	 * @param {string}sType 事件类型
+	 * @param {Array=}aArgs 附加参数
 	 */
-	function fFire(sType){
+	function fFire(sType,aArgs){
 		var me=this;
 		for(var i=me._listeners.length-1;i>=0;i--){
 			var oListener=me._listeners[i]
 			if(oListener.type==sType){
 				var fDelegation=oListener.delegation;
-				fDelegation({obj:me,data:oListener.data});
+				if(aArgs){
+					fDelegation.apply(null,aArgs.shift(oListener));
+				}else{
+					fDelegation(oListener);
+				}
 			}
 		}
 	}
@@ -527,7 +533,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	 * @method listen
 	 * @param {object}事件对象{
 	 * 			{string}type      : 事件名
-	 * 			{function}handler : 监听函数
+	 * 			{function(Object[,fireParam..])}handler : 监听函数，第一个参数为事件对象oListener，其后的参数为fire时传入的参数
 	 * 			{any=}data        : 数据
 	 * 			{jQuery=}el       : 绑定事件的节点，不传表示组件容器节点
 	 * 			{boolean=}notEl    : 为true时是自定义事件

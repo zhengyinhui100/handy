@@ -23,7 +23,7 @@ function(AC,Popup,ControlGroup){
 			'<div class="hui-menu<%if(this.markType=="dot"){%> hui-menu-mark<%}%>">',
 				'<ul>',
 					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
-						'<li class="hui-menu-item">',
+						'<li class="hui-menu-item<%if(this.children[i].selected){%> hui-item-mark<%}%>">',
 							'<%=this.children[i].getHtml()%>',
 							'<%if(this.markType=="dot"){%><span class="hui-icon-mark"></span><%}%>',
 						'</li>',

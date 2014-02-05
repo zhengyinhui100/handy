@@ -58,14 +58,16 @@ function(CM,AC){
 	/**
 	 * 选中指定项
 	 * @method select
-	 * @param {number|string}item number表示索引，string表示选择器
+	 * @param {number|string|Component}item number表示索引，string表示选择器，也可以传入组件对象
 	 */
 	function fSelect(item){
 		var me=this,oItem;
 		if(typeof item=='number'){
 			oItem=me.children[item];
-		}else{
+		}else if(typeof item=="string"){
 			oItem=me.find(item)[0];
+		}else{
+			oItem=item;
 		}
 		if(!me.multi&&!oItem.multi){
 			//单选操作要先取消别的选中

@@ -57,15 +57,22 @@ function(AC){
 		me.callSuper([oParams]);
 		//options配置成菜单
 		var oOptions=oParams.options;
-		if(oOptions){
-			me.addItem({
-				itemClick:function(oButton,nIndex){
-					var sValue=oButton.value;
-					me.val(sValue);
-				},
-				items:oOptions
-			})
+		//根据默认值设置默认文字
+		for(var i=0,len=oOptions.length;i<len;i++){
+			var oOption=oOptions[i];
+			if(oOption.value==oParams.value){
+				me.text=oOption.text;
+				oOption.selected=true;
+				break;
+			}
 		}
+		me.addItem({
+			itemClick:function(oButton,nIndex){
+				var sValue=oButton.value;
+				me.val(sValue);
+			},
+			items:oOptions
+		})
 	}
 	/**
 	 * 显示选项菜单
@@ -87,11 +94,17 @@ function(AC){
 		var oSel=me.find('select');
 		if(sValue){
 			if(me.value!=sValue){
-				me.fire("selectedchange");
-				me.value=sValue;
-				oSel.val(sValue);
-				//更新菜单选中状态
-				me.children[0].select('$>[value="'+sValue+'"]');
+				var oMenu=me.children[0];
+				var oItem=oMenu.find('$>[value="'+sValue+'"]');
+				if(oItem.length>0){
+					me.fire("change");
+					oItem=oItem[0];
+					me.value=sValue;
+					oSel.val(sValue);
+					me.txt(oItem.text);
+					//更新菜单选中状态
+					oMenu.select(oItem);
+				}
 			}
 		}else{
 			return oSel.val();

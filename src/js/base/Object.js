@@ -256,6 +256,7 @@ handy.add('Object',function($H){
         oExtendOptions=oExtendOptions||{notCover:true}
         Object.extend(oChild, oParent,oExtendOptions);
         oChild.prototype = new Inheritance();
+        //重新覆盖constructor
         oChild.prototype.constructor = oChild;
         oChild.superClass = oParent;
         oChild.superProt = oParent.prototype;

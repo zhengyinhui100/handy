@@ -372,7 +372,11 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 		},{
 			text:"选项二",
 			value:"2"
-		}]
+		}],
+		change:function(){
+			console.log(this);
+			console.log(arguments);
+		}
 	});
 	
 	//输入框
