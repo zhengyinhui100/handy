@@ -96,7 +96,6 @@ function(AC){
 	 */
 	function fVal(sValue){
 		var me=this;
-		var oSel=me.find('select');
 		if(sValue){
 			if(me.value!=sValue){
 				var oMenu=me.children[0];
@@ -105,14 +104,15 @@ function(AC){
 					me.fire("change");
 					oItem=oItem[0];
 					me.value=sValue;
-					oSel.val(sValue);
+					var oSel=me.find('select');
+					oSel.attr('value',sValue);
 					me.txt(oItem.text);
 					//更新菜单选中状态
 					oMenu.select(oItem);
 				}
 			}
 		}else{
-			return oSel.val();
+			return me.value;
 		}
 	}
 	

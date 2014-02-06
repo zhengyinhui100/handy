@@ -82,7 +82,6 @@ function(AC){
 		var me=this;
 		var oPos=oEl.position();
 		oPos.width=me.width||oEl.outerWidth();
-		//oPos.top+=oEl.outerHeight();
 		me.getEl().css(oPos);
 	}
 	

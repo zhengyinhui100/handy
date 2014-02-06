@@ -361,7 +361,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 	})
 	
 	//下拉选择框
-	new Select({
+	var select=new Select({
 		renderTo:'#selectDv',
 		name:'select',
 		value:'1',
@@ -378,6 +378,13 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 			console.log(arguments);
 		}
 	});
+	new Button({
+		renderTo:'#selectDv',
+		text:'获取选中值',
+		click:function(){
+			alert(select.val());
+		}
+	})
 	
 	//输入框
 	new Input({
