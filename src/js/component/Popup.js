@@ -14,6 +14,7 @@ function(AC){
 		//初始配置
 		delayShow       : true,            //延迟显示
 		clickHide       : true,            //是否点击就隐藏
+		showPos         : 'center',        //定位方法名，或者传入自定义定位函数
 		
 		//组件共有配置
 		withMask        : true,
@@ -34,7 +35,8 @@ function(AC){
 		}],
 		
 		show             : fShow,            //显示
-		showAtCenter     : fShowAtCenter     //居中显示
+		center           : fCenter,          //居中显示
+		underEl          : fUnderEl          //根据指定节点显示
 	});
 	
 	/**
@@ -45,15 +47,20 @@ function(AC){
 		// 设置定位坐标
 		var me=this;
 		//默认居中显示
-		me.showAtCenter();
+		var showPos=me.showPos;
+		if(typeof showPos=="string"){
+			me[showPos]();
+		}else if(typeof showPos=="function"){
+			showPos.call(me);
+		}
 		//指定父类，避免死循环，如果是父组件通过callChild调用的会有参数，要传进去
 		me.callSuper(Popup.superClass,arguments);
 	}
 	/**
 	 * 居中显示
-	 * @method showAtCenter
+	 * @method center
 	 */
-	function fShowAtCenter(){
+	function fCenter(){
 		// 设置定位坐标
 		var me=this;
 		var oEl=me.getEl();
@@ -65,6 +72,18 @@ function(AC){
 			left:x + "px",
 			top:y-(me.offsetTop||0) + "px"
 		});
+	}
+	/**
+	 * 显示在指定元素下方
+	 * @method underEl
+	 * @param {jQuery}oEl 定位标准元素
+	 */
+	function fUnderEl(oEl){
+		var me=this;
+		var oPos=oEl.position();
+		oPos.width=me.width||oEl.outerWidth();
+		//oPos.top+=oEl.outerHeight();
+		me.getEl().css(oPos);
 	}
 	
 	return Popup;

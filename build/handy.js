@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-02-03 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-02-06 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -671,7 +671,7 @@ handy.add('Object',function($H){
         //获得一个类定义，并且绑定一个类初始化方法
         var Class = function(){
         	var me,fInitialize;
-        	//获得initialize引用的对象，如果是类调用，就没有this.initialize
+        	//获得initialize引用的对象，如果不是通过new调用(比如:Class())，就没有this.initialize
         	if(this.constructor==Class){
         		me = this;
         	}else{
@@ -823,6 +823,7 @@ handy.add('Object',function($H){
         oExtendOptions=oExtendOptions||{notCover:true}
         Object.extend(oChild, oParent,oExtendOptions);
         oChild.prototype = new Inheritance();
+        //重新覆盖constructor
         oChild.prototype.constructor = oChild;
         oChild.superClass = oParent;
         oChild.superProt = oParent.prototype;
@@ -3018,11 +3019,12 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	_oClsReg=/(class=")/;
 	
 	//快捷别名
-	$H.CM=AC;
+	$C.AbstractComponent=AC;
 	
 	//静态方法
 	$HO.extend(AC,{
 		define              : fDefine,           //定义组件
+		extend              : fExtend,           //扩展组件原型对象
 		html                : fHtml              //静态生成组件html
 	});
 	
@@ -3045,7 +3047,8 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 //		defItem             : null,              //默认子组件配置
 //		icon                : null,              //图标
 //		withMask            : false,             //是否有遮罩层
-		////通用样式，ps:组件模板容器节点上不能带有style属性
+		
+		////通用样式
 //		width               : null,              //宽度(默认单位是px)
 //		height              : null,              //高度(默认单位是px)
 //		theme               : null,              //组件颜色
@@ -3058,12 +3061,14 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 //		isActive            : false,             //是否激活
 //		isFocus             : false,        	 //聚焦
 //		isInline            : false,             //是否内联(宽度自适应)
+//		style               : {},                //其它样式，如:{top:10,left:10}
 		
 		//属性
+//		cls                 : '',                //组件样式名，空则使用xtype的小写，如Dialog，cls为"dialog"，因此样式前缀是“hui-dialog-”
 //		role                : '',                //保留属性，用于模板中筛选组件的选择器，如this.getHtml("$>[role='content']")
 //		params              : null,              //初始化时传入的参数
 //		_id                 : null,              //组件id
-//		tmpl                : [],                //组件模板，首次初始化前为数组，初始化后为字符串
+//		tmpl                : [],                //组件模板，首次初始化前为数组，初始化后为字符串，ps:组件模板容器节点上不能带有id属性
 //		html                : null,              //组件html
 //		rendered            : false,             //是否已渲染
 //      listened            : false,             //是否已初始化事件
@@ -3071,7 +3076,8 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 //		children            : [],                //子组件
 //		isSuspend           : false,             //是否挂起事件
 //		_container          : null,              //组件容器节点
-//		_listeners          : {},                //事件池  
+//      listeners           : [],                //类事件配置
+//		_listeners          : {},                //实例事件池  
 		_customEvents       : [                  //自定义事件,可以通过参数属性的方式直接进行添加
 			'beforeRender','afterRender','show','hide','destroy'
 		],  
@@ -3082,6 +3088,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		initialize          : fInitialize,       //初始化
 		doConfig            : fDoConfig,         //初始化配置
 		initHtml            : fInitHtml,         //初始化html
+		initStyle           : fInitStyle,        //初始化样式
 		getId               : fGetId,            //获取组件id
 		getEl               : fGetEl,            //获取组件节点
 		getHtml             : fGetHtml,          //获取组件或子组件html
@@ -3096,6 +3103,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		unactive            : fUnactive,         //不激活
 		mask                : fMask,             //显示遮罩层
 		unmask              : fUnmask,           //隐藏遮罩层
+		txt                 : fTxt,              //设置/读取文字
 		//事件相关
 		fire                : fFire,             //触发组件自定义事件
 		listen              : fListen,           //绑定事件
@@ -3128,11 +3136,29 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	 */
 	function fDefine(sXtype,oSuperCls){
 		var Component=$HO.createClass();
-		$HO.inherit(Component,oSuperCls||AC,null,null,{notCover:function(p){
-			return p=='define';
+		var oSuper=oSuperCls||AC;
+		$HO.inherit(Component,oSuper,null,null,{notCover:function(p){
+			return p == 'define';
 		}});
 		CM.registerType(sXtype,Component);
 		return Component;
+	}
+	/**
+	 * 扩展组件原型对象
+	 * @method extend
+	 * @param {Object}oExtend 扩展源
+	 */
+	function fExtend(oExtend){
+		var oProt=this.prototype;
+		$HO.extend(oProt, oExtend,{notCover:function(p){
+			//继承父类的事件
+			if(p=='_customEvents'||p=='listeners'){
+				oProt[p]=(oExtend[p]||[]).concat(oProt[p]||[]);
+				return true;
+			}else if(p=='xtype'||p=='constructor'){
+				return true;
+			}
+		}});
 	}
 	/**
 	 * 静态生成组件html
@@ -3180,23 +3206,16 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		//保存参数
 		me.params=oParams;
 		//复制参数
-		me.settings=$HO.extend({},oParams);
+		me.settings=$HO.clone(oParams);
+		
 		//事件列表对象特殊处理，不影响类定义
 		var aListeners=me.listeners?me.listeners.concat():[];
 		//添加参数中的事件
 		if(oParams.listeners){
 			aListeners=aListeners.concat(oParams.listeners);
 		}
-		//继承父类事件
-		var oSuper=me.constructor.superClass;
-		while(oSuper){
-			var aSuperListeners=oSuper.prototype.listeners;
-			if(aSuperListeners){
-				aListeners=aListeners.concat(aSuperListeners);
-			}
-			oSuper=oSuper.superClass;
-		}
 		me._listeners=aListeners;
+		
 		//只覆盖基本类型的属性
 		$HO.extend(me,oParams,{notCover:function(sProp){
 			var value=me[sProp];
@@ -3214,6 +3233,11 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 				return true;
 			}
 		}});
+		
+		//样式名
+		if(!me.cls){
+			me.cls=me.xtype.toLowerCase();
+		}
 		//覆盖子组件配置
 		if(oParams.defItem){
 			$HO.extend(me.defItem,oParams.defItem);
@@ -3240,25 +3264,31 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		var sId=me.getId();
 		//添加id
 		sHtml=sHtml.replace(_oTagReg,'$1 id="'+sId+'"');
+		me.html=sHtml;
+	}
+	/**
+	 * 初始化样式
+	 * @method initStyle
+	 */
+	function fInitStyle(){
+		var me=this;
 		//添加附加class
-		sHtml=sHtml.replace(_oClsReg,'$1'+me.getExtCls());
+		var oEl=this.getEl();
+		oEl.addClass(me.getExtCls());
 		//添加style
-		var sStyle='';
+		var oStyle=me.style||{};
 		if(me.displayMode=='visibility'){
-			sStyle+='visibility:hidden;';
+			oStyle.visibility='hidden';
 		}else{
-			sStyle+='display:none;';
+			oStyle.display='none';
 		}
 		if(me.width!=undefined){
-			sStyle+="width:"+me.width+(typeof me.width=='number'?"px;":";");
+			oStyle.width=me.width;
 		}
 		if(me.height!=undefined){
-			sStyle+="height:"+(typeof me.height=='number'?"px;":";");
+			oStyle.height=me.height;
 		}
-		if(sStyle){
-			sHtml=sHtml.replace(_oTagReg,'$1 style="'+sStyle+'"');
-		}
-		me.html=sHtml;
+		oEl.css(oStyle);
 	}
 	/**
 	 * 获取组件id
@@ -3355,6 +3385,9 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		//缓存容器
 		me._container=$("#"+me.getId());
 		me.rendered=true;
+		//初始化样式
+		me.initStyle();
+		//初始化事件
 		if(me.notListen!=true){
 			me.initListeners();
 		}
@@ -3389,12 +3422,17 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	/**
 	 * 显示
 	 * @method show
-	 * @param {boolean}bNotDelay 仅当为true时强制不延迟显示
+	 * @param {boolean=}bNotDelay 仅当为true时强制不延迟显示
+	 * @param {boolean=}bParentCall true表示是父组件通过callChild调用
 	 */
-	function fShow(bNotDelay){
+	function fShow(bNotDelay,bParentCall){
 		var me=this;
 		//已经显示，直接退回
 		if(me.showed){
+			return;
+		}
+		if(bParentCall&&me.hidden){
+			//设置了hidden=true的组件不随父组件显示而显示
 			return;
 		}
 		if(!bNotDelay&&me.delayShow){
@@ -3415,7 +3453,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 			me.mask();
 		}
 		me.fire('show');
-		me.callChild();
+		me.callChild([null,true]);
 	}
 	/**
 	 * 启用
@@ -3471,17 +3509,42 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		}
 	}
 	/**
+	 * 设置/读取文字
+	 * @method txt
+	 * @param {string=}sTxt
+	 * @return {string} 
+	 */
+	function fTxt(sTxt){
+		var me=this;
+		//先寻找js私有的class
+		var oTxtEl=me.find('.js-'+me.cls+'-txt');
+		//如果找不到，再通过css的class查找
+		if(oTxtEl.length==0){
+			oTxtEl=me.find('.hui-'+me.cls+'-txt')
+		}
+		if(sTxt!=undefined){
+			oTxtEl.text(sTxt);
+		}else{
+			return oTxtEl.text();
+		}
+	}
+	/**
 	 * 触发组件自定义事件
 	 * @method fire
 	 * @param {string}sType 事件类型
+	 * @param {Array=}aArgs 附加参数
 	 */
-	function fFire(sType){
+	function fFire(sType,aArgs){
 		var me=this;
 		for(var i=me._listeners.length-1;i>=0;i--){
 			var oListener=me._listeners[i]
 			if(oListener.type==sType){
 				var fDelegation=oListener.delegation;
-				fDelegation({obj:me,data:oListener.data});
+				if(aArgs){
+					fDelegation.apply(null,aArgs.shift(oListener));
+				}else{
+					fDelegation(oListener);
+				}
 			}
 		}
 	}
@@ -3490,7 +3553,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	 * @method listen
 	 * @param {object}事件对象{
 	 * 			{string}type      : 事件名
-	 * 			{function}handler : 监听函数
+	 * 			{function(Object[,fireParam..])}handler : 监听函数，第一个参数为事件对象oListener，其后的参数为fire时传入的参数
 	 * 			{any=}data        : 数据
 	 * 			{jQuery=}el       : 绑定事件的节点，不传表示组件容器节点
 	 * 			{boolean=}notEl    : 为true时是自定义事件
@@ -3831,7 +3894,9 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 			//具体组件类处理
 			me.parseItem(oItem);
 			var Component=CM.getClass(oItem.xtype);
-			oItem.autoRender=false;
+			if(!oItem.renderTo){
+				oItem.autoRender=false;
+			}
 			var oCmp=new Component(oItem);
 			me.add(oCmp);
 		}
@@ -3873,10 +3938,11 @@ function(AC){
 	
 	var Popup=AC.define('Popup');
 	
-	$HO.extend(Popup.prototype,{
+	Popup.extend({
 		//初始配置
 		delayShow       : true,            //延迟显示
 		clickHide       : true,            //是否点击就隐藏
+		showPos         : 'center',        //定位方法名，或者传入自定义定位函数
 		
 		//组件共有配置
 		withMask        : true,
@@ -3897,7 +3963,8 @@ function(AC){
 		}],
 		
 		show             : fShow,            //显示
-		showAtCenter     : fShowAtCenter     //居中显示
+		center           : fCenter,          //居中显示
+		underEl          : fUnderEl          //根据指定节点显示
 	});
 	
 	/**
@@ -3908,15 +3975,20 @@ function(AC){
 		// 设置定位坐标
 		var me=this;
 		//默认居中显示
-		me.showAtCenter();
-		//指定父类，避免死循环
-		me.callSuper(Popup.superClass);
+		var showPos=me.showPos;
+		if(typeof showPos=="string"){
+			me[showPos]();
+		}else if(typeof showPos=="function"){
+			showPos.call(me);
+		}
+		//指定父类，避免死循环，如果是父组件通过callChild调用的会有参数，要传进去
+		me.callSuper(Popup.superClass,arguments);
 	}
 	/**
 	 * 居中显示
-	 * @method showAtCenter
+	 * @method center
 	 */
-	function fShowAtCenter(){
+	function fCenter(){
 		// 设置定位坐标
 		var me=this;
 		var oEl=me.getEl();
@@ -3928,6 +4000,18 @@ function(AC){
 			left:x + "px",
 			top:y-(me.offsetTop||0) + "px"
 		});
+	}
+	/**
+	 * 显示在指定元素下方
+	 * @method underEl
+	 * @param {jQuery}oEl 定位标准元素
+	 */
+	function fUnderEl(oEl){
+		var me=this;
+		var oPos=oEl.position();
+		oPos.width=me.width||oEl.outerWidth();
+		//oPos.top+=oEl.outerHeight();
+		me.getEl().css(oPos);
 	}
 	
 	return Popup;
@@ -3945,7 +4029,7 @@ function(CM,AC){
 	
 	var ControlGroup=AC.define('ControlGroup');
 	
-	$HO.extend(ControlGroup.prototype,{
+	ControlGroup.extend({
 		//初始配置
 //		direction            : 'v',                  //排列方向，'v'表示垂直方向，'h'表示水平方向
 		radius               : 'little',             //圆角
@@ -3992,14 +4076,16 @@ function(CM,AC){
 	/**
 	 * 选中指定项
 	 * @method select
-	 * @param {number|string}item number表示索引，string表示选择器
+	 * @param {number|string|Component}item number表示索引，string表示选择器，也可以传入组件对象
 	 */
 	function fSelect(item){
 		var me=this,oItem;
 		if(typeof item=='number'){
 			oItem=me.children[item];
-		}else{
+		}else if(typeof item=="string"){
 			oItem=me.find(item)[0];
+		}else{
+			oItem=item;
 		}
 		if(!me.multi&&!oItem.multi){
 			//单选操作要先取消别的选中
@@ -4106,7 +4192,7 @@ function(AC){
 	
 	var Icon=AC.define('Icon');
 	
-	$HO.extend(Icon.prototype,{
+	Icon.extend({
 		//初始配置
 		hasBg           : true,               //是否有背景
 //		name            : '',                  //图标名称
@@ -4129,7 +4215,7 @@ function(AC){
 	
 	var Button=AC.define('Button');
 	
-	$HO.extend(Button.prototype,{
+	Button.extend({
 		//初始配置
 //		text            : '',                  //按钮文字
 //		isActive        : false,               //是否是激活状态
@@ -4185,7 +4271,7 @@ function(AC){
 	
 	var Radio=AC.define('Radio');
 	
-	$HO.extend(Radio.prototype,{
+	Radio.extend({
 		//初始配置
 //		name            : '',                  //选项名
 		text            : '',                  //文字
@@ -4256,7 +4342,7 @@ function(AC){
 	
 	var Checkbox=AC.define('Checkbox');
 	
-	$HO.extend(Checkbox.prototype,{
+	Checkbox.extend({
 		//初始配置
 //		name            : '',                  //选项名
 		text            : '',                  //文字
@@ -4329,18 +4415,31 @@ function(AC){
 	
 	var Select=AC.define('Select');
 	
-	$HO.extend(Select.prototype,{
+	Select.extend({
 		//初始配置
 //		name            : '',                  //选项名
-		text            : '请选择...',          //文字
-		defaultValue    : '',                  //默认值
-		value           : '',                  //选项值
+		text            : '请选择...',          //为选择时的文字
+		value           : '',                  //默认值
+//		options         : [{text:"文字",value:"值"}],    //选项
+		optionClick     : function(){},
+		defItem         : {
+			xtype       : 'Menu',
+			hidden      : true,
+			markType    : 'dot',
+			renderTo    : "body",              //子组件须设置renderTo才会自动render
+			showPos     : function(){
+				var me=this;
+				//菜单显示在选择框下面
+				me.underEl(me.parent.getEl());
+			}
+		},
 		
+		_customEvents   : ['change'],
 		tmpl            : [
 			'<div class="hui-select hui-btn hui-btn-gray hui-btn-icon-right">',
 				'<span class="hui-icon hui-icon-carat-d hui-icon-bg"></span>',
-				'<select value="<%=this.value%>"></select>',
-				'<span class="hui-btn-txt"><%=this.text%></span>',
+				'<select value="<%=this.value%>" name="<%=this.name%>"></select>',
+				'<span class="hui-btn-txt js-select-txt"><%=this.text%></span>',
 			'</div>'
 		],
 		
@@ -4353,10 +4452,38 @@ function(AC){
 			}
 		],
 		
+		doConfig         : fDoConfig,             //初始化配置
 		showOptions      : fShowOptions,          //显示选项菜单
 		val              : fVal                   //获取/设置值
 	});
 	
+	/**
+	 * 初始化配置
+	 * @method doConfig
+	 * @param {Object}oParams
+	 */
+	function fDoConfig(oParams){
+		var me=this;
+		me.callSuper([oParams]);
+		//options配置成菜单
+		var oOptions=oParams.options;
+		//根据默认值设置默认文字
+		for(var i=0,len=oOptions.length;i<len;i++){
+			var oOption=oOptions[i];
+			if(oOption.value==oParams.value){
+				me.text=oOption.text;
+				oOption.selected=true;
+				break;
+			}
+		}
+		me.addItem({
+			itemClick:function(oButton,nIndex){
+				var sValue=oButton.value;
+				me.val(sValue);
+			},
+			items:oOptions
+		})
+	}
 	/**
 	 * 显示选项菜单
 	 * @method setChecked
@@ -4364,6 +4491,7 @@ function(AC){
 	 */
 	function fShowOptions(){
 		var me=this;
+		me.children[0].show();
 	}
 	/**
 	 * 获取/设置输入框的值
@@ -4373,11 +4501,23 @@ function(AC){
 	 */
 	function fVal(sValue){
 		var me=this;
+		var oSel=me.find('select');
 		if(sValue){
-			me.value=sValue;
-			me.find('input').val(sValue);
+			if(me.value!=sValue){
+				var oMenu=me.children[0];
+				var oItem=oMenu.find('$>[value="'+sValue+'"]');
+				if(oItem.length>0){
+					me.fire("change");
+					oItem=oItem[0];
+					me.value=sValue;
+					oSel.val(sValue);
+					me.txt(oItem.text);
+					//更新菜单选中状态
+					oMenu.select(oItem);
+				}
+			}
 		}else{
-			return me.value;
+			return oSel.val();
 		}
 	}
 	
@@ -4395,7 +4535,7 @@ function(AC){
 	
 	var Input=AC.define('Input');
 	
-	$HO.extend(Input.prototype,{
+	Input.extend({
 		//初始配置
 //		type            : '',                  //图标名称
 //		value           : '',                  //默认值
@@ -4505,7 +4645,7 @@ function(AC,ControlGroup){
 	
 	var Tab=AC.define('Tab',ControlGroup);
 	
-	$HO.extend(Tab.prototype,{
+	Tab.extend({
 		//初始配置
 		defItem         : {                    //默认子组件是Button
 			xtype:'Button',
@@ -4574,7 +4714,7 @@ function(AC){
 	
 	var Toolbar=AC.define('Toolbar');
 	
-	$HO.extend(Toolbar.prototype,{
+	Toolbar.extend({
 		//初始配置
 //		title            : '',                  //标题
 		cls              : 'tbar',
@@ -4583,7 +4723,7 @@ function(AC){
 		tmpl             : [
 			'<div class="hui-tbar<%if(this.type=="header"){%> hui-header<%}else if(this.type=="footer"){%> hui-footer<%}%>">',
 				'<%=this.getHtml(">*")%>',
-				'<%if(this.title){%><h1 class="hui-tbar-title"><%=this.title%></h1><%}%>',
+				'<%if(this.title){%><h1 class="hui-tbar-title js-tbar-txt"><%=this.title%></h1><%}%>',
 			'</div>'
 		],
 		
@@ -4620,10 +4760,11 @@ function(AC){
 	
 	var Popup=AC.define('Popup');
 	
-	$HO.extend(Popup.prototype,{
+	Popup.extend({
 		//初始配置
 		delayShow       : true,            //延迟显示
 		clickHide       : true,            //是否点击就隐藏
+		showPos         : 'center',        //定位方法名，或者传入自定义定位函数
 		
 		//组件共有配置
 		withMask        : true,
@@ -4644,7 +4785,8 @@ function(AC){
 		}],
 		
 		show             : fShow,            //显示
-		showAtCenter     : fShowAtCenter     //居中显示
+		center           : fCenter,          //居中显示
+		underEl          : fUnderEl          //根据指定节点显示
 	});
 	
 	/**
@@ -4655,15 +4797,20 @@ function(AC){
 		// 设置定位坐标
 		var me=this;
 		//默认居中显示
-		me.showAtCenter();
-		//指定父类，避免死循环
-		me.callSuper(Popup.superClass);
+		var showPos=me.showPos;
+		if(typeof showPos=="string"){
+			me[showPos]();
+		}else if(typeof showPos=="function"){
+			showPos.call(me);
+		}
+		//指定父类，避免死循环，如果是父组件通过callChild调用的会有参数，要传进去
+		me.callSuper(Popup.superClass,arguments);
 	}
 	/**
 	 * 居中显示
-	 * @method showAtCenter
+	 * @method center
 	 */
-	function fShowAtCenter(){
+	function fCenter(){
 		// 设置定位坐标
 		var me=this;
 		var oEl=me.getEl();
@@ -4675,6 +4822,18 @@ function(AC){
 			left:x + "px",
 			top:y-(me.offsetTop||0) + "px"
 		});
+	}
+	/**
+	 * 显示在指定元素下方
+	 * @method underEl
+	 * @param {jQuery}oEl 定位标准元素
+	 */
+	function fUnderEl(oEl){
+		var me=this;
+		var oPos=oEl.position();
+		oPos.width=me.width||oEl.outerWidth();
+		//oPos.top+=oEl.outerHeight();
+		me.getEl().css(oPos);
 	}
 	
 	return Popup;
@@ -4699,7 +4858,7 @@ function(AC,Popup){
 		prompt          : fPrompt    //弹出输入框
 	});
 	
-	$HO.extend(Dialog.prototype,{
+	Dialog.extend({
 		
 		//对话框初始配置
 //		title           : '',             //标题
@@ -4719,7 +4878,7 @@ function(AC,Popup){
 		
 		//组件共有配置
 		radius          : 'normal',
-		cls             : 'dialog',
+		
 		tmpl            : [
 			'<div class="hui-dialog">',
 				'<%=this.getHtml("$>Toolbar")%>',
@@ -4875,19 +5034,19 @@ function(AC,Popup,ControlGroup){
 	var Menu=AC.define('Menu',Popup);
 	
 	//扩展取得ControlGroup的属性及方法
-	$HO.extend(Menu.prototype,ControlGroup.prototype,{notCover:true});
+	Menu.extend(ControlGroup.prototype);
 	
-	$HO.extend(Menu.prototype,{
+	Menu.extend({
 		//初始配置
 //		markType        : null,         //选中的标记类型，默认不带选中效果，'active'是组件active效果，'dot'是点选效果
 		
 		tmpl            : [
-			'<div class="hui-menu<%if(this.markType){%> hui-menu-mark<%}%>">',
+			'<div class="hui-menu<%if(this.markType=="dot"){%> hui-menu-mark<%}%>">',
 				'<ul>',
 					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
-						'<li class="hui-menu-item">',
+						'<li class="hui-menu-item<%if(this.children[i].selected){%> hui-item-mark<%}%>">',
 							'<%=this.children[i].getHtml()%>',
-							'<%if(this.markType){%><span class="hui-icon-mark"></span><%}%>',
+							'<%if(this.markType=="dot"){%><span class="hui-icon-mark"></span><%}%>',
 						'</li>',
 					'<%}%>',
 				'</ul>',

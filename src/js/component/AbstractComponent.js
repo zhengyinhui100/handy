@@ -39,7 +39,8 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 //		defItem             : null,              //默认子组件配置
 //		icon                : null,              //图标
 //		withMask            : false,             //是否有遮罩层
-		////通用样式，ps:组件模板容器节点上不能带有style属性
+		
+		////通用样式
 //		width               : null,              //宽度(默认单位是px)
 //		height              : null,              //高度(默认单位是px)
 //		theme               : null,              //组件颜色
@@ -52,13 +53,14 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 //		isActive            : false,             //是否激活
 //		isFocus             : false,        	 //聚焦
 //		isInline            : false,             //是否内联(宽度自适应)
+//		style               : {},                //其它样式，如:{top:10,left:10}
 		
 		//属性
 //		cls                 : '',                //组件样式名，空则使用xtype的小写，如Dialog，cls为"dialog"，因此样式前缀是“hui-dialog-”
 //		role                : '',                //保留属性，用于模板中筛选组件的选择器，如this.getHtml("$>[role='content']")
 //		params              : null,              //初始化时传入的参数
 //		_id                 : null,              //组件id
-//		tmpl                : [],                //组件模板，首次初始化前为数组，初始化后为字符串
+//		tmpl                : [],                //组件模板，首次初始化前为数组，初始化后为字符串，ps:组件模板容器节点上不能带有id属性
 //		html                : null,              //组件html
 //		rendered            : false,             //是否已渲染
 //      listened            : false,             //是否已初始化事件
@@ -78,6 +80,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		initialize          : fInitialize,       //初始化
 		doConfig            : fDoConfig,         //初始化配置
 		initHtml            : fInitHtml,         //初始化html
+		initStyle           : fInitStyle,        //初始化样式
 		getId               : fGetId,            //获取组件id
 		getEl               : fGetEl,            //获取组件节点
 		getHtml             : fGetHtml,          //获取组件或子组件html
@@ -253,25 +256,31 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		var sId=me.getId();
 		//添加id
 		sHtml=sHtml.replace(_oTagReg,'$1 id="'+sId+'"');
+		me.html=sHtml;
+	}
+	/**
+	 * 初始化样式
+	 * @method initStyle
+	 */
+	function fInitStyle(){
+		var me=this;
 		//添加附加class
-		sHtml=sHtml.replace(_oClsReg,'$1'+me.getExtCls());
+		var oEl=this.getEl();
+		oEl.addClass(me.getExtCls());
 		//添加style
-		var sStyle='';
+		var oStyle=me.style||{};
 		if(me.displayMode=='visibility'){
-			sStyle+='visibility:hidden;';
+			oStyle.visibility='hidden';
 		}else{
-			sStyle+='display:none;';
+			oStyle.display='none';
 		}
 		if(me.width!=undefined){
-			sStyle+="width:"+me.width+(typeof me.width=='number'?"px;":";");
+			oStyle.width=me.width;
 		}
 		if(me.height!=undefined){
-			sStyle+="height:"+(typeof me.height=='number'?"px;":";");
+			oStyle.height=me.height;
 		}
-		if(sStyle){
-			sHtml=sHtml.replace(_oTagReg,'$1 style="'+sStyle+'"');
-		}
-		me.html=sHtml;
+		oEl.css(oStyle);
 	}
 	/**
 	 * 获取组件id
@@ -368,6 +377,9 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		//缓存容器
 		me._container=$("#"+me.getId());
 		me.rendered=true;
+		//初始化样式
+		me.initStyle();
+		//初始化事件
 		if(me.notListen!=true){
 			me.initListeners();
 		}
