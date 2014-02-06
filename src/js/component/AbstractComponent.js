@@ -180,10 +180,6 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 			me.renderTo[me.renderBy](me.getHtml());
 			//渲染后续工作
 			me.afterRender();
-			//显示
-			if(!me.hidden){
-				me.show();
-			}
 		}
 		//注册组件
 		CM.register(me);
@@ -254,8 +250,17 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		//由模板生成组件html
 		var sHtml=$H.Template.tmpl({id:me.xtype,tmpl:me.tmpl},me);
 		var sId=me.getId();
-		//添加id
-		sHtml=sHtml.replace(_oTagReg,'$1 id="'+sId+'"');
+		//添加隐藏style，调用show方法时才显示
+		var sStyle;
+ 		if(me.displayMode=='visibility'){
+			sStyle='visibility:hidden;';
+ 		}else{
+			sStyle='display:none;';
+ 		}
+		//添加id和style
+		sHtml=sHtml.replace(_oTagReg,'$1 id="'+sId+'" style="'+sStyle+'"');
+		//添加附加class
+		sHtml=sHtml.replace(_oClsReg,'$1'+me.getExtCls());
 		me.html=sHtml;
 	}
 	/**
@@ -264,16 +269,9 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	 */
 	function fInitStyle(){
 		var me=this;
-		//添加附加class
 		var oEl=this.getEl();
-		oEl.addClass(me.getExtCls());
 		//添加style
 		var oStyle=me.style||{};
-		if(me.displayMode=='visibility'){
-			oStyle.visibility='hidden';
-		}else{
-			oStyle.display='none';
-		}
 		if(me.width!=undefined){
 			oStyle.width=me.width;
 		}
@@ -387,6 +385,10 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 			me.suspendListeners();
 		}
 		me.fire('afterRender');
+		//显示
+		if(!me.hidden){
+			me.show();
+		}
 		delete me.html;
 	}
 	/**
@@ -896,18 +898,15 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	/**
 	 * 销毁组件
 	 * @method destroy
-	 * @param {boolean}bOnlySelf 仅当为true时只删除自己，不删除子组件及dom节点
 	 */
-	function fDestroy(bOnlySelf){
+	function fDestroy(){
 		var me=this;
-		//注销组件
-		CM.unregister(me);
+		me.callChild();
 		me.fire('destroy');
 		me.clearListeners();
-		if(!bOnlySelf){
-			me.callChild();
-			me.getEl().remove();
-		}
+		//注销组件
+		CM.unregister(me);
+		me.getEl().remove();
 		delete me.params;
 		delete me.settings;
 		delete me._container;

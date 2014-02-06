@@ -4010,7 +4010,6 @@ function(AC){
 		var me=this;
 		var oPos=oEl.position();
 		oPos.width=me.width||oEl.outerWidth();
-		//oPos.top+=oEl.outerHeight();
 		me.getEl().css(oPos);
 	}
 	
@@ -4501,7 +4500,6 @@ function(AC){
 	 */
 	function fVal(sValue){
 		var me=this;
-		var oSel=me.find('select');
 		if(sValue){
 			if(me.value!=sValue){
 				var oMenu=me.children[0];
@@ -4510,14 +4508,15 @@ function(AC){
 					me.fire("change");
 					oItem=oItem[0];
 					me.value=sValue;
-					oSel.val(sValue);
+					var oSel=me.find('select');
+					oSel.attr('value',sValue);
 					me.txt(oItem.text);
 					//更新菜单选中状态
 					oMenu.select(oItem);
 				}
 			}
 		}else{
-			return oSel.val();
+			return me.value;
 		}
 	}
 	
@@ -4832,7 +4831,6 @@ function(AC){
 		var me=this;
 		var oPos=oEl.position();
 		oPos.width=me.width||oEl.outerWidth();
-		//oPos.top+=oEl.outerHeight();
 		me.getEl().css(oPos);
 	}
 	
@@ -5080,6 +5078,29 @@ function(AC,Popup,ControlGroup){
 	
 	return Menu;
 	
+});/**
+ * 列表类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-02-06
+ */
+
+$Define('c.List',
+['c.AbstractComponent',
+'c.ControlGroup'],
+function(AC,ControlGroup){
+	
+	var List=AC.define('List',ControlGroup);
+	
+	List.extend({
+		tmpl              : [
+			'<div class="hui-list">',
+				'<div class="hui-list-item c-clear">',
+				'</div>',
+			'</div>'
+		]
+	});
+	
+	return List;
 });/****************************************************************
 * Author:		郑银辉											*
 * Email:		zhengyinhui100@gmail.com						*

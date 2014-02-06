@@ -109,7 +109,10 @@ $Define("c.ComponentManager", function() {
 	 */
 	function fAfterRender(oEl){
 		CM.eachInEl(oEl,function(oCmp){
-			oCmp.afterRender();
+			//只需要调用祖先组件，后辈的方法会通过callChild调用
+			if(!oCmp.parent){
+				oCmp.afterRender();
+			}
 		});
 	}
 	/**
@@ -119,7 +122,10 @@ $Define("c.ComponentManager", function() {
 	 */
 	function fDestroy(oRemoveEl){
 		CM.eachInEl(oRemoveEl,function(oCmp){
-			oCmp.destroy(true);
+			//只需要调用祖先组件，后辈的方法会通过callChild调用
+			if(!oCmp.parent){
+				oCmp.destroy(true);
+			}
 		});
 	}
 	/**
