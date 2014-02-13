@@ -812,7 +812,11 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		sMethod=sMethod||arguments.callee.caller.$name;
 		for(var i=0,len=aChildren.length;i<len;i++){
 			var oChild=aChildren[i];
-			oChild[sMethod].apply(oChild,aArgs);
+			if(aArgs){
+				oChild[sMethod].apply(oChild,aArgs);
+			}else{
+				oChild[sMethod].call(oChild);
+			}
 		}
 	}
 	/**

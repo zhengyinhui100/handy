@@ -413,7 +413,14 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 			}
 		}
 	});
-
+	$('#inputContainerDv').append('<br/>');
+	var input=new Input({
+		type:'textarea',
+		placeholder:'textarea自适应高度',
+		renderTo:'#inputContainerDv'
+	});
+	
+	//标签栏
 	new Tab({
 		renderTo:'#tabDv',
 		items:[

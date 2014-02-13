@@ -13,9 +13,9 @@ function(AC){
 	Radio.extend({
 		//初始配置
 //		name            : '',                  //选项名
-		text            : '',                  //文字
-		value           : '',                  //选项值
-		selected        : false,               //是否选中
+//		text            : '',                  //文字
+//		value           : '',                  //选项值
+//		selected        : false,               //是否选中
 		
 		tmpl            : [
 			'<div class="hui-radio hui-btn hui-btn-gray<%if(this.selected){%> hui-radio-on<%}%>">',

@@ -12,7 +12,7 @@ function(AC){
 	
 	Input.extend({
 		//初始配置
-//		type            : '',                  //图标名称
+//		type            : '',                  //输入框类型，默认为普通输入框，'search':搜索框，'textarea':textarea输入框
 //		value           : '',                  //默认值
 //		placeholder     : '',                  //placeholder
 //		withClear       : false,               //带有清除按钮
@@ -24,7 +24,7 @@ function(AC){
 		'<div class="hui-input<%if(this.hasIcon){%> hui-input-icon-<%=this.iconPos%><%}%>',
 		'<%if(this.hasBtn){%> hui-input-btn-<%=this.btnPos%><%}%>">',
 			'<%=this.getHtml(">*")%>',
-			'<input type="text" class="js-input hui-input-txt" value="<%=this.value%>"<%if(this.placeholder){%> placeholder="<%=this.placeholder%><%}%>"/>',
+			'<<%if(this.type=="textarea"){%>textarea class="js-input"<%}else{%>input type="text" class="js-input hui-input-txt"<%}%> value="<%=this.value%>"<%if(this.placeholder){%> placeholder="<%=this.placeholder%><%}%>"/>',
 		'</div>'],
 		listeners       : [
 			{
@@ -58,6 +58,16 @@ function(AC){
 		//搜索框快捷配置方式
 		if(me.type=='search'){
 			me.icon='search';
+		}else if(me.type=="textarea"){
+			//textarea高度自适应，IE6、7、8支持propertychange事件，input被其他浏览器所支持
+			me._listeners.push({
+				type:'input propertychange',
+				el:'.js-input',
+				handler:function(){
+					var oTextarea=me.find(".js-input");
+					oTextarea.css("height",oTextarea[0].scrollHeight);
+				}
+			});
 		}
 		//清除按钮快捷配置方式
 		if(me.withClear){
