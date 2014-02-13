@@ -411,7 +411,7 @@
 	color: #333;
 	text-shadow: 0 1px 0 #fff;
 	background: #f9f9f9;
-	.hui-shadow-inset();
+	overflow:hidden;
 	.hui-input-txt,textarea{
 		border: 0;
 		width: 100%;
@@ -426,11 +426,11 @@
 	}
 	textarea{
 		outline: 0;
-		height:1.8em;
-		line-height:1.8em;
-		//add resize: none; and padding: 0 works for chrome scrollHeight bug
+		height:1.4em;
+		//add resize: none; and padding: 0 works for chrome bug:有padding时在WebKit浏览器中scroll计算不准确
 		resize:none;
 		padding:0;
+		margin: .4em 0;
     	.fn_transition(height 200ms linear);
     	.fn_box_sizing();
     	overflow:hidden;

@@ -623,9 +623,7 @@
   color: #333;
   text-shadow: 0 1px 0 #fff;
   background: #f9f9f9;
-  -webkit-box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2);
-  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
 }
 .hui-input .hui-input-txt,
 .hui-input textarea {
@@ -642,10 +640,10 @@
 }
 .hui-input textarea {
   outline: 0;
-  height: 1.8em;
-  line-height: 1.8em;
+  height: 1.4em;
   resize: none;
   padding: 0;
+  margin: .4em 0;
   -moz-transition: height 200ms linear;
   -webkit-transition: height 200ms linear;
   -o-transition: height 200ms linear;

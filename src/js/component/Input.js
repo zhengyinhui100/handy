@@ -65,6 +65,9 @@ function(AC){
 				el:'.js-input',
 				handler:function(){
 					var oTextarea=me.find(".js-input");
+					$D.log(oTextarea[0].scrollHeight);
+					$D.log(oTextarea.innerHeight());
+					$D.log(oTextarea[0].offsetHeight);
 					oTextarea.css("height",oTextarea[0].scrollHeight);
 				}
 			});
