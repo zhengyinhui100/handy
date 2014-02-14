@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-02-06 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-02-14 | zhengyinhui100@gmail.com */
 html,
 body {
   overflow: hidden;
@@ -1634,12 +1634,10 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   color: #333;
   text-shadow: 0 1px 0 #fff;
   background: #f9f9f9;
-  -webkit-box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2);
-  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
 }
 .hui-input .hui-input-txt,
-.hui-input .hui-textarea {
+.hui-input textarea {
   border: 0;
   width: 100%;
   padding: .4em 0;
@@ -1651,8 +1649,12 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   line-height: 1.4em;
   font-size: 16px;
 }
-.hui-input .hui-textarea {
+.hui-input textarea {
   outline: 0;
+  height: 1.4em;
+  resize: none;
+  padding: 0;
+  margin: .4em 0;
   -moz-transition: height 200ms linear;
   -webkit-transition: height 200ms linear;
   -o-transition: height 200ms linear;
@@ -1672,6 +1674,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   box-sizing: border-box;
   /*W3C标准(IE9+，Safari5.1+,Chrome10.0+,Opera10.6+都符合box-sizing的w3c标准语法)*/
 
+  overflow: hidden;
 }
 .hui-input-icon-left {
   padding-left: 40px;

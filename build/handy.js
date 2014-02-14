@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-02-06 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-02-14 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -2968,7 +2968,10 @@ $Define("c.ComponentManager", function() {
 	 */
 	function fAfterRender(oEl){
 		CM.eachInEl(oEl,function(oCmp){
-			oCmp.afterRender();
+			//只需要调用祖先组件，后辈的方法会通过callChild调用
+			if(!oCmp.parent){
+				oCmp.afterRender();
+			}
 		});
 	}
 	/**
@@ -2978,7 +2981,10 @@ $Define("c.ComponentManager", function() {
 	 */
 	function fDestroy(oRemoveEl){
 		CM.eachInEl(oRemoveEl,function(oCmp){
-			oCmp.destroy(true);
+			//只需要调用祖先组件，后辈的方法会通过callChild调用
+			if(!oCmp.parent){
+				oCmp.destroy(true);
+			}
 		});
 	}
 	/**
@@ -3188,10 +3194,6 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 			me.renderTo[me.renderBy](me.getHtml());
 			//渲染后续工作
 			me.afterRender();
-			//显示
-			if(!me.hidden){
-				me.show();
-			}
 		}
 		//注册组件
 		CM.register(me);
@@ -3262,8 +3264,17 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		//由模板生成组件html
 		var sHtml=$H.Template.tmpl({id:me.xtype,tmpl:me.tmpl},me);
 		var sId=me.getId();
-		//添加id
-		sHtml=sHtml.replace(_oTagReg,'$1 id="'+sId+'"');
+		//添加隐藏style，调用show方法时才显示
+		var sStyle;
+ 		if(me.displayMode=='visibility'){
+			sStyle='visibility:hidden;';
+ 		}else{
+			sStyle='display:none;';
+ 		}
+		//添加id和style
+		sHtml=sHtml.replace(_oTagReg,'$1 id="'+sId+'" style="'+sStyle+'"');
+		//添加附加class
+		sHtml=sHtml.replace(_oClsReg,'$1'+me.getExtCls());
 		me.html=sHtml;
 	}
 	/**
@@ -3272,16 +3283,9 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	 */
 	function fInitStyle(){
 		var me=this;
-		//添加附加class
 		var oEl=this.getEl();
-		oEl.addClass(me.getExtCls());
 		//添加style
 		var oStyle=me.style||{};
-		if(me.displayMode=='visibility'){
-			oStyle.visibility='hidden';
-		}else{
-			oStyle.display='none';
-		}
 		if(me.width!=undefined){
 			oStyle.width=me.width;
 		}
@@ -3395,6 +3399,10 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 			me.suspendListeners();
 		}
 		me.fire('afterRender');
+		//显示
+		if(!me.hidden){
+			me.show();
+		}
 		delete me.html;
 	}
 	/**
@@ -3818,7 +3826,11 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		sMethod=sMethod||arguments.callee.caller.$name;
 		for(var i=0,len=aChildren.length;i<len;i++){
 			var oChild=aChildren[i];
-			oChild[sMethod].apply(oChild,aArgs);
+			if(aArgs){
+				oChild[sMethod].apply(oChild,aArgs);
+			}else{
+				oChild[sMethod].call(oChild);
+			}
 		}
 	}
 	/**
@@ -3904,18 +3916,15 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	/**
 	 * 销毁组件
 	 * @method destroy
-	 * @param {boolean}bOnlySelf 仅当为true时只删除自己，不删除子组件及dom节点
 	 */
-	function fDestroy(bOnlySelf){
+	function fDestroy(){
 		var me=this;
-		//注销组件
-		CM.unregister(me);
+		me.callChild();
 		me.fire('destroy');
 		me.clearListeners();
-		if(!bOnlySelf){
-			me.callChild();
-			me.getEl().remove();
-		}
+		//注销组件
+		CM.unregister(me);
+		me.getEl().remove();
 		delete me.params;
 		delete me.settings;
 		delete me._container;
@@ -4273,9 +4282,9 @@ function(AC){
 	Radio.extend({
 		//初始配置
 //		name            : '',                  //选项名
-		text            : '',                  //文字
-		value           : '',                  //选项值
-		selected        : false,               //是否选中
+//		text            : '',                  //文字
+//		value           : '',                  //选项值
+//		selected        : false,               //是否选中
 		
 		tmpl            : [
 			'<div class="hui-radio hui-btn hui-btn-gray<%if(this.selected){%> hui-radio-on<%}%>">',
@@ -4536,7 +4545,7 @@ function(AC){
 	
 	Input.extend({
 		//初始配置
-//		type            : '',                  //图标名称
+//		type            : '',                  //输入框类型，默认为普通输入框，'search':搜索框，'textarea':textarea输入框
 //		value           : '',                  //默认值
 //		placeholder     : '',                  //placeholder
 //		withClear       : false,               //带有清除按钮
@@ -4548,7 +4557,7 @@ function(AC){
 		'<div class="hui-input<%if(this.hasIcon){%> hui-input-icon-<%=this.iconPos%><%}%>',
 		'<%if(this.hasBtn){%> hui-input-btn-<%=this.btnPos%><%}%>">',
 			'<%=this.getHtml(">*")%>',
-			'<input type="text" class="js-input hui-input-txt" value="<%=this.value%>"<%if(this.placeholder){%> placeholder="<%=this.placeholder%><%}%>"/>',
+			'<<%if(this.type=="textarea"){%>textarea class="js-input"<%}else{%>input type="text" class="js-input hui-input-txt"<%}%> value="<%=this.value%>"<%if(this.placeholder){%> placeholder="<%=this.placeholder%><%}%>"/>',
 		'</div>'],
 		listeners       : [
 			{
@@ -4582,6 +4591,19 @@ function(AC){
 		//搜索框快捷配置方式
 		if(me.type=='search'){
 			me.icon='search';
+		}else if(me.type=="textarea"){
+			//textarea高度自适应，IE6、7、8支持propertychange事件，input被其他浏览器所支持
+			me._listeners.push({
+				type:'input propertychange',
+				el:'.js-input',
+				handler:function(){
+					var oTextarea=me.find(".js-input");
+					$D.log(oTextarea[0].scrollHeight);
+					$D.log(oTextarea.innerHeight());
+					$D.log(oTextarea[0].offsetHeight);
+					oTextarea.css("height",oTextarea[0].scrollHeight);
+				}
+			});
 		}
 		//清除按钮快捷配置方式
 		if(me.withClear){
