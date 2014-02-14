@@ -892,11 +892,15 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 			//具体组件类处理
 			me.parseItem(oItem);
 			var Component=CM.getClass(oItem.xtype);
-			if(!oItem.renderTo){
-				oItem.autoRender=false;
+			if(Component){
+				if(!oItem.renderTo){
+					oItem.autoRender=false;
+				}
+				var oCmp=new Component(oItem);
+				me.add(oCmp);
+			}else{
+				$D.error("xtype:"+oItem.xtype+"未找到");
 			}
-			var oCmp=new Component(oItem);
-			me.add(oCmp);
 		}
 	}
 	/**

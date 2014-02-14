@@ -360,6 +360,9 @@ function(Debug,Object,Function,$H){
 				}catch(e){
 					//资源定义错误
 					Debug.error("Loader "+sId+":factory define error:"+e.message);
+					if(Loader.traceLog){
+						throw e;
+					}
 					return;
 				}
 			}else{
