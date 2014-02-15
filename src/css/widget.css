@@ -767,6 +767,9 @@
 .hui-tbar .hui-btn-icon-notxt {
   margin-top: -15px;
 }
+.hui-tbar .hui-tab {
+  margin: 0;
+}
 .hui-tbar-gray {
   border: 1px solid #bbb;
   background: #bbb;
