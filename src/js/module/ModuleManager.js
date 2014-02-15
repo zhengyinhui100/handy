@@ -77,7 +77,7 @@ function(History){
 		var sId="modWrapper_"+sModName;
 		var oDiv=$("#"+sId);
 		if(oDiv.length==0){
-			oDiv=$('<div id="'+sId+'"></div>');
+			oDiv=$('<div id="'+sId+'" class="js-module m-module"></div>');
 		}
 		return oDiv;
 	}
