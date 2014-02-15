@@ -7,7 +7,10 @@ handy.add('Support',function($H){
 	
 	var Support={
 //		testSvg               : fTestSvg          //检查是否支持svg
+		mediaQuery            : fMediaQuery       //检查设备并添加class
 	}
+	
+	Support.mediaQuery();
 	
 //	var _supportSvg; //标记是否支持svg
 	
@@ -52,6 +55,19 @@ handy.add('Support',function($H){
 	}
 	*/
 	
+	/**
+	 * 检查设备并添加class
+	 * @method mediaQuery
+	 */
+	function fMediaQuery(){
+		var sCls;
+		if($H.Browser.mobile()){
+			sCls="hui-mobile";
+		}else{
+			sCls="hui-pc";
+		}
+		document.documentElement.className+=sCls;
+	}
 	
 	return Support;
 	
