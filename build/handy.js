@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-02-14 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-02-15 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -1854,6 +1854,9 @@ function(Debug,Object,Function,$H){
 				}catch(e){
 					//资源定义错误
 					Debug.error("Loader "+sId+":factory define error:"+e.message);
+					if(Loader.traceLog){
+						throw e;
+					}
 					return;
 				}
 			}else{
@@ -2768,7 +2771,10 @@ handy.add('Support',function($H){
 	
 	var Support={
 //		testSvg               : fTestSvg          //检查是否支持svg
+		mediaQuery            : fMediaQuery       //检查设备并添加class
 	}
+	
+	Support.mediaQuery();
 	
 //	var _supportSvg; //标记是否支持svg
 	
@@ -2813,6 +2819,19 @@ handy.add('Support',function($H){
 	}
 	*/
 	
+	/**
+	 * 检查设备并添加class
+	 * @method mediaQuery
+	 */
+	function fMediaQuery(){
+		var sCls;
+		if($H.Browser.mobile()){
+			sCls="hui-mobile";
+		}else{
+			sCls="hui-pc";
+		}
+		document.documentElement.className+=sCls;
+	}
 	
 	return Support;
 	
@@ -3906,11 +3925,15 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 			//具体组件类处理
 			me.parseItem(oItem);
 			var Component=CM.getClass(oItem.xtype);
-			if(!oItem.renderTo){
-				oItem.autoRender=false;
+			if(Component){
+				if(!oItem.renderTo){
+					oItem.autoRender=false;
+				}
+				var oCmp=new Component(oItem);
+				me.add(oCmp);
+			}else{
+				$D.error("xtype:"+oItem.xtype+"未找到");
 			}
-			var oCmp=new Component(oItem);
-			me.add(oCmp);
 		}
 	}
 	/**
@@ -4598,9 +4621,6 @@ function(AC){
 				el:'.js-input',
 				handler:function(){
 					var oTextarea=me.find(".js-input");
-					$D.log(oTextarea[0].scrollHeight);
-					$D.log(oTextarea.innerHeight());
-					$D.log(oTextarea[0].offsetHeight);
 					oTextarea.css("height",oTextarea[0].scrollHeight);
 				}
 			});
@@ -4740,6 +4760,12 @@ function(AC){
 //		title            : '',                  //标题
 		cls              : 'tbar',
 //		type             : null,                //null|'header'|'footer'
+		defItem          : {
+			xtype        : 'Button',
+			theme        : 'black',
+			pos          : 'right',
+			isMini       : true
+		},
 		
 		tmpl             : [
 			'<div class="hui-tbar<%if(this.type=="header"){%> hui-header<%}else if(this.type=="footer"){%> hui-footer<%}%>">',
@@ -4770,93 +4796,35 @@ function(AC){
 	return Toolbar;
 	
 });/**
- * 弹出层类
+ * 提示类
  * @author 郑银辉(zhengyinhui100@gmail.com)
- * @created 2014-02-01
+ * @created 2014-02-15
  */
 
-$Define('c.Popup',
-'c.AbstractComponent',
-function(AC){
+$Define('c.Tips',
+['c.AbstractComponent',
+'c.Popup',
+'c.ControlGroup'],
+function(AC,Popup,ControlGroup){
 	
-	var Popup=AC.define('Popup');
+	var Tips=AC.define('Tips',Popup);
 	
-	Popup.extend({
+	Tips.extend({
 		//初始配置
-		delayShow       : true,            //延迟显示
-		clickHide       : true,            //是否点击就隐藏
-		showPos         : 'center',        //定位方法名，或者传入自定义定位函数
-		
-		//组件共有配置
-		withMask        : true,
-		shadowOverlay   : true,
+//		text            : '',
+		theme           : 'white',
+		radius          : 'normal',
 		
 		tmpl            : [
-			'<div class="hui-popup"><%=this.getHtml("$>*")%></div>'
-		],
-		listeners       : [{
-			type:'click',
-			el: $(document),
-			handler:function(){
-				var me=this;
-				if(me.clickHide){
-					this.hide();
-				}
-			}
-		}],
+			'<div class="hui-tips<%if(!this.text){%> hui-tips-notxt<%}%>">',
+				'<%=this.getHtml("$>*")%>',
+				'<%if(this.text){%><span class="hui-tips-txt"><%=this.text%></span><%}%>',
+			'</div>'
+		]
 		
-		show             : fShow,            //显示
-		center           : fCenter,          //居中显示
-		underEl          : fUnderEl          //根据指定节点显示
 	});
 	
-	/**
-	 * 显示
-	 * @method show
-	 */
-	function fShow(){
-		// 设置定位坐标
-		var me=this;
-		//默认居中显示
-		var showPos=me.showPos;
-		if(typeof showPos=="string"){
-			me[showPos]();
-		}else if(typeof showPos=="function"){
-			showPos.call(me);
-		}
-		//指定父类，避免死循环，如果是父组件通过callChild调用的会有参数，要传进去
-		me.callSuper(Popup.superClass,arguments);
-	}
-	/**
-	 * 居中显示
-	 * @method center
-	 */
-	function fCenter(){
-		// 设置定位坐标
-		var me=this;
-		var oEl=me.getEl();
-		var oDoc=document;
-		var x = ((oDoc.documentElement.offsetWidth || oDoc.body.offsetWidth) - oEl.width())/2;
-		var y = ((oDoc.documentElement.clientHeight || oDoc.body.clientHeight) - oEl.height())/2 + oDoc.body.scrollTop;
-		y = y < 10 ? window.screen.height/2-200 : y;
-		oEl.css({
-			left:x + "px",
-			top:y-(me.offsetTop||0) + "px"
-		});
-	}
-	/**
-	 * 显示在指定元素下方
-	 * @method underEl
-	 * @param {jQuery}oEl 定位标准元素
-	 */
-	function fUnderEl(oEl){
-		var me=this;
-		var oPos=oEl.position();
-		oPos.width=me.width||oEl.outerWidth();
-		me.getEl().css(oPos);
-	}
-	
-	return Popup;
+	return Tips;
 	
 });/**
  * 对话框类
@@ -5487,7 +5455,7 @@ function(History){
 		var sId="modWrapper_"+sModName;
 		var oDiv=$("#"+sId);
 		if(oDiv.length==0){
-			oDiv=$('<div id="'+sId+'"></div>');
+			oDiv=$('<div id="'+sId+'" class="js-module m-module"></div>');
 		}
 		return oDiv;
 	}

@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-02-14 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-02-15 | zhengyinhui100@gmail.com */
 html,
 body {
   overflow: hidden;
@@ -232,7 +232,6 @@ oder:
   display: inline-block;
   zoom: 1;
   *display: inline;
-  overflow: hidden;
 }
 .c-error,
 .c-red {
@@ -1009,6 +1008,9 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-mi-no-svg .hui-chkbox-on .hui-icon-chkbox {
   background-image: url(../img/icons-png/checkbox-on.png);
 }
+.hui-icon-loading {
+  background-image: url(../img/loading.gif);
+}
 .c-left {
   float: left;
 }
@@ -1031,7 +1033,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   display: inline-block;
   zoom: 1;
   *display: inline;
-  overflow: hidden;
 }
 .c-error,
 .c-red {
@@ -1082,7 +1083,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   display: inline-block;
   zoom: 1;
   *display: inline;
-  overflow: hidden;
   background-position: center center;
   background-repeat: no-repeat;
   vertical-align: middle;
@@ -1499,7 +1499,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   display: inline-block;
   zoom: 1;
   *display: inline;
-  overflow: hidden;
 }
 .hui-ctrlgp-h .hui-btn {
   float: left;
@@ -1651,7 +1650,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-input textarea {
   outline: 0;
-  height: 1.4em;
+  height: 2.8em;
   resize: none;
   padding: 0;
   margin: .4em 0;
@@ -1710,7 +1709,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   display: inline-block;
   zoom: 1;
   *display: inline;
-  overflow: hidden;
   vertical-align: middle;
 }
 .hui-form .hui-form-vt {
@@ -1723,7 +1721,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   display: inline-block;
   zoom: 1;
   *display: inline;
-  overflow: hidden;
 }
 .hui-form .hui-form-action {
   padding-left: 22%;
@@ -1830,6 +1827,83 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-tab .hui-btn {
   border-right-width: 0;
+}
+.hui-tips {
+  position: absolute;
+  z-index: 99999;
+  padding: 0.8em 1.5em;
+  text-align: center;
+  opacity: 0.8;
+  filter: alpha(opacity=80%);
+}
+.hui-tips .hui-icon-loading {
+  display: block;
+  width: 2.75em;
+  height: 2.75em;
+  margin: 0 auto .625em;
+  -webkit-border-radius: 2.25em;
+  -moz-border-radius: 2.25em;
+  border-radius: 2.25em;
+}
+.hui-tips .hui-tips-txt {
+  font-weight: bold;
+}
+.hui-tips-notxt {
+  padding: 0;
+}
+.hui-tips-notxt .hui-icon {
+  margin: 0;
+}
+.hui-tips-notxt .hui-icon-loading {
+  opacity: 0.18;
+  filter: alpha(opacity=80%);
+}
+.hui-tips-white {
+  background: #fff;
+  border-color: #ddd;
+  color: #333;
+  text-shadow: 0 1px 0 #f3f3f3;
+}
+.hui-tips-black {
+  background: #111;
+  color: #fff;
+  text-shadow: 0 -1px 0 #000000;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#3c3c3c), to(#111111));
+  /* old webkit,Saf4+, Chrome */
+
+  background-image: -webkit-linear-gradient(#3c3c3c, #111111);
+  /* Chrome 10+, Saf5.1+ */
+
+  background-image: -moz-linear-gradient(#3c3c3c, #111111);
+  /* FF3.6 */
+
+  background-image: -ms-linear-gradient(#3c3c3c, #111111);
+  /* IE10 */
+
+  background-image: -o-linear-gradient(#3c3c3c, #111111);
+  /* Opera 11.10+ */
+
+  background-image: linear-gradient(#3c3c3c, #111111);
+}
+.hui-tips-error {
+  background: #eee;
+  color: #c00;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#f1f1f1));
+  /* old webkit,Saf4+, Chrome */
+
+  background-image: -webkit-linear-gradient(#ffffff, #f1f1f1);
+  /* Chrome 10+, Saf5.1+ */
+
+  background-image: -moz-linear-gradient(#ffffff, #f1f1f1);
+  /* FF3.6 */
+
+  background-image: -ms-linear-gradient(#ffffff, #f1f1f1);
+  /* IE10 */
+
+  background-image: -o-linear-gradient(#ffffff, #f1f1f1);
+  /* Opera 11.10+ */
+
+  background-image: linear-gradient(#ffffff, #f1f1f1);
 }
 .hui-dialog {
   width: 92.5%;
@@ -1968,29 +2042,13 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   height: 100%;
   background: black;
   opacity: 0.2;
-  filter: alpha(opacity=20%);
-}
-.hui-loading {
-  z-index: 9999999;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  width: 46px;
-  height: 46px;
-  background-image: url("../img/loading.gif");
-  background-repeat: no-repeat;
-  opacity: 0.18;
-  filter: alpha(opacity=20%);
-  -webkit-border-radius: 36px;
-  -moz-border-radius: 36px;
-  border-radius: 36px;
+  filter: alpha(opacity=80%);
 }
 .hui-inline {
   display: -moz-inline-stack;
   display: inline-block;
   zoom: 1;
   *display: inline;
-  overflow: hidden;
 }
 .hui-radius-little {
   -webkit-border-radius: 0.3em;
@@ -2043,7 +2101,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   pointer-events: none;
   zoom: 1;
   opacity: 0.3;
-  filter: alpha(opacity=20%);
+  filter: alpha(opacity=80%);
   z-index: 1;
 }
 .hui-mini {
@@ -2059,5 +2117,5 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-light {
   opacity: 0.5;
-  filter: alpha(opacity=20%);
+  filter: alpha(opacity=80%);
 }
