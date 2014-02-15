@@ -55,7 +55,7 @@
 			<path path="js/component/Input.js"/>
 			<path path="js/component/Tab.js"/>
 			<path path="js/component/Toolbar.js"/>
-			<path path="js/component/Popup.js"/>
+			<path path="js/component/Tips.js"/>
 			<path path="js/component/Dialog.js"/>
 			<path path="js/component/Menu.js"/>
 			<path path="js/component/List.js"/>

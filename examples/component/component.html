@@ -74,12 +74,8 @@
 	<div id="toolbarDv"></div>
 	<br/><br/><br/><br/>
 	
-	<h3>遮罩层：</h3>
-	
-	<br/><br/><br/><br/>
-	
-	<h3>loading：</h3>
-	
+	<h3>提示：</h3>
+	<div id="tipsDv"></div>
 	<br/><br/><br/><br/>
 	
 	<h3>对话框：</h3>
@@ -142,8 +138,9 @@ $Require([
 "c.Input",
 "c.Tab",
 "c.Toolbar",
+"c.Tips",
 "c.Dialog"],
-function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolbar,Dialog){
+function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolbar,Tips,Dialog){
 	
 	$('#iconContainerDv').append(Icon.html({
 		cid:'icon',
@@ -455,6 +452,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 		]
 	});
 	
+	//工具栏
 	new Toolbar({
 		renderTo:'#toolbarDv',
 		title:'header标题',
@@ -509,6 +507,70 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 		}]
 	});
 	
+	//提示
+	new Button({
+		renderTo:'#tipsDv',
+		text:'默认提示',
+		click:function(){
+			new Tips({
+				text:'默认提示'
+			})
+		}
+	})
+	new Button({
+		renderTo:'#tipsDv',
+		text:'黑色提示',
+		click:function(){
+			new Tips({
+				text:'提示',
+				theme:'black'
+			})
+		}
+	})
+	new Button({
+		renderTo:'#tipsDv',
+		text:'错误提示',
+		click:function(){
+			new Tips({
+				text:'提示',
+				theme:'error'
+			})
+		}
+	})
+	new Button({
+		renderTo:'#tipsDv',
+		text:'loading提示',
+		click:function(){
+			new Tips({
+				text:'提示',
+				theme:'black',
+				icon:'loading'
+			})
+		}
+	})
+	new Button({
+		renderTo:'#tipsDv',
+		text:'无文字loading提示',
+		click:function(){
+			new Tips({
+				shadowOverlay:null,
+				icon:'loading'
+			})
+		}
+	})
+	new Button({
+		renderTo:'#tipsDv',
+		text:'无遮罩层提示',
+		click:function(){
+			new Tips({
+				withMask:false,
+				shadowOverlay:null,
+				icon:'loading'
+			})
+		}
+	})
+	
+	//对话框
 	var dialog;
 	new Button({
 		renderTo:'#dialogDv',

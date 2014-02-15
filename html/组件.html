@@ -446,16 +446,34 @@ h3 {
 	<br />
 	<br />
 	<br />
-
-	<h3>loading：</h3>
-	<a href="javascript:;" hidefocus="true"
-		class="hui-btn hui-shadow hui-btn-blue hui-radius-big hui-inline"
-		onclick="javascript:document.getElementById('loadingDv').style.display='block';">
-		<span class="hui-btn-txt">显示loading层</span>
-	</a>
-	<div id="loadingDv" class="hui-loading" style="display: none;"
-		onclick="javascript:this.style.display='none';"></div>
-
+	
+	<h3>提示：</h3>
+	<div style="position: relative; height: 500px;background:#ccc">
+		<div class="hui-tips">
+			<span class="hui-tips-txt">普通提示</span>
+		</div>
+		<div class="hui-tips hui-tips-black hui-radius-little" style="top:50px">
+			<span class="hui-tips-txt">黑色提示</span>
+		</div>
+		<div class="hui-tips hui-tips-white hui-radius-little" style="top:100px">
+			<span class="hui-tips-txt">白色提示</span>
+		</div>
+		<div class="hui-tips hui-tips-error hui-radius-little" style="top:150px">
+			<span class="hui-tips-txt">错误提示</span>
+		</div>
+		<div class="hui-tips hui-tips-error hui-radius-little" style="top:200px">
+			<span class="hui-icon hui-icon-location hui-icon-bg"></span>
+			<span class="hui-tips-txt">有图标提示</span>
+		</div>
+		<div class="hui-tips hui-tips-black hui-radius-little" style="top:250px">
+			<span class="hui-icon hui-icon-loading"></span>
+			<span class="hui-tips-txt">loading提示</span>
+		</div>
+		<div class="hui-tips hui-tips-notxt hui-radius-little" style="top:350px">
+			<span class="hui-icon hui-icon-loading"></span>
+			<span class="hui-tips-txt"></span>
+		</div>
+	</div>
 	<br />
 	<br />
 	<br />

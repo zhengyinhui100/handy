@@ -734,3 +734,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-mi-no-svg .hui-chkbox-on .hui-icon-chkbox {
   background-image: url(../img/icons-png/checkbox-on.png);
 }
+.hui-icon-loading {
+  background-image: url(../img/loading.gif);
+}

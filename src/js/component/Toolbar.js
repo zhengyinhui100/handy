@@ -15,6 +15,12 @@ function(AC){
 //		title            : '',                  //标题
 		cls              : 'tbar',
 //		type             : null,                //null|'header'|'footer'
+		defItem          : {
+			xtype        : 'Button',
+			theme        : 'black',
+			pos          : 'right',
+			isMini       : true
+		},
 		
 		tmpl             : [
 			'<div class="hui-tbar<%if(this.type=="header"){%> hui-header<%}else if(this.type=="footer"){%> hui-footer<%}%>">',
