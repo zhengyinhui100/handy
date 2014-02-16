@@ -65,6 +65,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 //		rendered            : false,             //是否已渲染
 //      listened            : false,             //是否已初始化事件
 //      showed              : false,             //是否已显示
+//		destroyed           : false,             //是否已销毁
 //		children            : [],                //子组件
 //		isSuspend           : false,             //是否挂起事件
 //		_container          : null,              //组件容器节点
@@ -921,6 +922,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		delete me.renderTo;
 		delete me._listeners;
 		delete me.children;
+		me.destroyed=true;
 	}
 		
 	return AC;

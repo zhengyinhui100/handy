@@ -14,6 +14,7 @@ function(AC){
 		//初始配置
 		delayShow       : true,            //延迟显示
 		clickHide       : true,            //是否点击就隐藏
+//		timeout         : null,            //自动隐藏的时间(毫秒)，不指定此值则不自动隐藏
 		showPos         : 'center',        //定位方法名，或者传入自定义定位函数
 		
 		//组件共有配置
@@ -55,6 +56,14 @@ function(AC){
 		}
 		//指定父类，避免死循环，如果是父组件通过callChild调用的会有参数，要传进去
 		me.callSuper(Popup.superClass,arguments);
+		//定时隐藏
+		if(me.timeout){
+			setTimeout(function(){
+				if(!me.destroyed){
+					me.hide();
+				}
+			},me.timeout);
+		}
 	}
 	/**
 	 * 居中显示

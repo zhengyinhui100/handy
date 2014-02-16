@@ -606,7 +606,7 @@
 .hui-menu.hui-menu-mark .hui-item-mark .hui-icon-mark {
   display: block;
 }
-.hui-select select {
+.hui-select input {
   display: none;
 }
 .hui-popup {

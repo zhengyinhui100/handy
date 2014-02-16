@@ -16,6 +16,7 @@ function(AC,Popup,ControlGroup){
 		//初始配置
 //		text            : '',
 		theme           : 'white',
+		timeout         : 2000,
 		radius          : 'normal',
 		
 		tmpl            : [
