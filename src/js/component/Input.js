@@ -21,10 +21,24 @@ function(AC){
 		btnPos          : 'right',             //按钮位置
 		
 		tmpl            : [
-		'<div class="hui-input<%if(this.hasIcon){%> hui-input-icon-<%=this.iconPos%><%}%>',
-		'<%if(this.hasBtn){%> hui-input-btn-<%=this.btnPos%><%}%>">',
+		'<div class="hui-input',
+			'<%if(this.hasIcon){%>',
+				' hui-input-icon-<%=this.iconPos%>',
+			'<%}%>',
+			'<%if(this.hasBtn){%>',
+				' hui-input-btn-<%=this.btnPos%>',
+			'<%}%>">',
 			'<%=this.getHtml(">*")%>',
-			'<<%if(this.type=="textarea"){%>textarea class="js-input"<%}else{%>input type="text" class="js-input hui-input-txt"<%}%> value="<%=this.value%>"<%if(this.placeholder){%> placeholder="<%=this.placeholder%><%}%>"/>',
+			'<',
+			'<%if(this.type=="textarea"){%>',
+				'textarea class="js-input"',
+			'<%}else{%>',
+				'input type="text" class="js-input hui-input-txt"',
+			'<%}%> ',
+			'name="<%=this.name%>" value="<%=this.value%>"',
+			'<%if(this.placeholder){%>',
+				' placeholder="<%=this.placeholder%>',
+			'<%}%>"/>',
 		'</div>'],
 		listeners       : [
 			{

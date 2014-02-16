@@ -33,7 +33,7 @@ function(AC){
 		tmpl            : [
 			'<div class="hui-select hui-btn hui-btn-gray hui-btn-icon-right">',
 				'<span class="hui-icon hui-icon-carat-d hui-icon-bg"></span>',
-				'<select value="<%=this.value%>" name="<%=this.name%>"></select>',
+				'<input value="<%=this.value%>" name="<%=this.name%>"/>',
 				'<span class="hui-btn-txt js-select-txt"><%=this.text%></span>',
 			'</div>'
 		],
@@ -104,7 +104,7 @@ function(AC){
 					me.fire("change");
 					oItem=oItem[0];
 					me.value=sValue;
-					var oSel=me.find('select');
+					var oSel=me.find('input');
 					oSel.attr('value',sValue);
 					me.txt(oItem.text);
 					//更新菜单选中状态
