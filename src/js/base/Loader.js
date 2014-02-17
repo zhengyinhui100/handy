@@ -327,6 +327,13 @@ function(Debug,Object,Function,$H){
     	if(Loader.traceLog){
 			Debug.info("Loader Response: "+sId);
    		}
+    	_fExecContext();
+    }
+    /**
+     * 执行上下文
+     * @method _fExecContext
+     */
+    function _fExecContext(){
     	//每次回调都循环上下文列表
    		for(var i=_aContext.length-1;i>=0;i--){
 	    	var oContext=_aContext[i];
@@ -334,6 +341,9 @@ function(Debug,Object,Function,$H){
 	    	if(aExists){
 	    		_aContext.splice(i,1);
 	    		oContext.callback.apply(null,aExists);
+	    		//定义成功后重新执行上下文
+	    		_fExecContext();
+	    		break;
 	    	}
    		}
     }
@@ -357,6 +367,7 @@ function(Debug,Object,Function,$H){
 				try{
 					//考虑到传入依赖是数组，这里回调参数形式依然是数组
 					resource=factory.apply(null,arguments);
+					Debug.info("Loader define: "+sId);
 				}catch(e){
 					//资源定义错误
 					Debug.error("Loader "+sId+":factory define error:"+e.message);
