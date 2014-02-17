@@ -13,7 +13,8 @@ handy.add('Date',function(){
 		getDaysInYear        : fGetDaysInYear,       //返回该年总共有几天
 		getDayIndexOfYear    : fGetDayIndexOfYear,   //计算该天是该年的第几天
 		format               : fFormat,              //返回指定格式的日期字符串
-		parse                : fParse                //将日期字符串转换为Date对象
+		parse                : fParse,               //将日期字符串转换为Date对象
+		parseObject          : fParseObject          //将后端传过来的时间对象转换成Date对象
 	}
 	/**
 	 * 返回周几
@@ -146,6 +147,15 @@ handy.add('Date',function(){
 			}
 		}
 		return oDate;
+	}
+	/**
+	 * 将后端传过来的时间对象转换成Date对象
+	 * @method parseObject
+	 * @param {Object}oParam
+	 * @return {Date} 返回Date对象
+	 */
+	function fParseObject(oParam){
+		return new WDate(oParam.year+1900,oParam.month,oParam.date,oParam.hours,oParam.minutes,oParam.seconds);
 	}
 	
 	return Date;
