@@ -15,7 +15,7 @@ function(AC,Popup,ControlGroup){
 	Tips.extend({
 		//初始配置
 //		text            : '',
-		theme           : 'white',
+		theme           : 'black',
 		timeout         : 2000,
 		radius          : 'normal',
 		
