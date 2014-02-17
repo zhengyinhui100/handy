@@ -94,6 +94,12 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		unmask              : fUnmask,           //隐藏遮罩层
 		txt                 : fTxt,              //设置/读取文字
 		
+		//事件相关
+		initListeners       : fInitListeners,    //初始化所有事件
+		clearListeners      : fClearListeners,   //清除所有事件
+		suspendListeners    : fSuspendListeners, //挂起事件
+		resumeListeners     : fResumeListeners,  //恢复事件
+		
 		//组件管理相关
 //		update
 		each                : fEach,             //遍历子组件
@@ -510,6 +516,47 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 			oTxtEl.text(sTxt);
 		}else{
 			return oTxtEl.text();
+		}
+	}
+	//ps:以下四个方法虽然一模一样，但callSuper需要使用元数据$name，所以要分开定义;另一方面，也方便日后修改
+	/**
+	 * 初始化所有事件
+	 * @method initListeners
+	 */
+	function fInitListeners(){
+		var me=this;
+		if(me.callSuper(AbstractView)!=false){
+			me.callChild();
+		}
+	}
+	/**
+	 * 清除所有事件
+	 * @method clearListeners
+	 */
+	function fClearListeners(){
+		var me=this;
+		if(me.callSuper(AbstractView)!=false){
+			me.callChild();
+		}
+	}
+	/**
+	 * 挂起事件
+	 * @method suspendListeners
+	 */
+	function fSuspendListeners(){
+		var me=this;
+		if(me.callSuper(AbstractView)!=false){
+			me.callChild();
+		}
+	}
+	/**
+	 * 恢复事件
+	 * @method resumeListeners
+	 */
+	function fResumeListeners(){
+		var me=this;
+		if(me.callSuper(AbstractView)!=false){
+			me.callChild();
 		}
 	}
 	/**

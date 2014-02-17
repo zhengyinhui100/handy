@@ -134,12 +134,13 @@ $Define('cm.AbstractView',function(){
 	/**
 	 * 初始化所有事件
 	 * @method initListeners
+	 * @return {boolean=}如果已经初始化了，则直接返回false
 	 */
 	function fInitListeners(){
 		var me=this;
 		//已经初始化，直接退回
 		if(me.listened){
-			return;
+			return false;
 		}
 		me.listened=true;
 		var aListeners=me._listeners;
@@ -147,7 +148,6 @@ $Define('cm.AbstractView',function(){
 		for(var i=aListeners.length-1;i>=0;i--){
 			me.listen(aListeners[i]);
 		}
-		me.callChild();
 	}
 	/**
 	 * 清除所有事件
@@ -159,33 +159,32 @@ $Define('cm.AbstractView',function(){
 		for(var i=aListeners.length-1;i>=0;i--){
 			me.unlisten(aListeners[i]);
 		}
-		me.callChild();
 	}
 	/**
 	 * 挂起事件
 	 * @method suspendListeners
+	 * @return {boolean=}如果已经挂起了，则直接返回false
 	 */
 	function fSuspendListeners(){
 		var me=this;
 		//已经挂起，直接退回
 		if(me.isSuspend){
-			return;
+			return false;
 		}
 		me.isSuspend=true;
-		me.callChild();
 	}
 	/**
 	 * 恢复事件
 	 * @method resumeListeners
+	 * @return {boolean=}如果已经初恢复了，则直接返回false
 	 */
 	function fResumeListeners(){
 		var me=this;
 		//已经恢复，直接退回
 		if(!me.isSuspend){
-			return;
+			return false;
 		}
 		me.isSuspend=false;
-		me.callChild();
 	}
 	
 	return AbstractView;
