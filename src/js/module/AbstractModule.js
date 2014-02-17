@@ -4,15 +4,15 @@
 * Created:		2013-12-14										*
 *****************************************************************/
 //handy.module.AbstractModule
-$Define("m.AbstractModule","handy.base.Object",function (Object) {
+$Define("m.AbstractModule","cm.AbstractView",function (AbstractView) {
 	/**
 	 * 模块基类
 	 * 
 	 * @class AbstractModule
 	 */
-	var AbstractModule = Object.createClass();
+	var AbstractModule = $HO.createClass();
 	
-	Object.extend(AbstractModule.prototype, {
+	$HO.inherit(AbstractModule,AbstractView,null, {
 		
 //		_container     : null,           //{jQuery}模块的容器对象
 //		isLoaded       : false,          //{boolean}模块是否已载入
