@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-02-15 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-02-18 | zhengyinhui100@gmail.com */
 html,
 body {
   overflow: hidden;
@@ -1619,7 +1619,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-menu.hui-menu-mark .hui-item-mark .hui-icon-mark {
   display: block;
 }
-.hui-select select {
+.hui-select input {
   display: none;
 }
 .hui-popup {
@@ -1779,6 +1779,9 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-tbar .hui-btn-icon-notxt {
   margin-top: -15px;
+}
+.hui-tbar .hui-tab {
+  margin: 0;
 }
 .hui-tbar-gray {
   border: 1px solid #bbb;

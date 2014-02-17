@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-02-15 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-02-18 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -575,7 +575,8 @@ handy.add('Object',function($H){
 		_alias              : {                 //存储别名
 			'b'             : 'handy.base',
 			'c'             : 'handy.component',
-			'm'             : 'handy.module'
+			'm'             : 'handy.module',
+			'cm'            : 'handy.common'
 		},               
 		namespace           : fNamespace,       //创建或读取命名空间，可以传入用以初始化该命名空间的对象
 		alias               : fAlias,           //创建别名/读取实名
@@ -684,7 +685,7 @@ handy.add('Object',function($H){
             }
         };
         /**
-         * 便捷访问父类方法，ps：在多重继承的场景中，需要通过参数指定父类，避免死循环
+         * 便捷访问父类方法，ps：在多重继承的场景中，如果子类直接继承父类的方法，那么父类中的方法需要通过参数指定其父类，避免死循环
          * @method callSuper
          * @param {Class=}oSuper 指定父类，默认为实际调用对象的父类
          * @param {Array}aArgs 参数数组
@@ -715,6 +716,7 @@ handy.add('Object',function($H){
     * @param {Object} oDestination 目标对象
     * @param {Object} oSource 源对象
     * @param {Object=} oOptions(可选){
+    * 				{array=}cover 仅覆盖此参数中的属性
     * 				{boolean=|array=|function(sprop)=}notCover 不覆盖原有属性/方法，当此参数为true时不覆盖原有属性；当此参数为数组时，
     * 					仅不覆盖数组中的原有属性；当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
     * 				{boolean=}notClone 不克隆，仅当此参数为true时不克隆，此时，由于目标对象里的复杂属性(数组、对象等)是源对象中的引用，
@@ -724,28 +726,32 @@ handy.add('Object',function($H){
     */
     function fExtend(oDestination, oSource, oOptions) {
     	var notCover=oOptions?oOptions.notCover:false;
+    	var aCover=oOptions?oOptions.cover:null;
     	var bNotClone=oOptions?oOptions.notClone:false;
     	//如果是类扩展，添加方法元数据
     	var bAddMeta=!!oDestination.callSuper;
         for (var sProperty in oSource) {
-        	//不复制深层prototype
-        	if(oSource.hasOwnProperty(sProperty)){
-	        	var bHas=oDestination.hasOwnProperty(sProperty);
-	        	var bNotCover=notCover===true?bHas:false;
-	        	//当此参数为数组时，仅不覆盖数组中的原有属性
-	        	if(Object.isArray(notCover)){
-	        		bNotCover=Object.contains(notCover,sProperty)&&bHas;
-	        	}else if(Object.isFunction(notCover)){
-	        		//当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
-	        		bNotCover=notCover(sProperty);
+        	//仅覆盖oOptions.cover中的属性
+        	if(!aCover||Object.contains(aCover,sProperty)){
+	        	//不复制深层prototype
+	        	if(oSource.hasOwnProperty(sProperty)){
+		        	var bHas=oDestination.hasOwnProperty(sProperty);
+		        	var bNotCover=notCover===true?bHas:false;
+		        	//当此参数为数组时，仅不覆盖数组中的原有属性
+		        	if(Object.isArray(notCover)){
+		        		bNotCover=Object.contains(notCover,sProperty)&&bHas;
+		        	}else if(Object.isFunction(notCover)){
+		        		//当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
+		        		bNotCover=notCover(sProperty);
+		        	}
+		            if (!bNotCover) {
+		            	var value=bNotClone?oSource[sProperty]:Object.clone(oSource[sProperty]);
+						if(bAddMeta&&Object.isFunction(value)){
+							value.$name=sProperty;
+						}
+						oDestination[sProperty] = value;
+		            }
 	        	}
-	            if (!bNotCover) {
-	            	var value=bNotClone?oSource[sProperty]:Object.clone(oSource[sProperty]);
-					if(bAddMeta&&Object.isFunction(value)){
-						value.$name=sProperty;
-					}
-					oDestination[sProperty] = value;
-	            }
         	}
         }
         return oDestination;
@@ -831,7 +837,9 @@ handy.add('Object',function($H){
         if(oParent._onInherit){
             try{
                 oParent._onInherit(oChild);
-            }catch(e){}
+            }catch(e){
+            	$H.Debug.error("_onInherit error",e);
+            }
         }
         //扩展静态属性
         if(oStaticExtend){
@@ -1278,7 +1286,8 @@ handy.add("Browser","handy.base.Object",function(Object,$H){
 	return Browser;
 	
 });/**
- * 调试类，方便个浏览器下调试，在发布时统一删除调试代码
+ * 调试类，方便各浏览器下调试，在发布时统一删除调试代码，所有的输出和调试必须使用此类的方法，
+ * 不得使用console等原生方法
  * //TODO 快捷键切换调试等级
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -1384,14 +1393,22 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 	/**
 	 * 输出错误
 	 * @method error
-	 * @param {Object} oVar	需要输出的变量
-	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
+	 * @param {Object}oVar	需要输出的变量
+	 * @param {Error=}oError 
+	 * @param {boolean=}bShowInPage 是否需要创建一个DIV输出到页面
 	 */
-	function fError(oVar,bShowInPage){
+	function fError(oVar,oError,bShowInPage){
 		if(Debug.level>Debug.ERROR_LEVEL){
 			return;
 		}
+		if(typeof oError=="boolean"){
+			bShowInPage=oError;
+		}
 		_fOut(oVar,!!bShowInPage,"error");
+		if(typeof oError=="object"){
+			//抛出异常，主要是为了方便调试，如果异常被catch住的话，控制台不会输出具体错误位置
+			throw oError;
+		}
 	}
 	/**
 	 * 输出统计时间
@@ -1705,7 +1722,7 @@ function(Debug,Object,Function,$H){
 //							}
 //						}
 //					} catch (e) {
-//						Debug.error("Loader script onload:"+e.message);
+//						Debug.error("Loader script onload:"+e.message,e);
 //					}
 //				}
 				// 移除标签
@@ -1821,6 +1838,13 @@ function(Debug,Object,Function,$H){
     	if(Loader.traceLog){
 			Debug.info("Loader Response: "+sId);
    		}
+    	_fExecContext();
+    }
+    /**
+     * 执行上下文
+     * @method _fExecContext
+     */
+    function _fExecContext(){
     	//每次回调都循环上下文列表
    		for(var i=_aContext.length-1;i>=0;i--){
 	    	var oContext=_aContext[i];
@@ -1828,6 +1852,9 @@ function(Debug,Object,Function,$H){
 	    	if(aExists){
 	    		_aContext.splice(i,1);
 	    		oContext.callback.apply(null,aExists);
+	    		//定义成功后重新执行上下文
+	    		_fExecContext();
+	    		break;
 	    	}
    		}
     }
@@ -1851,12 +1878,10 @@ function(Debug,Object,Function,$H){
 				try{
 					//考虑到传入依赖是数组，这里回调参数形式依然是数组
 					resource=factory.apply(null,arguments);
+					Debug.info("Loader define: "+sId);
 				}catch(e){
 					//资源定义错误
-					Debug.error("Loader "+sId+":factory define error:"+e.message);
-					if(Loader.traceLog){
-						throw e;
-					}
+					Debug.error("Loader "+sId+":factory define error:"+e.message,e);
 					return;
 				}
 			}else{
@@ -2005,7 +2030,8 @@ handy.add('Date',function(){
 		getDaysInYear        : fGetDaysInYear,       //返回该年总共有几天
 		getDayIndexOfYear    : fGetDayIndexOfYear,   //计算该天是该年的第几天
 		format               : fFormat,              //返回指定格式的日期字符串
-		parse                : fParse                //将日期字符串转换为Date对象
+		parse                : fParse,               //将日期字符串转换为Date对象
+		parseObject          : fParseObject          //将后端传过来的时间对象转换成Date对象
 	}
 	/**
 	 * 返回周几
@@ -2138,6 +2164,15 @@ handy.add('Date',function(){
 			}
 		}
 		return oDate;
+	}
+	/**
+	 * 将后端传过来的时间对象转换成Date对象
+	 * @method parseObject
+	 * @param {Object}oParam
+	 * @return {Date} 返回Date对象
+	 */
+	function fParseObject(oParam){
+		return new WDate(oParam.year+1900,oParam.month,oParam.date,oParam.hours,oParam.minutes,oParam.seconds);
 	}
 	
 	return Date;
@@ -3037,7 +3072,7 @@ $Define("c.ComponentManager", function() {
  * @created 2013-12-28
  */
 //"handy.component.AbstractComponent"
-$Define('c.AbstractComponent',"c.ComponentManager",function(CM){
+$Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(CM,AbstractView){
 	
 	var AC=$HO.createClass(),
 	_oTagReg=/^(<[a-zA-Z]+)/,
@@ -3046,16 +3081,13 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	//快捷别名
 	$C.AbstractComponent=AC;
 	
-	//静态方法
-	$HO.extend(AC,{
+	$HO.inherit(AC,AbstractView,{
+		//静态方法
 		define              : fDefine,           //定义组件
 		extend              : fExtend,           //扩展组件原型对象
 		html                : fHtml              //静态生成组件html
-	});
-	
-	//实例方法
-	$HO.extend(AC.prototype,{
-		
+	},{
+		//实例方法
 		xtype               : 'AbstractComponent',       //组件类型
 		
 		//默认配置
@@ -3096,8 +3128,8 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 //		tmpl                : [],                //组件模板，首次初始化前为数组，初始化后为字符串，ps:组件模板容器节点上不能带有id属性
 //		html                : null,              //组件html
 //		rendered            : false,             //是否已渲染
-//      listened            : false,             //是否已初始化事件
 //      showed              : false,             //是否已显示
+//		destroyed           : false,             //是否已销毁
 //		children            : [],                //子组件
 //		isSuspend           : false,             //是否挂起事件
 //		_container          : null,              //组件容器节点
@@ -3129,14 +3161,13 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		mask                : fMask,             //显示遮罩层
 		unmask              : fUnmask,           //隐藏遮罩层
 		txt                 : fTxt,              //设置/读取文字
+		
 		//事件相关
-		fire                : fFire,             //触发组件自定义事件
-		listen              : fListen,           //绑定事件
-		unlisten            : fUnlisten,         //解除事件
 		initListeners       : fInitListeners,    //初始化所有事件
 		clearListeners      : fClearListeners,   //清除所有事件
 		suspendListeners    : fSuspendListeners, //挂起事件
 		resumeListeners     : fResumeListeners,  //恢复事件
+		
 		//组件管理相关
 //		update
 		each                : fEach,             //遍历子组件
@@ -3555,135 +3586,16 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 			return oTxtEl.text();
 		}
 	}
-	/**
-	 * 触发组件自定义事件
-	 * @method fire
-	 * @param {string}sType 事件类型
-	 * @param {Array=}aArgs 附加参数
-	 */
-	function fFire(sType,aArgs){
-		var me=this;
-		for(var i=me._listeners.length-1;i>=0;i--){
-			var oListener=me._listeners[i]
-			if(oListener.type==sType){
-				var fDelegation=oListener.delegation;
-				if(aArgs){
-					fDelegation.apply(null,aArgs.shift(oListener));
-				}else{
-					fDelegation(oListener);
-				}
-			}
-		}
-	}
-	/**
-	 * 绑定事件
-	 * @method listen
-	 * @param {object}事件对象{
-	 * 			{string}type      : 事件名
-	 * 			{function(Object[,fireParam..])}handler : 监听函数，第一个参数为事件对象oListener，其后的参数为fire时传入的参数
-	 * 			{any=}data        : 数据
-	 * 			{jQuery=}el       : 绑定事件的节点，不传表示组件容器节点
-	 * 			{boolean=}notEl    : 为true时是自定义事件
-	 * 			{string=}selector : 选择器
-	 * 			{any=}scope       : 监听函数执行的上下文对象，默认是组件对象
-	 * 			{string=}method   : 绑定方式，默认为"bind"
-	 * }
-	 */
-	function fListen(oEvent){
-		var me=this,
-			sType=oEvent.type,
-			aListeners=me._listeners,
-			oEl=oEvent.el,
-			sMethod=oEvent.method||"bind",
-			sSel=oEvent.selector,
-			oData=oEvent.data,
-			fFunc=oEvent.delegation=function(){
-				if(me.isSuspend!=true){
-					return oEvent.handler.apply(oEvent.scope||me,arguments);
-				}
-			};
-		//移动浏览器由于click可能会有延迟，这里转换为touchend事件
-		if($H.Browser.mobile()){
-			if(sType=="click"){
-				sType="touchend";
-			}
-		}
-		oEl=oEl?typeof oEl=='string'?me.find(oEl):oEl:me.getEl();
-		if(!oEvent.notEl){
-			if(sSel){
-				if(oData){
-					oEl[sMethod](sSel,sType,oData,fFunc);
-				}else{
-					oEl[sMethod](sSel,sType,fFunc);
-				}
-			}else{
-				if(oData){
-					oEl[sMethod](sType,oData,fFunc);
-				}else{
-					oEl[sMethod](sType,fFunc);
-				}
-			}
-		}
-		aListeners.push(oEvent);
-	}
-	/**
-	 * 解除事件
-	 * @method unlisten
-	 * @param {object}事件对象{
-	 * 			{string}type      : 事件名
-	 * 			{function}handler : 监听函数
-	 * 			{jQuery=}el       : 绑定事件的节点，不传表示组件容器节点
-	 * 			{boolean=}notEl    : 为true时是自定义事件
-	 * 			{string=}selector : 选择器
-	 * 			{string=}method   : 绑定方式，默认为"bind"
-	 * }
-	 */
-	function fUnlisten(oEvent){
-		var me=this,
-			sType=oEvent.type,
-			oEl=oEvent.el||me.getEl(),
-			sMethod=oEvent.method=="delegate"?"undelegate":"unbind",
-			sSel=oEvent.selector,
-			fDelegation;
-		//移动浏览器由于click可能会有延迟，这里转换为touchend事件
-		if($H.Browser.mobile()){
-			if(sType=="click"){
-				sType="touchend";
-			}
-		}
-		for(var i=me._listeners.length-1;i>=0;i--){
-			var oListener=me._listeners[i]
-			if(oListener.handler==oEvent.handler){
-				fDelegation=oListener.delegation;
-				me._listeners.splice(i,1);
-				break;
-			}
-		}
-		if(!oEvent.notEl){
-			if(sSel){
-				oEl[sMethod](sSel,sType,fDelegation);
-			}else{
-				oEl[sMethod](sType,fDelegation);
-			}
-		}
-	}
+	//ps:以下四个方法虽然一模一样，但callSuper需要使用元数据$name，所以要分开定义;另一方面，压缩后代码也不多
 	/**
 	 * 初始化所有事件
 	 * @method initListeners
 	 */
 	function fInitListeners(){
 		var me=this;
-		//已经初始化，直接退回
-		if(me.listened){
-			return;
+		if(me.callSuper(AbstractView)!=false){
+			me.callChild();
 		}
-		me.listened=true;
-		var aListeners=me._listeners;
-		me._listeners=[];
-		for(var i=aListeners.length-1;i>=0;i--){
-			me.listen(aListeners[i]);
-		}
-		me.callChild();
 	}
 	/**
 	 * 清除所有事件
@@ -3691,11 +3603,9 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	 */
 	function fClearListeners(){
 		var me=this;
-		var aListeners=me._listeners;
-		for(var i=aListeners.length-1;i>=0;i--){
-			me.unlisten(aListeners[i]);
+		if(me.callSuper(AbstractView)!=false){
+			me.callChild();
 		}
-		me.callChild();
 	}
 	/**
 	 * 挂起事件
@@ -3703,12 +3613,9 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	 */
 	function fSuspendListeners(){
 		var me=this;
-		//已经挂起，直接退回
-		if(me.isSuspend){
-			return;
+		if(me.callSuper(AbstractView)!=false){
+			me.callChild();
 		}
-		me.isSuspend=true;
-		me.callChild();
 	}
 	/**
 	 * 恢复事件
@@ -3716,12 +3623,9 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 	 */
 	function fResumeListeners(){
 		var me=this;
-		//已经恢复，直接退回
-		if(!me.isSuspend){
-			return;
+		if(me.callSuper(AbstractView)!=false){
+			me.callChild();
 		}
-		me.isSuspend=false;
-		me.callChild();
 	}
 	/**
 	 * 遍历子组件
@@ -3954,6 +3858,7 @@ $Define('c.AbstractComponent',"c.ComponentManager",function(CM){
 		delete me.renderTo;
 		delete me._listeners;
 		delete me.children;
+		me.destroyed=true;
 	}
 		
 	return AC;
@@ -3974,6 +3879,7 @@ function(AC){
 		//初始配置
 		delayShow       : true,            //延迟显示
 		clickHide       : true,            //是否点击就隐藏
+//		timeout         : null,            //自动隐藏的时间(毫秒)，不指定此值则不自动隐藏
 		showPos         : 'center',        //定位方法名，或者传入自定义定位函数
 		
 		//组件共有配置
@@ -4015,6 +3921,14 @@ function(AC){
 		}
 		//指定父类，避免死循环，如果是父组件通过callChild调用的会有参数，要传进去
 		me.callSuper(Popup.superClass,arguments);
+		//定时隐藏
+		if(me.timeout){
+			setTimeout(function(){
+				if(!me.destroyed){
+					me.hide();
+				}
+			},me.timeout);
+		}
 	}
 	/**
 	 * 居中显示
@@ -4469,7 +4383,7 @@ function(AC){
 		tmpl            : [
 			'<div class="hui-select hui-btn hui-btn-gray hui-btn-icon-right">',
 				'<span class="hui-icon hui-icon-carat-d hui-icon-bg"></span>',
-				'<select value="<%=this.value%>" name="<%=this.name%>"></select>',
+				'<input value="<%=this.value%>" name="<%=this.name%>"/>',
 				'<span class="hui-btn-txt js-select-txt"><%=this.text%></span>',
 			'</div>'
 		],
@@ -4540,7 +4454,7 @@ function(AC){
 					me.fire("change");
 					oItem=oItem[0];
 					me.value=sValue;
-					var oSel=me.find('select');
+					var oSel=me.find('input');
 					oSel.attr('value',sValue);
 					me.txt(oItem.text);
 					//更新菜单选中状态
@@ -4577,10 +4491,28 @@ function(AC){
 		btnPos          : 'right',             //按钮位置
 		
 		tmpl            : [
-		'<div class="hui-input<%if(this.hasIcon){%> hui-input-icon-<%=this.iconPos%><%}%>',
-		'<%if(this.hasBtn){%> hui-input-btn-<%=this.btnPos%><%}%>">',
+		'<div class="hui-input',
+			'<%if(this.hasIcon){%>',
+				' hui-input-icon-<%=this.iconPos%>',
+			'<%}%>',
+			'<%if(this.hasBtn){%>',
+				' hui-input-btn-<%=this.btnPos%>',
+			'<%}%>">',
 			'<%=this.getHtml(">*")%>',
-			'<<%if(this.type=="textarea"){%>textarea class="js-input"<%}else{%>input type="text" class="js-input hui-input-txt"<%}%> value="<%=this.value%>"<%if(this.placeholder){%> placeholder="<%=this.placeholder%><%}%>"/>',
+			'<%if(this.type=="textarea"){%>',
+				'<textarea class="js-input"',
+			'<%}else{%>',
+				'<input type="text" class="js-input hui-input-txt"',
+			'<%}%> ',
+			' name="<%=this.name%>"',
+			'<%if(this.placeholder){%>',
+				' placeholder="<%=this.placeholder%>',
+			'<%}%>"',
+			'<%if(this.type=="textarea"){%>',
+				'><%=this.value%></textarea>',
+			'<%}else{%>',
+				' value="<%=this.value%>"/>',
+			'<%}%> ',
 		'</div>'],
 		listeners       : [
 			{
@@ -4812,7 +4744,8 @@ function(AC,Popup,ControlGroup){
 	Tips.extend({
 		//初始配置
 //		text            : '',
-		theme           : 'white',
+		theme           : 'black',
+		timeout         : 2000,
 		radius          : 'normal',
 		
 		tmpl            : [
@@ -5097,15 +5030,15 @@ function(AC,ControlGroup){
 * Created:		2013-12-14										*
 *****************************************************************/
 //handy.module.AbstractModule
-$Define("m.AbstractModule","handy.base.Object",function (Object) {
+$Define("m.AbstractModule","cm.AbstractView",function (AbstractView) {
 	/**
 	 * 模块基类
 	 * 
 	 * @class AbstractModule
 	 */
-	var AbstractModule = Object.createClass();
+	var AbstractModule = $HO.createClass();
 	
-	Object.extend(AbstractModule.prototype, {
+	$HO.inherit(AbstractModule,AbstractView,null, {
 		
 //		_container     : null,           //{jQuery}模块的容器对象
 //		isLoaded       : false,          //{boolean}模块是否已载入
@@ -5118,6 +5051,7 @@ $Define("m.AbstractModule","handy.base.Object",function (Object) {
 		
 //		getData        : null,           //{function()}获取该模块的初始化数据
 //		clone          : null,           //{function()}克隆接口
+		initialize     : fInitialize,    //模块类创建时初始化
 		cache          : function(){},   //显示模块缓存
 		init           : function(){},   //初始化函数, 在模块创建后调用（在所有模块动作之前）
 		beforeRender   : function(){},   //模块渲染前调用
@@ -5125,8 +5059,7 @@ $Define("m.AbstractModule","handy.base.Object",function (Object) {
 		afterRender    : function(){},   //模块渲染后调用
 		reset          : function(){},   //重置函数, 在该模块里进入该模块时调用
 		exit           : function(){return true},   //离开该模块前调用, 返回true允许离开, 否则不允许离开
-		destroy        : function(){},   //模块销毁
-		initialize     : fInitialize,    //模块类创建时初始化
+		destroy        : fDestroy,       //模块销毁
 		getHtml        : fGetHtml,       //获取该模块的html
 		getEl          : fGetEl          //获取模块的容器节点
 	});
@@ -5138,6 +5071,14 @@ $Define("m.AbstractModule","handy.base.Object",function (Object) {
 	function fInitialize(oConf) {
 		//Object.extend(this, oConf);
 		this.conf = oConf;
+	}
+	/**
+	 * 销毁模块
+	 * @method destroy
+	 */
+	function fDestroy(){
+		var me=this;
+		me.getEl().remove();
 	}
 	/**
 	 * 获取该模块的html
@@ -5179,7 +5120,7 @@ $Define('m.AbstractDao',function(){
 	
 	var AbstractDao=$HO.createClass();
 	
-	$HO.extend(AbstractDao.prototype,{
+	$HO.extend(AbstractDao,{
 		ajax         : fAjax,        //ajax方法
 		beforeSend   : $H.noop,      //发送前处理
 		error        : $H.noop,      //错误处理
@@ -5196,7 +5137,7 @@ $Define('m.AbstractDao',function(){
 		var me=this;
 		me.beforeSend(oParams);
 		oParams.error=$HF.intercept(me.error,oParams.error);
-		oParams.success=$HF.intercept(me.success,oParams.error);
+		oParams.success=$HF.intercept(me.success,oParams.success);
 		return $.ajax(oParams);
 	}
 	
@@ -5359,7 +5300,7 @@ function(HashChange){
 				}
 			}
 		}catch(e){
-			$H.Debug.error("History.getPreState error:"+e.message);
+			$H.Debug.error("History.getPreState error:"+e.message,e);
 		}
 	}
 	/**
@@ -5405,6 +5346,7 @@ function(History){
 		_createMod         : _fCreateMod,       //新建模块
 		_showMod           : _fShowMod,         //显示模块
 		_hideAll           : _fHideAll,         //隐藏所有模块
+		_destroy           : _fDestroy,         //销毁模块
 		
 		initialize         : fInitialize,      //初始化模块管理
 		go                 : fGo               //进入模块
@@ -5488,6 +5430,22 @@ function(History){
 		}
 	}
 	/**
+	 * 销毁模块
+	 * @method _destroy
+	 * @param {Module}oMod 待销毁的模块
+	 */
+	function _fDestroy(oMod){
+		var me=this;
+		var oModules=me.modules;
+		for(var module in oModules){
+			if(oMod.name==module){
+				delete oModules[module];
+				break;
+			}
+		}
+		oMod.destroy();
+	}
+	/**
 	 * 初始化模块管理
 	 * @param {object}oConf {      //初始化配置参数
 	 * 			{string}defModPackage  : 默认模块所在包名
@@ -5545,7 +5503,7 @@ function(History){
 				oMod.cache(oParams);
 			}else if(!oMod.waiting){
 				//标记不使用缓存，销毁新建
-				oMod.destroy();
+				me._destroy(oMod);
 				me._createMod(oParams);
 			}
 			//如果模块已在请求中，直接略过，等待新建模块的回调函数处理
