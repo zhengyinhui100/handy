@@ -28,7 +28,7 @@ $Define('m.AbstractDao',function(){
 		var me=this;
 		me.beforeSend(oParams);
 		oParams.error=$HF.intercept(me.error,oParams.error);
-		oParams.success=$HF.intercept(me.success,oParams.error);
+		oParams.success=$HF.intercept(me.success,oParams.success);
 		return $.ajax(oParams);
 	}
 	
