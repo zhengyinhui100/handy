@@ -118,7 +118,7 @@ handy.add('Object',function($H){
             }
         };
         /**
-         * 便捷访问父类方法，ps：在多重继承的场景中，需要通过参数指定父类，避免死循环
+         * 便捷访问父类方法，ps：在多重继承的场景中，如果子类直接继承父类的方法，那么父类中的方法需要通过参数指定其父类，避免死循环
          * @method callSuper
          * @param {Class=}oSuper 指定父类，默认为实际调用对象的父类
          * @param {Array}aArgs 参数数组
