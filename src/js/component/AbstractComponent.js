@@ -518,7 +518,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 			return oTxtEl.text();
 		}
 	}
-	//ps:以下四个方法虽然一模一样，但callSuper需要使用元数据$name，所以要分开定义;另一方面，也方便日后修改
+	//ps:以下四个方法虽然一模一样，但callSuper需要使用元数据$name，所以要分开定义;另一方面，压缩后代码也不多
 	/**
 	 * 初始化所有事件
 	 * @method initListeners
