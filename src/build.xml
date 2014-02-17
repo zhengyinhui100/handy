@@ -15,7 +15,6 @@
             encoding="${charset}"
             outputencoding="${charset}">
 
-			<!-- base -->
 			<path path="js/base/base.js"/>
 			<path path="js/base/Json.js"/>
 			<path path="js/base/Object.js"/>
@@ -32,6 +31,16 @@
 			<path path="js/base/HashChange.js"/>
 			<path path="js/base/Support.js"/>
 			<path path="js/base/adapt.js"/>
+
+		</concat>
+	</target>
+	
+	<target name="common">
+		<concat destfile="${tmp.dir}/${project.name}-pkg.js"
+            encoding="${charset}"
+            outputencoding="${charset}">
+
+			<path path="js/common/AbstractView.js"/>
 
 		</concat>
 	</target>

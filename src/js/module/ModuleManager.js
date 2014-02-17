@@ -27,6 +27,7 @@ function(History){
 		_createMod         : _fCreateMod,       //新建模块
 		_showMod           : _fShowMod,         //显示模块
 		_hideAll           : _fHideAll,         //隐藏所有模块
+		_destroy           : _fDestroy,         //销毁模块
 		
 		initialize         : fInitialize,      //初始化模块管理
 		go                 : fGo               //进入模块
@@ -110,6 +111,22 @@ function(History){
 		}
 	}
 	/**
+	 * 销毁模块
+	 * @method _destroy
+	 * @param {Module}oMod 待销毁的模块
+	 */
+	function _fDestroy(oMod){
+		var me=this;
+		var oModules=me.modules;
+		for(var module in oModules){
+			if(oMod.name==module){
+				delete oModules[module];
+				break;
+			}
+		}
+		oMod.destroy();
+	}
+	/**
 	 * 初始化模块管理
 	 * @param {object}oConf {      //初始化配置参数
 	 * 			{string}defModPackage  : 默认模块所在包名
@@ -167,7 +184,7 @@ function(History){
 				oMod.cache(oParams);
 			}else if(!oMod.waiting){
 				//标记不使用缓存，销毁新建
-				oMod.destroy();
+				me._destroy(oMod);
 				me._createMod(oParams);
 			}
 			//如果模块已在请求中，直接略过，等待新建模块的回调函数处理

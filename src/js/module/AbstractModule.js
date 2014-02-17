@@ -25,6 +25,7 @@ $Define("m.AbstractModule","handy.base.Object",function (Object) {
 		
 //		getData        : null,           //{function()}获取该模块的初始化数据
 //		clone          : null,           //{function()}克隆接口
+		initialize     : fInitialize,    //模块类创建时初始化
 		cache          : function(){},   //显示模块缓存
 		init           : function(){},   //初始化函数, 在模块创建后调用（在所有模块动作之前）
 		beforeRender   : function(){},   //模块渲染前调用
@@ -32,8 +33,7 @@ $Define("m.AbstractModule","handy.base.Object",function (Object) {
 		afterRender    : function(){},   //模块渲染后调用
 		reset          : function(){},   //重置函数, 在该模块里进入该模块时调用
 		exit           : function(){return true},   //离开该模块前调用, 返回true允许离开, 否则不允许离开
-		destroy        : function(){},   //模块销毁
-		initialize     : fInitialize,    //模块类创建时初始化
+		destroy        : fDestroy,       //模块销毁
 		getHtml        : fGetHtml,       //获取该模块的html
 		getEl          : fGetEl          //获取模块的容器节点
 	});
@@ -45,6 +45,14 @@ $Define("m.AbstractModule","handy.base.Object",function (Object) {
 	function fInitialize(oConf) {
 		//Object.extend(this, oConf);
 		this.conf = oConf;
+	}
+	/**
+	 * 销毁模块
+	 * @method destroy
+	 */
+	function fDestroy(){
+		var me=this;
+		me.getEl().remove();
 	}
 	/**
 	 * 获取该模块的html

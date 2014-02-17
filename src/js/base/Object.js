@@ -8,7 +8,8 @@ handy.add('Object',function($H){
 		_alias              : {                 //存储别名
 			'b'             : 'handy.base',
 			'c'             : 'handy.component',
-			'm'             : 'handy.module'
+			'm'             : 'handy.module',
+			'cm'            : 'handy.common'
 		},               
 		namespace           : fNamespace,       //创建或读取命名空间，可以传入用以初始化该命名空间的对象
 		alias               : fAlias,           //创建别名/读取实名
