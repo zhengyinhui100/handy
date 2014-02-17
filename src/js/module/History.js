@@ -120,7 +120,7 @@ function(HashChange){
 				}
 			}
 		}catch(e){
-			$H.Debug.error("History.getPreState error:"+e.message);
+			$H.Debug.error("History.getPreState error:"+e.message,e);
 		}
 	}
 	/**

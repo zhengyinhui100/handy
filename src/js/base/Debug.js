@@ -105,14 +105,22 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 	/**
 	 * 输出错误
 	 * @method error
-	 * @param {Object} oVar	需要输出的变量
-	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
+	 * @param {Object}oVar	需要输出的变量
+	 * @param {Error=}oError 
+	 * @param {boolean=}bShowInPage 是否需要创建一个DIV输出到页面
 	 */
-	function fError(oVar,bShowInPage){
+	function fError(oVar,oError,bShowInPage){
 		if(Debug.level>Debug.ERROR_LEVEL){
 			return;
 		}
+		if(typeof oError=="boolean"){
+			bShowInPage=oError;
+		}
 		_fOut(oVar,!!bShowInPage,"error");
+		if(typeof oError=="object"){
+			//抛出异常，主要是为了方便调试，如果异常被catch住的话，控制台不会输出具体错误位置
+			throw oError;
+		}
 	}
 	/**
 	 * 输出统计时间

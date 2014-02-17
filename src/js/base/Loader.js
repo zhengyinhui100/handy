@@ -211,7 +211,7 @@ function(Debug,Object,Function,$H){
 //							}
 //						}
 //					} catch (e) {
-//						Debug.error("Loader script onload:"+e.message);
+//						Debug.error("Loader script onload:"+e.message,e);
 //					}
 //				}
 				// 移除标签
@@ -370,10 +370,7 @@ function(Debug,Object,Function,$H){
 					Debug.info("Loader define: "+sId);
 				}catch(e){
 					//资源定义错误
-					Debug.error("Loader "+sId+":factory define error:"+e.message);
-					if(Loader.traceLog){
-						throw e;
-					}
+					Debug.error("Loader "+sId+":factory define error:"+e.message,e);
 					return;
 				}
 			}else{
