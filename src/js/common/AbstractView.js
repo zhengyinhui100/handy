@@ -9,16 +9,35 @@ $Define('cm.AbstractView',function(){
 	var AbstractView=$HO.createClass();
 	
 	$HO.extend(AbstractView.prototype,{
+//		_container          : null,              //试图对象容器节点
 //      listened            : false,             //是否已初始化事件
 		
+		initialize          : fInitialize,       //初始化
+		getEl               : fGetEl,            //获取容器节点
 		fire                : fFire,             //触发组件自定义事件
 		listen              : fListen,           //绑定事件
 		unlisten            : fUnlisten,         //解除事件
 		initListeners       : fInitListeners,    //初始化所有事件
 		clearListeners      : fClearListeners,   //清除所有事件
 		suspendListeners    : fSuspendListeners, //挂起事件
-		resumeListeners     : fResumeListeners   //恢复事件
+		resumeListeners     : fResumeListeners,  //恢复事件
+		destroy             : fDestroy           //销毁
 	});
+	/**
+	 * 初始化
+	 * @method initialize
+	 */
+	function fInitialize(){
+		this.initListeners();
+	}
+	/**
+	 * 获取容器节点
+	 * @method getEl
+	 * @return {jQuery} 返回容器节点
+	 */
+	function fGetEl(){
+		return this._container;
+	}
 	/**
 	 * 触发组件自定义事件
 	 * @method fire
@@ -185,6 +204,17 @@ $Define('cm.AbstractView',function(){
 			return false;
 		}
 		me.isSuspend=false;
+	}
+	/**
+	 * 销毁
+	 * @method destroy
+	 */
+	function fDestroy(){
+		var me=this;
+		me.fire('destroy');
+		me.clearListeners();
+		me.getEl().remove();
+		me.destroyed=true;
 	}
 	
 	return AbstractView;
