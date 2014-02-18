@@ -117,14 +117,8 @@ function(History){
 	 */
 	function _fDestroy(oMod){
 		var me=this;
-		var oModules=me.modules;
-		for(var module in oModules){
-			if(oMod.name==module){
-				delete oModules[module];
-				break;
-			}
-		}
 		oMod.destroy();
+		delete me.modules[oMod.name];
 	}
 	/**
 	 * 初始化模块管理
