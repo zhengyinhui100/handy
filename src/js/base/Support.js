@@ -66,7 +66,7 @@ handy.add('Support',function($H){
 		}else{
 			sCls="hui-pc";
 		}
-		document.documentElement.className+=sCls;
+		document.documentElement.className+=" "+sCls;
 	}
 	
 	return Support;
