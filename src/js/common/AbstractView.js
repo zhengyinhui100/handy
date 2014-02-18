@@ -11,6 +11,8 @@ $Define('cm.AbstractView',function(){
 	$HO.extend(AbstractView.prototype,{
 //		_container          : null,              //试图对象容器节点
 //      listened            : false,             //是否已初始化事件
+//		isSuspend           : false,             //是否挂起事件
+//		destroyed           : false,             //是否已销毁
 		
 		initialize          : fInitialize,       //初始化
 		getEl               : fGetEl,            //获取容器节点

@@ -61,10 +61,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 //		html                : null,              //组件html
 //		rendered            : false,             //是否已渲染
 //      showed              : false,             //是否已显示
-//		destroyed           : false,             //是否已销毁
 //		children            : [],                //子组件
-//		isSuspend           : false,             //是否挂起事件
-//		_container          : null,              //组件容器节点
 //      listeners           : [],                //类事件配置
 //		_listeners          : {},                //实例事件池  
 		_customEvents       : [                  //自定义事件,可以通过参数属性的方式直接进行添加

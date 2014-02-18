@@ -715,6 +715,15 @@
 .hui-form .hui-form-action .hui-btn {
   margin-right: 30px;
 }
+.hui-set .hui-set-title {
+  padding: .4em;
+  text-align: left;
+  font-weight: normal;
+  border-bottom: 1px solid #ccc;
+}
+.hui-set .hui-set-content {
+  margin: 2em;
+}
 .hui-tbar {
   position: relative;
   zoom: 1;

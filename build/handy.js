@@ -684,24 +684,31 @@ handy.add('Object',function($H){
             	return fInitialize.apply(me, arguments);
             }
         };
+        Class.$isClass=true;
         /**
-         * 便捷访问父类方法，ps：在多重继承的场景中，如果子类直接继承父类的方法，那么父类中的方法需要通过参数指定其父类，避免死循环
+         * 便捷访问父类方法
          * @method callSuper
-         * @param {Class=}oSuper 指定父类，默认为实际调用对象的父类
+         * @param {Class=}oSuper 指定父类，如果不指定，默认为定义此方法的类的父类，如果该值为空，则为实际调用对象的父类
          * @param {Array}aArgs 参数数组
          */
         Class.prototype.callSuper=function(oSuper,aArgs){
         	var me=this;
-        	if(Object.isArray(oSuper)){
+        	if(oSuper&&!oSuper.$isClass&&oSuper.length!=undefined){
         		aArgs=oSuper;
         		oSuper=null;
         	}
-        	oSuper=oSuper?oSuper.prototype:me.constructor.superProt;
-        	var sMethod=arguments.callee.caller.$name;
+        	var fCaller=arguments.callee.caller;
+        	var oCallerSuper=fCaller.$owner.superProto;
+        	oSuper=oSuper?oSuper.prototype:(oCallerSuper||me.constructor.superProto);
+        	var sMethod=fCaller.$name;
         	if(oSuper){
         		var fMethod=oSuper[sMethod];
         		if(Object.isFunction(fMethod)){
-        			return fMethod.apply(me,aArgs);
+        			if(aArgs){
+	        			return fMethod.apply(me,aArgs);
+        			}else{
+        				return fMethod.call(me);
+        			}
         		}
         	}
         };
@@ -729,7 +736,8 @@ handy.add('Object',function($H){
     	var aCover=oOptions?oOptions.cover:null;
     	var bNotClone=oOptions?oOptions.notClone:false;
     	//如果是类扩展，添加方法元数据
-    	var bAddMeta=!!oDestination.callSuper;
+    	var oConstructor=oDestination.constructor;
+    	var bAddMeta=oConstructor.$isClass;
         for (var sProperty in oSource) {
         	//仅覆盖oOptions.cover中的属性
         	if(!aCover||Object.contains(aCover,sProperty)){
@@ -746,8 +754,10 @@ handy.add('Object',function($H){
 		        	}
 		            if (!bNotCover) {
 		            	var value=bNotClone?oSource[sProperty]:Object.clone(oSource[sProperty]);
+		            	//为方法添加元数据：方法名和声明此方法的类
 						if(bAddMeta&&Object.isFunction(value)){
 							value.$name=sProperty;
+							value.$owner=oConstructor;
 						}
 						oDestination[sProperty] = value;
 		            }
@@ -767,16 +777,16 @@ handy.add('Object',function($H){
     * @return {Object} 扩展后的类
     */
     function fMix(oChild, oParent, oExtend, oPrototypeExtend) {
-        if (!oChild.superProt) {
-            oChild.superProt = {};
+        if (!oChild.superProto) {
+            oChild.superProto = {};
         }
         for (var sProperty in oParent) {
             if(Object.isFunction(oParent[sProperty])){// 如果是方法
-                if(!oChild.superProt[sProperty]){// superProt里面没有对应的方法，直接指向父类方法
-                    oChild.superProt[sProperty] = oParent[sProperty];
-                }else{// superProt里有对应方法，需要新建一个function依次调用
-                    var _function = oChild.superProt[sProperty];
-                    oChild.superProt[sProperty] = function (_property, fFunc) {
+                if(!oChild.superProto[sProperty]){// superProto里面没有对应的方法，直接指向父类方法
+                    oChild.superProto[sProperty] = oParent[sProperty];
+                }else{// superProto里有对应方法，需要新建一个function依次调用
+                    var _function = oChild.superProto[sProperty];
+                    oChild.superProto[sProperty] = function (_property, fFunc) {
 						return function () {
 							fFunc.apply(this, arguments);
 							oParent[_property].apply(this, arguments);
@@ -784,7 +794,7 @@ handy.add('Object',function($H){
                     }(sProperty, _function);
                 }
             }else{// 类属性，直接复制
-                oChild.superProt[sProperty] = oParent[sProperty];
+                oChild.superProto[sProperty] = oParent[sProperty];
             }
             if(!oChild[sProperty]){// 子类没有父类的方法或属性，直接拷贝
                 oChild[sProperty] = oParent[sProperty];
@@ -795,7 +805,7 @@ handy.add('Object',function($H){
         }
         // toString 单独处理
         if (oParent.toString != oParent.constructor.prototype.toString) {
-            oChild.superProt.toString = function () {
+            oChild.superProto.toString = function () {
                 oParent.toString.apply(oChild, arguments);
             };
         }
@@ -832,7 +842,7 @@ handy.add('Object',function($H){
         //重新覆盖constructor
         oChild.prototype.constructor = oChild;
         oChild.superClass = oParent;
-        oChild.superProt = oParent.prototype;
+        oChild.superProto = oParent.prototype;
         //额外的继承动作
         if(oParent._onInherit){
             try{
@@ -2865,7 +2875,7 @@ handy.add('Support',function($H){
 		}else{
 			sCls="hui-pc";
 		}
-		document.documentElement.className+=sCls;
+		document.documentElement.className+=" "+sCls;
 	}
 	
 	return Support;
@@ -3012,7 +3022,10 @@ $Define("c.ComponentManager", function() {
 			oEl=$(oEl);
 			var sId=oEl.attr('id');
 			var oCmp=CM.get(sId);
-			fCall(oCmp);
+			//如果未被销毁，执行回调
+			if(oCmp){
+				fCall(oCmp);
+			}
 		})
 	}
 	/**
@@ -3022,10 +3035,7 @@ $Define("c.ComponentManager", function() {
 	 */
 	function fAfterRender(oEl){
 		CM.eachInEl(oEl,function(oCmp){
-			//只需要调用祖先组件，后辈的方法会通过callChild调用
-			if(!oCmp.parent){
-				oCmp.afterRender();
-			}
+			oCmp.afterRender();
 		});
 	}
 	/**
@@ -3035,10 +3045,7 @@ $Define("c.ComponentManager", function() {
 	 */
 	function fDestroy(oRemoveEl){
 		CM.eachInEl(oRemoveEl,function(oCmp){
-			//只需要调用祖先组件，后辈的方法会通过callChild调用
-			if(!oCmp.parent){
-				oCmp.destroy(true);
-			}
+			oCmp.destroy(true);
 		});
 	}
 	/**
@@ -3129,10 +3136,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 //		html                : null,              //组件html
 //		rendered            : false,             //是否已渲染
 //      showed              : false,             //是否已显示
-//		destroyed           : false,             //是否已销毁
 //		children            : [],                //子组件
-//		isSuspend           : false,             //是否挂起事件
-//		_container          : null,              //组件容器节点
 //      listeners           : [],                //类事件配置
 //		_listeners          : {},                //实例事件池  
 		_customEvents       : [                  //自定义事件,可以通过参数属性的方式直接进行添加
@@ -3147,7 +3151,6 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		initHtml            : fInitHtml,         //初始化html
 		initStyle           : fInitStyle,        //初始化样式
 		getId               : fGetId,            //获取组件id
-		getEl               : fGetEl,            //获取组件节点
 		getHtml             : fGetHtml,          //获取组件或子组件html
 		getExtCls           : fGetExtCls,        //生成通用样式
 		afterRender         : fAfterRender,      //渲染后续工作
@@ -3352,14 +3355,6 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	function fGetId(){
 		var me=this;
 		return me._id||(me._id=CM.generateId(me.cid));
-	}
-	/**
-	 * 获取组件节点
-	 * @method getEl
-	 * @return {jQuery} 返回组件节点
-	 */
-	function fGetEl(){
-		return this._container;
 	}
 	/**
 	 * 获取组件或子组件html
@@ -3593,7 +3588,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	 */
 	function fInitListeners(){
 		var me=this;
-		if(me.callSuper(AbstractView)!=false){
+		if(me.callSuper()!=false){
 			me.callChild();
 		}
 	}
@@ -3603,7 +3598,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	 */
 	function fClearListeners(){
 		var me=this;
-		if(me.callSuper(AbstractView)!=false){
+		if(me.callSuper()!=false){
 			me.callChild();
 		}
 	}
@@ -3613,7 +3608,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	 */
 	function fSuspendListeners(){
 		var me=this;
-		if(me.callSuper(AbstractView)!=false){
+		if(me.callSuper()!=false){
 			me.callChild();
 		}
 	}
@@ -3623,7 +3618,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	 */
 	function fResumeListeners(){
 		var me=this;
-		if(me.callSuper(AbstractView)!=false){
+		if(me.callSuper()!=false){
 			me.callChild();
 		}
 	}
@@ -3631,10 +3626,30 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	 * 遍历子组件
 	 * @method each
      * @param {function}fCallback 回调函数:fCallback(i,oChild)|fCallback(args)this=oChild,返回false时退出遍历
-     * @param {*}args  回调函数的参数
+     * @param {Array=}aArgs  回调函数的参数
 	 */
-	function fEach(fCallback, args){
-		$HO.each(this.children,fCallback, args);
+	function fEach(fCallback, aArgs){
+		var me=this;
+		var aChildren=this.children;
+		var nLen=aChildren.length;
+		var bResult;
+		for(var i=0;i<nLen;){
+			var oChild=aChildren[i];
+			if(aArgs){
+				bResult=fCallback.apply(oChild,aArgs);
+			}else{
+				bResult=fCallback(i,oChild);
+			}
+			if(bResult===false){
+				break;
+			}
+			//这里注意aChildren可能由于调用destroy而减少
+			if(nLen==aChildren.length){
+				i++;
+			}else{
+				nLen=aChildren.length;
+			}
+		}
 	}
 	/**
 	 * 匹配选择器
@@ -3740,21 +3755,20 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	 * @param {Array=}aArgs 参数数组
 	 */
 	function fCallChild(sMethod,aArgs){
-		var aChildren=this.children;
+		var me=this;
 		//没传方法名
-		if($HO.isArray(sMethod)){
+		if(sMethod&&typeof sMethod!='string'){
 			aArgs=sMethod;
 			sMethod=null;
 		}
 		sMethod=sMethod||arguments.callee.caller.$name;
-		for(var i=0,len=aChildren.length;i<len;i++){
-			var oChild=aChildren[i];
+		me.each(function(i,oChild){
 			if(aArgs){
 				oChild[sMethod].apply(oChild,aArgs);
 			}else{
 				oChild[sMethod].call(oChild);
 			}
-		}
+		});
 	}
 	/**
 	 * 添加子组件
@@ -3843,22 +3857,26 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	/**
 	 * 销毁组件
 	 * @method destroy
+	 * @return {boolean=}如果已经销毁了，则直接返回false
 	 */
 	function fDestroy(){
 		var me=this;
+		if(me.destroyed){
+			return false;
+		}
 		me.callChild();
-		me.fire('destroy');
-		me.clearListeners();
+		me.callSuper();
+		if(me.parent){
+			me.parent.remove(me);
+		}
 		//注销组件
 		CM.unregister(me);
-		me.getEl().remove();
 		delete me.params;
 		delete me.settings;
 		delete me._container;
 		delete me.renderTo;
 		delete me._listeners;
 		delete me.children;
-		me.destroyed=true;
 	}
 		
 	return AC;
@@ -3919,8 +3937,8 @@ function(AC){
 		}else if(typeof showPos=="function"){
 			showPos.call(me);
 		}
-		//指定父类，避免死循环，如果是父组件通过callChild调用的会有参数，要传进去
-		me.callSuper(Popup.superClass,arguments);
+		//如果是父组件通过callChild调用的会有参数，要传进去
+		me.callSuper(arguments);
 		//定时隐藏
 		if(me.timeout){
 			setTimeout(function(){
@@ -3940,7 +3958,7 @@ function(AC){
 		var oEl=me.getEl();
 		var oDoc=document;
 		var x = ((oDoc.documentElement.offsetWidth || oDoc.body.offsetWidth) - oEl.width())/2;
-		var y = ((oDoc.documentElement.clientHeight || oDoc.body.clientHeight) - oEl.height())/2 + oDoc.body.scrollTop;
+		var y = ((oDoc.documentElement.clientHeight || oDoc.body.clientHeight) - oEl.height())/2 + oDoc.documentElement.scrollTop;
 		y = y < 10 ? window.screen.height/2-200 : y;
 		oEl.css({
 			left:x + "px",
@@ -4718,9 +4736,9 @@ function(AC){
 		if(oItem.xtype=='Button'){
 			oItem.shadowSurround=true;
 			if(oItem.pos=='left'){
-				oItem.extCls=(oItem.extCls||"")+'hui-tbar-btn-left';
+				oItem.extCls=(oItem.extCls||"")+' hui-tbar-btn-left';
 			}else if(oItem.pos=="right"){
-				oItem.extCls=(oItem.extCls||"")+'hui-tbar-btn-right';
+				oItem.extCls=(oItem.extCls||"")+' hui-tbar-btn-right';
 			}
 		}
 	}
@@ -4899,8 +4917,10 @@ function(AC,Popup){
 				items:!me.noClose&&{
 					xtype:'Button',
 					radius:'big',
-					extCls:'hui-tbar-btn-left',
 					icon:'delete',
+					isMini:false,
+					theme:'gray',
+					pos:'left',
 					click:function(){
 						me.hide();
 					}
@@ -5040,7 +5060,6 @@ $Define("m.AbstractModule","cm.AbstractView",function (AbstractView) {
 	
 	$HO.inherit(AbstractModule,AbstractView,null, {
 		
-//		_container     : null,           //{jQuery}模块的容器对象
 //		isLoaded       : false,          //{boolean}模块是否已载入
 //		isActived      : false,          //{boolean}模块是否是当前活跃的
 //		renderTo       : null,           //自定义模块容器，{jQuery}对象或选择器
@@ -5060,8 +5079,7 @@ $Define("m.AbstractModule","cm.AbstractView",function (AbstractView) {
 		reset          : function(){},   //重置函数, 在该模块里进入该模块时调用
 		exit           : function(){return true},   //离开该模块前调用, 返回true允许离开, 否则不允许离开
 		destroy        : fDestroy,       //模块销毁
-		getHtml        : fGetHtml,       //获取该模块的html
-		getEl          : fGetEl          //获取模块的容器节点
+		getHtml        : fGetHtml        //获取该模块的html
 	});
 	/**
 	 * 构造函数
@@ -5097,13 +5115,6 @@ $Define("m.AbstractModule","cm.AbstractView",function (AbstractView) {
 		//由模板生成组件html
 		var sHtml=$H.Template.tmpl({id:me.name,tmpl:me.tmpl},me);
 		return sHtml;
-	}
-	/**
-	 * 获取模块的容器节点
-	 * @method getEl
-	 */
-	function fGetEl(){
-		return this._container;
 	}
 	
 	return AbstractModule;
@@ -5436,14 +5447,8 @@ function(History){
 	 */
 	function _fDestroy(oMod){
 		var me=this;
-		var oModules=me.modules;
-		for(var module in oModules){
-			if(oMod.name==module){
-				delete oModules[module];
-				break;
-			}
-		}
 		oMod.destroy();
+		delete me.modules[oMod.name];
 	}
 	/**
 	 * 初始化模块管理
