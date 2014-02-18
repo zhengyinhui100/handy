@@ -554,10 +554,30 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	 * 遍历子组件
 	 * @method each
      * @param {function}fCallback 回调函数:fCallback(i,oChild)|fCallback(args)this=oChild,返回false时退出遍历
-     * @param {*}args  回调函数的参数
+     * @param {Array=}aArgs  回调函数的参数
 	 */
-	function fEach(fCallback, args){
-		$HO.each(this.children,fCallback, args);
+	function fEach(fCallback, aArgs){
+		var me=this;
+		var aChildren=this.children;
+		var nLen=aChildren.length;
+		var bResult;
+		for(var i=0;i<nLen;){
+			var oChild=aChildren[i];
+			if(aArgs){
+				bResult=fCallback.apply(oChild,aArgs);
+			}else{
+				bResult=fCallback(i,oChild);
+			}
+			if(bResult===false){
+				break;
+			}
+			//这里注意aChildren可能由于调用destroy而减少
+			if(nLen==aChildren.length){
+				i++;
+			}else{
+				nLen=aChildren.length;
+			}
+		}
 	}
 	/**
 	 * 匹配选择器
@@ -663,21 +683,20 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	 * @param {Array=}aArgs 参数数组
 	 */
 	function fCallChild(sMethod,aArgs){
-		var aChildren=this.children;
+		var me=this;
 		//没传方法名
-		if($HO.isArray(sMethod)){
+		if(sMethod&&typeof sMethod!='string'){
 			aArgs=sMethod;
 			sMethod=null;
 		}
 		sMethod=sMethod||arguments.callee.caller.$name;
-		for(var i=0,len=aChildren.length;i<len;i++){
-			var oChild=aChildren[i];
+		me.each(function(i,oChild){
 			if(aArgs){
 				oChild[sMethod].apply(oChild,aArgs);
 			}else{
 				oChild[sMethod].call(oChild);
 			}
-		}
+		});
 	}
 	/**
 	 * 添加子组件
@@ -766,13 +785,20 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	/**
 	 * 销毁组件
 	 * @method destroy
+	 * @return {boolean=}如果已经销毁了，则直接返回false
 	 */
 	function fDestroy(){
 		var me=this;
+		if(me.destroyed){
+			return false;
+		}
 		me.callChild();
+		me.callSuper();
+		if(me.parent){
+			me.parent.remove(me);
+		}
 		//注销组件
 		CM.unregister(me);
-		me.callSuper();
 		delete me.params;
 		delete me.settings;
 		delete me._container;

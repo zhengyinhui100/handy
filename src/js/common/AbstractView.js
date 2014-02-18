@@ -124,7 +124,7 @@ $Define('cm.AbstractView',function(){
 	function fUnlisten(oEvent){
 		var me=this,
 			sType=oEvent.type,
-			oEl=oEvent.el||me.getEl(),
+			oEl=oEvent.el,
 			sMethod=oEvent.method=="delegate"?"undelegate":"unbind",
 			sSel=oEvent.selector,
 			fDelegation;
@@ -134,6 +134,7 @@ $Define('cm.AbstractView',function(){
 				sType="touchend";
 			}
 		}
+		oEl=oEl?typeof oEl=='string'?me.find(oEl):oEl:me.getEl();
 		for(var i=me._listeners.length-1;i>=0;i--){
 			var oListener=me._listeners[i]
 			if(oListener.handler==oEvent.handler){
@@ -195,7 +196,7 @@ $Define('cm.AbstractView',function(){
 	/**
 	 * 恢复事件
 	 * @method resumeListeners
-	 * @return {boolean=}如果已经初恢复了，则直接返回false
+	 * @return {boolean=}如果已经恢复了，则直接返回false
 	 */
 	function fResumeListeners(){
 		var me=this;
@@ -208,9 +209,13 @@ $Define('cm.AbstractView',function(){
 	/**
 	 * 销毁
 	 * @method destroy
+	 * @return {boolean=}如果已经销毁了，则直接返回false
 	 */
 	function fDestroy(){
 		var me=this;
+		if(me.destroyed){
+			return false;
+		}
 		me.fire('destroy');
 		me.clearListeners();
 		me.getEl().remove();

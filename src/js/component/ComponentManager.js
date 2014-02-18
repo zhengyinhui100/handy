@@ -99,7 +99,10 @@ $Define("c.ComponentManager", function() {
 			oEl=$(oEl);
 			var sId=oEl.attr('id');
 			var oCmp=CM.get(sId);
-			fCall(oCmp);
+			//如果未被销毁，执行回调
+			if(oCmp){
+				fCall(oCmp);
+			}
 		})
 	}
 	/**
@@ -109,10 +112,7 @@ $Define("c.ComponentManager", function() {
 	 */
 	function fAfterRender(oEl){
 		CM.eachInEl(oEl,function(oCmp){
-			//只需要调用祖先组件，后辈的方法会通过callChild调用
-			if(!oCmp.parent){
-				oCmp.afterRender();
-			}
+			oCmp.afterRender();
 		});
 	}
 	/**
@@ -122,10 +122,7 @@ $Define("c.ComponentManager", function() {
 	 */
 	function fDestroy(oRemoveEl){
 		CM.eachInEl(oRemoveEl,function(oCmp){
-			//只需要调用祖先组件，后辈的方法会通过callChild调用
-			if(!oCmp.parent){
-				oCmp.destroy(true);
-			}
+			oCmp.destroy(true);
 		});
 	}
 	/**
