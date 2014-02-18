@@ -79,7 +79,6 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		initHtml            : fInitHtml,         //初始化html
 		initStyle           : fInitStyle,        //初始化样式
 		getId               : fGetId,            //获取组件id
-		getEl               : fGetEl,            //获取组件节点
 		getHtml             : fGetHtml,          //获取组件或子组件html
 		getExtCls           : fGetExtCls,        //生成通用样式
 		afterRender         : fAfterRender,      //渲染后续工作
@@ -284,14 +283,6 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	function fGetId(){
 		var me=this;
 		return me._id||(me._id=CM.generateId(me.cid));
-	}
-	/**
-	 * 获取组件节点
-	 * @method getEl
-	 * @return {jQuery} 返回组件节点
-	 */
-	function fGetEl(){
-		return this._container;
 	}
 	/**
 	 * 获取组件或子组件html
@@ -525,7 +516,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	 */
 	function fInitListeners(){
 		var me=this;
-		if(me.callSuper(AbstractView)!=false){
+		if(me.callSuper()!=false){
 			me.callChild();
 		}
 	}
@@ -535,7 +526,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	 */
 	function fClearListeners(){
 		var me=this;
-		if(me.callSuper(AbstractView)!=false){
+		if(me.callSuper()!=false){
 			me.callChild();
 		}
 	}
@@ -545,7 +536,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	 */
 	function fSuspendListeners(){
 		var me=this;
-		if(me.callSuper(AbstractView)!=false){
+		if(me.callSuper()!=false){
 			me.callChild();
 		}
 	}
@@ -555,7 +546,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	 */
 	function fResumeListeners(){
 		var me=this;
-		if(me.callSuper(AbstractView)!=false){
+		if(me.callSuper()!=false){
 			me.callChild();
 		}
 	}
@@ -779,18 +770,15 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	function fDestroy(){
 		var me=this;
 		me.callChild();
-		me.fire('destroy');
-		me.clearListeners();
 		//注销组件
 		CM.unregister(me);
-		me.getEl().remove();
+		me.callSuper();
 		delete me.params;
 		delete me.settings;
 		delete me._container;
 		delete me.renderTo;
 		delete me._listeners;
 		delete me.children;
-		me.destroyed=true;
 	}
 		
 	return AC;

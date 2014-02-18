@@ -54,8 +54,8 @@ function(AC){
 		}else if(typeof showPos=="function"){
 			showPos.call(me);
 		}
-		//指定父类，避免死循环，如果是父组件通过callChild调用的会有参数，要传进去
-		me.callSuper(Popup.superClass,arguments);
+		//如果是父组件通过callChild调用的会有参数，要传进去
+		me.callSuper(arguments);
 		//定时隐藏
 		if(me.timeout){
 			setTimeout(function(){
@@ -75,7 +75,7 @@ function(AC){
 		var oEl=me.getEl();
 		var oDoc=document;
 		var x = ((oDoc.documentElement.offsetWidth || oDoc.body.offsetWidth) - oEl.width())/2;
-		var y = ((oDoc.documentElement.clientHeight || oDoc.body.clientHeight) - oEl.height())/2 + oDoc.body.scrollTop;
+		var y = ((oDoc.documentElement.clientHeight || oDoc.body.clientHeight) - oEl.height())/2 + oDoc.documentElement.scrollTop;
 		y = y < 10 ? window.screen.height/2-200 : y;
 		oEl.css({
 			left:x + "px",

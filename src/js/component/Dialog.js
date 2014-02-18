@@ -138,8 +138,10 @@ function(AC,Popup){
 				items:!me.noClose&&{
 					xtype:'Button',
 					radius:'big',
-					extCls:'hui-tbar-btn-left',
 					icon:'delete',
+					isMini:false,
+					theme:'gray',
+					pos:'left',
 					click:function(){
 						me.hide();
 					}

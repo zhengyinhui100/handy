@@ -41,9 +41,9 @@ function(AC){
 		if(oItem.xtype=='Button'){
 			oItem.shadowSurround=true;
 			if(oItem.pos=='left'){
-				oItem.extCls=(oItem.extCls||"")+'hui-tbar-btn-left';
+				oItem.extCls=(oItem.extCls||"")+' hui-tbar-btn-left';
 			}else if(oItem.pos=="right"){
-				oItem.extCls=(oItem.extCls||"")+'hui-tbar-btn-right';
+				oItem.extCls=(oItem.extCls||"")+' hui-tbar-btn-right';
 			}
 		}
 	}
