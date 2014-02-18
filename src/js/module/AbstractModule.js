@@ -14,7 +14,6 @@ $Define("m.AbstractModule","cm.AbstractView",function (AbstractView) {
 	
 	$HO.inherit(AbstractModule,AbstractView,null, {
 		
-//		_container     : null,           //{jQuery}模块的容器对象
 //		isLoaded       : false,          //{boolean}模块是否已载入
 //		isActived      : false,          //{boolean}模块是否是当前活跃的
 //		renderTo       : null,           //自定义模块容器，{jQuery}对象或选择器
@@ -34,8 +33,7 @@ $Define("m.AbstractModule","cm.AbstractView",function (AbstractView) {
 		reset          : function(){},   //重置函数, 在该模块里进入该模块时调用
 		exit           : function(){return true},   //离开该模块前调用, 返回true允许离开, 否则不允许离开
 		destroy        : fDestroy,       //模块销毁
-		getHtml        : fGetHtml,       //获取该模块的html
-		getEl          : fGetEl          //获取模块的容器节点
+		getHtml        : fGetHtml        //获取该模块的html
 	});
 	/**
 	 * 构造函数
@@ -71,13 +69,6 @@ $Define("m.AbstractModule","cm.AbstractView",function (AbstractView) {
 		//由模板生成组件html
 		var sHtml=$H.Template.tmpl({id:me.name,tmpl:me.tmpl},me);
 		return sHtml;
-	}
-	/**
-	 * 获取模块的容器节点
-	 * @method getEl
-	 */
-	function fGetEl(){
-		return this._container;
 	}
 	
 	return AbstractModule;
