@@ -49,7 +49,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 				oDebugDiv.style.fontSize = '12px';
 				oDebugDiv.style.padding = '10px';
 				oDebugDiv.style.overflow = 'auto';
-				oDebugDiv.style.zIndex = 9999999;
+				oDebugDiv.style.zIndex = 99999999;
 				oDebugDiv.style.opacity=0.5;
 				oDebugDiv.style.filter="alpha(opacity=50)";
 				oDocument.body.appendChild(oDebugDiv);
