@@ -726,7 +726,7 @@
   border-bottom: 1px solid #ccc;
 }
 .hui-set .hui-set-content {
-  margin: 2em;
+  margin: 2em .7em;
 }
 .hui-tbar {
   position: relative;
