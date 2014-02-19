@@ -1,7 +1,6 @@
 // css reset
 html,body{
-	//如果html和body同时设置overflow:hidden，页面滚动只能在div上设置overflow:auto实现，
-	//这时Android下当input聚焦时，滚动页面，input位置错乱，因此，只能利用body滚动
+	//在div上设置overflow:auto实现滚动时，Android下当input聚焦时，滚动页面，input位置错乱，因此，只能利用html或body设置滚动
 	height:100%;
 }
 html, body, div, span, applet, object, iframe,
@@ -54,6 +53,18 @@ img{
 	border: none;
 }
 a:focus,a:active{border:none;outline:none;}
+*, *:after, *:before {
+-webkit-box-sizing: border-box;
+-moz-box-sizing: border-box;
+box-sizing: border-box;
+-webkit-tap-highlight-color: rgba(0,0,0,0);
+-webkit-touch-callout: none;
+-webkit-user-drag: none;
+-webkit-user-select: none;
+-ms-user-select: none;
+-ms-touch-action: none;
+-moz-user-select: -moz-none;
+}
 input[type="text"]{-webkit-appearance:none}/* ipad/iphone设备input有阴影 */
 /*
 http://www.w3cplus.com/content/css3-box-sizing

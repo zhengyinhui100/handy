@@ -405,7 +405,6 @@
 
 //输入框
 .hui-input{
-	padding: 0 .4em;
 	position: relative;
 	border: 1px solid #aaa;
 	color: #333;
@@ -415,13 +414,15 @@
 	.hui-input-txt,textarea{
 		border: 0;
 		width: 100%;
-		padding: .4em 0;
+		padding: .4em;
 		margin: 0;
 		background: transparent none;
 		-webkit-appearance: none;
 		min-height: 1.4em;
 		line-height: 1.4em;
 		font-size: 16px;
+		.fn_box_sizing(border-box);
+		outline:none;
 		&:focus{
 			outline:none;
 		}
@@ -430,15 +431,10 @@
 		}
 	}
 	textarea{
-		outline: 0;
 		height:2.8em;
-		//add resize: none; and padding: 0 works for chrome bug:有padding时在WebKit浏览器中scroll计算不准确
 		resize:none;
-		padding:0;
-		margin: .4em 0;
+		display:block;
     	.fn_transition(height 200ms linear);
-    	.fn_box_sizing();
-    	overflow:hidden;
 	}
 }
 .hui-input-icon-left{
