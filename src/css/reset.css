@@ -93,6 +93,7 @@ select {
 }
 body {
   position: relative;
+  font-family: Arial;
 }
 body,
 input,
@@ -134,16 +135,6 @@ table {
 }
 img {
   border: none;
-}
-*,
-*:focus,
-*:active {
-  outline: none;
-}
-a,
-input,
-textarea {
-  outline: none;
 }
 a:focus,
 a:active {
@@ -201,11 +192,24 @@ oder:
 */
 @media only screen and (max-width: 999px) {
   html {
-    font-family: Helvetica, Arial, sans-serif;
+    font-family: "Helvetica Neue", Helvetica, STHeiTi, sans-serif;
   }
 }
 @media only screen and (min-width: 999px) {
   html {
     font-family: Arial;
+  }
+  a,
+  img {
+    -webkit-touch-callout: none;
+    /* 禁止长按链接与图片弹出菜单 */
+  
+  }
+  html,
+  body {
+    -webkit-user-select: none;
+    /* 禁止选中文本（如无文本选中需求，此为必选项） */
+  
+    user-select: none;
   }
 }
