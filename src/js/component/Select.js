@@ -15,6 +15,7 @@ function(AC){
 //		name            : '',                  //选项名
 		text            : '请选择...',          //为选择时的文字
 		value           : '',                  //默认值
+		radius          : 'little',
 //		options         : [{text:"文字",value:"值"}],    //选项
 		optionClick     : function(){},
 		defItem         : {
