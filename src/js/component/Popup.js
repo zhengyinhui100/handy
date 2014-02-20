@@ -35,11 +35,48 @@ function(AC){
 			}
 		}],
 		
+		doConfig         : fDoConfig,        //初始化配置
 		show             : fShow,            //显示
 		center           : fCenter,          //居中显示
 		underEl          : fUnderEl          //根据指定节点显示
 	});
-	
+	/**
+	 * 初始化配置
+	 * @method doConfig
+	 */
+	function fDoConfig(oParam){
+		var me=this;
+		me.callSuper([oParam]);
+		//Android下弹出遮罩层时，点击仍能聚焦到到输入框，暂时只能在弹出时disable掉，虽然能避免聚焦及弹出输入法，
+		//不过，仍旧会有光标竖线停留在点击的输入框里，要把延迟加到几秒之后才能避免，但又会影响使用
+		if($H.Browser.android()){
+			me._listeners.push({
+				type:'show',
+				notEl:true,
+				handler:function(){
+					//外部可以通过监听器自行处理这个问题，只需要返回true即可不调用此处的方法
+					var bHasDone=$H.Listener.fire("component.popup.show");
+					if(bHasDone!=true){
+						$("input,textarea,select").attr("disabled","disabled");
+					}
+				}
+			});
+			me._listeners.push({
+				type:'hide',
+				notEl:true,
+				handler:function(){
+					//外部可以通过监听器自行处理这个问题，只需要返回true即可不调用此处的方法
+					var bHasDone=$H.Listener.fire("component.popup.hide");
+					if(bHasDone!=true){
+						//ps:这里延迟300ms执行还是有可能会有聚焦效果，所以设个保险的500ms
+						setTimeout(function(){
+							$("input,textarea,select").removeAttr("disabled");
+						},500);
+					}
+				}
+			});
+		}
+	}
 	/**
 	 * 显示
 	 * @method show

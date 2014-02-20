@@ -402,16 +402,17 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	 * @method show
 	 * @param {boolean=}bNotDelay 仅当为true时强制不延迟显示
 	 * @param {boolean=}bParentCall true表示是父组件通过callChild调用
+	 * @return {boolean=} 仅当不是正常成功显示时返回false
 	 */
 	function fShow(bNotDelay,bParentCall){
 		var me=this;
 		//已经显示，直接退回
 		if(me.showed){
-			return;
+			return false;
 		}
 		if(bParentCall&&me.hidden){
 			//设置了hidden=true的组件不随父组件显示而显示
-			return;
+			return false;
 		}
 		if(!bNotDelay&&me.delayShow){
 			setTimeout(function(){
