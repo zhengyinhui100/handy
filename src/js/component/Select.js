@@ -22,12 +22,7 @@ function(AC){
 			xtype       : 'Menu',
 			hidden      : true,
 			markType    : 'dot',
-			renderTo    : "body",              //子组件须设置renderTo才会自动render
-			showPos     : function(){
-				var me=this;
-				//菜单显示在选择框下面
-				me.underEl(me.parent.getEl());
-			}
+			renderTo    : "body"              //子组件须设置renderTo才会自动render
 		},
 		
 		_customEvents   : ['change'],
