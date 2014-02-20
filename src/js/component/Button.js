@@ -22,8 +22,7 @@ function(AC){
 //		isBack          : false,               //是否是后退按钮
 		
 		defItem         : {
-			xtype       : 'Icon',
-			hasBg       : true
+			xtype       : 'Icon'
 		},
 		
 		////通用效果
@@ -36,7 +35,7 @@ function(AC){
 							'if(this.isBack){%> hui-btn-back<%}',
 							'if(this.hasIcon&&this.text){%> hui-btn-icon-<%=this.iconPos%><%}%>">',
 							'<span class="hui-btn-txt"><%=this.text%></span>',
-							'<%=this.getHtml(">*")%>',
+							'<%=this.getHtml("$>*")%>',
 							'</a>'],
 							
 		parseItem       : fParseItem           //分析处理子组件

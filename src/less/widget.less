@@ -343,6 +343,14 @@
 	}
 }
 
+//弹出层
+.hui-popup{
+	position:absolute;
+	z-index: 1000;
+	//fix android z-index失效
+	-webkit-transform:translateZ(0);
+}
+
 //菜单
 .hui-menu{
 	.hui-popup();
@@ -395,12 +403,6 @@
 	input{
 		display:none;
 	}
-}
-
-//弹出层
-.hui-popup{
-	position:absolute;
-	z-index: 1000;
 }
 
 //输入框
@@ -577,7 +579,7 @@
 }
 //提示
 .hui-tips{
-	position:absolute;
+	.hui-popup();
 	z-index:99999;
 	padding:0.8em 1.5em;
 	text-align:center;
@@ -621,10 +623,10 @@
 }
 //对话框
 .hui-dialog{
+	.hui-popup();
 	width: 92.5%;
 	max-width: 500px;
 	padding: 0;
-	position: absolute;
 	top: -15px;
 	z-index: 1000;
 	.hui-dialog-header{

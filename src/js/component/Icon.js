@@ -12,10 +12,19 @@ function(AC){
 	
 	Icon.extend({
 		//初始配置
-		hasBg           : true,               //是否有背景
-//		name            : '',                  //图标名称
+//		noBg            : false,              //是否取消背景
+//		isAlt           : false,              //是否使用深色图标
+//		name            : '',                 //图标名称
 		
-		tmpl            : ['<span class="hui-icon hui-icon-<%=this.name%><%if(this.hasBg){%> hui-icon-bg<%}%>"></span>']
+		tmpl            : [
+			'<span class="hui-icon',
+			'<%if(this.isAlt){%>',
+				' hui-alt-icon',
+			'<%}%>',
+			' hui-icon-<%=this.name%>',
+			'<%if(!this.noBg){%>',
+			' hui-icon-bg',
+			'<%}%>"></span>']
 		
 	});
 	

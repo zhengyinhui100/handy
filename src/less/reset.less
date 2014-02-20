@@ -1,11 +1,4 @@
 // css reset
-html,body{
-	//在div上设置overflow:auto实现滚动时，Android下当input聚焦时，滚动页面，input位置错乱，因此，只能利用html或body设置滚动
-	height:100%;
-}
-html{
-	overflow:hidden;
-}
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
@@ -25,14 +18,18 @@ time, mark, audio, video,select {
 	font-size: 1em; 
 	vertical-align: baseline;
 }
-body{
+html{
+	//在body或div上设置overflow:auto实现滚动时，Android下当input聚焦时，滚动页面，input位置错乱，因此，只能利用html或body设置滚动
+	height:100%;
 	overflow-x:hidden;
-	overflow-y:auto
+	overflow-y:auto;
+}
+body{
+	min-height:100%;
 	position:relative;
     font-family:Arial;
 }
 
-body,input,textarea{font-family:arial}
 /* HTML5 display-role reset for older browsers */
 article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
@@ -130,9 +127,5 @@ oder:
 	}
 	a, img {
     	-webkit-touch-callout: none; /* 禁止长按链接与图片弹出菜单 */
-	}
-	html, body {
-    	-webkit-user-select: none;   /* 禁止选中文本（如无文本选中需求，此为必选项） */
-    	user-select: none;
 	}
 }

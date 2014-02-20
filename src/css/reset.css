@@ -1,11 +1,4 @@
 html,
-body {
-  height: 100%;
-}
-html {
-  overflow: hidden;
-}
-html,
 body,
 div,
 span,
@@ -93,16 +86,15 @@ select {
   font-size: 1em;
   vertical-align: baseline;
 }
-body {
+html {
+  height: 100%;
   overflow-x: hidden;
-  overflow-y: auto
-	position:relative;
-  font-family: Arial;
+  overflow-y: auto;
 }
-body,
-input,
-textarea {
-  font-family: arial;
+body {
+  min-height: 100%;
+  position: relative;
+  font-family: Arial;
 }
 /* HTML5 display-role reset for older browsers */
 article,
@@ -225,12 +217,5 @@ oder:
     -webkit-touch-callout: none;
     /* 禁止长按链接与图片弹出菜单 */
   
-  }
-  html,
-  body {
-    -webkit-user-select: none;
-    /* 禁止选中文本（如无文本选中需求，此为必选项） */
-  
-    user-select: none;
   }
 }
