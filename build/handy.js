@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-02-18 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-02-20 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -1346,7 +1346,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 				oDebugDiv.style.fontSize = '12px';
 				oDebugDiv.style.padding = '10px';
 				oDebugDiv.style.overflow = 'auto';
-				oDebugDiv.style.zIndex = 9999999;
+				oDebugDiv.style.zIndex = 99999999;
 				oDebugDiv.style.opacity=0.5;
 				oDebugDiv.style.filter="alpha(opacity=50)";
 				oDocument.body.appendChild(oDebugDiv);
@@ -4157,10 +4157,19 @@ function(AC){
 	
 	Icon.extend({
 		//初始配置
-		hasBg           : true,               //是否有背景
-//		name            : '',                  //图标名称
+//		noBg            : false,              //是否取消背景
+//		isAlt           : false,              //是否使用深色图标
+//		name            : '',                 //图标名称
 		
-		tmpl            : ['<span class="hui-icon hui-icon-<%=this.name%><%if(this.hasBg){%> hui-icon-bg<%}%>"></span>']
+		tmpl            : [
+			'<span class="hui-icon',
+			'<%if(this.isAlt){%>',
+				' hui-alt-icon',
+			'<%}%>',
+			' hui-icon-<%=this.name%>',
+			'<%if(!this.noBg){%>',
+			' hui-icon-bg',
+			'<%}%>"></span>']
 		
 	});
 	
@@ -4190,8 +4199,7 @@ function(AC){
 //		isBack          : false,               //是否是后退按钮
 		
 		defItem         : {
-			xtype       : 'Icon',
-			hasBg       : true
+			xtype       : 'Icon'
 		},
 		
 		////通用效果
@@ -4204,7 +4212,7 @@ function(AC){
 							'if(this.isBack){%> hui-btn-back<%}',
 							'if(this.hasIcon&&this.text){%> hui-btn-icon-<%=this.iconPos%><%}%>">',
 							'<span class="hui-btn-txt"><%=this.text%></span>',
-							'<%=this.getHtml(">*")%>',
+							'<%=this.getHtml("$>*")%>',
 							'</a>'],
 							
 		parseItem       : fParseItem           //分析处理子组件
@@ -4383,24 +4391,20 @@ function(AC){
 //		name            : '',                  //选项名
 		text            : '请选择...',          //为选择时的文字
 		value           : '',                  //默认值
+		radius          : 'little',
 //		options         : [{text:"文字",value:"值"}],    //选项
 		optionClick     : function(){},
 		defItem         : {
 			xtype       : 'Menu',
 			hidden      : true,
 			markType    : 'dot',
-			renderTo    : "body",              //子组件须设置renderTo才会自动render
-			showPos     : function(){
-				var me=this;
-				//菜单显示在选择框下面
-				me.underEl(me.parent.getEl());
-			}
+			renderTo    : "body"              //子组件须设置renderTo才会自动render
 		},
 		
 		_customEvents   : ['change'],
 		tmpl            : [
 			'<div class="hui-select hui-btn hui-btn-gray hui-btn-icon-right">',
-				'<span class="hui-icon hui-icon-carat-d hui-icon-bg"></span>',
+				'<span class="hui-icon hui-alt-icon hui-icon-carat-d hui-light"></span>',
 				'<input value="<%=this.value%>" name="<%=this.name%>"/>',
 				'<span class="hui-btn-txt js-select-txt"><%=this.text%></span>',
 			'</div>'
@@ -4516,7 +4520,7 @@ function(AC){
 			'<%if(this.hasBtn){%>',
 				' hui-input-btn-<%=this.btnPos%>',
 			'<%}%>">',
-			'<%=this.getHtml(">*")%>',
+			'<%=this.getHtml("$>*")%>',
 			'<%if(this.type=="textarea"){%>',
 				'<textarea class="js-input"',
 			'<%}else{%>',
@@ -4524,8 +4528,8 @@ function(AC){
 			'<%}%> ',
 			' name="<%=this.name%>"',
 			'<%if(this.placeholder){%>',
-				' placeholder="<%=this.placeholder%>',
-			'<%}%>"',
+				' placeholder="<%=this.placeholder%>"',
+			'<%}%>',
 			'<%if(this.type=="textarea"){%>',
 				'><%=this.value%></textarea>',
 			'<%}else{%>',

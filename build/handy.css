@@ -1,9 +1,4 @@
-/* Handy v1.0.0-dev | 2014-02-18 | zhengyinhui100@gmail.com */
-html,
-body {
-  overflow: hidden;
-  height: 100%;
-}
+/* Handy v1.0.0-dev | 2014-02-20 | zhengyinhui100@gmail.com */
 html,
 body,
 div,
@@ -92,13 +87,15 @@ select {
   font-size: 1em;
   vertical-align: baseline;
 }
-body {
-  position: relative;
+html {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
-body,
-input,
-textarea {
-  font-family: arial;
+body {
+  min-height: 100%;
+  position: relative;
+  font-family: Arial;
 }
 /* HTML5 display-role reset for older browsers */
 article,
@@ -136,20 +133,27 @@ table {
 img {
   border: none;
 }
-*,
-*:focus,
-*:active {
-  outline: none;
-}
-a,
-input,
-textarea {
-  outline: none;
-}
 a:focus,
 a:active {
   border: none;
   outline: none;
+}
+*,
+*:after,
+*:before {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  -ms-touch-action: none;
+  -moz-user-select: -moz-none;
+}
+input,
+textarea {
+  -webkit-user-select: text;
+  -ms-user-select: auto;
+  -moz-user-select: text;
 }
 input[type="text"] {
   -webkit-appearance: none;
@@ -202,12 +206,18 @@ oder:
 */
 @media only screen and (max-width: 999px) {
   html {
-    font-family: Helvetica, Arial, sans-serif;
+    font-family: "Helvetica Neue", Helvetica, STHeiTi, sans-serif;
   }
 }
 @media only screen and (min-width: 999px) {
   html {
     font-family: Arial;
+  }
+  a,
+  img {
+    -webkit-touch-callout: none;
+    /* 禁止长按链接与图片弹出菜单 */
+  
   }
 }
 .c-left {
@@ -1565,9 +1575,15 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-chkbox input {
   display: none;
 }
+.hui-popup {
+  position: absolute;
+  z-index: 1000;
+  -webkit-transform: translateZ(0);
+}
 .hui-menu {
   position: absolute;
   z-index: 1000;
+  -webkit-transform: translateZ(0);
   border: 1px solid #ccc;
 }
 .hui-menu .hui-btn {
@@ -1622,12 +1638,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-select input {
   display: none;
 }
-.hui-popup {
-  position: absolute;
-  z-index: 1000;
-}
 .hui-input {
-  padding: 0 .4em;
   position: relative;
   border: 1px solid #aaa;
   color: #333;
@@ -1639,25 +1650,13 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-input textarea {
   border: 0;
   width: 100%;
-  padding: .4em 0;
+  padding: .4em;
   margin: 0;
   background: transparent none;
-  outline: 0!important;
   -webkit-appearance: none;
   min-height: 1.4em;
   line-height: 1.4em;
   font-size: 16px;
-}
-.hui-input textarea {
-  outline: 0;
-  height: 2.8em;
-  resize: none;
-  padding: 0;
-  margin: .4em 0;
-  -moz-transition: height 200ms linear;
-  -webkit-transition: height 200ms linear;
-  -o-transition: height 200ms linear;
-  transition: height 200ms linear;
   -moz-box-sizing: border-box;
   /*Firefox3.5+*/
 
@@ -1673,7 +1672,24 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   box-sizing: border-box;
   /*W3C标准(IE9+，Safari5.1+,Chrome10.0+,Opera10.6+都符合box-sizing的w3c标准语法)*/
 
-  overflow: hidden;
+  outline: none;
+}
+.hui-input .hui-input-txt:focus,
+.hui-input textarea:focus {
+  outline: none;
+}
+.hui-input .hui-input-txt:active,
+.hui-input textarea:active {
+  outline: none;
+}
+.hui-input textarea {
+  height: 2.8em;
+  resize: none;
+  display: block;
+  -moz-transition: height 200ms linear;
+  -webkit-transition: height 200ms linear;
+  -o-transition: height 200ms linear;
+  transition: height 200ms linear;
 }
 .hui-input-icon-left {
   padding-left: 40px;
@@ -1727,6 +1743,15 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-form .hui-form-action .hui-btn {
   margin-right: 30px;
+}
+.hui-set .hui-set-title {
+  padding: .4em;
+  text-align: left;
+  font-weight: normal;
+  border-bottom: 1px solid #ccc;
+}
+.hui-set .hui-set-content {
+  margin: 2em .7em;
 }
 .hui-tbar {
   position: relative;
@@ -1833,6 +1858,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-tips {
   position: absolute;
+  z-index: 1000;
+  -webkit-transform: translateZ(0);
   z-index: 99999;
   padding: 0.8em 1.5em;
   text-align: center;
@@ -1909,10 +1936,11 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   background-image: linear-gradient(#ffffff, #f1f1f1);
 }
 .hui-dialog {
+  position: absolute;
+  -webkit-transform: translateZ(0);
   width: 92.5%;
   max-width: 500px;
   padding: 0;
-  position: absolute;
   top: -15px;
   z-index: 1000;
 }
