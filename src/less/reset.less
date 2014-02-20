@@ -3,6 +3,9 @@ html,body{
 	//在div上设置overflow:auto实现滚动时，Android下当input聚焦时，滚动页面，input位置错乱，因此，只能利用html或body设置滚动
 	height:100%;
 }
+html{
+	overflow:hidden;
+}
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
@@ -23,6 +26,8 @@ time, mark, audio, video,select {
 	vertical-align: baseline;
 }
 body{
+	overflow-x:hidden;
+	overflow-y:auto
 	position:relative;
     font-family:Arial;
 }
