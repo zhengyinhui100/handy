@@ -349,11 +349,12 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	/**
 	 * 渲染后续工作
 	 * @method afterRender
+	 * @return {boolean=} 仅当已经完成过渲染时返回false
 	 */
 	function fAfterRender(){
 		var me=this;
 		if(me.rendered){
-			return;
+			return false;
 		}
 		me.callChild();
 		//缓存容器
@@ -378,12 +379,13 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	/**
 	 * 隐藏
 	 * @method hide
+	 * @return {boolean=} 仅当已经隐藏时返回false
 	 */
 	function fHide(){
 		var me=this;
 		//已经隐藏，直接退回
 		if(!me.showed){
-			return;
+			return false;
 		}
 		me.showed=false;
 		var oEl=me.getEl();

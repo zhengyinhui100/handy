@@ -140,6 +140,21 @@ a:active {
 *,
 *:after,
 *:before {
+  -moz-box-sizing: border-box;
+  /*Firefox3.5+*/
+
+  -webkit-box-sizing: border-box;
+  /*Safari3.2+*/
+
+  -o-box-sizing: border-box;
+  /*Opera9.6*/
+
+  -ms-box-sizing: border-box;
+  /*IE8*/
+
+  box-sizing: border-box;
+  /*W3C标准(IE9+，Safari5.1+,Chrome10.0+,Opera10.6+都符合box-sizing的w3c标准语法)*/
+
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-touch-callout: none;
   -webkit-user-drag: none;
@@ -172,11 +187,7 @@ http://www.w3cplus.com/content/css3-box-sizing
 	padding: 0;
 	border-width: 1px;
 	height: 17px;
-	-moz-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
-	-o-box-sizing: border-box;
-	-ms-box-sizing: border-box;
-	box-sizing: border-box;
+	//.fn_box_sizing(border-box);
 	//IE6、7不支持box-sizing
 	*height:15px; 
     *width: 15px;
@@ -186,11 +197,6 @@ http://www.w3cplus.com/content/css3-box-sizing
 .radio {
 	width: 13px;
 	height: 13px;
-	-moz-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
-	-o-box-sizing: border-box;
-	-ms-box-sizing: border-box;
-	box-sizing: border-box;
 }
 */
 /*

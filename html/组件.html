@@ -242,8 +242,8 @@ h3 {
 	
 	<h3>下拉选择框：</h3>
 	<div class="hui-select hui-btn hui-btn-gray hui-btn-icon-right">
-		<span class="hui-icon hui-icon-carat-d hui-icon-bg"></span>
-		<select value=""></select>
+		<span class="hui-icon hui-icon-carat-d hui-alt-icon"></span>
+		<input value="1" name="select"/>
 		<span class="hui-btn-txt">请选择...</span>
 	</div>
 	
@@ -507,11 +507,33 @@ h3 {
 				</div>
 				<div class="hui-body-action">
 					<a href="javascript:;" hidefocus="true"
-						class="hui-btn hui-shadow hui-btn-blue hui-radius-big"> <span
+						class="hui-btn hui-shadow hui-btn-blue"> <span
 						class="hui-btn-txt">确定</span>
-					</a> <a href="javascript:;" hidefocus="true"
-						class="hui-btn hui-btn-gray hui-shadow hui-radius-big"> <span
+					</a><a href="javascript:;" hidefocus="true"
+						class="hui-btn hui-btn-gray hui-shadow"> <span
 						class="hui-btn-txt">取消</span>
+					</a>
+				</div>
+				<!-- 单个按钮在按钮上加hui-action-only
+				<div class="hui-body-action">
+					<a href="javascript:;"  hidefocus="true" class="hui-btn hui-shadow hui-btn-blue hui-action-only"> 
+						<span class="hui-btn-txt">确定</span>
+					</a>
+				</div>
+				 -->
+			</div>
+		</div>
+		
+		<div class="hui-dialog hui-shadow-overlay hui-radius-little" style="top:200px;">
+			<div class="hui-dialog-body">
+				<div class="hui-body-content">
+					<h1 class="hui-content-title">确认？</h1>
+					<div class="hui-content-msg">内容内容内容内容内容内容内容内容内容内容内容内容内容内容内容内容内容</div>
+				</div>
+				<!-- 单个按钮在按钮上加hui-action-only -->
+				<div class="hui-body-action">
+					<a href="javascript:;"  hidefocus="true" class="hui-btn hui-shadow hui-btn-blue hui-action-only"> 
+						<span class="hui-btn-txt">确定</span>
 					</a>
 				</div>
 			</div>

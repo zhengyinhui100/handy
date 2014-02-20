@@ -519,16 +519,6 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 	})
 	new Button({
 		renderTo:'#tipsDv',
-		text:'黑色提示',
-		click:function(){
-			new Tips({
-				text:'提示',
-				theme:'black'
-			})
-		}
-	})
-	new Button({
-		renderTo:'#tipsDv',
 		text:'错误提示',
 		click:function(){
 			new Tips({
@@ -582,7 +572,9 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 			}
 			dialog=new Dialog({
 				title:'警告',
+				notDestroy:true,
 				contentTitle:'注意!',
+				activeBtn:2,
 				contentMsg:'内容内容内容内容内容内容内容内容内容',
 				okCall:function(){
 					$D.log('click ok');
@@ -593,44 +585,29 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 		}
 	})
 	
-	var dialog2;
 	new Button({
 		renderTo:'#dialogDv',
 		text:'alert',
 		click:function(){
-			if(dialog2){
-				dialog2.show();
-				return;
-			}
-			dialog2=Dialog.alert('我是alert！')
+			Dialog.alert('我是alert！')
 		}
 	})
 	
-	var dialog3;
 	new Button({
 		renderTo:'#dialogDv',
 		text:'confirm',
 		click:function(){
-			if(dialog3){
-				dialog3.show();
-				return;
-			}
-			dialog3=Dialog.confirm('我是confirm！',function(result){
+			Dialog.confirm('我是confirm！',function(result){
 				alert('您点击的是'+(result?'确定':'取消')+'，返回：'+result);
 			})
 		}
 	})
 	
-	var dialog4;
 	new Button({
 		renderTo:'#dialogDv',
 		text:'prompt',
 		click:function(){
-			if(dialog4){
-				dialog4.show();
-				return;
-			}
-			dialog4=Dialog.prompt('请输入:','123',function(result){
+			Dialog.prompt('请输入:','123',function(result){
 				alert('您输入的是：'+result);
 			})
 		}

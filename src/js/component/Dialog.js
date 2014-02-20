@@ -31,28 +31,29 @@ function(AC,Popup){
 //		noCancel        : false,          //true时没有取消按钮
 		okTxt           : '确定',          //确定按钮文字
 		cancelTxt       : '取消',          //取消按钮文字
+//		activeBtn       : null,           //为按钮添加激活样式，1表示左边，2表示右边
 //		okCall          : function(){},   //确定按钮事件函数
 //		cancelCall      : function(){},   //取消按钮事件函数
 		
 		clickHide       : false,          //点击不隐藏
 		
 		//组件共有配置
-		radius          : 'normal',
+		radius          : 'little',
 		
 		tmpl            : [
 			'<div class="hui-dialog">',
-				'<%=this.getHtml("$>Toolbar")%>',
+				'<%=this.getHtml("$>[role=\'dialog-header\']")%>',
 				'<div class="hui-dialog-body">',
 					'<%if(this.content){%><%=this.content%><%}else{%>',
 						'<div class="hui-body-content">',
 							'<h1 class="hui-content-title"><%=this.contentTitle%></h1>',
 							'<div class="hui-content-msg"><%=this.contentMsg%></div>',
-							'<%=this.getHtml("$>[role=\'content\']")%>',
+							'<%=this.getHtml("$>[role=\'dialog-content\']")%>',
 						'</div>',
 					'<%}%>',
 					'<%if(!this.noAction){%>',
 						'<div class="hui-body-action">',
-						'<%=this.getHtml("$>Button")%>',
+						'<%=this.getHtml("$>[role=\'dialog-action\']")%>',
 						'</div>',
 					'<%}%>',
 				'</div>',
@@ -68,7 +69,6 @@ function(AC,Popup){
 	 */
 	function fAlert(sMsg){
 		return new Dialog({
-			title:'&nbsp;',
 			contentMsg:sMsg,
 			noClose:true,
 			noCancel:true
@@ -82,7 +82,6 @@ function(AC,Popup){
 	 */
 	function fConfirm(sMsg,fCall){
 		return new Dialog({
-			title:'&nbsp;',
 			contentMsg:sMsg,
 			noClose:true,
 			okCall:function(){
@@ -106,12 +105,11 @@ function(AC,Popup){
 			sDefault='';
 		}
 		return new Dialog({
-			title:'&nbsp;',
 			contentMsg:sMsg,
 			noClose:true,
 			items:{
 				xtype:'Input',
-				role:'content',
+				role:'dialog-content',
 				value:sDefault
 			},
 			okCall:function(){
@@ -134,6 +132,7 @@ function(AC,Popup){
 				xtype:'Toolbar',
 				title:me.title,
 				theme:'gray',
+				role:'dialog-header',
 				extCls:'hui-dialog-header',
 				items:!me.noClose&&{
 					xtype:'Button',
@@ -149,28 +148,32 @@ function(AC,Popup){
 			})
 		}
 		if(!me.noAction){
-			if(!me.noOk){
-				//确定按钮
+			if(!me.noCancel){
+				//取消按钮
 				me.addItem({
 					xtype:'Button',
-					isActive:true,
-					text:me.okTxt,
-					isInline:false,
+					radius:null,
+					role:'dialog-action',
+					isActive:me.activeBtn==1,
+					text:me.cancelTxt,
 					click:function(){
-						if((me.okCall&&me.okCall())!=false){
+						if((me.cancelCall&&me.cancelCall())!=false){
 							me.hide();
 						}
 					}
 				});
 			}
-			if(!me.noCancel){
-				//取消按钮
+			if(!me.noOk){
+				//确定按钮
 				me.addItem({
 					xtype:'Button',
-					isInline:false,
-					text:me.cancelTxt,
+					text:me.okTxt,
+					role:'dialog-action',
+					isActive:me.activeBtn==2,
+					extCls:me.noCancel?'hui-action-only':'',
+					radius:null,
 					click:function(){
-						if((me.cancelCall&&me.cancelCall())!=false){
+						if((me.okCall&&me.okCall())!=false){
 							me.hide();
 						}
 					}

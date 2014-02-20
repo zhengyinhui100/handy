@@ -629,11 +629,13 @@
 	padding: 0;
 	top: -15px;
 	z-index: 1000;
+	&>:first-child{
+		.fn_border_radius_top(inherit);
+	}
 	.hui-dialog-header{
 		border: 0;
 		overflow: hidden;
 		padding: 0;
-		.fn_border_radius_top(inherit);
 	}
 	.hui-dialog-body{
 		color: #333;
@@ -653,7 +655,24 @@
 		padding:15px;
 	}
 	.hui-body-action{
-		padding:0 15px 15px 15px;
+		.fn_clear();
+		.fn_border_radius_bottom(inherit);
+		.hui-btn{
+			width:50%;
+			margin:0;
+			float:left;
+			border:0;
+			&:first-child{
+				.fn_border_radius_bottom_left(inherit);
+			}
+			&:last-child{
+				.fn_border_radius_bottom_right(inherit);
+			}
+		}
+		.hui-action-only{
+			width:100%;
+			.fn_border_radius_bottom_right(inherit);
+		}
 	}
 	.hui-content-title{
 		font-size:2em;
@@ -739,7 +758,7 @@
 }
 //圆角
 .hui-radius-little{
-	.fn_border_radius(.3em);
+	.fn_border_radius(.2em);
 	-webkit-background-clip: padding;
 	background-clip: padding-box;
 }

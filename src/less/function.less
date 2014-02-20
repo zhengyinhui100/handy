@@ -14,7 +14,17 @@
     overflow: hidden;
     word-break: break-all;
 }
-
+.fn_clear(){
+	zoom:1;
+	&:after{
+		clear:both;
+		content:".";
+		display:block;
+		height:0;
+		visibility:hidden;
+		overflow:hidden;
+	}
+}
 .fn_opacity(@degree){
 	opacity:@degree;
 	//这里写在一行会编译出错
@@ -47,37 +57,41 @@
     -moz-border-radius: @radius;
     border-radius: @radius; 
 }
-.fn_border_radius_top(@radius){
+.fn_border_radius_top_left(@radius){
 	-moz-border-radius-topleft: @radius;
-    -moz-border-radius-topright: @radius;
     -webkit-border-top-left-radius: @radius;
-    -webkit-border-top-right-radius: @radius;
     border-top-left-radius: @radius;
+}
+.fn_border_radius_top_right(@radius){
+    -moz-border-radius-topright: @radius;
+    -webkit-border-top-right-radius: @radius;
     border-top-right-radius: @radius;
+}
+.fn_border_radius_bottom_left(@radius){
+    -moz-border-radius-bottomleft: @radius;
+    -webkit-border-bottom-left-radius: @radius;
+    border-bottom-left-radius: @radius;
+}
+.fn_border_radius_bottom_right(@radius){
+	-moz-border-radius-bottomright: @radius;
+    -webkit-border-bottom-right-radius: @radius;
+    border-bottom-right-radius: @radius;
+}
+.fn_border_radius_top(@radius){
+	.fn_border_radius_top_left(@radius);
+	.fn_border_radius_top_right(@radius);
 }
 .fn_border_radius_bottom(@radius){
-	-moz-border-radius-bottomright: @radius;
-    -moz-border-radius-bottomleft: @radius;
-    -webkit-border-bottom-left-radius: @radius;
-    -webkit-border-bottom-right-radius: @radius;
-    border-bottom-left-radius: @radius;
-    border-bottom-right-radius: @radius;
+	.fn_border_radius_bottom_left(@radius);
+	.fn_border_radius_bottom_right(@radius);
 }
 .fn_border_radius_left(@radius){
-	-moz-border-radius-topleft: @radius;
-    -moz-border-radius-bottomleft: @radius;
-    -webkit-border-bottom-left-radius: @radius;
-    -webkit-border-top-left-radius: @radius;
-    border-bottom-left-radius: @radius;
-    border-top-left-radius: @radius;
+	.fn_border_radius_top_left(@radius);
+	.fn_border_radius_bottom_left(@radius);
 }
 .fn_border_radius_right(@radius){
-	-moz-border-radius-topright: @radius;
-    -moz-border-radius-bottomright: @radius;
-    -webkit-border-bottom-right-radius: @radius;
-    -webkit-border-top-right-radius: @radius;
-    border-bottom-right-radius: @radius;
-    border-top-right-radius: @radius;
+	.fn_border_radius_top_right(@radius);
+	.fn_border_radius_bottom_right(@radius);
 }
 
 .fn_box_shadow(@shadow){

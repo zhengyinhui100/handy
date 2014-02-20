@@ -18,6 +18,7 @@ function(AC,Popup,ControlGroup){
 	Menu.extend({
 		//初始配置
 //		markType        : null,         //选中的标记类型，默认不带选中效果，'active'是组件active效果，'dot'是点选效果
+		notDestroy      : true,
 		
 		tmpl            : [
 			'<div class="hui-menu<%if(this.markType=="dot"){%> hui-menu-mark<%}%>">',

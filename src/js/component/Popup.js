@@ -16,6 +16,7 @@ function(AC){
 		clickHide       : true,            //是否点击就隐藏
 //		timeout         : null,            //自动隐藏的时间(毫秒)，不指定此值则不自动隐藏
 		showPos         : 'center',        //定位方法名，或者传入自定义定位函数
+//		notDestroy      : false,           //隐藏时保留对象，不自动销毁，默认弹出层会自动销毁
 		
 		//组件共有配置
 		withMask        : true,
@@ -24,19 +25,10 @@ function(AC){
 		tmpl            : [
 			'<div class="hui-popup"><%=this.getHtml("$>*")%></div>'
 		],
-		listeners       : [{
-			type:'click',
-			el: $(document),
-			handler:function(){
-				var me=this;
-				if(me.clickHide){
-					this.hide();
-				}
-			}
-		}],
 		
 		doConfig         : fDoConfig,        //初始化配置
 		show             : fShow,            //显示
+		hide             : fHide,            //隐藏
 		center           : fCenter,          //居中显示
 		underEl          : fUnderEl          //根据指定节点显示
 	});
@@ -47,6 +39,16 @@ function(AC){
 	function fDoConfig(oParam){
 		var me=this;
 		me.callSuper([oParam]);
+		//添加点击即隐藏事件
+		if(me.clickHide){
+			me._listeners.push({
+				type:'click',
+				el: $(document),
+				handler:function(){
+					this.hide();
+				}
+			});
+		}
 		//Android下弹出遮罩层时，点击仍能聚焦到到输入框，暂时只能在弹出时disable掉，虽然能避免聚焦及弹出输入法，
 		//不过，仍旧会有光标竖线停留在点击的输入框里，要把延迟加到几秒之后才能避免，但又会影响使用
 		if($H.Browser.android()){
@@ -100,6 +102,17 @@ function(AC){
 					me.hide();
 				}
 			},me.timeout);
+		}
+	}
+	/**
+	 * 隐藏
+	 * @method hide
+	 */
+	function fHide(){
+		var me=this;
+		var bIsHide=me.callSuper();
+		if(bIsHide!=false&&!me.notDestroy){
+			me.destroy();
 		}
 	}
 	/**

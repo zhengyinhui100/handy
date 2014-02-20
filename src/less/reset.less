@@ -1,4 +1,6 @@
 // css reset
+@import "function.less";
+
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
@@ -56,6 +58,7 @@ img{
 }
 a:focus,a:active{border:none;outline:none;}
 *, *:after, *:before {
+	.fn_box_sizing(border-box);
 	-webkit-tap-highlight-color: rgba(0,0,0,0);
 	-webkit-touch-callout: none;
 	-webkit-user-drag: none;
@@ -85,11 +88,7 @@ http://www.w3cplus.com/content/css3-box-sizing
 	padding: 0;
 	border-width: 1px;
 	height: 17px;
-	-moz-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
-	-o-box-sizing: border-box;
-	-ms-box-sizing: border-box;
-	box-sizing: border-box;
+	//.fn_box_sizing(border-box);
 	//IE6、7不支持box-sizing
 	*height:15px; 
     *width: 15px;
@@ -99,11 +98,6 @@ http://www.w3cplus.com/content/css3-box-sizing
 .radio {
 	width: 13px;
 	height: 13px;
-	-moz-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
-	-o-box-sizing: border-box;
-	-ms-box-sizing: border-box;
-	box-sizing: border-box;
 }
 */
 /*
