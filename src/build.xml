@@ -1,129 +1,145 @@
 <project name="handy.build" default="build" basedir=".">
 	<description>Handy Build File</description>
 
-	<property name="project.name" value="handy"/>
-	<property name="project.dir" location="."/>
-	<property name="js.dir" location="./js"/>
-	<property name="css.dir" location="./css"/>
-	<property name="build.dir" location="../build"/>
-	<property name="tmp.dir" location="${build.dir}/tmp"/>
-	<import file="../tools/common-build.xml"/>
+	<property name="project.name" value="handy" />
+	<property name="project.dir" location="." />
+	<property name="js.dir" location="./js" />
+	<property name="css.dir" location="./css" />
+	<property name="build.dir" location="../build" />
+	<property name="tmp.dir" location="${build.dir}/tmp" />
+	<import file="../tools/common-build.xml" />
 
 
 	<target name="base">
-		<concat destfile="${tmp.dir}/${project.name}-pkg.js"
-            encoding="${charset}"
-            outputencoding="${charset}">
+		<concat destfile="${tmp.dir}/${project.name}-base-pkg.js"
+			encoding="${charset}" outputencoding="${charset}">
 
-			<path path="js/base/base.js"/>
-			<path path="js/base/Json.js"/>
-			<path path="js/base/Object.js"/>
-			<path path="js/base/Browser.js"/>
-			<path path="js/base/Debug.js"/>
-			<path path="js/base/Function.js"/>
-			<path path="js/base/Loader.js"/>
-			<path path="js/base/Listener.js"/>
-			<path path="js/base/Date.js"/>
-			<path path="js/base/String.js"/>
-			<path path="js/base/Cookie.js"/>
-			<path path="js/base/Util.js"/>
-			<path path="js/base/Template.js"/>
-			<path path="js/base/HashChange.js"/>
-			<path path="js/base/Support.js"/>
-			<path path="js/base/adapt.js"/>
+			<path path="js/base/base.js" />
+			<path path="js/base/Json.js" />
+			<path path="js/base/Object.js" />
+			<path path="js/base/Browser.js" />
+			<path path="js/base/Debug.js" />
+			<path path="js/base/Function.js" />
+			<path path="js/base/Loader.js" />
+			<path path="js/base/Listener.js" />
+			<path path="js/base/Date.js" />
+			<path path="js/base/String.js" />
+			<path path="js/base/Cookie.js" />
+			<path path="js/base/Util.js" />
+			<path path="js/base/Template.js" />
+			<path path="js/base/HashChange.js" />
+			<path path="js/base/Support.js" />
+			<path path="js/base/adapt.js" />
+
+		</concat>
+		<concat destfile="${tmp.dir}/${project.name}-pkg.js" encoding="${charset}"
+			outputencoding="${charset}">
+
+			<path path="${tmp.dir}/${project.name}-base-pkg.js" />
 
 		</concat>
 	</target>
-	
+
 	<target name="common">
-		<concat destfile="${tmp.dir}/${project.name}-pkg.js"
-            encoding="${charset}"
-            outputencoding="${charset}">
+		<concat destfile="${tmp.dir}/${project.name}-common-pkg.js"
+			encoding="${charset}" outputencoding="${charset}">
 
-			<path path="js/common/AbstractView.js"/>
+			<path path="js/common/AbstractView.js" />
+
+		</concat>
+		<concat destfile="${tmp.dir}/${project.name}-pkg.js" encoding="${charset}"
+			outputencoding="${charset}" append="true">
+
+			<path path="${tmp.dir}/${project.name}-common-pkg.js" />
 
 		</concat>
 	</target>
 
-	<!--  component -->
+	<!-- component -->
 	<target name="component">
-		<concat destfile="${tmp.dir}/${project.name}-pkg.js"
-	            encoding="${charset}"
-	            outputencoding="${charset}"
-				append="true">
-			
-			<path path="js/component/ComponentManager.js"/>
-			<path path="js/component/AbstractComponent.js"/>
-			<path path="js/component/Popup.js"/>
-			<path path="js/component/ControlGroup.js"/>
-			<path path="js/component/Icon.js"/>
-			<path path="js/component/Button.js"/>
-			<path path="js/component/Radio.js"/>
-			<path path="js/component/Checkbox.js"/>
-			<path path="js/component/Select.js"/>
-			<path path="js/component/Input.js"/>
-			<path path="js/component/Tab.js"/>
-			<path path="js/component/Toolbar.js"/>
-			<path path="js/component/Tips.js"/>
-			<path path="js/component/Dialog.js"/>
-			<path path="js/component/Menu.js"/>
-			<path path="js/component/List.js"/>
+		<concat destfile="${tmp.dir}/${project.name}-component-pkg.js"
+			encoding="${charset}" outputencoding="${charset}" append="true">
+
+			<path path="js/component/ComponentManager.js" />
+			<path path="js/component/AbstractComponent.js" />
+			<path path="js/component/Popup.js" />
+			<path path="js/component/ControlGroup.js" />
+			<path path="js/component/Icon.js" />
+			<path path="js/component/Button.js" />
+			<path path="js/component/Radio.js" />
+			<path path="js/component/Checkbox.js" />
+			<path path="js/component/Select.js" />
+			<path path="js/component/Input.js" />
+			<path path="js/component/Tab.js" />
+			<path path="js/component/Toolbar.js" />
+			<path path="js/component/Tips.js" />
+			<path path="js/component/Dialog.js" />
+			<path path="js/component/Menu.js" />
+			<path path="js/component/List.js" />
+
+		</concat>
+		<concat destfile="${tmp.dir}/${project.name}-pkg.js" encoding="${charset}"
+			outputencoding="${charset}" append="true">
+
+			<path path="${tmp.dir}/${project.name}-component-pkg.js" />
 
 		</concat>
 	</target>
-	
-	<!--  module -->
+
+	<!-- module -->
 	<target name="module">
-		<concat destfile="${tmp.dir}/${project.name}-pkg.js"
-	            encoding="${charset}"
-	            outputencoding="${charset}"
-				append="true">
+		<concat destfile="${tmp.dir}/${project.name}-module-pkg.js"
+			encoding="${charset}" outputencoding="${charset}" append="true">
 
-		    <path path="js/module/AbstractModule.js"/>
-		    <path path="js/module/AbstractDao.js"/>
-		    <path path="js/module/AbstractView.js"/>
-		    <path path="js/module/AbstractNavigator.js"/>
-		    <path path="js/module/History.js"/>
-			<path path="js/module/ModuleManager.js"/>
+			<path path="js/module/AbstractModule.js" />
+			<path path="js/module/AbstractDao.js" />
+			<path path="js/module/AbstractView.js" />
+			<path path="js/module/AbstractNavigator.js" />
+			<path path="js/module/History.js" />
+			<path path="js/module/ModuleManager.js" />
+
+		</concat>
+		<concat destfile="${tmp.dir}/${project.name}-pkg.js" encoding="${charset}"
+			outputencoding="${charset}" append="true">
+
+			<path path="${tmp.dir}/${project.name}-module-pkg.js" />
 
 		</concat>
 	</target>
-	
-	<!--  module -->
+
+	<!-- module -->
 	<target name="package-css">
-		<concat destfile="${tmp.dir}/${project.name}-pkg.css"
-	            encoding="${charset}"
-	            outputencoding="${charset}"
-				append="true">
+		<concat destfile="${tmp.dir}/${project.name}-pkg.css" encoding="${charset}"
+			outputencoding="${charset}" append="true">
 
-		    <path path="css/reset.css"/>
-		    <path path="css/common.css"/>
-		    <path path="css/icon.css"/>
-			<path path="css/widget.css"/>
+			<path path="css/reset.css" />
+			<path path="css/common.css" />
+			<path path="css/icon.css" />
+			<path path="css/widget.css" />
 
 		</concat>
 	</target>
-	
-	<target name="package-js" depends="base,component,module">
+
+	<target name="package-js" depends="base,common,component,module">
 	</target>
-	
+
 	<target name="copy-img">
-		<copy todir="${tmp.dir}/img">	
-		    <fileset dir="${project.dir}/img">
-		    </fileset>
-    	</copy>
+		<copy todir="${tmp.dir}/img">
+			<fileset dir="${project.dir}/img">
+			</fileset>
+		</copy>
 	</target>
-	
+
 	<target name="clean">
 		<delete dir="${build.dir}"></delete>
 	</target>
 
 	<target name="build-complete" depends="compile-less,build-fast">
 	</target>
-	
+
 	<target name="build-fast" depends="clean,package-js,package-css,common-build">
 	</target>
-	
+
 	<target name="build" depends="build-fast">
 	</target>
 
