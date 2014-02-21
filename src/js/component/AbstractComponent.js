@@ -54,7 +54,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		
 		//属性
 //		cls                 : '',                //组件样式名，空则使用xtype的小写，如Dialog，cls为"dialog"，因此样式前缀是“hui-dialog-”
-//		role                : '',                //保留属性，用于模板中筛选组件的选择器，如this.getHtml("$>[role='content']")
+//		xrole                : '',                //保留属性，用于模板中筛选组件的选择器，如this.getHtml("$>[xrole='content']")
 //		params              : null,              //初始化时传入的参数
 //		_id                 : null,              //组件id
 //		tmpl                : [],                //组件模板，首次初始化前为数组，初始化后为字符串，ps:组件模板容器节点上不能带有id属性
@@ -72,6 +72,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		],
 		//组件初始化相关
 		initialize          : fInitialize,       //初始化
+		hasConfig           : fHasConfig,        //检查是否已存在指定配置
 		doConfig            : fDoConfig,         //初始化配置
 		initHtml            : fInitHtml,         //初始化html
 		initStyle           : fInitStyle,        //初始化样式
@@ -100,7 +101,8 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 //		update
 		each                : fEach,             //遍历子组件
 		match               : fMatch,            //匹配选择器
-		find                : fFind,             //查找子元素
+		find                : fFind,             //查找子元素或子组件
+		parents             : fParents,          //查找祖先元素或祖先组件
 		index               : fIndex,            //获取本身的索引，如果没有父组件则返回null
 		callChild           : fCallChild,        //调用子组件方法
 		add                 : fAdd,              //添加子组件
@@ -175,6 +177,31 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		}
 		//注册组件
 		CM.register(me);
+	}
+	/**
+	 * 检查是否已存在指定配置
+	 * @method hasConfig
+	 * @param {string}sSel 指定的配置
+	 * @param {Object|Array}params 配置对象
+	 * @return {boolean} true表示已存在配置
+	 */
+	function fHasConfig(sSel,params){
+		var me=this;
+		if(!params){
+			return false;
+		}
+		if($HO.isArray(params)){
+			for(var i=0,len=params.length;i<len;i++){
+				if(me.match(sSel,params[i])){
+					return true;
+				}
+			}
+		}else{
+			if(me.match(sSel,params)){
+				return true;
+			}
+		}
+		return false;
 	}
 	/**
 	 * 初始化配置
@@ -583,13 +610,14 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	 * 匹配选择器
 	 * @method match
 	 * @param {string}sSel 选择器，只支持一级选择器 xtype[attr=value]
+	 * @param {Object=}oObj 被匹配的对象，默认为组件对象本身
 	 * @return {boolean} 匹配则返回true
 	 */
-	function fMatch(sSel){
+	function fMatch(sSel,oObj){
 		if(sSel=="*"){
 			return true;
 		}
-		var me=this,m,prop,op,value;
+		var o=oObj||this,m,prop,op,value;
 		//'Button[attr=value]'=>'[xtype=Button][attr=value]'
 		sSel=sSel.replace(/^([^\[]+)/,'[xtype="$1"]');
 		//循环检查
@@ -599,7 +627,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 			//操作符：=|!=
 			op=m[2];
 			value=eval(m[3]);
-			if(op==="="?me[prop]!=value:me[prop]==value){
+			if(op==="="?o[prop]!=value:o[prop]==value){
 				return false;
 			}
 		}
@@ -608,9 +636,10 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	/**
 	 * 查找子元素或子组件
 	 * @method find
-	 * @param {string}sSel '$'开头表示查找组件，多个选择期间用","隔开('$sel1,$sel2,...')，语法类似jQuery，如：'$xtype[attr=value]'、'$ancestor descendant'、'$parent>child'，
+	 * @param {string}sSel '$'开头表示查找组件，多个选择器间用","隔开('$sel1,$sel2,...')，语法类似jQuery，如：'$xtype[attr=value]'、'$ancestor descendant'、'$parent>child'，
 	 * 				'$>Button'表示仅查找当前子节点中的按钮，'$Button'表示查找所有后代节点中的按钮，
 	 * @param {Array=}aResult 用于存储结果集的数组
+	 * @return {jQuery|Array} 返回匹配的结果，如果没找到匹配的子组件则返回空数组
 	 */
 	function fFind(sSel,aResult){
 		var me=this;
@@ -654,6 +683,27 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 			}
 		});
 		return aResult;
+	}
+	/**
+	 * 查找祖先元素或祖先组件
+	 * @method parents
+	 * @param {string=}sSel 若此参数为空，直接返回最顶级祖先组件，'$'开头表示查找组件，如：'$xtype[attr=value]'
+	 * @return {jQuery|Component|null} 返回匹配的结果，如果没找到匹配的组件则返回null
+	 */
+	function fParents(sSel){
+		var me=this;
+		//查找元素
+		if(sSel&&sSel.indexOf('$')!=0){
+			return me.getEl().parents(sSel);
+		}
+		var oCurrent=me;
+		while(oCurrent.parent){
+			oCurrent=oCurrent.parent;
+			if(sSel&&me.match(sSel,oCurrent)){
+				return oCurrent;
+			}
+		}
+		return sSel||oCurrent===me?null:oCurrent;
 	}
 	/**
 	 * 获取本身的索引，如果没有父组件则返回null
@@ -767,6 +817,9 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 			//默认子组件配置
 			if(me.defItem){
 				$HO.extend(oItem,me.defItem,{notCover:true});
+			}
+			if(me.isMini){
+				oItem.isMini=true;
 			}
 			//具体组件类处理
 			me.parseItem(oItem);

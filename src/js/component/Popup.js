@@ -30,7 +30,7 @@ function(AC){
 		show             : fShow,            //显示
 		hide             : fHide,            //隐藏
 		center           : fCenter,          //居中显示
-		underEl          : fUnderEl          //根据指定节点显示
+		followEl         : fFollowEl         //根据指定节点显示
 	});
 	/**
 	 * 初始化配置
@@ -95,6 +95,12 @@ function(AC){
 		}
 		//如果是父组件通过callChild调用的会有参数，要传进去
 		me.callSuper(arguments);
+		//如果未设置宽度，默认和父组件宽度一样
+		if(!me.width&&me.parent){
+			$D.log(me.parent.getEl().outerWidth());
+			var width=me.width=me.parent.getEl().outerWidth();
+			me.getEl().css('width',width);
+		}
 		//定时隐藏
 		if(me.timeout){
 			setTimeout(function(){
@@ -133,14 +139,14 @@ function(AC){
 		});
 	}
 	/**
-	 * 显示在指定元素下方
-	 * @method underEl
+	 * 显示在指定元素显示
+	 * @method followEl
 	 * @param {jQuery}oEl 定位标准元素
 	 */
-	function fUnderEl(oEl){
+	function fFollowEl(oEl){
 		var me=this;
-		var oPos=oEl.position();
-		oPos.width=me.width||oEl.outerWidth();
+		var el=oEl||me.parent.getEl();
+		var oPos=el.position();
 		me.getEl().css(oPos);
 	}
 	

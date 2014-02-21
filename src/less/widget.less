@@ -31,7 +31,7 @@
 	text-align: center;
 	font-size: 16px;
 	margin: .5em 0;
-	padding: .4em 20px;
+	padding: .4em 1em;
 	min-width: .75em;
 	text-overflow: ellipsis;
 	overflow: hidden;
@@ -277,8 +277,8 @@
 }
 .hui-btn-icon-notxt{
 	padding:0;
-	width:30px;
-	height:30px;
+	width:28px;
+	height:28px;
 	.hui-icon{
 		margin: 3px 1px 2px 1px;
 	}
@@ -527,7 +527,9 @@
 	.hui-tbar-btn-left,.hui-tbar-btn-right{
 		position:absolute;
 		top:50%;
-		margin-top:-1.1em;
+		&.hui-mini{
+			margin-top:-1.1em;
+		}
 	}
 	.hui-tbar-btn-left{
 		left:5px;
@@ -647,7 +649,7 @@
 		margin: 0;
 		border-width: 0;
 		overflow: visible;
-		overflohui-x: hidden;
+		overflow-x: hidden;
 		.fn_border_radius_bottom(inherit);
 		.fn_linear_gradient_top(#f9f9f9,#eee);
 	}
@@ -655,24 +657,7 @@
 		padding:15px;
 	}
 	.hui-body-action{
-		.fn_clear();
 		.fn_border_radius_bottom(inherit);
-		.hui-btn{
-			width:50%;
-			margin:0;
-			float:left;
-			border:0;
-			&:first-child{
-				.fn_border_radius_bottom_left(inherit);
-			}
-			&:last-child{
-				.fn_border_radius_bottom_right(inherit);
-			}
-		}
-		.hui-action-only{
-			width:100%;
-			.fn_border_radius_bottom_right(inherit);
-		}
 	}
 	.hui-content-title{
 		font-size:2em;
@@ -802,11 +787,12 @@
 }
 //小尺寸
 .hui-mini{
-	margin-top: .25em;
-	margin-bottom: .25em;
+	&.hui-btn{
+		margin-top: .25em;
+		margin-bottom: .25em;
+	}
 	font-size: 12.5px;
 	&.hui-icon,.hui-icon{
-		margin:0;
 		width:18px;
 		height:18px;
 	}

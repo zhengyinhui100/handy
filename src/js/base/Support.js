@@ -65,6 +65,10 @@ handy.add('Support',function($H){
 			sCls="hui-mobile";
 		}else{
 			sCls="hui-pc";
+			var ie=$H.Browser.ie();
+			if(ie){
+				sCls+=' ie'+ie;
+			}
 		}
 		document.documentElement.className+=" "+sCls;
 	}

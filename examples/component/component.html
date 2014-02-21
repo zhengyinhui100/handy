@@ -363,6 +363,9 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 		name:'select',
 		value:'1',
 		width:150,
+		defItem:{
+			showPos:'followEl'
+		},
 		options:[{
 			text:"选项一",
 			value:"1"
@@ -420,6 +423,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 	//标签栏
 	new Tab({
 		renderTo:'#tabDv',
+		hasContent:true,
 		items:[
 			{
 				text:'一',
@@ -613,6 +617,64 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 		}
 	})
 	
+	new Button({
+		renderTo:'#dialogDv',
+		text:'自定义对话框',
+		click:function(){
+			new Dialog({
+				title:'警告',
+				contentTitle:'注意!',
+				contentMsg:'我是自定义对话框',
+				items:[{
+					xtype:'Select',
+					xrole:'dialog-content',
+					name:'dialogSelect',
+					value:'1',
+					width:150,
+					defItem:{
+						showPos:'followEl'
+					},
+					options:[{
+						text:"选项一",
+						value:"1"
+					},{
+						text:"选项二",
+						value:"2"
+					}],
+					change:function(){
+						console.log(this);
+						console.log(arguments);
+					}
+				},{
+					xtype:'Tab',
+					xrole:'dialog-action',
+					items:[{
+						xtype:'Button',
+						text:'取消',
+						click:function(){
+							alert('取消');
+							this.parents().hide();
+						}
+					},{
+						xtype:'Button',
+						text:'不保存',
+						click:function(){
+							alert('不保存');
+							this.parents().hide();
+						}
+					},{
+						xtype:'Button',
+						isActive:true,
+						text:'保存',
+						click:function(){
+							alert('保存');
+							this.parents().hide();
+						}
+					}]
+				}]
+			});
+		}
+	});
 });
 </script>
 </html>

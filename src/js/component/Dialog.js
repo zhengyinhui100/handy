@@ -42,18 +42,18 @@ function(AC,Popup){
 		
 		tmpl            : [
 			'<div class="hui-dialog">',
-				'<%=this.getHtml("$>[role=\'dialog-header\']")%>',
+				'<%=this.getHtml("$>[xrole=\'dialog-header\']")%>',
 				'<div class="hui-dialog-body">',
 					'<%if(this.content){%><%=this.content%><%}else{%>',
 						'<div class="hui-body-content">',
 							'<h1 class="hui-content-title"><%=this.contentTitle%></h1>',
 							'<div class="hui-content-msg"><%=this.contentMsg%></div>',
-							'<%=this.getHtml("$>[role=\'dialog-content\']")%>',
+							'<%=this.getHtml("$>[xrole=\'dialog-content\']")%>',
 						'</div>',
 					'<%}%>',
 					'<%if(!this.noAction){%>',
 						'<div class="hui-body-action">',
-						'<%=this.getHtml("$>[role=\'dialog-action\']")%>',
+						'<%=this.getHtml("$>[xrole=\'dialog-action\']")%>',
 						'</div>',
 					'<%}%>',
 				'</div>',
@@ -109,7 +109,7 @@ function(AC,Popup){
 			noClose:true,
 			items:{
 				xtype:'Input',
-				role:'dialog-content',
+				xrole:'dialog-content',
 				value:sDefault
 			},
 			okCall:function(){
@@ -126,13 +126,14 @@ function(AC,Popup){
 	function fDoConfig(oSettings){
 		var me=this;
 		me.callSuper([oSettings]);
-		if(me.title){
+		var aItems=oSettings.items;
+		if(me.title&&!me.hasConfig('[xrole="dialog-header"]',aItems)){
 			//顶部标题栏
 			me.addItem({
 				xtype:'Toolbar',
 				title:me.title,
 				theme:'gray',
-				role:'dialog-header',
+				xrole:'dialog-header',
 				extCls:'hui-dialog-header',
 				items:!me.noClose&&{
 					xtype:'Button',
@@ -147,13 +148,13 @@ function(AC,Popup){
 				}
 			})
 		}
-		if(!me.noAction){
+		if(!me.noAction&&!me.hasConfig('[xrole="dialog-action"]',aItems)){
+			var aActions=[];
 			if(!me.noCancel){
 				//取消按钮
-				me.addItem({
+				aActions.push({
 					xtype:'Button',
 					radius:null,
-					role:'dialog-action',
 					isActive:me.activeBtn==1,
 					text:me.cancelTxt,
 					click:function(){
@@ -165,12 +166,10 @@ function(AC,Popup){
 			}
 			if(!me.noOk){
 				//确定按钮
-				me.addItem({
+				aActions.push({
 					xtype:'Button',
 					text:me.okTxt,
-					role:'dialog-action',
 					isActive:me.activeBtn==2,
-					extCls:me.noCancel?'hui-action-only':'',
 					radius:null,
 					click:function(){
 						if((me.okCall&&me.okCall())!=false){
@@ -179,6 +178,11 @@ function(AC,Popup){
 					}
 				});
 			}
+			me.addItem({
+				xtype:'Tab',
+				xrole:'dialog-action',
+				items:aActions
+			});
 		}
 	}
 	

@@ -72,6 +72,7 @@ function(AC){
 				var sValue=oButton.value;
 				me.val(sValue);
 			},
+			width:me.width,
 			items:oOptions
 		})
 	}

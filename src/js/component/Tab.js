@@ -13,13 +13,15 @@ function(AC,ControlGroup){
 	
 	Tab.extend({
 		//初始配置
-		defItem         : {                    //默认子组件是Button
-			xtype:'Button',
-			radius:null,
-			isInline:false,
-			extCls:'js-item',
-			iconPos:'top',
-			shadow:false
+//		hasContent      : false,        //是否有内容框
+		defItem         : {             //默认子组件是Button
+//			content     : '',           //tab内容
+			xtype       : 'Button',
+			radius      : null,
+			isInline    : false,
+			extCls      : 'js-item',
+			iconPos     : 'top',
+			shadow      : false
 		},
 		
 		tmpl            : [
@@ -31,10 +33,12 @@ function(AC,ControlGroup){
 					'</li>',
 					'<%}%>',
 				'</ul>',
-				'<%for(var i=0,len=this.children.length;i<len;i++){%>',
-					'<div class="js-tab-content"<%if(!this.children[i].selected){%> style="display:none"<%}%>>',
-					'<%=this.children[i].content%>',
-					'</div>',
+				'<%if(this.hasContent){%>',
+					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
+						'<div class="js-tab-content"<%if(!this.children[i].selected){%> style="display:none"<%}%>>',
+						'<%=this.children[i].content%>',
+						'</div>',
+					'<%}%>',
 				'<%}%>',
 			'</div>'
 		],
@@ -62,7 +66,9 @@ function(AC,ControlGroup){
 	function fOnItemClick(oEvt,nIndex){
 		var me=this;
 		//点击tab按钮显示对应的content
-		me.find('.js-tab-content').hide().eq(nIndex).show();
+		if(me.hasContent){
+			me.find('.js-tab-content').hide().eq(nIndex).show();
+		}
 		me.callSuper([oEvt,nIndex]);
 	}
 	

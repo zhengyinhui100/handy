@@ -90,7 +90,7 @@
   text-align: center;
   font-size: 16px;
   margin: .5em 0;
-  padding: .4em 20px;
+  padding: .4em 1em;
   min-width: .75em;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -469,8 +469,8 @@
 }
 .hui-btn-icon-notxt {
   padding: 0;
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
 }
 .hui-btn-icon-notxt .hui-icon {
   margin: 3px 1px 2px 1px;
@@ -771,6 +771,9 @@
 .hui-tbar .hui-tbar-btn-right {
   position: absolute;
   top: 50%;
+}
+.hui-tbar .hui-tbar-btn-left.hui-mini,
+.hui-tbar .hui-tbar-btn-right.hui-mini {
   margin-top: -1.1em;
 }
 .hui-tbar .hui-tbar-btn-left {
@@ -944,7 +947,7 @@
   margin: 0;
   border-width: 0;
   overflow: visible;
-  overflohui-x: hidden;
+  overflow-x: hidden;
   -moz-border-radius-bottomleft: inherit;
   -webkit-border-bottom-left-radius: inherit;
   border-bottom-left-radius: inherit;
@@ -972,48 +975,9 @@
   padding: 15px;
 }
 .hui-dialog .hui-body-action {
-  zoom: 1;
   -moz-border-radius-bottomleft: inherit;
   -webkit-border-bottom-left-radius: inherit;
   border-bottom-left-radius: inherit;
-  -moz-border-radius-bottomright: inherit;
-  -webkit-border-bottom-right-radius: inherit;
-  border-bottom-right-radius: inherit;
-}
-.hui-dialog .hui-body-action:after {
-  clear: both;
-  content: ".";
-  display: block;
-  height: 0;
-  visibility: hidden;
-  overflow: hidden;
-}
-.hui-dialog .hui-body-action:after {
-  clear: both;
-  content: ".";
-  display: block;
-  height: 0;
-  visibility: hidden;
-  overflow: hidden;
-}
-.hui-dialog .hui-body-action .hui-btn {
-  width: 50%;
-  margin: 0;
-  float: left;
-  border: 0;
-}
-.hui-dialog .hui-body-action .hui-btn:first-child {
-  -moz-border-radius-bottomleft: inherit;
-  -webkit-border-bottom-left-radius: inherit;
-  border-bottom-left-radius: inherit;
-}
-.hui-dialog .hui-body-action .hui-btn:last-child {
-  -moz-border-radius-bottomright: inherit;
-  -webkit-border-bottom-right-radius: inherit;
-  border-bottom-right-radius: inherit;
-}
-.hui-dialog .hui-body-action .hui-action-only {
-  width: 100%;
   -moz-border-radius-bottomright: inherit;
   -webkit-border-bottom-right-radius: inherit;
   border-bottom-right-radius: inherit;
@@ -1159,13 +1123,14 @@
   z-index: 1;
 }
 .hui-mini {
+  font-size: 12.5px;
+}
+.hui-mini.hui-btn {
   margin-top: .25em;
   margin-bottom: .25em;
-  font-size: 12.5px;
 }
 .hui-mini.hui-icon,
 .hui-mini .hui-icon {
-  margin: 0;
   width: 18px;
   height: 18px;
 }
