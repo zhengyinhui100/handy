@@ -35,7 +35,6 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		activeCls           : 'hui-active',      //激活样式
 //		defItem             : null,              //默认子组件配置
 //		icon                : null,              //图标
-//		withMask            : false,             //是否有遮罩层
 		
 		////通用样式
 //		width               : null,              //宽度(默认单位是px)
@@ -65,7 +64,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 //      listeners           : [],                //类事件配置
 //		_listeners          : {},                //实例事件池  
 		_customEvents       : [                  //自定义事件,可以通过参数属性的方式直接进行添加
-			'beforeRender','afterRender','show','hide','destroy'
+			'beforeRender','afterRender','beforeShow','afterShow','hide','destroy'
 		],  
 		_defaultEvents      : [                  //默认事件，可以通过参数属性的方式直接进行添加
 			'click','mouseover','focus'
@@ -79,16 +78,15 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		getId               : fGetId,            //获取组件id
 		getHtml             : fGetHtml,          //获取组件或子组件html
 		getExtCls           : fGetExtCls,        //生成通用样式
-		afterRender         : fAfterRender,      //渲染后续工作
 		//组件公用功能
+		render              : fRender,           //渲染
+		afterRender         : fAfterRender,      //渲染后续工作
 		hide                : fHide,             //隐藏
 		show                : fShow,             //显示
 		enable              : fEnable,           //启用
 		disable             : fDisable,          //禁用
 		active              : fActive,           //激活
 		unactive            : fUnactive,         //不激活
-		mask                : fMask,             //显示遮罩层
-		unmask              : fUnmask,           //隐藏遮罩层
 		txt                 : fTxt,              //设置/读取文字
 		
 		//事件相关
@@ -171,7 +169,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		me.initHtml();
 		me.fire('beforeRender');
 		if(me.autoRender!=false){
-			me.renderTo[me.renderBy](me.getHtml());
+			me.render();
 			//渲染后续工作
 			me.afterRender();
 		}
@@ -247,7 +245,8 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		}
 		//覆盖子组件配置
 		if(oParams.defItem){
-			$HO.extend(me.defItem,oParams.defItem);
+			//只覆盖实例属性，不影响类属性
+			me.defItem=$HO.extend($HO.clone(me.defItem),oParams.defItem);
 		}
 		if(oParams.renderTo){
 			me.renderTo=$(oParams.renderTo);
@@ -264,7 +263,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		var me=this;
 		//将组件数组方式的模板转为字符串
 		if(typeof me.tmpl!='string'){
-			me.constructor.prototype.tmpl=me.tmpl.join('');
+			me.tmpl=me.constructor.prototype.tmpl=me.tmpl.join('');
 		}
 		//由模板生成组件html
 		var sHtml=$H.Template.tmpl({id:me.xtype,tmpl:me.tmpl},me);
@@ -374,6 +373,15 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		return aCls.length>0?aCls.join(' ')+' ':'';
 	}
 	/**
+	 * 渲染
+	 * @method render
+	 */
+	function fRender(){
+		var me=this;
+		me.fire('beforeRender');
+		me.renderTo[me.renderBy](me.getHtml());
+	}
+	/**
 	 * 渲染后续工作
 	 * @method afterRender
 	 * @return {boolean=} 仅当已经完成过渲染时返回false
@@ -421,9 +429,6 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		}else{
 			oEl.hide();
 		}
-		if(me.withMask){
-			me.unmask();
-		}
 		me.fire('hide');
 	}
 	/**
@@ -456,9 +461,6 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 			oEl.css({visibility:"visible"})
 		}else{
 			oEl.show();
-		}
-		if(me.withMask){
-			me.mask();
 		}
 		me.fire('show');
 		me.callChild([null,true]);
@@ -496,25 +498,6 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	function fUnactive(){
 		var me=this;
 		me.getEl().removeClass(me.activeCls);
-	}
-	/**
-	 * 显示遮罩层
-	 * @method mask
-	 */
-	function fMask(){
-		if(!AC.mask){
-			AC.mask=$('<div class="hui-mask" style="display:none;"></div>').appendTo(document.body);
-		}
-		AC.mask.show();
-	}
-	/**
-	 * 隐藏遮罩层
-	 * @method unmask
-	 */
-	function fUnmask(){
-		if(AC.mask){
-			AC.mask.hide();
-		}
 	}
 	/**
 	 * 设置/读取文字
