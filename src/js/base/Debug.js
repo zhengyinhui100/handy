@@ -13,7 +13,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 		WARN_LEVEL  : 3,            //警告级别
 		ERROR_LEVEL	: 4,            //错误级别
 		DEBUG_LEVEL : 5,            //调试级别
-//		showInPage  : !("console" in window)||!!Browser.mobile(),        //是否强制在页面上输出调试信息，主要用于不支持console的浏览器，如：IE6，或者ietester里面，或者移动浏览器
+		showInPage  : !("console" in window)||!!Browser.mobile(),        //是否强制在页面上输出调试信息，主要用于不支持console的浏览器，如：IE6，或者ietester里面，或者移动浏览器
 		log			: fLog,		    //输出日志
 		info		: fInfo,		//输出信息
 		warn        : fWarn,        //输出警告信息
@@ -38,29 +38,32 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 			if(!oDebugDiv){
 				oDebugDiv = oDocument.createElement("DIV");
 				oDebugDiv.id = sDivId;
-				oDebugDiv.innerHTML = '<a href="javascript:void(0)" onclick="this.parentNode.style.display=\'none\'">关闭</a>&nbsp;<a href="javascript:void(0)" onclick="this.parentNode.getElementsByTagName(\'DIV\')[0].innerHTML=\'\';">清空</a>&nbsp;<a href="javascript:void(0)" onclick="this.parentNode.style.height=\''+oDocument.body.offsetHeight+'px\';">全屏</a>&nbsp;<a href="javascript:void(0)" onclick="this.parentNode.style.height=\'100px\';">收起</a><div style="padding-top:5px"></div>';
-				oDebugDiv.style.position = 'absolute';
+				oDebugDiv.innerHTML = [
+					'<a href="javascript:void(0)" onclick="this.parentNode.style.display=\'none\'">关闭</a>',
+					'<a href="javascript:void(0)" onclick="this.parentNode.getElementsByTagName(\'DIV\')[0].innerHTML=\'\';">清空</a>',
+					'<a href="javascript:void(0)" onclick="if(this.innerHTML==\'全屏\'){this.parentNode.style.height=\''+oDocument.body.offsetHeight+'px\';this.innerHTML=\'收起\'}else{this.parentNode.style.height=\'100px\';this.innerHTML=\'全屏\';}">全屏</a>',
+					'<a href="javascript:void(0)" onclick="var oDv=this.parentNode.getElementsByTagName(\'div\')[0];if(this.innerHTML==\'底部\'){oDv.scrollTop=oDv.scrollHeight;this.innerHTML=\'顶部\';}else{oDv.scrollTop=0;this.innerHTML=\'底部\';}">顶部</a>',
+					'<a href="javascript:void(0)" onclick="location.reload();">刷新</a>'
+				].join('&nbsp;&nbsp;&nbsp;')+'<div style="padding-top:5px;height:90%;overflow:auto;"></div>';
+				oDebugDiv.style.position = 'fixed';
 				oDebugDiv.style.width = (oDocument.body.offsetWidth-20)+'px';
 				oDebugDiv.style.left = 0;
 				oDebugDiv.style.top = 0;
 				oDebugDiv.style.right = 0;
-				oDebugDiv.style.height = '100px';
+				oDebugDiv.style.height = '150px';
 				oDebugDiv.style.backgroundColor = '#aaa';
 				oDebugDiv.style.fontSize = '12px';
 				oDebugDiv.style.padding = '10px';
-				oDebugDiv.style.overflow = 'auto';
-				oDebugDiv.style.zIndex = 99999999;
-				oDebugDiv.style.opacity=0.5;
-				oDebugDiv.style.filter="alpha(opacity=50)";
+				oDebugDiv.style.zIndex = 9999999999;
+				oDebugDiv.style.opacity=0.8;
+				oDebugDiv.style.filter="alpha(opacity=20)";
 				oDocument.body.appendChild(oDebugDiv);
 			}else{
 				oDebugDiv.style.display = 'block';
 			}
-			var oVarDiv = oDocument.createElement("DIV");
-			//TODO JSON
-			oVarDiv.innerHTML = sType+" : "+JSON.stringify(oVar, null, '<br/>');
 			var oAppender=oDebugDiv.getElementsByTagName('DIV')[0];
-			oAppender.innerHTML = oAppender.innerHTML+oVarDiv.innerHTML+"<br/>";
+			oAppender.innerHTML += sType+" : "+JSON.stringify(oVar, null, '<br/>')+"<br/>";
+			oAppender.scrollTop=oAppender.scrollHeight;
 		}
 		try{
 			console[sType](oVar);
@@ -126,17 +129,20 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 	/**
 	 * 输出统计时间
 	 * @method time
-	 * @param {string}sMsg 输出的信息
-	 * @param {boolean}bOut 为true时，计算时间并输出信息
-	 * @param {boolean}bShowInPage 是否需要创建一个DIV输出到页面
+	 * @param {boolean=}bOut 为true时，计算时间并输出信息，只有此参数为true时，后面两个参数才有意义
+	 * @param {string=}sMsg 输出的信息
+	 * @param {boolean=}bShowInPage 是否需要创建一个DIV输出到页面
 	 */
-	function fTime(sMsg,bOut,bShowInPage){
+	function fTime(bOut,sMsg,bShowInPage){
 		if(Debug.level>Debug.INFO_LEVEL){
 			return;
 		}
-		sMsg=sMsg||'';
 		if(bOut){
-			_fOut(sMsg+", 消耗时间:"+(new Date().getTime()-(Debug.lastTime||0)),!!bShowInPage)
+			if(typeof sMsg=='boolean'){
+				bShowInPage=sMsg;
+				sMsg='';
+			}
+			_fOut((sMsg||'')+(new Date().getTime()-(Debug.lastTime||0)),!!bShowInPage)
 		}else{
 			Debug.lastTime=new Date().getTime();
 		}
