@@ -43,8 +43,9 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 					'<a href="javascript:void(0)" onclick="this.parentNode.getElementsByTagName(\'DIV\')[0].innerHTML=\'\';">清空</a>',
 					'<a href="javascript:void(0)" onclick="if(this.innerHTML==\'全屏\'){this.parentNode.style.height=\''+oDocument.body.offsetHeight+'px\';this.innerHTML=\'收起\'}else{this.parentNode.style.height=\'100px\';this.innerHTML=\'全屏\';}">全屏</a>',
 					'<a href="javascript:void(0)" onclick="var oDv=this.parentNode.getElementsByTagName(\'div\')[0];if(this.innerHTML==\'底部\'){oDv.scrollTop=oDv.scrollHeight;this.innerHTML=\'顶部\';}else{oDv.scrollTop=0;this.innerHTML=\'底部\';}">顶部</a>',
-					'<a href="javascript:void(0)" onclick="location.reload();">刷新</a>'
-				].join('&nbsp;&nbsp;&nbsp;')+'<div style="padding-top:5px;height:90%;overflow:auto;"></div>';
+					'<a href="javascript:void(0)" onclick="location.reload();">刷新</a>',
+					'<a href="javascript:void(0)" onclick="history.back();">后退</a>'
+				].join('&nbsp;&nbsp;&nbsp;&nbsp;')+'<div style="padding-top:5px;height:90%;overflow:auto;"></div>';
 				oDebugDiv.style.position = 'fixed';
 				oDebugDiv.style.width = (oDocument.body.offsetWidth-20)+'px';
 				oDebugDiv.style.left = 0;
@@ -56,13 +57,13 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 				oDebugDiv.style.padding = '10px';
 				oDebugDiv.style.zIndex = 9999999999;
 				oDebugDiv.style.opacity=0.8;
-				oDebugDiv.style.filter="alpha(opacity=20)";
+				oDebugDiv.style.filter="alpha(opacity=80)";
 				oDocument.body.appendChild(oDebugDiv);
 			}else{
 				oDebugDiv.style.display = 'block';
 			}
 			var oAppender=oDebugDiv.getElementsByTagName('DIV')[0];
-			oAppender.innerHTML += sType+" : "+JSON.stringify(oVar, null, '<br/>')+"<br/>";
+			oAppender.innerHTML += sType+" : "+$H.Json.stringify(oVar, null, '<br/>')+"<br/>";
 			oAppender.scrollTop=oAppender.scrollHeight;
 		}
 		try{
