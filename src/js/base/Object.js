@@ -113,6 +113,13 @@ handy.add('Object',function($H){
         	}
         	fInitialize = me.initialize;
             if (fInitialize) {
+            	//所有对象类型包括数组类型的属性都重新clone，避免在实例方法中修改到类属性
+            	//根据组件example页面118-11800个不同组件的测试，手机上大概会影响5-10%的性能，pc上不是很明显
+            	for(var p in me){
+            		if(typeof me[p]=="object"){
+            			me[p]=Object.clone(me[p]);
+            		}
+            	}
                 // 返回当前class派生出来对象可以被定义
             	return fInitialize.apply(me, arguments);
             }
