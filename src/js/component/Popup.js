@@ -8,7 +8,9 @@ $Define('c.Popup',
 'c.AbstractComponent',
 function(AC){
 	
-	var Popup=AC.define('Popup');
+	var Popup=AC.define('Popup'),
+	_popupNum=0,
+	_mask;
 	
 	Popup.extend({
 		//初始配置
@@ -17,9 +19,9 @@ function(AC){
 //		timeout         : null,            //自动隐藏的时间(毫秒)，不指定此值则不自动隐藏
 		showPos         : 'center',        //定位方法名，或者传入自定义定位函数
 //		notDestroy      : false,           //隐藏时保留对象，不自动销毁，默认弹出层会自动销毁
+//		noMask          : false,           //仅当true时没有遮罩层
 		
 		//组件共有配置
-		withMask        : true,
 		shadowOverlay   : true,
 		
 		tmpl            : [
@@ -30,7 +32,9 @@ function(AC){
 		show             : fShow,            //显示
 		hide             : fHide,            //隐藏
 		center           : fCenter,          //居中显示
-		followEl         : fFollowEl         //根据指定节点显示
+		followEl         : fFollowEl,        //根据指定节点显示
+		mask             : fMask,            //显示遮罩层
+		unmask           : fUnmask           //隐藏遮罩层
 	});
 	/**
 	 * 初始化配置
@@ -86,28 +90,35 @@ function(AC){
 	function fShow(){
 		// 设置定位坐标
 		var me=this;
-		//默认居中显示
-		var showPos=me.showPos;
-		if(typeof showPos=="string"){
-			me[showPos]();
-		}else if(typeof showPos=="function"){
-			showPos.call(me);
-		}
 		//如果是父组件通过callChild调用的会有参数，要传进去
-		me.callSuper(arguments);
-		//如果未设置宽度，默认和父组件宽度一样
-		if(!me.width&&me.parent){
-			$D.log(me.parent.getEl().outerWidth());
-			var width=me.width=me.parent.getEl().outerWidth();
-			me.getEl().css('width',width);
-		}
-		//定时隐藏
-		if(me.timeout){
-			setTimeout(function(){
-				if(!me.destroyed){
-					me.hide();
-				}
-			},me.timeout);
+		var bIsShow=me.callSuper(arguments);
+		if(bIsShow!=false){
+			var oEl=me.getEl();
+			oEl.css('z-index',_popupNum*1000+1000);
+			//默认居中显示
+			var showPos=me.showPos;
+			if(typeof showPos=="string"){
+				me[showPos]();
+			}else if(typeof showPos=="function"){
+				showPos.call(me);
+			}
+			if(!me.noMask){
+				me.mask();
+			}
+			//如果未设置宽度，默认和父组件宽度一样
+			if(!me.width&&me.parent){
+				$D.log(me.parent.getEl().outerWidth());
+				var width=me.width=me.parent.getEl().outerWidth();
+				oEl.css('width',width);
+			}
+			//定时隐藏
+			if(me.timeout){
+				setTimeout(function(){
+					if(!me.destroyed){
+						me.hide();
+					}
+				},me.timeout);
+			}
 		}
 	}
 	/**
@@ -117,8 +128,13 @@ function(AC){
 	function fHide(){
 		var me=this;
 		var bIsHide=me.callSuper();
-		if(bIsHide!=false&&!me.notDestroy){
-			me.destroy();
+		if(bIsHide!=false){
+			if(!me.noMask){
+				me.unmask();
+			}
+			if(!me.notDestroy){
+				me.destroy();
+			}
 		}
 	}
 	/**
@@ -148,6 +164,34 @@ function(AC){
 		var el=oEl||me.parent.getEl();
 		var oPos=el.position();
 		me.getEl().css(oPos);
+	}
+	/**
+	 * 显示遮罩层
+	 * @method mask
+	 */
+	function fMask(){
+		var me=this;
+		if(!_mask){
+			_mask=$('<div class="hui-mask" style="display:none;"></div>').appendTo(document.body);
+		}
+		_mask.css('z-index',_popupNum*1000+998);
+		if(_popupNum==0){
+			_mask.show();
+		}
+		_popupNum++;
+	}
+	/**
+	 * 隐藏遮罩层
+	 * @method unmask
+	 */
+	function fUnmask(){
+		var me=this;
+		_popupNum--;
+		if(_popupNum==0){
+			_mask.hide();
+		}else{
+			_mask.css('z-index',_popupNum*1000+998);
+		}
 	}
 	
 	return Popup;
