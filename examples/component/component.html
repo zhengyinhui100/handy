@@ -142,539 +142,556 @@ $Require([
 "c.Dialog"],
 function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolbar,Tips,Dialog){
 	
-	$('#iconContainerDv').append(Icon.html({
-		cid:'icon',
-		name:'edit',
-		renderTo:'#iconContainerDv',
-		listeners:[
-		           {
-		        	   type:'afterRender',
-		        	   data:'message',
-		        	   notEl:true,
-		        	   handler:function(oEvt){
-		        		   $D.log(oEvt.data);
-		        	   }
-		           }
-		]
-	}));
-	var icon=CM.get('icon');
-	icon.afterRender();
-	console.log(icon);
+	function example(){
 	
-	var aIcons=["action","arrow-d-l","arrow-d-r","arrow-d","arrow-l","arrow-r","arrow-u-l","arrow-u-r",
-	            "arrow-u","audio","calendar","camera","carat-d","carat-l","carat-r","carat-u","check",
-	            "clock","cloud","grid","mail","eye","gear","heart","home","info","bullets","bars",
-	            "navigation","lock","search","location","minus","forbidden","edit","user","phone",
-	            "plus","power","recycle","forward","refresh","shop","comment","star","tag","back",
-	            "video","alert","delete"];
-	for(var i=0;i<aIcons.length;i++){
-		new Icon({
-			renderTo:'#iconsDv',
-			name:aIcons[i]
-		});
-		$("#iconsDv").append('<span style="display:inline-block;width:100px;margin-left:10px;line-height:30px;">'+aIcons[i]+'</span>'+(i%5==4?'<br/>':''));
-	}
-
-	
-	new Button({
-		renderTo:'#buttonContainerDv',
-		text:'按钮',
-		color:'blue',
-		radius:'normal',
-		click:function(){
-	  		  $D.log(1);
-	  	  }
-	})
-	
-	new Button({
-		renderTo:'#buttonContainerDv',
-		text:'图标按钮',
-		items:{
-			xtype:"Icon",
-			name:"carat-l"
+		$('#iconContainerDv').append(Icon.html({
+			//这里因为性能测试循环注释掉
+			//cid:'icon',
+			name:'edit',
+			renderTo:'#iconContainerDv',
+			listeners:[
+			           {
+			        	   type:'afterRender',
+			        	   data:'message',
+			        	   notEl:true,
+			        	   handler:function(oEvt){
+			        		   $D.log(oEvt.data);
+			        	   }
+			           }
+			]
+		}));
+		/* 这里因为性能测试循环注释掉 
+		var icon=CM.get('icon');
+		icon.afterRender();
+		console.log(icon); 
+		*/
+		
+		var aIcons=["action","arrow-d-l","arrow-d-r","arrow-d","arrow-l","arrow-r","arrow-u-l","arrow-u-r",
+		            "arrow-u","audio","calendar","camera","carat-d","carat-l","carat-r","carat-u","check",
+		            "clock","cloud","grid","mail","eye","gear","heart","home","info","bullets","bars",
+		            "navigation","lock","search","location","minus","forbidden","edit","user","phone",
+		            "plus","power","recycle","forward","refresh","shop","comment","star","tag","back",
+		            "video","alert","delete"];
+		for(var i=0;i<aIcons.length;i++){
+			new Icon({
+				renderTo:'#iconsDv',
+				name:aIcons[i]
+			});
+			$("#iconsDv").append('<span style="display:inline-block;width:100px;margin-left:10px;line-height:30px;">'+aIcons[i]+'</span>'+(i%5==4?'<br/>':''));
 		}
-	})
 	
-	new Button({
-		renderTo:'#buttonContainerDv',
-		items:{
-			xtype:"Icon",
-			name:"carat-l"
-		}
-	})
-	
-	new ControlGroup({
-		renderTo:'#controlGroupDv',
-		direction:'h',
-		items:[{
-			xtype:'Button',
-			text:'按钮一'
-		},{
-			xtype:'Button',
-			text:'按钮二'
-		},{
-			xtype:'Button',
-			text:'按钮三'
-		}]
-	});
-	
-	//单选框
-	var radios=new ControlGroup({
-		renderTo:'#radioDv',
-		defItem:{
-			xtype:'Radio',
-			name:'radio'
-		},
-		items:[{
-			value:'1',
-			text:'选项一'
-		},{
-			value:'2',
-			selected:true,
-			text:'选项二'
-		},{
-			value:'3',
-			text:'选项三'
-		}]
-	});
-	
-	new Button({
-		renderTo:'#radioDv',
-		text:'获取选中值',
-		click:function(){
-			alert(radios.val());
-		}
-	})
-	
-	new Button({
-		renderTo:'#radioDv',
-		text:'选中第一个',
-		click:function(){
-			radios.val('1');
-		}
-	})
-	
-	//多选框
-	var checkboxs=new ControlGroup({
-		renderTo:'#checkboxDv',
-		defItem:{
-			xtype:'Checkbox',
-			name:'checkbox'
-		},
-		items:[{
-			value:'1',
-			text:'选项一'
-		},{
-			value:'2',
-			selected:true,
-			text:'选项二'
-		},{
-			value:'3',
-			selected:true,
-			text:'选项三'
-		}]
-	});
-	
-	new Button({
-		renderTo:'#checkboxDv',
-		text:'获取选中值',
-		click:function(){
-			alert(checkboxs.val());
-		}
-	})
-	
-	new Button({
-		renderTo:'#checkboxDv',
-		text:'选中前两个',
-		click:function(){
-			checkboxs.val('1,2');
-		}
-	})
-	
-	//菜单
-	new Button({
-		renderTo:"#menuDv",
-		text:"普通菜单",
-		click:function(){
-			if(this.menu){
-				this.menu.show();
-			}else{
-				this.menu=new Menu({
-					itemClick:function(menuItem){
-						alert(menuItem.value);
-					},
-					items:[{
-						text:"菜单一",
-						value:"1"
-					},{
-						text:"菜单二",
-						value:"2"
-					}]
-				})
-			}
-		}
-	})
-	
-	new Button({
-		renderTo:"#menuDv",
-		text:"active选中效果菜单",
-		click:function(){
-			if(this.menu){
-				this.menu.show();
-			}else{
-				this.menu=new Menu({
-					markType:'active',
-					items:[{
-						text:"菜单一",
-						value:"1"
-					},{
-						text:"菜单二",
-						value:"2"
-					}]
-				})
-			}
-		}
-	})
-	
-	new Button({
-		renderTo:"#menuDv",
-		text:"点选效果菜单",
-		click:function(){
-			if(this.menu){
-				this.menu.show();
-			}else{
-				this.menu=new Menu({
-					markType:'dot',
-					items:[{
-						text:"菜单一",
-						value:"1"
-					},{
-						text:"菜单二",
-						value:"2"
-					}]
-				})
-			}
-		}
-	})
-	
-	//下拉选择框
-	var select=new Select({
-		renderTo:'#selectDv',
-		name:'select',
-		value:'1',
-		width:150,
-		defItem:{
-			showPos:'followEl'
-		},
-		options:[{
-			text:"选项一",
-			value:"1"
-		},{
-			text:"选项二",
-			value:"2"
-		}],
-		change:function(){
-			console.log(this);
-			console.log(arguments);
-		}
-	});
-	new Button({
-		renderTo:'#selectDv',
-		text:'获取选中值',
-		click:function(){
-			alert(select.val());
-		}
-	})
-	
-	//输入框
-	new Input({
-		renderTo:'#inputContainerDv'
-	});
-	$('#inputContainerDv').append('<br/>');
-	new Input({
-		type:'search',
-		value:'默认值',
-		renderTo:'#inputContainerDv'
-	});
-	$('#inputContainerDv').append('<br/>');
-	new Input({
-		renderTo:'#inputContainerDv',
-		withClear:true
-	});
-	$('#inputContainerDv').append('<br/>');
-	new Input({
-		renderTo:'#inputContainerDv',
-		items:{
-			xtype:'Button',
-			radius:'big',
+		
+		new Button({
+			renderTo:'#buttonContainerDv',
+			text:'按钮',
+			color:'blue',
+			radius:'normal',
+			click:function(){
+		  		  $D.log(1);
+		  	  }
+		})
+		
+		new Button({
+			renderTo:'#buttonContainerDv',
+			text:'图标按钮',
 			items:{
 				xtype:"Icon",
-				name:'edit'
+				name:"carat-l"
 			}
-		}
-	});
-	$('#inputContainerDv').append('<br/>');
-	var input=new Input({
-		type:'textarea',
-		placeholder:'textarea自适应高度',
-		renderTo:'#inputContainerDv'
-	});
-	
-	//标签栏
-	new Tab({
-		renderTo:'#tabDv',
-		hasContent:true,
-		items:[
-			{
-				text:'一',
+		})
+		
+		new Button({
+			renderTo:'#buttonContainerDv',
+			items:{
+				xtype:"Icon",
+				name:"carat-l"
+			}
+		})
+		
+		new ControlGroup({
+			renderTo:'#controlGroupDv',
+			direction:'h',
+			items:[{
+				xtype:'Button',
+				text:'按钮一'
+			},{
+				xtype:'Button',
+				text:'按钮二'
+			},{
+				xtype:'Button',
+				text:'按钮三'
+			}]
+		});
+		
+		//单选框
+		var radios=new ControlGroup({
+			renderTo:'#radioDv',
+			defItem:{
+				xtype:'Radio',
+				name:'radio'
+			},
+			items:[{
+				value:'1',
+				text:'选项一'
+			},{
+				value:'2',
 				selected:true,
-				color:'black',
-				items:{
-					name:'edit'
-				},
-				content:'内容1'
-			},
-			{
-				text:'二',
-				color:'black',
-				items:{
-					name:'edit'
-				},
-				content:'内容2',
-				click:function(){
-					$D.log(this.index());
-				}
-			},
-			{
-				text:'三',
-				color:'black',
-				items:{
-					name:'edit'
-				},
-				content:'内容3'
-			}
-		]
-	});
-	
-	//工具栏
-	new Toolbar({
-		renderTo:'#toolbarDv',
-		title:'header标题',
-		type:'header',
-		items:[{
-			xtype:'Button',
-			isBack:true,
-			text:'后退',
-			isMini:true,
-			pos:'left',
-			color:'blue',
+				text:'选项二'
+			},{
+				value:'3',
+				text:'选项三'
+			}]
+		});
+		
+		new Button({
+			renderTo:'#radioDv',
+			text:'获取选中值',
 			click:function(){
-				$D.log(1);
+				alert(radios.val());
 			}
-		},{
-			xtype:'Button',
-			text:'按钮',
-			isMini:true,
-			pos:'right',
-			color:'black'
-		}]
-	})
-	
-	var toolbar=new Toolbar({
-		renderTo:'#toolbarDv',
-		items:[{
-			xtype:'Tab',
-			items:[
-					{
-						text:'一',
-						selected:true,
-						color:'black',
-						items:{
-							name:'edit'
-						}
-					},
-					{
-						text:'二',
-						color:'black',
-						items:{
-							name:'edit'
-						}
-					},
-					{
-						text:'三',
-						color:'black',
-						items:{
-							name:'edit'
-						}
-					}
-				]
-		}]
-	});
-	
-	//提示
-	new Button({
-		renderTo:'#tipsDv',
-		text:'默认提示',
-		click:function(){
-			new Tips({
-				text:'默认提示'
-			})
-		}
-	})
-	new Button({
-		renderTo:'#tipsDv',
-		text:'错误提示',
-		click:function(){
-			new Tips({
-				text:'提示',
-				theme:'error'
-			})
-		}
-	})
-	new Button({
-		renderTo:'#tipsDv',
-		text:'loading提示',
-		click:function(){
-			new Tips({
-				text:'提示',
-				theme:'black',
-				icon:'loading'
-			})
-		}
-	})
-	new Button({
-		renderTo:'#tipsDv',
-		text:'无文字loading提示',
-		click:function(){
-			new Tips({
-				shadowOverlay:null,
-				icon:'loading'
-			})
-		}
-	})
-	new Button({
-		renderTo:'#tipsDv',
-		text:'无遮罩层提示',
-		click:function(){
-			new Tips({
-				withMask:false,
-				shadowOverlay:null,
-				icon:'loading'
-			})
-		}
-	})
-	
-	//对话框
-	var dialog;
-	new Button({
-		renderTo:'#dialogDv',
-		text:'普通对话框',
-		click:function(){
-			if(dialog){
-				dialog.show();
-				return;
+		})
+		
+		new Button({
+			renderTo:'#radioDv',
+			text:'选中第一个',
+			click:function(){
+				radios.val('1');
 			}
-			dialog=new Dialog({
-				title:'警告',
-				notDestroy:true,
-				contentTitle:'注意!',
-				activeBtn:2,
-				contentMsg:'内容内容内容内容内容内容内容内容内容',
-				okCall:function(){
-					$D.log('click ok');
-					//不关闭弹窗
-					return false;
+		})
+		
+		//多选框
+		var checkboxs=new ControlGroup({
+			renderTo:'#checkboxDv',
+			defItem:{
+				xtype:'Checkbox',
+				name:'checkbox'
+			},
+			items:[{
+				value:'1',
+				text:'选项一'
+			},{
+				value:'2',
+				selected:true,
+				text:'选项二'
+			},{
+				value:'3',
+				selected:true,
+				text:'选项三'
+			}]
+		});
+		
+		new Button({
+			renderTo:'#checkboxDv',
+			text:'获取选中值',
+			click:function(){
+				alert(checkboxs.val());
+			}
+		})
+		
+		new Button({
+			renderTo:'#checkboxDv',
+			text:'选中前两个',
+			click:function(){
+				checkboxs.val('1,2');
+			}
+		})
+		
+		//菜单
+		new Button({
+			renderTo:"#menuDv",
+			text:"普通菜单",
+			click:function(){
+				if(this.menu){
+					this.menu.show();
+				}else{
+					this.menu=new Menu({
+						itemClick:function(menuItem){
+							alert(menuItem.value);
+						},
+						items:[{
+							text:"菜单一",
+							value:"1"
+						},{
+							text:"菜单二",
+							value:"2"
+						}]
+					})
 				}
-			});
-		}
-	})
-	
-	new Button({
-		renderTo:'#dialogDv',
-		text:'alert',
-		click:function(){
-			Dialog.alert('我是alert！')
-		}
-	})
-	
-	new Button({
-		renderTo:'#dialogDv',
-		text:'confirm',
-		click:function(){
-			Dialog.confirm('我是confirm！',function(result){
-				alert('您点击的是'+(result?'确定':'取消')+'，返回：'+result);
-			})
-		}
-	})
-	
-	new Button({
-		renderTo:'#dialogDv',
-		text:'prompt',
-		click:function(){
-			Dialog.prompt('请输入:','123',function(result){
-				alert('您输入的是：'+result);
-			})
-		}
-	})
-	
-	new Button({
-		renderTo:'#dialogDv',
-		text:'自定义对话框',
-		click:function(){
-			new Dialog({
-				title:'警告',
-				contentTitle:'注意!',
-				contentMsg:'我是自定义对话框',
-				items:[{
-					xtype:'Select',
-					xrole:'dialog-content',
-					name:'dialogSelect',
-					value:'1',
-					width:150,
-					defItem:{
-						showPos:'followEl'
+			}
+		})
+		
+		new Button({
+			renderTo:"#menuDv",
+			text:"active选中效果菜单",
+			click:function(){
+				if(this.menu){
+					this.menu.show();
+				}else{
+					this.menu=new Menu({
+						markType:'active',
+						items:[{
+							text:"菜单一",
+							value:"1"
+						},{
+							text:"菜单二",
+							value:"2"
+						}]
+					})
+				}
+			}
+		})
+		
+		new Button({
+			renderTo:"#menuDv",
+			text:"点选效果菜单",
+			click:function(){
+				if(this.menu){
+					this.menu.show();
+				}else{
+					this.menu=new Menu({
+						markType:'dot',
+						items:[{
+							text:"菜单一",
+							value:"1"
+						},{
+							text:"菜单二",
+							value:"2"
+						}]
+					})
+				}
+			}
+		})
+		
+		//下拉选择框
+		var select=new Select({
+			renderTo:'#selectDv',
+			name:'select',
+			value:'1',
+			width:150,
+			defItem:{
+				showPos:'followEl'
+			},
+			options:[{
+				text:"选项一",
+				value:"1"
+			},{
+				text:"选项二",
+				value:"2"
+			}],
+			change:function(){
+				console.log(this);
+				console.log(arguments);
+			}
+		});
+		new Button({
+			renderTo:'#selectDv',
+			text:'获取选中值',
+			click:function(){
+				alert(select.val());
+			}
+		})
+		
+		//输入框
+		new Input({
+			renderTo:'#inputContainerDv'
+		});
+		$('#inputContainerDv').append('<br/>');
+		new Input({
+			type:'search',
+			value:'默认值',
+			renderTo:'#inputContainerDv'
+		});
+		$('#inputContainerDv').append('<br/>');
+		new Input({
+			renderTo:'#inputContainerDv',
+			withClear:true
+		});
+		$('#inputContainerDv').append('<br/>');
+		new Input({
+			renderTo:'#inputContainerDv',
+			items:{
+				xtype:'Button',
+				radius:'big',
+				items:{
+					xtype:"Icon",
+					name:'edit'
+				}
+			}
+		});
+		$('#inputContainerDv').append('<br/>');
+		var input=new Input({
+			type:'textarea',
+			placeholder:'textarea自适应高度',
+			renderTo:'#inputContainerDv'
+		});
+		
+		//标签栏
+		new Tab({
+			renderTo:'#tabDv',
+			hasContent:true,
+			items:[
+				{
+					text:'一',
+					selected:true,
+					color:'black',
+					items:{
+						name:'edit'
 					},
-					options:[{
-						text:"选项一",
-						value:"1"
-					},{
-						text:"选项二",
-						value:"2"
-					}],
-					change:function(){
-						console.log(this);
-						console.log(arguments);
+					content:'内容1'
+				},
+				{
+					text:'二',
+					color:'black',
+					items:{
+						name:'edit'
+					},
+					content:'内容2',
+					click:function(){
+						$D.log(this.index());
 					}
-				},{
-					xtype:'Tab',
-					xrole:'dialog-action',
+				},
+				{
+					text:'三',
+					color:'black',
+					items:{
+						name:'edit'
+					},
+					content:'内容3'
+				}
+			]
+		});
+		
+		//工具栏
+		new Toolbar({
+			renderTo:'#toolbarDv',
+			title:'header标题',
+			type:'header',
+			items:[{
+				xtype:'Button',
+				isBack:true,
+				text:'后退',
+				isMini:true,
+				pos:'left',
+				color:'blue',
+				click:function(){
+					$D.log(1);
+				}
+			},{
+				xtype:'Button',
+				text:'按钮',
+				isMini:true,
+				pos:'right',
+				color:'black'
+			}]
+		})
+		
+		var toolbar=new Toolbar({
+			renderTo:'#toolbarDv',
+			items:[{
+				xtype:'Tab',
+				items:[
+						{
+							text:'一',
+							selected:true,
+							color:'black',
+							items:{
+								name:'edit'
+							}
+						},
+						{
+							text:'二',
+							color:'black',
+							items:{
+								name:'edit'
+							}
+						},
+						{
+							text:'三',
+							color:'black',
+							items:{
+								name:'edit'
+							}
+						}
+					]
+			}]
+		});
+		
+		//提示
+		new Button({
+			renderTo:'#tipsDv',
+			text:'默认提示',
+			click:function(){
+				new Tips({
+					text:'默认提示'
+				})
+			}
+		})
+		new Button({
+			renderTo:'#tipsDv',
+			text:'错误提示',
+			click:function(){
+				new Tips({
+					text:'提示',
+					theme:'error'
+				})
+			}
+		})
+		new Button({
+			renderTo:'#tipsDv',
+			text:'loading提示',
+			click:function(){
+				new Tips({
+					text:'提示',
+					theme:'black',
+					icon:'loading'
+				})
+			}
+		})
+		new Button({
+			renderTo:'#tipsDv',
+			text:'无文字loading提示',
+			click:function(){
+				new Tips({
+					shadowOverlay:null,
+					icon:'loading'
+				})
+			}
+		})
+		new Button({
+			renderTo:'#tipsDv',
+			text:'无遮罩层自定义timeout提示',
+			click:function(){
+				new Tips({
+					noMask:true,
+					timeout:3000,
+					shadowOverlay:null,
+					icon:'loading'
+				})
+			}
+		})
+		
+		//对话框
+		var dialog;
+		new Button({
+			renderTo:'#dialogDv',
+			text:'普通对话框',
+			click:function(){
+				if(dialog){
+					dialog.show();
+					return;
+				}
+				dialog=new Dialog({
+					title:'警告',
+					notDestroy:true,
+					contentTitle:'注意!',
+					activeBtn:2,
+					contentMsg:'内容内容内容内容内容内容内容内容内容',
+					okCall:function(){
+						$D.log('click ok');
+						//不关闭弹窗
+						return false;
+					}
+				});
+			}
+		})
+		
+		new Button({
+			renderTo:'#dialogDv',
+			text:'alert',
+			click:function(){
+				Dialog.alert('我是alert！')
+			}
+		})
+		
+		new Button({
+			renderTo:'#dialogDv',
+			text:'confirm',
+			click:function(){
+				Dialog.confirm('我是confirm！',function(result){
+					alert('您点击的是'+(result?'确定':'取消')+'，返回：'+result);
+				})
+			}
+		})
+		
+		new Button({
+			renderTo:'#dialogDv',
+			text:'prompt',
+			click:function(){
+				Dialog.prompt('请输入:','123',function(result){
+					alert('您输入的是：'+result);
+				})
+			}
+		})
+		
+		new Button({
+			renderTo:'#dialogDv',
+			text:'自定义对话框',
+			click:function(){
+				new Dialog({
+					title:'警告',
+					contentTitle:'注意!',
+					contentMsg:'我是自定义对话框',
 					items:[{
-						xtype:'Button',
-						text:'取消',
-						click:function(){
-							alert('取消');
-							this.parents().hide();
+						xtype:'Select',
+						xrole:'dialog-content',
+						name:'dialogSelect',
+						value:'1',
+						width:150,
+						options:[{
+							text:"选项一",
+							value:"1"
+						},{
+							text:"选项二",
+							value:"2"
+						}],
+						change:function(){
+							console.log(this);
+							console.log(arguments);
 						}
 					},{
-						xtype:'Button',
-						text:'不保存',
-						click:function(){
-							alert('不保存');
-							this.parents().hide();
-						}
-					},{
-						xtype:'Button',
-						isActive:true,
-						text:'保存',
-						click:function(){
-							alert('保存');
-							this.parents().hide();
-						}
+						xtype:'Tab',
+						xrole:'dialog-action',
+						items:[{
+							xtype:'Button',
+							text:'取消',
+							click:function(){
+								alert('取消');
+								this.parents().hide();
+							}
+						},{
+							xtype:'Button',
+							text:'不保存',
+							click:function(){
+								alert('不保存');
+								this.parents().hide();
+							}
+						},{
+							xtype:'Button',
+							isActive:true,
+							text:'保存',
+							click:function(){
+								alert('保存');
+								this.parents().hide();
+							}
+						}]
 					}]
-				}]
-			});
-		}
-	});
+				});
+			}
+		});
+	
+	}
+	
+	$D.time()
+	for(var i=0;i<1;i++){
+		example();
+	}
+	
+	$D.time(true,'组件初始化时间：');
+	var num=0;
+	$C.eachInEl($(document.body),function(){
+		num++;
+	})
+	$D.log('组件数目：'+num);
 });
 </script>
 </html>
