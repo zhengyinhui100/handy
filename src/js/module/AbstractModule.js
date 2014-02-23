@@ -64,7 +64,7 @@ $Define("m.AbstractModule","cm.AbstractView",function (AbstractView) {
 		}
 		//将组件数组方式的模板转为字符串
 		if(typeof me.tmpl!='string'){
-			me.constructor.prototype.tmpl=me.tmpl.join('');
+			me.tmpl=me.constructor.prototype.tmpl=me.tmpl.join('');
 		}
 		//由模板生成组件html
 		var sHtml=$H.Template.tmpl({id:me.name,tmpl:me.tmpl},me);

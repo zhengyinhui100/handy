@@ -218,8 +218,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		//复制参数
 		me.settings=$HO.clone(oParams);
 		
-		//事件列表对象特殊处理，不影响类定义
-		var aListeners=me.listeners?me.listeners.concat():[];
+		var aListeners=me.listeners||[];
 		//添加参数中的事件
 		if(oParams.listeners){
 			aListeners=aListeners.concat(oParams.listeners);
@@ -250,8 +249,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		}
 		//覆盖子组件配置
 		if(oParams.defItem){
-			//只覆盖实例属性，不影响类属性
-			me.defItem=$HO.extend($HO.clone(me.defItem),oParams.defItem);
+			$HO.extend(me.defItem,oParams.defItem);
 		}
 		if(oParams.renderTo){
 			me.renderTo=$(oParams.renderTo);
