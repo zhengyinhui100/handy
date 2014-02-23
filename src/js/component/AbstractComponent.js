@@ -1,5 +1,10 @@
 /**
- * 组件基类
+ * 组件基类，所有组件必须继承自此类或此类的子类，定义组件必须用AbstractComponent.define方法，
+ * 扩展组件类方法必须用本类的extend方法，扩展类的静态方法则可以使用$H.Object.extend方法，例如
+ * var ExampleCmp=AbstractComponent.define('ExampleCmp');
+ * ExampleCmp.extend({
+ * 	   test:''
+ * });
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2013-12-28
  */
