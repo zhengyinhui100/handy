@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-02-21 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-02-23 | zhengyinhui100@gmail.com */
 /****************************************************************
 * Author:		郑银辉											*
 * Email:		zhengyinhui100@gmail.com						*

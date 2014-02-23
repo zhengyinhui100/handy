@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-02-21 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-02-23 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -680,6 +680,13 @@ handy.add('Object',function($H){
         	}
         	fInitialize = me.initialize;
             if (fInitialize) {
+            	//所有对象类型包括数组类型的属性都重新clone，避免在实例方法中修改到类属性
+            	//根据组件example页面118-11800个不同组件的测试，手机上大概会影响5-10%的性能，pc上不是很明显
+            	for(var p in me){
+            		if(typeof me[p]=="object"){
+            			me[p]=Object.clone(me[p]);
+            		}
+            	}
                 // 返回当前class派生出来对象可以被定义
             	return fInitialize.apply(me, arguments);
             }
@@ -1310,7 +1317,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 		WARN_LEVEL  : 3,            //警告级别
 		ERROR_LEVEL	: 4,            //错误级别
 		DEBUG_LEVEL : 5,            //调试级别
-//		showInPage  : !("console" in window)||!!Browser.mobile(),        //是否强制在页面上输出调试信息，主要用于不支持console的浏览器，如：IE6，或者ietester里面，或者移动浏览器
+		showInPage  : !("console" in window)||!!Browser.mobile(),        //是否强制在页面上输出调试信息，主要用于不支持console的浏览器，如：IE6，或者ietester里面，或者移动浏览器
 		log			: fLog,		    //输出日志
 		info		: fInfo,		//输出信息
 		warn        : fWarn,        //输出警告信息
@@ -1335,29 +1342,33 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 			if(!oDebugDiv){
 				oDebugDiv = oDocument.createElement("DIV");
 				oDebugDiv.id = sDivId;
-				oDebugDiv.innerHTML = '<a href="javascript:void(0)" onclick="this.parentNode.style.display=\'none\'">关闭</a>&nbsp;<a href="javascript:void(0)" onclick="this.parentNode.getElementsByTagName(\'DIV\')[0].innerHTML=\'\';">清空</a>&nbsp;<a href="javascript:void(0)" onclick="this.parentNode.style.height=\''+oDocument.body.offsetHeight+'px\';">全屏</a>&nbsp;<a href="javascript:void(0)" onclick="this.parentNode.style.height=\'100px\';">收起</a><div style="padding-top:5px"></div>';
-				oDebugDiv.style.position = 'absolute';
+				oDebugDiv.innerHTML = [
+					'<a href="javascript:void(0)" onclick="this.parentNode.style.display=\'none\'">关闭</a>',
+					'<a href="javascript:void(0)" onclick="this.parentNode.getElementsByTagName(\'DIV\')[0].innerHTML=\'\';">清空</a>',
+					'<a href="javascript:void(0)" onclick="if(this.innerHTML==\'全屏\'){this.parentNode.style.height=\''+oDocument.body.offsetHeight+'px\';this.innerHTML=\'收起\'}else{this.parentNode.style.height=\'100px\';this.innerHTML=\'全屏\';}">全屏</a>',
+					'<a href="javascript:void(0)" onclick="var oDv=this.parentNode.getElementsByTagName(\'div\')[0];if(this.innerHTML==\'底部\'){oDv.scrollTop=oDv.scrollHeight;this.innerHTML=\'顶部\';}else{oDv.scrollTop=0;this.innerHTML=\'底部\';}">顶部</a>',
+					'<a href="javascript:void(0)" onclick="location.reload();">刷新</a>',
+					'<a href="javascript:void(0)" onclick="history.back();">后退</a>'
+				].join('&nbsp;&nbsp;&nbsp;&nbsp;')+'<div style="padding-top:5px;height:90%;overflow:auto;"></div>';
+				oDebugDiv.style.position = 'fixed';
 				oDebugDiv.style.width = (oDocument.body.offsetWidth-20)+'px';
 				oDebugDiv.style.left = 0;
 				oDebugDiv.style.top = 0;
 				oDebugDiv.style.right = 0;
-				oDebugDiv.style.height = '100px';
+				oDebugDiv.style.height = '150px';
 				oDebugDiv.style.backgroundColor = '#aaa';
 				oDebugDiv.style.fontSize = '12px';
 				oDebugDiv.style.padding = '10px';
-				oDebugDiv.style.overflow = 'auto';
-				oDebugDiv.style.zIndex = 99999999;
-				oDebugDiv.style.opacity=0.5;
-				oDebugDiv.style.filter="alpha(opacity=50)";
+				oDebugDiv.style.zIndex = 9999999999;
+				oDebugDiv.style.opacity=0.8;
+				oDebugDiv.style.filter="alpha(opacity=80)";
 				oDocument.body.appendChild(oDebugDiv);
 			}else{
 				oDebugDiv.style.display = 'block';
 			}
-			var oVarDiv = oDocument.createElement("DIV");
-			//TODO JSON
-			oVarDiv.innerHTML = sType+" : "+JSON.stringify(oVar, null, '<br/>');
 			var oAppender=oDebugDiv.getElementsByTagName('DIV')[0];
-			oAppender.innerHTML = oAppender.innerHTML+oVarDiv.innerHTML+"<br/>";
+			oAppender.innerHTML += sType+" : "+$H.Json.stringify(oVar, null, '<br/>')+"<br/>";
+			oAppender.scrollTop=oAppender.scrollHeight;
 		}
 		try{
 			console[sType](oVar);
@@ -1423,17 +1434,20 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 	/**
 	 * 输出统计时间
 	 * @method time
-	 * @param {string}sMsg 输出的信息
-	 * @param {boolean}bOut 为true时，计算时间并输出信息
-	 * @param {boolean}bShowInPage 是否需要创建一个DIV输出到页面
+	 * @param {boolean=}bOut 为true时，计算时间并输出信息，只有此参数为true时，后面两个参数才有意义
+	 * @param {string=}sMsg 输出的信息
+	 * @param {boolean=}bShowInPage 是否需要创建一个DIV输出到页面
 	 */
-	function fTime(sMsg,bOut,bShowInPage){
+	function fTime(bOut,sMsg,bShowInPage){
 		if(Debug.level>Debug.INFO_LEVEL){
 			return;
 		}
-		sMsg=sMsg||'';
 		if(bOut){
-			_fOut(sMsg+", 消耗时间:"+(new Date().getTime()-(Debug.lastTime||0)),!!bShowInPage)
+			if(typeof sMsg=='boolean'){
+				bShowInPage=sMsg;
+				sMsg='';
+			}
+			_fOut((sMsg||'')+(new Date().getTime()-(Debug.lastTime||0)),!!bShowInPage)
 		}else{
 			Debug.lastTime=new Date().getTime();
 		}
@@ -3342,7 +3356,6 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		activeCls           : 'hui-active',      //激活样式
 //		defItem             : null,              //默认子组件配置
 //		icon                : null,              //图标
-//		withMask            : false,             //是否有遮罩层
 		
 		////通用样式
 //		width               : null,              //宽度(默认单位是px)
@@ -3372,7 +3385,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 //      listeners           : [],                //类事件配置
 //		_listeners          : {},                //实例事件池  
 		_customEvents       : [                  //自定义事件,可以通过参数属性的方式直接进行添加
-			'beforeRender','afterRender','show','hide','destroy'
+			'beforeRender','afterRender','beforeShow','afterShow','hide','destroy'
 		],  
 		_defaultEvents      : [                  //默认事件，可以通过参数属性的方式直接进行添加
 			'click','mouseover','focus'
@@ -3386,16 +3399,15 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		getId               : fGetId,            //获取组件id
 		getHtml             : fGetHtml,          //获取组件或子组件html
 		getExtCls           : fGetExtCls,        //生成通用样式
-		afterRender         : fAfterRender,      //渲染后续工作
 		//组件公用功能
+		render              : fRender,           //渲染
+		afterRender         : fAfterRender,      //渲染后续工作
 		hide                : fHide,             //隐藏
 		show                : fShow,             //显示
 		enable              : fEnable,           //启用
 		disable             : fDisable,          //禁用
 		active              : fActive,           //激活
 		unactive            : fUnactive,         //不激活
-		mask                : fMask,             //显示遮罩层
-		unmask              : fUnmask,           //隐藏遮罩层
 		txt                 : fTxt,              //设置/读取文字
 		
 		//事件相关
@@ -3408,7 +3420,8 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 //		update
 		each                : fEach,             //遍历子组件
 		match               : fMatch,            //匹配选择器
-		find                : fFind,             //查找子元素
+		find                : fFind,             //查找子元素或子组件
+		parents             : fParents,          //查找祖先元素或祖先组件
 		index               : fIndex,            //获取本身的索引，如果没有父组件则返回null
 		callChild           : fCallChild,        //调用子组件方法
 		add                 : fAdd,              //添加子组件
@@ -3477,7 +3490,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		me.initHtml();
 		me.fire('beforeRender');
 		if(me.autoRender!=false){
-			me.renderTo[me.renderBy](me.getHtml());
+			me.render();
 			//渲染后续工作
 			me.afterRender();
 		}
@@ -3553,7 +3566,8 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		}
 		//覆盖子组件配置
 		if(oParams.defItem){
-			$HO.extend(me.defItem,oParams.defItem);
+			//只覆盖实例属性，不影响类属性
+			me.defItem=$HO.extend($HO.clone(me.defItem),oParams.defItem);
 		}
 		if(oParams.renderTo){
 			me.renderTo=$(oParams.renderTo);
@@ -3570,7 +3584,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		var me=this;
 		//将组件数组方式的模板转为字符串
 		if(typeof me.tmpl!='string'){
-			me.constructor.prototype.tmpl=me.tmpl.join('');
+			me.tmpl=me.constructor.prototype.tmpl=me.tmpl.join('');
 		}
 		//由模板生成组件html
 		var sHtml=$H.Template.tmpl({id:me.xtype,tmpl:me.tmpl},me);
@@ -3680,6 +3694,15 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		return aCls.length>0?aCls.join(' ')+' ':'';
 	}
 	/**
+	 * 渲染
+	 * @method render
+	 */
+	function fRender(){
+		var me=this;
+		me.fire('beforeRender');
+		me.renderTo[me.renderBy](me.getHtml());
+	}
+	/**
 	 * 渲染后续工作
 	 * @method afterRender
 	 * @return {boolean=} 仅当已经完成过渲染时返回false
@@ -3727,9 +3750,6 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		}else{
 			oEl.hide();
 		}
-		if(me.withMask){
-			me.unmask();
-		}
 		me.fire('hide');
 	}
 	/**
@@ -3762,9 +3782,6 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 			oEl.css({visibility:"visible"})
 		}else{
 			oEl.show();
-		}
-		if(me.withMask){
-			me.mask();
 		}
 		me.fire('show');
 		me.callChild([null,true]);
@@ -3802,25 +3819,6 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	function fUnactive(){
 		var me=this;
 		me.getEl().removeClass(me.activeCls);
-	}
-	/**
-	 * 显示遮罩层
-	 * @method mask
-	 */
-	function fMask(){
-		if(!AC.mask){
-			AC.mask=$('<div class="hui-mask" style="display:none;"></div>').appendTo(document.body);
-		}
-		AC.mask.show();
-	}
-	/**
-	 * 隐藏遮罩层
-	 * @method unmask
-	 */
-	function fUnmask(){
-		if(AC.mask){
-			AC.mask.hide();
-		}
 	}
 	/**
 	 * 设置/读取文字
@@ -3942,9 +3940,10 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	/**
 	 * 查找子元素或子组件
 	 * @method find
-	 * @param {string}sSel '$'开头表示查找组件，多个选择期间用","隔开('$sel1,$sel2,...')，语法类似jQuery，如：'$xtype[attr=value]'、'$ancestor descendant'、'$parent>child'，
+	 * @param {string}sSel '$'开头表示查找组件，多个选择器间用","隔开('$sel1,$sel2,...')，语法类似jQuery，如：'$xtype[attr=value]'、'$ancestor descendant'、'$parent>child'，
 	 * 				'$>Button'表示仅查找当前子节点中的按钮，'$Button'表示查找所有后代节点中的按钮，
 	 * @param {Array=}aResult 用于存储结果集的数组
+	 * @return {jQuery|Array} 返回匹配的结果，如果没找到匹配的子组件则返回空数组
 	 */
 	function fFind(sSel,aResult){
 		var me=this;
@@ -3988,6 +3987,27 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 			}
 		});
 		return aResult;
+	}
+	/**
+	 * 查找祖先元素或祖先组件
+	 * @method parents
+	 * @param {string=}sSel 若此参数为空，直接返回最顶级祖先组件，'$'开头表示查找组件，如：'$xtype[attr=value]'
+	 * @return {jQuery|Component|null} 返回匹配的结果，如果没找到匹配的组件则返回null
+	 */
+	function fParents(sSel){
+		var me=this;
+		//查找元素
+		if(sSel&&sSel.indexOf('$')!=0){
+			return me.getEl().parents(sSel);
+		}
+		var oCurrent=me;
+		while(oCurrent.parent){
+			oCurrent=oCurrent.parent;
+			if(sSel&&me.match(sSel,oCurrent)){
+				return oCurrent;
+			}
+		}
+		return sSel||oCurrent===me?null:oCurrent;
 	}
 	/**
 	 * 获取本身的索引，如果没有父组件则返回null
@@ -4156,7 +4176,9 @@ $Define('c.Popup',
 'c.AbstractComponent',
 function(AC){
 	
-	var Popup=AC.define('Popup');
+	var Popup=AC.define('Popup'),
+	_popupNum=0,
+	_mask;
 	
 	Popup.extend({
 		//初始配置
@@ -4165,9 +4187,9 @@ function(AC){
 //		timeout         : null,            //自动隐藏的时间(毫秒)，不指定此值则不自动隐藏
 		showPos         : 'center',        //定位方法名，或者传入自定义定位函数
 //		notDestroy      : false,           //隐藏时保留对象，不自动销毁，默认弹出层会自动销毁
+//		noMask          : false,           //仅当true时没有遮罩层
 		
 		//组件共有配置
-		withMask        : true,
 		shadowOverlay   : true,
 		
 		tmpl            : [
@@ -4178,7 +4200,9 @@ function(AC){
 		show             : fShow,            //显示
 		hide             : fHide,            //隐藏
 		center           : fCenter,          //居中显示
-		followEl         : fFollowEl         //根据指定节点显示
+		followEl         : fFollowEl,        //根据指定节点显示
+		mask             : fMask,            //显示遮罩层
+		unmask           : fUnmask           //隐藏遮罩层
 	});
 	/**
 	 * 初始化配置
@@ -4234,28 +4258,35 @@ function(AC){
 	function fShow(){
 		// 设置定位坐标
 		var me=this;
-		//默认居中显示
-		var showPos=me.showPos;
-		if(typeof showPos=="string"){
-			me[showPos]();
-		}else if(typeof showPos=="function"){
-			showPos.call(me);
-		}
 		//如果是父组件通过callChild调用的会有参数，要传进去
-		me.callSuper(arguments);
-		//如果未设置宽度，默认和父组件宽度一样
-		if(!me.width&&me.parent){
-			$D.log(me.parent.getEl().outerWidth());
-			var width=me.width=me.parent.getEl().outerWidth();
-			me.getEl().css('width',width);
-		}
-		//定时隐藏
-		if(me.timeout){
-			setTimeout(function(){
-				if(!me.destroyed){
-					me.hide();
-				}
-			},me.timeout);
+		var bIsShow=me.callSuper(arguments);
+		if(bIsShow!=false){
+			var oEl=me.getEl();
+			oEl.css('z-index',_popupNum*1000+1000);
+			//默认居中显示
+			var showPos=me.showPos;
+			if(typeof showPos=="string"){
+				me[showPos]();
+			}else if(typeof showPos=="function"){
+				showPos.call(me);
+			}
+			if(!me.noMask){
+				me.mask();
+			}
+			//如果未设置宽度，默认和父组件宽度一样
+			if(!me.width&&me.parent){
+				$D.log(me.parent.getEl().outerWidth());
+				var width=me.width=me.parent.getEl().outerWidth();
+				oEl.css('width',width);
+			}
+			//定时隐藏
+			if(me.timeout){
+				setTimeout(function(){
+					if(!me.destroyed){
+						me.hide();
+					}
+				},me.timeout);
+			}
 		}
 	}
 	/**
@@ -4265,8 +4296,13 @@ function(AC){
 	function fHide(){
 		var me=this;
 		var bIsHide=me.callSuper();
-		if(bIsHide!=false&&!me.notDestroy){
-			me.destroy();
+		if(bIsHide!=false){
+			if(!me.noMask){
+				me.unmask();
+			}
+			if(!me.notDestroy){
+				me.destroy();
+			}
 		}
 	}
 	/**
@@ -4296,6 +4332,34 @@ function(AC){
 		var el=oEl||me.parent.getEl();
 		var oPos=el.position();
 		me.getEl().css(oPos);
+	}
+	/**
+	 * 显示遮罩层
+	 * @method mask
+	 */
+	function fMask(){
+		var me=this;
+		if(!_mask){
+			_mask=$('<div class="hui-mask" style="display:none;"></div>').appendTo(document.body);
+		}
+		_mask.css('z-index',_popupNum*1000+998);
+		if(_popupNum==0){
+			_mask.show();
+		}
+		_popupNum++;
+	}
+	/**
+	 * 隐藏遮罩层
+	 * @method unmask
+	 */
+	function fUnmask(){
+		var me=this;
+		_popupNum--;
+		if(_popupNum==0){
+			_mask.hide();
+		}else{
+			_mask.css('z-index',_popupNum*1000+998);
+		}
 	}
 	
 	return Popup;
