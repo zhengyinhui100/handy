@@ -343,9 +343,6 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		if(me.theme){
 			aCls.push('hui-'+me.cls+'-'+me.theme);
 		}
-		if(me.disabled){
-			aCls.push('hui-disable');
-		}
 		if(me.radius){
 			aCls.push('hui-radius-'+me.radius);
 		}
@@ -405,7 +402,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 			me.initListeners();
 		}
 		if(me.disabled){
-			me.suspendListeners();
+			me.disable();
 		}
 		me.fire('afterRender');
 		//显示
@@ -475,7 +472,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	function fEnable(){
 		var me=this;
 		me.resumeListeners();
-		me.getEl().removeClass("hui-disable");
+		me.getEl().removeClass("hui-disable").find('input,textarea,select').removeAttr('disabled');
 	}
 	/**
 	 * 禁用
@@ -484,7 +481,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	function fDisable(){
 		var me=this;
 		me.suspendListeners();
-		me.getEl().addClass("hui-disable");
+		me.getEl().addClass("hui-disable").find('input,textarea,select').attr('disabled','disabled');
 	}
 	/**
 	 * 激活

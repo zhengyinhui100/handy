@@ -23,7 +23,6 @@ function(AC){
 			'<div class="hui-chkbox hui-btn hui-btn-gray<%if(this.selected){%> hui-chkbox-on<%}%>">',
 				'<span class="hui-icon hui-icon-chkbox"></span>',
 				'<input type="checkbox"<%if(this.selected){%> checked=true<%}%>',
-				'<%if(this.disabled){%> disabled="<%=this.disabled%>"<%}%>',
 				'<%if(this.name){%> name="<%=this.name%>"<%}%>',
 				'<%if(this.value){%> value="<%=this.value%>"<%}%>/>',
 				'<span class="hui-chkbox-txt"><%=this.text%></span>',
