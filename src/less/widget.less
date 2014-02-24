@@ -579,6 +579,24 @@
 		border-right-width:0;
 	}
 }
+.hui-tab-border-top,.hui-tab-noborder{
+	.hui-btn{
+		border-bottom:0;
+	}
+	.hui-tab-item{
+		&:first-child .hui-btn{
+			border-left:0;
+		}
+		&:last-child .hui-btn{
+			border-right:0;
+		}
+	}
+}
+.hui-tab-noborder{
+	.hui-btn{
+		border-top:0;
+	}
+}
 //提示
 .hui-tips{
 	.hui-popup();

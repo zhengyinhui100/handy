@@ -44,7 +44,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		////通用样式
 //		width               : null,              //宽度(默认单位是px)
 //		height              : null,              //高度(默认单位是px)
-//		theme               : null,              //组件颜色
+//		theme               : null,              //组件主题
 //		radius              : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 //		shadow              : false,        	 //外阴影
 //		shadowInset         : false,        	 //内阴影

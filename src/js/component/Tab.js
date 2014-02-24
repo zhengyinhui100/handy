@@ -14,6 +14,7 @@ function(AC,ControlGroup){
 	Tab.extend({
 		//初始配置
 //		hasContent      : false,        //是否有内容框
+		theme           : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
 		defItem         : {             //默认子组件是Button
 //			content     : '',           //tab内容
 			xtype       : 'Button',

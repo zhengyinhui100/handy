@@ -836,6 +836,21 @@
 .hui-tab .hui-btn {
   border-right-width: 0;
 }
+.hui-tab-border-top .hui-btn,
+.hui-tab-noborder .hui-btn {
+  border-bottom: 0;
+}
+.hui-tab-border-top .hui-tab-item:first-child .hui-btn,
+.hui-tab-noborder .hui-tab-item:first-child .hui-btn {
+  border-left: 0;
+}
+.hui-tab-border-top .hui-tab-item:last-child .hui-btn,
+.hui-tab-noborder .hui-tab-item:last-child .hui-btn {
+  border-right: 0;
+}
+.hui-tab-noborder .hui-btn {
+  border-top: 0;
+}
 .hui-tips {
   position: absolute;
   z-index: 1000;

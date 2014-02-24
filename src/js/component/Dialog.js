@@ -181,6 +181,7 @@ function(AC,Popup){
 			me.addItem({
 				xtype:'Tab',
 				xrole:'dialog-action',
+				theme:'border-top',
 				notSelect:true,
 				items:aActions
 			});
