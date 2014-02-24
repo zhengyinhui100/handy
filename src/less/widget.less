@@ -403,6 +403,28 @@
 	}
 }
 
+//滑动选择框
+.hui-slidesel{
+	position:relative;
+	.hui-slidesel-btn{
+		
+	}
+	.hui-slidesel-selector{
+		.fn_inline_block();
+		height:1.8em;
+		padding:.4em 2em;
+		border-top:2px solid #222;
+		border-bottom:2px solid #222;
+	}
+	.hui-slidesel-slider{
+		position:absolute;
+		top:50%;
+		text-align:center;
+		height:1.8em;
+		padding:.4em 2em;
+	}
+}
+
 //输入框
 .hui-input{
 	position: relative;
@@ -647,13 +669,14 @@
 	padding: 0;
 	top: -15px;
 	z-index: 1000;
+	overflow:hidden;
 	&>:first-child{
-		.fn_border_radius_top(inherit);
+		//.fn_border_radius_top(inherit);
 	}
 	.hui-dialog-header{
 		border: 0;
-		overflow: hidden;
 		padding: 0;
+		overflow: hidden;
 	}
 	.hui-dialog-body{
 		color: #333;
@@ -666,14 +689,14 @@
 		border-width: 0;
 		overflow: visible;
 		overflow-x: hidden;
-		.fn_border_radius_bottom(inherit);
+		//.fn_border_radius_bottom(inherit);
 		.fn_linear_gradient_top(#f9f9f9,#eee);
 	}
 	.hui-body-content{
 		padding:15px;
 	}
 	.hui-body-action{
-		.fn_border_radius_bottom(inherit);
+		//.fn_border_radius_bottom(inherit);
 	}
 	.hui-content-title{
 		font-size:2em;

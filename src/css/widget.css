@@ -612,6 +612,26 @@
 .hui-select input {
   display: none;
 }
+.hui-slidesel {
+  position: relative;
+}
+.hui-slidesel .hui-slidesel-selector {
+  display: -moz-inline-stack;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
+  height: 1.8em;
+  padding: .4em 2em;
+  border-top: 2px solid #222;
+  border-bottom: 2px solid #222;
+}
+.hui-slidesel .hui-slidesel-slider {
+  position: absolute;
+  top: 50%;
+  text-align: center;
+  height: 1.8em;
+  padding: .4em 2em;
+}
 .hui-input {
   position: relative;
   border: 1px solid #aaa;
@@ -935,19 +955,12 @@
   padding: 0;
   top: -15px;
   z-index: 1000;
-}
-.hui-dialog > :first-child {
-  -moz-border-radius-topleft: inherit;
-  -webkit-border-top-left-radius: inherit;
-  border-top-left-radius: inherit;
-  -moz-border-radius-topright: inherit;
-  -webkit-border-top-right-radius: inherit;
-  border-top-right-radius: inherit;
+  overflow: hidden;
 }
 .hui-dialog .hui-dialog-header {
   border: 0;
-  overflow: hidden;
   padding: 0;
+  overflow: hidden;
 }
 .hui-dialog .hui-dialog-body {
   color: #333;
@@ -960,12 +973,6 @@
   border-width: 0;
   overflow: visible;
   overflow-x: hidden;
-  -moz-border-radius-bottomleft: inherit;
-  -webkit-border-bottom-left-radius: inherit;
-  border-bottom-left-radius: inherit;
-  -moz-border-radius-bottomright: inherit;
-  -webkit-border-bottom-right-radius: inherit;
-  border-bottom-right-radius: inherit;
   background-image: -webkit-gradient(linear, left top, left bottom, from(#f9f9f9), to(#eeeeee));
   /* old webkit,Saf4+, Chrome */
 
@@ -985,14 +992,6 @@
 }
 .hui-dialog .hui-body-content {
   padding: 15px;
-}
-.hui-dialog .hui-body-action {
-  -moz-border-radius-bottomleft: inherit;
-  -webkit-border-bottom-left-radius: inherit;
-  border-bottom-left-radius: inherit;
-  -moz-border-radius-bottomright: inherit;
-  -webkit-border-bottom-right-radius: inherit;
-  border-bottom-right-radius: inherit;
 }
 .hui-dialog .hui-content-title {
   font-size: 2em;
