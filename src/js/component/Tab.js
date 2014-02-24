@@ -29,7 +29,8 @@ function(AC,ControlGroup){
 			'<div class="hui-tab">',
 				'<ul class="c-clear">',
 					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
-					'<li class="hui-tab-item" style="width:<%=100/len%>%">',
+					//IE7下width有小数点时会有偏差(width:500px,len=3,结果会多一像素导致换行)，所以这里统一都没有小数点
+					'<li class="hui-tab-item" style="width:<%=Math.floor(100/len)+((i==len-1)?1:0)%>%">',
 					'<%=this.children[i].getHtml()%>',
 					'</li>',
 					'<%}%>',
