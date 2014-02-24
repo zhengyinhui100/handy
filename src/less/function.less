@@ -28,7 +28,7 @@
 .fn_opacity(@degree){
 	opacity:@degree;
 	//这里写在一行会编译出错
-	@degreeP:percentage(@degree);
+	@degreeP:(1-@degree)*100;
 	filter:alpha(opacity=@degreeP);
 }
 
