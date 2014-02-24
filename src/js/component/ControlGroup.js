@@ -16,6 +16,7 @@ function(CM,AC){
 //		direction            : 'v',                  //排列方向，'v'表示垂直方向，'h'表示水平方向
 		radius               : 'little',             //圆角
 		multi                : false,                //是否多选
+//		notSelect            : false,                //点击不需要选中
 //		itemClick            : function(oCmp,nIndex){},         //子项点击事件函数，函数参数为子组件对象及索引
 		
 		//默认子组件配置
@@ -62,6 +63,9 @@ function(CM,AC){
 	 */
 	function fSelect(item){
 		var me=this,oItem;
+		if(me.notSelect){
+			return;
+		}
 		if(typeof item=='number'){
 			oItem=me.children[item];
 		}else if(typeof item=="string"){
