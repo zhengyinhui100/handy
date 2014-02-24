@@ -14,7 +14,6 @@ function(CM,AC){
 	ControlGroup.extend({
 		//初始配置
 //		direction            : 'v',                  //排列方向，'v'表示垂直方向，'h'表示水平方向
-		radius               : 'little',             //圆角
 		multi                : false,                //是否多选
 //		notSelect            : false,                //点击不需要选中
 //		itemClick            : function(oCmp,nIndex){},         //子项点击事件函数，函数参数为子组件对象及索引
