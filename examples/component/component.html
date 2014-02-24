@@ -393,7 +393,8 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 		
 		//输入框
 		new Input({
-			renderTo:'#inputContainerDv'
+			renderTo:'#inputContainerDv',
+			placeholder:'placeholder'
 		});
 		$('#inputContainerDv').append('<br/>');
 		new Input({
@@ -409,6 +410,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 		$('#inputContainerDv').append('<br/>');
 		new Input({
 			renderTo:'#inputContainerDv',
+			disabled:true,
 			items:{
 				xtype:'Button',
 				radius:'big',
