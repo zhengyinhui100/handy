@@ -190,7 +190,7 @@ function(AC){
 		if(_popupNum==0){
 			_mask.hide();
 		}else{
-			_mask.css('z-index',_popupNum*1000+998);
+			_mask.css('z-index',(_popupNum-1)*1000+998);
 		}
 	}
 	
