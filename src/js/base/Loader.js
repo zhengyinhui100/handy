@@ -15,7 +15,7 @@ function(Debug,Object,Function,$H){
 	    _oCache={};           //缓存
 	
 	var Loader= {
-		traceLog                : true,                     //是否打印跟踪信息
+		traceLog                : false,                     //是否打印跟踪信息
 //		rootPath                : {
 //			'handy'        : 'http://localhost:8081/handy/src',
 //			'com.example'  : 'http://example.com:8082/js'
@@ -367,7 +367,9 @@ function(Debug,Object,Function,$H){
 				try{
 					//考虑到传入依赖是数组，这里回调参数形式依然是数组
 					resource=factory.apply(null,arguments);
-					Debug.info("Loader define: "+sId);
+					if(Loader.traceLog){
+						Debug.info("Loader define: "+sId);
+					}
 				}catch(e){
 					//资源定义错误
 					Debug.error("Loader "+sId+":factory define error:"+e.message,e);
