@@ -168,8 +168,14 @@ function(History){
 		}
 		
 		//当前显示模块不允许退出，直接返回
-		if(oCurrentMod&&!oCurrentMod.waiting&&!oCurrentMod.exit()){
-			return false;
+		if(oCurrentMod&&!oCurrentMod.waiting){
+			if(oCurrentMod._forceExit){
+				//标记为强制退出的模块不调用exit方法，直接退出，并将_forceExit重置为false
+				oCurrentMod._forceExit=false;
+			}else if(oCurrentMod.exit()==false){
+				//模块返回false，不允许退出
+				return false;
+			}
 		}
 		
 		//如果在缓存模块中，直接显示该模块，并且调用该模块cache方法
@@ -183,6 +189,8 @@ function(History){
 			}else if(!oMod.waiting){
 				//标记不使用缓存，销毁新建
 				me._destroy(oMod);
+				//重新标记当前模块
+				me.currentMod=sModName;
 				me._createMod(param);
 			}
 			//如果模块已在请求中，直接略过，等待新建模块的回调函数处理
@@ -203,9 +211,14 @@ function(History){
 	/**
 	 * 后退一步
 	 * @method back
+	 * @param {boolean=} 当传入true时，强制退出当前模块，即不调用模块的exit而直接退出
 	 */
-	function fBack(){
-		
+	function fBack(bForceExit){
+		var me=this;
+		if(bForceExit){
+			me.modules[me.currentMod]._forceExit=true;
+		}
+		history.back();
 	}
 	
 	return ModuleManager;

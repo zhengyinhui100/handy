@@ -20,6 +20,7 @@ function(HashChange){
 		initialize         : fInitialize,      //历史记录类初始化
 		stateChange        : fStateChange,     //历史状态改变
 		saveState          : fSaveState,       //保存当前状态
+		saveHash           : fSaveHash,        //保存参数到hash
 		getHashParam       : fGetHashParam,    //获取当前hash参数
 		getCurrentState    : fGetCurrentState, //获取当前状态
 		getPreState        : fGetPreState,     //获取前一个状态
@@ -44,14 +45,26 @@ function(HashChange){
 		var me=this;
 		var oHashParam=me.getHashParam();
 		var sKey=oHashParam.hKey;
+		var sCurKey=me.currentKey;
 		var aStates=me.states;
 		//跟当前状态一致，不需要调用stateChange，可能是saveState触发的hashchange
-		if(sKey==aStates[aStates.length-1]){
-			//return;
+		if(sKey==sCurKey){
+			return false;
 		}
 		var oState=aStates[sKey];
 		if(oState){
-			oState.onStateChange(oState.param,true);
+			var bResult=oState.onStateChange(oState.param,true);
+			//如果调用不成功，则恢复原先的hashstate
+			if(bResult==false){
+				oHashParam={
+					hKey    : sCurKey,
+					param   : aStates[sCurKey].param
+				};
+				me.saveHash(oHashParam);
+			}else{
+				//改变当前hkey
+				me.currentKey=sKey;
+			}
 		}
 	}
 	/**
@@ -64,14 +77,22 @@ function(HashChange){
 	 */
 	function fSaveState(oState){
 		var me=this;
-		var sHistoryKey=me.key+(++_nIndex);
+		var sHistoryKey=me.currentKey=me.key+(++_nIndex);
 		me.states.push(sHistoryKey);
 		me.states[sHistoryKey]=oState;
 		var oHashParam={
 			hKey    : sHistoryKey,
-			param : oState.param
+			param   : oState.param
 		};
-		$HU.setHash("#"+JSON.stringify(oHashParam));
+		me.saveHash(oHashParam);
+	}
+	/**
+	 * 保存状态值到hash中
+	 * @method saveHash
+	 * @param {*}param 要保存到hash中的参数
+	 */
+	function fSaveHash(param){
+		$HU.setHash("#"+JSON.stringify(param));
 	}
 	/**
 	 * 获取当前hash参数

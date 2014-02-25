@@ -20,9 +20,14 @@ function(Debug,Util,$H){
 		firefox 15 => #!/home/q={"thedate":"20121010~20121010"}
 		其他浏览器 => #!/home/q={%22thedate%22:%2220121010~20121010%22}
 	 */
-	var _bIsInited,_nListener=0,_oDoc = document, _oIframe,_sLastHash,
+	var _bIsInited,   //是否已初始化
+		_nListener=0,    //仅用于生成内部唯一的监听器key
+		_oDoc = document, 
+		_oIframe,
+		_sLastHash,     //上一个hash值，用于比较hash是否改变
 		//这个属性的值如果是5，则表示混杂模式（即IE5模式）；如果是7，则表示IE7仿真模式；如果是8，则表示IE8标准模式
 		_nDocMode = _oDoc.documentMode,
+		//是否支持原生hashchange事件
 	    _bSupportHashChange = ('onhashchange' in window) && ( _nDocMode === void 0 || _nDocMode > 7 ),
 		
 	    HashChange={
@@ -36,9 +41,12 @@ function(Debug,Util,$H){
 		 * @method _fInit
 		 */
 		function _fInit(){
+			if(_bIsInited){
+				return;
+			}
 			_bIsInited=true;
 			HashChange.listeners={};
-			//不支持原生hashchange事件的，使用定时器+隐藏iframe形式实现
+			//不支持原生hashchange事件的，使用定时器拉取hash值+隐藏iframe形式实现
 			if(!_bSupportHashChange){
 				//创建一个隐藏的iframe，使用这博文提供的技术 http://www.paciellogroup.com/blog/?p=604.
 				_oIframe = $('<iframe id="fff" tabindex="-1" style="display:none" width=0 height=0 title="empty" />').appendTo( _oDoc.body )[0];
@@ -108,7 +116,8 @@ function(Debug,Util,$H){
 				_fInit();
 			}
 			if(sName in HashChange.listeners){
-				throw new Error("Duplicate name");
+				var msg="Duplicate name";
+				$D.error(msg,new Error(msg));
 			}else{
 				sName=sName||$H.expando+(++_nListener);
 				HashChange.listeners[sName]=fListener;
