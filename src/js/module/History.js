@@ -29,10 +29,16 @@ function(HashChange){
 	/**
 	 * 历史记录类初始化
 	 * @method initialize
-	 * @param {?string} sKey历史记录类的key，用于区分可能的多个history实例
+	 * @param {string=}sKey 历史记录类的key，用于区分可能的多个history实例
+	 * @param {function=}fError 错误处理函数
 	 */
-	function fInitialize(sKey){
+	function fInitialize(sKey,fError){
 		var me=this;
+		if(typeof sKey=="function"){
+			fError=sKey;
+			sKey=null;
+		}
+		me.error=fError||$H.noop;
 		me.key=sKey||'handy';
 		me.states=[];
 		HashChange.listen($H.Function.bind(me.stateChange,me));
@@ -43,28 +49,33 @@ function(HashChange){
 	 */
 	function fStateChange(){
 		var me=this;
-		var oHashParam=me.getHashParam();
-		var sKey=oHashParam.hKey;
-		var sCurKey=me.currentKey;
-		var aStates=me.states;
+			oHashParam=me.getHashParam(),
+		    sKey=oHashParam.hKey,
+		 	sCurKey=me.currentKey,
+		 	aStates=me.states,
+		 	oCurState=aStates[sCurKey];
 		//跟当前状态一致，不需要调用stateChange，可能是saveState触发的hashchange
-		if(sKey==sCurKey){
+		if(sKey==sCurKey&&$HO.equals(oHashParam.param,oCurState.param)){
 			return false;
 		}
 		var oState=aStates[sKey];
+		var bResult;
 		if(oState){
-			var bResult=oState.onStateChange(oState.param,true);
-			//如果调用不成功，则恢复原先的hashstate
-			if(bResult==false){
-				oHashParam={
-					hKey    : sCurKey,
-					param   : aStates[sCurKey].param
-				};
-				me.saveHash(oHashParam);
-			}else{
-				//改变当前hkey
-				me.currentKey=sKey;
-			}
+			bResult=oState.onStateChange(oState.param,true);
+		}else{
+			$D.warn("hisory state not found");
+			bResult=me.error('stateNotFound',oHashParam);
+		}
+		//如果调用不成功，则恢复原先的hashstate
+		if(bResult!=true){
+			oHashParam={
+				hKey    : sCurKey,
+				param   : oCurState.param
+			};
+			me.saveHash(oHashParam);
+		}else{
+			//改变当前hkey
+			me.currentKey=sKey;
 		}
 	}
 	/**
@@ -92,6 +103,7 @@ function(HashChange){
 	 * @param {*}param 要保存到hash中的参数
 	 */
 	function fSaveHash(param){
+		//这里主动设置之后还会触发hashchange，不能在hashchange里添加set方法屏蔽此次change，因为可能不止一个地方需要hashchange事件
 		$HU.setHash("#"+JSON.stringify(param));
 	}
 	/**
@@ -131,7 +143,7 @@ function(HashChange){
 	function fGetPreState(){
 		var me=this;
 		try{
-			var oHashParam=JSON.parse($HU.getHash().replace("#",""));
+			var oHashParam=me.getHashParam();
 			var sHKey=oHashParam.hKey;
 			var aStates=me.states;
 			var nLen=aStates.length;

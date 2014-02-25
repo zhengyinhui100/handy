@@ -137,7 +137,9 @@ function(History){
 			me.container=oConf.container?$(oConf.container):$(document.body);
 		}
 		me.defModPackage=me.defModPackage+".";
-		me.history=new History();
+		me.history=new History(function(sCode,oParam){
+			me.go(oParam.param);
+		});
 		me.modules={};
 	}
 	/**
@@ -148,6 +150,7 @@ function(History){
 	 * 		...
 	 * }
 	 * @param {boolean=}bNotSaveHistory仅当为true时，不保存历史记录
+	 * @return {boolean} true表示成功，false表示失败
 	 */
 	function fGo(param,bNotSaveHistory){
 		var me=this;
@@ -209,6 +212,7 @@ function(History){
 		}
 		//重新标记当前模块
 		me.currentMod=sModName;
+		return true;
 	}
 	/**
 	 * 后退一步
