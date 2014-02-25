@@ -72,15 +72,17 @@ function(CM,AC){
 		}else{
 			oItem=item;
 		}
-		if(!me.multi&&!oItem.multi){
-			//单选操作要先取消别的选中
-			var oSelected=me.getSelected();
-			if(oSelected){
-				me.selectItem(oSelected,false);
+		if(oItem){
+			if(!me.multi&&!oItem.multi){
+				//单选操作要先取消别的选中
+				var oSelected=me.getSelected();
+				if(oSelected){
+					me.selectItem(oSelected,false);
+				}
+				me.selectItem(oItem);
+			}else{
+				me.selectItem(oItem,!oItem.selected);
 			}
-			me.selectItem(oItem);
-		}else{
-			me.selectItem(oItem,!oItem.selected);
 		}
 	}
 	/**
