@@ -30,7 +30,8 @@ function(History){
 		_destroy           : _fDestroy,         //销毁模块
 		
 		initialize         : fInitialize,      //初始化模块管理
-		go                 : fGo               //进入模块
+		go                 : fGo,              //进入模块
+		back               : fBack             //后退一步
 	});
 	
 	/**
@@ -142,15 +143,18 @@ function(History){
 	/**
 	 * 进入模块
 	 * @method go(oParams)
-	 * @param {object}oParams{  //传入参数
+	 * @param {Object|string}param  直接模块名字符串或者{  //传入参数
 	 * 		modName:模块名称
 	 * 		...
 	 * }
 	 * @param {boolean=}bNotSaveHistory仅当为true时，不保存历史记录
 	 */
-	function fGo(oParams,bNotSaveHistory){
+	function fGo(param,bNotSaveHistory){
 		var me=this;
-		var sModName=oParams.modName;
+		if(typeof param=="string"){
+			param={modName:param};
+		}
+		var sModName=param.modName;
 		//当前显示的模块名
 		var sCurrentMod=me.currentMod;
 		var oMods=me.modules;
@@ -175,26 +179,33 @@ function(History){
 			//标记使用缓存，要调用cache方法
 			if(oMod.useCache){
 				me._showMod(oMod);
-				oMod.cache(oParams);
+				oMod.cache(param);
 			}else if(!oMod.waiting){
 				//标记不使用缓存，销毁新建
 				me._destroy(oMod);
-				me._createMod(oParams);
+				me._createMod(param);
 			}
 			//如果模块已在请求中，直接略过，等待新建模块的回调函数处理
 		}else{
 			//否则新建一个模块
-			me._createMod(oParams);
+			me._createMod(param);
 		}
 		if(bNotSaveHistory!=true){
 			//保存状态
 			me.history.saveState({
 				onStateChange:$H.Function.bind(me.go,me),
-				param:oParams
+				param:param
 			});
 		}
 		//重新标记当前模块
 		me.currentMod=sModName;
+	}
+	/**
+	 * 后退一步
+	 * @method back
+	 */
+	function fBack(){
+		
 	}
 	
 	return ModuleManager;
