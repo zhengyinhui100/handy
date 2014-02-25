@@ -31,7 +31,7 @@
 </head>
 <body>
 	<h3>图标：</h3>
-	<div id="iconContainerDv"></div>
+	<div id="iconDv"></div>
 	<br/>
 	<div id="iconsDv"></div>
 	<!-- E 图标 -->
@@ -39,7 +39,7 @@
 	<br/><br/><br/><br/>
 	
 	<h3>按钮：</h3>
-	<div id="buttonContainerDv"></div>
+	<div id="buttonDv"></div>
 	<br/><br/><br/><br/>
 	
 	<h3>控制组：</h3>
@@ -63,7 +63,11 @@
 	<br/><br/><br/><br/>
 	
 	<h3>输入框：</h3>
-	<div id="inputContainerDv"></div>
+	<div id="inputDv"></div>
+	<br/><br/><br/><br/>
+	
+	<h3>表单：</h3>
+	<div id="formDv"></div>
 	<br/><br/><br/><br/>
 	
 	<h3>标签栏：</h3>
@@ -136,19 +140,23 @@ $Require([
 "c.Menu",
 "c.Select",
 "c.Input",
+"c.Set",
+"c.Field",
+"c.Form",
 "c.Tab",
 "c.Toolbar",
 "c.Tips",
 "c.Dialog"],
-function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolbar,Tips,Dialog){
+function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,
+		Set,Field,Form,Tab,Toolbar,Tips,Dialog){
 	
 	function example(){
 	
-		$('#iconContainerDv').append(Icon.html({
+		$('#iconDv').append(Icon.html({
 			//这里因为性能测试循环注释掉
 			//cid:'icon',
 			name:'edit',
-			renderTo:'#iconContainerDv',
+			renderTo:'#iconDv',
 			listeners:[
 			           {
 			        	   type:'afterRender',
@@ -182,7 +190,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 	
 		
 		new Button({
-			renderTo:'#buttonContainerDv',
+			renderTo:'#buttonDv',
 			text:'按钮',
 			color:'blue',
 			radius:'normal',
@@ -192,7 +200,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 		})
 		
 		new Button({
-			renderTo:'#buttonContainerDv',
+			renderTo:'#buttonDv',
 			text:'图标按钮',
 			items:{
 				xtype:"Icon",
@@ -201,7 +209,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 		})
 		
 		new Button({
-			renderTo:'#buttonContainerDv',
+			renderTo:'#buttonDv',
 			items:{
 				xtype:"Icon",
 				name:"carat-l"
@@ -393,23 +401,23 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 		
 		//输入框
 		new Input({
-			renderTo:'#inputContainerDv',
+			renderTo:'#inputDv',
 			placeholder:'placeholder'
 		});
-		$('#inputContainerDv').append('<br/>');
+		$('#inputDv').append('<br/>');
 		new Input({
 			type:'search',
 			value:'默认值',
-			renderTo:'#inputContainerDv'
+			renderTo:'#inputDv'
 		});
-		$('#inputContainerDv').append('<br/>');
+		$('#inputDv').append('<br/>');
 		new Input({
-			renderTo:'#inputContainerDv',
+			renderTo:'#inputDv',
 			withClear:true
 		});
-		$('#inputContainerDv').append('<br/>');
+		$('#inputDv').append('<br/>');
 		new Input({
-			renderTo:'#inputContainerDv',
+			renderTo:'#inputDv',
 			disabled:true,
 			items:{
 				xtype:'Button',
@@ -420,11 +428,40 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,Tab,Toolba
 				}
 			}
 		});
-		$('#inputContainerDv').append('<br/>');
+		$('#inputDv').append('<br/>');
 		var input=new Input({
 			type:'textarea',
 			placeholder:'textarea自适应高度',
-			renderTo:'#inputContainerDv'
+			renderTo:'#inputDv'
+		});
+		
+		//表单
+		new Form({
+			renderTo:'#formDv',
+			width:400,
+			items:[{
+				xtype:'Set',
+				title:'资料',
+				items:[{
+					xtype:'Field',
+					label:'用户名：',
+					text:'xiaoxiao'
+				},{
+					xtype:'Field',
+					label:'邮箱：',
+					items:{
+						xtype:'Input',
+						name:'email'
+					}
+				},{
+					xtype:"Field",
+					label:'描述：',
+					items:{
+						xtype:'Input',
+						type:'textarea'
+					}
+				}]
+			}]
 		});
 		
 		//标签栏
