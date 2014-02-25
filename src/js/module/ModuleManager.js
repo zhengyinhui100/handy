@@ -187,10 +187,11 @@ function(History){
 				me._showMod(oMod);
 				oMod.cache(param);
 			}else if(!oMod.waiting){
-				//标记不使用缓存，销毁新建
+				//标记不使用缓存，销毁模块
 				me._destroy(oMod);
 				//重新标记当前模块
 				me.currentMod=sModName;
+				//重新创建模块
 				me._createMod(param);
 			}
 			//如果模块已在请求中，直接略过，等待新建模块的回调函数处理
@@ -198,6 +199,7 @@ function(History){
 			//否则新建一个模块
 			me._createMod(param);
 		}
+		//主要是处理前进和后退hash变化引起的调用，不需要再保存历史记录
 		if(bNotSaveHistory!=true){
 			//保存状态
 			me.history.saveState({
