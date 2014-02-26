@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-02-23 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-02-26 | zhengyinhui100@gmail.com */
 html,
 body,
 div,
@@ -95,7 +95,6 @@ html {
 body {
   min-height: 100%;
   position: relative;
-  font-family: Arial;
 }
 /* HTML5 display-role reset for older browsers */
 article,
@@ -141,6 +140,21 @@ a:active {
 *,
 *:after,
 *:before {
+  -moz-box-sizing: border-box;
+  /*Firefox3.5+*/
+
+  -webkit-box-sizing: border-box;
+  /*Safari3.2+*/
+
+  -o-box-sizing: border-box;
+  /*Opera9.6*/
+
+  -ms-box-sizing: border-box;
+  /*IE8*/
+
+  box-sizing: border-box;
+  /*W3C标准(IE9+，Safari5.1+,Chrome10.0+,Opera10.6+都符合box-sizing的w3c标准语法)*/
+
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-touch-callout: none;
   -webkit-user-drag: none;
@@ -202,7 +216,7 @@ oder:
 }
 @media only screen and (min-width: 999px) {
   html {
-    font-family: Arial;
+    font-family: tahoma, arial, sans-serif;
   }
   a,
   img {
@@ -1012,71 +1026,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-icon-loading {
   background-image: url(../img/loading.gif);
 }
-.c-left {
-  float: left;
-}
-.c-right {
-  float: right;
-}
-.c-clear {
-  zoom: 1;
-}
-.c-clear:after {
-  clear: both;
-  content: ".";
-  display: block;
-  height: 0;
-  visibility: hidden;
-  overflow: hidden;
-}
-.c-inline {
-  display: -moz-inline-stack;
-  display: inline-block;
-  zoom: 1;
-  *display: inline;
-}
-.c-error,
-.c-red {
-  color: #c00;
-}
-.c-warn,
-.c-yellow {
-  color: #ffd306;
-}
-.c-default {
-  color: #222;
-}
-.c-dimgray {
-  color: #333;
-}
-.c-dark {
-  color: #505050;
-}
-.c-gray {
-  color: #6a6a6a;
-}
-.c-light {
-  color: #888;
-}
-.c-h-middle-container {
-  text-align: center;
-}
-.c-h-middle {
-  margin-left: auto;
-  margin-right: auto;
-}
-.c-v-middle {
-  position: absolute;
-  top: 50%;
-}
-.c-v-middle-line {
-  height: 4em;
-  line-height: 4em;
-  overflow: hidden;
-}
-.icons-18-white {
-  background-image: url("data:image/png;base64,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");
-}
 .hui-icon {
   width: 22px;
   height: 22px;
@@ -1483,8 +1432,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-btn-icon-notxt {
   padding: 0;
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
 }
 .hui-btn-icon-notxt .hui-icon {
   margin: 3px 1px 2px 1px;
@@ -1628,6 +1577,26 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-select input {
   display: none;
+}
+.hui-slidesel {
+  position: relative;
+}
+.hui-slidesel .hui-slidesel-selector {
+  display: -moz-inline-stack;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
+  height: 1.8em;
+  padding: .4em 2em;
+  border-top: 2px solid #222;
+  border-bottom: 2px solid #222;
+}
+.hui-slidesel .hui-slidesel-slider {
+  position: absolute;
+  top: 50%;
+  text-align: center;
+  height: 1.8em;
+  padding: .4em 2em;
 }
 .hui-input {
   position: relative;
@@ -1850,6 +1819,21 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-tab .hui-btn {
   border-right-width: 0;
 }
+.hui-tab-border-top .hui-btn,
+.hui-tab-noborder .hui-btn {
+  border-bottom: 0;
+}
+.hui-tab-border-top .hui-tab-item:first-child .hui-btn,
+.hui-tab-noborder .hui-tab-item:first-child .hui-btn {
+  border-left: 0;
+}
+.hui-tab-border-top .hui-tab-item:last-child .hui-btn,
+.hui-tab-noborder .hui-tab-item:last-child .hui-btn {
+  border-right: 0;
+}
+.hui-tab-noborder .hui-btn {
+  border-top: 0;
+}
 .hui-tips {
   position: absolute;
   z-index: 1000;
@@ -1857,8 +1841,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   z-index: 99999;
   padding: 0.8em 1.5em;
   text-align: center;
+  filter: alpha(opacity= 80 );
   opacity: 0.8;
-  filter: alpha(opacity=80%);
 }
 .hui-tips .hui-icon-loading {
   display: block;
@@ -1879,8 +1863,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   margin: 0;
 }
 .hui-tips-notxt .hui-icon-loading {
+  filter: alpha(opacity= 18 );
   opacity: 0.18;
-  filter: alpha(opacity=80%);
 }
 .hui-tips-white {
   background: #fff;
@@ -1937,19 +1921,12 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   padding: 0;
   top: -15px;
   z-index: 1000;
-}
-.hui-dialog > :first-child {
-  -moz-border-radius-topleft: inherit;
-  -webkit-border-top-left-radius: inherit;
-  border-top-left-radius: inherit;
-  -moz-border-radius-topright: inherit;
-  -webkit-border-top-right-radius: inherit;
-  border-top-right-radius: inherit;
+  overflow: hidden;
 }
 .hui-dialog .hui-dialog-header {
   border: 0;
-  overflow: hidden;
   padding: 0;
+  overflow: hidden;
 }
 .hui-dialog .hui-dialog-body {
   color: #333;
@@ -1962,12 +1939,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   border-width: 0;
   overflow: visible;
   overflow-x: hidden;
-  -moz-border-radius-bottomleft: inherit;
-  -webkit-border-bottom-left-radius: inherit;
-  border-bottom-left-radius: inherit;
-  -moz-border-radius-bottomright: inherit;
-  -webkit-border-bottom-right-radius: inherit;
-  border-bottom-right-radius: inherit;
   background-image: -webkit-gradient(linear, left top, left bottom, from(#f9f9f9), to(#eeeeee));
   /* old webkit,Saf4+, Chrome */
 
@@ -1987,14 +1958,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-dialog .hui-body-content {
   padding: 15px;
-}
-.hui-dialog .hui-body-action {
-  -moz-border-radius-bottomleft: inherit;
-  -webkit-border-bottom-left-radius: inherit;
-  border-bottom-left-radius: inherit;
-  -moz-border-radius-bottomright: inherit;
-  -webkit-border-bottom-right-radius: inherit;
-  border-bottom-right-radius: inherit;
 }
 .hui-dialog .hui-content-title {
   font-size: 2em;
@@ -2073,8 +2036,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   width: 100%;
   height: 100%;
   background: black;
+  filter: alpha(opacity= 20 );
   opacity: 0.2;
-  filter: alpha(opacity=80%);
 }
 .hui-inline {
   display: -moz-inline-stack;
@@ -2132,8 +2095,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   cursor: default!important;
   pointer-events: none;
   zoom: 1;
+  filter: alpha(opacity= 30 );
   opacity: 0.3;
-  filter: alpha(opacity=80%);
   z-index: 1;
 }
 .hui-mini {
@@ -2149,6 +2112,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   height: 18px;
 }
 .hui-light {
+  filter: alpha(opacity= 50 );
   opacity: 0.5;
-  filter: alpha(opacity=80%);
 }

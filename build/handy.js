@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-02-23 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-02-26 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -1550,7 +1550,7 @@ function(Debug,Object,Function,$H){
 	    _oCache={};           //缓存
 	
 	var Loader= {
-		traceLog                : true,                     //是否打印跟踪信息
+		traceLog                : false,                     //是否打印跟踪信息
 //		rootPath                : {
 //			'handy'        : 'http://localhost:8081/handy/src',
 //			'com.example'  : 'http://example.com:8082/js'
@@ -1902,7 +1902,9 @@ function(Debug,Object,Function,$H){
 				try{
 					//考虑到传入依赖是数组，这里回调参数形式依然是数组
 					resource=factory.apply(null,arguments);
-					Debug.info("Loader define: "+sId);
+					if(Loader.traceLog){
+						Debug.info("Loader define: "+sId);
+					}
 				}catch(e){
 					//资源定义错误
 					Debug.error("Loader "+sId+":factory define error:"+e.message,e);
@@ -2712,9 +2714,14 @@ function(Debug,Util,$H){
 		firefox 15 => #!/home/q={"thedate":"20121010~20121010"}
 		其他浏览器 => #!/home/q={%22thedate%22:%2220121010~20121010%22}
 	 */
-	var _bIsInited,_nListener=0,_oDoc = document, _oIframe,_sLastHash,
+	var _bIsInited,   //是否已初始化
+		_nListener=0,    //仅用于生成内部唯一的监听器key
+		_oDoc = document, 
+		_oIframe,
+		_sLastHash,     //上一个hash值，用于比较hash是否改变
 		//这个属性的值如果是5，则表示混杂模式（即IE5模式）；如果是7，则表示IE7仿真模式；如果是8，则表示IE8标准模式
 		_nDocMode = _oDoc.documentMode,
+		//是否支持原生hashchange事件
 	    _bSupportHashChange = ('onhashchange' in window) && ( _nDocMode === void 0 || _nDocMode > 7 ),
 		
 	    HashChange={
@@ -2728,9 +2735,12 @@ function(Debug,Util,$H){
 		 * @method _fInit
 		 */
 		function _fInit(){
+			if(_bIsInited){
+				return;
+			}
 			_bIsInited=true;
 			HashChange.listeners={};
-			//不支持原生hashchange事件的，使用定时器+隐藏iframe形式实现
+			//不支持原生hashchange事件的，使用定时器拉取hash值+隐藏iframe形式实现
 			if(!_bSupportHashChange){
 				//创建一个隐藏的iframe，使用这博文提供的技术 http://www.paciellogroup.com/blog/?p=604.
 				_oIframe = $('<iframe id="fff" tabindex="-1" style="display:none" width=0 height=0 title="empty" />').appendTo( _oDoc.body )[0];
@@ -2800,7 +2810,8 @@ function(Debug,Util,$H){
 				_fInit();
 			}
 			if(sName in HashChange.listeners){
-				throw new Error("Duplicate name");
+				var msg="Duplicate name";
+				$D.error(msg,new Error(msg));
 			}else{
 				sName=sName||$H.expando+(++_nListener);
 				HashChange.listeners[sName]=fListener;
@@ -3320,7 +3331,12 @@ $Define("c.ComponentManager", function() {
 	return CM;
 	
 });/**
- * 组件基类
+ * 组件基类，所有组件必须继承自此类或此类的子类，定义组件必须用AbstractComponent.define方法，
+ * 扩展组件类方法必须用本类的extend方法，扩展类的静态方法则可以使用$H.Object.extend方法，例如
+ * var ExampleCmp=AbstractComponent.define('ExampleCmp');
+ * ExampleCmp.extend({
+ * 	   test:''
+ * });
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2013-12-28
  */
@@ -3360,7 +3376,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		////通用样式
 //		width               : null,              //宽度(默认单位是px)
 //		height              : null,              //高度(默认单位是px)
-//		theme               : null,              //组件颜色
+//		theme               : null,              //组件主题
 //		radius              : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 //		shadow              : false,        	 //外阴影
 //		shadowInset         : false,        	 //内阴影
@@ -3534,8 +3550,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		//复制参数
 		me.settings=$HO.clone(oParams);
 		
-		//事件列表对象特殊处理，不影响类定义
-		var aListeners=me.listeners?me.listeners.concat():[];
+		var aListeners=me.listeners||[];
 		//添加参数中的事件
 		if(oParams.listeners){
 			aListeners=aListeners.concat(oParams.listeners);
@@ -3566,8 +3581,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		}
 		//覆盖子组件配置
 		if(oParams.defItem){
-			//只覆盖实例属性，不影响类属性
-			me.defItem=$HO.extend($HO.clone(me.defItem),oParams.defItem);
+			$HO.extend(me.defItem,oParams.defItem);
 		}
 		if(oParams.renderTo){
 			me.renderTo=$(oParams.renderTo);
@@ -3661,9 +3675,6 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		if(me.theme){
 			aCls.push('hui-'+me.cls+'-'+me.theme);
 		}
-		if(me.disabled){
-			aCls.push('hui-disable');
-		}
 		if(me.radius){
 			aCls.push('hui-radius-'+me.radius);
 		}
@@ -3723,7 +3734,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 			me.initListeners();
 		}
 		if(me.disabled){
-			me.suspendListeners();
+			me.disable();
 		}
 		me.fire('afterRender');
 		//显示
@@ -3793,7 +3804,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	function fEnable(){
 		var me=this;
 		me.resumeListeners();
-		me.getEl().removeClass("hui-disable");
+		me.getEl().removeClass("hui-disable").find('input,textarea,select').removeAttr('disabled');
 	}
 	/**
 	 * 禁用
@@ -3802,7 +3813,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	function fDisable(){
 		var me=this;
 		me.suspendListeners();
-		me.getEl().addClass("hui-disable");
+		me.getEl().addClass("hui-disable").find('input,textarea,select').attr('disabled','disabled');
 	}
 	/**
 	 * 激活
@@ -4315,7 +4326,7 @@ function(AC){
 		var oEl=me.getEl();
 		var oDoc=document;
 		var x = ((oDoc.documentElement.offsetWidth || oDoc.body.offsetWidth) - oEl.width())/2;
-		var y = ((oDoc.documentElement.clientHeight || oDoc.body.clientHeight) - oEl.height())/2 + oDoc.documentElement.scrollTop;
+		var y = ((oDoc.documentElement.clientHeight || oDoc.body.clientHeight) - oEl.height())/2 + (oDoc.documentElement.scrollTop||oDoc.body.scrollTop);
 		y = y < 10 ? window.screen.height/2-200 : y;
 		oEl.css({
 			left:x + "px",
@@ -4358,7 +4369,7 @@ function(AC){
 		if(_popupNum==0){
 			_mask.hide();
 		}else{
-			_mask.css('z-index',_popupNum*1000+998);
+			_mask.css('z-index',(_popupNum-1)*1000+998);
 		}
 	}
 	
@@ -4380,8 +4391,8 @@ function(CM,AC){
 	ControlGroup.extend({
 		//初始配置
 //		direction            : 'v',                  //排列方向，'v'表示垂直方向，'h'表示水平方向
-		radius               : 'little',             //圆角
 		multi                : false,                //是否多选
+//		notSelect            : false,                //点击不需要选中
 //		itemClick            : function(oCmp,nIndex){},         //子项点击事件函数，函数参数为子组件对象及索引
 		
 		//默认子组件配置
@@ -4428,6 +4439,9 @@ function(CM,AC){
 	 */
 	function fSelect(item){
 		var me=this,oItem;
+		if(me.notSelect){
+			return;
+		}
 		if(typeof item=='number'){
 			oItem=me.children[item];
 		}else if(typeof item=="string"){
@@ -4435,15 +4449,17 @@ function(CM,AC){
 		}else{
 			oItem=item;
 		}
-		if(!me.multi&&!oItem.multi){
-			//单选操作要先取消别的选中
-			var oSelected=me.getSelected();
-			if(oSelected){
-				me.selectItem(oSelected,false);
+		if(oItem){
+			if(!me.multi&&!oItem.multi){
+				//单选操作要先取消别的选中
+				var oSelected=me.getSelected();
+				if(oSelected){
+					me.selectItem(oSelected,false);
+				}
+				me.selectItem(oItem);
+			}else{
+				me.selectItem(oItem,!oItem.selected);
 			}
-			me.selectItem(oItem);
-		}else{
-			me.selectItem(oItem,!oItem.selected);
 		}
 	}
 	/**
@@ -4638,7 +4654,6 @@ function(AC){
 			'<div class="hui-radio hui-btn hui-btn-gray<%if(this.selected){%> hui-radio-on<%}%>">',
 				'<span class="hui-icon hui-icon-radio"></span>',
 				'<input type="radio"<%if(this.selected){%> checked=true<%}%>',
-				'<%if(this.disabled){%> disabled="<%=this.disabled%>"<%}%>',
 				'<%if(this.name){%> name="<%=this.name%>"<%}%>',
 				'<%if(this.value){%> value="<%=this.value%>"<%}%>/>',
 				'<span class="hui-radio-txt"><%=this.text%></span>',
@@ -4711,7 +4726,6 @@ function(AC){
 			'<div class="hui-chkbox hui-btn hui-btn-gray<%if(this.selected){%> hui-chkbox-on<%}%>">',
 				'<span class="hui-icon hui-icon-chkbox"></span>',
 				'<input type="checkbox"<%if(this.selected){%> checked=true<%}%>',
-				'<%if(this.disabled){%> disabled="<%=this.disabled%>"<%}%>',
 				'<%if(this.name){%> name="<%=this.name%>"<%}%>',
 				'<%if(this.value){%> value="<%=this.value%>"<%}%>/>',
 				'<span class="hui-chkbox-txt"><%=this.text%></span>',
@@ -5014,6 +5028,95 @@ function(AC){
 	return Input;
 	
 });/**
+ * 集合类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-02-25
+ */
+
+$Define('c.Set',
+'c.AbstractComponent',
+function(AC){
+	
+	var Set=AC.define('Set');
+	
+	Set.extend({
+		
+//		title           : '',      //标题
+		
+		tmpl            : [
+			'<div class="hui-set">',
+				'<h1 class="hui-set-title"><%=this.title%></h1>',
+				'<div class="hui-set-content">',
+					'<%=this.getHtml("$>*")%>',
+				'</div>',
+			'</div>'
+		]
+		
+	});
+	
+	return Set;
+	
+});/**
+ * 表单域类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-02-25
+ */
+
+$Define('c.Field',
+'c.AbstractComponent',
+function(AC){
+	
+	var Field=AC.define('Field');
+	
+	Field.extend({
+		//初始配置
+//		forName         : '',      //label标签for名字
+//		label           : '',      //label文字
+//		text            : '',      //右边文字
+		
+		tmpl            : [
+			'<div class="hui-form-field">',
+				'<label class="hui-form-left" for="<%=this.forName%>"><%=this.label%></label>',
+				'<div class="hui-form-right">',
+					'<%=this.text%>',
+					'<%=this.getHtml("$>*")%>',
+				'</div>',
+			'</div>'
+		]
+		
+	});
+	
+	return Field;
+	
+});/**
+ * 表单类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-02-25
+ */
+
+$Define('c.Form',
+'c.AbstractComponent',
+function(AC){
+	
+	var Form=AC.define('Form');
+	
+	Form.extend({
+		//初始配置
+		
+		tmpl            : [
+			'<div class="hui-form">',
+				'<form action="">',
+				'<div class="hui-form-tips c-error"></div>',
+					'<%=this.getHtml("$>*")%>',
+				'</form>',
+			'</div>'
+		]
+		
+	});
+	
+	return Form;
+	
+});/**
  * 标签类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-16
@@ -5029,6 +5132,7 @@ function(AC,ControlGroup){
 	Tab.extend({
 		//初始配置
 //		hasContent      : false,        //是否有内容框
+//		theme           : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
 		defItem         : {             //默认子组件是Button
 //			content     : '',           //tab内容
 			xtype       : 'Button',
@@ -5042,8 +5146,10 @@ function(AC,ControlGroup){
 		tmpl            : [
 			'<div class="hui-tab">',
 				'<ul class="c-clear">',
-					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
-					'<li class="hui-tab-item" style="width:<%=100/len%>%">',
+					'<%for(var i=0,len=this.children.length;i<len;i++){',
+					//IE7下width有小数点时会有偏差(width:500px,len=3,结果会多一像素导致换行)，所以这里统一都没有小数点
+					'var width=Math.floor(100/len);%>',
+					'<li class="hui-tab-item" style="width:<%=(i==len-1)?(100-width*(len-1)):width%>%">',
 					'<%=this.children[i].getHtml()%>',
 					'</li>',
 					'<%}%>',
@@ -5356,6 +5462,8 @@ function(AC,Popup){
 			me.addItem({
 				xtype:'Tab',
 				xrole:'dialog-action',
+				theme:'border-top',
+				notSelect:true,
 				items:aActions
 			});
 		}
@@ -5514,7 +5622,7 @@ $Define("m.AbstractModule","cm.AbstractView",function (AbstractView) {
 		}
 		//将组件数组方式的模板转为字符串
 		if(typeof me.tmpl!='string'){
-			me.constructor.prototype.tmpl=me.tmpl.join('');
+			me.tmpl=me.constructor.prototype.tmpl=me.tmpl.join('');
 		}
 		//由模板生成组件html
 		var sHtml=$H.Template.tmpl({id:me.name,tmpl:me.tmpl},me);
@@ -5615,6 +5723,7 @@ function(HashChange){
 		initialize         : fInitialize,      //历史记录类初始化
 		stateChange        : fStateChange,     //历史状态改变
 		saveState          : fSaveState,       //保存当前状态
+		saveHash           : fSaveHash,        //保存参数到hash
 		getHashParam       : fGetHashParam,    //获取当前hash参数
 		getCurrentState    : fGetCurrentState, //获取当前状态
 		getPreState        : fGetPreState,     //获取前一个状态
@@ -5623,10 +5732,16 @@ function(HashChange){
 	/**
 	 * 历史记录类初始化
 	 * @method initialize
-	 * @param {?string} sKey历史记录类的key，用于区分可能的多个history实例
+	 * @param {string=}sKey 历史记录类的key，用于区分可能的多个history实例
+	 * @param {function=}fError 错误处理函数
 	 */
-	function fInitialize(sKey){
+	function fInitialize(sKey,fError){
 		var me=this;
+		if(typeof sKey=="function"){
+			fError=sKey;
+			sKey=null;
+		}
+		me.error=fError||$H.noop;
 		me.key=sKey||'handy';
 		me.states=[];
 		HashChange.listen($H.Function.bind(me.stateChange,me));
@@ -5636,17 +5751,34 @@ function(HashChange){
 	 * @method stateChange
 	 */
 	function fStateChange(){
-		var me=this;
-		var oHashParam=me.getHashParam();
-		var sKey=oHashParam.hKey;
-		var aStates=me.states;
+		var me=this,
+			oHashParam=me.getHashParam(),
+		    sKey=oHashParam.hKey,
+		 	sCurKey=me.currentKey,
+		 	aStates=me.states,
+		 	oCurState=aStates[sCurKey];
 		//跟当前状态一致，不需要调用stateChange，可能是saveState触发的hashchange
-		if(sKey==aStates[aStates.length-1]){
-			//return;
+		if(sKey==sCurKey&&$HO.equals(oHashParam.param,oCurState.param)){
+			return false;
 		}
 		var oState=aStates[sKey];
+		var bResult;
 		if(oState){
-			oState.onStateChange(oState.param,true);
+			bResult=oState.onStateChange(oState.param,true);
+		}else{
+			$D.warn("hisory state not found");
+			bResult=me.error('stateNotFound',oHashParam);
+		}
+		//如果调用不成功，则恢复原先的hashstate
+		if(bResult!=true){
+			oHashParam={
+				hKey    : sCurKey,
+				param   : oCurState.param
+			};
+			me.saveHash(oHashParam);
+		}else{
+			//改变当前hkey
+			me.currentKey=sKey;
 		}
 	}
 	/**
@@ -5659,14 +5791,23 @@ function(HashChange){
 	 */
 	function fSaveState(oState){
 		var me=this;
-		var sHistoryKey=me.key+(++_nIndex);
+		var sHistoryKey=me.currentKey=me.key+(++_nIndex);
 		me.states.push(sHistoryKey);
 		me.states[sHistoryKey]=oState;
 		var oHashParam={
 			hKey    : sHistoryKey,
-			param : oState.param
+			param   : oState.param
 		};
-		$HU.setHash("#"+JSON.stringify(oHashParam));
+		me.saveHash(oHashParam);
+	}
+	/**
+	 * 保存状态值到hash中
+	 * @method saveHash
+	 * @param {*}param 要保存到hash中的参数
+	 */
+	function fSaveHash(param){
+		//这里主动设置之后还会触发hashchange，不能在hashchange里添加set方法屏蔽此次change，因为可能不止一个地方需要hashchange事件
+		$HU.setHash("#"+JSON.stringify(param));
 	}
 	/**
 	 * 获取当前hash参数
@@ -5705,7 +5846,7 @@ function(HashChange){
 	function fGetPreState(){
 		var me=this;
 		try{
-			var oHashParam=JSON.parse($HU.getHash().replace("#",""));
+			var oHashParam=me.getHashParam();
 			var sHKey=oHashParam.hKey;
 			var aStates=me.states;
 			var nLen=aStates.length;
@@ -5764,7 +5905,8 @@ function(History){
 		_destroy           : _fDestroy,         //销毁模块
 		
 		initialize         : fInitialize,      //初始化模块管理
-		go                 : fGo               //进入模块
+		go                 : fGo,              //进入模块
+		back               : fBack             //后退一步
 	});
 	
 	/**
@@ -5870,21 +6012,27 @@ function(History){
 			me.container=oConf.container?$(oConf.container):$(document.body);
 		}
 		me.defModPackage=me.defModPackage+".";
-		me.history=new History();
+		me.history=new History(function(sCode,oParam){
+			me.go(oParam.param);
+		});
 		me.modules={};
 	}
 	/**
 	 * 进入模块
 	 * @method go(oParams)
-	 * @param {object}oParams{  //传入参数
+	 * @param {Object|string}param  直接模块名字符串或者{  //传入参数
 	 * 		modName:模块名称
 	 * 		...
 	 * }
 	 * @param {boolean=}bNotSaveHistory仅当为true时，不保存历史记录
+	 * @return {boolean} true表示成功，false表示失败
 	 */
-	function fGo(oParams,bNotSaveHistory){
+	function fGo(param,bNotSaveHistory){
 		var me=this;
-		var sModName=oParams.modName;
+		if(typeof param=="string"){
+			param={modName:param};
+		}
+		var sModName=param.modName;
 		//当前显示的模块名
 		var sCurrentMod=me.currentMod;
 		var oMods=me.modules;
@@ -5898,8 +6046,14 @@ function(History){
 		}
 		
 		//当前显示模块不允许退出，直接返回
-		if(oCurrentMod&&!oCurrentMod.waiting&&!oCurrentMod.exit()){
-			return false;
+		if(oCurrentMod&&!oCurrentMod.waiting){
+			if(oCurrentMod._forceExit){
+				//标记为强制退出的模块不调用exit方法，直接退出，并将_forceExit重置为false
+				oCurrentMod._forceExit=false;
+			}else if(oCurrentMod.exit()==false){
+				//模块返回false，不允许退出
+				return false;
+			}
 		}
 		
 		//如果在缓存模块中，直接显示该模块，并且调用该模块cache方法
@@ -5909,26 +6063,43 @@ function(History){
 			//标记使用缓存，要调用cache方法
 			if(oMod.useCache){
 				me._showMod(oMod);
-				oMod.cache(oParams);
+				oMod.cache(param);
 			}else if(!oMod.waiting){
-				//标记不使用缓存，销毁新建
+				//标记不使用缓存，销毁模块
 				me._destroy(oMod);
-				me._createMod(oParams);
+				//重新标记当前模块
+				me.currentMod=sModName;
+				//重新创建模块
+				me._createMod(param);
 			}
 			//如果模块已在请求中，直接略过，等待新建模块的回调函数处理
 		}else{
 			//否则新建一个模块
-			me._createMod(oParams);
+			me._createMod(param);
 		}
+		//主要是处理前进和后退hash变化引起的调用，不需要再保存历史记录
 		if(bNotSaveHistory!=true){
 			//保存状态
 			me.history.saveState({
 				onStateChange:$H.Function.bind(me.go,me),
-				param:oParams
+				param:param
 			});
 		}
 		//重新标记当前模块
 		me.currentMod=sModName;
+		return true;
+	}
+	/**
+	 * 后退一步
+	 * @method back
+	 * @param {boolean=} 当传入true时，强制退出当前模块，即不调用模块的exit而直接退出
+	 */
+	function fBack(bForceExit){
+		var me=this;
+		if(bForceExit){
+			me.modules[me.currentMod]._forceExit=true;
+		}
+		history.back();
 	}
 	
 	return ModuleManager;

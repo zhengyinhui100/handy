@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-02-23 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-02-26 | zhengyinhui100@gmail.com */
 /****************************************************************
 * Author:		郑银辉											*
 * Email:		zhengyinhui100@gmail.com						*
@@ -65,7 +65,7 @@ $Define("m.AbstractModule","cm.AbstractView",function (AbstractView) {
 		}
 		//将组件数组方式的模板转为字符串
 		if(typeof me.tmpl!='string'){
-			me.constructor.prototype.tmpl=me.tmpl.join('');
+			me.tmpl=me.constructor.prototype.tmpl=me.tmpl.join('');
 		}
 		//由模板生成组件html
 		var sHtml=$H.Template.tmpl({id:me.name,tmpl:me.tmpl},me);
@@ -166,6 +166,7 @@ function(HashChange){
 		initialize         : fInitialize,      //历史记录类初始化
 		stateChange        : fStateChange,     //历史状态改变
 		saveState          : fSaveState,       //保存当前状态
+		saveHash           : fSaveHash,        //保存参数到hash
 		getHashParam       : fGetHashParam,    //获取当前hash参数
 		getCurrentState    : fGetCurrentState, //获取当前状态
 		getPreState        : fGetPreState,     //获取前一个状态
@@ -174,10 +175,16 @@ function(HashChange){
 	/**
 	 * 历史记录类初始化
 	 * @method initialize
-	 * @param {?string} sKey历史记录类的key，用于区分可能的多个history实例
+	 * @param {string=}sKey 历史记录类的key，用于区分可能的多个history实例
+	 * @param {function=}fError 错误处理函数
 	 */
-	function fInitialize(sKey){
+	function fInitialize(sKey,fError){
 		var me=this;
+		if(typeof sKey=="function"){
+			fError=sKey;
+			sKey=null;
+		}
+		me.error=fError||$H.noop;
 		me.key=sKey||'handy';
 		me.states=[];
 		HashChange.listen($H.Function.bind(me.stateChange,me));
@@ -187,17 +194,34 @@ function(HashChange){
 	 * @method stateChange
 	 */
 	function fStateChange(){
-		var me=this;
-		var oHashParam=me.getHashParam();
-		var sKey=oHashParam.hKey;
-		var aStates=me.states;
+		var me=this,
+			oHashParam=me.getHashParam(),
+		    sKey=oHashParam.hKey,
+		 	sCurKey=me.currentKey,
+		 	aStates=me.states,
+		 	oCurState=aStates[sCurKey];
 		//跟当前状态一致，不需要调用stateChange，可能是saveState触发的hashchange
-		if(sKey==aStates[aStates.length-1]){
-			//return;
+		if(sKey==sCurKey&&$HO.equals(oHashParam.param,oCurState.param)){
+			return false;
 		}
 		var oState=aStates[sKey];
+		var bResult;
 		if(oState){
-			oState.onStateChange(oState.param,true);
+			bResult=oState.onStateChange(oState.param,true);
+		}else{
+			$D.warn("hisory state not found");
+			bResult=me.error('stateNotFound',oHashParam);
+		}
+		//如果调用不成功，则恢复原先的hashstate
+		if(bResult!=true){
+			oHashParam={
+				hKey    : sCurKey,
+				param   : oCurState.param
+			};
+			me.saveHash(oHashParam);
+		}else{
+			//改变当前hkey
+			me.currentKey=sKey;
 		}
 	}
 	/**
@@ -210,14 +234,23 @@ function(HashChange){
 	 */
 	function fSaveState(oState){
 		var me=this;
-		var sHistoryKey=me.key+(++_nIndex);
+		var sHistoryKey=me.currentKey=me.key+(++_nIndex);
 		me.states.push(sHistoryKey);
 		me.states[sHistoryKey]=oState;
 		var oHashParam={
 			hKey    : sHistoryKey,
-			param : oState.param
+			param   : oState.param
 		};
-		$HU.setHash("#"+JSON.stringify(oHashParam));
+		me.saveHash(oHashParam);
+	}
+	/**
+	 * 保存状态值到hash中
+	 * @method saveHash
+	 * @param {*}param 要保存到hash中的参数
+	 */
+	function fSaveHash(param){
+		//这里主动设置之后还会触发hashchange，不能在hashchange里添加set方法屏蔽此次change，因为可能不止一个地方需要hashchange事件
+		$HU.setHash("#"+JSON.stringify(param));
 	}
 	/**
 	 * 获取当前hash参数
@@ -256,7 +289,7 @@ function(HashChange){
 	function fGetPreState(){
 		var me=this;
 		try{
-			var oHashParam=JSON.parse($HU.getHash().replace("#",""));
+			var oHashParam=me.getHashParam();
 			var sHKey=oHashParam.hKey;
 			var aStates=me.states;
 			var nLen=aStates.length;
@@ -315,7 +348,8 @@ function(History){
 		_destroy           : _fDestroy,         //销毁模块
 		
 		initialize         : fInitialize,      //初始化模块管理
-		go                 : fGo               //进入模块
+		go                 : fGo,              //进入模块
+		back               : fBack             //后退一步
 	});
 	
 	/**
@@ -421,21 +455,27 @@ function(History){
 			me.container=oConf.container?$(oConf.container):$(document.body);
 		}
 		me.defModPackage=me.defModPackage+".";
-		me.history=new History();
+		me.history=new History(function(sCode,oParam){
+			me.go(oParam.param);
+		});
 		me.modules={};
 	}
 	/**
 	 * 进入模块
 	 * @method go(oParams)
-	 * @param {object}oParams{  //传入参数
+	 * @param {Object|string}param  直接模块名字符串或者{  //传入参数
 	 * 		modName:模块名称
 	 * 		...
 	 * }
 	 * @param {boolean=}bNotSaveHistory仅当为true时，不保存历史记录
+	 * @return {boolean} true表示成功，false表示失败
 	 */
-	function fGo(oParams,bNotSaveHistory){
+	function fGo(param,bNotSaveHistory){
 		var me=this;
-		var sModName=oParams.modName;
+		if(typeof param=="string"){
+			param={modName:param};
+		}
+		var sModName=param.modName;
 		//当前显示的模块名
 		var sCurrentMod=me.currentMod;
 		var oMods=me.modules;
@@ -449,8 +489,14 @@ function(History){
 		}
 		
 		//当前显示模块不允许退出，直接返回
-		if(oCurrentMod&&!oCurrentMod.waiting&&!oCurrentMod.exit()){
-			return false;
+		if(oCurrentMod&&!oCurrentMod.waiting){
+			if(oCurrentMod._forceExit){
+				//标记为强制退出的模块不调用exit方法，直接退出，并将_forceExit重置为false
+				oCurrentMod._forceExit=false;
+			}else if(oCurrentMod.exit()==false){
+				//模块返回false，不允许退出
+				return false;
+			}
 		}
 		
 		//如果在缓存模块中，直接显示该模块，并且调用该模块cache方法
@@ -460,26 +506,43 @@ function(History){
 			//标记使用缓存，要调用cache方法
 			if(oMod.useCache){
 				me._showMod(oMod);
-				oMod.cache(oParams);
+				oMod.cache(param);
 			}else if(!oMod.waiting){
-				//标记不使用缓存，销毁新建
+				//标记不使用缓存，销毁模块
 				me._destroy(oMod);
-				me._createMod(oParams);
+				//重新标记当前模块
+				me.currentMod=sModName;
+				//重新创建模块
+				me._createMod(param);
 			}
 			//如果模块已在请求中，直接略过，等待新建模块的回调函数处理
 		}else{
 			//否则新建一个模块
-			me._createMod(oParams);
+			me._createMod(param);
 		}
+		//主要是处理前进和后退hash变化引起的调用，不需要再保存历史记录
 		if(bNotSaveHistory!=true){
 			//保存状态
 			me.history.saveState({
 				onStateChange:$H.Function.bind(me.go,me),
-				param:oParams
+				param:param
 			});
 		}
 		//重新标记当前模块
 		me.currentMod=sModName;
+		return true;
+	}
+	/**
+	 * 后退一步
+	 * @method back
+	 * @param {boolean=} 当传入true时，强制退出当前模块，即不调用模块的exit而直接退出
+	 */
+	function fBack(bForceExit){
+		var me=this;
+		if(bForceExit){
+			me.modules[me.currentMod]._forceExit=true;
+		}
+		history.back();
 	}
 	
 	return ModuleManager;

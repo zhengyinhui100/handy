@@ -3,6 +3,7 @@
 //fixed variable console is undeclared
 var console,
 parent,
+history,
 
 handy,
 JSON,

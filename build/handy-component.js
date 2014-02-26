@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-02-23 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-02-26 | zhengyinhui100@gmail.com */
 /**
  * 组件管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -152,7 +152,12 @@ $Define("c.ComponentManager", function() {
 	return CM;
 	
 });/**
- * 组件基类
+ * 组件基类，所有组件必须继承自此类或此类的子类，定义组件必须用AbstractComponent.define方法，
+ * 扩展组件类方法必须用本类的extend方法，扩展类的静态方法则可以使用$H.Object.extend方法，例如
+ * var ExampleCmp=AbstractComponent.define('ExampleCmp');
+ * ExampleCmp.extend({
+ * 	   test:''
+ * });
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2013-12-28
  */
@@ -192,7 +197,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		////通用样式
 //		width               : null,              //宽度(默认单位是px)
 //		height              : null,              //高度(默认单位是px)
-//		theme               : null,              //组件颜色
+//		theme               : null,              //组件主题
 //		radius              : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 //		shadow              : false,        	 //外阴影
 //		shadowInset         : false,        	 //内阴影
@@ -366,8 +371,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		//复制参数
 		me.settings=$HO.clone(oParams);
 		
-		//事件列表对象特殊处理，不影响类定义
-		var aListeners=me.listeners?me.listeners.concat():[];
+		var aListeners=me.listeners||[];
 		//添加参数中的事件
 		if(oParams.listeners){
 			aListeners=aListeners.concat(oParams.listeners);
@@ -398,8 +402,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		}
 		//覆盖子组件配置
 		if(oParams.defItem){
-			//只覆盖实例属性，不影响类属性
-			me.defItem=$HO.extend($HO.clone(me.defItem),oParams.defItem);
+			$HO.extend(me.defItem,oParams.defItem);
 		}
 		if(oParams.renderTo){
 			me.renderTo=$(oParams.renderTo);
@@ -493,9 +496,6 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		if(me.theme){
 			aCls.push('hui-'+me.cls+'-'+me.theme);
 		}
-		if(me.disabled){
-			aCls.push('hui-disable');
-		}
 		if(me.radius){
 			aCls.push('hui-radius-'+me.radius);
 		}
@@ -555,7 +555,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 			me.initListeners();
 		}
 		if(me.disabled){
-			me.suspendListeners();
+			me.disable();
 		}
 		me.fire('afterRender');
 		//显示
@@ -625,7 +625,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	function fEnable(){
 		var me=this;
 		me.resumeListeners();
-		me.getEl().removeClass("hui-disable");
+		me.getEl().removeClass("hui-disable").find('input,textarea,select').removeAttr('disabled');
 	}
 	/**
 	 * 禁用
@@ -634,7 +634,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	function fDisable(){
 		var me=this;
 		me.suspendListeners();
-		me.getEl().addClass("hui-disable");
+		me.getEl().addClass("hui-disable").find('input,textarea,select').attr('disabled','disabled');
 	}
 	/**
 	 * 激活
@@ -1147,7 +1147,7 @@ function(AC){
 		var oEl=me.getEl();
 		var oDoc=document;
 		var x = ((oDoc.documentElement.offsetWidth || oDoc.body.offsetWidth) - oEl.width())/2;
-		var y = ((oDoc.documentElement.clientHeight || oDoc.body.clientHeight) - oEl.height())/2 + oDoc.documentElement.scrollTop;
+		var y = ((oDoc.documentElement.clientHeight || oDoc.body.clientHeight) - oEl.height())/2 + (oDoc.documentElement.scrollTop||oDoc.body.scrollTop);
 		y = y < 10 ? window.screen.height/2-200 : y;
 		oEl.css({
 			left:x + "px",
@@ -1190,7 +1190,7 @@ function(AC){
 		if(_popupNum==0){
 			_mask.hide();
 		}else{
-			_mask.css('z-index',_popupNum*1000+998);
+			_mask.css('z-index',(_popupNum-1)*1000+998);
 		}
 	}
 	
@@ -1212,8 +1212,8 @@ function(CM,AC){
 	ControlGroup.extend({
 		//初始配置
 //		direction            : 'v',                  //排列方向，'v'表示垂直方向，'h'表示水平方向
-		radius               : 'little',             //圆角
 		multi                : false,                //是否多选
+//		notSelect            : false,                //点击不需要选中
 //		itemClick            : function(oCmp,nIndex){},         //子项点击事件函数，函数参数为子组件对象及索引
 		
 		//默认子组件配置
@@ -1260,6 +1260,9 @@ function(CM,AC){
 	 */
 	function fSelect(item){
 		var me=this,oItem;
+		if(me.notSelect){
+			return;
+		}
 		if(typeof item=='number'){
 			oItem=me.children[item];
 		}else if(typeof item=="string"){
@@ -1267,15 +1270,17 @@ function(CM,AC){
 		}else{
 			oItem=item;
 		}
-		if(!me.multi&&!oItem.multi){
-			//单选操作要先取消别的选中
-			var oSelected=me.getSelected();
-			if(oSelected){
-				me.selectItem(oSelected,false);
+		if(oItem){
+			if(!me.multi&&!oItem.multi){
+				//单选操作要先取消别的选中
+				var oSelected=me.getSelected();
+				if(oSelected){
+					me.selectItem(oSelected,false);
+				}
+				me.selectItem(oItem);
+			}else{
+				me.selectItem(oItem,!oItem.selected);
 			}
-			me.selectItem(oItem);
-		}else{
-			me.selectItem(oItem,!oItem.selected);
 		}
 	}
 	/**
@@ -1470,7 +1475,6 @@ function(AC){
 			'<div class="hui-radio hui-btn hui-btn-gray<%if(this.selected){%> hui-radio-on<%}%>">',
 				'<span class="hui-icon hui-icon-radio"></span>',
 				'<input type="radio"<%if(this.selected){%> checked=true<%}%>',
-				'<%if(this.disabled){%> disabled="<%=this.disabled%>"<%}%>',
 				'<%if(this.name){%> name="<%=this.name%>"<%}%>',
 				'<%if(this.value){%> value="<%=this.value%>"<%}%>/>',
 				'<span class="hui-radio-txt"><%=this.text%></span>',
@@ -1543,7 +1547,6 @@ function(AC){
 			'<div class="hui-chkbox hui-btn hui-btn-gray<%if(this.selected){%> hui-chkbox-on<%}%>">',
 				'<span class="hui-icon hui-icon-chkbox"></span>',
 				'<input type="checkbox"<%if(this.selected){%> checked=true<%}%>',
-				'<%if(this.disabled){%> disabled="<%=this.disabled%>"<%}%>',
 				'<%if(this.name){%> name="<%=this.name%>"<%}%>',
 				'<%if(this.value){%> value="<%=this.value%>"<%}%>/>',
 				'<span class="hui-chkbox-txt"><%=this.text%></span>',
@@ -1846,6 +1849,95 @@ function(AC){
 	return Input;
 	
 });/**
+ * 集合类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-02-25
+ */
+
+$Define('c.Set',
+'c.AbstractComponent',
+function(AC){
+	
+	var Set=AC.define('Set');
+	
+	Set.extend({
+		
+//		title           : '',      //标题
+		
+		tmpl            : [
+			'<div class="hui-set">',
+				'<h1 class="hui-set-title"><%=this.title%></h1>',
+				'<div class="hui-set-content">',
+					'<%=this.getHtml("$>*")%>',
+				'</div>',
+			'</div>'
+		]
+		
+	});
+	
+	return Set;
+	
+});/**
+ * 表单域类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-02-25
+ */
+
+$Define('c.Field',
+'c.AbstractComponent',
+function(AC){
+	
+	var Field=AC.define('Field');
+	
+	Field.extend({
+		//初始配置
+//		forName         : '',      //label标签for名字
+//		label           : '',      //label文字
+//		text            : '',      //右边文字
+		
+		tmpl            : [
+			'<div class="hui-form-field">',
+				'<label class="hui-form-left" for="<%=this.forName%>"><%=this.label%></label>',
+				'<div class="hui-form-right">',
+					'<%=this.text%>',
+					'<%=this.getHtml("$>*")%>',
+				'</div>',
+			'</div>'
+		]
+		
+	});
+	
+	return Field;
+	
+});/**
+ * 表单类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-02-25
+ */
+
+$Define('c.Form',
+'c.AbstractComponent',
+function(AC){
+	
+	var Form=AC.define('Form');
+	
+	Form.extend({
+		//初始配置
+		
+		tmpl            : [
+			'<div class="hui-form">',
+				'<form action="">',
+				'<div class="hui-form-tips c-error"></div>',
+					'<%=this.getHtml("$>*")%>',
+				'</form>',
+			'</div>'
+		]
+		
+	});
+	
+	return Form;
+	
+});/**
  * 标签类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-16
@@ -1861,6 +1953,7 @@ function(AC,ControlGroup){
 	Tab.extend({
 		//初始配置
 //		hasContent      : false,        //是否有内容框
+//		theme           : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
 		defItem         : {             //默认子组件是Button
 //			content     : '',           //tab内容
 			xtype       : 'Button',
@@ -1874,8 +1967,10 @@ function(AC,ControlGroup){
 		tmpl            : [
 			'<div class="hui-tab">',
 				'<ul class="c-clear">',
-					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
-					'<li class="hui-tab-item" style="width:<%=100/len%>%">',
+					'<%for(var i=0,len=this.children.length;i<len;i++){',
+					//IE7下width有小数点时会有偏差(width:500px,len=3,结果会多一像素导致换行)，所以这里统一都没有小数点
+					'var width=Math.floor(100/len);%>',
+					'<li class="hui-tab-item" style="width:<%=(i==len-1)?(100-width*(len-1)):width%>%">',
 					'<%=this.children[i].getHtml()%>',
 					'</li>',
 					'<%}%>',
@@ -2188,6 +2283,8 @@ function(AC,Popup){
 			me.addItem({
 				xtype:'Tab',
 				xrole:'dialog-action',
+				theme:'border-top',
+				notSelect:true,
 				items:aActions
 			});
 		}

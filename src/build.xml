@@ -70,6 +70,9 @@
 			<path path="js/component/Checkbox.js" />
 			<path path="js/component/Select.js" />
 			<path path="js/component/Input.js" />
+			<path path="js/component/Set.js" />
+			<path path="js/component/Field.js" />
+			<path path="js/component/Form.js" />
 			<path path="js/component/Tab.js" />
 			<path path="js/component/Toolbar.js" />
 			<path path="js/component/Tips.js" />
