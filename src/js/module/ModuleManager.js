@@ -18,15 +18,17 @@ function(History){
 	$HO.extend(ModuleManager.prototype,{
 		//history          : null,   //历史记录
 		//conf             : null,   //配置参数
-		//modules          : null,   //缓存模块
 		//container        : null,   //默认模块容器
 		//navigator        : null,   //定制模块导航类
 		//defModPackage    : "com.xxx.module",  //默认模块所在包名
 		
+//		modules            : null,   //缓存模块
+//		requestMod         : '',     //正在请求的模块名
+//		currentMod         : '',     //当前模块名
+		
 		_getModWrapper     : _fGetModWrapper,   //获取模块包装div
 		_createMod         : _fCreateMod,       //新建模块
 		_showMod           : _fShowMod,         //显示模块
-		_hideAll           : _fHideAll,         //隐藏所有模块
 		_destroy           : _fDestroy,         //销毁模块
 		
 		initialize         : fInitialize,      //初始化模块管理
@@ -63,7 +65,7 @@ function(History){
 			$HL.fire('afterRender',oModWrapper);
 			oMod.render(oModWrapper);
 			//可能加载完时，已切换到其它模块了
-			if(me.currentMod==sModName){
+			if(me.requestMod==sModName){
 				me._showMod(oMod);
 			}
 			oMod.afterRender();
@@ -90,26 +92,19 @@ function(History){
 	 */
 	function _fShowMod(oMod){
 		var me=this;
+		var oCurMod=me.modules[me.currentMod];
 		//如果导航类方法返回true，则不使用模块管理类的导航
-		if(me.navigator&&me.navigator.navigate(oMod,me)){
-			return false;
-		}else{
-			this._hideAll();
+		if(!(me.navigator&&me.navigator.navigate(oMod,oCurMod,me))){
+			if(oCurMod){
+				oCurMod._container.hide();
+			}
 			oMod._container.show();
 		}
-		oMod.isActive=true;
-	}
-	/**
-	 * 隐藏所有模块
-	 * @method _hideAll
-	 * @param
-	 */
-	function _fHideAll(){
-		var oModules=this.modules
-		for(var module in oModules){
-			oModules[module]._container.hide();
-			oModules[module].isActive=false;
+		if(oCurMod){
+			oCurMod.isActive=false;
 		}
+		oMod.isActive=true;
+		me.currentMod=oMod.name;
 	}
 	/**
 	 * 销毁模块
@@ -181,6 +176,9 @@ function(History){
 			}
 		}
 		
+		//标记当前请求模块，主要用于异步请求模块回调时判断是否已经进了其它模块
+		me.requestMod=sModName;
+		
 		//如果在缓存模块中，直接显示该模块，并且调用该模块cache方法
 		var oMod=oMods[sModName];
 		//如果模块有缓存
@@ -193,7 +191,7 @@ function(History){
 				//标记不使用缓存，销毁模块
 				me._destroy(oMod);
 				//重新标记当前模块
-				me.currentMod=sModName;
+//				me.currentMod=sModName;
 				//重新创建模块
 				me._createMod(param);
 			}
@@ -210,8 +208,6 @@ function(History){
 				param:param
 			});
 		}
-		//重新标记当前模块
-		me.currentMod=sModName;
 		return true;
 	}
 	/**
