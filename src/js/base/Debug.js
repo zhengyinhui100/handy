@@ -1,6 +1,6 @@
 /**
  * 调试类，方便各浏览器下调试，在发布时统一删除调试代码，所有的输出和调试必须使用此类的方法，
- * 不得使用console等原生方法
+ * 不得使用console等原生方法，发布到线上时需要把除了需要反馈给服务器的方法外的方法统一过滤掉
  * //TODO 快捷键切换调试等级
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -9,11 +9,12 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 	var Debug={
 		level	    : 0,            //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
 		LOG_LEVEL	: 1,            //日志级别
-		INFO_LEVEL  : 2,            //信息级别
-		WARN_LEVEL  : 3,            //警告级别
-		ERROR_LEVEL	: 4,            //错误级别
-		DEBUG_LEVEL : 5,            //调试级别
+		DEBUG_LEVEL : 2,            //调试级别
+		INFO_LEVEL  : 3,            //信息级别
+		WARN_LEVEL  : 4,            //警告级别
+		ERROR_LEVEL	: 5,            //错误级别
 		showInPage  : !("console" in window)||!!Browser.mobile(),        //是否强制在页面上输出调试信息，主要用于不支持console的浏览器，如：IE6，或者ietester里面，或者移动浏览器
+		out         : fOut,         //直接输出日志
 		log			: fLog,		    //输出日志
 		info		: fInfo,		//输出信息
 		warn        : fWarn,        //输出警告信息
@@ -23,12 +24,12 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 	}
 	/**
 	 * 输出信息
-	 * @method _fOut
+	 * @method fOut
 	 * @param {Object} oVar	需要输出的变量
 	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
 	 * @param {string} sType 日志类型：log,info,error
 	 */
-	function _fOut(oVar,bShowInPage,sType){
+	function fOut(oVar,bShowInPage,sType){
 		sType = sType||'log';
 		//输出到页面
 		if(bShowInPage||Debug.showInPage){
@@ -81,7 +82,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 		if(Debug.level>Debug.LOG_LEVEL){
 			return;
 		}
-		_fOut(oVar,!!bShowInPage,'log');
+		Debug.out(oVar,!!bShowInPage,'log');
 	}
 	/**
 	 * 输出信息
@@ -93,7 +94,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 		if(this.level>Debug.INFO_LEVEL){
 			return;
 		}
-		_fOut(oVar,!!bShowInPage,'info');
+		Debug.out(oVar,!!bShowInPage,'info');
 	}
 	/**
 	 * 输出信息
@@ -105,7 +106,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 		if(Debug.level>Debug.WARN_LEVEL){
 			return;
 		}
-		_fOut(oVar,!!bShowInPage,'warn');
+		Debug.out(oVar,!!bShowInPage,'warn');
 	}
 	/**
 	 * 输出错误
@@ -121,7 +122,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 		if(typeof oError=="boolean"){
 			bShowInPage=oError;
 		}
-		_fOut(oVar,!!bShowInPage,"error");
+		Debug.out(oVar,!!bShowInPage,"error");
 		if(typeof oError=="object"){
 			//抛出异常，主要是为了方便调试，如果异常被catch住的话，控制台不会输出具体错误位置
 			throw oError;
@@ -143,7 +144,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 				bShowInPage=sMsg;
 				sMsg='';
 			}
-			_fOut((sMsg||'')+(new Date().getTime()-(Debug.lastTime||0)),!!bShowInPage)
+			Debug.out((sMsg||'')+(new Date().getTime()-(Debug.lastTime||0)),!!bShowInPage)
 		}else{
 			Debug.lastTime=new Date().getTime();
 		}
