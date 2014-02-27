@@ -1087,3 +1087,36 @@
   filter: alpha(opacity= 50 );
   opacity: 0.5;
 }
+.hui-slide-right {
+  -moz-transition: all 0s linear;
+  -webkit-transition: all 0s linear;
+  -o-transition: all 0s linear;
+  transition: all 0s linear;
+  -moz-transform: translate3d(300%, 0, 0);
+  -webkit-transform: translate3d(300%, 0, 0);
+  -o-transform: translate3d(300%, 0, 0);
+  -ms-transform: translate3d(300%, 0, 0);
+  transform: translate3d(300%, 0, 0);
+}
+.hui-slide-show {
+  -moz-transition: all 0.2s linear;
+  -webkit-transition: all 0.2s linear;
+  -o-transition: all 0.2s linear;
+  transition: all 0.2s linear;
+  -moz-transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  -o-transform: translate3d(0, 0, 0);
+  -ms-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}
+.hui-slide-hide {
+  -moz-transition: all 0.05s linear;
+  -webkit-transition: all 0.05s linear;
+  -o-transition: all 0.05s linear;
+  transition: all 0.05s linear;
+  -moz-transform: translateX(-300%);
+  -webkit-transform: translateX(-300%);
+  -o-transform: translateX(-300%);
+  -ms-transform: translateX(-300%);
+  transform: translateX(-300%);
+}

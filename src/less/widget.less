@@ -838,3 +838,16 @@
 .hui-light{
 	.fn_opacity(0.5);
 }
+//动画
+.hui-slide-right{
+	.fn_transition(all 0s linear);
+	.fn_transform(translate3d(300%,0,0));
+}
+.hui-slide-show{
+	.fn_transition(all 0.2s linear);
+	.fn_transform(translate3d(0,0,0));
+}
+.hui-slide-hide{
+	.fn_transition(all 0.05s linear);
+	.fn_transform(translateX(-300%));
+}
