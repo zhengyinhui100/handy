@@ -88,6 +88,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		afterRender         : fAfterRender,      //渲染后续工作
 		hide                : fHide,             //隐藏
 		show                : fShow,             //显示
+		afterShow           : fAfterShow,        //显示后工作
 		enable              : fEnable,           //启用
 		disable             : fDisable,          //禁用
 		active              : fActive,           //激活
@@ -455,6 +456,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 			},0);
 			return;
 		}
+		me.fire('beforeShow');
 		me.showed=true;
 		var oEl=me.getEl();
 		if(me.displayMode=='visibility'){
@@ -462,8 +464,16 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		}else{
 			oEl.show();
 		}
-		me.fire('show');
 		me.callChild([null,true]);
+		me.afterShow();
+	}
+	/**
+	 * 显示后工作
+	 * @method afterShow
+	 */
+	function fAfterShow(){
+		var me=this;
+		me.fire('afterShow');
 	}
 	/**
 	 * 启用

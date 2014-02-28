@@ -29,7 +29,7 @@ function(AC){
 		],
 		
 		doConfig         : fDoConfig,        //初始化配置
-		show             : fShow,            //显示
+		afterShow        : fAfterShow,       //显示
 		hide             : fHide,            //隐藏
 		center           : fCenter,          //居中显示
 		followEl         : fFollowEl,        //根据指定节点显示
@@ -84,41 +84,36 @@ function(AC){
 		}
 	}
 	/**
-	 * 显示
-	 * @method show
+	 * 显示后工作
+	 * @method afterShow
 	 */
-	function fShow(){
+	function fAfterShow(){
 		// 设置定位坐标
 		var me=this;
-		//如果是父组件通过callChild调用的会有参数，要传进去
-		var bIsShow=me.callSuper(arguments);
-		if(bIsShow!=false){
-			var oEl=me.getEl();
-			oEl.css('z-index',_popupNum*1000+1000);
-			//默认居中显示
-			var showPos=me.showPos;
-			if(typeof showPos=="string"){
-				me[showPos]();
-			}else if(typeof showPos=="function"){
-				showPos.call(me);
-			}
-			if(!me.noMask){
-				me.mask();
-			}
-			//如果未设置宽度，默认和父组件宽度一样
-			if(!me.width&&me.parent){
-				$D.log(me.parent.getEl().outerWidth());
-				var width=me.width=me.parent.getEl().outerWidth();
-				oEl.css('width',width);
-			}
-			//定时隐藏
-			if(me.timeout){
-				setTimeout(function(){
-					if(!me.destroyed){
-						me.hide();
-					}
-				},me.timeout);
-			}
+		var oEl=me.getEl();
+		oEl.css('z-index',_popupNum*1000+1000);
+		//如果未设置宽度，默认和父组件宽度一样
+		if(!me.width&&me.parent){
+			var width=me.width=me.parent.getEl().outerWidth();
+			oEl.css('width',width);
+		}
+		//默认居中显示
+		var showPos=me.showPos;
+		if(typeof showPos=="string"){
+			me[showPos]();
+		}else if(typeof showPos=="function"){
+			showPos.call(me);
+		}
+		if(!me.noMask){
+			me.mask();
+		}
+		//定时隐藏
+		if(me.timeout){
+			setTimeout(function(){
+				if(!me.destroyed){
+					me.hide();
+				}
+			},me.timeout);
 		}
 	}
 	/**
@@ -145,9 +140,11 @@ function(AC){
 		// 设置定位坐标
 		var me=this;
 		var oEl=me.getEl();
+		var width=me.width||oEl.width();
+		var height=me.height||oEl.height();
 		var oDoc=document;
-		var x = ((oDoc.documentElement.offsetWidth || oDoc.body.offsetWidth) - oEl.width())/2;
-		var y = ((oDoc.documentElement.clientHeight || oDoc.body.clientHeight) - oEl.height())/2 + (oDoc.documentElement.scrollTop||oDoc.body.scrollTop);
+		var x = ((oDoc.documentElement.offsetWidth || oDoc.body.offsetWidth) - width)/2;
+		var y = ((oDoc.documentElement.clientHeight || oDoc.body.clientHeight) - height)/2 + (oDoc.documentElement.scrollTop||oDoc.body.scrollTop);
 		y = y < 10 ? window.screen.height/2-200 : y;
 		oEl.css({
 			left:x + "px",
