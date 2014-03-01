@@ -49,7 +49,8 @@ function(AC,ControlGroup){
 		
 		doConfig        : fDoConfig,           //初始化配置
 		parseItem       : fParseItem,          //处理子组件配置
-		onItemClick     : fOnItemClick         //子项点击事件处理
+		onItemClick     : fOnItemClick,        //子项点击事件处理
+		setContent      : fSetContent          //设置内容
 	});
 	
 	/**
@@ -87,6 +88,17 @@ function(AC,ControlGroup){
 			me.find('.js-tab-content').hide().eq(nIndex).show();
 		}
 		me.callSuper([oEvt,nIndex]);
+	}
+	/**
+	 * 设置标签页内容
+	 * @method setContent
+	 * @param {number=}nIndex 索引，默认是当前选中的那个
+	 * @param {String}sContent 内容
+	 */
+	function fSetContent(nIndex,sContent){
+		var me=this;
+		nIndex=nIndex||me.getSelected(true);
+		me.find('js-tab-content').index(nIndex).html(sContent);
 	}
 	
 	return Tab;
