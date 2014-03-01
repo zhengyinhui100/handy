@@ -84,13 +84,8 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		getHtml             : fGetHtml,          //获取组件或子组件html
 		getExtCls           : fGetExtCls,        //生成通用样式
 		//组件公用功能
-		render              : fRender,           //渲染
 		afterRender         : fAfterRender,      //渲染后续工作
-		hide                : fHide,             //隐藏
 		show                : fShow,             //显示
-		afterShow           : fAfterShow,        //显示后工作
-		enable              : fEnable,           //启用
-		disable             : fDisable,          //禁用
 		active              : fActive,           //激活
 		unactive            : fUnactive,         //不激活
 		txt                 : fTxt,              //设置/读取文字
@@ -374,15 +369,6 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		return aCls.length>0?aCls.join(' ')+' ':'';
 	}
 	/**
-	 * 渲染
-	 * @method render
-	 */
-	function fRender(){
-		var me=this;
-		me.fire('beforeRender');
-		me.renderTo[me.renderBy](me.getHtml());
-	}
-	/**
 	 * 渲染后续工作
 	 * @method afterRender
 	 * @return {boolean=} 仅当已经完成过渲染时返回false
@@ -393,44 +379,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 			return false;
 		}
 		me.callChild();
-		//缓存容器
-		me._container=$("#"+me.getId());
-		me.rendered=true;
-		//初始化样式
-		me.initStyle();
-		//初始化事件
-		if(me.notListen!=true){
-			me.initListeners();
-		}
-		if(me.disabled){
-			me.disable();
-		}
-		me.fire('afterRender');
-		//显示
-		if(!me.hidden){
-			me.show();
-		}
-		delete me.html;
-	}
-	/**
-	 * 隐藏
-	 * @method hide
-	 * @return {boolean=} 仅当已经隐藏时返回false
-	 */
-	function fHide(){
-		var me=this;
-		//已经隐藏，直接退回
-		if(!me.showed){
-			return false;
-		}
-		me.showed=false;
-		var oEl=me.getEl();
-		if(me.displayMode=='visibility'){
-			oEl.css({visibility:"hidden"})
-		}else{
-			oEl.hide();
-		}
-		me.fire('hide');
+		return me.callSuper();
 	}
 	/**
 	 * 显示
@@ -466,32 +415,6 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		}
 		me.callChild([null,true]);
 		me.afterShow();
-	}
-	/**
-	 * 显示后工作
-	 * @method afterShow
-	 */
-	function fAfterShow(){
-		var me=this;
-		me.fire('afterShow');
-	}
-	/**
-	 * 启用
-	 * @method enable
-	 */
-	function fEnable(){
-		var me=this;
-		me.resumeListeners();
-		me.getEl().removeClass("hui-disable").find('input,textarea,select').removeAttr('disabled');
-	}
-	/**
-	 * 禁用
-	 * @method disable
-	 */
-	function fDisable(){
-		var me=this;
-		me.suspendListeners();
-		me.getEl().addClass("hui-disable").find('input,textarea,select').attr('disabled','disabled');
 	}
 	/**
 	 * 激活

@@ -16,6 +16,9 @@ $Define('cm.AbstractView',function(){
 		
 		initialize          : fInitialize,       //初始化
 		getEl               : fGetEl,            //获取容器节点
+		getHtml             : $H.noop,           //获取html
+		initStyle           : $H.noop,           //初始化样式
+		
 		fire                : fFire,             //触发组件自定义事件
 		listen              : fListen,           //绑定事件
 		unlisten            : fUnlisten,         //解除事件
@@ -23,6 +26,14 @@ $Define('cm.AbstractView',function(){
 		clearListeners      : fClearListeners,   //清除所有事件
 		suspendListeners    : fSuspendListeners, //挂起事件
 		resumeListeners     : fResumeListeners,  //恢复事件
+		
+		render              : fRender,           //渲染
+		afterRender         : fAfterRender,      //渲染后续工作
+		hide                : fHide,             //隐藏
+		show                : fShow,             //显示
+		afterShow           : fAfterShow,        //显示后工作
+		enable              : fEnable,           //启用
+		disable             : fDisable,          //禁用
 		destroy             : fDestroy           //销毁
 	});
 	/**
@@ -207,6 +218,113 @@ $Define('cm.AbstractView',function(){
 			return false;
 		}
 		me.isSuspend=false;
+	}
+	/**
+	 * 渲染
+	 * @method render
+	 */
+	function fRender(){
+		var me=this;
+		me.fire('beforeRender');
+		me.renderTo[me.renderBy](me.getHtml());
+	}
+	/**
+	 * 渲染后续工作
+	 * @method afterRender
+	 * @return {boolean=} 仅当已经完成过渲染时返回false
+	 */
+	function fAfterRender(){
+		var me=this;
+		if(me.rendered){
+			return false;
+		}
+		//缓存容器
+		me._container=$("#"+me.getId());
+		me.rendered=true;
+		//初始化样式
+		me.initStyle();
+		//初始化事件
+		if(me.notListen!=true){
+			me.initListeners();
+		}
+		if(me.disabled){
+			me.disable();
+		}
+		me.fire('afterRender');
+		//显示
+		if(!me.hidden){
+			me.show();
+		}
+		delete me.html;
+	}
+	/**
+	 * 隐藏
+	 * @method hide
+	 * @return {boolean=} 仅当已经隐藏时返回false
+	 */
+	function fHide(){
+		var me=this;
+		//已经隐藏，直接退回
+		if(!me.showed){
+			return false;
+		}
+		me.showed=false;
+		var oEl=me.getEl();
+		if(me.displayMode=='visibility'){
+			oEl.css({visibility:"hidden"})
+		}else{
+			oEl.hide();
+		}
+		me.fire('hide');
+	}
+	/**
+	 * 显示
+	 * @method show
+	 * @param {boolean=}bNotDelay 仅当为true时强制不延迟显示
+	 * @param {boolean=}bParentCall true表示是父组件通过callChild调用
+	 * @return {boolean=} 仅当不是正常成功显示时返回false
+	 */
+	function fShow(bNotDelay,bParentCall){
+		var me=this;
+		//已经显示，直接退回
+		if(me.showed){
+			return false;
+		}
+		me.fire('beforeShow');
+		me.showed=true;
+		var oEl=me.getEl();
+		if(me.displayMode=='visibility'){
+			oEl.css({visibility:"visible"})
+		}else{
+			oEl.show();
+		}
+		me.afterShow();
+	}
+	/**
+	 * 显示后工作
+	 * @method afterShow
+	 */
+	function fAfterShow(){
+		var me=this;
+		me.fire('afterShow');
+	}
+	/**
+	 * 启用
+	 * @method enable
+	 */
+	function fEnable(){
+		var me=this;
+		me.resumeListeners();
+		me.getEl().removeClass("hui-disable").find('input,textarea,select').removeAttr('disabled');
+	}
+	/**
+	 * 禁用
+	 * @method disable
+	 */
+	function fDisable(){
+		var me=this;
+		me.suspendListeners();
+		me.getEl().addClass("hui-disable").find('input,textarea,select').attr('disabled','disabled');
 	}
 	/**
 	 * 销毁
