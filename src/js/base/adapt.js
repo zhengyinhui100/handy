@@ -20,7 +20,7 @@
 	$Require=$H.Loader.require;
 
 
-	//系统全局变量
+	//项目系统全局变量
 	$G={
 		config:{}
 	};
