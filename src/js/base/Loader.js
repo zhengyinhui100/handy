@@ -1,7 +1,6 @@
 /**
  * 资源加载类
  * @author 郑银辉(zhengyinhui100@gmail.com)
- * 
  */
 handy.add("Loader",
 ["handy.base.Debug","handy.base.Object","handy.base.Function"],
