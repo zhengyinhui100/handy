@@ -11,7 +11,7 @@ $Define('m.AbstractDao',function(){
 	
 	var AbstractDao=$HO.createClass();
 	
-	$HO.extend(AbstractDao,{
+	$HO.extend(AbstractDao.prototype,{
 		ajax         : fAjax,        //ajax方法
 		beforeSend   : $H.noop,      //发送前处理
 		error        : $H.noop,      //错误处理
