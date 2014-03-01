@@ -14,6 +14,7 @@ function(AC,ControlGroup){
 	Tab.extend({
 		//初始配置
 //		hasContent      : false,        //是否有内容框
+//		activeType      : '',           //激活样式类型，
 //		theme           : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
 		defItem         : {             //默认子组件是Button
 //			content     : '',           //tab内容
@@ -46,10 +47,23 @@ function(AC,ControlGroup){
 			'</div>'
 		],
 		
+		doConfig        : fDoConfig,           //初始化配置
 		parseItem       : fParseItem,          //处理子组件配置
 		onItemClick     : fOnItemClick         //子项点击事件处理
 	});
 	
+	/**
+	 * 初始化配置
+	 * @method doConfig
+	 * @param {Object}oSettings
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		me.callSuper([oSettings]);
+		if(me.activeType){
+			me.defItem.activeCls='hui-btn-active-'+me.activeType;
+		}
+	}
 	/**
 	 * 处理子组件配置
 	 * @method parseItem
