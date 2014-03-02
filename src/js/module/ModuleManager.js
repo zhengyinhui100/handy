@@ -16,6 +16,7 @@ function(History,AbstractManager){
 	
 	var ModuleManager=$HO.createClass();
 	
+	//TODO 使用AbstractManager的方法
 	$HO.inherit(ModuleManager,AbstractManager,{
 		
 		type               : 'module',
