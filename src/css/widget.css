@@ -261,8 +261,10 @@
   top: 0.32em;
 }
 .hui-mi-csstransforms .hui-btn-back.hui-btn-black.hui-mini:before {
-  left: -10px;
-  top: 4px;
+  width: 1.5em;
+  height: 1.5em;
+  left: -0.8em;
+  top: 0.32em;
 }
 .hui-mi-csstransforms .hui-btn-back.hui-btn-gray:before {
   border-right: 1px solid #ccc;
