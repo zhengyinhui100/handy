@@ -12,7 +12,7 @@ $Define("m.AbstractModule","cm.AbstractView",function (AbstractView) {
 	 */
 	var AbstractModule = $HO.createClass();
 	
-	$HO.inherit(AbstractModule,AbstractView,null, {
+	$HO.inherit(AbstractModule,AbstractView, {
 		
 //		isLoaded       : false,          //{boolean}模块是否已载入
 //		isActived      : false,          //{boolean}模块是否是当前活跃的
@@ -24,52 +24,11 @@ $Define("m.AbstractModule","cm.AbstractView",function (AbstractView) {
 		
 //		getData        : null,           //{function()}获取该模块的初始化数据
 //		clone          : null,           //{function()}克隆接口
-		initialize     : fInitialize,    //模块类创建时初始化
 		cache          : function(){},   //显示模块缓存
 		init           : function(){},   //初始化函数, 在模块创建后调用（在所有模块动作之前）
-		beforeRender   : function(){},   //模块渲染前调用
-		render         : function(){},   //模块渲染
-		afterRender    : function(){},   //模块渲染后调用
 		reset          : function(){},   //重置函数, 在该模块里进入该模块时调用
-		exit           : function(){return true},   //离开该模块前调用, 返回true允许离开, 否则不允许离开
-		destroy        : fDestroy,       //模块销毁
-		getHtml        : fGetHtml        //获取该模块的html
+		exit           : function(){return true}   //离开该模块前调用, 返回true允许离开, 否则不允许离开
 	});
-	/**
-	 * 构造函数
-	 * @param{any} oConf 模块配置对象
-	 * @return{void} 
-	 */
-	function fInitialize(oConf) {
-		//Object.extend(this, oConf);
-		this.conf = oConf;
-	}
-	/**
-	 * 销毁模块
-	 * @method destroy
-	 */
-	function fDestroy(){
-		var me=this;
-		me.getEl().remove();
-	}
-	/**
-	 * 获取该模块的html
-	 * @method getHtml
-	 * @return {string} 返回模板html
-	 */
-	function fGetHtml(){
-		var me=this;
-		if(!me.tmpl){
-			return '';
-		}
-		//将组件数组方式的模板转为字符串
-		if(typeof me.tmpl!='string'){
-			me.tmpl=me.constructor.prototype.tmpl=me.tmpl.join('');
-		}
-		//由模板生成组件html
-		var sHtml=$H.Template.tmpl({id:me.name,tmpl:me.tmpl},me);
-		return sHtml;
-	}
 	
 	return AbstractModule;
 });

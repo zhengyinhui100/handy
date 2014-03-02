@@ -25,7 +25,7 @@ function(AC){
 		shadowOverlay   : true,
 		
 		tmpl            : [
-			'<div class="hui-popup"><%=this.getHtml("$>*")%></div>'
+			'<div class="hui-popup"><%=this.findHtml("$>*")%></div>'
 		],
 		
 		doConfig         : fDoConfig,        //初始化配置

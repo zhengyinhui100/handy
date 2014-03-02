@@ -24,7 +24,7 @@ function(AC){
 		
 		tmpl             : [
 			'<div class="hui-tbar<%if(this.type=="header"){%> hui-header<%}else if(this.type=="footer"){%> hui-footer<%}%>">',
-				'<%=this.getHtml(">*")%>',
+				'<%=this.findHtml(">*")%>',
 				'<%if(this.title){%><h1 class="hui-tbar-title js-tbar-txt"><%=this.title%></h1><%}%>',
 			'</div>'
 		],

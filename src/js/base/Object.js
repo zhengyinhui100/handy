@@ -259,11 +259,11 @@ handy.add('Object',function($H){
     * @method inherit
     * @param {Object} oChild 子类
     * @param {Object} oParent 父类
+    * @param {Object=} oProtoExtend 需要扩展的prototype属性
     * @param {Object=} oStaticExtend 需要扩展的静态属性
-    * @param {Object=} oExtend 需要扩展的prototype属性
     * @param {object=} oExtendOptions 继承父类静态方法时，extend方法的设置，默认为{notCover:true}
     */
-    function fInherit(oChild, oParent, oStaticExtend,oExtend,oExtendOptions) {
+    function fInherit(oChild, oParent,oProtoExtend,oStaticExtend,oExtendOptions) {
         var Inheritance = function(){};
         Inheritance.prototype = oParent.prototype;
 		/* 
@@ -296,8 +296,8 @@ handy.add('Object',function($H){
             Object.extend(oChild, oStaticExtend);
         }
         //扩展prototype属性
-        if(oExtend){
-            Object.extend(oChild.prototype, oExtend);
+        if(oProtoExtend){
+            Object.extend(oChild.prototype, oProtoExtend);
         }
     }
     /**

@@ -28,7 +28,7 @@ function(AC){
 			'<%if(this.hasBtn){%>',
 				' hui-input-btn-<%=this.btnPos%>',
 			'<%}%>">',
-			'<%=this.getHtml("$>*")%>',
+			'<%=this.findHtml("$>*")%>',
 			'<%if(this.type=="textarea"){%>',
 				'<textarea class="js-input"',
 			'<%}else{%>',

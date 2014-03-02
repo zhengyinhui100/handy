@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-02-26 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-02 | zhengyinhui100@gmail.com */
 html,
 body,
 div,
@@ -93,6 +93,7 @@ html {
   overflow-y: auto;
 }
 body {
+  overflow-x: hidden;
   min-height: 100%;
   position: relative;
 }
@@ -1116,6 +1117,15 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 
   background-image: linear-gradient(#5f9cc5, #6facd5);
 }
+.hui-btn.hui-btn-active-b,
+.hui-btn.hui-btn-active-b:hover {
+  padding-bottom: 0.3em;
+  border-bottom: 0.2em solid #73bf00;
+}
+.hui-btn.hui-btn-active-c .hui-icon-bg,
+.hui-btn.hui-btn-active-c:hover .hui-icon-bg {
+  background-color: #73bf00;
+}
 .hui-btn-gray {
   border: 1px solid #ccc;
   background: #eee;
@@ -1742,7 +1752,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-tbar .hui-tbar-title {
   min-height: 1.1em;
   text-align: center;
-  font-size: 16px;
+  font-size: 1em;
   display: block;
   padding: .6em 30% .8em;
   text-overflow: ellipsis;
@@ -2114,4 +2124,37 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-light {
   filter: alpha(opacity= 50 );
   opacity: 0.5;
+}
+.hui-slide-right {
+  -moz-transition: all 0s linear;
+  -webkit-transition: all 0s linear;
+  -o-transition: all 0s linear;
+  transition: all 0s linear;
+  -moz-transform: translate3d(300%, 0, 0);
+  -webkit-transform: translate3d(300%, 0, 0);
+  -o-transform: translate3d(300%, 0, 0);
+  -ms-transform: translate3d(300%, 0, 0);
+  transform: translate3d(300%, 0, 0);
+}
+.hui-slide-show {
+  -moz-transition: all 0.1s linear;
+  -webkit-transition: all 0.1s linear;
+  -o-transition: all 0.1s linear;
+  transition: all 0.1s linear;
+  -moz-transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  -o-transform: translate3d(0, 0, 0);
+  -ms-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}
+.hui-slide-hide {
+  -moz-transition: all 0.05s linear;
+  -webkit-transition: all 0.05s linear;
+  -o-transition: all 0.05s linear;
+  transition: all 0.05s linear;
+  -moz-transform: translateX(-300%);
+  -webkit-transform: translateX(-300%);
+  -o-transform: translateX(-300%);
+  -ms-transform: translateX(-300%);
+  transform: translateX(-300%);
 }

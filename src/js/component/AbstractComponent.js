@@ -11,32 +11,17 @@
 //"handy.component.AbstractComponent"
 $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(CM,AbstractView){
 	
-	var AC=$HO.createClass(),
-	_oTagReg=/^(<[a-zA-Z]+)/,
-	_oClsReg=/(class=")/;
+	var AC=$HO.createClass();
 	
 	//快捷别名
 	$C.AbstractComponent=AC;
 	
 	$HO.inherit(AC,AbstractView,{
-		//静态方法
-		define              : fDefine,           //定义组件
-		extend              : fExtend,           //扩展组件原型对象
-		html                : fHtml              //静态生成组件html
-	},{
-		//实例方法
+		//实例属性、方法
 		xtype               : 'AbstractComponent',       //组件类型
 		
 		//默认配置
-//		renderTo            : null,              //渲染节点
-//		hidden              : false,             //是否隐藏
-//		hideMode            : 'display',         //隐藏方式,'display'|'visibility'
-//		disabled            : false,             //是否禁用
-		autoRender          : true,              //是否默认就进行渲染
-		renderBy            : 'append',          //默认渲染方式
-//		notListen           : false,             //不自动初始化监听器
 //		delayShow           : false,             //是否延迟显示，主要用于弹出层
-//		extCls              : '',                //组件附加class
 		activeCls           : 'hui-active',      //激活样式
 //		defItem             : null,              //默认子组件配置
 //		icon                : null,              //图标
@@ -58,32 +43,18 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		
 		//属性
 //		cls                 : '',                //组件样式名，空则使用xtype的小写，如Dialog，cls为"dialog"，因此样式前缀是“hui-dialog-”
-//		xrole                : '',                //保留属性，用于模板中筛选组件的选择器，如this.getHtml("$>[xrole='content']")
-//		params              : null,              //初始化时传入的参数
-//		_id                 : null,              //组件id
-//		tmpl                : [],                //组件模板，首次初始化前为数组，初始化后为字符串，ps:组件模板容器节点上不能带有id属性
-//		html                : null,              //组件html
-//		rendered            : false,             //是否已渲染
-//      showed              : false,             //是否已显示
+//		xrole                : '',                //保留属性，用于模板中筛选组件的选择器，如this.findHtml("$>[xrole='content']")
 //		children            : [],                //子组件
-//      listeners           : [],                //类事件配置
-//		_listeners          : {},                //实例事件池  
-		_customEvents       : [                  //自定义事件,可以通过参数属性的方式直接进行添加
-			'beforeRender','afterRender','beforeShow','afterShow','hide','destroy'
-		],  
-		_defaultEvents      : [                  //默认事件，可以通过参数属性的方式直接进行添加
-			'click','mouseover','focus'
-		],
+		
 		//组件初始化相关
 		initialize          : fInitialize,       //初始化
 		hasConfig           : fHasConfig,        //检查是否已存在指定配置
 		doConfig            : fDoConfig,         //初始化配置
-		initHtml            : fInitHtml,         //初始化html
-		initStyle           : fInitStyle,        //初始化样式
 		getId               : fGetId,            //获取组件id
-		getHtml             : fGetHtml,          //获取组件或子组件html
+		findHtml            : fFindHtml,         //获取组件或子组件html
 		getExtCls           : fGetExtCls,        //生成通用样式
 		//组件公用功能
+		beforeRender        : fBeforeRender,     //渲染前工作
 		afterRender         : fAfterRender,      //渲染后续工作
 		show                : fShow,             //显示
 		active              : fActive,           //激活
@@ -110,6 +81,11 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		parseItem           : function(){},      //分析子组件，由具体组件类实现
 		parseItems          : fParseItems,       //分析子组件列表
 		destroy             : fDestroy           //销毁
+	},{
+		//静态方法
+		define              : fDefine,           //定义组件
+		extend              : fExtend,           //扩展组件原型对象
+		html                : fHtml              //静态生成组件html
 	});
 	
 	/**
@@ -148,32 +124,22 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	/**
 	 * 静态生成组件html
 	 * @method html
-	 * @param {object}oSettings 初始化参数
+	 * @param {object}oParams 初始化参数
 	 */
-	function fHtml(oSettings){
-		oSettings.autoRender=false;
-		var component=new this(oSettings);
+	function fHtml(oParams){
+		oParams.autoRender=false;
+		var component=new this(oParams);
 		return component.getHtml();
 	}
 		
 	/**
 	 * 初始化
 	 * @method initialize
-	 * @param {object}oSettings 初始化参数
+	 * @param {object}oParams 初始化参数
 	 */
-	function fInitialize(oSettings){
+	function fInitialize(oParams){
 		var me=this;
-		//初始化配置
-		me.doConfig(oSettings);
-		//分析处理子组件
-		me.parseItems();
-		me.initHtml();
-		me.fire('beforeRender');
-		if(me.autoRender!=false){
-			me.render();
-			//渲染后续工作
-			me.afterRender();
-		}
+		me.callSuper([oParams]);
 		//注册组件
 		CM.register(me);
 	}
@@ -209,93 +175,18 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	 */
 	function fDoConfig(oParams){
 		var me=this;
-		//保存参数
-		me.params=oParams;
-		//复制参数
-		me.settings=$HO.clone(oParams);
-		
-		var aListeners=me.listeners||[];
-		//添加参数中的事件
-		if(oParams.listeners){
-			aListeners=aListeners.concat(oParams.listeners);
-		}
-		me._listeners=aListeners;
-		
-		//只覆盖基本类型的属性
-		$HO.extend(me,oParams,{notCover:function(sProp){
-			var value=me[sProp];
-			//默认事件，可通过参数属性直接添加
-			var bIsCustEvt=$HO.contains(me._customEvents,sProp);
-			var bIsDefEvt=$HO.contains(me._defaultEvents,sProp);
-			if(bIsCustEvt||bIsDefEvt){
-				me._listeners.push({
-					type:sProp,
-					notEl:bIsCustEvt,
-					handler:oParams[sProp]
-				});
-			}
-			if((value!=null&&typeof value=='object')||$HO.isFunction(value)){
-				return true;
-			}
-		}});
+		me.callSuper([oParams]);
 		
 		//样式名
 		if(!me.cls){
 			me.cls=me.xtype.toLowerCase();
 		}
+		me.extCls=me.getExtCls();
 		//覆盖子组件配置
 		if(oParams.defItem){
 			$HO.extend(me.defItem,oParams.defItem);
 		}
-		if(oParams.renderTo){
-			me.renderTo=$(oParams.renderTo);
-		}else{
-			me.renderTo=$(document.body);
-		}
 		me.children=[];
-	}
-	/**
-	 * 初始化html
-	 * @method initHtml
-	 */
-	function fInitHtml(){
-		var me=this;
-		//将组件数组方式的模板转为字符串
-		if(typeof me.tmpl!='string'){
-			me.tmpl=me.constructor.prototype.tmpl=me.tmpl.join('');
-		}
-		//由模板生成组件html
-		var sHtml=$H.Template.tmpl({id:me.xtype,tmpl:me.tmpl},me);
-		var sId=me.getId();
-		//添加隐藏style，调用show方法时才显示
-		var sStyle;
- 		if(me.displayMode=='visibility'){
-			sStyle='visibility:hidden;';
- 		}else{
-			sStyle='display:none;';
- 		}
-		//添加id和style
-		sHtml=sHtml.replace(_oTagReg,'$1 id="'+sId+'" style="'+sStyle+'"');
-		//添加附加class
-		sHtml=sHtml.replace(_oClsReg,'$1'+me.getExtCls());
-		me.html=sHtml;
-	}
-	/**
-	 * 初始化样式
-	 * @method initStyle
-	 */
-	function fInitStyle(){
-		var me=this;
-		var oEl=this.getEl();
-		//添加style
-		var oStyle=me.style||{};
-		if(me.width!=undefined){
-			oStyle.width=me.width;
-		}
-		if(me.height!=undefined){
-			oStyle.height=me.height;
-		}
-		oEl.css(oStyle);
 	}
 	/**
 	 * 获取组件id
@@ -304,19 +195,16 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	 */
 	function fGetId(){
 		var me=this;
-		return me._id||(me._id=CM.generateId(me.cid));
+		return me._id||(me._id=CM.generateId(me.xid));
 	}
 	/**
-	 * 获取组件或子组件html
-	 * @method getHtml
+	 * 获取子组件html
+	 * @method findHtml
 	 * @param {string=}sSel 选择器，不传表示返回自身的html
 	 * @return {string} 返回对应html
 	 */
-	function fGetHtml(sSel){
+	function fFindHtml(sSel){
 		var me=this;
-		if(!sSel){
-			return me.html;
-		}
 		var aChildren=sSel==">*"?me.children:me.find(sSel);
 		var aHtml=[];
 		for(var i=0;i<aChildren.length;i++){
@@ -366,7 +254,16 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		if(me.isInline){
 			aCls.push('hui-inline');
 		}
-		return aCls.length>0?aCls.join(' ')+' ':'';
+		return aCls.length>0?aCls.join(' '):'';
+	}
+	/**
+	 * 渲染前工作
+	 * @method beforeRender
+	 */
+	function fBeforeRender(){
+		var me=this;
+		me.callSuper();
+		me.parseItems();
 	}
 	/**
 	 * 渲染后续工作

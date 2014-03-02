@@ -10,23 +10,25 @@
  */
 //handy.module.ModuleManager
 $Define("m.ModuleManager",
-"m.History",
-function(History){
+["m.History",
+"cm.AbstractManager"],
+function(History,AbstractManager){
 	
 	var ModuleManager=$HO.createClass();
 	
-	$HO.extend(ModuleManager.prototype,{
+	$HO.inherit(ModuleManager,AbstractManager,{
+		
+		type               : 'module',
+		
 		//history          : null,   //历史记录
 		//conf             : null,   //配置参数
 		//container        : null,   //默认模块容器
 		//navigator        : null,   //定制模块导航类
 		//defModPackage    : "com.xxx.module",  //默认模块所在包名
 		
-//		modules            : null,   //缓存模块
 //		requestMod         : '',     //正在请求的模块名
 //		currentMod         : '',     //当前模块名
 		
-		_getModWrapper     : _fGetModWrapper,   //获取模块包装div
 		_createMod         : _fCreateMod,       //新建模块
 		_showMod           : _fShowMod,         //显示模块
 		_destroy           : _fDestroy,         //销毁模块
@@ -48,42 +50,21 @@ function(History){
 		me.modules[sModName]={waiting:true};
 		//请求模块
 		$Require(me.defModPackage+sModName,function(Module){
-			var oMod=new Module();
-			oMod.name=sModName;
-			oMod.mType=sModName;
-			oMod.initParam=oParams;
+			var oMod=new Module({
+				renderTo:oParams.renderTo||me.container,
+				name:sModName,
+				xtype:sModName,
+				_id:me.generateId(),
+				extCls:'js-module m-module',
+				hidden:true
+			});
 			me.modules[sModName]=oMod;
-			//模块初始化
-			oMod.init(oParams);
-			oMod.beforeRender();
-			//模块渲染
-			var oModWrapper=me._getModWrapper(sModName);
-			oMod._container=oModWrapper;
-			var oContainer=oMod.renderTo?$(oMod.renderTo):me.container;
-			oModWrapper.html(oMod.getHtml());
-			oContainer.append(oModWrapper);
-			$HL.fire('afterRender',oModWrapper);
-			oMod.render(oModWrapper);
+			$HL.fire('afterRender',oMod.getEl());
 			//可能加载完时，已切换到其它模块了
 			if(me.requestMod==sModName){
 				me._showMod(oMod);
 			}
-			oMod.afterRender();
 		});
-	}
-	/**
-	 * 获取模块包装div
-	 * @method _getModWrapper
-	 * @param {string}sModName
-	 */
-	function _fGetModWrapper(sModName){
-		var me=this;
-		var sId="modWrapper_"+sModName;
-		var oDiv=$("#"+sId);
-		if(oDiv.length==0){
-			oDiv=$('<div id="'+sId+'" class="js-module m-module"></div>');
-		}
-		return oDiv;
 	}
 	/**
 	 * 显示模块
@@ -96,9 +77,9 @@ function(History){
 		//如果导航类方法返回true，则不使用模块管理类的导航
 		if(!(me.navigator&&me.navigator.navigate(oMod,oCurMod,me))){
 			if(oCurMod){
-				oCurMod._container.hide();
+				oCurMod.hide();
 			}
-			oMod._container.show();
+			oMod.show();
 		}
 		if(oCurMod){
 			oCurMod.isActive=false;

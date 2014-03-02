@@ -21,7 +21,7 @@ function(AC,Popup,ControlGroup){
 		
 		tmpl            : [
 			'<div class="hui-tips<%if(!this.text){%> hui-tips-notxt<%}%>">',
-				'<%=this.getHtml("$>*")%>',
+				'<%=this.findHtml("$>*")%>',
 				'<%if(this.text){%><span class="hui-tips-txt"><%=this.text%></span><%}%>',
 			'</div>'
 		]

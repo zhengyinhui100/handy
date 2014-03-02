@@ -45,6 +45,7 @@
 			encoding="${charset}" outputencoding="${charset}">
 
 			<path path="js/common/AbstractView.js" />
+			<path path="js/common/AbstractManager.js" />
 
 		</concat>
 		<concat destfile="${tmp.dir}/${project.name}-pkg.js" encoding="${charset}"
@@ -96,7 +97,6 @@
 
 			<path path="js/module/AbstractModule.js" />
 			<path path="js/module/AbstractDao.js" />
-			<path path="js/module/AbstractView.js" />
 			<path path="js/module/AbstractNavigator.js" />
 			<path path="js/module/History.js" />
 			<path path="js/module/ModuleManager.js" />

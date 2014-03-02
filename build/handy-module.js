@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-02-26 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-02 | zhengyinhui100@gmail.com */
 /****************************************************************
 * Author:		郑银辉											*
 * Email:		zhengyinhui100@gmail.com						*
@@ -13,7 +13,7 @@ $Define("m.AbstractModule","cm.AbstractView",function (AbstractView) {
 	 */
 	var AbstractModule = $HO.createClass();
 	
-	$HO.inherit(AbstractModule,AbstractView,null, {
+	$HO.inherit(AbstractModule,AbstractView, {
 		
 //		isLoaded       : false,          //{boolean}模块是否已载入
 //		isActived      : false,          //{boolean}模块是否是当前活跃的
@@ -25,52 +25,11 @@ $Define("m.AbstractModule","cm.AbstractView",function (AbstractView) {
 		
 //		getData        : null,           //{function()}获取该模块的初始化数据
 //		clone          : null,           //{function()}克隆接口
-		initialize     : fInitialize,    //模块类创建时初始化
 		cache          : function(){},   //显示模块缓存
 		init           : function(){},   //初始化函数, 在模块创建后调用（在所有模块动作之前）
-		beforeRender   : function(){},   //模块渲染前调用
-		render         : function(){},   //模块渲染
-		afterRender    : function(){},   //模块渲染后调用
 		reset          : function(){},   //重置函数, 在该模块里进入该模块时调用
-		exit           : function(){return true},   //离开该模块前调用, 返回true允许离开, 否则不允许离开
-		destroy        : fDestroy,       //模块销毁
-		getHtml        : fGetHtml        //获取该模块的html
+		exit           : function(){return true}   //离开该模块前调用, 返回true允许离开, 否则不允许离开
 	});
-	/**
-	 * 构造函数
-	 * @param{any} oConf 模块配置对象
-	 * @return{void} 
-	 */
-	function fInitialize(oConf) {
-		//Object.extend(this, oConf);
-		this.conf = oConf;
-	}
-	/**
-	 * 销毁模块
-	 * @method destroy
-	 */
-	function fDestroy(){
-		var me=this;
-		me.getEl().remove();
-	}
-	/**
-	 * 获取该模块的html
-	 * @method getHtml
-	 * @return {string} 返回模板html
-	 */
-	function fGetHtml(){
-		var me=this;
-		if(!me.tmpl){
-			return '';
-		}
-		//将组件数组方式的模板转为字符串
-		if(typeof me.tmpl!='string'){
-			me.tmpl=me.constructor.prototype.tmpl=me.tmpl.join('');
-		}
-		//由模板生成组件html
-		var sHtml=$H.Template.tmpl({id:me.name,tmpl:me.tmpl},me);
-		return sHtml;
-	}
 	
 	return AbstractModule;
 });/****************************************************************
@@ -86,7 +45,7 @@ $Define('m.AbstractDao',function(){
 	
 	var AbstractDao=$HO.createClass();
 	
-	$HO.extend(AbstractDao,{
+	$HO.extend(AbstractDao.prototype,{
 		ajax         : fAjax,        //ajax方法
 		beforeSend   : $H.noop,      //发送前处理
 		error        : $H.noop,      //错误处理
@@ -108,22 +67,6 @@ $Define('m.AbstractDao',function(){
 	}
 	
 	return AbstractDao;
-	
-});/****************************************************************
-* Author:		郑银辉											*
-* Email:		zhengyinhui100@gmail.com						*
-* Created:		2013-01-25										*
-*****************************************************************/
-/**
- * 视图抽象类，模块的视图都要继承此类
- */
-//handy.module.AbstractView
-$Define('m.AbstractView',function(){
-	
-	var AbstractView=$HO.createClass();
-	
-	$HO.extend(AbstractView.prototype,{
-	});
 	
 });/****************************************************************
 * Author:		郑银辉											*
@@ -328,23 +271,27 @@ function(HashChange){
  */
 //handy.module.ModuleManager
 $Define("m.ModuleManager",
-"m.History",
-function(History){
+["m.History",
+"cm.AbstractManager"],
+function(History,AbstractManager){
 	
 	var ModuleManager=$HO.createClass();
 	
-	$HO.extend(ModuleManager.prototype,{
+	$HO.inherit(ModuleManager,AbstractManager,{
+		
+		type               : 'module',
+		
 		//history          : null,   //历史记录
 		//conf             : null,   //配置参数
-		//modules          : null,   //缓存模块
 		//container        : null,   //默认模块容器
 		//navigator        : null,   //定制模块导航类
 		//defModPackage    : "com.xxx.module",  //默认模块所在包名
 		
-		_getModWrapper     : _fGetModWrapper,   //获取模块包装div
+//		requestMod         : '',     //正在请求的模块名
+//		currentMod         : '',     //当前模块名
+		
 		_createMod         : _fCreateMod,       //新建模块
 		_showMod           : _fShowMod,         //显示模块
-		_hideAll           : _fHideAll,         //隐藏所有模块
 		_destroy           : _fDestroy,         //销毁模块
 		
 		initialize         : fInitialize,      //初始化模块管理
@@ -364,42 +311,21 @@ function(History){
 		me.modules[sModName]={waiting:true};
 		//请求模块
 		$Require(me.defModPackage+sModName,function(Module){
-			var oMod=new Module();
-			oMod.name=sModName;
-			oMod.mType=sModName;
-			oMod.initParam=oParams;
+			var oMod=new Module({
+				renderTo:oParams.renderTo||me.container,
+				name:sModName,
+				xtype:sModName,
+				_id:me.generateId(),
+				extCls:'js-module m-module',
+				hidden:true
+			});
 			me.modules[sModName]=oMod;
-			//模块初始化
-			oMod.init(oParams);
-			oMod.beforeRender();
-			//模块渲染
-			var oModWrapper=me._getModWrapper(sModName);
-			oMod._container=oModWrapper;
-			var oContainer=oMod.renderTo?$(oMod.renderTo):me.container;
-			oModWrapper.html(oMod.getHtml());
-			oContainer.append(oModWrapper);
-			$HL.fire('afterRender',oModWrapper);
-			oMod.render(oModWrapper);
+			$HL.fire('afterRender',oMod.getEl());
 			//可能加载完时，已切换到其它模块了
-			if(me.currentMod==sModName){
+			if(me.requestMod==sModName){
 				me._showMod(oMod);
 			}
-			oMod.afterRender();
 		});
-	}
-	/**
-	 * 获取模块包装div
-	 * @method _getModWrapper
-	 * @param {string}sModName
-	 */
-	function _fGetModWrapper(sModName){
-		var me=this;
-		var sId="modWrapper_"+sModName;
-		var oDiv=$("#"+sId);
-		if(oDiv.length==0){
-			oDiv=$('<div id="'+sId+'" class="js-module m-module"></div>');
-		}
-		return oDiv;
 	}
 	/**
 	 * 显示模块
@@ -408,26 +334,19 @@ function(History){
 	 */
 	function _fShowMod(oMod){
 		var me=this;
+		var oCurMod=me.modules[me.currentMod];
 		//如果导航类方法返回true，则不使用模块管理类的导航
-		if(me.navigator&&me.navigator.navigate(oMod,me)){
-			return false;
-		}else{
-			this._hideAll();
-			oMod._container.show();
+		if(!(me.navigator&&me.navigator.navigate(oMod,oCurMod,me))){
+			if(oCurMod){
+				oCurMod.hide();
+			}
+			oMod.show();
+		}
+		if(oCurMod){
+			oCurMod.isActive=false;
 		}
 		oMod.isActive=true;
-	}
-	/**
-	 * 隐藏所有模块
-	 * @method _hideAll
-	 * @param
-	 */
-	function _fHideAll(){
-		var oModules=this.modules
-		for(var module in oModules){
-			oModules[module]._container.hide();
-			oModules[module].isActive=false;
-		}
+		me.currentMod=oMod.name;
 	}
 	/**
 	 * 销毁模块
@@ -499,6 +418,9 @@ function(History){
 			}
 		}
 		
+		//标记当前请求模块，主要用于异步请求模块回调时判断是否已经进了其它模块
+		me.requestMod=sModName;
+		
 		//如果在缓存模块中，直接显示该模块，并且调用该模块cache方法
 		var oMod=oMods[sModName];
 		//如果模块有缓存
@@ -511,7 +433,7 @@ function(History){
 				//标记不使用缓存，销毁模块
 				me._destroy(oMod);
 				//重新标记当前模块
-				me.currentMod=sModName;
+//				me.currentMod=sModName;
 				//重新创建模块
 				me._createMod(param);
 			}
@@ -528,8 +450,6 @@ function(History){
 				param:param
 			});
 		}
-		//重新标记当前模块
-		me.currentMod=sModName;
 		return true;
 	}
 	/**

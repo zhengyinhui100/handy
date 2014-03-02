@@ -30,7 +30,7 @@ function(CM,AC){
 		
 		tmpl                 : [
 			'<div class="hui-ctrlgp<%if(this.direction=="h"){%> hui-ctrlgp-h<%}else{%> hui-ctrlgp-v<%}%>">',
-			'<%=this.getHtml("$>*")%>',
+			'<%=this.findHtml("$>*")%>',
 			'</div>'
 		],
 		
