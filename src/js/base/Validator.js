@@ -11,16 +11,16 @@ handy.add('Validator',['b.String','b.Object'],function(String,Object,$H){
 			url          : "请输入正确的链接地址",
 			date         : "请输入正确的日期",
 			dateISO      : "请输入正确格式的日期",
-			number       : "请输入正确的数字",
-			digits       : "请输入正确的整数",
+			number       : "{name}须是数字",
+			digits       : "{name}须是整数",
 			creditcard   : "请输入正确的信用卡号码",
-			equalTo      : "请输入相同的",
-			min          : "请输入大于或等于{0}的{name}",
-			max          : "请输入小于或等于{0}的{name}",
-			range        : "请输入{0}到{1}的{name}",
-			maxlength    : "请输入长度不超过{0}的{name}",
-			minlength    : "请输入长度不少于{0}的{name}",
-			rangelength  : "请输入长度在{0}到{1}的{name}"
+			equalTo      : "请输入相同的{name}",
+			min          : "{name}不能小于{0}",
+			max          : "{name}不能大于{0}",
+			range        : "{name}要在{0}到{1}之间",
+			maxlength    : "{name}长度不能超过{0}",
+			minlength    : "{name}长度不能少于{0}",
+			rangelength  : "{name}长度要在{0}到{1}之间"
 		},
 		valid            : fValid,          //校验
 		required         : fRequired,       //不为空
@@ -60,7 +60,7 @@ handy.add('Validator',['b.String','b.Object'],function(String,Object,$H){
 				var sMessage=oValidator.messages&&oValidator.messages[rule]||Validator.messages[rule];
 				//替换{}中的内容，优先匹配param中的，比如{0}、{1}，再匹配oRule中的属性，如：{name}，如果没有匹配则替换为空字符串
 				sMessage=sMessage.replace(/\{([^\}]+)\}/g,function(m,$1){
-					return param[$1]||oValidator[$1]||'';
+					return param[$1]||($1==0&&param)||oValidator[$1]||param||'';
 				})
 				fError&&fError(sMessage);
 				return bResult;
@@ -75,7 +75,7 @@ handy.add('Validator',['b.String','b.Object'],function(String,Object,$H){
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
 	function fRequired(sValue) {
-		return String.trim(sValue).length > 0;
+		return String.trim(''+sValue).length > 0;
 	}
 	/**
 	 * 是否是邮箱地址
@@ -200,7 +200,7 @@ handy.add('Validator',['b.String','b.Object'],function(String,Object,$H){
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
 	function fMinlength( value ,nLen) {
-		var length = Object.isArray( value ) ? value.length : String.trim(value).length;
+		var length = Object.isArray( value ) ? value.length : String.trim(''+value).length;
 		return length >= nLen;
 	}
 	/**
@@ -211,7 +211,7 @@ handy.add('Validator',['b.String','b.Object'],function(String,Object,$H){
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
 	function fMaxlength( value,nLen ) {
-		var length = Object.isArray( value ) ? value.length : String.trim(value).length;
+		var length = Object.isArray( value ) ? value.length : String.trim(''+value).length;
 		return length <= nLen;
 	}
 	/**
@@ -222,7 +222,7 @@ handy.add('Validator',['b.String','b.Object'],function(String,Object,$H){
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
 	function fRangelength( value,aRange ) {
-		var length = Object.isArray( value ) ? value.length : String.trim(value).length;
+		var length = Object.isArray( value ) ? value.length : String.trim(''+value).length;
 		return ( length >= aRange[0] && length <= aRange[1] );
 	}
 	/**
