@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-02 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-03 | zhengyinhui100@gmail.com */
 /**
  * 组件管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -127,6 +127,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		active              : fActive,           //激活
 		unactive            : fUnactive,         //不激活
 		txt                 : fTxt,              //设置/读取文字
+		valid               : fValid,            //校验数据
 		
 		//事件相关
 		initListeners       : fInitListeners,    //初始化所有事件
@@ -414,6 +415,38 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 			oTxtEl.text(sTxt);
 		}else{
 			return oTxtEl.text();
+		}
+	}
+	/**
+	 * 校验数据
+	 * @method valid
+	 * @return 符合校验规则返回true，否则返回false
+	 */
+	function fValid(){
+		var me=this;
+		var oValidator=me.settings.validator;
+		if(oValidator){
+			var sValue=me.val();
+			if(!oValidator.error){
+				//默认提示方法
+				oValidator.error=function(sMsg){
+					new $C.Tips({
+						text:sMsg,
+						theme:'error'
+					});
+				}
+			}
+			var result=$H.Validator.valid(sValue,oValidator);
+			return result;
+		}else{
+			var aChildren=me.children;
+			for(var i=0,nLen=aChildren.length;i<nLen;i++){
+				var result=aChildren[i].valid();
+				if(!result){
+					return result;
+				}
+			}
+			return true;
 		}
 	}
 	//ps:以下四个方法虽然一模一样，但callSuper需要使用元数据$name，所以要分开定义;另一方面，压缩后代码也不多
@@ -1572,7 +1605,7 @@ function(AC){
 	 * @return {string=} 如果是读取操作，返回当前值
 	 */
 	function fVal(sValue){
-		var oInput=this.find('input');
+		var oInput=this.find('input,textarea');
 		if(sValue){
 			oInput.val(sValue);
 		}else{

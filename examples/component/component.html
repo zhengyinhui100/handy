@@ -125,6 +125,8 @@
 <script type="text/javascript"
 	src="../../src/js/base/HashChange.js"></script>
 <script type="text/javascript"
+	src="../../src/js/base/Validator.js"></script>
+<script type="text/javascript"
 	src="../../src/js/base/adapt.js"></script>
 <script type="text/javascript">
 $H.Loader.rootPath={
@@ -436,7 +438,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,
 		});
 		
 		//表单
-		new Form({
+		var form=new Form({
 			renderTo:'#formDv',
 			width:400,
 			items:[{
@@ -451,18 +453,63 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,
 					label:'邮箱：',
 					items:{
 						xtype:'Input',
-						name:'email'
+						name:'email',
+						validator:{
+							name:'邮箱',
+							rules:{
+								required:true,
+								email:true
+							}
+						}
+					}
+				},{
+					xtype:'Field',
+					label:'性别：',
+					items:{
+						xtype:'Select',
+						name:'level',
+						options:[{
+							text:'男',
+							value:'0'
+						},{
+							text:'女',
+							value:'1'
+						}],
+						validator:{
+							rules:{
+								required:true
+							},
+							messages:{
+								required:'请选择性别'
+							}
+						}
 					}
 				},{
 					xtype:"Field",
 					label:'描述：',
 					items:{
 						xtype:'Input',
-						type:'textarea'
+						type:'textarea',
+						validator:{
+							name:'描述',
+							rules:{
+								required:true,
+								rangelength:[1,10]
+							}
+						}
 					}
 				}]
 			}]
 		});
+		new Button({
+			renderTo:'#formDv',
+			text:'校验表单',
+			click:function(){
+				if(form.valid()){
+					new Tips('校验通过');
+				}
+			}
+		})
 		
 		//标签栏
 		new Tab({

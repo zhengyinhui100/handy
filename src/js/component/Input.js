@@ -118,7 +118,7 @@ function(AC){
 	 * @return {string=} 如果是读取操作，返回当前值
 	 */
 	function fVal(sValue){
-		var oInput=this.find('input');
+		var oInput=this.find('input,textarea');
 		if(sValue){
 			oInput.val(sValue);
 		}else{

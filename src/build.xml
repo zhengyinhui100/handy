@@ -29,6 +29,7 @@
 			<path path="js/base/Template.js" />
 			<path path="js/base/HashChange.js" />
 			<path path="js/base/Support.js" />
+			<path path="js/base/Validator.js" />
 			<path path="js/base/adapt.js" />
 
 		</concat>

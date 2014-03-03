@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-02 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-03 | zhengyinhui100@gmail.com */
 /**
  * 抽象视图类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -512,13 +512,11 @@ $Define('cm.AbstractView',function(){
 //"handy.component.ComponentManager"
 $Define("cm.AbstractManager", function() {
 
-	var AbstractManager = $HO.createClass(),
-	//存储类
-	_types={},
-	//存储所有实例
-	_all={};
+	var AbstractManager = $HO.createClass();
 	
 	$HO.extend(AbstractManager.prototype, {
+	    _types        : {},               //存储类
+	    _all          : {},               //存储所有实例
 		type          : 'manager',        //被管理对象的类型，也用于生成标记被管理对象的class
 		registerType  : fRegisterType,    //注册组件类
 		getClass      : fGetClass,        //根据xtype获取组件类
@@ -536,7 +534,7 @@ $Define("cm.AbstractManager", function() {
 	 * @param {object}oClass 组件类
 	 */
 	function fRegisterType(sXtype,oClass){
-		_types[sXtype]=oClass;
+		this._types[sXtype]=oClass;
 		oClass.prototype.xtype=sXtype;
 		//快捷别名
 		$C[sXtype]=oClass;
@@ -548,7 +546,7 @@ $Define("cm.AbstractManager", function() {
 	 * @return {object} 返回对应的组件类
 	 */
 	function fGetClass(sXtype){
-		return _types[sXtype];
+		return this._types[sXtype];
 	}
 	/**
 	 * 注册组件
@@ -556,7 +554,7 @@ $Define("cm.AbstractManager", function() {
 	 * @param {object}oComponent 组件对象
 	 */
 	function fRegister(oComponent){
-		_all[oComponent.getId()]=oComponent;
+		this._all[oComponent.getId()]=oComponent;
 	}
 	/**
 	 * 注销组件
@@ -564,7 +562,7 @@ $Define("cm.AbstractManager", function() {
 	 * @param {object}oComponent 组件对象
 	 */
 	function fUnRegister(oComponent){
-		delete _all[oComponent.getId()];
+		delete this._all[oComponent.getId()];
 	}
 	/**
 	 * 遍历指定节点里的所有组件
@@ -593,8 +591,9 @@ $Define("cm.AbstractManager", function() {
 	 * @param {boolean=}bNotChk 仅当为true时不检查id是否重复
 	 */
 	function fGenerateId(sXid,bNotChk){
-		var sId=$H.expando+"_"+this.type+"_"+(sXid||$H.Util.getUuid());
-		if(bNotChk!=true&&_all[sId]){
+		var me=this;
+		var sId=$H.expando+"_"+me.type+"_"+(sXid||$H.Util.getUuid());
+		if(bNotChk!=true&&me._all[sId]){
 			$D.error('id重复:'+sId);
 		}else{
 			return sId;
@@ -606,7 +605,9 @@ $Define("cm.AbstractManager", function() {
 	 * @param {string}sId 组件id或者xid
 	 */
 	function fGet(sId){
-		return _all[sId]||_all[this.generateId(sId,true)];
+		var me=this;
+		var all=me._all;
+		return all[sId]||all[me.generateId(sId,true)];
 	}
 
 	return AbstractManager;

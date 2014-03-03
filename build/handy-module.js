@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-02 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-03 | zhengyinhui100@gmail.com */
 /****************************************************************
 * Author:		郑银辉											*
 * Email:		zhengyinhui100@gmail.com						*
@@ -277,6 +277,7 @@ function(History,AbstractManager){
 	
 	var ModuleManager=$HO.createClass();
 	
+	//TODO 使用AbstractManager的方法
 	$HO.inherit(ModuleManager,AbstractManager,{
 		
 		type               : 'module',
