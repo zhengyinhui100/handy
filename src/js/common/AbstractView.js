@@ -37,10 +37,18 @@ $Define('cm.AbstractView',function(){
 //		rendered            : false,             //是否已渲染
 //      showed              : false,             //是否已显示
 		_customEvents       : [                  //自定义事件,可以通过参数属性的方式直接进行添加
-			'beforeRender','render','afterRender','beforeShow','afterShow','hide','destroy'
+			'beforeRender','render','afterRender',
+			'beforeShow','afterShow','hide',
+			'destroy'
 		],  
 		_defaultEvents      : [                  //默认事件，可以通过参数属性的方式直接进行添加
-			'click','mouseover','focus'
+			'mousedown','mouseup','mouseover','mousemove','mouseenter','mouseleave',
+			'dragstart','drag','dragenter','dragleave','dragover','drop','dragend',
+			'touchstart','touchmove','touchend','touchcancel',
+			'keydown','keyup','keypress',
+			'click','dblclick',
+			'focus','focusin','focusout',
+			'contextmenu','change','submit'
 		],
 //      listeners           : [],                //类事件配置
 //		_listeners          : {},                //实例事件池  
