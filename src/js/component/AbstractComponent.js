@@ -196,7 +196,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	 */
 	function fGetId(){
 		var me=this;
-		return me._id||(me._id=CM.generateId(me.xid));
+		return me._id||(me._id=CM.generateId(me.cid));
 	}
 	/**
 	 * 获取子组件html

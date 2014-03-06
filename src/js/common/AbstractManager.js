@@ -81,12 +81,12 @@ $Define("cm.AbstractManager", function() {
 	/**
 	 * 生成组件的id
 	 * @method generateId
-	 * @param {string=}sXid xid
+	 * @param {string=}sCid cid
 	 * @param {boolean=}bNotChk 仅当为true时不检查id是否重复
 	 */
-	function fGenerateId(sXid,bNotChk){
+	function fGenerateId(sCid,bNotChk){
 		var me=this;
-		var sId=$H.expando+"_"+me.type+"_"+(sXid||$H.Util.getUuid());
+		var sId=$H.expando+"_"+me.type+"_"+(sCid||$H.Util.getUuid());
 		if(bNotChk!=true&&me._all[sId]){
 			$D.error('id重复:'+sId);
 		}else{
@@ -94,9 +94,9 @@ $Define("cm.AbstractManager", function() {
 		}
 	}
 	/**
-	 * 根据id或xid查找组件
+	 * 根据id或cid查找组件
 	 * @method get
-	 * @param {string}sId 组件id或者xid
+	 * @param {string}sId 组件id或者cid
 	 */
 	function fGet(sId){
 		var me=this;
