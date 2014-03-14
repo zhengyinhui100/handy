@@ -175,6 +175,7 @@ handy.add('Object',function($H){
     	var notCover=oOptions?oOptions.notCover:false;
     	var aCover=oOptions?oOptions.cover:null;
     	var bNotClone=oOptions?oOptions.notClone:false;
+    	oDestination=oDestination||{};
     	//如果是类扩展，添加方法元数据
     	var oConstructor=oDestination.constructor;
     	var bAddMeta=oConstructor.$isClass;

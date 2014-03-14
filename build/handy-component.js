@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-03 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-14 | zhengyinhui100@gmail.com */
 /**
  * 组件管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -263,7 +263,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	 */
 	function fGetId(){
 		var me=this;
-		return me._id||(me._id=CM.generateId(me.xid));
+		return me._id||(me._id=CM.generateId(me.cid));
 	}
 	/**
 	 * 获取子组件html

@@ -8,7 +8,8 @@ handy.add('Util',function($H){
 		isWindow         : fIsWindow,  //检查是否是window对象
 		getUuid          : fGetUuid,   //获取handy内部uuid
 		getHash          : fGetHash,   //获取hash，不包括“？”开头的query部分
-		setHash          : fSetHash    //设置hash，不改变“？”开头的query部分
+		setHash          : fSetHash,   //设置hash，不改变“？”开头的query部分
+		result           : fResult     //如果对象中的指定属性是函数, 则调用它, 否则, 返回它
 	}
 	
 	var _nUuid=0;
@@ -50,6 +51,21 @@ handy.add('Util',function($H){
 			sHash=sOrgHash.replace(/#[^\?]*/,sHash);
 		}
 		top.location.hash=sHash;
+	}
+	/**
+	 * 如果对象中的指定属性是函数, 则调用它, 否则, 返回它
+	 * @method result
+	 * @param {Object}oObj 参数对象
+	 * @param {string}sProp
+	 * @return {*} 如果指定属性值是函数, 则返回该函数执行结果, 否则, 返回该值
+	 */
+	function fResult(oObj,sProp){
+		var value=oObj[sProp];
+		if($H.Object.isFunction(value)){
+			return value();
+		}else{
+			return value;
+		}
 	}
 	
 	return Util;

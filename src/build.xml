@@ -26,6 +26,7 @@
 			<path path="js/base/String.js" />
 			<path path="js/base/Cookie.js" />
 			<path path="js/base/Util.js" />
+			<path path="js/base/Collection.js" />
 			<path path="js/base/Template.js" />
 			<path path="js/base/HashChange.js" />
 			<path path="js/base/Support.js" />
@@ -47,6 +48,8 @@
 
 			<path path="js/common/AbstractView.js" />
 			<path path="js/common/AbstractManager.js" />
+			<path path="js/common/Model.js" />
+			<path path="js/common/Collection.js" />
 
 		</concat>
 		<concat destfile="${tmp.dir}/${project.name}-pkg.js" encoding="${charset}"
