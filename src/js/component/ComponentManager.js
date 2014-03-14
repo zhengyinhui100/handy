@@ -31,12 +31,12 @@ $Define("c.ComponentManager", 'cm.AbstractManager',function(AbstractManager) {
 	function fInitialize(){
 		var me=this;
 		//监听afterRender自定义事件，调用相关组件的afterRender方法
-		$HL.add("afterRender",function(oEl){
+		$HE.on("afterRender",function(oEl){
 			//调用包含的组件的afterRender方法
 			me.afterRender(oEl);
 		})
 		//监听removeEl自定义事件，jQuery的remove方法被拦截(base/adapt.js)，执行时先触发此事件
-		$HL.add('removeEl',function(oEl){
+		$HE.on('removeEl',function(oEl){
 			//销毁包含的组件
 			me.destroy(oEl);
 		})

@@ -2,44 +2,46 @@
  * 自定义事件类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Listener',function($H){
+handy.add('Events',function($H){
 	
-	var _cache={};             //自定义事件池
+	var Events={
+		_cache      : {},           //自定义事件池
 		
-	var Listener={
-		add            : fAdd,            //添加事件
-		remove         : fRemove,         //移除事件
-		fire           : fFire            //触发事件
+		on          : fOn,          //添加事件
+		off         : fOff,         //移除事件
+		trigger     : fTrigger      //触发事件
 	};
 	
 	/**
 	 * 添加事件
-	 * @method add
+	 * @method on
 	 * @param {string}sName 事件名
 	 * @param {function}fHandler 事件函数
 	 */
-	function fAdd(sName,fHandler){
-		var aCache=_cache[sName];
+	function fOn(sName,fHandler){
+		var oCache=this._cache;
+		var aCache=oCache[sName];
 		if(!aCache){
-			aCache=_cache[sName]=[]
+			aCache=oCache[sName]=[];
 		}
 		aCache.push(fHandler);
 		
 	}
 	/**
 	 * 移除事件
-	 * @method remove
+	 * @method off
 	 * @param {string}sName 事件名
 	 * @param {function=}fHandler 事件函数，如果此参数为空，表示删除指定事件名下的所有函数
 	 * @param {boolean} true表示删除成功，false表示失败
 	 */
-	function fRemove(sName,fHandler){
-		var aCache=_cache[sName];
+	function fOff(sName,fHandler){
+		var oCache=this._cache;
+		var aCache=oCache[sName];
 		if(!aCache){
 			return false;
 		}
 		if(!fHandler){
-			delete _cache[sName];
+			delete oCache[sName];
 		}else{
 			for(var i=0,len=aCache.length;i<len;i++){
 				if(aCache[i]==fHandler){
@@ -52,13 +54,13 @@ handy.add('Listener',function($H){
 	}
 	/**
 	 * 触发事件
-	 * @method fire(sName[,data,..])
+	 * @method trigger(sName[,data,..])
 	 * @param {string}sName 事件名
 	 * @param {*}data 传递参数
 	 * @return {*}只是返回最后一个函数的结果
 	 */
-	function fFire(sName,data){
-		var aCache=_cache[sName];
+	function fTrigger(sName,data){
+		var aCache=this._cache;[sName];
 		if(!aCache){
 			return false;
 		}
@@ -73,6 +75,6 @@ handy.add('Listener',function($H){
 		}
 	}
 	
-	return Listener;
+	return Events;
 	
 });

@@ -61,7 +61,7 @@ function(AC){
 				notEl:true,
 				handler:function(){
 					//外部可以通过监听器自行处理这个问题，只需要返回true即可不调用此处的方法
-					var bHasDone=$H.Listener.fire("component.popup.show");
+					var bHasDone=$H.Events.trigger("component.popup.show");
 					if(bHasDone!=true){
 						$("input,textarea,select").attr("disabled","disabled");
 					}
@@ -72,7 +72,7 @@ function(AC){
 				notEl:true,
 				handler:function(){
 					//外部可以通过监听器自行处理这个问题，只需要返回true即可不调用此处的方法
-					var bHasDone=$H.Listener.fire("component.popup.hide");
+					var bHasDone=$H.Events.trigger("component.popup.hide");
 					if(bHasDone!=true){
 						//ps:这里延迟300ms执行还是有可能会有聚焦效果，所以设个保险的500ms
 						setTimeout(function(){

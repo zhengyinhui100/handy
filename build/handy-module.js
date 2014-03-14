@@ -321,7 +321,7 @@ function(History,AbstractManager){
 				hidden:true
 			});
 			me.modules[sModName]=oMod;
-			$HL.fire('afterRender',oMod.getEl());
+			$HE.trigger('afterRender',oMod.getEl());
 			//可能加载完时，已切换到其它模块了
 			if(me.requestMod==sModName){
 				me._showMod(oMod);

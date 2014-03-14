@@ -32,12 +32,12 @@ $Define("c.ComponentManager", 'cm.AbstractManager',function(AbstractManager) {
 	function fInitialize(){
 		var me=this;
 		//监听afterRender自定义事件，调用相关组件的afterRender方法
-		$HL.add("afterRender",function(oEl){
+		$HE.on("afterRender",function(oEl){
 			//调用包含的组件的afterRender方法
 			me.afterRender(oEl);
 		})
 		//监听removeEl自定义事件，jQuery的remove方法被拦截(base/adapt.js)，执行时先触发此事件
-		$HL.add('removeEl',function(oEl){
+		$HE.on('removeEl',function(oEl){
 			//销毁包含的组件
 			me.destroy(oEl);
 		})
@@ -838,7 +838,7 @@ function(AC){
 				notEl:true,
 				handler:function(){
 					//外部可以通过监听器自行处理这个问题，只需要返回true即可不调用此处的方法
-					var bHasDone=$H.Listener.fire("component.popup.show");
+					var bHasDone=$H.Events.trigger("component.popup.show");
 					if(bHasDone!=true){
 						$("input,textarea,select").attr("disabled","disabled");
 					}
@@ -849,7 +849,7 @@ function(AC){
 				notEl:true,
 				handler:function(){
 					//外部可以通过监听器自行处理这个问题，只需要返回true即可不调用此处的方法
-					var bHasDone=$H.Listener.fire("component.popup.hide");
+					var bHasDone=$H.Events.trigger("component.popup.hide");
 					if(bHasDone!=true){
 						//ps:这里延迟300ms执行还是有可能会有聚焦效果，所以设个保险的500ms
 						setTimeout(function(){

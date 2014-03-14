@@ -15,7 +15,7 @@
 	$HO=$H.Object;
 	$HS=$H.String;
 	$HU=$H.Util;
-	$HL=$H.Listener;
+	$HE=$H.Events;
 	$Define=$H.Loader.define;
 	$Require=$H.Loader.require;
 
@@ -35,7 +35,7 @@
 	var $$=window.$
 	$$.fn.remove=$HF.intercept($$.fn.remove,function(){
 		var oEl=this.target;
-		$HL.fire('removeEl',oEl);
+		$HE.trigger('removeEl',oEl);
 	});
 	
 	
