@@ -46,7 +46,7 @@ function(AC){
 		//添加点击即隐藏事件
 		if(me.clickHide){
 			me._listeners.push({
-				type:'click',
+				name:'click',
 				el: $(document),
 				handler:function(){
 					this.hide();
@@ -57,8 +57,8 @@ function(AC){
 		//不过，仍旧会有光标竖线停留在点击的输入框里，要把延迟加到几秒之后才能避免，但又会影响使用
 		if($H.Browser.android()){
 			me._listeners.push({
-				type:'show',
-				notEl:true,
+				name:'show',
+				custom:true,
 				handler:function(){
 					//外部可以通过监听器自行处理这个问题，只需要返回true即可不调用此处的方法
 					var bHasDone=$H.Events.trigger("component.popup.show");
@@ -68,8 +68,8 @@ function(AC){
 				}
 			});
 			me._listeners.push({
-				type:'hide',
-				notEl:true,
+				name:'hide',
+				custom:true,
 				handler:function(){
 					//外部可以通过监听器自行处理这个问题，只需要返回true即可不调用此处的方法
 					var bHasDone=$H.Events.trigger("component.popup.hide");

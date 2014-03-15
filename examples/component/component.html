@@ -163,7 +163,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,
 			           {
 			        	   type:'afterRender',
 			        	   data:'message',
-			        	   notEl:true,
+			        	   custom:true,
 			        	   handler:function(oEvt){
 			        		   $D.log(oEvt.data);
 			        	   }
@@ -781,6 +781,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,
 		num++;
 	})
 	$D.log('组件数目：'+num);
+	
 });
 </script>
 </html>

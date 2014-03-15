@@ -36,7 +36,7 @@ function(CM,AC){
 		
 		listeners       : [
 			{
-				type :'click',
+				name :'click',
 				selector : '.js-item',
 				method : 'delegate',
 				handler : function(oEvt){

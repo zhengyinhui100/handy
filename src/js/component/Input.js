@@ -46,14 +46,14 @@ function(AC){
 		'</div>'],
 		listeners       : [
 			{
-				type : 'focus',
+				name : 'focus',
 				el : '.js-input',
 				handler : function(){
 					this.getEl().addClass('hui-focus');
 				}
 			},
 			{
-				type : 'blur',
+				name : 'blur',
 				el : '.js-input',
 				handler : function(){
 					this.getEl().removeClass('hui-focus');
@@ -79,7 +79,7 @@ function(AC){
 		}else if(me.type=="textarea"){
 			//textarea高度自适应，IE6、7、8支持propertychange事件，input被其他浏览器所支持
 			me._listeners.push({
-				type:'input propertychange',
+				name:'input propertychange',
 				el:'.js-input',
 				handler:function(){
 					var oTextarea=me.find(".js-input");

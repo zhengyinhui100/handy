@@ -9,6 +9,8 @@ function(){
 	
 	var Model=$HO.createClass();
 	
+	$HO.extend(Model.prototype,$H.Events);
+	
 	$HO.extend(Model.prototype,{
 //		_changing             : false,               //是否正在改变
 		_pending              : false,               //

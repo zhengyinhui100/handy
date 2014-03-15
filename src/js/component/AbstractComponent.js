@@ -65,8 +65,8 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		//事件相关
 		initListeners       : fInitListeners,    //初始化所有事件
 		clearListeners      : fClearListeners,   //清除所有事件
-		suspendListeners    : fSuspendListeners, //挂起事件
-		resumeListeners     : fResumeListeners,  //恢复事件
+		suspend             : fSuspend,          //挂起事件
+		resume              : fResume,           //恢复事件
 		
 		//组件管理相关
 //		update
@@ -85,7 +85,6 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	},{
 		//静态方法
 		define              : fDefine,           //定义组件
-		extend              : fExtend,           //扩展组件原型对象
 		html                : fHtml              //静态生成组件html
 	});
 	
@@ -104,23 +103,6 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		}});
 		CM.registerType(sXtype,Component);
 		return Component;
-	}
-	/**
-	 * 扩展组件原型对象
-	 * @method extend
-	 * @param {Object}oExtend 扩展源
-	 */
-	function fExtend(oExtend){
-		var oProt=this.prototype;
-		$HO.extend(oProt, oExtend,{notCover:function(p){
-			//继承父类的事件
-			if(p=='_customEvents'||p=='listeners'){
-				oProt[p]=(oExtend[p]||[]).concat(oProt[p]||[]);
-				return true;
-			}else if(p=='xtype'||p=='constructor'){
-				return true;
-			}
-		}});
 	}
 	/**
 	 * 静态生成组件html
@@ -303,7 +285,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 			},0);
 			return;
 		}
-		me.fire('beforeShow');
+		me.trigger('beforeShow');
 		me.showed=true;
 		var oEl=me.getEl();
 		if(me.displayMode=='visibility'){
@@ -405,9 +387,9 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	}
 	/**
 	 * 挂起事件
-	 * @method suspendListeners
+	 * @method suspend
 	 */
-	function fSuspendListeners(){
+	function fSuspend(){
 		var me=this;
 		if(me.callSuper()!=false){
 			me.callChild();
@@ -415,9 +397,9 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	}
 	/**
 	 * 恢复事件
-	 * @method resumeListeners
+	 * @method resume
 	 */
-	function fResumeListeners(){
+	function fResume(){
 		var me=this;
 		if(me.callSuper()!=false){
 			me.callChild();

@@ -10,6 +10,8 @@ function(Model){
 	
 	var Collection=$HO.createClass();
 	
+	$HO.extend(Collection.prototype,$H.Events);
+	
 	$HO.extend(Collection.prototype,{
 		
 //		model                  : Model,               //子对象模型类

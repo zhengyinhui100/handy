@@ -47,7 +47,21 @@
 				}
 			}
 			args.push(handy);
-			handy.base[sName]=handy[sName]=fDefined.apply(window,args);
+			var oModule=fDefined.apply(window,args);
+			handy.base[sName]=handy[sName]=oModule;
+			//return;
+			if('Browser,Events,Function,Object,String,Template,Util'.indexOf(sName)>=0){
+				for(var key in oModule){
+					if(typeof handy[key]!="undefined"&&typeof console!="undefined"){
+						console.log(handy[key]);
+						console.log(sName+"命名冲突:"+key);
+					}
+					handy[key]=oModule[key];
+				}
+				if(sName=="Events"){
+					handy._eventCache={};
+				}
+			}
 		}else{
 			handy.Loader.require(aRequires, function() {
 				Array.prototype.push.call(arguments, handy);

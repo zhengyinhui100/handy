@@ -26,7 +26,7 @@ handy.add('Object',function($H){
 		contains            : fContains,        //是否包含指定属性/数组元素
 		largeThan           : fLargeThan,       //是否大于另一个对象|数组（包含另一个对象的所有属性或包含另一个数组的所有元素）
 		count				: fCount,			//计算对象长度
-		toArray				: fToArray,		    //将类数组对象转换为数组，比如arguments, nodelist
+		toArray				: fToArray(),       //将类数组对象转换为数组，比如arguments, nodelist
 		generateMethod      : fGenerateMethod   //归纳生成类方法
 	}
 	/**
@@ -548,7 +548,6 @@ handy.add('Object',function($H){
     		}
     	}
     }
-    fToArray=fToArray();
     /**
     * 归纳生成类方法
     * @method generateMethod

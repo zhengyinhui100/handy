@@ -378,6 +378,11 @@ function(Debug,Object,Function,$H){
 				resource=factory;
 			}
 			Object.namespace(sId,resource);
+			//添加命名空间元数据
+			var sType=typeof resource;
+			if(sType=="object"||sType=="Function"){
+				resource.$ns=sId;
+			}
 		});
 	}
     /**

@@ -18,7 +18,7 @@
 	$HE=$H.Events;
 	$Define=$H.Loader.define;
 	$Require=$H.Loader.require;
-
+	
 
 	//项目系统全局变量
 	$G={
@@ -35,7 +35,7 @@
 	var $$=window.$
 	$$.fn.remove=$HF.intercept($$.fn.remove,function(){
 		var oEl=this.target;
-		$HE.trigger('removeEl',oEl);
+		$H.trigger('removeEl',oEl);
 	});
 	
 	

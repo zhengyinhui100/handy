@@ -11,6 +11,13 @@ $Define('cm.AbstractView',function(){
 	var _oHasClsReg=/^[^>]+class=/;
 	var _oClsReg=/(class=")/;
 	
+	
+	$HO.extend(AbstractView,{
+		extend              : fExtend            //扩展原型定义
+	});
+	
+	$HO.extend(AbstractView.prototype,$H.Events);
+	
 	$HO.extend(AbstractView.prototype,{
 		
 		xtype               : 'AbstractView',    //类型
@@ -51,7 +58,7 @@ $Define('cm.AbstractView',function(){
 			'contextmenu','change','submit'
 		],
 //      listeners           : [],                //类事件配置
-//		_listeners          : {},                //实例事件池  
+//		_listeners          : {},                //实例事件池
 		
 		initialize          : fInitialize,       //初始化
 		doConfig            : fDoConfig,         //初始化配置
@@ -70,16 +77,30 @@ $Define('cm.AbstractView',function(){
 		enable              : fEnable,           //启用
 		disable             : fDisable,          //禁用
 		
-		fire                : fFire,             //触发自定义事件
 		listen              : fListen,           //绑定事件
 		unlisten            : fUnlisten,         //解除事件
 		initListeners       : fInitListeners,    //初始化所有事件
 		clearListeners      : fClearListeners,   //清除所有事件
-		suspendListeners    : fSuspendListeners, //挂起事件
-		resumeListeners     : fResumeListeners,  //恢复事件
 		
 		destroy             : fDestroy           //销毁
 	});
+	/**
+	 * 扩展原型定义
+	 * @method extend
+	 * @param {Object}oExtend 扩展源
+	 */
+	function fExtend(oExtend){
+		var oProt=this.prototype;
+		$HO.extend(oProt, oExtend,{notCover:function(p){
+			//继承父类的事件
+			if($HO.contains(['_customEvents','listeners'],p)){
+				oProt[p]=(oExtend[p]||[]).concat(oProt[p]||[]);
+				return true;
+			}else if(p=='xtype'||p=='constructor'){
+				return true;
+			}
+		}});
+	}
 	/**
 	 * 初始化
 	 * @method initialize
@@ -127,12 +148,13 @@ $Define('cm.AbstractView',function(){
 			//默认事件，可通过参数属性直接添加
 			var bIsCustEvt=$HO.contains(me._customEvents,sProp);
 			var bIsDefEvt=$HO.contains(me._defaultEvents,sProp);
-			if(bIsCustEvt||bIsDefEvt){
+			if(bIsDefEvt){
 				me._listeners.push({
-					type:sProp,
-					notEl:bIsCustEvt,
+					name:sProp,
 					handler:oParams[sProp]
 				});
+			}else if(bIsCustEvt){
+				me.on(sProp,oParams[sProp]);
 			}
 			if((value!=null&&typeof value=='object')||$HO.isFunction(value)){
 				return true;
@@ -218,7 +240,7 @@ $Define('cm.AbstractView',function(){
 	 */
 	function fBeforeRender(){
 		var me=this;
-		me.fire('beforeRender');
+		me.trigger('beforeRender');
 	}
 	/**
 	 * 渲染
@@ -226,7 +248,7 @@ $Define('cm.AbstractView',function(){
 	 */
 	function fRender(){
 		var me=this;
-		me.fire('render');
+		me.trigger('render');
 		var sHtml=me.getHtml();
 		me.renderTo[me.renderBy](sHtml);
 	}
@@ -252,7 +274,7 @@ $Define('cm.AbstractView',function(){
 		if(me.disabled){
 			me.disable();
 		}
-		me.fire('afterRender');
+		me.trigger('afterRender');
 		//显示
 		if(!me.hidden){
 			me.show();
@@ -276,7 +298,7 @@ $Define('cm.AbstractView',function(){
 		}else{
 			oEl.hide();
 		}
-		me.fire('hide');
+		me.trigger('hide');
 	}
 	/**
 	 * 显示
@@ -289,7 +311,7 @@ $Define('cm.AbstractView',function(){
 		if(me.showed){
 			return false;
 		}
-		me.fire('beforeShow');
+		me.trigger('beforeShow');
 		me.showed=true;
 		var oEl=me.getEl();
 		if(me.displayMode=='visibility'){
@@ -305,7 +327,7 @@ $Define('cm.AbstractView',function(){
 	 */
 	function fAfterShow(){
 		var me=this;
-		me.fire('afterShow');
+		me.trigger('afterShow');
 	}
 	/**
 	 * 启用
@@ -313,7 +335,7 @@ $Define('cm.AbstractView',function(){
 	 */
 	function fEnable(){
 		var me=this;
-		me.resumeListeners();
+		me.resume();
 		me.getEl().removeClass("hui-disable").find('input,textarea,select').removeAttr('disabled');
 	}
 	/**
@@ -322,119 +344,106 @@ $Define('cm.AbstractView',function(){
 	 */
 	function fDisable(){
 		var me=this;
-		me.suspendListeners();
+		me.suspend();
 		me.getEl().addClass("hui-disable").find('input,textarea,select').attr('disabled','disabled');
-	}
-	/**
-	 * 触发自定义事件
-	 * @method fire
-	 * @param {string}sType 事件类型
-	 * @param {Array=}aArgs 附加参数
-	 */
-	function fFire(sType,aArgs){
-		var me=this;
-		for(var i=me._listeners.length-1;i>=0;i--){
-			var oListener=me._listeners[i]
-			if(oListener.type==sType){
-				var fDelegation=oListener.delegation;
-				if(aArgs){
-					fDelegation.apply(null,aArgs.shift(oListener));
-				}else{
-					fDelegation(oListener);
-				}
-			}
-		}
 	}
 	/**
 	 * 绑定事件
 	 * @method listen
 	 * @param {object}事件对象{
-	 * 			{string}type      : 事件名
+	 * 			{string}name      : 事件名
 	 * 			{function(Object[,fireParam..])}handler : 监听函数，第一个参数为事件对象oListener，其后的参数为fire时传入的参数
 	 * 			{any=}data        : 数据
 	 * 			{jQuery=}el       : 绑定事件的节点，不传表示容器节点
-	 * 			{boolean=}notEl    : 为true时是自定义事件
+	 * 			{boolean=}custom  : 为true时是自定义事件
 	 * 			{string=}selector : 选择器
-	 * 			{any=}scope       : 监听函数执行的上下文对象，默认是对象
+	 * 			{any=}context     : 监听函数执行的上下文对象，默认是对象
 	 * 			{string=}method   : 绑定方式，默认为"bind"
 	 * }
 	 */
 	function fListen(oEvent){
 		var me=this,
-			sType=oEvent.type,
-			aListeners=me._listeners,
-			oEl=oEvent.el,
-			sMethod=oEvent.method||"bind",
-			sSel=oEvent.selector,
-			oData=oEvent.data,
-			fFunc=oEvent.delegation=function(){
-				if(me.isSuspend!=true){
-					return oEvent.handler.apply(oEvent.scope||me,arguments);
+			sName=oEvent.name,
+			context=oEvent.context,
+			fHandler=oEvent.handler;
+		if(oEvent.custom){
+			me.on(sName,fHandler,context);
+		}else{
+			var aListeners=me._listeners,
+				oEl=oEvent.el,
+				sMethod=oEvent.method||"bind",
+				sSel=oEvent.selector,
+				oData=oEvent.data,
+				fFunc=oEvent.delegation=function(){
+					if(me.isSuspend!=true){
+						return fHandler.apply(context||me,arguments);
+					}
+				};
+			//移动浏览器由于click可能会有延迟，这里转换为touchend事件
+			if($H.Browser.mobile()){
+				if(sName=="click"){
+					sName="touchend";
 				}
-			};
-		//移动浏览器由于click可能会有延迟，这里转换为touchend事件
-		if($H.Browser.mobile()){
-			if(sType=="click"){
-				sType="touchend";
 			}
-		}
-		oEl=oEl?typeof oEl=='string'?me.find(oEl):oEl:me.getEl();
-		if(!oEvent.notEl){
+			oEl=oEl?typeof oEl=='string'?me.find(oEl):oEl:me.getEl();
 			if(sSel){
 				if(oData){
-					oEl[sMethod](sSel,sType,oData,fFunc);
+					oEl[sMethod](sSel,sName,oData,fFunc);
 				}else{
-					oEl[sMethod](sSel,sType,fFunc);
+					oEl[sMethod](sSel,sName,fFunc);
 				}
 			}else{
 				if(oData){
-					oEl[sMethod](sType,oData,fFunc);
+					oEl[sMethod](sName,oData,fFunc);
 				}else{
-					oEl[sMethod](sType,fFunc);
+					oEl[sMethod](sName,fFunc);
 				}
 			}
+			aListeners.push(oEvent);
 		}
-		aListeners.push(oEvent);
 	}
 	/**
 	 * 解除事件
 	 * @method unlisten
 	 * @param {object}事件对象{
-	 * 			{string}type      : 事件名
+	 * 			{string}name      : 事件名
 	 * 			{function}handler : 监听函数
 	 * 			{jQuery=}el       : 绑定事件的节点，不传表示容器节点
-	 * 			{boolean=}notEl    : 为true时是自定义事件
+	 * 			{boolean=}custom    : 为true时是自定义事件
 	 * 			{string=}selector : 选择器
 	 * 			{string=}method   : 绑定方式，默认为"bind"
 	 * }
 	 */
 	function fUnlisten(oEvent){
 		var me=this,
-			sType=oEvent.type,
-			oEl=oEvent.el,
-			sMethod=oEvent.method=="delegate"?"undelegate":"unbind",
-			sSel=oEvent.selector,
-			fDelegation;
-		//移动浏览器由于click可能会有延迟，这里转换为touchend事件
-		if($H.Browser.mobile()){
-			if(sType=="click"){
-				sType="touchend";
+			sName=oEvent.name,
+			fHandler=oEvent.handler;
+		if(oEvent.custom){
+			me.off(sName,fHandler);
+		}else{
+			var oEl=oEvent.el,
+				sMethod=oEvent.method=="delegate"?"undelegate":"unbind",
+				sSel=oEvent.selector,
+				fDelegation;
+			//移动浏览器由于click可能会有延迟，这里转换为touchend事件
+			if($H.Browser.mobile()){
+				if(sName=="click"){
+					sName="touchend";
+				}
 			}
-		}
-		oEl=oEl?typeof oEl=='string'?me.find(oEl):oEl:me.getEl();
-		for(var i=me._listeners.length-1;i>=0;i--){
-			var oListener=me._listeners[i]
-			if(oListener.handler==oEvent.handler){
-				fDelegation=oListener.delegation;
-				me._listeners.splice(i,1);
-				break;
+			oEl=oEl?typeof oEl=='string'?me.find(oEl):oEl:me.getEl();
+			for(var i=me._listeners.length-1;i>=0;i--){
+				var oListener=me._listeners[i]
+				if(oListener.handler==fHandler){
+					fDelegation=oListener.delegation;
+					me._listeners.splice(i,1);
+					break;
+				}
 			}
-		}
-		if(!oEvent.notEl){
 			if(sSel){
-				oEl[sMethod](sSel,sType,fDelegation);
+				oEl[sMethod](sSel,sName,fDelegation);
 			}else{
-				oEl[sMethod](sType,fDelegation);
+				oEl[sMethod](sName,fDelegation);
 			}
 		}
 	}
@@ -466,32 +475,7 @@ $Define('cm.AbstractView',function(){
 		for(var i=aListeners.length-1;i>=0;i--){
 			me.unlisten(aListeners[i]);
 		}
-	}
-	/**
-	 * 挂起事件
-	 * @method suspendListeners
-	 * @return {boolean=}如果已经挂起了，则直接返回false
-	 */
-	function fSuspendListeners(){
-		var me=this;
-		//已经挂起，直接退回
-		if(me.isSuspend){
-			return false;
-		}
-		me.isSuspend=true;
-	}
-	/**
-	 * 恢复事件
-	 * @method resumeListeners
-	 * @return {boolean=}如果已经恢复了，则直接返回false
-	 */
-	function fResumeListeners(){
-		var me=this;
-		//已经恢复，直接退回
-		if(!me.isSuspend){
-			return false;
-		}
-		me.isSuspend=false;
+		me.off('all');
 	}
 	/**
 	 * 销毁
@@ -503,7 +487,7 @@ $Define('cm.AbstractView',function(){
 		if(me.destroyed){
 			return false;
 		}
-		me.fire('destroy');
+		me.trigger('destroy');
 		me.clearListeners();
 		me.getEl().remove();
 		me.destroyed=true;
