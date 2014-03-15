@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-14 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-16 | zhengyinhui100@gmail.com */
 /**
  * 组件管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -32,12 +32,12 @@ $Define("c.ComponentManager", 'cm.AbstractManager',function(AbstractManager) {
 	function fInitialize(){
 		var me=this;
 		//监听afterRender自定义事件，调用相关组件的afterRender方法
-		$HE.on("afterRender",function(oEl){
+		$H.on("afterRender",function(oEl){
 			//调用包含的组件的afterRender方法
 			me.afterRender(oEl);
 		})
 		//监听removeEl自定义事件，jQuery的remove方法被拦截(base/adapt.js)，执行时先触发此事件
-		$HE.on('removeEl',function(oEl){
+		$H.on('removeEl',function(oEl){
 			//销毁包含的组件
 			me.destroy(oEl);
 		})
@@ -132,8 +132,8 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		//事件相关
 		initListeners       : fInitListeners,    //初始化所有事件
 		clearListeners      : fClearListeners,   //清除所有事件
-		suspendListeners    : fSuspendListeners, //挂起事件
-		resumeListeners     : fResumeListeners,  //恢复事件
+		suspend             : fSuspend,          //挂起事件
+		resume              : fResume,           //恢复事件
 		
 		//组件管理相关
 //		update
@@ -152,7 +152,6 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	},{
 		//静态方法
 		define              : fDefine,           //定义组件
-		extend              : fExtend,           //扩展组件原型对象
 		html                : fHtml              //静态生成组件html
 	});
 	
@@ -171,23 +170,6 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		}});
 		CM.registerType(sXtype,Component);
 		return Component;
-	}
-	/**
-	 * 扩展组件原型对象
-	 * @method extend
-	 * @param {Object}oExtend 扩展源
-	 */
-	function fExtend(oExtend){
-		var oProt=this.prototype;
-		$HO.extend(oProt, oExtend,{notCover:function(p){
-			//继承父类的事件
-			if(p=='_customEvents'||p=='listeners'){
-				oProt[p]=(oExtend[p]||[]).concat(oProt[p]||[]);
-				return true;
-			}else if(p=='xtype'||p=='constructor'){
-				return true;
-			}
-		}});
 	}
 	/**
 	 * 静态生成组件html
@@ -370,7 +352,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 			},0);
 			return;
 		}
-		me.fire('beforeShow');
+		me.trigger('beforeShow');
 		me.showed=true;
 		var oEl=me.getEl();
 		if(me.displayMode=='visibility'){
@@ -472,9 +454,9 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	}
 	/**
 	 * 挂起事件
-	 * @method suspendListeners
+	 * @method suspend
 	 */
-	function fSuspendListeners(){
+	function fSuspend(){
 		var me=this;
 		if(me.callSuper()!=false){
 			me.callChild();
@@ -482,9 +464,9 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	}
 	/**
 	 * 恢复事件
-	 * @method resumeListeners
+	 * @method resume
 	 */
-	function fResumeListeners(){
+	function fResume(){
 		var me=this;
 		if(me.callSuper()!=false){
 			me.callChild();
@@ -823,7 +805,7 @@ function(AC){
 		//添加点击即隐藏事件
 		if(me.clickHide){
 			me._listeners.push({
-				type:'click',
+				name:'click',
 				el: $(document),
 				handler:function(){
 					this.hide();
@@ -834,8 +816,8 @@ function(AC){
 		//不过，仍旧会有光标竖线停留在点击的输入框里，要把延迟加到几秒之后才能避免，但又会影响使用
 		if($H.Browser.android()){
 			me._listeners.push({
-				type:'show',
-				notEl:true,
+				name:'show',
+				custom:true,
 				handler:function(){
 					//外部可以通过监听器自行处理这个问题，只需要返回true即可不调用此处的方法
 					var bHasDone=$H.Events.trigger("component.popup.show");
@@ -845,8 +827,8 @@ function(AC){
 				}
 			});
 			me._listeners.push({
-				type:'hide',
-				notEl:true,
+				name:'hide',
+				custom:true,
 				handler:function(){
 					//外部可以通过监听器自行处理这个问题，只需要返回true即可不调用此处的方法
 					var bHasDone=$H.Events.trigger("component.popup.hide");
@@ -1008,7 +990,7 @@ function(CM,AC){
 		
 		listeners       : [
 			{
-				type :'click',
+				name :'click',
 				selector : '.js-item',
 				method : 'delegate',
 				handler : function(oEvt){
@@ -1406,7 +1388,7 @@ function(AC){
 		
 		listeners       : [
 			{
-				type:'click',
+				name:'click',
 				handler:function(){
 					this.showOptions();
 				}
@@ -1468,7 +1450,7 @@ function(AC){
 				var oMenu=me.children[0];
 				var oItem=oMenu.find('$>[value="'+sValue+'"]');
 				if(oItem.length>0){
-					me.fire("change");
+					me.trigger("change");
 					oItem=oItem[0];
 					me.value=sValue;
 					var oSel=me.find('input');
@@ -1533,14 +1515,14 @@ function(AC){
 		'</div>'],
 		listeners       : [
 			{
-				type : 'focus',
+				name : 'focus',
 				el : '.js-input',
 				handler : function(){
 					this.getEl().addClass('hui-focus');
 				}
 			},
 			{
-				type : 'blur',
+				name : 'blur',
 				el : '.js-input',
 				handler : function(){
 					this.getEl().removeClass('hui-focus');
@@ -1566,7 +1548,7 @@ function(AC){
 		}else if(me.type=="textarea"){
 			//textarea高度自适应，IE6、7、8支持propertychange事件，input被其他浏览器所支持
 			me._listeners.push({
-				type:'input propertychange',
+				name:'input propertychange',
 				el:'.js-input',
 				handler:function(){
 					var oTextarea=me.find(".js-input");

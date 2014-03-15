@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-14 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-16 | zhengyinhui100@gmail.com */
 /****************************************************************
 * Author:		郑银辉											*
 * Email:		zhengyinhui100@gmail.com						*
@@ -321,7 +321,7 @@ function(History,AbstractManager){
 				hidden:true
 			});
 			me.modules[sModName]=oMod;
-			$HE.trigger('afterRender',oMod.getEl());
+			$H.trigger('afterRender',oMod.getEl());
 			//可能加载完时，已切换到其它模块了
 			if(me.requestMod==sModName){
 				me._showMod(oMod);

@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-14 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-16 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -48,7 +48,21 @@
 				}
 			}
 			args.push(handy);
-			handy.base[sName]=handy[sName]=fDefined.apply(window,args);
+			var oModule=fDefined.apply(window,args);
+			handy.base[sName]=handy[sName]=oModule;
+			//return;
+			if('Browser,Events,Function,Object,String,Template,Util'.indexOf(sName)>=0){
+				for(var key in oModule){
+					if(typeof handy[key]!="undefined"&&typeof console!="undefined"){
+						console.log(handy[key]);
+						console.log(sName+"命名冲突:"+key);
+					}
+					handy[key]=oModule[key];
+				}
+				if(sName=="Events"){
+					handy._eventCache={};
+				}
+			}
 		}else{
 			handy.Loader.require(aRequires, function() {
 				Array.prototype.push.call(arguments, handy);
@@ -593,7 +607,7 @@ handy.add('Object',function($H){
 		contains            : fContains,        //是否包含指定属性/数组元素
 		largeThan           : fLargeThan,       //是否大于另一个对象|数组（包含另一个对象的所有属性或包含另一个数组的所有元素）
 		count				: fCount,			//计算对象长度
-		toArray				: fToArray,		    //将类数组对象转换为数组，比如arguments, nodelist
+		toArray				: fToArray(),       //将类数组对象转换为数组，比如arguments, nodelist
 		generateMethod      : fGenerateMethod   //归纳生成类方法
 	}
 	/**
@@ -1115,7 +1129,6 @@ handy.add('Object',function($H){
     		}
     	}
     }
-    fToArray=fToArray();
     /**
     * 归纳生成类方法
     * @method generateMethod
@@ -1915,6 +1928,11 @@ function(Debug,Object,Function,$H){
 				resource=factory;
 			}
 			Object.namespace(sId,resource);
+			//添加命名空间元数据
+			var sType=typeof resource;
+			if(sType=="object"||sType=="Function"){
+				resource.$ns=sId;
+			}
 		});
 	}
     /**
@@ -1966,52 +1984,140 @@ function(Debug,Object,Function,$H){
     return Loader;
 	
 })/**
- * 自定义事件类
+ * 自定义事件类，事件名称支持'all'表示所有事件，支持复杂形式：'event1 event2'或{event1:func1,event:func2}，
+ * 事件名称支持命名空间(".name")，如：change.one
+ * PS:注意，此类只用来继承，不能直接使用，否则_eventCache属性会污染由他扩展是类，要使用全局事件可以直接使用handy下的方法
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 handy.add('Events',function($H){
 	
 	var Events={
-		_cache      : {},           //自定义事件池
-		
-		on          : fOn,          //添加事件
-		off         : fOff,         //移除事件
-		trigger     : fTrigger      //触发事件
+		_eventCache   : {},              //自定义事件池
+		_parseEvents  : _fParseEvents,   //处理对象类型或者空格相隔的多事件
+		on            : fOn,             //添加事件
+		once          : fOnce,           //监听一次
+		off           : fOff,            //移除事件
+		suspend       : fSuspend,        //挂起事件
+		resume        : fResume,         //恢复事件
+		trigger       : fTrigger         //触发事件
 	};
 	
+	var _oArrayProto=Array.prototype;
+	
 	/**
-	 * 添加事件
-	 * @method on
-	 * @param {string}sName 事件名
-	 * @param {function}fHandler 事件函数
+	 * 处理对象类型或者空格相隔的多事件
+	 * @method _parseEvents(sMethod,name[,param,..])
+	 * @param {string}sMethod 调用的方法名
+	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}
+	 * 							事件名称支持命名空间(".name")，如：change.one
+	 * @param {*=}param 附加参数，具体参照对应的方法
+	 * @return {boolean} true表示已成功处理事件，false表示未处理
 	 */
-	function fOn(sName,fHandler){
-		var oCache=this._cache;
-		var aCache=oCache[sName];
-		if(!aCache){
-			aCache=oCache[sName]=[];
+	function _fParseEvents(sMethod,name,param){
+		var me=this;
+		var rSpace=/\s+/;
+		var aArgs=_oArrayProto.slice.call(arguments,2);
+		if(typeof name=='object'){
+			for(var key in name){
+				me[sMethod].apply(me,[key,name[key]].concat(aArgs));
+			}
+			return true;
+		}else if(rSpace.test(name)){
+			//多个空格相隔的事件
+			var aName=name.split(rSpace);
+			for(var i=0,len=aName.length;i<len;i++){
+				me[sMethod].apply(me,[aName[i]].concat(aArgs));
+			}
+			return true;
 		}
-		aCache.push(fHandler);
-		
+		return false;
 	}
 	/**
+	 * 添加事件
+	 * @param {string}sMethod 调用的方法名
+	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}，
+	 * 							事件名称支持命名空间(".name")，如：change.one
+	 * @param {Function=}fHandler 事件函数
+	 * @param {*=}context 事件函数执行上下文
+	 * @param {number=}nTimes 执行次数，默认无限次
+	 */
+	function fOn(name,fHandler,context,nTimes){
+		var me=this;
+		if(me._parseEvents('on',name,fHandler,context,nTimes)){
+			return;
+		}
+		var oCache=me._eventCache;
+		var aCache=oCache[name];
+		if(!aCache){
+			aCache=oCache[name]=[];
+		}
+		var fCall=function(){
+			if(me.isSuspend!=true){
+				return fHandler.apply(context||me,arguments);
+			}
+		};
+		aCache.push({
+			times:nTimes,
+			handler:fHandler,
+			context:context,
+			delegation:fCall
+		});
+	}
+	/**
+	 * 监听一次
+	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}
+	 * 							事件名称支持命名空间(".name")，如：change.one
+	 * @param {function=}fHandler 事件函数
+	 * @param {*=}context 事件函数执行上下文
+	 */
+	 function fOnce(name,fHandler,context){
+	 	var me=this;
+		if(me._parseEvents('once',name,fHandler,context,1)){
+			return;
+		}
+	 	me.on(name,fHandler,context,1);
+	 }
+	/**
 	 * 移除事件
-	 * @method off
-	 * @param {string}sName 事件名
+	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}
+	 * 							事件名称支持命名空间(".name")，如：change.one
 	 * @param {function=}fHandler 事件函数，如果此参数为空，表示删除指定事件名下的所有函数
 	 * @param {boolean} true表示删除成功，false表示失败
 	 */
-	function fOff(sName,fHandler){
-		var oCache=this._cache;
-		var aCache=oCache[sName];
+	function fOff(name,fHandler){
+		var me=this;
+		//移除所有事件
+		if(name=="all"){
+			me._eventCache={};
+			return true;
+		}
+		if(me._parseEvents('off',name,fHandler)){
+			return;
+		}
+		var oCache=me._eventCache;
+		//处理命名空间名称，如:name=="change"，则要移除所有change及change.one，而".one"则要移除所有.one结尾的事件
+		var nIndex=name.indexOf('.');
+		if(!fHandler&&nIndex<=0){
+			for(var key in oCache){
+				//key=change.one匹配change或.one
+				if(key.split('.')[0]==name||(nIndex==0&&key.indexOf(name)>=0)){
+					delete oCache[key];
+				}
+			}
+			return true;
+		}
+		
+		//移除简单事件
+		var aCache=oCache[name];
 		if(!aCache){
 			return false;
 		}
 		if(!fHandler){
-			delete oCache[sName];
+			delete oCache[name];
+			return true;
 		}else{
 			for(var i=0,len=aCache.length;i<len;i++){
-				if(aCache[i]==fHandler){
+				if(aCache[i].handler==fHandler){
 					aCache.splice(i,1);
 					return true;
 				}
@@ -2021,29 +2127,90 @@ handy.add('Events',function($H){
 	}
 	/**
 	 * 触发事件
-	 * @method trigger(sName[,data,..])
-	 * @param {string}sName 事件名
+	 * @method trigger(name[,data,..])
+	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}
+	 * 							事件名称支持命名空间(".name")，如：change.one
 	 * @param {*}data 传递参数
-	 * @return {*}只是返回最后一个函数的结果
+	 * @return {*}只是返回最后一个函数的结果，复杂格式事件不返回
 	 */
-	function fTrigger(sName,data){
-		var aCache=this._cache;[sName];
-		if(!aCache){
-			return false;
+	function fTrigger(name,data){
+		var me=this;
+		var aNewArgs=$HO.toArray(arguments);
+		aNewArgs.unshift('trigger');
+		if(me._parseEvents.apply(me,aNewArgs)){
+			return;
 		}
-		var aArgs=Array.prototype.slice.call(arguments,1);
-		for(var i=0,len=aCache.length;i<len;i++){
-			//只是返回最后一个函数的结果
-			if(i==len-1){
-				return aCache[i].apply(null,aArgs);
-			}else{
-				aCache[i].apply(null,aArgs);
+		var oCache=me._eventCache;
+		var aArgs=_oArrayProto.slice.call(arguments,1);
+		var result,aCache;
+		//内部函数，执行事件队列
+		function _fExec(aCache){
+			if(!aCache){
+				return;
+			}
+			for(var i=0,len=aCache.length;i<len;i++){
+				var oEvent=aCache[i];
+				var fDelegation=oEvent.delegation;
+				//控制执行次数
+				if(typeof oEvent.times=='number'){
+					if(oEvent.times>1){
+						oEvent.times--;
+					}else{
+						me.off(key,oEvent.handler);
+					}
+				}
+				//只是返回最后一个函数的结果
+				result=fDelegation.apply(null,aArgs);
 			}
 		}
+		//带命名空间的事件只需执行自身事件
+		if(name.indexOf(".")>0){
+			aCache=oCache[name];
+			_fExec(aCache);
+		}else{
+			//change或者.one类型需要匹配所有符合的事件
+			for(var key in oCache){
+				//处理命名空间名称，如:name=="change"，则要移除所有change及change.one，而".one"则要移除所有.one结尾的事件
+				var nIndex=name.indexOf('.');
+				//key=change.one匹配change或.one
+				if(key.split('.')[0]==name||(nIndex==0&&key.indexOf(name)>=0)){
+					aCache=oCache[key];
+					_fExec(aCache);
+				}
+			}
+		}
+		//all事件
+		_fExec(oCache['all']);
+		return result;
+	}
+	/**
+	 * 挂起事件
+	 * @method suspend
+	 * @return {boolean=}如果已经挂起了，则直接返回false
+	 */
+	function fSuspend(){
+		var me=this;
+		//已经挂起，直接退回
+		if(me.isSuspend){
+			return false;
+		}
+		me.isSuspend=true;
+	}
+	/**
+	 * 恢复事件
+	 * @method resume
+	 * @return {boolean=}如果已经恢复了，则直接返回false
+	 */
+	function fResume(){
+		var me=this;
+		//已经恢复，直接退回
+		if(!me.isSuspend){
+			return false;
+		}
+		me.isSuspend=false;
 	}
 	
 	return Events;
-	
 });/**
  * 日期扩展类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -3446,7 +3613,7 @@ handy.add('Validator',['b.String','b.Object'],function(String,Object,$H){
 	$HE=$H.Events;
 	$Define=$H.Loader.define;
 	$Require=$H.Loader.require;
-
+	
 
 	//项目系统全局变量
 	$G={
@@ -3463,7 +3630,7 @@ handy.add('Validator',['b.String','b.Object'],function(String,Object,$H){
 	var $$=window.$
 	$$.fn.remove=$HF.intercept($$.fn.remove,function(){
 		var oEl=this.target;
-		$HE.trigger('removeEl',oEl);
+		$H.trigger('removeEl',oEl);
 	});
 	
 	
@@ -3479,6 +3646,13 @@ $Define('cm.AbstractView',function(){
 	var _oTagReg=/^(<[a-zA-Z]+)/;
 	var _oHasClsReg=/^[^>]+class=/;
 	var _oClsReg=/(class=")/;
+	
+	
+	$HO.extend(AbstractView,{
+		extend              : fExtend            //扩展原型定义
+	});
+	
+	$HO.extend(AbstractView.prototype,$H.Events);
 	
 	$HO.extend(AbstractView.prototype,{
 		
@@ -3520,7 +3694,7 @@ $Define('cm.AbstractView',function(){
 			'contextmenu','change','submit'
 		],
 //      listeners           : [],                //类事件配置
-//		_listeners          : {},                //实例事件池  
+//		_listeners          : {},                //实例事件池
 		
 		initialize          : fInitialize,       //初始化
 		doConfig            : fDoConfig,         //初始化配置
@@ -3539,16 +3713,30 @@ $Define('cm.AbstractView',function(){
 		enable              : fEnable,           //启用
 		disable             : fDisable,          //禁用
 		
-		fire                : fFire,             //触发自定义事件
 		listen              : fListen,           //绑定事件
 		unlisten            : fUnlisten,         //解除事件
 		initListeners       : fInitListeners,    //初始化所有事件
 		clearListeners      : fClearListeners,   //清除所有事件
-		suspendListeners    : fSuspendListeners, //挂起事件
-		resumeListeners     : fResumeListeners,  //恢复事件
 		
 		destroy             : fDestroy           //销毁
 	});
+	/**
+	 * 扩展原型定义
+	 * @method extend
+	 * @param {Object}oExtend 扩展源
+	 */
+	function fExtend(oExtend){
+		var oProt=this.prototype;
+		$HO.extend(oProt, oExtend,{notCover:function(p){
+			//继承父类的事件
+			if($HO.contains(['_customEvents','listeners'],p)){
+				oProt[p]=(oExtend[p]||[]).concat(oProt[p]||[]);
+				return true;
+			}else if(p=='xtype'||p=='constructor'){
+				return true;
+			}
+		}});
+	}
 	/**
 	 * 初始化
 	 * @method initialize
@@ -3596,12 +3784,13 @@ $Define('cm.AbstractView',function(){
 			//默认事件，可通过参数属性直接添加
 			var bIsCustEvt=$HO.contains(me._customEvents,sProp);
 			var bIsDefEvt=$HO.contains(me._defaultEvents,sProp);
-			if(bIsCustEvt||bIsDefEvt){
+			if(bIsDefEvt){
 				me._listeners.push({
-					type:sProp,
-					notEl:bIsCustEvt,
+					name:sProp,
 					handler:oParams[sProp]
 				});
+			}else if(bIsCustEvt){
+				me.on(sProp,oParams[sProp]);
 			}
 			if((value!=null&&typeof value=='object')||$HO.isFunction(value)){
 				return true;
@@ -3687,7 +3876,7 @@ $Define('cm.AbstractView',function(){
 	 */
 	function fBeforeRender(){
 		var me=this;
-		me.fire('beforeRender');
+		me.trigger('beforeRender');
 	}
 	/**
 	 * 渲染
@@ -3695,7 +3884,7 @@ $Define('cm.AbstractView',function(){
 	 */
 	function fRender(){
 		var me=this;
-		me.fire('render');
+		me.trigger('render');
 		var sHtml=me.getHtml();
 		me.renderTo[me.renderBy](sHtml);
 	}
@@ -3721,7 +3910,7 @@ $Define('cm.AbstractView',function(){
 		if(me.disabled){
 			me.disable();
 		}
-		me.fire('afterRender');
+		me.trigger('afterRender');
 		//显示
 		if(!me.hidden){
 			me.show();
@@ -3745,7 +3934,7 @@ $Define('cm.AbstractView',function(){
 		}else{
 			oEl.hide();
 		}
-		me.fire('hide');
+		me.trigger('hide');
 	}
 	/**
 	 * 显示
@@ -3758,7 +3947,7 @@ $Define('cm.AbstractView',function(){
 		if(me.showed){
 			return false;
 		}
-		me.fire('beforeShow');
+		me.trigger('beforeShow');
 		me.showed=true;
 		var oEl=me.getEl();
 		if(me.displayMode=='visibility'){
@@ -3774,7 +3963,7 @@ $Define('cm.AbstractView',function(){
 	 */
 	function fAfterShow(){
 		var me=this;
-		me.fire('afterShow');
+		me.trigger('afterShow');
 	}
 	/**
 	 * 启用
@@ -3782,7 +3971,7 @@ $Define('cm.AbstractView',function(){
 	 */
 	function fEnable(){
 		var me=this;
-		me.resumeListeners();
+		me.resume();
 		me.getEl().removeClass("hui-disable").find('input,textarea,select').removeAttr('disabled');
 	}
 	/**
@@ -3791,119 +3980,106 @@ $Define('cm.AbstractView',function(){
 	 */
 	function fDisable(){
 		var me=this;
-		me.suspendListeners();
+		me.suspend();
 		me.getEl().addClass("hui-disable").find('input,textarea,select').attr('disabled','disabled');
-	}
-	/**
-	 * 触发自定义事件
-	 * @method fire
-	 * @param {string}sType 事件类型
-	 * @param {Array=}aArgs 附加参数
-	 */
-	function fFire(sType,aArgs){
-		var me=this;
-		for(var i=me._listeners.length-1;i>=0;i--){
-			var oListener=me._listeners[i]
-			if(oListener.type==sType){
-				var fDelegation=oListener.delegation;
-				if(aArgs){
-					fDelegation.apply(null,aArgs.shift(oListener));
-				}else{
-					fDelegation(oListener);
-				}
-			}
-		}
 	}
 	/**
 	 * 绑定事件
 	 * @method listen
 	 * @param {object}事件对象{
-	 * 			{string}type      : 事件名
+	 * 			{string}name      : 事件名
 	 * 			{function(Object[,fireParam..])}handler : 监听函数，第一个参数为事件对象oListener，其后的参数为fire时传入的参数
 	 * 			{any=}data        : 数据
 	 * 			{jQuery=}el       : 绑定事件的节点，不传表示容器节点
-	 * 			{boolean=}notEl    : 为true时是自定义事件
+	 * 			{boolean=}custom  : 为true时是自定义事件
 	 * 			{string=}selector : 选择器
-	 * 			{any=}scope       : 监听函数执行的上下文对象，默认是对象
+	 * 			{any=}context     : 监听函数执行的上下文对象，默认是对象
 	 * 			{string=}method   : 绑定方式，默认为"bind"
 	 * }
 	 */
 	function fListen(oEvent){
 		var me=this,
-			sType=oEvent.type,
-			aListeners=me._listeners,
-			oEl=oEvent.el,
-			sMethod=oEvent.method||"bind",
-			sSel=oEvent.selector,
-			oData=oEvent.data,
-			fFunc=oEvent.delegation=function(){
-				if(me.isSuspend!=true){
-					return oEvent.handler.apply(oEvent.scope||me,arguments);
+			sName=oEvent.name,
+			context=oEvent.context,
+			fHandler=oEvent.handler;
+		if(oEvent.custom){
+			me.on(sName,fHandler,context);
+		}else{
+			var aListeners=me._listeners,
+				oEl=oEvent.el,
+				sMethod=oEvent.method||"bind",
+				sSel=oEvent.selector,
+				oData=oEvent.data,
+				fFunc=oEvent.delegation=function(){
+					if(me.isSuspend!=true){
+						return fHandler.apply(context||me,arguments);
+					}
+				};
+			//移动浏览器由于click可能会有延迟，这里转换为touchend事件
+			if($H.Browser.mobile()){
+				if(sName=="click"){
+					sName="touchend";
 				}
-			};
-		//移动浏览器由于click可能会有延迟，这里转换为touchend事件
-		if($H.Browser.mobile()){
-			if(sType=="click"){
-				sType="touchend";
 			}
-		}
-		oEl=oEl?typeof oEl=='string'?me.find(oEl):oEl:me.getEl();
-		if(!oEvent.notEl){
+			oEl=oEl?typeof oEl=='string'?me.find(oEl):oEl:me.getEl();
 			if(sSel){
 				if(oData){
-					oEl[sMethod](sSel,sType,oData,fFunc);
+					oEl[sMethod](sSel,sName,oData,fFunc);
 				}else{
-					oEl[sMethod](sSel,sType,fFunc);
+					oEl[sMethod](sSel,sName,fFunc);
 				}
 			}else{
 				if(oData){
-					oEl[sMethod](sType,oData,fFunc);
+					oEl[sMethod](sName,oData,fFunc);
 				}else{
-					oEl[sMethod](sType,fFunc);
+					oEl[sMethod](sName,fFunc);
 				}
 			}
+			aListeners.push(oEvent);
 		}
-		aListeners.push(oEvent);
 	}
 	/**
 	 * 解除事件
 	 * @method unlisten
 	 * @param {object}事件对象{
-	 * 			{string}type      : 事件名
+	 * 			{string}name      : 事件名
 	 * 			{function}handler : 监听函数
 	 * 			{jQuery=}el       : 绑定事件的节点，不传表示容器节点
-	 * 			{boolean=}notEl    : 为true时是自定义事件
+	 * 			{boolean=}custom    : 为true时是自定义事件
 	 * 			{string=}selector : 选择器
 	 * 			{string=}method   : 绑定方式，默认为"bind"
 	 * }
 	 */
 	function fUnlisten(oEvent){
 		var me=this,
-			sType=oEvent.type,
-			oEl=oEvent.el,
-			sMethod=oEvent.method=="delegate"?"undelegate":"unbind",
-			sSel=oEvent.selector,
-			fDelegation;
-		//移动浏览器由于click可能会有延迟，这里转换为touchend事件
-		if($H.Browser.mobile()){
-			if(sType=="click"){
-				sType="touchend";
+			sName=oEvent.name,
+			fHandler=oEvent.handler;
+		if(oEvent.custom){
+			me.off(sName,fHandler);
+		}else{
+			var oEl=oEvent.el,
+				sMethod=oEvent.method=="delegate"?"undelegate":"unbind",
+				sSel=oEvent.selector,
+				fDelegation;
+			//移动浏览器由于click可能会有延迟，这里转换为touchend事件
+			if($H.Browser.mobile()){
+				if(sName=="click"){
+					sName="touchend";
+				}
 			}
-		}
-		oEl=oEl?typeof oEl=='string'?me.find(oEl):oEl:me.getEl();
-		for(var i=me._listeners.length-1;i>=0;i--){
-			var oListener=me._listeners[i]
-			if(oListener.handler==oEvent.handler){
-				fDelegation=oListener.delegation;
-				me._listeners.splice(i,1);
-				break;
+			oEl=oEl?typeof oEl=='string'?me.find(oEl):oEl:me.getEl();
+			for(var i=me._listeners.length-1;i>=0;i--){
+				var oListener=me._listeners[i]
+				if(oListener.handler==fHandler){
+					fDelegation=oListener.delegation;
+					me._listeners.splice(i,1);
+					break;
+				}
 			}
-		}
-		if(!oEvent.notEl){
 			if(sSel){
-				oEl[sMethod](sSel,sType,fDelegation);
+				oEl[sMethod](sSel,sName,fDelegation);
 			}else{
-				oEl[sMethod](sType,fDelegation);
+				oEl[sMethod](sName,fDelegation);
 			}
 		}
 	}
@@ -3935,32 +4111,7 @@ $Define('cm.AbstractView',function(){
 		for(var i=aListeners.length-1;i>=0;i--){
 			me.unlisten(aListeners[i]);
 		}
-	}
-	/**
-	 * 挂起事件
-	 * @method suspendListeners
-	 * @return {boolean=}如果已经挂起了，则直接返回false
-	 */
-	function fSuspendListeners(){
-		var me=this;
-		//已经挂起，直接退回
-		if(me.isSuspend){
-			return false;
-		}
-		me.isSuspend=true;
-	}
-	/**
-	 * 恢复事件
-	 * @method resumeListeners
-	 * @return {boolean=}如果已经恢复了，则直接返回false
-	 */
-	function fResumeListeners(){
-		var me=this;
-		//已经恢复，直接退回
-		if(!me.isSuspend){
-			return false;
-		}
-		me.isSuspend=false;
+		me.off('all');
 	}
 	/**
 	 * 销毁
@@ -3972,7 +4123,7 @@ $Define('cm.AbstractView',function(){
 		if(me.destroyed){
 			return false;
 		}
-		me.fire('destroy');
+		me.trigger('destroy');
 		me.clearListeners();
 		me.getEl().remove();
 		me.destroyed=true;
@@ -4098,6 +4249,8 @@ $Define('c.Model',
 function(){
 	
 	var Model=$HO.createClass();
+	
+	$HO.extend(Model.prototype,$H.Events);
 	
 	$HO.extend(Model.prototype,{
 //		_changing             : false,               //是否正在改变
@@ -4580,6 +4733,8 @@ $Define('c.Collection',
 function(Model){
 	
 	var Collection=$HO.createClass();
+	
+	$HO.extend(Collection.prototype,$H.Events);
 	
 	$HO.extend(Collection.prototype,{
 		
@@ -5172,12 +5327,12 @@ $Define("c.ComponentManager", 'cm.AbstractManager',function(AbstractManager) {
 	function fInitialize(){
 		var me=this;
 		//监听afterRender自定义事件，调用相关组件的afterRender方法
-		$HE.on("afterRender",function(oEl){
+		$H.on("afterRender",function(oEl){
 			//调用包含的组件的afterRender方法
 			me.afterRender(oEl);
 		})
 		//监听removeEl自定义事件，jQuery的remove方法被拦截(base/adapt.js)，执行时先触发此事件
-		$HE.on('removeEl',function(oEl){
+		$H.on('removeEl',function(oEl){
 			//销毁包含的组件
 			me.destroy(oEl);
 		})
@@ -5272,8 +5427,8 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		//事件相关
 		initListeners       : fInitListeners,    //初始化所有事件
 		clearListeners      : fClearListeners,   //清除所有事件
-		suspendListeners    : fSuspendListeners, //挂起事件
-		resumeListeners     : fResumeListeners,  //恢复事件
+		suspend             : fSuspend,          //挂起事件
+		resume              : fResume,           //恢复事件
 		
 		//组件管理相关
 //		update
@@ -5292,7 +5447,6 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	},{
 		//静态方法
 		define              : fDefine,           //定义组件
-		extend              : fExtend,           //扩展组件原型对象
 		html                : fHtml              //静态生成组件html
 	});
 	
@@ -5311,23 +5465,6 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 		}});
 		CM.registerType(sXtype,Component);
 		return Component;
-	}
-	/**
-	 * 扩展组件原型对象
-	 * @method extend
-	 * @param {Object}oExtend 扩展源
-	 */
-	function fExtend(oExtend){
-		var oProt=this.prototype;
-		$HO.extend(oProt, oExtend,{notCover:function(p){
-			//继承父类的事件
-			if(p=='_customEvents'||p=='listeners'){
-				oProt[p]=(oExtend[p]||[]).concat(oProt[p]||[]);
-				return true;
-			}else if(p=='xtype'||p=='constructor'){
-				return true;
-			}
-		}});
 	}
 	/**
 	 * 静态生成组件html
@@ -5510,7 +5647,7 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 			},0);
 			return;
 		}
-		me.fire('beforeShow');
+		me.trigger('beforeShow');
 		me.showed=true;
 		var oEl=me.getEl();
 		if(me.displayMode=='visibility'){
@@ -5612,9 +5749,9 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	}
 	/**
 	 * 挂起事件
-	 * @method suspendListeners
+	 * @method suspend
 	 */
-	function fSuspendListeners(){
+	function fSuspend(){
 		var me=this;
 		if(me.callSuper()!=false){
 			me.callChild();
@@ -5622,9 +5759,9 @@ $Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(
 	}
 	/**
 	 * 恢复事件
-	 * @method resumeListeners
+	 * @method resume
 	 */
-	function fResumeListeners(){
+	function fResume(){
 		var me=this;
 		if(me.callSuper()!=false){
 			me.callChild();
@@ -5963,7 +6100,7 @@ function(AC){
 		//添加点击即隐藏事件
 		if(me.clickHide){
 			me._listeners.push({
-				type:'click',
+				name:'click',
 				el: $(document),
 				handler:function(){
 					this.hide();
@@ -5974,8 +6111,8 @@ function(AC){
 		//不过，仍旧会有光标竖线停留在点击的输入框里，要把延迟加到几秒之后才能避免，但又会影响使用
 		if($H.Browser.android()){
 			me._listeners.push({
-				type:'show',
-				notEl:true,
+				name:'show',
+				custom:true,
 				handler:function(){
 					//外部可以通过监听器自行处理这个问题，只需要返回true即可不调用此处的方法
 					var bHasDone=$H.Events.trigger("component.popup.show");
@@ -5985,8 +6122,8 @@ function(AC){
 				}
 			});
 			me._listeners.push({
-				type:'hide',
-				notEl:true,
+				name:'hide',
+				custom:true,
 				handler:function(){
 					//外部可以通过监听器自行处理这个问题，只需要返回true即可不调用此处的方法
 					var bHasDone=$H.Events.trigger("component.popup.hide");
@@ -6148,7 +6285,7 @@ function(CM,AC){
 		
 		listeners       : [
 			{
-				type :'click',
+				name :'click',
 				selector : '.js-item',
 				method : 'delegate',
 				handler : function(oEvt){
@@ -6546,7 +6683,7 @@ function(AC){
 		
 		listeners       : [
 			{
-				type:'click',
+				name:'click',
 				handler:function(){
 					this.showOptions();
 				}
@@ -6608,7 +6745,7 @@ function(AC){
 				var oMenu=me.children[0];
 				var oItem=oMenu.find('$>[value="'+sValue+'"]');
 				if(oItem.length>0){
-					me.fire("change");
+					me.trigger("change");
 					oItem=oItem[0];
 					me.value=sValue;
 					var oSel=me.find('input');
@@ -6673,14 +6810,14 @@ function(AC){
 		'</div>'],
 		listeners       : [
 			{
-				type : 'focus',
+				name : 'focus',
 				el : '.js-input',
 				handler : function(){
 					this.getEl().addClass('hui-focus');
 				}
 			},
 			{
-				type : 'blur',
+				name : 'blur',
 				el : '.js-input',
 				handler : function(){
 					this.getEl().removeClass('hui-focus');
@@ -6706,7 +6843,7 @@ function(AC){
 		}else if(me.type=="textarea"){
 			//textarea高度自适应，IE6、7、8支持propertychange事件，input被其他浏览器所支持
 			me._listeners.push({
-				type:'input propertychange',
+				name:'input propertychange',
 				el:'.js-input',
 				handler:function(){
 					var oTextarea=me.find(".js-input");
@@ -7639,7 +7776,7 @@ function(History,AbstractManager){
 				hidden:true
 			});
 			me.modules[sModName]=oMod;
-			$HE.trigger('afterRender',oMod.getEl());
+			$H.trigger('afterRender',oMod.getEl());
 			//可能加载完时，已切换到其它模块了
 			if(me.requestMod==sModName){
 				me._showMod(oMod);
