@@ -5,11 +5,11 @@
 handy.add('Object',function($H){
 	
 	var Object={
-		_alias              : {                 //存储别名
-			'b'             : 'handy.base',
-			'c'             : 'handy.component',
-			'm'             : 'handy.module',
-			'cm'            : 'handy.common'
+		_alias              : {                 //存储别名，建议大写，以便更好地与普通名称区别开
+			'B'             : 'handy.base',
+			'C'             : 'handy.component',
+			'M'             : 'handy.module',
+			'CM'            : 'handy.common'
 		},               
 		namespace           : fNamespace,       //创建或读取命名空间，可以传入用以初始化该命名空间的对象
 		alias               : fAlias,           //创建别名/读取实名
@@ -67,7 +67,7 @@ handy.add('Object',function($H){
 	 * 创建别名/读取实名，别名没有对应的存储空间，需要先转换为原始名字才能获取对应的存储空间，
 	 * Loader自动会优先尝试转换别名，因此，别名不能与现有的命名空间重叠
 	 * @method alias
-	 * @param {string=}sAlias 别名，如'b.Object'，为空时表示读取所有存储的别名
+	 * @param {string=}sAlias 别名，如'B.Object'，为空时表示读取所有存储的别名
 	 * @param {string=}sOrig 原名，如'handy.base.Object'，为空时表示读取实名
 	 */
 	function fAlias(sAlias,sOrig){

@@ -2,7 +2,7 @@
  * 校验类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Validator',['b.String','b.Object'],function(String,Object,$H){
+handy.add('Validator',['B.String','B.Object'],function(String,Object,$H){
 	
 	var Validator={
 		messages: {

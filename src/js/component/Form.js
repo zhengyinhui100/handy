@@ -4,8 +4,8 @@
  * @created 2014-02-25
  */
 
-$Define('c.Form',
-'c.AbstractComponent',
+$Define('C.Form',
+'C.AbstractComponent',
 function(AC){
 	
 	var Form=AC.define('Form');

@@ -4,25 +4,20 @@
  * @created 2014-03-17
  */
 //"handy.common.ViewManager"
-$Define("cm.ViewManager", 'cm.AbstractManager',function(AbstractManager) {
+$Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
 
-	var ViewManager = $HO.createClass(),
-	_expando = $H.expando+"_cmp_",             // 视图id前缀
-	//存储视图类
-	_types={},
-	//存储所有视图实例
-	_all={};
+	var ViewManager = $HO.createClass();
 
 	// 静态方法
 	$HO.inherit(ViewManager,AbstractManager,{
-		type          : 'component',      //管理类型
+		type          : 'view',           //管理类型
 		initialize    : fInitialize,      //初始化
 		afterRender   : fAfterRender,     //调用指定dom节点包含的视图的afterRender方法
 		destroy       : fDestroy          //销毁视图，主要用于删除元素时调用
 	});
 	
 	//全局快捷别名
-	$C=new ViewManager();
+	$VM=new ViewManager();
 	
 	/**
 	 * 初始化
@@ -62,6 +57,6 @@ $Define("cm.ViewManager", 'cm.AbstractManager',function(AbstractManager) {
 		});
 	}
 
-	return $C;
+	return $VM;
 	
 });

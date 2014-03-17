@@ -4,7 +4,7 @@
  * @created 2014-03-06
  */
 //"handy.common.Model"
-$Define('c.Model',
+$Define('C.Model',
 function(){
 	
 	var Model=$HO.createClass();

@@ -4,8 +4,8 @@
  * @created 2014-03-06
  */
 //"handy.common.Collection"
-$Define('c.Collection',
-'c.Model',
+$Define('C.Collection',
+'C.Model',
 function(Model){
 	
 	var Collection=$HO.createClass();

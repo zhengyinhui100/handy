@@ -2,7 +2,7 @@
  * LocalStorage类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('LocalStorage',['b.Browser','b.Events','b.Json'],function(Browser,Events,Json,$H){
+handy.add('LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Events,Json,$H){
 	
 	var LS={
 		init            : fInit,

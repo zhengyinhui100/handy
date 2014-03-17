@@ -4,8 +4,8 @@
  * @created 2014-01-16
  */
 
-$Define('c.Toolbar',
-'c.AbstractComponent',
+$Define('C.Toolbar',
+'C.AbstractComponent',
 function(AC){
 	
 	var Toolbar=AC.define('Toolbar');

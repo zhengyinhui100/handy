@@ -4,8 +4,8 @@
  * @created 2014-02-25
  */
 
-$Define('c.Set',
-'c.AbstractComponent',
+$Define('C.Set',
+'C.AbstractComponent',
 function(AC){
 	
 	var Set=AC.define('Set');

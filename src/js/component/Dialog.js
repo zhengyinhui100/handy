@@ -4,9 +4,9 @@
  * @created 2014-01-17
  */
 
-$Define('c.Dialog',
-['c.AbstractComponent',
-'c.Popup'],
+$Define('C.Dialog',
+['C.AbstractComponent',
+'C.Popup'],
 function(AC,Popup){
 	
 	var Dialog=AC.define('Dialog',Popup);

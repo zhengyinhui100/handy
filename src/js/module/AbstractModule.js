@@ -4,7 +4,7 @@
 * Created:		2013-12-14										*
 *****************************************************************/
 //handy.module.AbstractModule
-$Define("m.AbstractModule","cm.AbstractView",function (AbstractView) {
+$Define("M.AbstractModule","CM.AbstractView",function (AbstractView) {
 	/**
 	 * 模块基类
 	 * 

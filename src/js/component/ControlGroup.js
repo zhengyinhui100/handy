@@ -4,9 +4,9 @@
  * @created 2014-01-31
  */
 
-$Define('c.ControlGroup',
-['c.ComponentManager',
-'c.AbstractComponent'],
+$Define('C.ControlGroup',
+['C.ComponentManager',
+'C.AbstractComponent'],
 function(CM,AC){
 	
 	var ControlGroup=AC.define('ControlGroup');

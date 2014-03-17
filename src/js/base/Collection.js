@@ -2,7 +2,7 @@
  * 集合类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Collection','b.Object',function(Object,$H){
+handy.add('Collection','B.Object',function(Object,$H){
 	
 	var Collection={
 		map           : fMap,          //映射每一个值, 通过一个转换函数产生一个新的数组

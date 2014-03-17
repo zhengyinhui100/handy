@@ -4,7 +4,7 @@
  * @created 2014-01-10
  */
 //"handy.component.ComponentManager"
-$Define("c.ComponentManager", 'cm.AbstractManager',function(AbstractManager) {
+$Define("C.ComponentManager", 'CM.AbstractManager',function(AbstractManager) {
 
 	var CM = $HO.createClass(),
 	_expando = $H.expando+"_cmp_",             // 组件id前缀

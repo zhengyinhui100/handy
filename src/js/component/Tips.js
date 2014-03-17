@@ -4,10 +4,10 @@
  * @created 2014-02-15
  */
 
-$Define('c.Tips',
-['c.AbstractComponent',
-'c.Popup',
-'c.ControlGroup'],
+$Define('C.Tips',
+['C.AbstractComponent',
+'C.Popup',
+'C.ControlGroup'],
 function(AC,Popup,ControlGroup){
 	
 	var Tips=AC.define('Tips',Popup);

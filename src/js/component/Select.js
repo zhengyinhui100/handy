@@ -4,8 +4,8 @@
  * @created 2014-02-01
  */
 
-$Define('c.Select',
-'c.AbstractComponent',
+$Define('C.Select',
+'C.AbstractComponent',
 function(AC){
 	
 	var Select=AC.define('Select');

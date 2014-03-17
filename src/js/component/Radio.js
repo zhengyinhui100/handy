@@ -4,8 +4,8 @@
  * @created 2014-01-29
  */
 
-$Define('c.Radio',
-'c.AbstractComponent',
+$Define('C.Radio',
+'C.AbstractComponent',
 function(AC){
 	
 	var Radio=AC.define('Radio');

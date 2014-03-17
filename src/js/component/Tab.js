@@ -4,9 +4,9 @@
  * @created 2014-01-16
  */
 
-$Define('c.Tab',
-['c.AbstractComponent',
-'c.ControlGroup'],
+$Define('C.Tab',
+['C.AbstractComponent',
+'C.ControlGroup'],
 function(AC,ControlGroup){
 	
 	var Tab=AC.define('Tab',ControlGroup);

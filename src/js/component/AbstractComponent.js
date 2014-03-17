@@ -4,7 +4,7 @@
  * @created 2013-12-28
  */
 //"handy.component.AbstractComponent"
-$Define('c.AbstractComponent',["c.ComponentManager",'cm.AbstractView'],function(CM,AbstractView){
+$Define('C.AbstractComponent',["C.ComponentManager",'CM.AbstractView'],function(CM,AbstractView){
 	
 	var AC=$HO.createClass();
 	

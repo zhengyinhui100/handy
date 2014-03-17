@@ -9,9 +9,9 @@
  * @class ModuleManager
  */
 //handy.module.ModuleManager
-$Define("m.ModuleManager",
-["m.History",
-"cm.AbstractManager"],
+$Define("M.ModuleManager",
+["M.History",
+"CM.AbstractManager"],
 function(History,AbstractManager){
 	
 	var ModuleManager=$HO.createClass();

@@ -9,7 +9,7 @@
  * @created 2013-02-17
  */
 //"handy.common.AbstractView"
-$Define('cm.AbstractView',function(){
+$Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 	
 	var AbstractView=$HO.createClass();
 	var _oTagReg=/^(<[a-zA-Z]+)/;
@@ -145,7 +145,7 @@ $Define('cm.AbstractView',function(){
 	 */
 	function fInitialize(oParams){
 		var me=this;
-		me.manager=me.constructor.manager;
+		me.manager=me.constructor.manager||ViewManager;
 		//注册视图，各继承类自行实现
 		me.manager.register(me);
 		//初始化配置

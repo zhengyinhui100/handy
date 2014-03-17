@@ -4,9 +4,9 @@
  * @created 2014-02-06
  */
 
-$Define('c.List',
-['c.AbstractComponent',
-'c.ControlGroup'],
+$Define('C.List',
+['C.AbstractComponent',
+'C.ControlGroup'],
 function(AC,ControlGroup){
 	
 	var List=AC.define('List',ControlGroup);

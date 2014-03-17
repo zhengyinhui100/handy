@@ -4,8 +4,8 @@
  * @created 2014-01-01
  */
 
-$Define('c.Icon',
-'c.AbstractComponent',
+$Define('C.Icon',
+'C.AbstractComponent',
 function(AC){
 	
 	var Icon=AC.define('Icon');

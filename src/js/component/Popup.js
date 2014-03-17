@@ -4,8 +4,8 @@
  * @created 2014-02-01
  */
 
-$Define('c.Popup',
-'c.AbstractComponent',
+$Define('C.Popup',
+'C.AbstractComponent',
 function(AC){
 	
 	var Popup=AC.define('Popup'),

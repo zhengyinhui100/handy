@@ -4,10 +4,10 @@
  * @created 2014-02-02
  */
 
-$Define('c.Menu',
-['c.AbstractComponent',
-'c.Popup',
-'c.ControlGroup'],
+$Define('C.Menu',
+['C.AbstractComponent',
+'C.Popup',
+'C.ControlGroup'],
 function(AC,Popup,ControlGroup){
 	
 	var Menu=AC.define('Menu',Popup);

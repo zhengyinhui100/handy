@@ -4,8 +4,8 @@
  * @created 2014-01-13
  */
 
-$Define('c.Button',
-'c.AbstractComponent',
+$Define('C.Button',
+'C.AbstractComponent',
 function(AC){
 	
 	var Button=AC.define('Button');

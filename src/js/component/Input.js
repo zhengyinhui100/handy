@@ -4,8 +4,8 @@
  * @created 2014-01-14
  */
 
-$Define('c.Input',
-'c.AbstractComponent',
+$Define('C.Input',
+'C.AbstractComponent',
 function(AC){
 	
 	var Input=AC.define('Input');

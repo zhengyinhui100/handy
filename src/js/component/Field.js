@@ -4,8 +4,8 @@
  * @created 2014-02-25
  */
 
-$Define('c.Field',
-'c.AbstractComponent',
+$Define('C.Field',
+'C.AbstractComponent',
 function(AC){
 	
 	var Field=AC.define('Field');

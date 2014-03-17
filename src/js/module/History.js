@@ -8,7 +8,7 @@
  * @class handy.module.History
  */
 //handy.module.History
-$Define("m.History",
+$Define("M.History",
 'handy.base.HashChange',
 function(HashChange){
 

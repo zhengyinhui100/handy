@@ -4,7 +4,7 @@
  * @created 2014-01-10
  */
 //"handy.component.ComponentManager"
-$Define("cm.AbstractManager", function() {
+$Define("CM.AbstractManager", function() {
 
 	var AbstractManager = $HO.createClass();
 	
