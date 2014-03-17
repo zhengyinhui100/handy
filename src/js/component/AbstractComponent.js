@@ -36,7 +36,7 @@ $Define('C.AbstractComponent',["C.ComponentManager",'CM.AbstractView'],function(
 		
 		//属性
 //		cls                 : '',                //组件样式名，空则使用xtype的小写，如Dialog，cls为"dialog"，因此样式前缀是“hui-dialog-”
-//		xrole                : '',               //保留属性，用于模板中筛选组件的选择器，如this.findHtml("$>[xrole='content']")
+//		xrole               : '',                //保留属性，用于模板中筛选组件的选择器，如this.findHtml("$>[xrole='content']")
 		
 		//组件初始化相关
 		hasConfig           : fHasConfig,        //检查是否已存在指定配置

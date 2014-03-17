@@ -28,10 +28,11 @@ $Define("CM.AbstractManager", function() {
 	 * @param {object}oClass 组件类
 	 */
 	function fRegisterType(sXtype,oClass){
-		this._types[sXtype]=oClass;
+		var me=this;
+		me._types[sXtype]=oClass;
 		oClass.prototype.xtype=sXtype;
 		//快捷别名
-		$C[sXtype]=oClass;
+		me[sXtype]=oClass;
 	}
 	/**
 	 * 根据xtype获取组件类

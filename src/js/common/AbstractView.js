@@ -146,8 +146,6 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 	function fInitialize(oParams){
 		var me=this;
 		me.manager=me.constructor.manager||ViewManager;
-		//注册视图，各继承类自行实现
-		me.manager.register(me);
 		//初始化配置
 		me.doConfig(oParams);
 		me.beforeRender();
@@ -156,6 +154,8 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 			//渲染后续工作
 			me.afterRender();
 		}
+		//注册视图，各继承类自行实现
+		me.manager.register(me);
 	}
 	/**
 	 * 初始化配置
@@ -218,9 +218,6 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 	 */
 	function fGetId(){
 		var me=this;
-		if(!me.manager){
-			debugger;
-		}
 		return me._id||(me._id=me.manager.generateId(me.cid));
 	}
 	/**

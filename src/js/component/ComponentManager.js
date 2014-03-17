@@ -6,12 +6,7 @@
 //"handy.component.ComponentManager"
 $Define("C.ComponentManager", 'CM.AbstractManager',function(AbstractManager) {
 
-	var CM = $HO.createClass(),
-	_expando = $H.expando+"_cmp_",             // 组件id前缀
-	//存储组件类
-	_types={},
-	//存储所有组件实例
-	_all={};
+	var CM = $HO.createClass();
 
 	// 静态方法
 	$HO.inherit(CM,AbstractManager,{
