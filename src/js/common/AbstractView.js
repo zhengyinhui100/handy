@@ -1,5 +1,10 @@
 /**
  * 抽象视图类
+ * PS：注意，扩展视图类方法必须用本类的extend方法，扩展类的静态方法则可以使用$H.Object.extend方法，例如
+ * var ExampleCmp=AbstractComponent.define('ExampleCmp');
+ * ExampleCmp.extend({
+ * 	   test:''
+ * });
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2013-02-17
  */
@@ -13,9 +18,11 @@ $Define('cm.AbstractView',function(){
 	
 	
 	$HO.extend(AbstractView,{
-		extend              : fExtend            //扩展原型定义
+		extend              : fExtend,           //扩展原型定义
+		html                : fHtml              //静态初始化视图并生成html
 	});
 	
+	//自定义事件
 	$HO.extend(AbstractView.prototype,$H.Events);
 	
 	$HO.extend(AbstractView.prototype,{
@@ -24,7 +31,9 @@ $Define('cm.AbstractView',function(){
 		
 		//配置
 //		renderTo            : null,              //渲染节点
+//		defItem             : null,              //默认子视图配置
 //		hidden              : false,             //是否隐藏
+//		delayShow           : false,             //是否延迟显示，主要用于弹出层
 //		hideMode            : 'display',         //隐藏方式,'display'|'visibility'
 //		disabled            : false,             //是否禁用
 		autoRender          : true,              //是否默认就进行渲染
@@ -34,6 +43,7 @@ $Define('cm.AbstractView',function(){
 		
 		
 		//属性
+//		manager             : null,              //视图管理对象
 //		params              : null,              //初始化时传入的参数
 //		_container          : null,              //试图对象容器节点
 //      listened            : false,             //是否已初始化事件
@@ -43,6 +53,7 @@ $Define('cm.AbstractView',function(){
 //		tmpl                : [],                //模板，首次初始化前为数组，初始化后为字符串，ps:模板容器节点上不能带有id属性
 //		rendered            : false,             //是否已渲染
 //      showed              : false,             //是否已显示
+		children            : [],                //子视图列表
 		_customEvents       : [                  //自定义事件,可以通过参数属性的方式直接进行添加
 			'beforeRender','render','afterRender',
 			'beforeShow','afterShow','hide',
@@ -66,6 +77,7 @@ $Define('cm.AbstractView',function(){
 		getId               : fGetId,            //获取id
 		initHtml            : fInitHtml,         //初始化html
 		getHtml             : fGetHtml,          //获取html
+		findHtml            : fFindHtml,         //获取子视图html
 		initStyle           : fInitStyle,        //初始化样式
 		
 		beforeRender        : fBeforeRender,     //渲染前工作
@@ -81,7 +93,23 @@ $Define('cm.AbstractView',function(){
 		unlisten            : fUnlisten,         //解除事件
 		initListeners       : fInitListeners,    //初始化所有事件
 		clearListeners      : fClearListeners,   //清除所有事件
+		suspend             : fSuspend,          //挂起事件
+		resume              : fResume,           //恢复事件
 		
+		//视图管理相关
+		each                : fEach,             //遍历子视图
+		match               : fMatch,            //匹配选择器
+		find                : fFind,             //查找子元素或子视图
+		parents             : fParents,          //查找祖先元素或祖先视图
+		index               : fIndex,            //获取本身的索引，如果没有父视图则返回null
+		callChild           : fCallChild,        //调用子视图方法
+		add                 : fAdd,              //添加子视图
+		remove              : fRemove,           //删除子视图
+		addItem             : fAddItem,          //添加子视图配置
+		parseItem           : function(){},      //分析子视图，由具体视图类实现
+		parseItems          : fParseItems,       //分析子视图列表
+		
+		update              : fUpdate,           //更新
 		destroy             : fDestroy           //销毁
 	});
 	/**
@@ -102,12 +130,24 @@ $Define('cm.AbstractView',function(){
 		}});
 	}
 	/**
+	 * 静态初始化视图并生成html
+	 * @method html
+	 * @param {object}oParams 初始化参数
+	 */
+	function fHtml(oParams){
+		var oView=new this($HO.extend({autoRender:false},oParams));
+		return oView.getHtml();
+	}
+	/**
 	 * 初始化
 	 * @method initialize
 	 * @param {Object}oParams 初始化参数
 	 */
 	function fInitialize(oParams){
 		var me=this;
+		me.manager=me.constructor.manager;
+		//注册视图，各继承类自行实现
+		me.manager.register(me);
 		//初始化配置
 		me.doConfig(oParams);
 		me.beforeRender();
@@ -116,8 +156,6 @@ $Define('cm.AbstractView',function(){
 			//渲染后续工作
 			me.afterRender();
 		}
-		//注册视图，各继承类自行实现
-		//Manager.register(me);
 	}
 	/**
 	 * 初始化配置
@@ -160,6 +198,10 @@ $Define('cm.AbstractView',function(){
 				return true;
 			}
 		}});
+		//覆盖子视图默认配置
+		if(oParams.defItem){
+			$HO.extend(me.defItem,oParams.defItem);
+		}
 	}
 	/**
 	 * 获取容器节点
@@ -175,7 +217,11 @@ $Define('cm.AbstractView',function(){
 	 * @return {string}返回id
 	 */
 	function fGetId(){
-		return this._id;
+		var me=this;
+		if(!me.manager){
+			debugger;
+		}
+		return me._id||(me._id=me.manager.generateId(me.cid));
 	}
 	/**
 	 * 初始化html
@@ -218,6 +264,21 @@ $Define('cm.AbstractView',function(){
 		return sHtml;
 	}
 	/**
+	 * 获取子视图html
+	 * @method findHtml
+	 * @param {string=}sSel 选择器，不传表示返回自身的html
+	 * @return {string} 返回对应html
+	 */
+	function fFindHtml(sSel){
+		var me=this;
+		var aChildren=sSel==">*"?me.children:me.find(sSel);
+		var aHtml=[];
+		for(var i=0;i<aChildren.length;i++){
+			aHtml.push(aChildren[i].getHtml());
+		}
+		return aHtml.join('');
+	}
+	/**
 	 * 初始化样式
 	 * @method initStyle
 	 */
@@ -240,6 +301,7 @@ $Define('cm.AbstractView',function(){
 	 */
 	function fBeforeRender(){
 		var me=this;
+		me.parseItems();
 		me.trigger('beforeRender');
 	}
 	/**
@@ -262,6 +324,7 @@ $Define('cm.AbstractView',function(){
 		if(me.rendered){
 			return false;
 		}
+		me.callChild();
 		//缓存容器
 		me._container=$("#"+me.getId());
 		me.rendered=true;
@@ -303,13 +366,26 @@ $Define('cm.AbstractView',function(){
 	/**
 	 * 显示
 	 * @method show
+	 * @param {boolean=}bNotDelay 仅当为true时强制不延迟显示
+	 * @param {boolean=}bParentCall true表示是父组件通过callChild调用
 	 * @return {boolean=} 仅当不是正常成功显示时返回false
 	 */
-	function fShow(){
+	function fShow(bNotDelay,bParentCall){
 		var me=this;
 		//已经显示，直接退回
 		if(me.showed){
 			return false;
+		}
+		if(bParentCall&&me.hidden){
+			//设置了hidden=true的组件不随父组件显示而显示
+			return false;
+		}
+		if(!bNotDelay&&me.delayShow){
+			setTimeout(function(){
+				//这里必须指定基类的方法，不然会调用到组件自定义的show方法
+				AbstractView.prototype.show.call(me,true);
+			},0);
+			return;
 		}
 		me.trigger('beforeShow');
 		me.showed=true;
@@ -319,6 +395,7 @@ $Define('cm.AbstractView',function(){
 		}else{
 			oEl.show();
 		}
+		me.callChild([null,true]);
 		me.afterShow();
 	}
 	/**
@@ -464,6 +541,7 @@ $Define('cm.AbstractView',function(){
 		for(var i=aListeners.length-1;i>=0;i--){
 			me.listen(aListeners[i]);
 		}
+		me.callChild();
 	}
 	/**
 	 * 清除所有事件
@@ -476,6 +554,292 @@ $Define('cm.AbstractView',function(){
 			me.unlisten(aListeners[i]);
 		}
 		me.off('all');
+		me.callChild();
+	}
+	/**
+	 * 挂起事件
+	 * @method suspend
+	 */
+	function fSuspend(){
+		var me=this;
+		//已经挂起，直接退回
+		if(me.isSuspend){
+			return false;
+		}
+		me.isSuspend=true;
+		me.callChild();
+	}
+	/**
+	 * 恢复事件
+	 * @method resume
+	 */
+	function fResume(){
+		var me=this;
+		//已经恢复，直接退回
+		if(!me.isSuspend){
+			return false;
+		}
+		me.isSuspend=false;
+		me.callChild();
+	}
+	/**
+	 * 遍历子视图
+	 * @method each
+     * @param {function}fCallback 回调函数:fCallback(i,oChild)|fCallback(args)this=oChild,返回false时退出遍历
+     * @param {Array=}aArgs  回调函数的参数
+	 */
+	function fEach(fCallback, aArgs){
+		var me=this;
+		var aChildren=this.children;
+		var nLen=aChildren.length;
+		var bResult;
+		for(var i=0;i<nLen;){
+			var oChild=aChildren[i];
+			if(aArgs){
+				bResult=fCallback.apply(oChild,aArgs);
+			}else{
+				bResult=fCallback(i,oChild);
+			}
+			if(bResult===false){
+				break;
+			}
+			//这里注意aChildren可能由于调用destroy而减少
+			if(nLen==aChildren.length){
+				i++;
+			}else{
+				nLen=aChildren.length;
+			}
+		}
+	}
+	/**
+	 * 匹配选择器
+	 * @method match
+	 * @param {string}sSel 选择器，只支持一级选择器 xtype[attr=value]
+	 * @param {Object=}oObj 被匹配的对象，默认为视图对象本身
+	 * @return {boolean} 匹配则返回true
+	 */
+	function fMatch(sSel,oObj){
+		if(sSel=="*"){
+			return true;
+		}
+		var o=oObj||this,m,prop,op,value;
+		//'Button[attr=value]'=>'[xtype=Button][attr=value]'
+		sSel=sSel.replace(/^([^\[]+)/,'[xtype="$1"]');
+		//循环检查
+		var r=/\[([^=|\!]+)(=|\!=)([^=]+)\]/g;
+		while(m=r.exec(sSel)){
+			prop=m[1];
+			//操作符：=|!=
+			op=m[2];
+			value=eval(m[3]);
+			if(op==="="?o[prop]!=value:o[prop]==value){
+				return false;
+			}
+		}
+		return true;
+	}
+	/**
+	 * 查找子元素或子视图
+	 * @method find
+	 * @param {string}sSel '$'开头表示查找视图，多个选择器间用","隔开('$sel1,$sel2,...')，语法类似jQuery，如：'$xtype[attr=value]'、'$ancestor descendant'、'$parent>child'，
+	 * 				'$>Button'表示仅查找当前子节点中的按钮，'$Button'表示查找所有后代节点中的按钮，
+	 * @param {Array=}aResult 用于存储结果集的数组
+	 * @return {jQuery|Array} 返回匹配的结果，如果没找到匹配的子视图则返回空数组
+	 */
+	function fFind(sSel,aResult){
+		var me=this;
+		//查找元素
+		if(sSel.indexOf('$')!=0){
+			return me.getEl().find(sSel);
+		}
+		var aResult=aResult||[];
+		//多个选择器
+		if(sSel.indexOf(",")>0){
+			$HO.each(sSel.split(","),function(i,val){
+				aResult=aResult.concat(me.find(val));
+			})
+			return aResult;
+		}
+		//查找视图
+		var bOnlyChildren=sSel.indexOf('>')==1;
+		var sCurSel=sSel.replace(/^\$>?\s?/,'');
+		//分割当前选择器及后代选择器
+		var nIndex=sCurSel.search(/\s|>/);
+		var sCurSel,sExtSel;
+		if(nIndex>0){
+			sExtSel=sCurSel.substring(nIndex);
+			sCurSel=sCurSel.substring(0,nIndex);
+		}
+		//匹配子视图
+		me.each(function(i,oChild){
+			var bMatch=oChild.match(sCurSel);
+			if(bMatch){
+				//已匹配所有表达式，加入结果集
+				if(!sExtSel){
+					aResult.push(oChild);
+				}else{
+					//还有未匹配的表达式，继续查找
+					oChild.find('$'+sExtSel,aResult);
+				}
+			}
+			if(!bOnlyChildren){
+				//如果不是仅限当前子节点，继续从后代开始查找
+				oChild.find(sSel,aResult);
+			}
+		});
+		return aResult;
+	}
+	/**
+	 * 查找祖先元素或祖先视图
+	 * @method parents
+	 * @param {string=}sSel 若此参数为空，直接返回最顶级祖先视图，'$'开头表示查找视图，如：'$xtype[attr=value]'
+	 * @return {jQuery|Component|null} 返回匹配的结果，如果没找到匹配的视图则返回null
+	 */
+	function fParents(sSel){
+		var me=this;
+		//查找元素
+		if(sSel&&sSel.indexOf('$')!=0){
+			return me.getEl().parents(sSel);
+		}
+		var oCurrent=me;
+		while(oCurrent.parent){
+			oCurrent=oCurrent.parent;
+			if(sSel&&me.match(sSel,oCurrent)){
+				return oCurrent;
+			}
+		}
+		return sSel||oCurrent===me?null:oCurrent;
+	}
+	/**
+	 * 获取本身的索引，如果没有父视图则返回null
+	 * @method index
+	 * @return {number} 返回对应的索引，如果没有父视图(也就没有索引)，返回null
+	 */
+	function fIndex(){
+		var me=this;
+		var oParent=me.parent;
+		if(!oParent){
+			return null;
+		}else{
+			var nIndex;
+			oParent.each(function(i,oItem){
+				if(oItem==me){
+					nIndex=i;
+					return false;
+				}
+			});
+			return nIndex;
+		}
+	}
+	/**
+	 * 调用子视图方法
+	 * @method callChild
+	 * @param {string=}sMethod 方法名，不传则使用调用者同名函数
+	 * @param {Array=}aArgs 参数数组
+	 */
+	function fCallChild(sMethod,aArgs){
+		var me=this;
+		if(me.children.length==0){
+			return;
+		}
+		//没传方法名
+		if(sMethod&&typeof sMethod!='string'){
+			aArgs=sMethod;
+			sMethod=null;
+		}
+		sMethod=sMethod||arguments.callee.caller.$name;
+		me.each(function(i,oChild){
+			if(aArgs){
+				oChild[sMethod].apply(oChild,aArgs);
+			}else{
+				oChild[sMethod].call(oChild);
+			}
+		});
+	}
+	/**
+	 * 添加子视图
+	 * @method add
+	 * @param {object}oItem 视图对象
+	 */
+	function fAdd(oItem){
+		var me=this;
+		me.children.push(oItem);
+		oItem.parent=me;
+	}
+	/**
+	 * 删除子视图
+	 * @method remove
+	 * @param {object}oItem 视图对象
+	 * @return {boolean} true表示删除成功
+	 */
+	function fRemove(oItem){
+		var me=this;
+		var aChildren=me.children;
+		var bResult=false;
+		for(var i=0,len=aChildren.length;i<len;i++){
+			if(aChildren[i]==oItem){
+				aChildren.splice(i,1);
+				oItem.destroy();
+				bResult=true;
+			}
+		}
+		return bResult;
+	}
+	/**
+	 * 添加子视图配置
+	 * @method addItem
+	 * @param {object}oItem 子视图配置
+	 */
+	function fAddItem(oItem){
+		var me=this;
+		var oSettings=me.settings;
+		var items=oSettings.items;
+		if(!items){
+			oSettings.items=[];
+		}else if(!$HO.isArray(items)){
+			oSettings.items=[items];
+		}
+		oSettings.items.push(oItem);
+	}
+	/**
+	 * 分析子视图列表
+	 * @method parseItems
+	 */
+	function fParseItems(){
+		var me=this;
+		var aItems=me.settings.items;
+		if(!aItems){
+			return;
+		}
+		aItems=aItems.length?aItems:[aItems];
+		//逐个初始化子视图
+		for(var i=0,len=aItems.length;i<len;i++){
+			var oItem=aItems[i];
+			//默认子视图配置
+			if(me.defItem){
+				$HO.extend(oItem,me.defItem,{notCover:true});
+			}
+			//具体视图类处理
+			me.parseItem(oItem);
+			var Item=me.manager.getClass(oItem.xtype);
+			if(Item){
+				if(!oItem.renderTo){
+					oItem.autoRender=false;
+				}
+				var oItem=new Item(oItem);
+				me.add(oItem);
+			}else{
+				$D.error("xtype:"+oItem.xtype+"未找到");
+			}
+		}
+	}
+	/**
+	 * 更新
+	 * @param {Object}oOptions
+	 */
+	function fUpdate(oOptions){
+		var me=this;
+		
 	}
 	/**
 	 * 销毁
@@ -487,10 +851,24 @@ $Define('cm.AbstractView',function(){
 		if(me.destroyed){
 			return false;
 		}
+		me.callChild();
+		
 		me.trigger('destroy');
 		me.clearListeners();
 		me.getEl().remove();
 		me.destroyed=true;
+		
+		if(me.parent){
+			me.parent.remove(me);
+		}
+		//注销组件
+		me.manager.unregister(me);
+		delete me.params;
+		delete me.settings;
+		delete me._container;
+		delete me.renderTo;
+		delete me._listeners;
+		delete me.children;
 	}
 	
 	return AbstractView;
