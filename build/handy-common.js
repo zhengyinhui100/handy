@@ -230,8 +230,10 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 		children            : [],                //子视图列表
 		_customEvents       : [                  //自定义事件,可以通过参数属性的方式直接进行添加
 			'beforeRender','render','afterRender',
-			'beforeShow','afterShow','hide',
-			'destroy'
+			'beforeShow','show','afterShow',
+			'beforeHide','hide','afterHide',
+			'beforeUpdate','update','afterUpdate',
+			'beforeDestroy','destroy','afterDestroy'
 		],  
 		_defaultEvents      : [                  //默认事件，可以通过参数属性的方式直接进行添加
 			'mousedown','mouseup','mouseover','mousemove','mouseenter','mouseleave',
@@ -257,9 +259,12 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 		beforeRender        : fBeforeRender,     //渲染前工作
 		render              : fRender,           //渲染
 		afterRender         : fAfterRender,      //渲染后续工作
-		hide                : fHide,             //隐藏
+		beforeShow          : fBeforeShow,       //显示前工作
 		show                : fShow,             //显示
 		afterShow           : fAfterShow,        //显示后工作
+		beforeHide          : fBeforeHide,       //隐藏前工作
+		hide                : fHide,             //隐藏
+		afterHide           : fAfterHide,        //隐藏后工作
 		enable              : fEnable,           //启用
 		disable             : fDisable,          //禁用
 		
@@ -283,8 +288,12 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 		parseItem           : function(){},      //分析子视图，由具体视图类实现
 		parseItems          : fParseItems,       //分析子视图列表
 		
+		beforeUpdate        : fBeforeUpdate,     //更新前工作
 		update              : fUpdate,           //更新
-		destroy             : fDestroy           //销毁
+		afterUpdate         : fAfterUpdate,      //更新后工作
+		beforeDestroy       : fBeforeDestroy,    //销毁前工作
+		destroy             : fDestroy,          //销毁
+		afterDestroy        : fAfterDestroy      //销毁后工作
 	});
 	/**
 	 * 扩展原型定义
@@ -322,11 +331,9 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 		me.manager=me.constructor.manager||$HO.getSingleton(ViewManager);
 		//初始化配置
 		me.doConfig(oParams);
-		me.beforeRender();
+		me.parseItems();
 		if(me.autoRender!=false){
 			me.render();
-			//渲染后续工作
-			me.afterRender();
 		}
 		//注册视图，各继承类自行实现
 		me.manager.register(me);
@@ -469,21 +476,25 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 	/**
 	 * 渲染前工作
 	 * @method beforeRender
+	 * @return {boolean=} 仅当返回false时阻止渲染
 	 */
 	function fBeforeRender(){
-		var me=this;
-		me.parseItems();
-		me.trigger('beforeRender');
+		return this.trigger('beforeRender');
 	}
 	/**
 	 * 渲染
 	 * @method render
+	 * @return {boolean=} 仅当没有成功渲染时返回false
 	 */
 	function fRender(){
 		var me=this;
+		if(me.beforeRender()==false){
+			return false;
+		}
 		me.trigger('render');
 		var sHtml=me.getHtml();
 		me.renderTo[me.renderBy](sHtml);
+		me.afterRender();
 	}
 	/**
 	 * 渲染后续工作
@@ -515,24 +526,11 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 		}
 	}
 	/**
-	 * 隐藏
-	 * @method hide
-	 * @return {boolean=} 仅当已经隐藏时返回false
+	 * 显示前工作
+	 * @return {boolean=} 仅当返回false时阻止显示
 	 */
-	function fHide(){
-		var me=this;
-		//已经隐藏，直接退回
-		if(!me.showed){
-			return false;
-		}
-		me.showed=false;
-		var oEl=me.getEl();
-		if(me.displayMode=='visibility'){
-			oEl.css({visibility:"hidden"})
-		}else{
-			oEl.hide();
-		}
-		me.trigger('hide');
+	function fBeforeShow(){
+		return this.trigger('beforeShow');
 	}
 	/**
 	 * 显示
@@ -543,14 +541,14 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 	 */
 	function fShow(bNotDelay,bParentCall){
 		var me=this;
-		//已经显示，直接退回
-		if(me.showed){
-			return false;
-		}
-		if(bParentCall&&me.hidden){
+		if(me.beforeShow()==false
+			//已经显示，直接退回
+			||me.showed
 			//设置了hidden=true的组件不随父组件显示而显示
+			||(bParentCall&&me.hidden)){
 			return false;
 		}
+		
 		if(!bNotDelay&&me.delayShow){
 			setTimeout(function(){
 				//这里必须指定基类的方法，不然会调用到组件自定义的show方法
@@ -558,7 +556,7 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 			},0);
 			return;
 		}
-		me.trigger('beforeShow');
+		me.trigger('show');
 		me.showed=true;
 		var oEl=me.getEl();
 		if(me.displayMode=='visibility'){
@@ -574,8 +572,42 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 	 * @method afterShow
 	 */
 	function fAfterShow(){
+		this.trigger('afterShow');
+	}
+	/**
+	 * 隐藏前工作
+	 * @return {boolean} 仅当返回false时阻止隐藏
+	 */
+	function fBeforeHide(){
+		return this.trigger('beforeHide');
+	}
+	/**
+	 * 隐藏
+	 * @method hide
+	 * @return {boolean=} 仅当没有成功隐藏时返回false
+	 */
+	function fHide(){
 		var me=this;
-		me.trigger('afterShow');
+		if(me.beforeHide()==false
+			//已经隐藏，直接退回
+			||!me.showed){
+			return false;
+		}
+		me.showed=false;
+		var oEl=me.getEl();
+		if(me.displayMode=='visibility'){
+			oEl.css({visibility:"hidden"})
+		}else{
+			oEl.hide();
+		}
+		me.trigger('hide');
+		me.afterHide();
+	}
+	/**
+	 * 隐藏后工作
+	 */
+	function fAfterHide(){
+		this.trigger('afterHide');
 	}
 	/**
 	 * 启用
@@ -1005,12 +1037,22 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 		}
 	}
 	/**
+	 * 更新前工作
+	 * @return {boolean=} 仅当返回false时阻止更新
+	 */
+	function fBeforeUpdate(){
+		return this.trigger('beforeUpdate');
+	}
+	/**
 	 * 更新
 	 * @param {Object}oOptions
-	 * @return {Object} 更新后的视图对象
+	 * @return {boolean|Object} 更新失败返回false，成功则返回更新后的视图对象
 	 */
 	function fUpdate(oOptions){
 		var me=this;
+		if(me.beforeUpdate()==false){
+			return false;
+		}
 		var oParent=me.parent;
 		//cid不同
 		oOptions=$HO.extend({
@@ -1038,16 +1080,32 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 			});
 		}
 		me.destroy();
+		me.trigger('update');
+		me.afterUpdate(oNew);
 		return oNew;
+	}
+	/**
+	 * 更新后工作
+	 * @param {Object} 更新后的视图对象
+	 */
+	function fAfterUpdate(oNew){
+		this.trigger('afterUpdate',oNew);
+	}
+	/**
+	 * 销毁前工作
+	 * @return {boolean=} 仅当返回false时阻止销毁
+	 */
+	function fBeforeDestroy(){
+		return this.trigger('beforeDestroy');
 	}
 	/**
 	 * 销毁
 	 * @method destroy
-	 * @return {boolean=}如果已经销毁了，则直接返回false
+	 * @return {boolean=} 如果没有顺利销毁，则直接返回false
 	 */
 	function fDestroy(){
 		var me=this;
-		if(me.destroyed){
+		if(me.beforeDestroy()==false||me.destroyed){
 			return false;
 		}
 		me.callChild();
@@ -1068,6 +1126,13 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 		delete me.renderTo;
 		delete me._listeners;
 		delete me.children;
+		me.afterDestroy();
+	}
+	/**
+	 * 销毁后工作
+	 */
+	function fAfterDestroy(){
+		this.trigger('afterDestroy');
 	}
 	
 	return AbstractView;
