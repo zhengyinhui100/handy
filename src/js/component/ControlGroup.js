@@ -5,9 +5,8 @@
  */
 
 $Define('C.ControlGroup',
-['C.ComponentManager',
-'C.AbstractComponent'],
-function(CM,AC){
+'C.AbstractComponent',
+function(AC){
 	
 	var ControlGroup=AC.define('ControlGroup');
 	
@@ -42,7 +41,7 @@ function(CM,AC){
 				handler : function(oEvt){
 					var me=this;
 					var oCurrentEl=$(oEvt.currentTarget);
-					var nIndex=CM.get(oCurrentEl.attr("id")).index();
+					var nIndex=$V.get(oCurrentEl.attr("id")).index();
 					me.onItemClick(oEvt,nIndex);
 				}
 			}

@@ -17,7 +17,7 @@ $Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
 	});
 	
 	//全局快捷别名
-	$VM=new ViewManager();
+	$V=$HO.getSingleton(ViewManager);
 	
 	/**
 	 * 初始化
@@ -42,8 +42,8 @@ $Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
 	 * @param {jQuery}oEl 指定的节点
 	 */
 	function fAfterRender(oEl){
-		this.eachInEl(oEl,function(oCmp){
-			oCmp.afterRender();
+		this.eachInEl(oEl,function(oView){
+			oView.afterRender();
 		});
 	}
 	/**
@@ -52,11 +52,11 @@ $Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
 	 * @param {jQuery}oRemoveEl 需要移除视图的节点
 	 */
 	function fDestroy(oRemoveEl){
-		this.eachInEl(oRemoveEl,function(oCmp){
-			oCmp.destroy(true);
+		this.eachInEl(oRemoveEl,function(oView){
+			oView.destroy(true);
 		});
 	}
 
-	return $VM;
+	return ViewManager;
 	
 });

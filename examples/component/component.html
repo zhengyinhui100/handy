@@ -218,7 +218,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,
 			}
 		})
 		
-		new ControlGroup({
+		var oControl=new ControlGroup({
 			renderTo:'#controlGroupDv',
 			direction:'h',
 			items:[{
@@ -231,6 +231,17 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,
 				xtype:'Button',
 				text:'按钮三'
 			}]
+		});
+		
+		$('#controlGroupDv').append("<br/>");
+		
+		new Button({
+			renderTo:'#controlGroupDv',
+			text:'更新第二个按钮',
+			click:function(){
+				var oBtn=oControl.children[1];
+				var oNew=oBtn.update({cid:'newBtn123',text:'新按钮'});
+			}
 		});
 		
 		//单选框
@@ -777,7 +788,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,
 	
 	$D.time(true,'组件初始化时间：');
 	var num=0;
-	$C.eachInEl($(document.body),function(){
+	$V.eachInEl($(document.body),function(){
 		num++;
 	})
 	$D.log('组件数目：'+num);

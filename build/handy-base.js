@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-17 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-18 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -609,6 +609,7 @@ handy.add('Object',function($H){
 		largeThan           : fLargeThan,       //是否大于另一个对象|数组（包含另一个对象的所有属性或包含另一个数组的所有元素）
 		count				: fCount,			//计算对象长度
 		toArray				: fToArray(),       //将类数组对象转换为数组，比如arguments, nodelist
+		getSingleton        : fGetSingleton,    //获取单例
 		generateMethod      : fGenerateMethod   //归纳生成类方法
 	}
 	/**
@@ -1129,6 +1130,20 @@ handy.add('Object',function($H){
     			return Array.prototype.slice.call(oParam,nStart||0,nEnd||oParam.length);
     		}
     	}
+    }
+    /**
+     * 获取单例
+     * @param {string|Class}clazz 类或者命名空间
+     * @return {Object} 返回单例对象
+     */
+    function fGetSingleton(clazz){
+    	var cClass;
+    	if(typeof clazz=='string'){
+    		cClass=Object.namespace(clazz);
+    	}else{
+    		cClass=clazz;
+    	}
+    	return cClass._singleton||(cClass._singleton=new cClass());
     }
     /**
     * 归纳生成类方法

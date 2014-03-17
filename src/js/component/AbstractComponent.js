@@ -4,12 +4,12 @@
  * @created 2013-12-28
  */
 //"handy.component.AbstractComponent"
-$Define('C.AbstractComponent',["C.ComponentManager",'CM.AbstractView'],function(CM,AbstractView){
+$Define('C.AbstractComponent',["CM.ViewManager",'CM.AbstractView'],function(ViewManager,AbstractView){
 	
 	var AC=$HO.createClass();
 	
 	//快捷别名
-	$C.AbstractComponent=AC;
+	$C=$H.component;
 	
 	$HO.inherit(AC,AbstractView,{
 		//实例属性、方法
@@ -65,8 +65,9 @@ $Define('C.AbstractComponent',["C.ComponentManager",'CM.AbstractView'],function(
 		$HO.inherit(Component,oSuper,null,null,{notCover:function(p){
 			return p == 'define';
 		}});
-		CM.registerType(sXtype,Component);
-		Component.manager=CM;
+		$HO.getSingleton(ViewManager).registerType(sXtype,Component);
+		//快捷别名
+		$C[sXtype]=Component;
 		return Component;
 	}
 	/**

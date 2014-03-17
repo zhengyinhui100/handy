@@ -1,5 +1,178 @@
-/* Handy v1.0.0-dev | 2014-03-17 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-18 | zhengyinhui100@gmail.com */
 /**
+ * 视图管理类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-01-10
+ */
+//"handy.common.AbstractManager"
+$Define("CM.AbstractManager", function() {
+
+	var AbstractManager = $HO.createClass();
+	
+	$HO.extend(AbstractManager.prototype, {
+	    _types        : {},               //存储类
+	    _all          : {},               //存储所有实例
+		type          : 'manager',        //被管理对象的类型，也用于生成标记被管理对象的class
+		registerType  : fRegisterType,    //注册视图类
+		getClass      : fGetClass,        //根据xtype获取视图类
+		register      : fRegister,        //注册视图
+		unregister    : fUnRegister,      //注销视图
+		eachInEl      : fEachInEl,        //循环指定节点里的被管理对象
+		generateId    : fGenerateId,      //生成视图的id
+		get           : fGet              //根据id或cid查找视图
+	});
+	
+	/**
+	 * 注册视图类型
+	 * @method registerType
+	 * @param {string}sXType 视图类型
+	 * @param {object}oClass 视图类
+	 */
+	function fRegisterType(sXtype,oClass){
+		var me=this;
+		me._types[sXtype]=oClass;
+		oClass.prototype.xtype=sXtype;
+	}
+	/**
+	 * 根据xtype获取视图类
+	 * @method getClass
+	 * @param {string}sXType 视图类型
+	 * @return {object} 返回对应的视图类
+	 */
+	function fGetClass(sXtype){
+		return this._types[sXtype];
+	}
+	/**
+	 * 注册视图
+	 * @method register
+	 * @param {object}oView 视图对象
+	 */
+	function fRegister(oView){
+		this._all[oView.getId()]=oView;
+	}
+	/**
+	 * 注销视图
+	 * @method unRegister
+	 * @param {object}oView 视图对象
+	 */
+	function fUnRegister(oView){
+		var oAll=this._all;
+		var sId=oView.getId();
+		//执行update时，如果id没有改变，这里不需要删除，因为已经新对象被覆盖了
+		if(oAll[sId]==oView){
+			delete oAll[sId];
+		}
+	}
+	/**
+	 * 遍历指定节点里的所有视图
+	 * @method eachInEl
+	 * @param {jQuery}oEl 指定的节点
+	 * @param {function(Component)}fCall
+	 */
+	function fEachInEl(oEl,fCall){
+		var me=this;
+		//获取视图el
+		var oItemEl=oEl.find(".js-"+me.type);
+		oItemEl.each(function(i,oEl){
+			oEl=$(oEl);
+			var sId=oEl.attr('id');
+			var oItem=me.get(sId);
+			//如果未被销毁，执行回调
+			if(oItem){
+				fCall(oItem);
+			}
+		})
+	}
+	/**
+	 * 生成视图的id
+	 * @method generateId
+	 * @param {string=}sCid cid
+	 * @param {boolean=}bNotChk 仅当为true时不检查id是否重复
+	 */
+	function fGenerateId(sCid,bNotChk){
+		var me=this;
+		var sId=$H.expando+"_"+me.type+"_"+(sCid||$H.Util.getUuid());
+		if(bNotChk!=true&&me._all[sId]){
+			$D.error('id重复:'+sId);
+		}else{
+			return sId;
+		}
+	}
+	/**
+	 * 根据id或cid查找视图
+	 * @method get
+	 * @param {string}sId 视图id或者cid
+	 */
+	function fGet(sId){
+		var me=this;
+		var all=me._all;
+		return all[sId]||all[me.generateId(sId,true)];
+	}
+
+	return AbstractManager;
+	
+});/**
+ * 视图管理类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-03-17
+ */
+//"handy.common.ViewManager"
+$Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
+
+	var ViewManager = $HO.createClass();
+
+	// 静态方法
+	$HO.inherit(ViewManager,AbstractManager,{
+		type          : 'view',           //管理类型
+		initialize    : fInitialize,      //初始化
+		afterRender   : fAfterRender,     //调用指定dom节点包含的视图的afterRender方法
+		destroy       : fDestroy          //销毁视图，主要用于删除元素时调用
+	});
+	
+	//全局快捷别名
+	$V=$HO.getSingleton(ViewManager);
+	
+	/**
+	 * 初始化
+	 * @method initialize
+	 */
+	function fInitialize(){
+		var me=this;
+		//监听afterRender自定义事件，调用相关视图的afterRender方法
+		$H.on("afterRender",function(oEl){
+			//调用包含的视图的afterRender方法
+			me.afterRender(oEl);
+		})
+		//监听removeEl自定义事件，jQuery的remove方法被拦截(base/adapt.js)，执行时先触发此事件
+		$H.on('removeEl',function(oEl){
+			//销毁包含的视图
+			me.destroy(oEl);
+		})
+	}
+	/**
+	 * 调用指定dom节点包含的视图的afterRender方法
+	 * @method afterRender
+	 * @param {jQuery}oEl 指定的节点
+	 */
+	function fAfterRender(oEl){
+		this.eachInEl(oEl,function(oView){
+			oView.afterRender();
+		});
+	}
+	/**
+	 * 销毁视图，主要用于删除元素时调用
+	 * @method destroy
+	 * @param {jQuery}oRemoveEl 需要移除视图的节点
+	 */
+	function fDestroy(oRemoveEl){
+		this.eachInEl(oRemoveEl,function(oView){
+			oView.destroy(true);
+		});
+	}
+
+	return ViewManager;
+	
+});/**
  * 抽象视图类
  * PS：注意，扩展视图类方法必须用本类的extend方法，扩展类的静态方法则可以使用$H.Object.extend方法，例如
  * var ExampleCmp=AbstractComponent.define('ExampleCmp');
@@ -146,7 +319,7 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 	 */
 	function fInitialize(oParams){
 		var me=this;
-		me.manager=me.constructor.manager||ViewManager;
+		me.manager=me.constructor.manager||$HO.getSingleton(ViewManager);
 		//初始化配置
 		me.doConfig(oParams);
 		me.beforeRender();
@@ -252,7 +425,7 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
  		}
  		var sHtml=me.initHtml();
 		var bHasCls=_oHasClsReg.test(sHtml);
-		var sExtCls=me.extCls+" ";
+		var sExtCls='js-'+me.manager.type+" "+me.extCls+" ";
 		if(bHasCls){
 			//添加class
 			sHtml=sHtml.replace(_oClsReg,'$1'+sExtCls);
@@ -834,10 +1007,38 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 	/**
 	 * 更新
 	 * @param {Object}oOptions
+	 * @return {Object} 更新后的视图对象
 	 */
 	function fUpdate(oOptions){
 		var me=this;
-		
+		var oParent=me.parent;
+		//cid不同
+		oOptions=$HO.extend({
+			renderBy:'before',
+			renderTo:me.getEl()
+		},oOptions);
+		if(oParent){
+			//继承默认配置
+			oOptions=$HO.extend(oParent.defItem,oOptions);
+			//具体视图类处理
+			oParent.parseItem(oOptions);
+		}
+		//不需要改变id/cid
+		if(!oOptions.cid||oOptions.cid==me.cid){
+			oOptions._id=me._id;
+		}
+		var oNew=new me.constructor(oOptions);
+		if(oParent){
+			oNew.parent=oParent;
+			oParent.each(function(i,oItem){
+				if(oItem==me){
+					oParent.children.splice(i,1,oNew);
+					return false;
+				}
+			});
+		}
+		me.destroy();
+		return oNew;
 	}
 	/**
 	 * 销毁
@@ -870,115 +1071,6 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 	}
 	
 	return AbstractView;
-	
-});/**
- * 组件管理类
- * @author 郑银辉(zhengyinhui100@gmail.com)
- * @created 2014-01-10
- */
-//"handy.component.ComponentManager"
-$Define("CM.AbstractManager", function() {
-
-	var AbstractManager = $HO.createClass();
-	
-	$HO.extend(AbstractManager.prototype, {
-	    _types        : {},               //存储类
-	    _all          : {},               //存储所有实例
-		type          : 'manager',        //被管理对象的类型，也用于生成标记被管理对象的class
-		registerType  : fRegisterType,    //注册组件类
-		getClass      : fGetClass,        //根据xtype获取组件类
-		register      : fRegister,        //注册组件
-		unregister    : fUnRegister,      //注销组件
-		eachInEl      : fEachInEl,        //循环指定节点里的被管理对象
-		generateId    : fGenerateId,      //生成组件的id
-		get           : fGet              //根据id或cid查找组件
-	});
-	
-	/**
-	 * 注册组件类型
-	 * @method registerType
-	 * @param {string}sXType 组件类型
-	 * @param {object}oClass 组件类
-	 */
-	function fRegisterType(sXtype,oClass){
-		var me=this;
-		me._types[sXtype]=oClass;
-		oClass.prototype.xtype=sXtype;
-		//快捷别名
-		me[sXtype]=oClass;
-	}
-	/**
-	 * 根据xtype获取组件类
-	 * @method getClass
-	 * @param {string}sXType 组件类型
-	 * @return {object} 返回对应的组件类
-	 */
-	function fGetClass(sXtype){
-		return this._types[sXtype];
-	}
-	/**
-	 * 注册组件
-	 * @method register
-	 * @param {object}oComponent 组件对象
-	 */
-	function fRegister(oComponent){
-		this._all[oComponent.getId()]=oComponent;
-	}
-	/**
-	 * 注销组件
-	 * @method unRegister
-	 * @param {object}oComponent 组件对象
-	 */
-	function fUnRegister(oComponent){
-		delete this._all[oComponent.getId()];
-	}
-	/**
-	 * 遍历指定节点里的所有组件
-	 * @method eachInEl
-	 * @param {jQuery}oEl 指定的节点
-	 * @param {function(Component)}fCall
-	 */
-	function fEachInEl(oEl,fCall){
-		var me=this;
-		//获取组件el
-		var oItemEl=oEl.find(".js-"+me.type);
-		oItemEl.each(function(i,oEl){
-			oEl=$(oEl);
-			var sId=oEl.attr('id');
-			var oItem=me.get(sId);
-			//如果未被销毁，执行回调
-			if(oItem){
-				fCall(oItem);
-			}
-		})
-	}
-	/**
-	 * 生成组件的id
-	 * @method generateId
-	 * @param {string=}sCid cid
-	 * @param {boolean=}bNotChk 仅当为true时不检查id是否重复
-	 */
-	function fGenerateId(sCid,bNotChk){
-		var me=this;
-		var sId=$H.expando+"_"+me.type+"_"+(sCid||$H.Util.getUuid());
-		if(bNotChk!=true&&me._all[sId]){
-			$D.error('id重复:'+sId);
-		}else{
-			return sId;
-		}
-	}
-	/**
-	 * 根据id或cid查找组件
-	 * @method get
-	 * @param {string}sId 组件id或者cid
-	 */
-	function fGet(sId){
-		var me=this;
-		var all=me._all;
-		return all[sId]||all[me.generateId(sId,true)];
-	}
-
-	return AbstractManager;
 	
 });/**
  * 模型类

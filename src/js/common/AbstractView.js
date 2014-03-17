@@ -145,7 +145,7 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 	 */
 	function fInitialize(oParams){
 		var me=this;
-		me.manager=me.constructor.manager||ViewManager;
+		me.manager=me.constructor.manager||$HO.getSingleton(ViewManager);
 		//初始化配置
 		me.doConfig(oParams);
 		me.beforeRender();
@@ -251,7 +251,7 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
  		}
  		var sHtml=me.initHtml();
 		var bHasCls=_oHasClsReg.test(sHtml);
-		var sExtCls=me.extCls+" ";
+		var sExtCls='js-'+me.manager.type+" "+me.extCls+" ";
 		if(bHasCls){
 			//添加class
 			sHtml=sHtml.replace(_oClsReg,'$1'+sExtCls);
@@ -833,10 +833,38 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 	/**
 	 * 更新
 	 * @param {Object}oOptions
+	 * @return {Object} 更新后的视图对象
 	 */
 	function fUpdate(oOptions){
 		var me=this;
-		
+		var oParent=me.parent;
+		//cid不同
+		oOptions=$HO.extend({
+			renderBy:'before',
+			renderTo:me.getEl()
+		},oOptions);
+		if(oParent){
+			//继承默认配置
+			oOptions=$HO.extend(oParent.defItem,oOptions);
+			//具体视图类处理
+			oParent.parseItem(oOptions);
+		}
+		//不需要改变id/cid
+		if(!oOptions.cid||oOptions.cid==me.cid){
+			oOptions._id=me._id;
+		}
+		var oNew=new me.constructor(oOptions);
+		if(oParent){
+			oNew.parent=oParent;
+			oParent.each(function(i,oItem){
+				if(oItem==me){
+					oParent.children.splice(i,1,oNew);
+					return false;
+				}
+			});
+		}
+		me.destroy();
+		return oNew;
 	}
 	/**
 	 * 销毁

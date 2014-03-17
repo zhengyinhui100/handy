@@ -1,77 +1,16 @@
-/* Handy v1.0.0-dev | 2014-03-17 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-18 | zhengyinhui100@gmail.com */
 /**
- * 组件管理类
- * @author 郑银辉(zhengyinhui100@gmail.com)
- * @created 2014-01-10
- */
-//"handy.component.ComponentManager"
-$Define("C.ComponentManager", 'CM.AbstractManager',function(AbstractManager) {
-
-	var CM = $HO.createClass();
-
-	// 静态方法
-	$HO.inherit(CM,AbstractManager,{
-		type          : 'component',      //管理类型
-		initialize    : fInitialize,      //初始化
-		afterRender   : fAfterRender,     //调用指定dom节点包含的组件的afterRender方法
-		destroy       : fDestroy          //销毁组件，主要用于删除元素时调用
-	});
-	
-	//全局快捷别名
-	$C=new CM();
-	
-	/**
-	 * 初始化
-	 * @method initialize
-	 */
-	function fInitialize(){
-		var me=this;
-		//监听afterRender自定义事件，调用相关组件的afterRender方法
-		$H.on("afterRender",function(oEl){
-			//调用包含的组件的afterRender方法
-			me.afterRender(oEl);
-		})
-		//监听removeEl自定义事件，jQuery的remove方法被拦截(base/adapt.js)，执行时先触发此事件
-		$H.on('removeEl',function(oEl){
-			//销毁包含的组件
-			me.destroy(oEl);
-		})
-	}
-	/**
-	 * 调用指定dom节点包含的组件的afterRender方法
-	 * @method afterRender
-	 * @param {jQuery}oEl 指定的节点
-	 */
-	function fAfterRender(oEl){
-		this.eachInEl(oEl,function(oCmp){
-			oCmp.afterRender();
-		});
-	}
-	/**
-	 * 销毁组件，主要用于删除元素时调用
-	 * @method destroy
-	 * @param {jQuery}oRemoveEl 需要移除组件的节点
-	 */
-	function fDestroy(oRemoveEl){
-		this.eachInEl(oRemoveEl,function(oCmp){
-			oCmp.destroy(true);
-		});
-	}
-
-	return $C;
-	
-});/**
  * 组件基类，所有组件必须继承自此类或此类的子类，定义组件必须用AbstractComponent.define方法
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2013-12-28
  */
 //"handy.component.AbstractComponent"
-$Define('C.AbstractComponent',["C.ComponentManager",'CM.AbstractView'],function(CM,AbstractView){
+$Define('C.AbstractComponent',["CM.ViewManager",'CM.AbstractView'],function(ViewManager,AbstractView){
 	
 	var AC=$HO.createClass();
 	
 	//快捷别名
-	$C.AbstractComponent=AC;
+	$C=$H.component;
 	
 	$HO.inherit(AC,AbstractView,{
 		//实例属性、方法
@@ -127,8 +66,9 @@ $Define('C.AbstractComponent',["C.ComponentManager",'CM.AbstractView'],function(
 		$HO.inherit(Component,oSuper,null,null,{notCover:function(p){
 			return p == 'define';
 		}});
-		CM.registerType(sXtype,Component);
-		Component.manager=CM;
+		$HO.getSingleton(ViewManager).registerType(sXtype,Component);
+		//快捷别名
+		$C[sXtype]=Component;
 		return Component;
 	}
 	/**
@@ -499,9 +439,8 @@ function(AC){
  */
 
 $Define('C.ControlGroup',
-['C.ComponentManager',
-'C.AbstractComponent'],
-function(CM,AC){
+'C.AbstractComponent',
+function(AC){
 	
 	var ControlGroup=AC.define('ControlGroup');
 	
@@ -536,7 +475,7 @@ function(CM,AC){
 				handler : function(oEvt){
 					var me=this;
 					var oCurrentEl=$(oEvt.currentTarget);
-					var nIndex=CM.get(oCurrentEl.attr("id")).index();
+					var nIndex=$V.get(oCurrentEl.attr("id")).index();
 					me.onItemClick(oEvt,nIndex);
 				}
 			}
