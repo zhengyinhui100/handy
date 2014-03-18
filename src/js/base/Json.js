@@ -12,19 +12,13 @@ handy.add('Json',function($H){
 	}
 	
 	var _bNativeJson='JSON' in window,
-        _rEscapable, //匹配控制符、引号、反斜杠等不能在引号内的内容
-        _oMeta,      //不合法字符替换表
         _replacer,   //替换参数
         gap,         //
         _indent,     //缩进
-	 	_rCx,
-	 	_rValidchars,
-	    _rValidescape,
-	    _rValidtokens,
-	    _rValidbraces;          //
-    if(!_bNativeJson){
+        
+        //在一些特殊情况原生方法会出错，所以这里不管JSON是否有原生方法，都声明以下变量，以便后续可以强制使用自定义方法转换
 		//匹配控制符、引号、反斜杠等不能在引号内的内容
-		_rEscapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+		_rEscapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
 	    //不合法字符替换表
 		_oMeta = {
 	        '\b': '\\b',
@@ -34,13 +28,12 @@ handy.add('Json',function($H){
 	        '\r': '\\r',
 	        '"' : '\\"',
 	        '\\': '\\\\'
-	    };
-	    _rCx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
-	    _rValidchars = /^[\],:{}\s]*$/;
-	    _rValidescape = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
-	    _rValidtokens = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
+	    },
+	    _rCx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
+	    _rValidchars = /^[\],:{}\s]*$/,
+	    _rValidescape = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g,
+	    _rValidtokens = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,
 	    _rValidbraces = /(?:^|:|,)(?:\s*\[)+/g;
-    }
 	
     /**
      * 在字符串两端添加引号
@@ -149,10 +142,11 @@ handy.add('Json',function($H){
      * @param {*}value 参数对象
      * @param {function(key,value)|Array}replacer 如果是函数，第一个参数为，返回
      * @param {string|number}space 间隔符，可以更好的可视化结果，如果是数字，则间隔符为指定个数的空格
+     * @param {boolean=}bNotNative true表示强制不使用原生的JSON方法，在一些特殊情况原生方法会出错(如：space="&nbsp;")
      * @return {string} 返回序列化的字符串
      */
-	function fStringify(value, replacer, space) {
-		if(_bNativeJson){
+	function fStringify(value, replacer, space , bNotNative) {
+		if(_bNativeJson&&!bNotNative){
 			return JSON.stringify.apply(null,arguments);
 		}
         var i;
@@ -185,10 +179,11 @@ handy.add('Json',function($H){
      * 						如果 reviver 返回一个有效值，则成员值将替换为转换后的值。
      * 						如果 reviver 返回它接收的相同值，则不修改成员值。
      * 						如果 reviver 返回 null 或 undefined，则删除成员。
+     * @param {boolean=}bNotNative true表示强制不使用原生的JSON方法
      * @return {Object} 返回json对象
      */
-	function fParse(sText, fReviver) {
-		if(_bNativeJson){
+	function fParse(sText, fReviver,bNotNative) {
+		if(_bNativeJson&&!bNotNative){
 			return JSON.parse.apply(null,arguments);
 		}
         var j;
