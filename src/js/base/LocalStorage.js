@@ -4,25 +4,27 @@
  */
 handy.add('LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Events,Json,$H){
 	
-	var LS={
-		init            : fInit,
+	var LocalStorage={
+		_init           : _fInit,              //初始化
 		getItem         : fGetItem,            //获取值
 		setItem         : fSetItem,            //设置值
-		removeItem      : fRemoveItem          //删除值
+		removeItem      : fRemoveItem,         //删除值
+		clear           : fClear               //清除所有数据
 	}
 	
 	//在IE下，本地文件是不能访问localStorage的，此时localStorage字段为空，
 	//另外，页面里有id为localStorage的元素，某些浏览器可以通过window.localStorage索引到这个元素，所以还要加上判断
 	var _supportLocalStorage= window.localStorage && window.localStorage.getItem;
+	var localStorage=window.localStorage;
 	//ie7-下保存数据的对象
 	var _oUserData;
 	var _file=document.domain;
+	var _typeSplit='$$:';
 	
 	/**
 	 * 初始化
-	 * @method init
 	 */
-	 function fInit() {
+	 function _fInit() {
 		if (!_supportLocalStorage&&Browser.ie()) {
 			var sId='LocalStorageUserDataDiv';
 			_oUserData = document.getElementById(sId);
@@ -32,44 +34,43 @@ handy.add('LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Even
 				_oUserData.id = sId;
 				_oUserData.addBehavior('#default#userData');
 				document.body.appendChild(_oUserData);
+		 		_oUserData.load(_file);
 			}
 		}
 	}
 	/**
 	 * 获取值
-	 * @method getItem
 	 * @param {string}sKey 键
 	 * @return {*} 返回对应值
 	 */
 	 function fGetItem(sKey){
+	 	var value;
 	 	if(_supportLocalStorage){
-	 		return localStorage[sKey];
+	 		value=localStorage.getItem(sKey);
 	 	}else{
-	 		_oUserData.load(_file);
-			return _oUserData.getAttribute(sKey);
+			value=_oUserData.getAttribute(sKey);
 	 	}
+	 	value=Json.parse(value);
+	 	return value;
 	 }
 	 /**
 	 * 设置值
-	 * @method setItem
 	 * @param {string}sKey 键
 	 * @param {*}value 值
 	 * @return {boolean} true表示存储成功
 	 */
 	 function fSetItem(sKey,value){
 		//ie6、7可以提供最多1024kb的空间，LocalStorage一般可以存储5~10M
+	 	value=Json.stringify(value);
 	 	try{
 		 	if(_supportLocalStorage){
-		 		if(typeof value=="object"){
-		 			value=Json.stringify(value);
-		 		}
-		 		localStorage(sKey,value);
+		 		localStorage.setItem(sKey,value);
 		 	}else{
 				_oUserData.setAttribute(sKey,value);
 				_oUserData.save(_file);
 		 	}
  		}catch(e){
- 			$D.error('localstorage error',e);
+ 			$D.error(e);
  			return false;
  		}
  		return true;
@@ -83,11 +84,22 @@ handy.add('LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Even
 	 	if(_supportLocalStorage){
 	 		localStorage.removeItem(sKey);
 	 	}else{
-	 		LS.setItem(sKey,"");
+	 		_oUserData.removeAttribute(sKey);
+			_oUserData.save(_file);
+	 	}
+	 }
+	 /**
+	  * 清除所有数据
+	  */
+	 function fClear(){
+	 	if(_supportLocalStorage){
+	 		localStorage.clear();
+	 	}else{
+	 		_oUserData.unload();
 	 	}
 	 }
 	
-	 LS.init();
+	 LocalStorage._init();
 	 
-	 return LS;
+	 return LocalStorage;
 })
