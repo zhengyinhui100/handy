@@ -290,7 +290,7 @@ handy.add('Object',function($H){
             try{
                 oParent._onInherit(oChild);
             }catch(e){
-            	$H.Debug.error("_onInherit error",e);
+            	$H.Debug.error(e);
             }
         }
         //扩展静态属性

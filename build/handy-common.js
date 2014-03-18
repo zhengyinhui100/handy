@@ -1578,8 +1578,7 @@ function(){
         $H.Util.result(me, 'urlRoot') ||
         $H.Util.result(me.collection, 'url');
         if(!sUrl){
-        	var sMsg='必须设置一个url属性或者函数';
-        	$D.error(sMsg,new Error(sMsg));
+        	$D.error(new Error('必须设置一个url属性或者函数'));
         }
         if (me.isNew()){
         	return sUrl;
@@ -2108,8 +2107,7 @@ function(Model){
     function fSort(oOptions) {
     	var me=this;
         if (!me.comparator){
-        	var sMsg='没有比较器';
-        	$D.error(sMsg,new Error(sMsg));
+        	$D.error(new Error('没有比较器'));
         }
         oOptions || (oOptions = {});
 

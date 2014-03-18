@@ -180,7 +180,7 @@ function(Debug,Object,Function,$H){
 	
 	    //超时处理
 	    var nTimer = setTimeout(function() {
-	      Debug.error('Time is out:', eNode.src);
+	      Debug.error('Time is out:'+ eNode.src);
 	      _fCallback();
 	    }, Loader.timeout);
 	

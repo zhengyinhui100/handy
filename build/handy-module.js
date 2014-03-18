@@ -193,7 +193,7 @@ function(HashChange){
 	 */
 	function fSaveHash(param){
 		//这里主动设置之后还会触发hashchange，不能在hashchange里添加set方法屏蔽此次change，因为可能不止一个地方需要hashchange事件
-		$HU.setHash("#"+JSON.stringify(param));
+		$HU.setHash("#"+$H.Json.stringify(param));
 	}
 	/**
 	 * 获取当前hash参数
@@ -204,7 +204,7 @@ function(HashChange){
 		var me=this;
 		try{
 			var sHash=$HU.getHash().replace("#","");
-			var oHashParam=JSON.parse(sHash);
+			var oHashParam=$H.Json.parse(sHash);
 			return oHashParam;
 		}catch(e){
 			$H.Debug.warn("History.getCurrentState:parse hash error:"+e.message);

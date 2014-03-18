@@ -89,498 +89,239 @@
 		return handy;
 	}
 	
-})()/*
-    json2.js
-    2011-10-19
-
-    Public Domain.
-
-    NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
-
-    See http://www.JSON.org/js.html
-
-
-    This code should be minified before deployment.
-    See http://javascript.crockford.com/jsmin.html
-
-    USE YOUR OWN COPY. IT IS EXTREMELY UNWISE TO LOAD CODE FROM SERVERS YOU DO
-    NOT CONTROL.
-
-
-    This file creates a global JSON object containing two methods: stringify
-    and parse.
-
-        JSON.stringify(value, replacer, space)
-            value       any JavaScript value, usually an object or array.
-
-            replacer    an optional parameter that determines how object
-                        values are stringified for objects. It can be a
-                        function or an array of strings.
-
-            space       an optional parameter that specifies the indentation
-                        of nested structures. If it is omitted, the text will
-                        be packed without extra whitespace. If it is a number,
-                        it will specify the number of spaces to indent at each
-                        level. If it is a string (such as '\t' or '&nbsp;'),
-                        it contains the characters used to indent at each level.
-
-            This method produces a JSON text from a JavaScript value.
-
-            When an object value is found, if the object contains a toJSON
-            method, its toJSON method will be called and the result will be
-            stringified. A toJSON method does not serialize: it returns the
-            value represented by the name/value pair that should be serialized,
-            or undefined if nothing should be serialized. The toJSON method
-            will be passed the key associated with the value, and this will be
-            bound to the value
-
-            For example, this would serialize Dates as ISO strings.
-
-                Date.prototype.toJSON = function (key) {
-                    function f(n) {
-                        // Format integers to have at least two digits.
-                        return n < 10 ? '0' + n : n;
-                    }
-
-                    return this.getUTCFullYear()   + '-' +
-                         f(this.getUTCMonth() + 1) + '-' +
-                         f(this.getUTCDate())      + 'T' +
-                         f(this.getUTCHours())     + ':' +
-                         f(this.getUTCMinutes())   + ':' +
-                         f(this.getUTCSeconds())   + 'Z';
-                };
-
-            You can provide an optional replacer method. It will be passed the
-            key and value of each member, with this bound to the containing
-            object. The value that is returned from your method will be
-            serialized. If your method returns undefined, then the member will
-            be excluded from the serialization.
-
-            If the replacer parameter is an array of strings, then it will be
-            used to select the members to be serialized. It filters the results
-            such that only members with keys listed in the replacer array are
-            stringified.
-
-            Values that do not have JSON representations, such as undefined or
-            functions, will not be serialized. Such values in objects will be
-            dropped; in arrays they will be replaced with null. You can use
-            a replacer function to replace those with JSON values.
-            JSON.stringify(undefined) returns undefined.
-
-            The optional space parameter produces a stringification of the
-            value that is filled with line breaks and indentation to make it
-            easier to read.
-
-            If the space parameter is a non-empty string, then that string will
-            be used for indentation. If the space parameter is a number, then
-            the indentation will be that many spaces.
-
-            Example:
-
-            text = JSON.stringify(['e', {pluribus: 'unum'}]);
-            // text is '["e",{"pluribus":"unum"}]'
-
-
-            text = JSON.stringify(['e', {pluribus: 'unum'}], null, '\t');
-            // text is '[\n\t"e",\n\t{\n\t\t"pluribus": "unum"\n\t}\n]'
-
-            text = JSON.stringify([new Date()], function (key, value) {
-                return this[key] instanceof Date ?
-                    'Date(' + this[key] + ')' : value;
-            });
-            // text is '["Date(---current time---)"]'
-
-
-        JSON.parse(text, reviver)
-            This method parses a JSON text to produce an object or array.
-            It can throw a SyntaxError exception.
-
-            The optional reviver parameter is a function that can filter and
-            transform the results. It receives each of the keys and values,
-            and its return value is used instead of the original value.
-            If it returns what it received, then the structure is not modified.
-            If it returns undefined then the member is deleted.
-
-            Example:
-
-            // Parse the text. Values that look like ISO date strings will
-            // be converted to Date objects.
-
-            myData = JSON.parse(text, function (key, value) {
-                var a;
-                if (typeof value === 'string') {
-                    a =
-/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/.exec(value);
-                    if (a) {
-                        return new Date(Date.UTC(+a[1], +a[2] - 1, +a[3], +a[4],
-                            +a[5], +a[6]));
-                    }
-                }
-                return value;
-            });
-
-            myData = JSON.parse('["Date(09/09/2001)"]', function (key, value) {
-                var d;
-                if (typeof value === 'string' &&
-                        value.slice(0, 5) === 'Date(' &&
-                        value.slice(-1) === ')') {
-                    d = new Date(value.slice(5, -1));
-                    if (d) {
-                        return d;
-                    }
-                }
-                return value;
-            });
-
-
-    This is a reference implementation. You are free to copy, modify, or
-    redistribute.
-*/
-
-/*jslint evil: true, regexp: true */
-
-/*members "", "\b", "\t", "\n", "\f", "\r", "\"", JSON, "\\", apply,
-    call, charCodeAt, getUTCDate, getUTCFullYear, getUTCHours,
-    getUTCMinutes, getUTCMonth, getUTCSeconds, hasOwnProperty, join,
-    lastIndex, length, parse, prototype, push, replace, slice, stringify,
-    test, toJSON, toString, valueOf
-*/
-
-
-// Create a JSON object only if one does not already exist. We create the
-// methods in a closure to avoid creating global variables.
-handy.add('Json',function(){
-	var JSON;
-	if (!JSON) {
-	    JSON = {};
+})()/**
+ * Json类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+ //参考：https://github.com/douglascrockford/JSON-js/blob/master/json2.js
+ //https://developer.mozilla.org/zh-CN/docs/JavaScript/Reference/Global_Objects/JSON
+handy.add('Json',function($H){
+	
+	var Json={
+		stringify   : fStringify,    //序列化，将json对象转化为字符串
+		parse       : fParse         //将字符串转化为json对象
 	}
 	
-	(function () {
-	    'use strict';
+	var _bNativeJson='JSON' in window,
+        _rEscapable, //匹配控制符、引号、反斜杠等不能在引号内的内容
+        _oMeta,      //不合法字符替换表
+        _replacer,   //替换参数
+        gap,         //
+        _indent,     //缩进
+	 	_rCx,
+	 	_rValidchars,
+	    _rValidescape,
+	    _rValidtokens,
+	    _rValidbraces;          //
+    if(_bNativeJson){
+		//匹配控制符、引号、反斜杠等不能在引号内的内容
+		_rEscapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+	    //不合法字符替换表
+		_oMeta = {
+	        '\b': '\\b',
+	        '\t': '\\t',
+	        '\n': '\\n',
+	        '\f': '\\f',
+	        '\r': '\\r',
+	        '"' : '\\"',
+	        '\\': '\\\\'
+	    };
+	    _rCx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+	    _rValidchars = /^[\],:{}\s]*$/;
+	    _rValidescape = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
+	    _rValidtokens = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
+	    _rValidbraces = /(?:^|:|,)(?:\s*\[)+/g;
+    }
 	
-	    function f(n) {
-	        // Format integers to have at least two digits.
-	        return n < 10 ? '0' + n : n;
-	    }
-	
-	    if (typeof Date.prototype.toJSON !== 'function') {
-	
-	        Date.prototype.toJSON = function (key) {
-	
-	            return isFinite(this.valueOf())
-	                ? this.getUTCFullYear()     + '-' +
-	                    f(this.getUTCMonth() + 1) + '-' +
-	                    f(this.getUTCDate())      + 'T' +
-	                    f(this.getUTCHours())     + ':' +
-	                    f(this.getUTCMinutes())   + ':' +
-	                    f(this.getUTCSeconds())   + 'Z'
-	                : null;
-	        };
-	
-	        String.prototype.toJSON      =
-	            Number.prototype.toJSON  =
-	            Boolean.prototype.toJSON = function (key) {
-	                return this.valueOf();
-	            };
-	    }
-	
-	    var cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
-	        escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
-	        gap,
-	        indent,
-	        meta = {    // table of character substitutions
-	            '\b': '\\b',
-	            '\t': '\\t',
-	            '\n': '\\n',
-	            '\f': '\\f',
-	            '\r': '\\r',
-	            '"' : '\\"',
-	            '\\': '\\\\'
-	        },
-	        rep;
-	
-	
-	    function quote(string) {
-	
-	// If the string contains no control characters, no quote characters, and no
-	// backslash characters, then we can safely slap some quotes around it.
-	// Otherwise we must also replace the offending characters with safe escape
-	// sequences.
-	
-	        escapable.lastIndex = 0;
-	        return escapable.test(string) ? '"' + string.replace(escapable, function (a) {
-	            var c = meta[a];
-	            return typeof c === 'string'
-	                ? c
+    /**
+     * 在字符串两端添加引号
+     * @param {string}sStr 参数字符串
+     * @param {string} 返回添加好引号的结果
+     */
+    function _fQuote(sStr) {
+		//每次执行须重置查找索引
+        _rEscapable.lastIndex = 0;
+        if(_rEscapable.test(sStr)){
+        	//替换不能直接加引号的内容(控制符、引号、反斜杠)
+        	sStr= sStr.replace(_rEscapable, function (a) {
+	            var c = _oMeta[a];
+	            return typeof c === 'string'? c
 	                : '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
-	        }) + '"' : '"' + string + '"';
-	    }
-	
-	
-	    function str(key, holder) {
-	
-	// Produce a string from holder[key].
-	
-	        var i,          // The loop counter.
-	            k,          // The member key.
-	            v,          // The member value.
-	            length,
-	            mind = gap,
-	            partial,
-	            value = holder[key];
-	
-	// If the value has a toJSON method, call it to obtain a replacement value.
-	
-	        if (value && typeof value === 'object' &&
-	                typeof value.toJSON === 'function') {
-	            value = value.toJSON(key);
-	        }
-	
-	// If we were called with a replacer function, then call the replacer to
-	// obtain a replacement value.
-	
-	        if (typeof rep === 'function') {
-	            value = rep.call(holder, key, value);
-	        }
-	
-	// What happens next depends on the value's type.
-	
-	        switch (typeof value) {
-	        case 'string':
-	            return quote(value);
-	
-	        case 'number':
-	
-	// JSON numbers must be finite. Encode non-finite numbers as null.
-	
-	            return isFinite(value) ? String(value) : 'null';
-	
-	        case 'boolean':
-	        case 'null':
-	
-	// If the value is a boolean or null, convert it to a string. Note:
-	// typeof null does not produce 'null'. The case is included here in
-	// the remote chance that this gets fixed someday.
-	
-	            return String(value);
-	
-	// If the type is 'object', we might be dealing with an object or an array or
-	// null.
-	
-	        case 'object':
-	
-	// Due to a specification blunder in ECMAScript, typeof null is 'object',
-	// so watch out for that case.
-	
-	            if (!value) {
-	                return 'null';
-	            }
-	
-	// Make an array to hold the partial results of stringifying this object value.
-	
-	            gap += indent;
-	            partial = [];
-	
-	// Is the value an array?
-	
-	            if (Object.prototype.toString.apply(value) === '[object Array]') {
-	
-	// The value is an array. Stringify every element. Use null as a placeholder
-	// for non-JSON values.
-	
-	                length = value.length;
-	                for (i = 0; i < length; i += 1) {
-	                    partial[i] = str(i, value) || 'null';
-	                }
-	
-	// Join all of the elements together, separated with commas, and wrap them in
-	// brackets.
-	
-	                v = partial.length === 0
-	                    ? '[]'
-	                    : gap
-	                    ? '[\n' + gap + partial.join(',\n' + gap) + '\n' + mind + ']'
-	                    : '[' + partial.join(',') + ']';
-	                gap = mind;
-	                return v;
-	            }
-	
-	// If the replacer is an array, use it to select the members to be stringified.
-	
-	            if (rep && typeof rep === 'object') {
-	                length = rep.length;
-	                for (i = 0; i < length; i += 1) {
-	                    if (typeof rep[i] === 'string') {
-	                        k = rep[i];
-	                        v = str(k, value);
-	                        if (v) {
-	                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
-	                        }
-	                    }
-	                }
-	            } else {
-	
-	// Otherwise, iterate through all of the keys in the object.
-	
-	                for (k in value) {
-	                    if (Object.prototype.hasOwnProperty.call(value, k)) {
-	                        v = str(k, value);
-	                        if (v) {
-	                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
-	                        }
-	                    }
-	                }
-	            }
-	
-	// Join all of the member texts together, separated with commas,
-	// and wrap them in braces.
-	
-	            v = partial.length === 0
-	                ? '{}'
-	                : gap
-	                ? '{\n' + gap + partial.join(',\n' + gap) + '\n' + mind + '}'
-	                : '{' + partial.join(',') + '}';
-	            gap = mind;
-	            return v;
-	        }
-	    }
-	
-	// If the JSON object does not yet have a stringify method, give it one.
-	
-	    if (typeof JSON.stringify !== 'function') {
-	        JSON.stringify = function (value, replacer, space) {
-	
-	// The stringify method takes a value and an optional replacer, and an optional
-	// space parameter, and returns a JSON text. The replacer can be a function
-	// that can replace values, or an array of strings that will select the keys.
-	// A default replacer method can be provided. Use of the space parameter can
-	// produce text that is more easily readable.
-	
-	            var i;
-	            gap = '';
-	            indent = '';
-	
-	// If the space parameter is a number, make an indent string containing that
-	// many spaces.
-	
-	            if (typeof space === 'number') {
-	                for (i = 0; i < space; i += 1) {
-	                    indent += ' ';
-	                }
-	
-	// If the space parameter is a string, it will be used as the indent string.
-	
-	            } else if (typeof space === 'string') {
-	                indent = space;
-	            }
-	
-	// If there is a replacer, it must be a function or an array.
-	// Otherwise, throw an error.
-	
-	            rep = replacer;
-	            if (replacer && typeof replacer !== 'function' &&
-	                    (typeof replacer !== 'object' ||
-	                    typeof replacer.length !== 'number')) {
-	                throw new Error('JSON.stringify');
-	            }
-	
-	// Make a fake root object containing our value under the key of ''.
-	// Return the result of stringifying the value.
-	
-	            return str('', {'': value});
-	        };
-	    }
-	
-	
-	// If the JSON object does not yet have a parse method, give it one.
-	
-	    if (typeof JSON.parse !== 'function') {
-	        JSON.parse = function (text, reviver) {
-	
-	// The parse method takes a text and an optional reviver function, and returns
-	// a JavaScript value if the text is a valid JSON text.
-	
-	            var j;
-	
-	            function walk(holder, key) {
-	
-	// The walk method is used to recursively walk the resulting structure so
-	// that modifications can be made.
-	
-	                var k, v, value = holder[key];
-	                if (value && typeof value === 'object') {
-	                    for (k in value) {
-	                        if (Object.prototype.hasOwnProperty.call(value, k)) {
-	                            v = walk(value, k);
-	                            if (v !== undefined) {
-	                                value[k] = v;
-	                            } else {
-	                                delete value[k];
-	                            }
-	                        }
-	                    }
-	                }
-	                return reviver.call(holder, key, value);
-	            }
-	
-	
-	// Parsing happens in four stages. In the first stage, we replace certain
-	// Unicode characters with escape sequences. JavaScript handles many characters
-	// incorrectly, either silently deleting them, or treating them as line endings.
-	
-	            text = String(text);
-	            cx.lastIndex = 0;
-	            if (cx.test(text)) {
-	                text = text.replace(cx, function (a) {
-	                    return '\\u' +
-	                        ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
-	                });
-	            }
-	
-	// In the second stage, we run the text against regular expressions that look
-	// for non-JSON patterns. We are especially concerned with '()' and 'new'
-	// because they can cause invocation, and '=' because it can cause mutation.
-	// But just to be safe, we want to reject all unexpected forms.
-	
-	// We split the second stage into 4 regexp operations in order to work around
-	// crippling inefficiencies in IE's and Safari's regexp engines. First we
-	// replace the JSON backslash pairs with '@' (a non-JSON character). Second, we
-	// replace all simple value tokens with ']' characters. Third, we delete all
-	// open brackets that follow a colon or comma or that begin the text. Finally,
-	// we look to see that the remaining characters are only whitespace or ']' or
-	// ',' or ':' or '{' or '}'. If that is so, then the text is safe for eval.
-	
-	            if (/^[\],:{}\s]*$/
-	                    .test(text.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@')
-	                        .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']')
-	                        .replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
-	
-	// In the third stage we use the eval function to compile the text into a
-	// JavaScript structure. The '{' operator is subject to a syntactic ambiguity
-	// in JavaScript: it can begin a block or an object literal. We wrap the text
-	// in parens to eliminate the ambiguity.
-	
-	                j = eval('(' + text + ')');
-	
-	// In the optional fourth stage, we recursively walk the new structure, passing
-	// each name/value pair to a reviver function for possible transformation.
-	
-	                return typeof reviver === 'function'
-	                    ? walk({'': j}, '')
-	                    : j;
-	            }
-	
-	// If the text is not JSON parseable, then a SyntaxError is thrown.
-	
-	            throw new SyntaxError('JSON.parse');
-	        };
-	    }
-	}());
+	        });
+        }
+        return  '"' + sStr + '"';
+    }
+    /**
+     * 将对象指定键的值转化为字符串
+     * @param {string}sKey
+     * @param {Array|Object}holder
+     * @return {string}
+     */
+    function _fToString(sKey, holder) {
+        var i,k,val, length,
+            mind = gap,
+            aResult,
+            value = holder[sKey];
+		//如果对象有toJSON接口，使用该接口生成的返回值
+        if (value && typeof value === 'object' &&
+                typeof value.toJSON === 'function') {
+            value = value.toJSON(sKey);
+        }
+		//执行替换函数(如果有的话)
+        if (typeof _replacer === 'function') {
+            value = _replacer.call(holder, sKey, value);
+        }
 
-	return JSON;
+        switch (typeof value) {
+        case 'string':
+            return _fQuote(value);
+        case 'number':
+        	//无穷大的数字转换为null
+            return isFinite(value) ? String(value) : 'null';
+        case 'boolean':
+        case 'null':
+        	//typeof null=='object'，而不是'null',这里只是为了将来可能修正的情况
+            return String(value);
+        case 'object':
+        	//value==null
+            if (!value) {
+                return 'null';
+            }
+            gap += _indent;
+            aResult = [];
+
+            if (Object.prototype.toString.apply(value) === '[object Array]') {
+                length = value.length;
+                for (i = 0; i < length; i += 1) {
+                	//对每个元素递归调用
+                    aResult[i] = _fToString(i, value) || 'null';
+                }
+                val = aResult.length === 0? '[]'
+                    : gap? '[\n' + gap + aResult.join(',\n' + gap) + '\n' + mind + ']'
+                    : '[' + aResult.join(',') + ']';
+                gap = mind;
+                return val;
+            }
+
+			//如果替换参数是数组，只检出此数组中包含的key
+            if (_replacer && typeof _replacer === 'object') {
+                length = _replacer.length;
+                for (i = 0; i < length; i += 1) {
+                    if (typeof _replacer[i] === 'string') {
+                        k = _replacer[i];
+                        val = _fToString(k, value);
+                        if (val) {
+                            aResult.push(_fQuote(k) + (gap ? ': ' : ':') + val);
+                        }
+                    }
+                }
+            } else {
+                for (k in value) {
+                    if (Object.prototype.hasOwnProperty.call(value, k)) {
+                        val = _fToString(k, value);
+                        if (val) {
+                            aResult.push(_fQuote(k) + (gap ? ': ' : ':') + val);
+                        }
+                    }
+                }
+            }
+
+            val = aResult.length === 0
+                ? '{}'
+                : gap
+                ? '{\n' + gap + aResult.join(',\n' + gap) + '\n' + mind + '}'
+                : '{' + aResult.join(',') + '}';
+            gap = mind;
+            return val;
+        }
+    }
+    /**
+     * 序列化，将json对象转化为字符串
+     * @param {*}value 参数对象
+     * @param {function(key,value)|Array}replacer 如果是函数，第一个参数为，返回
+     * @param {string|number}space 间隔符，可以更好的可视化结果，如果是数字，则间隔符为指定个数的空格
+     * @return {string} 返回序列化的字符串
+     */
+	function fStringify(value, replacer, space) {
+		if(_bNativeJson){
+			return JSON.stringify.apply(null,arguments);
+		}
+        var i;
+        gap = '';
+        _indent = '';
+        if (typeof space === 'number') {
+            for (i = 0; i < space; i += 1) {
+                _indent += ' ';
+            }
+
+        } else if (typeof space === 'string') {
+            _indent = space;
+        }
+
+        _replacer = replacer;
+        //替换参数只能是函数或者数组
+        if (replacer && typeof replacer !== 'function' &&
+            (typeof replacer !== 'object' ||
+            typeof replacer.length !== 'number')) {
+            $D.error(new Error('Json.stringify:替换参数只能是函数或者数组'));
+            return;
+        }
+        return _fToString('', {'': value});
+    }
+    /**
+     * 将字符串转化为json对象
+     * @param {string}sText 参数字符串
+     * @param {Function=} 一个转换结果的函数。 将为对象的每个成员调用此函数。 如果成员包含嵌套对象，则先于父对象转换嵌套对象。 
+     * 					对于每个成员，会发生以下情况：
+     * 						如果 reviver 返回一个有效值，则成员值将替换为转换后的值。
+     * 						如果 reviver 返回它接收的相同值，则不修改成员值。
+     * 						如果 reviver 返回 null 或 undefined，则删除成员。
+     * @return {Object} 返回json对象
+     */
+	function fParse(sText, fReviver) {
+		if(_bNativeJson){
+			return JSON.parse.apply(null,arguments);
+		}
+        var j;
+        function _fReviver(holder, key) {
+            var k, val, value = holder[key];
+            if (value && typeof value === 'object') {
+                for (k in value) {
+                    if (Object.prototype.hasOwnProperty.call(value, k)) {
+                        val = _fReviver(value, k);
+                        if (val !== undefined) {
+                            value[k] = val;
+                        } else {
+                            delete value[k];
+                        }
+                    }
+                }
+            }
+            return fReviver.call(holder, key, value);
+        }
+
+        sText = String(sText);
+        _rCx.lastIndex = 0;
+        if (_rCx.test(sText)) {
+            sText = sText.replace(_rCx, function (a) {
+                return '\\u' +
+                    ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+            });
+        }
+
+        if (_rValidchars.test(sText.replace(_rValidescape, '@')
+            .replace(_rValidtokens, ']')
+            .replace(_rValidbraces, ''))) {
+            j = eval('(' + sText + ')');
+            return typeof fReviver === 'function'
+                ? _fReviver({'': j}, '')
+                : j;
+        }
+        $D.error(new SyntaxError('JSON.parse'));
+    }
 	
-})
-/**
+	return Json;
+});/**
  * 对象扩展类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -872,7 +613,7 @@ handy.add('Object',function($H){
             try{
                 oParent._onInherit(oChild);
             }catch(e){
-            	$H.Debug.error("_onInherit error",e);
+            	$H.Debug.error(e);
             }
         }
         //扩展静态属性
@@ -1446,20 +1187,16 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 	 * 输出错误
 	 * @method error
 	 * @param {Object}oVar	需要输出的变量
-	 * @param {Error=}oError 
 	 * @param {boolean=}bShowInPage 是否需要创建一个DIV输出到页面
 	 */
-	function fError(oVar,oError,bShowInPage){
+	function fError(oVar,bShowInPage){
 		if(Debug.level>Debug.ERROR_LEVEL){
 			return;
 		}
-		if(typeof oError=="boolean"){
-			bShowInPage=oError;
-		}
 		Debug.out(oVar,!!bShowInPage,"error");
-		if(typeof oError=="object"){
+		if(oVar instanceof Error){
 			//抛出异常，主要是为了方便调试，如果异常被catch住的话，控制台不会输出具体错误位置
-			throw oError;
+			throw oVar;
 		}
 	}
 	/**
@@ -1746,7 +1483,7 @@ function(Debug,Object,Function,$H){
 	
 	    //超时处理
 	    var nTimer = setTimeout(function() {
-	      Debug.error('Time is out:', eNode.src);
+	      Debug.error('Time is out:'+ eNode.src);
 	      _fCallback();
 	    }, Loader.timeout);
 	
@@ -3270,8 +3007,7 @@ function(Debug,Util,$H){
 				_fInit();
 			}
 			if(sName in HashChange.listeners){
-				var msg="Duplicate name";
-				$D.error(msg,new Error(msg));
+				$D.error(new Error('Duplicate name'));
 			}else{
 				sName=sName||$H.expando+(++_nListener);
 				HashChange.listeners[sName]=fListener;
@@ -3609,6 +3345,110 @@ handy.add('Validator',['B.String','B.Object'],function(String,Object,$H){
 	
 	return Validator;
 	
+})/**
+ * LocalStorage类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+handy.add('LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Events,Json,$H){
+	
+	var LocalStorage={
+		_init           : _fInit,              //初始化
+		getItem         : fGetItem,            //获取值
+		setItem         : fSetItem,            //设置值
+		removeItem      : fRemoveItem,         //删除值
+		clear           : fClear               //清除所有数据
+	}
+	
+	//在IE下，本地文件是不能访问localStorage的，此时localStorage字段为空，
+	//另外，页面里有id为localStorage的元素，某些浏览器可以通过window.localStorage索引到这个元素，所以还要加上判断
+	var _supportLocalStorage= window.localStorage && window.localStorage.getItem;
+	var localStorage=window.localStorage;
+	//ie7-下保存数据的对象
+	var _oUserData;
+	var _file=document.domain;
+	var _typeSplit='$$:';
+	
+	/**
+	 * 初始化
+	 */
+	 function _fInit() {
+		if (!_supportLocalStorage&&Browser.ie()) {
+			var sId='LocalStorageUserDataDiv';
+			_oUserData = document.getElementById(sId);
+			if (!_oUserData) {
+				_oUserData = document.createElement('DIV');
+				_oUserData.style.display = 'none';
+				_oUserData.id = sId;
+				_oUserData.addBehavior('#default#userData');
+				document.body.appendChild(_oUserData);
+		 		_oUserData.load(_file);
+			}
+		}
+	}
+	/**
+	 * 获取值
+	 * @param {string}sKey 键
+	 * @return {*} 返回对应值
+	 */
+	 function fGetItem(sKey){
+	 	var value;
+	 	if(_supportLocalStorage){
+	 		value=localStorage.getItem(sKey);
+	 	}else{
+			value=_oUserData.getAttribute(sKey);
+	 	}
+	 	value=Json.parse(value);
+	 	return value;
+	 }
+	 /**
+	 * 设置值
+	 * @param {string}sKey 键
+	 * @param {*}value 值
+	 * @return {boolean} true表示存储成功
+	 */
+	 function fSetItem(sKey,value){
+		//ie6、7可以提供最多1024kb的空间，LocalStorage一般可以存储5~10M
+	 	value=Json.stringify(value);
+	 	try{
+		 	if(_supportLocalStorage){
+		 		localStorage.setItem(sKey,value);
+		 	}else{
+				_oUserData.setAttribute(sKey,value);
+				_oUserData.save(_file);
+		 	}
+ 		}catch(e){
+ 			$D.error(e);
+ 			return false;
+ 		}
+ 		return true;
+	 }
+	 /**
+	 * 删除值
+	 * @method removeItem
+	 * @param {string}sKey 键
+	 */
+	 function fRemoveItem(sKey){
+	 	if(_supportLocalStorage){
+	 		localStorage.removeItem(sKey);
+	 	}else{
+	 		_oUserData.removeAttribute(sKey);
+			_oUserData.save(_file);
+	 	}
+	 }
+	 /**
+	  * 清除所有数据
+	  */
+	 function fClear(){
+	 	if(_supportLocalStorage){
+	 		localStorage.clear();
+	 	}else{
+	 		_oUserData.unload();
+	 	}
+	 }
+	
+	 LocalStorage._init();
+	 
+	 return LocalStorage;
 })/**
  * 适配类库
  */
@@ -5229,8 +5069,7 @@ function(){
         $H.Util.result(me, 'urlRoot') ||
         $H.Util.result(me.collection, 'url');
         if(!sUrl){
-        	var sMsg='必须设置一个url属性或者函数';
-        	$D.error(sMsg,new Error(sMsg));
+        	$D.error(new Error('必须设置一个url属性或者函数'));
         }
         if (me.isNew()){
         	return sUrl;
@@ -5759,8 +5598,7 @@ function(Model){
     function fSort(oOptions) {
     	var me=this;
         if (!me.comparator){
-        	var sMsg='没有比较器';
-        	$D.error(sMsg,new Error(sMsg));
+        	$D.error(new Error('没有比较器'));
         }
         oOptions || (oOptions = {});
 
@@ -7676,7 +7514,7 @@ function(HashChange){
 	 */
 	function fSaveHash(param){
 		//这里主动设置之后还会触发hashchange，不能在hashchange里添加set方法屏蔽此次change，因为可能不止一个地方需要hashchange事件
-		$HU.setHash("#"+JSON.stringify(param));
+		$HU.setHash("#"+$H.Json.stringify(param));
 	}
 	/**
 	 * 获取当前hash参数
@@ -7687,7 +7525,7 @@ function(HashChange){
 		var me=this;
 		try{
 			var sHash=$HU.getHash().replace("#","");
-			var oHashParam=JSON.parse(sHash);
+			var oHashParam=$H.Json.parse(sHash);
 			return oHashParam;
 		}catch(e){
 			$H.Debug.warn("History.getCurrentState:parse hash error:"+e.message);

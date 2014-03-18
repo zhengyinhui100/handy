@@ -116,8 +116,7 @@ function(Debug,Util,$H){
 				_fInit();
 			}
 			if(sName in HashChange.listeners){
-				var msg="Duplicate name";
-				$D.error(msg,new Error(msg));
+				$D.error(new Error('Duplicate name'));
 			}else{
 				sName=sName||$H.expando+(++_nListener);
 				HashChange.listeners[sName]=fListener;
