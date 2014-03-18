@@ -53,7 +53,7 @@
 			if('Browser,Events,Function,Object,String,Template,Util'.indexOf(sName)>=0){
 				for(var key in oModule){
 					//!Function[key]专为bind方法
-					if(typeof handy[key]!="undefined"&&typeof console!="undefined"&&!Function[key]){
+					if(typeof handy[key]!="undefined"&&('console' in window)&&!Function[key]){
 						console.log(handy[key]);
 						console.log(sName+"命名冲突:"+key);
 					}

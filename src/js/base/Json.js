@@ -22,7 +22,7 @@ handy.add('Json',function($H){
 	    _rValidescape,
 	    _rValidtokens,
 	    _rValidbraces;          //
-    if(_bNativeJson){
+    if(!_bNativeJson){
 		//匹配控制符、引号、反斜杠等不能在引号内的内容
 		_rEscapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
 	    //不合法字符替换表

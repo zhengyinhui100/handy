@@ -50,11 +50,17 @@
 </div>
 <div><span id="span2"></span></div>
 <script type="text/javascript">
-var L=$H.LocalStorage;
-$D.log(L.getItem('test'));
-L.setItem('test',{d:'1',df:3});
-$D.log(L.getItem('test'));
-$D.log(typeof L.getItem('test'));
+var o={
+		dd:{
+			sdsd:{
+				sdsf:{
+					d:3
+				}
+			}
+		},
+		dsaa:2
+	}
+$D.log(o,true);
 </script>
 </body>
 </html>

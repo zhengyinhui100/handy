@@ -64,7 +64,8 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 				oDebugDiv.style.display = 'block';
 			}
 			var oAppender=oDebugDiv.getElementsByTagName('DIV')[0];
-			oAppender.innerHTML += sType+" : "+$H.Json.stringify(oVar, null, '<br/>')+"<br/>";
+			var sMsg=$H.Json.stringify(oVar, null, '&nbsp;&nbsp;&nbsp;&nbsp;').replace(/\n/g,'<br/>');
+			oAppender.innerHTML += sType+" : "+sMsg+"<br/>";
 			oAppender.scrollTop=oAppender.scrollHeight;
 		}
 		try{
