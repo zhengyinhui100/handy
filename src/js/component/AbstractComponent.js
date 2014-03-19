@@ -6,10 +6,10 @@
 //"handy.component.AbstractComponent"
 $Define('C.AbstractComponent',["CM.ViewManager",'CM.AbstractView'],function(ViewManager,AbstractView){
 	
-	var AC=$H.createClass();
+	//访问component包内容的快捷别名
+	$C=$H.namespace('C',{});
 	
-	//快捷别名
-	$C=$H.component;
+	var AC=$H.createClass();
 	
 	$H.inherit(AC,AbstractView,{
 		//实例属性、方法
