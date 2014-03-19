@@ -4,7 +4,7 @@
  * @created 2014-03-06
  */
 //"handy.common.Model"
-$Define('C.Model',
+$Define('CM.Model',
 function(){
 	
 	var Model=$H.createClass();
@@ -25,6 +25,7 @@ function(){
 		
 		initialize            : fInitialize,         //初始化
 		toJson                : fToJSON,             //返回对象数据副本
+		sync                  : fSync,               //同步数据，可以通过重写进行自定义
    		get                   : fGet,                //获取指定属性值
    		escape                : fEscape,             //获取html编码过的属性值 
    		has                   : fHas,                //判断是否含有参数属性
@@ -99,13 +100,15 @@ function(){
         return $HO.clone(this.attributes);
     }
 	/**
-	 * 
+	 * 同步数据，可以通过重写进行自定义
+	 * @param {string}sMethod 方法名
+	 * @param {CM.Model}oModel 模型对象
+	 * @param {Object}oOptions 设置
+	 * @return {*} 根据同步方法的结果
 	 */
-    // Proxy `Backbone.sync` by default -- but override me if you need
-    // custom syncing semantics for *me* particular model.
-//    sync: function() {
-//        return Backbone.sync.apply(me, arguments);
-//    },
+    function fSync(sMethod,oModel,oOptions) {
+        return this.dao.sync.apply(me, arguments);
+    }
     /**
      * 获取指定属性值
      * @method get

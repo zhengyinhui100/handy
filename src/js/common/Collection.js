@@ -4,9 +4,10 @@
  * @created 2014-03-06
  */
 //"handy.common.Collection"
-$Define('C.Collection',
-'C.Model',
-function(Model){
+$Define('CM.Collection',
+['CM.AbstractDao',
+'CM.Model'],
+function(AbstractDao,Model){
 	
 	var Collection=$H.createClass();
 	
@@ -18,6 +19,7 @@ function(Model){
 //		models                 : [],                  //模型列表
 //		_byId                  : {},                  //根据id和cid索引
 //		length                 : 0,                   //模型集合长度
+		dao                    : $H.getSingleton(AbstractDao),         //数据访问对象，使用前需要设置
 		
 		_reset                 : _fReset,             //重置集合
 		_prepareModel          : _fPrepareModel,      //初始化模型
@@ -27,6 +29,7 @@ function(Model){
 		
 		initialize             : fInitialize,         //初始化
 		toJSON                 : fToJSON,             //返回json格式数据(模型数据的数组)
+		sync                   : fSync,               //同步数据，可以通过重写进行自定义
 		add                    : fAdd,                //添加模型
 		remove                 : fRemove,             //移除模型
 		set                    : fSet,                //设置模型
@@ -42,6 +45,8 @@ function(Model){
 		findWhere              : fFindWhere,          //返回包含指定 key-value 组合的第一个模型
 		sort                   : fSort,               //排序
 		pluck                  : fPluck,              //提取集合里指定的属性值
+		fetch                  : fFetch,              //请求数据
+		create                 : fCreate,             //新建模型
 		parse                  : fParse,              //分析处理回调数据，默认直接返回response
 		clone                  : fClone               //克隆
 		
@@ -173,11 +178,16 @@ function(Model){
         	return oModel.toJSON(oOptions); 
         });
     }
-
-//    // Proxy `Backbone.sync` by default.
-//    sync: function() {
-//      return Backbone.sync.apply(me, arguments);
-//    },
+	/**
+	 * 同步数据，可以通过重写进行自定义
+	 * @param {string}sMethod 方法名
+	 * @param {CM.Model}oModel 模型对象
+	 * @param {Object}oOptions 设置
+	 * @return {*} 根据同步方法的结果
+	 */
+    function fSync(sMethod,oModel,oOptions) {
+        return this.dao.sync.apply(me, arguments);
+    }
 	/**
 	 * 添加模型
 	 * @param 同"set"方法
@@ -509,43 +519,58 @@ function(Model){
     function fPluck(sAttr) {
       return $H.Collection.invoke(this.models, 'get', sAttr);
     }
-
+	/**
+	 * 请求数据
+	 * @param {Object=}oOptions
+	 * @return {}
+	 */
     // Fetch the default set of models for me collection, resetting the
     // collection when they arrive. If `reset: true` is passed, the response
     // data will be passed through the `reset` method instead of `set`.
     function fFetch(oOptions) {
     	var me=this;
-        oOptions = oOptions ? $HO.clone(oOptions) : {};
+        oOptions = oOptions ? $H.clone(oOptions) : {};
         if (oOptions.parse === void 0){
         	oOptions.parse = true;
         }
         var success = oOptions.success;
-        var collection = me;
         oOptions.success = function(resp) {
         	var method = oOptions.reset ? 'reset' : 'set';
-        	collection[method](resp, oOptions);
+        	me[method](resp, oOptions);
         	if (success){
-        		success(collection, resp, oOptions);
+        		success(me, resp, oOptions);
         	}
-        	collection.trigger('sync', collection, resp, oOptions);
+        	me.trigger('sync', me, resp, oOptions);
         };
         wrapError(me, oOptions);
         return me.sync('read', me, oOptions);
     }
-
+	/**
+	 * 新建模型
+	 * @param {C.Model|Object}oModel 模型对象或者模型属性集
+	 * @param {Object=}oOptions 选项
+	 * @return {C.Model} 返回新建的模型
+	 */
     // Create a new instance of a model in me collection. Add the model to the
     // collection immediately, unless `wait: true` is passed, in which case we
     // wait for the server to agree.
     function fCreate(oModel, oOptions) {
     	var me=this;
-        oOptions = oOptions ? $HO.clone(oOptions) : {};
-        if (!(oModel = me._prepareModel(oModel, oOptions))) return false;
-        if (!oOptions.wait) me.add(oModel, oOptions);
-        var collection = me;
+        oOptions = oOptions ? $H.clone(oOptions) : {};
+        if (!(oModel = me._prepareModel(oModel, oOptions))){
+        	return false;
+        }
+        if (!oOptions.wait){
+        	me.add(oModel, oOptions);
+        }
         var success = oOptions.success;
         oOptions.success = function(oModel, resp) {
-        	if (oOptions.wait) collection.add(oModel, oOptions);
-        	if (success) success(oModel, resp, oOptions);
+        	if (oOptions.wait){
+        		me.add(oModel, oOptions);
+        	}
+        	if (success){
+        		success(oModel, resp, oOptions);
+        	}
         };
         oModel.save(null, oOptions);
         return oModel;
