@@ -12,7 +12,7 @@ $Define("M.History",
 'handy.base.HashChange',
 function(HashChange){
 
-	var History=$HO.createClass();
+	var History=$H.createClass();
 	
 	var _nIndex=0;
 	

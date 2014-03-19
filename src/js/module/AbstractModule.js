@@ -10,9 +10,9 @@ $Define("M.AbstractModule","CM.AbstractView",function (AbstractView) {
 	 * 
 	 * @class AbstractModule
 	 */
-	var AbstractModule = $HO.createClass();
+	var AbstractModule = $H.createClass();
 	
-	$HO.inherit(AbstractModule,AbstractView, {
+	$H.inherit(AbstractModule,AbstractView, {
 		
 //		isLoaded       : false,          //{boolean}模块是否已载入
 //		isActived      : false,          //{boolean}模块是否是当前活跃的

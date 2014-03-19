@@ -6,7 +6,7 @@
 //"handy.common.AbstractManager"
 $Define("CM.AbstractManager", function() {
 
-	var AbstractManager = $HO.createClass();
+	var AbstractManager = $H.createClass();
 	
 	$HO.extend(AbstractManager.prototype, {
 	    _types        : {},               //存储类

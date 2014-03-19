@@ -6,10 +6,10 @@
 //"handy.component.ComponentManager"
 $Define("C.ComponentManager", 'CM.AbstractManager',function(AbstractManager) {
 
-	var CM = $HO.createClass();
+	var CM = $H.createClass();
 
 	// 静态方法
-	$HO.inherit(CM,AbstractManager,{
+	$H.inherit(CM,AbstractManager,{
 		type          : 'component',      //管理类型
 		initialize    : fInitialize,      //初始化
 		afterRender   : fAfterRender,     //调用指定dom节点包含的组件的afterRender方法

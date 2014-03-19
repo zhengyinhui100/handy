@@ -8,7 +8,7 @@ $Define('C.Collection',
 'C.Model',
 function(Model){
 	
-	var Collection=$HO.createClass();
+	var Collection=$H.createClass();
 	
 	$HO.extend(Collection.prototype,$H.Events);
 	

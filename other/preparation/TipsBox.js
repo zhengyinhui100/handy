@@ -3,10 +3,10 @@
 
 (function(){
 	
-	var TipsBox=$HO.createClass("handy.component.TipsBox");;
+	var TipsBox=$H.createClass("handy.component.TipsBox");;
 	
 	
-	$HO.inherit(TipsBox,$HO.namespace("handy.component.Component"),{
+	$H.inherit(TipsBox,$HO.namespace("handy.component.Component"),{
 		
 		delayInitListener:true,
 		

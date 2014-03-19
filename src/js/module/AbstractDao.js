@@ -9,7 +9,7 @@
 //handy.module.AbstractDao
 $Define('M.AbstractDao',function(){
 	
-	var AbstractDao=$HO.createClass();
+	var AbstractDao=$H.createClass();
 	
 	$HO.extend(AbstractDao.prototype,{
 		ajax         : fAjax,        //ajax方法

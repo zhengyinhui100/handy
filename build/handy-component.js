@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-18 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-19 | zhengyinhui100@gmail.com */
 /**
  * 组件基类，所有组件必须继承自此类或此类的子类，定义组件必须用AbstractComponent.define方法
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -7,12 +7,12 @@
 //"handy.component.AbstractComponent"
 $Define('C.AbstractComponent',["CM.ViewManager",'CM.AbstractView'],function(ViewManager,AbstractView){
 	
-	var AC=$HO.createClass();
+	var AC=$H.createClass();
 	
 	//快捷别名
 	$C=$H.component;
 	
-	$HO.inherit(AC,AbstractView,{
+	$H.inherit(AC,AbstractView,{
 		//实例属性、方法
 		xtype               : 'AbstractComponent',       //组件类型
 		
@@ -61,9 +61,9 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.AbstractView'],function(View
 	 * @return {class}组件类对象
 	 */
 	function fDefine(sXtype,oSuperCls){
-		var Component=$HO.createClass();
+		var Component=$H.createClass();
 		var oSuper=oSuperCls||AC;
-		$HO.inherit(Component,oSuper,null,null,{notCover:function(p){
+		$H.inherit(Component,oSuper,null,null,{notCover:function(p){
 			return p == 'define';
 		}});
 		$HO.getSingleton(ViewManager).registerType(sXtype,Component);

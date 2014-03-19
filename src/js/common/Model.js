@@ -7,7 +7,7 @@
 $Define('C.Model',
 function(){
 	
-	var Model=$HO.createClass();
+	var Model=$H.createClass();
 	
 	$HO.extend(Model.prototype,$H.Events);
 	

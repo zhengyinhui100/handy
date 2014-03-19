@@ -3,10 +3,10 @@
 
 (function(){
 	
-	var Dialog=$HO.createClass("handy.component.Dialog");;
+	var Dialog=$H.createClass("handy.component.Dialog");;
 	
 	
-	$HO.inherit(Dialog,$HO.namespace("handy.component.Component"),{
+	$H.inherit(Dialog,$HO.namespace("handy.component.Component"),{
 		
 		/**
 		 * 弹窗初始化

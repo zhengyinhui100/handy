@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-18 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-19 | zhengyinhui100@gmail.com */
 /**
  * 视图管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -7,7 +7,7 @@
 //"handy.common.AbstractManager"
 $Define("CM.AbstractManager", function() {
 
-	var AbstractManager = $HO.createClass();
+	var AbstractManager = $H.createClass();
 	
 	$HO.extend(AbstractManager.prototype, {
 	    _types        : {},               //存储类
@@ -119,10 +119,10 @@ $Define("CM.AbstractManager", function() {
 //"handy.common.ViewManager"
 $Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
 
-	var ViewManager = $HO.createClass();
+	var ViewManager = $H.createClass();
 
 	// 静态方法
-	$HO.inherit(ViewManager,AbstractManager,{
+	$H.inherit(ViewManager,AbstractManager,{
 		type          : 'view',           //管理类型
 		initialize    : fInitialize,      //初始化
 		afterRender   : fAfterRender,     //调用指定dom节点包含的视图的afterRender方法
@@ -185,7 +185,7 @@ $Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
 //"handy.common.AbstractView"
 $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 	
-	var AbstractView=$HO.createClass();
+	var AbstractView=$H.createClass();
 	var _oTagReg=/^(<[a-zA-Z]+)/;
 	var _oHasClsReg=/^[^>]+class=/;
 	var _oClsReg=/(class=")/;
@@ -1146,7 +1146,7 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 $Define('C.Model',
 function(){
 	
-	var Model=$HO.createClass();
+	var Model=$H.createClass();
 	
 	$HO.extend(Model.prototype,$H.Events);
 	
@@ -1629,7 +1629,7 @@ $Define('C.Collection',
 'C.Model',
 function(Model){
 	
-	var Collection=$HO.createClass();
+	var Collection=$H.createClass();
 	
 	$HO.extend(Collection.prototype,$H.Events);
 	

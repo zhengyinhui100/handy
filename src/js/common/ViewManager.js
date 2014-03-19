@@ -6,10 +6,10 @@
 //"handy.common.ViewManager"
 $Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
 
-	var ViewManager = $HO.createClass();
+	var ViewManager = $H.createClass();
 
 	// 静态方法
-	$HO.inherit(ViewManager,AbstractManager,{
+	$H.inherit(ViewManager,AbstractManager,{
 		type          : 'view',           //管理类型
 		initialize    : fInitialize,      //初始化
 		afterRender   : fAfterRender,     //调用指定dom节点包含的视图的afterRender方法

@@ -3,10 +3,10 @@
 
 (function(){
 	
-	var TreeMenu=$HO.createClass("handy.component.TreeMenu");;
+	var TreeMenu=$H.createClass("handy.component.TreeMenu");;
 	
 	
-	$HO.inherit(TreeMenu,$HO.namespace("handy.component.Component"),{
+	$H.inherit(TreeMenu,$HO.namespace("handy.component.Component"),{
 		
 		/**
 		 * 

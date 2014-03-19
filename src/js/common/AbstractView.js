@@ -11,7 +11,7 @@
 //"handy.common.AbstractView"
 $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 	
-	var AbstractView=$HO.createClass();
+	var AbstractView=$H.createClass();
 	var _oTagReg=/^(<[a-zA-Z]+)/;
 	var _oHasClsReg=/^[^>]+class=/;
 	var _oClsReg=/(class=")/;

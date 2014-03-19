@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-18 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-19 | zhengyinhui100@gmail.com */
 /****************************************************************
 * Author:		郑银辉											*
 * Email:		zhengyinhui100@gmail.com						*
@@ -11,9 +11,9 @@ $Define("M.AbstractModule","CM.AbstractView",function (AbstractView) {
 	 * 
 	 * @class AbstractModule
 	 */
-	var AbstractModule = $HO.createClass();
+	var AbstractModule = $H.createClass();
 	
-	$HO.inherit(AbstractModule,AbstractView, {
+	$H.inherit(AbstractModule,AbstractView, {
 		
 //		isLoaded       : false,          //{boolean}模块是否已载入
 //		isActived      : false,          //{boolean}模块是否是当前活跃的
@@ -43,7 +43,7 @@ $Define("M.AbstractModule","CM.AbstractView",function (AbstractView) {
 //handy.module.AbstractDao
 $Define('M.AbstractDao',function(){
 	
-	var AbstractDao=$HO.createClass();
+	var AbstractDao=$H.createClass();
 	
 	$HO.extend(AbstractDao.prototype,{
 		ajax         : fAjax,        //ajax方法
@@ -80,7 +80,7 @@ $Define("M.AbstractNavigator","handy.base.Object",function (Object) {
 	 * 
 	 * @class AbstractNavigator
 	 */
-	var AbstractNavigator = Object.createClass();
+	var AbstractNavigator = $H.createClass();
 	
 	Object.extend(AbstractNavigator.prototype, {
 		navigate      : function(){}      //显示导航效果，参数是当前进入的模块实例和模块管理类实例，此方法返回true表示不需要模块管理类的导航功能
@@ -101,7 +101,7 @@ $Define("M.History",
 'handy.base.HashChange',
 function(HashChange){
 
-	var History=$HO.createClass();
+	var History=$H.createClass();
 	
 	var _nIndex=0;
 	
@@ -275,10 +275,10 @@ $Define("M.ModuleManager",
 "CM.AbstractManager"],
 function(History,AbstractManager){
 	
-	var ModuleManager=$HO.createClass();
+	var ModuleManager=$H.createClass();
 	
 	//TODO 使用AbstractManager的方法
-	$HO.inherit(ModuleManager,AbstractManager,{
+	$H.inherit(ModuleManager,AbstractManager,{
 		
 		type               : 'module',
 		
