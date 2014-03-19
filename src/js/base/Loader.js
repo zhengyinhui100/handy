@@ -74,11 +74,11 @@ function(Debug,Object,Function,$H){
 	 * @return {string}sUrl 实际url
 	 */
     function _fGetUrl(sId){
+		//读取实名
+		sId=$H.Object.alias(sId);
     	var sUrl=Loader.urlMap&&Loader.urlMap[sId]&&Loader.urlMap[sId].url;
     	if(!sUrl){
     		var sRoot='';
-    		//读取实名
-    		sId=$H.Object.alias(sId);
     		var rootPath=Loader.rootPath;
     		if(typeof rootPath=='string'){
     			sRoot=rootPath;
@@ -370,7 +370,8 @@ function(Debug,Object,Function,$H){
 					}
 				}catch(e){
 					//资源定义错误
-					Debug.error("Loader "+sId+":factory define error:"+e.message,e);
+					e.message="Loader "+sId+":factory define error:"+e.message;
+					Debug.error(e);
 					return;
 				}
 			}else{
