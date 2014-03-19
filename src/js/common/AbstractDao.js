@@ -6,8 +6,8 @@
 /**
  * 数据访问对象抽象类，模块的dao都要继承此类，dao内的方法只可以使用此类的方法进行数据操作，以便进行统一的管理
  */
-//handy.module.AbstractDao
-$Define('M.AbstractDao',function(){
+//handy.common.AbstractDao
+$Define('CM.AbstractDao',function(){
 	
 	var AbstractDao=$H.createClass();
 	
@@ -15,7 +15,8 @@ $Define('M.AbstractDao',function(){
 		ajax         : fAjax,        //ajax方法
 		beforeSend   : $H.noop,      //发送前处理
 		error        : $H.noop,      //错误处理
-		success      : $H.noop       //成功处理
+		success      : $H.noop,      //成功处理
+		sync         : $H.noop       //同步方法，主要用于common.Collection和Model
 	});
 	
 	/**
