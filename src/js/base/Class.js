@@ -2,7 +2,7 @@
  * 面向对象支持类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add("Class","handy.base.Object",function(Object,$H){
+handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
 	
 	var Class={
 		createClass         : fCreateClass,     //创建类
@@ -11,15 +11,15 @@ handy.add("Class","handy.base.Object",function(Object,$H){
 	
 	/**
     * 创建类
-    * @param {string}sPath 类路径
+    * @param {string=}sPath 类路径
     * @return {Object} 返回新创建的类
     */
     function fCreateClass(sPath) {
         //获得一个类定义，并且绑定一个类初始化方法
-        var Class = function(){
+        var cClass = function(){
         	var me,fInitialize;
-        	//获得initialize引用的对象，如果不是通过new调用(比如:Class())，就没有this.initialize
-        	if(this.constructor==Class){
+        	//获得initialize引用的对象，如果不是通过new调用(比如:cClass())，就没有this.initialize
+        	if(this.constructor==cClass){
         		me = this;
         	}else{
         		me = arguments.callee;
@@ -37,12 +37,17 @@ handy.add("Class","handy.base.Object",function(Object,$H){
             	return fInitialize.apply(me, arguments);
             }
         };
-        Class.$isClass=true;
+        cClass.$isClass=true;
         /**
          * 便捷创建子类方法
+         * @param {Object=} oProtoExtend 需要扩展的prototype属性
+    	 * @param {Object=} oStaticExtend 需要扩展的静态属性
+   	     * @param {object=} oExtendOptions 继承父类静态方法时，extend方法的选项
          */
-        Class.extend=function(){
-        	
+        cClass.extend=function(oProtoExtend,oStaticExtend,oExtendOptions){
+        	var cChild=Class.createClass();
+        	Class.inherit(cChild,cClass,oProtoExtend,oStaticExtend,oExtendOptions);
+        	return cChild;
         }
         /**
          * 便捷访问父类方法
@@ -50,7 +55,7 @@ handy.add("Class","handy.base.Object",function(Object,$H){
          * @param {Class=}oSuper 指定父类，如果不指定，默认为定义此方法的类的父类，如果该值为空，则为实际调用对象的父类
          * @param {Array}aArgs 参数数组
          */
-        Class.prototype.callSuper=function(oSuper,aArgs){
+        cClass.prototype.callSuper=function(oSuper,aArgs){
         	var me=this;
         	if(oSuper&&!oSuper.$isClass&&oSuper.length!=undefined){
         		aArgs=oSuper;
@@ -72,9 +77,9 @@ handy.add("Class","handy.base.Object",function(Object,$H){
         	}
         };
         if(sPath){
-        	this.namespace(sPath,Class);
+        	this.namespace(sPath,cClass);
         }
-        return Class;
+        return cClass;
     }
     /**
     * 继承
@@ -108,7 +113,7 @@ handy.add("Class","handy.base.Object",function(Object,$H){
             try{
                 oParent._onInherit(oChild);
             }catch(e){
-            	$H.Debug.error(e);
+            	Debug.error(e);
             }
         }
         //扩展静态属性
