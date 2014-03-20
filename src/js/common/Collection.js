@@ -19,7 +19,7 @@ function(AbstractDao,Model){
 //		models                 : [],                  //模型列表
 //		_byId                  : {},                  //根据id和cid索引
 //		length                 : 0,                   //模型集合长度
-		dao                    : $H.getSingleton(AbstractDao),         //数据访问对象，使用前需要设置
+//		dao                    : null,                //数据访问对象，默认为common.AbstractDao
 		
 		_reset                 : _fReset,             //重置集合
 		_prepareModel          : _fPrepareModel,      //初始化模型
@@ -155,6 +155,7 @@ function(AbstractDao,Model){
 	 */
 	function fInitialize(aModels, oOptions) {
 		var me=this;
+		me.dao=me.dao||$H.getSingleton(AbstractDao);
 	    oOptions || (oOptions = {});
 	    if (oOptions.model) {
 	    	me.model = oOptions.model;
@@ -163,7 +164,6 @@ function(AbstractDao,Model){
 	    	me.comparator = oOptions.comparator;
 	    }
 	    me._reset();
-	    me.initialize.apply(me, arguments);
 	    if (aModels){
 	    	me.reset(aModels, $HO.extend({silent: true}, oOptions));
 	    }
@@ -186,7 +186,8 @@ function(AbstractDao,Model){
 	 * @return {*} 根据同步方法的结果
 	 */
     function fSync(sMethod,oModel,oOptions) {
-        return this.dao.sync.apply(me, arguments);
+    	var me=this;
+        return me.dao.sync.apply(me, arguments);
     }
 	/**
 	 * 添加模型

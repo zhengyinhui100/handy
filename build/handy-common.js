@@ -1,5 +1,42 @@
 /* Handy v1.0.0-dev | 2014-03-19 | zhengyinhui100@gmail.com */
+/****************************************************************
+* Author:		郑银辉											*
+* Email:		zhengyinhui100@gmail.com						*
+* Created:		2013-01-25										*
+*****************************************************************/
 /**
+ * 数据访问对象抽象类，模块的dao都要继承此类，dao内的方法只可以使用此类的方法进行数据操作，以便进行统一的管理
+ */
+//handy.common.AbstractDao
+$Define('CM.AbstractDao',function(){
+	
+	var AbstractDao=$H.createClass();
+	
+	$HO.extend(AbstractDao.prototype,{
+		ajax         : fAjax,        //ajax方法
+		beforeSend   : $H.noop,      //发送前处理
+		error        : $H.noop,      //错误处理
+		success      : $H.noop,      //成功处理
+		sync         : $H.noop       //同步方法，主要用于common.Collection和Model
+	});
+	
+	/**
+	 * ajax
+	 * @method ajax
+	 * @param {Object}oParams
+	 * 
+	 */
+	function fAjax(oParams){
+		var me=this;
+		me.beforeSend(oParams);
+		oParams.error=$HF.intercept(me.error,oParams.error);
+		oParams.success=$HF.intercept(me.success,oParams.success);
+		return $.ajax(oParams);
+	}
+	
+	return AbstractDao;
+	
+});/**
  * 视图管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-10
@@ -182,26 +219,26 @@ $Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2013-02-17
  */
-//"handy.common.AbstractView"
-$Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
+//"handy.common.View"
+$Define('CM.View','CM.ViewManager',function(ViewManager){
 	
-	var AbstractView=$H.createClass();
+	var View=$H.createClass();
 	var _oTagReg=/^(<[a-zA-Z]+)/;
 	var _oHasClsReg=/^[^>]+class=/;
 	var _oClsReg=/(class=")/;
 	
 	
-	$HO.extend(AbstractView,{
+	$HO.extend(View,{
 		extend              : fExtend,           //扩展原型定义
 		html                : fHtml              //静态初始化视图并生成html
 	});
 	
 	//自定义事件
-	$HO.extend(AbstractView.prototype,$H.Events);
+	$HO.extend(View.prototype,$H.Events);
 	
-	$HO.extend(AbstractView.prototype,{
+	$HO.extend(View.prototype,{
 		
-		xtype               : 'AbstractView',    //类型
+		xtype               : 'View',    //类型
 		
 		//配置
 //		renderTo            : null,              //渲染节点
@@ -552,7 +589,7 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 		if(!bNotDelay&&me.delayShow){
 			setTimeout(function(){
 				//这里必须指定基类的方法，不然会调用到组件自定义的show方法
-				AbstractView.prototype.show.call(me,true);
+				View.prototype.show.call(me,true);
 			},0);
 			return;
 		}
@@ -1135,7 +1172,7 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 		this.trigger('afterDestroy');
 	}
 	
-	return AbstractView;
+	return View;
 	
 });/**
  * 模型类
@@ -1143,7 +1180,7 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
  * @created 2014-03-06
  */
 //"handy.common.Model"
-$Define('C.Model',
+$Define('CM.Model',
 function(){
 	
 	var Model=$H.createClass();
@@ -1164,6 +1201,7 @@ function(){
 		
 		initialize            : fInitialize,         //初始化
 		toJson                : fToJSON,             //返回对象数据副本
+		sync                  : fSync,               //同步数据，可以通过重写进行自定义
    		get                   : fGet,                //获取指定属性值
    		escape                : fEscape,             //获取html编码过的属性值 
    		has                   : fHas,                //判断是否含有参数属性
@@ -1238,13 +1276,16 @@ function(){
         return $HO.clone(this.attributes);
     }
 	/**
-	 * 
+	 * 同步数据，可以通过重写进行自定义
+	 * @param {string}sMethod 方法名
+	 * @param {CM.Model}oModel 模型对象
+	 * @param {Object}oOptions 设置
+	 * @return {*} 根据同步方法的结果
 	 */
-    // Proxy `Backbone.sync` by default -- but override me if you need
-    // custom syncing semantics for *me* particular model.
-//    sync: function() {
-//        return Backbone.sync.apply(me, arguments);
-//    },
+    function fSync(sMethod,oModel,oOptions) {
+    	var me=this;
+        return me.dao.sync.apply(me, arguments);
+    }
     /**
      * 获取指定属性值
      * @method get
@@ -1625,9 +1666,10 @@ function(){
  * @created 2014-03-06
  */
 //"handy.common.Collection"
-$Define('C.Collection',
-'C.Model',
-function(Model){
+$Define('CM.Collection',
+['CM.AbstractDao',
+'CM.Model'],
+function(AbstractDao,Model){
 	
 	var Collection=$H.createClass();
 	
@@ -1639,6 +1681,7 @@ function(Model){
 //		models                 : [],                  //模型列表
 //		_byId                  : {},                  //根据id和cid索引
 //		length                 : 0,                   //模型集合长度
+		dao                    : $H.getSingleton(AbstractDao),         //数据访问对象，使用前需要设置
 		
 		_reset                 : _fReset,             //重置集合
 		_prepareModel          : _fPrepareModel,      //初始化模型
@@ -1648,6 +1691,7 @@ function(Model){
 		
 		initialize             : fInitialize,         //初始化
 		toJSON                 : fToJSON,             //返回json格式数据(模型数据的数组)
+		sync                   : fSync,               //同步数据，可以通过重写进行自定义
 		add                    : fAdd,                //添加模型
 		remove                 : fRemove,             //移除模型
 		set                    : fSet,                //设置模型
@@ -1663,6 +1707,8 @@ function(Model){
 		findWhere              : fFindWhere,          //返回包含指定 key-value 组合的第一个模型
 		sort                   : fSort,               //排序
 		pluck                  : fPluck,              //提取集合里指定的属性值
+		fetch                  : fFetch,              //请求数据
+		create                 : fCreate,             //新建模型
 		parse                  : fParse,              //分析处理回调数据，默认直接返回response
 		clone                  : fClone               //克隆
 		
@@ -1794,11 +1840,17 @@ function(Model){
         	return oModel.toJSON(oOptions); 
         });
     }
-
-//    // Proxy `Backbone.sync` by default.
-//    sync: function() {
-//      return Backbone.sync.apply(me, arguments);
-//    },
+	/**
+	 * 同步数据，可以通过重写进行自定义
+	 * @param {string}sMethod 方法名
+	 * @param {CM.Model}oModel 模型对象
+	 * @param {Object}oOptions 设置
+	 * @return {*} 根据同步方法的结果
+	 */
+    function fSync(sMethod,oModel,oOptions) {
+    	var me=this;
+        return me.dao.sync.apply(me, arguments);
+    }
 	/**
 	 * 添加模型
 	 * @param 同"set"方法
@@ -2130,43 +2182,58 @@ function(Model){
     function fPluck(sAttr) {
       return $H.Collection.invoke(this.models, 'get', sAttr);
     }
-
+	/**
+	 * 请求数据
+	 * @param {Object=}oOptions
+	 * @return {}
+	 */
     // Fetch the default set of models for me collection, resetting the
     // collection when they arrive. If `reset: true` is passed, the response
     // data will be passed through the `reset` method instead of `set`.
     function fFetch(oOptions) {
     	var me=this;
-        oOptions = oOptions ? $HO.clone(oOptions) : {};
+        oOptions = oOptions ? $H.clone(oOptions) : {};
         if (oOptions.parse === void 0){
         	oOptions.parse = true;
         }
         var success = oOptions.success;
-        var collection = me;
         oOptions.success = function(resp) {
         	var method = oOptions.reset ? 'reset' : 'set';
-        	collection[method](resp, oOptions);
+        	me[method](resp, oOptions);
         	if (success){
-        		success(collection, resp, oOptions);
+        		success(me, resp, oOptions);
         	}
-        	collection.trigger('sync', collection, resp, oOptions);
+        	me.trigger('sync', me, resp, oOptions);
         };
         wrapError(me, oOptions);
         return me.sync('read', me, oOptions);
     }
-
+	/**
+	 * 新建模型
+	 * @param {C.Model|Object}oModel 模型对象或者模型属性集
+	 * @param {Object=}oOptions 选项
+	 * @return {C.Model} 返回新建的模型
+	 */
     // Create a new instance of a model in me collection. Add the model to the
     // collection immediately, unless `wait: true` is passed, in which case we
     // wait for the server to agree.
     function fCreate(oModel, oOptions) {
     	var me=this;
-        oOptions = oOptions ? $HO.clone(oOptions) : {};
-        if (!(oModel = me._prepareModel(oModel, oOptions))) return false;
-        if (!oOptions.wait) me.add(oModel, oOptions);
-        var collection = me;
+        oOptions = oOptions ? $H.clone(oOptions) : {};
+        if (!(oModel = me._prepareModel(oModel, oOptions))){
+        	return false;
+        }
+        if (!oOptions.wait){
+        	me.add(oModel, oOptions);
+        }
         var success = oOptions.success;
         oOptions.success = function(oModel, resp) {
-        	if (oOptions.wait) collection.add(oModel, oOptions);
-        	if (success) success(oModel, resp, oOptions);
+        	if (oOptions.wait){
+        		me.add(oModel, oOptions);
+        	}
+        	if (success){
+        		success(oModel, resp, oOptions);
+        	}
         };
         oModel.save(null, oOptions);
         return oModel;

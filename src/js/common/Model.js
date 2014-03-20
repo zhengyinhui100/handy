@@ -20,6 +20,7 @@ function(){
 //    	changed               : {},                  //改变了的值
 //	    validationError       : {},                  //校验错误的值
         idAttribute           : 'id',                //id默认属性名
+//		dao                   : null,                //数据访问对象，默认为common.AbstractDao
         
    		_validate             : _fValidate,          //执行校验，如果通过校验返回true，否则，触发"invalid"事件
 		
@@ -77,6 +78,7 @@ function(){
 	 */
 	function fInitialize(oAttributes, oOptions) {
 		var me=this;
+		me.dao=me.dao||$H.getSingleton(AbstractDao);
 		var oAttrs = oAttributes || {};
 		oOptions || (oOptions = {});
 		me.cid = $H.Util.getUuid();
@@ -107,7 +109,8 @@ function(){
 	 * @return {*} 根据同步方法的结果
 	 */
     function fSync(sMethod,oModel,oOptions) {
-        return this.dao.sync.apply(me, arguments);
+    	var me=this;
+        return me.dao.sync.apply(me, arguments);
     }
     /**
      * 获取指定属性值

@@ -51,7 +51,7 @@
 		    <path path="js/common/AbstractDao.js" />
 			<path path="js/common/AbstractManager.js" />
 			<path path="js/common/ViewManager.js" />
-			<path path="js/common/AbstractView.js" />
+			<path path="js/common/View.js" />
 			<path path="js/common/Model.js" />
 			<path path="js/common/Collection.js" />
 

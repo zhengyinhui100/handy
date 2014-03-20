@@ -1193,7 +1193,7 @@ handy.add('Function',function($H){
  * 面向对象支持类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add("Class","handy.base.Object",function(Object,$H){
+handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
 	
 	var Class={
 		createClass         : fCreateClass,     //创建类
@@ -1202,15 +1202,15 @@ handy.add("Class","handy.base.Object",function(Object,$H){
 	
 	/**
     * 创建类
-    * @param {string}sPath 类路径
+    * @param {string=}sPath 类路径
     * @return {Object} 返回新创建的类
     */
     function fCreateClass(sPath) {
         //获得一个类定义，并且绑定一个类初始化方法
-        var Class = function(){
+        var cClass = function(){
         	var me,fInitialize;
-        	//获得initialize引用的对象，如果不是通过new调用(比如:Class())，就没有this.initialize
-        	if(this.constructor==Class){
+        	//获得initialize引用的对象，如果不是通过new调用(比如:cClass())，就没有this.initialize
+        	if(this.constructor==cClass){
         		me = this;
         	}else{
         		me = arguments.callee;
@@ -1228,12 +1228,17 @@ handy.add("Class","handy.base.Object",function(Object,$H){
             	return fInitialize.apply(me, arguments);
             }
         };
-        Class.$isClass=true;
+        cClass.$isClass=true;
         /**
          * 便捷创建子类方法
+         * @param {Object=} oProtoExtend 需要扩展的prototype属性
+    	 * @param {Object=} oStaticExtend 需要扩展的静态属性
+   	     * @param {object=} oExtendOptions 继承父类静态方法时，extend方法的选项
          */
-        Class.extend=function(){
-        	
+        cClass.extend=function(oProtoExtend,oStaticExtend,oExtendOptions){
+        	var cChild=Class.createClass();
+        	Class.inherit(cChild,cClass,oProtoExtend,oStaticExtend,oExtendOptions);
+        	return cChild;
         }
         /**
          * 便捷访问父类方法
@@ -1241,7 +1246,7 @@ handy.add("Class","handy.base.Object",function(Object,$H){
          * @param {Class=}oSuper 指定父类，如果不指定，默认为定义此方法的类的父类，如果该值为空，则为实际调用对象的父类
          * @param {Array}aArgs 参数数组
          */
-        Class.prototype.callSuper=function(oSuper,aArgs){
+        cClass.prototype.callSuper=function(oSuper,aArgs){
         	var me=this;
         	if(oSuper&&!oSuper.$isClass&&oSuper.length!=undefined){
         		aArgs=oSuper;
@@ -1263,9 +1268,9 @@ handy.add("Class","handy.base.Object",function(Object,$H){
         	}
         };
         if(sPath){
-        	this.namespace(sPath,Class);
+        	this.namespace(sPath,cClass);
         }
-        return Class;
+        return cClass;
     }
     /**
     * 继承
@@ -1299,7 +1304,7 @@ handy.add("Class","handy.base.Object",function(Object,$H){
             try{
                 oParent._onInherit(oChild);
             }catch(e){
-            	$H.Debug.error(e);
+            	Debug.error(e);
             }
         }
         //扩展静态属性
@@ -1390,11 +1395,11 @@ function(Debug,Object,Function,$H){
 	 * @return {string}sUrl 实际url
 	 */
     function _fGetUrl(sId){
+		//读取实名
+		sId=$H.Object.alias(sId);
     	var sUrl=Loader.urlMap&&Loader.urlMap[sId]&&Loader.urlMap[sId].url;
     	if(!sUrl){
     		var sRoot='';
-    		//读取实名
-    		sId=$H.Object.alias(sId);
     		var rootPath=Loader.rootPath;
     		if(typeof rootPath=='string'){
     			sRoot=rootPath;
@@ -1686,7 +1691,8 @@ function(Debug,Object,Function,$H){
 					}
 				}catch(e){
 					//资源定义错误
-					Debug.error("Loader "+sId+":factory define error:"+e.message,e);
+					e.message="Loader "+sId+":factory define error:"+e.message;
+					Debug.error(e);
 					return;
 				}
 			}else{
@@ -3502,7 +3508,44 @@ handy.add('LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Even
 	});
 	
 	
-})(handy)/**
+})(handy)/****************************************************************
+* Author:		郑银辉											*
+* Email:		zhengyinhui100@gmail.com						*
+* Created:		2013-01-25										*
+*****************************************************************/
+/**
+ * 数据访问对象抽象类，模块的dao都要继承此类，dao内的方法只可以使用此类的方法进行数据操作，以便进行统一的管理
+ */
+//handy.common.AbstractDao
+$Define('CM.AbstractDao',function(){
+	
+	var AbstractDao=$H.createClass();
+	
+	$HO.extend(AbstractDao.prototype,{
+		ajax         : fAjax,        //ajax方法
+		beforeSend   : $H.noop,      //发送前处理
+		error        : $H.noop,      //错误处理
+		success      : $H.noop,      //成功处理
+		sync         : $H.noop       //同步方法，主要用于common.Collection和Model
+	});
+	
+	/**
+	 * ajax
+	 * @method ajax
+	 * @param {Object}oParams
+	 * 
+	 */
+	function fAjax(oParams){
+		var me=this;
+		me.beforeSend(oParams);
+		oParams.error=$HF.intercept(me.error,oParams.error);
+		oParams.success=$HF.intercept(me.success,oParams.success);
+		return $.ajax(oParams);
+	}
+	
+	return AbstractDao;
+	
+});/**
  * 视图管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-10
@@ -3685,26 +3728,26 @@ $Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2013-02-17
  */
-//"handy.common.AbstractView"
-$Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
+//"handy.common.View"
+$Define('CM.View','CM.ViewManager',function(ViewManager){
 	
-	var AbstractView=$H.createClass();
+	var View=$H.createClass();
 	var _oTagReg=/^(<[a-zA-Z]+)/;
 	var _oHasClsReg=/^[^>]+class=/;
 	var _oClsReg=/(class=")/;
 	
 	
-	$HO.extend(AbstractView,{
+	$HO.extend(View,{
 		extend              : fExtend,           //扩展原型定义
 		html                : fHtml              //静态初始化视图并生成html
 	});
 	
 	//自定义事件
-	$HO.extend(AbstractView.prototype,$H.Events);
+	$HO.extend(View.prototype,$H.Events);
 	
-	$HO.extend(AbstractView.prototype,{
+	$HO.extend(View.prototype,{
 		
-		xtype               : 'AbstractView',    //类型
+		xtype               : 'View',    //类型
 		
 		//配置
 //		renderTo            : null,              //渲染节点
@@ -4055,7 +4098,7 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 		if(!bNotDelay&&me.delayShow){
 			setTimeout(function(){
 				//这里必须指定基类的方法，不然会调用到组件自定义的show方法
-				AbstractView.prototype.show.call(me,true);
+				View.prototype.show.call(me,true);
 			},0);
 			return;
 		}
@@ -4638,7 +4681,7 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 		this.trigger('afterDestroy');
 	}
 	
-	return AbstractView;
+	return View;
 	
 });/**
  * 模型类
@@ -4646,7 +4689,7 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
  * @created 2014-03-06
  */
 //"handy.common.Model"
-$Define('C.Model',
+$Define('CM.Model',
 function(){
 	
 	var Model=$H.createClass();
@@ -4667,6 +4710,7 @@ function(){
 		
 		initialize            : fInitialize,         //初始化
 		toJson                : fToJSON,             //返回对象数据副本
+		sync                  : fSync,               //同步数据，可以通过重写进行自定义
    		get                   : fGet,                //获取指定属性值
    		escape                : fEscape,             //获取html编码过的属性值 
    		has                   : fHas,                //判断是否含有参数属性
@@ -4741,13 +4785,16 @@ function(){
         return $HO.clone(this.attributes);
     }
 	/**
-	 * 
+	 * 同步数据，可以通过重写进行自定义
+	 * @param {string}sMethod 方法名
+	 * @param {CM.Model}oModel 模型对象
+	 * @param {Object}oOptions 设置
+	 * @return {*} 根据同步方法的结果
 	 */
-    // Proxy `Backbone.sync` by default -- but override me if you need
-    // custom syncing semantics for *me* particular model.
-//    sync: function() {
-//        return Backbone.sync.apply(me, arguments);
-//    },
+    function fSync(sMethod,oModel,oOptions) {
+    	var me=this;
+        return me.dao.sync.apply(me, arguments);
+    }
     /**
      * 获取指定属性值
      * @method get
@@ -5128,9 +5175,10 @@ function(){
  * @created 2014-03-06
  */
 //"handy.common.Collection"
-$Define('C.Collection',
-'C.Model',
-function(Model){
+$Define('CM.Collection',
+['CM.AbstractDao',
+'CM.Model'],
+function(AbstractDao,Model){
 	
 	var Collection=$H.createClass();
 	
@@ -5142,6 +5190,7 @@ function(Model){
 //		models                 : [],                  //模型列表
 //		_byId                  : {},                  //根据id和cid索引
 //		length                 : 0,                   //模型集合长度
+		dao                    : $H.getSingleton(AbstractDao),         //数据访问对象，使用前需要设置
 		
 		_reset                 : _fReset,             //重置集合
 		_prepareModel          : _fPrepareModel,      //初始化模型
@@ -5151,6 +5200,7 @@ function(Model){
 		
 		initialize             : fInitialize,         //初始化
 		toJSON                 : fToJSON,             //返回json格式数据(模型数据的数组)
+		sync                   : fSync,               //同步数据，可以通过重写进行自定义
 		add                    : fAdd,                //添加模型
 		remove                 : fRemove,             //移除模型
 		set                    : fSet,                //设置模型
@@ -5166,6 +5216,8 @@ function(Model){
 		findWhere              : fFindWhere,          //返回包含指定 key-value 组合的第一个模型
 		sort                   : fSort,               //排序
 		pluck                  : fPluck,              //提取集合里指定的属性值
+		fetch                  : fFetch,              //请求数据
+		create                 : fCreate,             //新建模型
 		parse                  : fParse,              //分析处理回调数据，默认直接返回response
 		clone                  : fClone               //克隆
 		
@@ -5297,11 +5349,17 @@ function(Model){
         	return oModel.toJSON(oOptions); 
         });
     }
-
-//    // Proxy `Backbone.sync` by default.
-//    sync: function() {
-//      return Backbone.sync.apply(me, arguments);
-//    },
+	/**
+	 * 同步数据，可以通过重写进行自定义
+	 * @param {string}sMethod 方法名
+	 * @param {CM.Model}oModel 模型对象
+	 * @param {Object}oOptions 设置
+	 * @return {*} 根据同步方法的结果
+	 */
+    function fSync(sMethod,oModel,oOptions) {
+    	var me=this;
+        return me.dao.sync.apply(me, arguments);
+    }
 	/**
 	 * 添加模型
 	 * @param 同"set"方法
@@ -5633,43 +5691,58 @@ function(Model){
     function fPluck(sAttr) {
       return $H.Collection.invoke(this.models, 'get', sAttr);
     }
-
+	/**
+	 * 请求数据
+	 * @param {Object=}oOptions
+	 * @return {}
+	 */
     // Fetch the default set of models for me collection, resetting the
     // collection when they arrive. If `reset: true` is passed, the response
     // data will be passed through the `reset` method instead of `set`.
     function fFetch(oOptions) {
     	var me=this;
-        oOptions = oOptions ? $HO.clone(oOptions) : {};
+        oOptions = oOptions ? $H.clone(oOptions) : {};
         if (oOptions.parse === void 0){
         	oOptions.parse = true;
         }
         var success = oOptions.success;
-        var collection = me;
         oOptions.success = function(resp) {
         	var method = oOptions.reset ? 'reset' : 'set';
-        	collection[method](resp, oOptions);
+        	me[method](resp, oOptions);
         	if (success){
-        		success(collection, resp, oOptions);
+        		success(me, resp, oOptions);
         	}
-        	collection.trigger('sync', collection, resp, oOptions);
+        	me.trigger('sync', me, resp, oOptions);
         };
         wrapError(me, oOptions);
         return me.sync('read', me, oOptions);
     }
-
+	/**
+	 * 新建模型
+	 * @param {C.Model|Object}oModel 模型对象或者模型属性集
+	 * @param {Object=}oOptions 选项
+	 * @return {C.Model} 返回新建的模型
+	 */
     // Create a new instance of a model in me collection. Add the model to the
     // collection immediately, unless `wait: true` is passed, in which case we
     // wait for the server to agree.
     function fCreate(oModel, oOptions) {
     	var me=this;
-        oOptions = oOptions ? $HO.clone(oOptions) : {};
-        if (!(oModel = me._prepareModel(oModel, oOptions))) return false;
-        if (!oOptions.wait) me.add(oModel, oOptions);
-        var collection = me;
+        oOptions = oOptions ? $H.clone(oOptions) : {};
+        if (!(oModel = me._prepareModel(oModel, oOptions))){
+        	return false;
+        }
+        if (!oOptions.wait){
+        	me.add(oModel, oOptions);
+        }
         var success = oOptions.success;
         oOptions.success = function(oModel, resp) {
-        	if (oOptions.wait) collection.add(oModel, oOptions);
-        	if (success) success(oModel, resp, oOptions);
+        	if (oOptions.wait){
+        		me.add(oModel, oOptions);
+        	}
+        	if (success){
+        		success(oModel, resp, oOptions);
+        	}
         };
         oModel.save(null, oOptions);
         return oModel;
@@ -5699,14 +5772,14 @@ function(Model){
  * @created 2013-12-28
  */
 //"handy.component.AbstractComponent"
-$Define('C.AbstractComponent',["CM.ViewManager",'CM.AbstractView'],function(ViewManager,AbstractView){
+$Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,View){
+	
+	//访问component包内容的快捷别名
+	$C=$H.namespace('C',{});
 	
 	var AC=$H.createClass();
 	
-	//快捷别名
-	$C=$H.component;
-	
-	$H.inherit(AC,AbstractView,{
+	$H.inherit(AC,View,{
 		//实例属性、方法
 		xtype               : 'AbstractComponent',       //组件类型
 		
@@ -7338,7 +7411,7 @@ function(AC,ControlGroup){
 * Created:		2013-12-14										*
 *****************************************************************/
 //handy.module.AbstractModule
-$Define("M.AbstractModule","CM.AbstractView",function (AbstractView) {
+$Define("M.AbstractModule","CM.View",function (View) {
 	/**
 	 * 模块基类
 	 * 
@@ -7346,7 +7419,7 @@ $Define("M.AbstractModule","CM.AbstractView",function (AbstractView) {
 	 */
 	var AbstractModule = $H.createClass();
 	
-	$H.inherit(AbstractModule,AbstractView, {
+	$H.inherit(AbstractModule,View, {
 		
 //		isLoaded       : false,          //{boolean}模块是否已载入
 //		isActived      : false,          //{boolean}模块是否是当前活跃的
@@ -7365,42 +7438,6 @@ $Define("M.AbstractModule","CM.AbstractView",function (AbstractView) {
 	});
 	
 	return AbstractModule;
-});/****************************************************************
-* Author:		郑银辉											*
-* Email:		zhengyinhui100@gmail.com						*
-* Created:		2013-01-25										*
-*****************************************************************/
-/**
- * 数据访问对象抽象类，模块的dao都要继承此类，dao内的方法只可以使用此类的方法进行数据操作，以便进行统一的管理
- */
-//handy.module.AbstractDao
-$Define('M.AbstractDao',function(){
-	
-	var AbstractDao=$H.createClass();
-	
-	$HO.extend(AbstractDao.prototype,{
-		ajax         : fAjax,        //ajax方法
-		beforeSend   : $H.noop,      //发送前处理
-		error        : $H.noop,      //错误处理
-		success      : $H.noop       //成功处理
-	});
-	
-	/**
-	 * ajax
-	 * @method ajax
-	 * @param {Object}oParams
-	 * 
-	 */
-	function fAjax(oParams){
-		var me=this;
-		me.beforeSend(oParams);
-		oParams.error=$HF.intercept(me.error,oParams.error);
-		oParams.success=$HF.intercept(me.success,oParams.success);
-		return $.ajax(oParams);
-	}
-	
-	return AbstractDao;
-	
 });/****************************************************************
 * Author:		郑银辉											*
 * Email:		zhengyinhui100@gmail.com						*

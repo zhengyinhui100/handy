@@ -4,14 +4,14 @@
  * @created 2013-12-28
  */
 //"handy.component.AbstractComponent"
-$Define('C.AbstractComponent',["CM.ViewManager",'CM.AbstractView'],function(ViewManager,AbstractView){
+$Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,View){
 	
 	//访问component包内容的快捷别名
 	$C=$H.namespace('C',{});
 	
 	var AC=$H.createClass();
 	
-	$H.inherit(AC,AbstractView,{
+	$H.inherit(AC,View,{
 		//实例属性、方法
 		xtype               : 'AbstractComponent',       //组件类型
 		

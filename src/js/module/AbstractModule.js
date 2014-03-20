@@ -4,7 +4,7 @@
 * Created:		2013-12-14										*
 *****************************************************************/
 //handy.module.AbstractModule
-$Define("M.AbstractModule","CM.AbstractView",function (AbstractView) {
+$Define("M.AbstractModule","CM.View",function (View) {
 	/**
 	 * 模块基类
 	 * 
@@ -12,7 +12,7 @@ $Define("M.AbstractModule","CM.AbstractView",function (AbstractView) {
 	 */
 	var AbstractModule = $H.createClass();
 	
-	$H.inherit(AbstractModule,AbstractView, {
+	$H.inherit(AbstractModule,View, {
 		
 //		isLoaded       : false,          //{boolean}模块是否已载入
 //		isActived      : false,          //{boolean}模块是否是当前活跃的

@@ -8,26 +8,26 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2013-02-17
  */
-//"handy.common.AbstractView"
-$Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
+//"handy.common.View"
+$Define('CM.View','CM.ViewManager',function(ViewManager){
 	
-	var AbstractView=$H.createClass();
+	var View=$H.createClass();
 	var _oTagReg=/^(<[a-zA-Z]+)/;
 	var _oHasClsReg=/^[^>]+class=/;
 	var _oClsReg=/(class=")/;
 	
 	
-	$HO.extend(AbstractView,{
+	$HO.extend(View,{
 		extend              : fExtend,           //扩展原型定义
 		html                : fHtml              //静态初始化视图并生成html
 	});
 	
 	//自定义事件
-	$HO.extend(AbstractView.prototype,$H.Events);
+	$HO.extend(View.prototype,$H.Events);
 	
-	$HO.extend(AbstractView.prototype,{
+	$HO.extend(View.prototype,{
 		
-		xtype               : 'AbstractView',    //类型
+		xtype               : 'View',    //类型
 		
 		//配置
 //		renderTo            : null,              //渲染节点
@@ -378,7 +378,7 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 		if(!bNotDelay&&me.delayShow){
 			setTimeout(function(){
 				//这里必须指定基类的方法，不然会调用到组件自定义的show方法
-				AbstractView.prototype.show.call(me,true);
+				View.prototype.show.call(me,true);
 			},0);
 			return;
 		}
@@ -961,6 +961,6 @@ $Define('CM.AbstractView','CM.ViewManager',function(ViewManager){
 		this.trigger('afterDestroy');
 	}
 	
-	return AbstractView;
+	return View;
 	
 });
