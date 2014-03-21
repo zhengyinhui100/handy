@@ -17,6 +17,7 @@ handy.add('Object',function($H){
 		mix                 : fMix,             //自定义的继承方式，可以继承object和prototype，prototype方式继承时，非原型链方式继承。
 		isFunction			: fIsFunction,	    //判断对象是否是函数
 		isArray				: fIsArray, 		//判断对象是否是数组
+		isClass             : fIsClass,         //判断对象是否是类
 		equals				: fEquals, 		    //对象对比，对比每一个值是否相等
 		clone				: fClone,			//对象复制
 		isEmpty				: fIsEmpty, 		//判断对象是否为空
@@ -24,6 +25,7 @@ handy.add('Object',function($H){
 		contains            : fContains,        //是否包含指定属性/数组元素
 		largeThan           : fLargeThan,       //是否大于另一个对象|数组（包含另一个对象的所有属性或包含另一个数组的所有元素）
 		count				: fCount,			//计算对象长度
+		removeUndefined     : fRemoveUndefined, //移除undefined的元素或属性
 		toArray				: fToArray(),       //将类数组对象转换为数组，比如arguments, nodelist
 		getSingleton        : fGetSingleton,    //获取单例
 		generateMethod      : fGenerateMethod   //归纳生成类方法
@@ -103,7 +105,7 @@ handy.add('Object',function($H){
     * 				{array=}cover 仅覆盖此参数中的属性
     * 				{boolean=|array=|function(sprop)=}notCover 不覆盖原有属性/方法，当此参数为true时不覆盖原有属性；当此参数为数组时，
     * 					仅不覆盖数组中的原有属性；当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
-    * 				{boolean=}notClone 不克隆，仅当此参数为true时不克隆，此时，由于目标对象里的复杂属性(数组、对象等)是源对象中的引用，
+    * 				{boolean=}isClone 克隆，仅当此参数为true时克隆
     * 					源对象的修改会导致目标对象也修改
     * }
     * @return {Object} 扩展后的对象
@@ -111,12 +113,14 @@ handy.add('Object',function($H){
     function fExtend(oDestination, oSource, oOptions) {
     	var notCover=oOptions?oOptions.notCover:false;
     	var aCover=oOptions?oOptions.cover:null;
-    	var bNotClone=oOptions?oOptions.notClone:false;
+    	var bIsClone=oOptions?oOptions.IsClone:false;
     	oDestination=oDestination||{};
     	//如果是类扩展，添加方法元数据
     	var oConstructor=oDestination.constructor;
     	var bAddMeta=oConstructor.$isClass;
+    	var value;
         for (var sProperty in oSource) {
+        	value=oSource[sProperty];
         	//仅覆盖oOptions.cover中的属性
         	if(!aCover||Object.contains(aCover,sProperty)){
 	        	//不复制深层prototype
@@ -128,10 +132,10 @@ handy.add('Object',function($H){
 		        		bNotCover=Object.contains(notCover,sProperty)&&bHas;
 		        	}else if(Object.isFunction(notCover)){
 		        		//当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
-		        		bNotCover=notCover(sProperty);
+		        		bNotCover=notCover(sProperty,value);
 		        	}
 		            if (!bNotCover) {
-		            	var value=bNotClone?oSource[sProperty]:Object.clone(oSource[sProperty]);
+		            	var value=bIsClone?Object.clone(value):value;
 		            	//为方法添加元数据：方法名和声明此方法的类
 						if(bAddMeta&&Object.isFunction(value)){
 							value.$name=sProperty;
@@ -210,6 +214,14 @@ handy.add('Object',function($H){
     */
     function fIsArray(obj) {
         return window.Object.prototype.toString.call(obj) === "[object Array]";
+    }
+    /**
+     * 判断对象是否是类
+     * @param {*}obj 参数对象
+     * @return {boolean} true表示参数对象是类
+     */
+    function fIsClass(obj){
+    	return Object.isFunction(obj)&&obj.$isClass===true;
     }
     /**
     * 对比对象值是否相同
@@ -328,7 +340,7 @@ handy.add('Object',function($H){
     */
     function fEach(object, fCallback, args) {
     	var sName, i = 0,
-			nLength = object.length,
+			nLength = object.length,len,
 			bIsObj = nLength === undefined || Object.isFunction( object );
 		if ( args ) {
 			if ( bIsObj ) {
@@ -339,8 +351,15 @@ handy.add('Object',function($H){
 				}
 			} else {
 				for ( ; i < nLength; ) {
-					if ( fCallback.apply( object[ i++ ], args ) === false ) {
+					if ( fCallback.apply( object[ i ], args ) === false ) {
 						break;
+					}
+					//这里可能fCallback里进行了删除操作
+					len=object.length;
+					if(nLength==len){
+						i++;
+					}else{
+						nLength=len;
 					}
 				}
 			}
@@ -354,8 +373,15 @@ handy.add('Object',function($H){
 				}
 			} else {
 				for ( ; i < nLength; ) {
-					if ( fCallback.call( object[ i ], i, object[ i++ ] ) === false ) {
+					if ( fCallback.call( object[ i ], i, object[ i ] ) === false ) {
 						break;
+					}
+					//这里可能fCallback里进行了删除操作
+					len=object.length;
+					if(nLength==len){
+						i++;
+					}else{
+						nLength=len;
 					}
 				}
 			}
@@ -412,6 +438,43 @@ handy.add('Object',function($H){
             }
 	        return nCount;
         }
+    }
+    /**
+     * 移除undefined的元素或属性
+     * @param {Object|Array}obj 参数对象
+     * @param {boolean=}bNew 是否新建结果对象，不影响原对象
+     * @param {Object|Array} 返回结果
+     */
+    function fRemoveUndefined(obj,bNew){
+    	var bIsArray=Object.isArray(obj);
+    	if(bNew){
+    		if(bIsArray){
+    			var aResult=[];
+    			Object.each(obj,function(k,value){
+		    		if(value!==undefined){
+		    			aResult.push(value);
+		    		}
+	    		});
+	    		return aResult;
+    		}else{
+	    		return Object.extend({},obj,{
+	    			isClone:true,
+	    			notCover:function(k,value){
+	    				return value===undefined;
+	    		}});
+    		}
+    	}else{
+	    	Object.each(obj,function(k,value){
+	    		if(value===undefined){
+	    			if(bIsArray){
+	    				obj.splice(k,1);
+	    			}else{
+	    				delete obj[k];
+	    			}
+	    		}
+	    	});
+	    	return obj;
+    	}
     }
     /**
     * 将类数组对象转换为数组，比如arguments, nodelist
