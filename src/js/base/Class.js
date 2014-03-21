@@ -53,7 +53,8 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
          * 便捷访问父类方法
          * @method callSuper
          * @param {Class=}oSuper 指定父类，如果不指定，默认为定义此方法的类的父类，如果该值为空，则为实际调用对象的父类
-         * @param {Array}aArgs 参数数组
+         * @param {Array}aArgs 参数数组，默认为调用它的函数的参数
+         * @return {*} 返回对应方法执行结果
          */
         cClass.prototype.callSuper=function(oSuper,aArgs){
         	var me=this;
@@ -63,16 +64,13 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
         	}
         	var fCaller=arguments.callee.caller;
         	var oCallerSuper=fCaller.$owner.superProto;
+        	aArgs=aArgs||fCaller.arguments;
         	oSuper=oSuper?oSuper.prototype:(oCallerSuper||me.constructor.superProto);
         	var sMethod=fCaller.$name;
         	if(oSuper){
         		var fMethod=oSuper[sMethod];
         		if(Object.isFunction(fMethod)){
-        			if(aArgs){
-	        			return fMethod.apply(me,aArgs);
-        			}else{
-        				return fMethod.call(me);
-        			}
+        			return fMethod.apply(me,aArgs);
         		}
         	}
         };

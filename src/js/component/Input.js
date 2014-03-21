@@ -72,7 +72,7 @@ function(AC){
 	 */
 	function fDoConfig(oSettings){
 		var me=this;
-		me.callSuper([oSettings]);
+		me.callSuper();
 		//搜索框快捷配置方式
 		if(me.type=='search'){
 			me.icon='search';

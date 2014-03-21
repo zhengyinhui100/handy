@@ -102,7 +102,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 	 */
 	function fDoConfig(oParams){
 		var me=this;
-		me.callSuper([oParams]);
+		me.callSuper();
 		
 		//样式名
 		if(!me.cls){

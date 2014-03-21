@@ -55,7 +55,7 @@ function(AC){
 	 */
 	function fDoConfig(oParams){
 		var me=this;
-		me.callSuper([oParams]);
+		me.callSuper();
 		//options配置成菜单
 		var oOptions=oParams.options;
 		//根据默认值设置默认文字

@@ -60,7 +60,7 @@ function(AC,ControlGroup){
 	 */
 	function fDoConfig(oSettings){
 		var me=this;
-		me.callSuper([oSettings]);
+		me.callSuper();
 		if(me.activeType){
 			me.defItem.activeCls='hui-btn-active-'+me.activeType;
 		}
@@ -87,7 +87,7 @@ function(AC,ControlGroup){
 		if(me.hasContent){
 			me.find('.js-tab-content').hide().eq(nIndex).show();
 		}
-		me.callSuper([oEvt,nIndex]);
+		me.callSuper();
 	}
 	/**
 	 * 设置标签页内容

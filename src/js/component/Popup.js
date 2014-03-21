@@ -42,7 +42,7 @@ function(AC){
 	 */
 	function fDoConfig(oParam){
 		var me=this;
-		me.callSuper([oParam]);
+		me.callSuper();
 		//添加点击即隐藏事件
 		if(me.clickHide){
 			me._listeners.push({

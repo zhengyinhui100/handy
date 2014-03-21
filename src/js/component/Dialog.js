@@ -125,7 +125,7 @@ function(AC,Popup){
 	 */
 	function fDoConfig(oSettings){
 		var me=this;
-		me.callSuper([oSettings]);
+		me.callSuper();
 		var aItems=oSettings.items;
 		if(me.title&&!me.hasConfig('[xrole="dialog-header"]',aItems)){
 			//顶部标题栏
