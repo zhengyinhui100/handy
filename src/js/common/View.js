@@ -34,13 +34,15 @@ function(ViewManager,AbstractEvents){
 		renderBy            : 'append',          //默认渲染方式
 //		extCls              : '',                //附加class
 //		notListen           : false,             //不自动初始化监听器
+		listeners           : [],                //事件配置列表，初始参数可以是对象也可以是对象数组
+		items               : [],                //子视图配置，初始参数可以是对象也可以是对象数组
 		
 		
 		//属性
 //		inited              : false,             //是否已经初始化
 //		startParseItems     : false,             //是否已开始初始化子视图
 //		manager             : null,              //视图管理对象
-//		params              : null,              //初始化时传入的参数
+//		initParam           : null,              //保存初始化时传入的参数
 //		_container          : null,              //试图对象容器节点
 //      listened            : false,             //是否已初始化事件
 //		isSuspend           : false,             //是否挂起事件
@@ -66,7 +68,6 @@ function(ViewManager,AbstractEvents){
 			'focus','focusin','focusout',
 			'contextmenu','change','submit'
 		],
-//      listeners           : [],                //类事件配置
 //		_listeners          : {},                //实例事件池
 		
 		_parseListenEvents  : _fParseListenEvents, //处理对象类型或者空格相隔的多事件
@@ -189,43 +190,39 @@ function(ViewManager,AbstractEvents){
 	 */
 	function fDoConfig(oParams){
 		var me=this;
-		//保存参数
-		me.params=oParams;
-		//复制参数
-		me.settings=$H.clone(oParams);
+		//复制保存初始参数
+		me.initParam=$H.clone(oParams);
+		
+		//只覆盖基本类型的属性
+		$H.extend(me,oParams,{notCover:function(p,val){
+			var value=me[p];
+			//默认事件，可通过参数属性直接添加
+			var bIsCustEvt=$H.contains(me._customEvents,p);
+			var bIsDefEvt=$H.contains(me._defaultEvents,p);
+			if(bIsDefEvt){
+				me.listeners.push({
+					name:p,
+					handler:oParams[p]
+				});
+				return true;
+			}else if(bIsCustEvt){
+				me.on(p,oParams[p]);
+				return true;
+			}else if(p=='defItem'){
+				$H.extend(me[p],val);
+				return true;
+			}else if(p=='listener'){
+				me.listeners=me.listeners.concat($H.isArray(val)?val:[val]);
+				return true;
+			}else if(p=='items'){
+				me.add(val);
+				return true;
+			}
+		}});
 		if(oParams.renderTo){
 			me.renderTo=$(oParams.renderTo);
 		}else{
 			me.renderTo=$(document.body);
-		}
-		var aListeners=me.listeners||[];
-		//添加参数中的事件
-		if(oParams.listeners){
-			aListeners=aListeners.concat(oParams.listeners);
-		}
-		me._listeners=aListeners;
-		
-		//只覆盖基本类型的属性
-		$H.extend(me,oParams,{notCover:function(sProp){
-			var value=me[sProp];
-			//默认事件，可通过参数属性直接添加
-			var bIsCustEvt=$H.contains(me._customEvents,sProp);
-			var bIsDefEvt=$H.contains(me._defaultEvents,sProp);
-			if(bIsDefEvt){
-				me._listeners.push({
-					name:sProp,
-					handler:oParams[sProp]
-				});
-			}else if(bIsCustEvt){
-				me.on(sProp,oParams[sProp]);
-			}
-			if((value!=null&&typeof value=='object')||$H.isFunction(value)){
-				return true;
-			}
-		}});
-		//覆盖子视图默认配置
-		if(oParams.defItem){
-			$H.extend(me.defItem,oParams.defItem);
 		}
 	}
 	/**
@@ -593,7 +590,7 @@ function(ViewManager,AbstractEvents){
 			return false;
 		}
 		me.listened=true;
-		var aListeners=me._listeners;
+		var aListeners=me.listeners;
 		me._listeners=[];
 		for(var i=aListeners.length-1;i>=0;i--){
 			me.listen(aListeners[i]);
@@ -817,43 +814,42 @@ function(ViewManager,AbstractEvents){
 	/**
 	 * 添加子视图
 	 * @method add
-	 * @param {object}oItem 视图对象或视图配置
+	 * @param {object|Array}item 视图对象或视图配置或数组
 	 */
-	function fAdd(oItem){
+	function fAdd(item){
 		var me=this;
+		if($H.isArray(item)){
+			for(var i=0,len=item.length;i<len;i++){
+				me.add(item[i]);
+			}
+			return;
+		}
 		//还没初始化子视图配置，直接添加到配置队列里
 		if(!me.startParseItems){
-			var oSettings=me.settings;
-			var items=oSettings.items;
-			if(!items){
-				oSettings.items=[];
-			}else if(!$H.isArray(items)){
-				oSettings.items=[items];
-			}
-			oSettings.items.push(oItem);
+			me.items.push(item);
 			return;
 		}
 		
 		//开始初始化后，如果是配置，先创建子视图
-		if(!(oItem instanceof View)){
+		if(!(item instanceof View)){
 			//默认子视图配置
 			if(me.defItem){
-				$H.extend(oItem,me.defItem,{notCover:true});
+				$H.extend(item,me.defItem,{notCover:true});
 			}
 			//具体视图类处理
-			me.parseItem(oItem);
-			var Item=me.manager.getClass(oItem.xtype);
+			me.parseItem(item);
+			var Item=me.manager.getClass(item.xtype);
 			if(Item){
-				if(!oItem.renderTo){
-					oItem.autoRender=false;
+				if(!item.renderTo){
+					item.autoRender=false;
 				}
-				oItem=new Item(oItem);
+				item=new Item(item);
 			}else{
-				$D.error("xtype:"+oItem.xtype+"未找到");
+				$D.error("xtype:"+item.xtype+"未找到");
 			}
 		}
-		me.children.push(oItem);
-		oItem.parent=me;
+		me.children.push(item);
+		item.parent=me;
 	}
 	/**
 	 * 删除子视图
@@ -881,7 +877,7 @@ function(ViewManager,AbstractEvents){
 	function fParseItems(){
 		var me=this;
 		me.startParseItems=true;
-		var aItems=me.settings.items;
+		var aItems=me.items;
 		if(!aItems){
 			return;
 		}
@@ -975,8 +971,7 @@ function(ViewManager,AbstractEvents){
 		}
 		//注销组件
 		me.manager.unregister(me);
-		delete me.params;
-		delete me.settings;
+		delete me.initParam;
 		delete me._container;
 		delete me.renderTo;
 		delete me._listeners;

@@ -35,11 +35,14 @@ $Define("CM.AbstractManager", function() {
 	/**
 	 * 根据xtype获取视图类
 	 * @method getClass
-	 * @param {string}sXType 视图类型
+	 * @param {string|Class}xtype 视图类型或命名空间或视图类
 	 * @return {object} 返回对应的视图类
 	 */
-	function fGetClass(sXtype){
-		return this._types[sXtype];
+	function fGetClass(xtype){
+		if($H.isClass(xtype)){
+			return xtype;
+		}
+		return this._types[xtype]||$H.namespace(xtype);
 	}
 	/**
 	 * 注册视图

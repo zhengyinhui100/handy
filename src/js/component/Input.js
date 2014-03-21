@@ -78,7 +78,7 @@ function(AC){
 			me.icon='search';
 		}else if(me.type=="textarea"){
 			//textarea高度自适应，IE6、7、8支持propertychange事件，input被其他浏览器所支持
-			me._listeners.push({
+			me.listeners.push({
 				name:'input propertychange',
 				el:'.js-input',
 				handler:function(){
