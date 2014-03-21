@@ -609,6 +609,7 @@ function(ViewManager,AbstractEvents){
 			me.unlisten(aListeners[i]);
 		}
 		me.off('all');
+		me.unlistenTo('all');
 		me.callChild();
 	}
 	/**
