@@ -37,6 +37,8 @@ function(ViewManager,AbstractEvents){
 		
 		
 		//属性
+//		inited              : false,             //是否已经初始化
+//		startParseItems     : false,             //是否已开始初始化子视图
 //		manager             : null,              //视图管理对象
 //		params              : null,              //初始化时传入的参数
 //		_container          : null,              //试图对象容器节点
@@ -106,7 +108,6 @@ function(ViewManager,AbstractEvents){
 		callChild           : fCallChild,        //调用子视图方法
 		add                 : fAdd,              //添加子视图
 		remove              : fRemove,           //删除子视图
-		addItem             : fAddItem,          //添加子视图配置
 		parseItem           : function(){},      //分析子视图，由具体视图类实现
 		parseItems          : fParseItems,       //分析子视图列表
 		
@@ -179,6 +180,7 @@ function(ViewManager,AbstractEvents){
 		}
 		//注册视图，各继承类自行实现
 		me.manager.register(me);
+		me.inited=true;
 	}
 	/**
 	 * 初始化配置
@@ -815,10 +817,41 @@ function(ViewManager,AbstractEvents){
 	/**
 	 * 添加子视图
 	 * @method add
-	 * @param {object}oItem 视图对象
+	 * @param {object}oItem 视图对象或视图配置
 	 */
 	function fAdd(oItem){
 		var me=this;
+		//还没初始化子视图配置，直接添加到配置队列里
+		if(!me.startParseItems){
+			var oSettings=me.settings;
+			var items=oSettings.items;
+			if(!items){
+				oSettings.items=[];
+			}else if(!$H.isArray(items)){
+				oSettings.items=[items];
+			}
+			oSettings.items.push(oItem);
+			return;
+		}
+		
+		//开始初始化后，如果是配置，先创建子视图
+		if(!(oItem instanceof View)){
+			//默认子视图配置
+			if(me.defItem){
+				$H.extend(oItem,me.defItem,{notCover:true});
+			}
+			//具体视图类处理
+			me.parseItem(oItem);
+			var Item=me.manager.getClass(oItem.xtype);
+			if(Item){
+				if(!oItem.renderTo){
+					oItem.autoRender=false;
+				}
+				oItem=new Item(oItem);
+			}else{
+				$D.error("xtype:"+oItem.xtype+"未找到");
+			}
+		}
 		me.children.push(oItem);
 		oItem.parent=me;
 	}
@@ -842,27 +875,12 @@ function(ViewManager,AbstractEvents){
 		return bResult;
 	}
 	/**
-	 * 添加子视图配置
-	 * @method addItem
-	 * @param {object}oItem 子视图配置
-	 */
-	function fAddItem(oItem){
-		var me=this;
-		var oSettings=me.settings;
-		var items=oSettings.items;
-		if(!items){
-			oSettings.items=[];
-		}else if(!$H.isArray(items)){
-			oSettings.items=[items];
-		}
-		oSettings.items.push(oItem);
-	}
-	/**
 	 * 分析子视图列表
 	 * @method parseItems
 	 */
 	function fParseItems(){
 		var me=this;
+		me.startParseItems=true;
 		var aItems=me.settings.items;
 		if(!aItems){
 			return;
@@ -870,23 +888,7 @@ function(ViewManager,AbstractEvents){
 		aItems=aItems.length?aItems:[aItems];
 		//逐个初始化子视图
 		for(var i=0,len=aItems.length;i<len;i++){
-			var oItem=aItems[i];
-			//默认子视图配置
-			if(me.defItem){
-				$H.extend(oItem,me.defItem,{notCover:true});
-			}
-			//具体视图类处理
-			me.parseItem(oItem);
-			var Item=me.manager.getClass(oItem.xtype);
-			if(Item){
-				if(!oItem.renderTo){
-					oItem.autoRender=false;
-				}
-				var oItem=new Item(oItem);
-				me.add(oItem);
-			}else{
-				$D.error("xtype:"+oItem.xtype+"未找到");
-			}
+			me.add(aItems[i]);
 		}
 	}
 	/**

@@ -67,7 +67,7 @@ function(AC){
 				break;
 			}
 		}
-		me.addItem({
+		me.add({
 			itemClick:function(oButton,nIndex){
 				var sValue=oButton.value;
 				me.val(sValue);

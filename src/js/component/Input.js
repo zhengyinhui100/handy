@@ -89,7 +89,7 @@ function(AC){
 		}
 		//清除按钮快捷配置方式
 		if(me.withClear){
-			me.addItem({
+			me.add({
 				xtype:'Button',
 				radius:'big',
 				icon:'delete',

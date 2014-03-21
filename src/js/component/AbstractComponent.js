@@ -111,7 +111,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		me.extCls=me.getExtCls();
 		//图标视图快捷添加
 		if(me.icon){
-			me.addItem({
+			me.add({
 				xtype:'Icon',
 				name:me.icon
 			})

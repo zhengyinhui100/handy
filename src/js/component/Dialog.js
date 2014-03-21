@@ -129,7 +129,7 @@ function(AC,Popup){
 		var aItems=oSettings.items;
 		if(me.title&&!me.hasConfig('[xrole="dialog-header"]',aItems)){
 			//顶部标题栏
-			me.addItem({
+			me.add({
 				xtype:'Toolbar',
 				title:me.title,
 				theme:'gray',
@@ -178,7 +178,7 @@ function(AC,Popup){
 					}
 				});
 			}
-			me.addItem({
+			me.add({
 				xtype:'Tab',
 				xrole:'dialog-action',
 				theme:'border-top',
