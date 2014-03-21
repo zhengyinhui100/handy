@@ -1,5 +1,35 @@
-/* Handy v1.0.0-dev | 2014-03-19 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-21 | zhengyinhui100@gmail.com */
 /**
+ * 组件管理类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-01-10
+ */
+//"handy.component.ComponentManager"
+$Define("C.ComponentManager", 
+['CM.AbstractManager',
+'CM.ViewManager'],
+function(AbstractManager,ViewManager) {
+
+	var ComponentManager = AbstractManager.extend({
+		type          : 'component',      //管理类型
+		initialize    : fInitialize       //初始化
+	});
+	/**
+	 * 初始化
+	 * @method initialize
+	 */
+	function fInitialize(){
+		var me=this;
+		var oVm=$H.getSingleton(ViewManager);
+		me._types=oVm._types;
+		me._all=oVm._all;
+	}
+	
+	//全局快捷别名
+	$CM=new ComponentManager();
+	
+	return ComponentManager;
+});/**
  * 组件基类，所有组件必须继承自此类或此类的子类，定义组件必须用AbstractComponent.define方法
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2013-12-28
@@ -66,7 +96,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		$H.inherit(Component,oSuper,null,null,{notCover:function(p){
 			return p == 'define';
 		}});
-		$HO.getSingleton(ViewManager).registerType(sXtype,Component);
+		$H.getSingleton(ViewManager).registerType(sXtype,Component);
 		//快捷别名
 		$C[sXtype]=Component;
 		return Component;
@@ -83,7 +113,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		if(!params){
 			return false;
 		}
-		if($HO.isArray(params)){
+		if($H.isArray(params)){
 			for(var i=0,len=params.length;i<len;i++){
 				if(me.match(sSel,params[i])){
 					return true;
@@ -119,7 +149,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		}
 		//父组件是迷你的，子组件默认也是迷你的
 		if(me.isMini){
-			me.defItem=$HO.extend({isMini:true},me.defItem);
+			me.defItem=$H.extend({isMini:true},me.defItem);
 		}
 	}
 	/**
@@ -294,7 +324,7 @@ function(AC){
 		}
 		//Android下弹出遮罩层时，点击仍能聚焦到到输入框，暂时只能在弹出时disable掉，虽然能避免聚焦及弹出输入法，
 		//不过，仍旧会有光标竖线停留在点击的输入框里，要把延迟加到几秒之后才能避免，但又会影响使用
-		if($H.Browser.android()){
+		if($H.android()){
 			me._listeners.push({
 				name:'show',
 				custom:true,
@@ -571,12 +601,12 @@ function(AC){
 		if(sValue){
 			var aValues=sValue.split(','),aSel=[];
 			me.each(function(i,oCmp){
-				oCmp.select($HO.contains(aValues,oCmp.value));
+				oCmp.select($H.contains(aValues,oCmp.value));
 			});
 		}else{
 			var aCmp=me.find('$>[selected=true]');
 			var aValues=[];
-			$HO.each(aCmp,function(i,oCmp){
+			$H.each(aCmp,function(i,oCmp){
 				aValues.push(oCmp.value);
 			})
 			return aValues.join(',');
@@ -1375,7 +1405,7 @@ function(AC,Popup){
 	var Dialog=AC.define('Dialog',Popup);
 	
 	//快捷静态方法
-	$HO.extend(Dialog,{
+	$H.extend(Dialog,{
 		alert           : fAlert,    //弹出警告框
 		confirm         : fConfirm,  //弹出确认框
 		prompt          : fPrompt    //弹出输入框

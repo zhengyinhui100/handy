@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-19 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-21 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -51,7 +51,7 @@
 			var oModule=fDefined.apply(window,args);
 			handy.base[sName]=handy[sName]=oModule;
 			//return;
-			if('Class,Browser,Events,Function,Object,String,Template,Util'.indexOf(sName)>=0){
+			if('Browser,Class,Collection,Cookie,Events,Function,Json,Object,String,Template,Util'.indexOf(sName)>=0){
 				for(var key in oModule){
 					//!Function[key]专为bind方法
 					if(typeof handy[key]!="undefined"&&('console' in window)&&!Function[key]){
@@ -59,9 +59,6 @@
 						console.log(sName+"命名冲突:"+key);
 					}
 					handy[key]=oModule[key];
-				}
-				if(sName=="Events"){
-					handy._eventCache={};
 				}
 			}
 		}else{
@@ -99,7 +96,7 @@ handy.add('Json',function($H){
 	
 	var Json={
 		stringify   : fStringify,    //序列化，将json对象转化为字符串
-		parse       : fParse         //将字符串转化为json对象
+		parseJson   : fParseJson     //将字符串转化为json对象
 	}
 	
 	var _bNativeJson='JSON' in window,
@@ -273,7 +270,7 @@ handy.add('Json',function($H){
      * @param {boolean=}bNotNative true表示强制不使用原生的JSON方法
      * @return {Object} 返回json对象
      */
-	function fParse(sText, fReviver,bNotNative) {
+	function fParseJson(sText, fReviver,bNotNative) {
 		if(_bNativeJson&&!bNotNative){
 			return JSON.parse.apply(null,arguments);
 		}
@@ -335,6 +332,7 @@ handy.add('Object',function($H){
 		mix                 : fMix,             //自定义的继承方式，可以继承object和prototype，prototype方式继承时，非原型链方式继承。
 		isFunction			: fIsFunction,	    //判断对象是否是函数
 		isArray				: fIsArray, 		//判断对象是否是数组
+		isClass             : fIsClass,         //判断对象是否是类
 		equals				: fEquals, 		    //对象对比，对比每一个值是否相等
 		clone				: fClone,			//对象复制
 		isEmpty				: fIsEmpty, 		//判断对象是否为空
@@ -342,6 +340,7 @@ handy.add('Object',function($H){
 		contains            : fContains,        //是否包含指定属性/数组元素
 		largeThan           : fLargeThan,       //是否大于另一个对象|数组（包含另一个对象的所有属性或包含另一个数组的所有元素）
 		count				: fCount,			//计算对象长度
+		removeUndefined     : fRemoveUndefined, //移除undefined的元素或属性
 		toArray				: fToArray(),       //将类数组对象转换为数组，比如arguments, nodelist
 		getSingleton        : fGetSingleton,    //获取单例
 		generateMethod      : fGenerateMethod   //归纳生成类方法
@@ -421,7 +420,7 @@ handy.add('Object',function($H){
     * 				{array=}cover 仅覆盖此参数中的属性
     * 				{boolean=|array=|function(sprop)=}notCover 不覆盖原有属性/方法，当此参数为true时不覆盖原有属性；当此参数为数组时，
     * 					仅不覆盖数组中的原有属性；当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
-    * 				{boolean=}notClone 不克隆，仅当此参数为true时不克隆，此时，由于目标对象里的复杂属性(数组、对象等)是源对象中的引用，
+    * 				{boolean=}isClone 克隆，仅当此参数为true时克隆
     * 					源对象的修改会导致目标对象也修改
     * }
     * @return {Object} 扩展后的对象
@@ -429,12 +428,14 @@ handy.add('Object',function($H){
     function fExtend(oDestination, oSource, oOptions) {
     	var notCover=oOptions?oOptions.notCover:false;
     	var aCover=oOptions?oOptions.cover:null;
-    	var bNotClone=oOptions?oOptions.notClone:false;
+    	var bIsClone=oOptions?oOptions.IsClone:false;
     	oDestination=oDestination||{};
     	//如果是类扩展，添加方法元数据
     	var oConstructor=oDestination.constructor;
     	var bAddMeta=oConstructor.$isClass;
+    	var value;
         for (var sProperty in oSource) {
+        	value=oSource[sProperty];
         	//仅覆盖oOptions.cover中的属性
         	if(!aCover||Object.contains(aCover,sProperty)){
 	        	//不复制深层prototype
@@ -446,10 +447,10 @@ handy.add('Object',function($H){
 		        		bNotCover=Object.contains(notCover,sProperty)&&bHas;
 		        	}else if(Object.isFunction(notCover)){
 		        		//当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
-		        		bNotCover=notCover(sProperty);
+		        		bNotCover=notCover(sProperty,value);
 		        	}
 		            if (!bNotCover) {
-		            	var value=bNotClone?oSource[sProperty]:Object.clone(oSource[sProperty]);
+		            	var value=bIsClone?Object.clone(value):value;
 		            	//为方法添加元数据：方法名和声明此方法的类
 						if(bAddMeta&&Object.isFunction(value)){
 							value.$name=sProperty;
@@ -528,6 +529,14 @@ handy.add('Object',function($H){
     */
     function fIsArray(obj) {
         return window.Object.prototype.toString.call(obj) === "[object Array]";
+    }
+    /**
+     * 判断对象是否是类
+     * @param {*}obj 参数对象
+     * @return {boolean} true表示参数对象是类
+     */
+    function fIsClass(obj){
+    	return Object.isFunction(obj)&&obj.$isClass===true;
     }
     /**
     * 对比对象值是否相同
@@ -646,7 +655,7 @@ handy.add('Object',function($H){
     */
     function fEach(object, fCallback, args) {
     	var sName, i = 0,
-			nLength = object.length,
+			nLength = object.length,len,
 			bIsObj = nLength === undefined || Object.isFunction( object );
 		if ( args ) {
 			if ( bIsObj ) {
@@ -657,8 +666,15 @@ handy.add('Object',function($H){
 				}
 			} else {
 				for ( ; i < nLength; ) {
-					if ( fCallback.apply( object[ i++ ], args ) === false ) {
+					if ( fCallback.apply( object[ i ], args ) === false ) {
 						break;
+					}
+					//这里可能fCallback里进行了删除操作
+					len=object.length;
+					if(nLength==len){
+						i++;
+					}else{
+						nLength=len;
 					}
 				}
 			}
@@ -672,8 +688,15 @@ handy.add('Object',function($H){
 				}
 			} else {
 				for ( ; i < nLength; ) {
-					if ( fCallback.call( object[ i ], i, object[ i++ ] ) === false ) {
+					if ( fCallback.call( object[ i ], i, object[ i ] ) === false ) {
 						break;
+					}
+					//这里可能fCallback里进行了删除操作
+					len=object.length;
+					if(nLength==len){
+						i++;
+					}else{
+						nLength=len;
 					}
 				}
 			}
@@ -730,6 +753,43 @@ handy.add('Object',function($H){
             }
 	        return nCount;
         }
+    }
+    /**
+     * 移除undefined的元素或属性
+     * @param {Object|Array}obj 参数对象
+     * @param {boolean=}bNew 是否新建结果对象，不影响原对象
+     * @param {Object|Array} 返回结果
+     */
+    function fRemoveUndefined(obj,bNew){
+    	var bIsArray=Object.isArray(obj);
+    	if(bNew){
+    		if(bIsArray){
+    			var aResult=[];
+    			Object.each(obj,function(k,value){
+		    		if(value!==undefined){
+		    			aResult.push(value);
+		    		}
+	    		});
+	    		return aResult;
+    		}else{
+	    		return Object.extend({},obj,{
+	    			isClone:true,
+	    			notCover:function(k,value){
+	    				return value===undefined;
+	    		}});
+    		}
+    	}else{
+	    	Object.each(obj,function(k,value){
+	    		if(value===undefined){
+	    			if(bIsArray){
+	    				obj.splice(k,1);
+	    			}else{
+	    				delete obj[k];
+	    			}
+	    		}
+	    	});
+	    	return obj;
+    	}
     }
     /**
     * 将类数组对象转换为数组，比如arguments, nodelist
@@ -1757,76 +1817,102 @@ function(Debug,Object,Function,$H){
 })/**
  * 自定义事件类，事件名称支持'all'表示所有事件，支持复杂形式：'event1 event2'或{event1:func1,event:func2}，
  * 事件名称支持命名空间(".name")，如：change.one
- * PS:注意，此类只用来继承，不能直接使用，否则_eventCache属性会污染由他扩展是类，要使用全局事件可以直接使用handy下的方法
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 handy.add('Events',function($H){
 	
 	var Events={
-		_eventCache   : {},              //自定义事件池
-		_parseEvents  : _fParseEvents,   //处理对象类型或者空格相隔的多事件
-		on            : fOn,             //添加事件
-		once          : fOnce,           //监听一次
-		off           : fOff,            //移除事件
-		suspend       : fSuspend,        //挂起事件
-		resume        : fResume,         //恢复事件
-		trigger       : fTrigger         //触发事件
+		_eventCache        : {},                   //自定义事件池
+		_parseEvents       : _fParseEvents,        //分析事件对象
+		_parseCustomEvents : _fParseCustomEvents,  //处理对象类型或者空格相隔的多事件
+		_delegateHandler   : _fDelegateHandler,    //统一代理回调函数
+		on                 : fOn,                  //添加事件
+		once               : fOnce,                //监听一次
+		off                : fOff,                 //移除事件
+		suspend            : fSuspend,             //挂起事件
+		resume             : fResume,              //恢复事件
+		trigger            : fTrigger              //触发事件
 	};
 	
-	var _oArrayProto=Array.prototype;
-	
 	/**
-	 * 处理对象类型或者空格相隔的多事件
-	 * @method _parseEvents(sMethod,name[,param,..])
-	 * @param {string}sMethod 调用的方法名
+	 * 分析事件对象
 	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}
 	 * 							事件名称支持命名空间(".name")，如：change.one
-	 * @param {*=}param 附加参数，具体参照对应的方法
+	 * @param {Function}fCall({Array}aParams) 回调函数，参数aParams是事件名和事件函数，如果aParams长度为1则表示没有事件函数
 	 * @return {boolean} true表示已成功处理事件，false表示未处理
 	 */
-	function _fParseEvents(sMethod,name,param){
+	function _fParseEvents(name,fCall){
 		var me=this;
 		var rSpace=/\s+/;
-		var aArgs=_oArrayProto.slice.call(arguments,2);
 		if(typeof name=='object'){
 			for(var key in name){
-				me[sMethod].apply(me,[key,name[key]].concat(aArgs));
+				fCall([key,name[key]]);
 			}
 			return true;
-		}else if(rSpace.test(name)){
+		}else if(typeof name=='string'&&rSpace.test(name)){
 			//多个空格相隔的事件
 			var aName=name.split(rSpace);
 			for(var i=0,len=aName.length;i<len;i++){
-				me[sMethod].apply(me,[aName[i]].concat(aArgs));
+				fCall([aName[i]]);
 			}
 			return true;
 		}
 		return false;
 	}
 	/**
-	 * 添加事件
+	 * 处理对象类型或者空格相隔的多事件
+	 * @method _parseCustomEvents(sMethod,name[,param,..])
 	 * @param {string}sMethod 调用的方法名
+	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}
+	 * 							事件名称支持命名空间(".name")，如：change.one
+	 * @param {*=}param 附加参数，具体参照对应的方法
+	 * @return {boolean} true表示已成功处理事件，false表示未处理
+	 */
+	function _fParseCustomEvents(sMethod,name,param){
+		var me=this;
+		var aArgs=$H.toArray(arguments,2);
+		return me._parseEvents(name,function(aParams){
+			me[sMethod].apply(me,aParams.concat(aArgs));
+		});
+	}
+	/**
+	 * 统一代理回调函数
+	 * @param {Function}fHandler 回调函数
+	 * @param {*=}context 事件函数执行上下文，默认是this
+	 * @return {Function} 返回代理函数
+	 */
+	function _fDelegateHandler(fHandler,context){
+		var me=this;
+		return function(){
+			if(me.isSuspend!=true){
+				return fHandler.apply(context||me,arguments);
+			}
+		};
+	}
+	/**
+	 * 添加事件
+	 * @method on(name,fHandler[,context,nTimes])如果第三个参数是整形，则它表示执行次数，此时，context为空
 	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}，
 	 * 							事件名称支持命名空间(".name")，如：change.one
 	 * @param {Function=}fHandler 事件函数
-	 * @param {*=}context 事件函数执行上下文
+	 * @param {*=}context 事件函数执行上下文，默认是this
 	 * @param {number=}nTimes 执行次数，默认无限次
 	 */
 	function fOn(name,fHandler,context,nTimes){
 		var me=this;
-		if(me._parseEvents('on',name,fHandler,context,nTimes)){
+		if(me._parseCustomEvents('on',name,fHandler,context,nTimes)){
 			return;
+		}
+		if(typeof context=='number'){
+			nTimes=context;
+			context=null;
 		}
 		var oCache=me._eventCache;
 		var aCache=oCache[name];
 		if(!aCache){
 			aCache=oCache[name]=[];
 		}
-		var fCall=function(){
-			if(me.isSuspend!=true){
-				return fHandler.apply(context||me,arguments);
-			}
-		};
+		var fCall=me._delegateHandler(fHandler,context);
 		aCache.push({
 			times:nTimes,
 			handler:fHandler,
@@ -1839,14 +1925,12 @@ handy.add('Events',function($H){
 	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}
 	 * 							事件名称支持命名空间(".name")，如：change.one
 	 * @param {function=}fHandler 事件函数
-	 * @param {*=}context 事件函数执行上下文
+	 * @param {*=}context 事件函数执行上下文，默认是this
 	 */
 	 function fOnce(name,fHandler,context){
 	 	var me=this;
-		if(me._parseEvents('once',name,fHandler,context,1)){
-			return;
-		}
-	 	me.on(name,fHandler,context,1);
+	 	var aArgs=$H.toArray(arguments);
+	 	me.on.apply(me,aArgs.push(1));
 	 }
 	/**
 	 * 移除事件
@@ -1862,7 +1946,7 @@ handy.add('Events',function($H){
 			me._eventCache={};
 			return true;
 		}
-		if(me._parseEvents('off',name,fHandler)){
+		if(me._parseCustomEvents('off',name,fHandler)){
 			return;
 		}
 		var oCache=me._eventCache;
@@ -1906,13 +1990,13 @@ handy.add('Events',function($H){
 	 */
 	function fTrigger(name,data){
 		var me=this;
-		var aNewArgs=$HO.toArray(arguments);
+		var aNewArgs=$H.toArray(arguments);
 		aNewArgs.unshift('trigger');
-		if(me._parseEvents.apply(me,aNewArgs)){
+		if(me._parseCustomEvents.apply(me,aNewArgs)){
 			return;
 		}
 		var oCache=me._eventCache;
-		var aArgs=_oArrayProto.slice.call(arguments,1);
+		var aArgs=$H.toArray(arguments,1);
 		var result,aCache;
 		//内部函数，执行事件队列
 		function _fExec(aCache){
@@ -2348,18 +2432,17 @@ handy.add("String",function(){
 handy.add('Cookie',function(){
 	
 	var Cookie={
-		get     : fGet,    //获取cookie
-		set     : fSet,    //设置cookie
-		del     : fDelete  //删除cookie
+		getCookie     : fGetCookie,    //获取cookie
+		setCookie     : fSetCookie,    //设置cookie
+		delCookie     : fDeleteCookie  //删除cookie
 	}
 	
 	/**
 	 * 获取cookie
-	 * @method  get
 	 * @param   {string}sName cookie的name
 	 * @param   {boolean}bNotUnescape 不解码
 	 */
-	function fGet(sName,bNotUnescape) {
+	function fGetCookie(sName,bNotUnescape) {
 		var sSearch = sName + "=";
 		var sValue = "";
 		var sCookie = document.cookie;
@@ -2382,7 +2465,7 @@ handy.add('Cookie',function(){
 	}
 	/**
 	 * 设置cookie
-	 * @method  set(sName, sValue[,oOptions])
+	 * @method  setCookie(sName, sValue[,oOptions])
 	 * @param {string}sName cookie的name
 	 * @param {string}sValue cookie的value
 	 * @param {Object}oOptions{
@@ -2392,7 +2475,7 @@ handy.add('Cookie',function(){
 	 *      {boolean}secure : 是否有secure属性
 	 * }
 	 */
-	function fSet(sName, sValue, oOptions) {
+	function fSetCookie(sName, sValue, oOptions) {
 		var aParam = [];
 		if(sName!=undefined&&sValue!=undefined){
 			aParam.push(sName + "=" + escape(sValue));
@@ -2415,10 +2498,9 @@ handy.add('Cookie',function(){
 	}
 	/**
 	 * 删除cookie
-	 * @method del
 	 * @param {string}sName cookie的name
 	 */
-	function fDelete(sName){
+	function fDeleteCookie(sName){
 		//当前时间
 	    var oDate = new Date();
 	    //设置为过期时间
@@ -2545,7 +2627,7 @@ handy.add('Collection','B.Object',function(Object,$H){
 	    if (value == null){
 	    	return _fIdentity;
 	    }
-	    if ($HO.isFunction(value)){
+	    if ($H.isFunction(value)){
 	    	return value;
 	    }
 	    return _fProperty(value);
@@ -2616,7 +2698,7 @@ handy.add('Collection','B.Object',function(Object,$H){
 	    if (fNativeSome && obj.some === fNativeSome){
 	    	return obj.some(fPredicate, context);
 	    }
-	    $HO.each(obj, function(index,value, obj) {
+	    $H.each(obj, function(index,value, obj) {
 	        if (bResult || (bResult = fPredicate.call(context, value, index, obj))){
 	      	    return false;
 	        }
@@ -2641,7 +2723,7 @@ handy.add('Collection','B.Object',function(Object,$H){
 	    if (fNativeEvery && obj.every === fNativeEvery){
 	    	return obj.every(fPredicate, context);
 	    }
-	    $HO.each(obj, function(index,value, list) {
+	    $H.each(obj, function(index,value, list) {
 	      if (!(result=fPredicate.call(context, value, index, list))){
 	      	  return false;
 	      }
@@ -2672,7 +2754,7 @@ handy.add('Collection','B.Object',function(Object,$H){
 	 * 该数组元素是所有回调函数执行时返回值为 true 的原集合元素。它只对数组中的非空元素执行指定的函数，
 	 * 没有赋值或者已经删除的元素将被忽略，同时，新创建的数组也不会包含这些元素。
 	 * @param {Array|Object}obj 参数对象
-	 * @param {Function}fPredicate 判断函数，有三个参数：当前元素，当前元素的索引和当前的集合对象
+	 * @param {Function}fPredicate 判断函数，返回true则添加到结果中，有三个参数：当前元素，当前元素的索引和当前的集合对象
 	 * @param {*=}context 回调函数上下文对象
 	 * @return {Array} 返回包含所有匹配元素的数组，如果没找到，返回空数组
 	 */
@@ -2685,7 +2767,7 @@ handy.add('Collection','B.Object',function(Object,$H){
 	    if (fNativeFilter && obj.filter === fNativeFilter){
 	    	return obj.filter(fPredicate, context);
 	    }
-	    $HO.each(obj, function(index,value, list) {
+	    $H.each(obj, function(index,value, list) {
 	        if (fPredicate.call(context, value, index, list)){
 	      	    results.push(value);
 	        }
@@ -3050,7 +3132,7 @@ function(Debug,Util,$H){
  * 支持类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Support',function($H){
+handy.add('Support','B.Browser',function(Browser,$H){
 	
 	
 	var Support={
@@ -3063,7 +3145,7 @@ handy.add('Support',function($H){
 //	var _supportSvg; //标记是否支持svg
 	
 	//解决IE6下css背景图不缓存bug
-	if($H.Browser.ie()==6){   
+	if(Browser.ie()==6){   
 	    try{   
 	        document.execCommand("BackgroundImageCache", false, true);   
 	    }catch(e){}   
@@ -3109,11 +3191,11 @@ handy.add('Support',function($H){
 	 */
 	function fMediaQuery(){
 		var sCls;
-		if($H.Browser.mobile()){
+		if(Browser.mobile()){
 			sCls="hui-mobile";
 		}else{
 			sCls="hui-pc";
-			var ie=$H.Browser.ie();
+			var ie=Browser.ie();
 			if(ie){
 				sCls+=' ie'+ie;
 			}
@@ -3415,7 +3497,7 @@ handy.add('LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Even
 	 	}else{
 			value=_oUserData.getAttribute(sKey);
 	 	}
-	 	value=Json.parse(value);
+	 	value=Json.parseJson(value);
 	 	return value;
 	 }
 	 /**
@@ -3477,14 +3559,7 @@ handy.add('LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Even
 	H=$H;
 	Hui=$H;
 	$D=$H.Debug;
-	$HB=$H.Browser;
-	$HC=$H.Cookie;
 	$HD=$H.Date;
-	$HF=$H.Function;
-	$HO=$H.Object;
-	$HS=$H.String;
-	$HU=$H.Util;
-	$HE=$H.Events;
 	$Define=$H.Loader.define;
 	$Require=$H.Loader.require;
 	
@@ -3502,13 +3577,98 @@ handy.add('LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Even
 	
 	//拦截jQuery的remove方法，通知组件元素删除
 	var $$=window.$
-	$$.fn.remove=$HF.intercept($$.fn.remove,function(){
+	$$.fn.remove=$H.intercept($$.fn.remove,function(){
 		var oEl=this.target;
 		$H.trigger('removeEl',oEl);
 	});
 	
 	
-})(handy)/****************************************************************
+})(handy)/**
+ * 抽象事件类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-03-20
+ */
+//"handy.common.AbstractEvents"
+$Define('CM.AbstractEvents',
+function(){
+	
+	var AbstractEvents=$H.createClass();
+	
+	$H.extend(AbstractEvents.prototype,$H.Events);
+	
+	$H.extend(AbstractEvents.prototype,{
+		_eventCache          : {},                     //自定义事件池
+		_listenTo            : [],                     //存储对其它对象的监听
+		_parseListenToEvents : _fParseListenToEvents,  //
+		listenTo             : fListenTo,              //监听指定对象的事件
+		unlistenTo           : fUnlistenTo             //移除对其它对象的监听
+	});
+	/**
+	 * 处理对象类型或者空格相隔的多事件
+	 * @method _parseListenToEvents(sMethod,name[,param,..])
+	 * @param {string}sMethod 调用的方法名
+	 * @param {CM.AbstractEvents}oTarget 参数对象，继承自AbstractEvents的实例对象
+	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}
+	 * 							事件名称支持命名空间(".name")，如：change.one
+	 * @param {*=}param 附加参数，具体参照对应的方法
+	 * @return {boolean} true表示已成功处理事件，false表示未处理
+	 */
+	function _fParseListenToEvents(sMethod,oTarget,name,param){
+		var me=this;
+		var aArgs=$H.toArray(arguments,3);
+		return me._parseEvents(name,function(aParams){
+			aParams.unshilft(oTarget);
+			me[sMethod].apply(me,aParams.concat(aArgs));
+		});
+	}
+	/**
+	 * 监听指定对象的事件
+	 * @param {CM.AbstractEvents}oTarget 参数对象，继承自AbstractEvents的实例对象
+	 * 其余参数同base.Events.on
+	 */
+	function fListenTo(oTarget,name,fHandler,context,nTimes){
+		var me=this;
+		if(me._parseListenToEvents('listenTo',oTarget,name,fHandler,context,nTimes)){
+			return;
+		}
+		if(typeof context=='number'){
+			nTimes=context;
+			context=null;
+		}
+		var fCall=me._delegateHandler(fHandler,context);
+		me._listenTo.push({
+			target:oTarget,
+			name:name,
+			delegation:fCall,
+			handler:fHandler
+		});
+		oTarget.on(name,fCall,context||me,nTimes);
+	}
+	/**
+	 * 移除对其它对象的监听
+	 * @param {CM.AbstractEvents|string}oTarget 参数对象，继承自AbstractEvents的实例对象，
+	 * 							也可以传入'all'，表示移除所有监听
+	 * 其余参数同base.Events.off
+	 */
+	function fUnlistenTo(oTarget,name,fHandler){
+		var me=this;
+		if(me._parseListenToEvents('unlistenTo',oTarget,name,fHandler)){
+			return;
+		}
+		var aListenTo=me._listenTo;
+		var bAll=oTarget=='all';
+		var oListenTo;
+		for(var i=0,len=aListenTo.length;i<len;i++){
+			oListenTo=aListenTo[i];
+			if(bAll||(oListenTo.name==name&&oListenTo.handler==fHandler&&oListenTo.target==oTarget)){
+				oTarget.off(name,oListenTo.delegation);
+				aListenTo.splice(i,1);
+			}
+		}
+	}
+	
+	return AbstractEvents;
+});/****************************************************************
 * Author:		郑银辉											*
 * Email:		zhengyinhui100@gmail.com						*
 * Created:		2013-01-25										*
@@ -3517,16 +3677,21 @@ handy.add('LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Even
  * 数据访问对象抽象类，模块的dao都要继承此类，dao内的方法只可以使用此类的方法进行数据操作，以便进行统一的管理
  */
 //handy.common.AbstractDao
-$Define('CM.AbstractDao',function(){
+$Define('CM.AbstractDao',
+'B.LocalStorage',
+function(LS){
 	
 	var AbstractDao=$H.createClass();
 	
-	$HO.extend(AbstractDao.prototype,{
+	$H.extend(AbstractDao.prototype,{
 		ajax         : fAjax,        //ajax方法
 		beforeSend   : $H.noop,      //发送前处理
 		error        : $H.noop,      //错误处理
 		success      : $H.noop,      //成功处理
-		sync         : $H.noop       //同步方法，主要用于common.Collection和Model
+		get          : fGet,         //获取数据
+		set          : fSet,         //设置数据
+		remove       : fRemove,      //删除数据
+		sync         : fSync         //同步数据
 	});
 	
 	/**
@@ -3538,9 +3703,46 @@ $Define('CM.AbstractDao',function(){
 	function fAjax(oParams){
 		var me=this;
 		me.beforeSend(oParams);
-		oParams.error=$HF.intercept(me.error,oParams.error);
-		oParams.success=$HF.intercept(me.success,oParams.success);
+		oParams.error=$H.intercept(me.error,oParams.error);
+		oParams.success=$H.intercept(me.success,oParams.success);
 		return $.ajax(oParams);
+	}
+	/**
+	 * 获取数据
+	 */
+	function fGet(){
+	}
+	/**
+	 * 设置数据
+	 */
+	function fSet(){
+	}
+	/**
+	 * 删除数据
+	 */
+	function fRemove(){
+	}
+	/**
+	 * 同步数据
+	 * @param {Object}oOptions 选项{
+	 * 		{string=}method:操作方法(get/set/remove)，默认是get,
+	 * 		{string=}type:存储类型(local/remote),默认是remote
+	 * 		{*=}data:数据，
+	 * 		{Object}param:参数
+	 * }
+	 * @return {*} 如果是get操作，返回指定的数据
+	 */
+	function fSync(oOptions){
+		var me=this;
+		oOptions=oOptions||{};
+		var sMethod=oOptions.method||'get';
+		var sType=oOptions.type||'remote';
+		var oParam=oOptions.param;
+		if(sType=='remote'){
+			me.ajax(oParam);
+		}else{
+			LS[sType+'Item'](oParam);
+		}
 	}
 	
 	return AbstractDao;
@@ -3555,7 +3757,7 @@ $Define("CM.AbstractManager", function() {
 
 	var AbstractManager = $H.createClass();
 	
-	$HO.extend(AbstractManager.prototype, {
+	$H.extend(AbstractManager.prototype, {
 	    _types        : {},               //存储类
 	    _all          : {},               //存储所有实例
 		type          : 'manager',        //被管理对象的类型，也用于生成标记被管理对象的class
@@ -3676,7 +3878,7 @@ $Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
 	});
 	
 	//全局快捷别名
-	$V=$HO.getSingleton(ViewManager);
+	$V=$H.getSingleton(ViewManager);
 	
 	/**
 	 * 初始化
@@ -3729,23 +3931,17 @@ $Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
  * @created 2013-02-17
  */
 //"handy.common.View"
-$Define('CM.View','CM.ViewManager',function(ViewManager){
+$Define('CM.View',
+['CM.ViewManager',
+'CM.AbstractEvents'],
+function(ViewManager,AbstractEvents){
 	
-	var View=$H.createClass();
 	var _oTagReg=/^(<[a-zA-Z]+)/;
 	var _oHasClsReg=/^[^>]+class=/;
 	var _oClsReg=/(class=")/;
 	
-	
-	$HO.extend(View,{
-		extend              : fExtend,           //扩展原型定义
-		html                : fHtml              //静态初始化视图并生成html
-	});
-	
 	//自定义事件
-	$HO.extend(View.prototype,$H.Events);
-	
-	$HO.extend(View.prototype,{
+	var View=AbstractEvents.extend({
 		
 		xtype               : 'View',    //类型
 		
@@ -3792,6 +3988,8 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 		],
 //      listeners           : [],                //类事件配置
 //		_listeners          : {},                //实例事件池
+		
+		_parseListenEvents  : _fParseListenEvents, //处理对象类型或者空格相隔的多事件
 		
 		initialize          : fInitialize,       //初始化
 		doConfig            : fDoConfig,         //初始化配置
@@ -3840,6 +4038,9 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 		beforeDestroy       : fBeforeDestroy,    //销毁前工作
 		destroy             : fDestroy,          //销毁
 		afterDestroy        : fAfterDestroy      //销毁后工作
+	},{
+		extend              : fExtend,           //扩展原型定义
+		html                : fHtml              //静态初始化视图并生成html
 	});
 	/**
 	 * 扩展原型定义
@@ -3848,9 +4049,9 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 	 */
 	function fExtend(oExtend){
 		var oProt=this.prototype;
-		$HO.extend(oProt, oExtend,{notCover:function(p){
+		$H.extend(oProt, oExtend,{notCover:function(p){
 			//继承父类的事件
-			if($HO.contains(['_customEvents','listeners'],p)){
+			if($H.contains(['_customEvents','listeners'],p)){
 				oProt[p]=(oExtend[p]||[]).concat(oProt[p]||[]);
 				return true;
 			}else if(p=='xtype'||p=='constructor'){
@@ -3864,8 +4065,25 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 	 * @param {object}oParams 初始化参数
 	 */
 	function fHtml(oParams){
-		var oView=new this($HO.extend({autoRender:false},oParams));
+		var oView=new this($H.extend({autoRender:false},oParams));
 		return oView.getHtml();
+	}
+	/**
+	 * 处理对象类型或者空格相隔的多事件
+	 * @param {string}sMethod 调用的方法名
+	 * @param {Object}oEvent 参数同this.listen
+	 * @return {boolean} true表示已成功处理事件，false表示未处理
+	 */
+	function _fParseListenEvents(sMethod,oEvent){
+		var me=this;
+		var name=oEvent.name;
+		return me._parseEvents(name,function(aParams){
+			oEvent.name=aParams[0];
+			if(aParams.length==2){
+				oEvent.handler=aParams[0];
+			}
+			me[sMethod].call(me,oEvent);
+		});
 	}
 	/**
 	 * 初始化
@@ -3874,7 +4092,7 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 	 */
 	function fInitialize(oParams){
 		var me=this;
-		me.manager=me.constructor.manager||$HO.getSingleton(ViewManager);
+		me.manager=me.constructor.manager||$H.getSingleton(ViewManager);
 		//初始化配置
 		me.doConfig(oParams);
 		me.parseItems();
@@ -3894,7 +4112,7 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 		//保存参数
 		me.params=oParams;
 		//复制参数
-		me.settings=$HO.clone(oParams);
+		me.settings=$H.clone(oParams);
 		if(oParams.renderTo){
 			me.renderTo=$(oParams.renderTo);
 		}else{
@@ -3908,11 +4126,11 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 		me._listeners=aListeners;
 		
 		//只覆盖基本类型的属性
-		$HO.extend(me,oParams,{notCover:function(sProp){
+		$H.extend(me,oParams,{notCover:function(sProp){
 			var value=me[sProp];
 			//默认事件，可通过参数属性直接添加
-			var bIsCustEvt=$HO.contains(me._customEvents,sProp);
-			var bIsDefEvt=$HO.contains(me._defaultEvents,sProp);
+			var bIsCustEvt=$H.contains(me._customEvents,sProp);
+			var bIsDefEvt=$H.contains(me._defaultEvents,sProp);
 			if(bIsDefEvt){
 				me._listeners.push({
 					name:sProp,
@@ -3921,13 +4139,13 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 			}else if(bIsCustEvt){
 				me.on(sProp,oParams[sProp]);
 			}
-			if((value!=null&&typeof value=='object')||$HO.isFunction(value)){
+			if((value!=null&&typeof value=='object')||$H.isFunction(value)){
 				return true;
 			}
 		}});
 		//覆盖子视图默认配置
 		if(oParams.defItem){
-			$HO.extend(me.defItem,oParams.defItem);
+			$H.extend(me.defItem,oParams.defItem);
 		}
 	}
 	/**
@@ -4181,32 +4399,39 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 	 * 			{function(Object[,fireParam..])}handler : 监听函数，第一个参数为事件对象oListener，其后的参数为fire时传入的参数
 	 * 			{any=}data        : 数据
 	 * 			{jQuery=}el       : 绑定事件的节点，不传表示容器节点
+	 * 			{CM.AbstractEvents=}target : 监听对象(listenTo方法)，继承自AbstractEvents的实例对象
 	 * 			{boolean=}custom  : 为true时是自定义事件
+	 * 			{number=}times    : 执行次数
 	 * 			{string=}selector : 选择器
 	 * 			{any=}context     : 监听函数执行的上下文对象，默认是对象
 	 * 			{string=}method   : 绑定方式，默认为"bind"
 	 * }
 	 */
 	function fListen(oEvent){
-		var me=this,
-			sName=oEvent.name,
+		var me=this;
+		if(me._parseListenEvents('listen',oEvent)){
+			return;
+		}
+		var sName=oEvent.name,
 			context=oEvent.context,
+			nTimes=oEvent.times,
+			oTarget=oEvent.target,
+			bIsCustom=oEvent.custom,
 			fHandler=oEvent.handler;
-		if(oEvent.custom){
-			me.on(sName,fHandler,context);
+		if(oTarget||bIsCustom){
+			var aArgs=$H.removeUndefined([oTarget,sName,fHandler,context,nTimes]);
+			me[bIsCustom?'on':'listenTo'].apply(me,aArgs);
+		}else if(oEvent.custom){
+			me.on.apply(me,sName,fHandler,context,nTimes);
 		}else{
 			var aListeners=me._listeners,
 				oEl=oEvent.el,
 				sMethod=oEvent.method||"bind",
 				sSel=oEvent.selector,
 				oData=oEvent.data,
-				fFunc=oEvent.delegation=function(){
-					if(me.isSuspend!=true){
-						return fHandler.apply(context||me,arguments);
-					}
-				};
+				fFunc=oEvent.delegation=me._delegateHandler(fHandler,context);
 			//移动浏览器由于click可能会有延迟，这里转换为touchend事件
-			if($H.Browser.mobile()){
+			if($H.mobile()){
 				if(sName=="click"){
 					sName="touchend";
 				}
@@ -4241,8 +4466,11 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 	 * }
 	 */
 	function fUnlisten(oEvent){
-		var me=this,
-			sName=oEvent.name,
+		var me=this;
+		if(me._parseListenEvents('unlisten',oEvent)){
+			return;
+		}
+		var sName=oEvent.name,
 			fHandler=oEvent.handler;
 		if(oEvent.custom){
 			me.off(sName,fHandler);
@@ -4252,7 +4480,7 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 				sSel=oEvent.selector,
 				fDelegation;
 			//移动浏览器由于click可能会有延迟，这里转换为touchend事件
-			if($H.Browser.mobile()){
+			if($H.mobile()){
 				if(sName=="click"){
 					sName="touchend";
 				}
@@ -4404,7 +4632,7 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 		var aResult=aResult||[];
 		//多个选择器
 		if(sSel.indexOf(",")>0){
-			$HO.each(sSel.split(","),function(i,val){
+			$H.each(sSel.split(","),function(i,val){
 				aResult=aResult.concat(me.find(val));
 			})
 			return aResult;
@@ -4545,7 +4773,7 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 		var items=oSettings.items;
 		if(!items){
 			oSettings.items=[];
-		}else if(!$HO.isArray(items)){
+		}else if(!$H.isArray(items)){
 			oSettings.items=[items];
 		}
 		oSettings.items.push(oItem);
@@ -4566,7 +4794,7 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 			var oItem=aItems[i];
 			//默认子视图配置
 			if(me.defItem){
-				$HO.extend(oItem,me.defItem,{notCover:true});
+				$H.extend(oItem,me.defItem,{notCover:true});
 			}
 			//具体视图类处理
 			me.parseItem(oItem);
@@ -4601,13 +4829,13 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 		}
 		var oParent=me.parent;
 		//cid不同
-		oOptions=$HO.extend({
+		oOptions=$H.extend({
 			renderBy:'before',
 			renderTo:me.getEl()
 		},oOptions);
 		if(oParent){
 			//继承默认配置
-			oOptions=$HO.extend(oParent.defItem,oOptions);
+			oOptions=$H.extend(oParent.defItem,oOptions);
 			//具体视图类处理
 			oParent.parseItem(oOptions);
 		}
@@ -4690,13 +4918,11 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
  */
 //"handy.common.Model"
 $Define('CM.Model',
-function(){
+['CM.AbstractDao',
+'CM.AbstractEvents'],
+function(AbstractDao,AbstractEvents){
 	
-	var Model=$H.createClass();
-	
-	$HO.extend(Model.prototype,$H.Events);
-	
-	$HO.extend(Model.prototype,{
+	var Model=AbstractEvents.extend({
 //		_changing             : false,               //是否正在改变
 		_pending              : false,               //
 //		_previousAttributes   : {},                  //较早的值
@@ -4705,6 +4931,7 @@ function(){
 //    	changed               : {},                  //改变了的值
 //	    validationError       : {},                  //校验错误的值
         idAttribute           : 'id',                //id默认属性名
+//		dao                   : null,                //数据访问对象，默认为common.AbstractDao
         
    		_validate             : _fValidate,          //执行校验，如果通过校验返回true，否则，触发"invalid"事件
 		
@@ -4743,12 +4970,12 @@ function(){
         if (!oOptions.validate || !me.validate){
         	return true;
         }
-        oAttrs = $HO.extend({}, me.attributes, oAttrs);
+        oAttrs = $H.extend({}, me.attributes, oAttrs);
         var error = me.validationError = me.validate(oAttrs, oOptions) || null;
         if (!error){
         	return true;
         }
-        me.trigger('invalid', me, error, $HO.extend(oOptions, {validationError: error}));
+        me.trigger('invalid', me, error, $H.extend(oOptions, {validationError: error}));
         return false;
     }
 	/**
@@ -4762,6 +4989,7 @@ function(){
 	 */
 	function fInitialize(oAttributes, oOptions) {
 		var me=this;
+		me.dao=me.dao||$H.getSingleton(AbstractDao);
 		var oAttrs = oAttributes || {};
 		oOptions || (oOptions = {});
 		me.cid = $H.Util.getUuid();
@@ -4772,7 +5000,7 @@ function(){
 		if (oOptions.parse){
 			oAttrs = me.parse(oAttrs, oOptions) || {};
 		}
-		oAttrs = $HO.extend(oAttrs, $H.Util.result(me, 'defaults'),{notCover:true});
+		oAttrs = $H.extend(oAttrs, $H.Util.result(me, 'defaults'),{notCover:true});
 		me.set(oAttrs, oOptions);
 		me.changed = {};
 	}
@@ -4782,7 +5010,7 @@ function(){
 	 * @return {Object} 返回对象数据副本
 	 */
     function fToJSON() {
-        return $HO.clone(this.attributes);
+        return $H.clone(this.attributes);
     }
 	/**
 	 * 同步数据，可以通过重写进行自定义
@@ -4871,11 +5099,11 @@ function(){
 	    for (var sAttr in oAttrs) {
 	   	    val = oAttrs[sAttr];
 	   	    //与当前值不相等，放入改变列表中
-	    	if (!$HO.equals(oCurrent[sAttr], val)){
+	    	if (!$H.equals(oCurrent[sAttr], val)){
 	    		aChanges.push(sAttr);
 	    	}
 	    	//与初始值不相等，放入已经改变的hash对象中
-	    	if (!$HO.equals(oPrev[sAttr], val)) {
+	    	if (!$H.equals(oPrev[sAttr], val)) {
 	            me.changed[sAttr] = val;
 	    	} else {
 	    		//跟初始值相等，即没有变化
@@ -4948,9 +5176,9 @@ function(){
     function fHasChanged(sAttr) {
     	var oChange=this.changed;
         if (sAttr == null){
-        	return !$HO.isEmpty(oChange);
+        	return !$H.isEmpty(oChange);
         }
-        return $HO.contains(oChange, sAttr);
+        return $H.contains(oChange, sAttr);
     }
 	/**
 	 * 返回改变过的属性，可以指定需要判断的属性
@@ -4961,12 +5189,12 @@ function(){
     function fChangedAttributes(oDiff) {
     	var me=this;
         if (!oDiff){
-            return me.hasChanged() ? $HO.clone(me.changed) : false;
+            return me.hasChanged() ? $H.clone(me.changed) : false;
         }
         var val, changed = false;
         var oOld = me._changing ? me._previousAttributes : me.attributes;
         for (var sAttr in oDiff) {
-            if (!$HO.equals(oOld[sAttr], (val = oDiff[sAttr]))){
+            if (!$H.equals(oOld[sAttr], (val = oDiff[sAttr]))){
 	            (changed || (changed = {}))[sAttr] = val;
             }
         }
@@ -4991,7 +5219,7 @@ function(){
 	 * @return {Object} 返回所有修改前的值
 	 */
     function fPreviousAttributes() {
-        return $HO.clone(this._previousAttributes);
+        return $H.clone(this._previousAttributes);
     }
 	/**
 	 * 获取模型数据
@@ -4999,7 +5227,7 @@ function(){
 	 */
     function fFetch(oOptions) {
     	var me=this;
-        oOptions = oOptions ? $HO.clone(oOptions) : {};
+        oOptions = oOptions ? $H.clone(oOptions) : {};
         if (oOptions.parse === void 0) {
         	oOptions.parse = true;
         }
@@ -5039,7 +5267,7 @@ function(){
         	(oAttrs = {})[sKey] = val;
         }
 
-        oOptions = $HO.extend({validate: true}, oOptions);
+        oOptions = $H.extend({validate: true}, oOptions);
 
       // If we're not waiting and attributes exist, save acts as
       // `set(attr).save(null, opts)` with validation. Otherwise, check if
@@ -5052,7 +5280,7 @@ function(){
 
       // Set temporary attributes if `{wait: true}`.
         if (oAttrs && oOptions.wait) {
-            me.attributes = $HO.extend({}, attributes, oAttrs);
+            me.attributes = $H.extend({}, attributes, oAttrs);
         }
 
       // After a successful server-side save, the client is (optionally)
@@ -5064,8 +5292,8 @@ function(){
 	        // Ensure attributes are restored during synchronous saves.
 	        model.attributes = attributes;
 	        var serverAttrs = model.parse(resp, oOptions);
-	        if (oOptions.wait) serverAttrs = $HO.extend(oAttrs || {}, serverAttrs);
-	        if ($HO.isObject(serverAttrs) && !model.set(serverAttrs, oOptions)) {
+	        if (oOptions.wait) serverAttrs = $H.extend(oAttrs || {}, serverAttrs);
+	        if ($H.isObject(serverAttrs) && !model.set(serverAttrs, oOptions)) {
 	          return false;
 	        }
 	        if (success) success(model, resp, oOptions);
@@ -5091,7 +5319,7 @@ function(){
 	 */
     function fDestroy(oOptions) {
     	var me=this;
-      oOptions = oOptions ? $HO.clone(oOptions) : {};
+      oOptions = oOptions ? $H.clone(oOptions) : {};
       var model = me;
       var success = oOptions.success;
 
@@ -5164,7 +5392,7 @@ function(){
 	 * @return {boolean} true表示合法
 	 */
     function fIsValid(oOptions) {
-        return this._validate({}, $HO.extend(oOptions || {}, { validate: true }));
+        return this._validate({}, $H.extend(oOptions || {}, { validate: true }));
     }
 	
 	return Model;
@@ -5177,20 +5405,17 @@ function(){
 //"handy.common.Collection"
 $Define('CM.Collection',
 ['CM.AbstractDao',
+'CM.AbstractEvents',
 'CM.Model'],
-function(AbstractDao,Model){
+function(AbstractDao,AbstractEvents,Model){
 	
-	var Collection=$H.createClass();
-	
-	$HO.extend(Collection.prototype,$H.Events);
-	
-	$HO.extend(Collection.prototype,{
+	var Collection=AbstractEvents.extend({
 		
 //		model                  : Model,               //子对象模型类
 //		models                 : [],                  //模型列表
 //		_byId                  : {},                  //根据id和cid索引
 //		length                 : 0,                   //模型集合长度
-		dao                    : $H.getSingleton(AbstractDao),         //数据访问对象，使用前需要设置
+//		dao                    : null,                //数据访问对象，默认为common.AbstractDao
 		
 		_reset                 : _fReset,             //重置集合
 		_prepareModel          : _fPrepareModel,      //初始化模型
@@ -5226,7 +5451,7 @@ function(AbstractDao,Model){
 	var wrapError;
 	
 	//从base.Collection生成方法
-	$HO.each([
+	$H.each([
 		'some','every','find','filter','invoke'
 	], function(sMethod) {
 	    Collection.prototype[sMethod] = function() {
@@ -5258,7 +5483,7 @@ function(AbstractDao,Model){
         if (oAttrs instanceof Model){
         	return oAttrs;
         }
-        oOptions = oOptions ? $HO.clone(oOptions) : {};
+        oOptions = oOptions ? $H.clone(oOptions) : {};
         oOptions.collection = me;
         var oModel = new me.model(oAttrs, oOptions);
         if (!oModel.validationError){
@@ -5326,6 +5551,7 @@ function(AbstractDao,Model){
 	 */
 	function fInitialize(aModels, oOptions) {
 		var me=this;
+		me.dao=me.dao||$H.getSingleton(AbstractDao);
 	    oOptions || (oOptions = {});
 	    if (oOptions.model) {
 	    	me.model = oOptions.model;
@@ -5334,9 +5560,8 @@ function(AbstractDao,Model){
 	    	me.comparator = oOptions.comparator;
 	    }
 	    me._reset();
-	    me.initialize.apply(me, arguments);
 	    if (aModels){
-	    	me.reset(aModels, $HO.extend({silent: true}, oOptions));
+	    	me.reset(aModels, $H.extend({silent: true}, oOptions));
 	    }
 	}
 	/**
@@ -5358,7 +5583,10 @@ function(AbstractDao,Model){
 	 */
     function fSync(sMethod,oModel,oOptions) {
     	var me=this;
-        return me.dao.sync.apply(me, arguments);
+        return me.dao.sync({
+        	method:sMethod,
+        	param:oOptions
+        });
     }
 	/**
 	 * 添加模型
@@ -5366,7 +5594,7 @@ function(AbstractDao,Model){
 	 * @return {Model}返回被添加的模型，如果是数组，返回第一个元素
 	 */
     function fAdd(models, oOptions) {
-    	$HO.extend(oOptions,{
+    	$H.extend(oOptions,{
     		add:true,
     		remove:false,
     		merge:false
@@ -5380,8 +5608,8 @@ function(AbstractDao,Model){
      */
     function fRemove(models, oOptions) {
     	var me=this;
-        var bSingular = !$HO.isArray(models);
-        models = bSingular ? [models] : $HO.clone(models);
+        var bSingular = !$H.isArray(models);
+        models = bSingular ? [models] : $H.clone(models);
         oOptions || (oOptions = {});
         var i, l, index, oModel;
         for (i = 0, l = models.length; i < l; i++) {
@@ -5425,8 +5653,8 @@ function(AbstractDao,Model){
         if (oOptions.parse){
         	models = me.parse(models, oOptions);
         }
-        var bSingular = !$HO.isArray(models);
-        var aModels = bSingular ? (models ? [models] : []) : $HO.clone(models);
+        var bSingular = !$H.isArray(models);
+        var aModels = bSingular ? (models ? [models] : []) : $H.clone(models);
         var i, l, id, oModel, oAttrs, oExisting, sort;
         var at = oOptions.at;
         var cTargetModel = me.model;
@@ -5553,7 +5781,7 @@ function(AbstractDao,Model){
         }
         oOptions.previousModels = me.models;
         me._reset();
-        models = me.add(models, $HO.extend({silent: true}, oOptions));
+        models = me.add(models, $H.extend({silent: true}, oOptions));
         if (!oOptions.silent){
         	me.trigger('reset', me, oOptions);
         }
@@ -5566,7 +5794,7 @@ function(AbstractDao,Model){
 	 */
     function fPush(oModel, oOptions) {
     	var me=this;
-        return me.add(oModel, $HO.extend({at: me.length}, oOptions));
+        return me.add(oModel, $H.extend({at: me.length}, oOptions));
     }
 	/**
 	 * 取出集合最后一个模型
@@ -5585,7 +5813,7 @@ function(AbstractDao,Model){
 	 * @return {Model} 返回添加的模型
 	 */
     function fUnshift(oModel, oOptions) {
-        return this.add(oModel, $HO.extend({at: 0}, oOptions));
+        return this.add(oModel, $H.extend({at: 0}, oOptions));
     }
 	/**
 	 * 取出集合第一个模型
@@ -5638,7 +5866,7 @@ function(AbstractDao,Model){
 	 */
     function fWhere(oAttrs, bFirst) {
     	var me=this;
-        if ($HO.isEmpty(oAttrs)){
+        if ($H.isEmpty(oAttrs)){
         	return bFirst ? void 0 : [];
         }
         return me[bFirst ? 'find' : 'filter'](function(oModel) {
@@ -5702,6 +5930,9 @@ function(AbstractDao,Model){
     function fFetch(oOptions) {
     	var me=this;
         oOptions = oOptions ? $H.clone(oOptions) : {};
+        if(!oOptions.url){
+        	oOptions.url=me.url;
+        }
         if (oOptions.parse === void 0){
         	oOptions.parse = true;
         }
@@ -5714,8 +5945,7 @@ function(AbstractDao,Model){
         	}
         	me.trigger('sync', me, resp, oOptions);
         };
-        wrapError(me, oOptions);
-        return me.sync('read', me, oOptions);
+        return me.sync('get', me, oOptions);
     }
 	/**
 	 * 新建模型
@@ -5766,6 +5996,36 @@ function(AbstractDao,Model){
 	
 	return Collection;
 	
+});/**
+ * 组件管理类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-01-10
+ */
+//"handy.component.ComponentManager"
+$Define("C.ComponentManager", 
+['CM.AbstractManager',
+'CM.ViewManager'],
+function(AbstractManager,ViewManager) {
+
+	var ComponentManager = AbstractManager.extend({
+		type          : 'component',      //管理类型
+		initialize    : fInitialize       //初始化
+	});
+	/**
+	 * 初始化
+	 * @method initialize
+	 */
+	function fInitialize(){
+		var me=this;
+		var oVm=$H.getSingleton(ViewManager);
+		me._types=oVm._types;
+		me._all=oVm._all;
+	}
+	
+	//全局快捷别名
+	$CM=new ComponentManager();
+	
+	return ComponentManager;
 });/**
  * 组件基类，所有组件必须继承自此类或此类的子类，定义组件必须用AbstractComponent.define方法
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -5833,7 +6093,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		$H.inherit(Component,oSuper,null,null,{notCover:function(p){
 			return p == 'define';
 		}});
-		$HO.getSingleton(ViewManager).registerType(sXtype,Component);
+		$H.getSingleton(ViewManager).registerType(sXtype,Component);
 		//快捷别名
 		$C[sXtype]=Component;
 		return Component;
@@ -5850,7 +6110,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		if(!params){
 			return false;
 		}
-		if($HO.isArray(params)){
+		if($H.isArray(params)){
 			for(var i=0,len=params.length;i<len;i++){
 				if(me.match(sSel,params[i])){
 					return true;
@@ -5886,7 +6146,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		}
 		//父组件是迷你的，子组件默认也是迷你的
 		if(me.isMini){
-			me.defItem=$HO.extend({isMini:true},me.defItem);
+			me.defItem=$H.extend({isMini:true},me.defItem);
 		}
 	}
 	/**
@@ -6061,7 +6321,7 @@ function(AC){
 		}
 		//Android下弹出遮罩层时，点击仍能聚焦到到输入框，暂时只能在弹出时disable掉，虽然能避免聚焦及弹出输入法，
 		//不过，仍旧会有光标竖线停留在点击的输入框里，要把延迟加到几秒之后才能避免，但又会影响使用
-		if($H.Browser.android()){
+		if($H.android()){
 			me._listeners.push({
 				name:'show',
 				custom:true,
@@ -6338,12 +6598,12 @@ function(AC){
 		if(sValue){
 			var aValues=sValue.split(','),aSel=[];
 			me.each(function(i,oCmp){
-				oCmp.select($HO.contains(aValues,oCmp.value));
+				oCmp.select($H.contains(aValues,oCmp.value));
 			});
 		}else{
 			var aCmp=me.find('$>[selected=true]');
 			var aValues=[];
-			$HO.each(aCmp,function(i,oCmp){
+			$H.each(aCmp,function(i,oCmp){
 				aValues.push(oCmp.value);
 			})
 			return aValues.join(',');
@@ -7142,7 +7402,7 @@ function(AC,Popup){
 	var Dialog=AC.define('Dialog',Popup);
 	
 	//快捷静态方法
-	$HO.extend(Dialog,{
+	$H.extend(Dialog,{
 		alert           : fAlert,    //弹出警告框
 		confirm         : fConfirm,  //弹出确认框
 		prompt          : fPrompt    //弹出输入框
@@ -7475,7 +7735,7 @@ function(HashChange){
 	
 	var _nIndex=0;
 	
-	$HO.extend(History.prototype,{
+	$H.extend(History.prototype,{
 		initialize         : fInitialize,      //历史记录类初始化
 		stateChange        : fStateChange,     //历史状态改变
 		saveState          : fSaveState,       //保存当前状态
@@ -7514,7 +7774,7 @@ function(HashChange){
 		 	aStates=me.states,
 		 	oCurState=aStates[sCurKey];
 		//跟当前状态一致，不需要调用stateChange，可能是saveState触发的hashchange
-		if(sKey==sCurKey&&$HO.equals(oHashParam.param,oCurState.param)){
+		if(sKey==sCurKey&&$H.equals(oHashParam.param,oCurState.param)){
 			return false;
 		}
 		var oState=aStates[sKey];
@@ -7563,7 +7823,7 @@ function(HashChange){
 	 */
 	function fSaveHash(param){
 		//这里主动设置之后还会触发hashchange，不能在hashchange里添加set方法屏蔽此次change，因为可能不止一个地方需要hashchange事件
-		$HU.setHash("#"+$H.Json.stringify(param));
+		$H.setHash("#"+$H.Json.stringify(param));
 	}
 	/**
 	 * 获取当前hash参数
@@ -7573,8 +7833,8 @@ function(HashChange){
 	function fGetHashParam(){
 		var me=this;
 		try{
-			var sHash=$HU.getHash().replace("#","");
-			var oHashParam=$H.Json.parse(sHash);
+			var sHash=$H.getHash().replace("#","");
+			var oHashParam=$H.parseJson(sHash);
 			return oHashParam;
 		}catch(e){
 			$H.Debug.warn("History.getCurrentState:parse hash error:"+e.message);
@@ -7741,7 +8001,7 @@ function(History,AbstractManager){
 		var me=this;
 		if(oConf){
 			me.conf=oConf;
-			$HO.extend(me,oConf);
+			$H.extend(me,oConf);
 			me.container=oConf.container?$(oConf.container):$(document.body);
 		}
 		me.defModPackage=me.defModPackage+".";

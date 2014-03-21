@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-19 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-21 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -51,7 +51,7 @@
 			var oModule=fDefined.apply(window,args);
 			handy.base[sName]=handy[sName]=oModule;
 			//return;
-			if('Class,Browser,Events,Function,Object,String,Template,Util'.indexOf(sName)>=0){
+			if('Browser,Class,Collection,Cookie,Events,Function,Json,Object,String,Template,Util'.indexOf(sName)>=0){
 				for(var key in oModule){
 					//!Function[key]专为bind方法
 					if(typeof handy[key]!="undefined"&&('console' in window)&&!Function[key]){
@@ -59,9 +59,6 @@
 						console.log(sName+"命名冲突:"+key);
 					}
 					handy[key]=oModule[key];
-				}
-				if(sName=="Events"){
-					handy._eventCache={};
 				}
 			}
 		}else{
@@ -99,7 +96,7 @@ handy.add('Json',function($H){
 	
 	var Json={
 		stringify   : fStringify,    //序列化，将json对象转化为字符串
-		parse       : fParse         //将字符串转化为json对象
+		parseJson   : fParseJson     //将字符串转化为json对象
 	}
 	
 	var _bNativeJson='JSON' in window,
@@ -273,7 +270,7 @@ handy.add('Json',function($H){
      * @param {boolean=}bNotNative true表示强制不使用原生的JSON方法
      * @return {Object} 返回json对象
      */
-	function fParse(sText, fReviver,bNotNative) {
+	function fParseJson(sText, fReviver,bNotNative) {
 		if(_bNativeJson&&!bNotNative){
 			return JSON.parse.apply(null,arguments);
 		}
@@ -335,6 +332,7 @@ handy.add('Object',function($H){
 		mix                 : fMix,             //自定义的继承方式，可以继承object和prototype，prototype方式继承时，非原型链方式继承。
 		isFunction			: fIsFunction,	    //判断对象是否是函数
 		isArray				: fIsArray, 		//判断对象是否是数组
+		isClass             : fIsClass,         //判断对象是否是类
 		equals				: fEquals, 		    //对象对比，对比每一个值是否相等
 		clone				: fClone,			//对象复制
 		isEmpty				: fIsEmpty, 		//判断对象是否为空
@@ -342,6 +340,7 @@ handy.add('Object',function($H){
 		contains            : fContains,        //是否包含指定属性/数组元素
 		largeThan           : fLargeThan,       //是否大于另一个对象|数组（包含另一个对象的所有属性或包含另一个数组的所有元素）
 		count				: fCount,			//计算对象长度
+		removeUndefined     : fRemoveUndefined, //移除undefined的元素或属性
 		toArray				: fToArray(),       //将类数组对象转换为数组，比如arguments, nodelist
 		getSingleton        : fGetSingleton,    //获取单例
 		generateMethod      : fGenerateMethod   //归纳生成类方法
@@ -421,7 +420,7 @@ handy.add('Object',function($H){
     * 				{array=}cover 仅覆盖此参数中的属性
     * 				{boolean=|array=|function(sprop)=}notCover 不覆盖原有属性/方法，当此参数为true时不覆盖原有属性；当此参数为数组时，
     * 					仅不覆盖数组中的原有属性；当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
-    * 				{boolean=}notClone 不克隆，仅当此参数为true时不克隆，此时，由于目标对象里的复杂属性(数组、对象等)是源对象中的引用，
+    * 				{boolean=}isClone 克隆，仅当此参数为true时克隆
     * 					源对象的修改会导致目标对象也修改
     * }
     * @return {Object} 扩展后的对象
@@ -429,12 +428,14 @@ handy.add('Object',function($H){
     function fExtend(oDestination, oSource, oOptions) {
     	var notCover=oOptions?oOptions.notCover:false;
     	var aCover=oOptions?oOptions.cover:null;
-    	var bNotClone=oOptions?oOptions.notClone:false;
+    	var bIsClone=oOptions?oOptions.IsClone:false;
     	oDestination=oDestination||{};
     	//如果是类扩展，添加方法元数据
     	var oConstructor=oDestination.constructor;
     	var bAddMeta=oConstructor.$isClass;
+    	var value;
         for (var sProperty in oSource) {
+        	value=oSource[sProperty];
         	//仅覆盖oOptions.cover中的属性
         	if(!aCover||Object.contains(aCover,sProperty)){
 	        	//不复制深层prototype
@@ -446,10 +447,10 @@ handy.add('Object',function($H){
 		        		bNotCover=Object.contains(notCover,sProperty)&&bHas;
 		        	}else if(Object.isFunction(notCover)){
 		        		//当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
-		        		bNotCover=notCover(sProperty);
+		        		bNotCover=notCover(sProperty,value);
 		        	}
 		            if (!bNotCover) {
-		            	var value=bNotClone?oSource[sProperty]:Object.clone(oSource[sProperty]);
+		            	var value=bIsClone?Object.clone(value):value;
 		            	//为方法添加元数据：方法名和声明此方法的类
 						if(bAddMeta&&Object.isFunction(value)){
 							value.$name=sProperty;
@@ -528,6 +529,14 @@ handy.add('Object',function($H){
     */
     function fIsArray(obj) {
         return window.Object.prototype.toString.call(obj) === "[object Array]";
+    }
+    /**
+     * 判断对象是否是类
+     * @param {*}obj 参数对象
+     * @return {boolean} true表示参数对象是类
+     */
+    function fIsClass(obj){
+    	return Object.isFunction(obj)&&obj.$isClass===true;
     }
     /**
     * 对比对象值是否相同
@@ -646,7 +655,7 @@ handy.add('Object',function($H){
     */
     function fEach(object, fCallback, args) {
     	var sName, i = 0,
-			nLength = object.length,
+			nLength = object.length,len,
 			bIsObj = nLength === undefined || Object.isFunction( object );
 		if ( args ) {
 			if ( bIsObj ) {
@@ -657,8 +666,15 @@ handy.add('Object',function($H){
 				}
 			} else {
 				for ( ; i < nLength; ) {
-					if ( fCallback.apply( object[ i++ ], args ) === false ) {
+					if ( fCallback.apply( object[ i ], args ) === false ) {
 						break;
+					}
+					//这里可能fCallback里进行了删除操作
+					len=object.length;
+					if(nLength==len){
+						i++;
+					}else{
+						nLength=len;
 					}
 				}
 			}
@@ -672,8 +688,15 @@ handy.add('Object',function($H){
 				}
 			} else {
 				for ( ; i < nLength; ) {
-					if ( fCallback.call( object[ i ], i, object[ i++ ] ) === false ) {
+					if ( fCallback.call( object[ i ], i, object[ i ] ) === false ) {
 						break;
+					}
+					//这里可能fCallback里进行了删除操作
+					len=object.length;
+					if(nLength==len){
+						i++;
+					}else{
+						nLength=len;
 					}
 				}
 			}
@@ -730,6 +753,43 @@ handy.add('Object',function($H){
             }
 	        return nCount;
         }
+    }
+    /**
+     * 移除undefined的元素或属性
+     * @param {Object|Array}obj 参数对象
+     * @param {boolean=}bNew 是否新建结果对象，不影响原对象
+     * @param {Object|Array} 返回结果
+     */
+    function fRemoveUndefined(obj,bNew){
+    	var bIsArray=Object.isArray(obj);
+    	if(bNew){
+    		if(bIsArray){
+    			var aResult=[];
+    			Object.each(obj,function(k,value){
+		    		if(value!==undefined){
+		    			aResult.push(value);
+		    		}
+	    		});
+	    		return aResult;
+    		}else{
+	    		return Object.extend({},obj,{
+	    			isClone:true,
+	    			notCover:function(k,value){
+	    				return value===undefined;
+	    		}});
+    		}
+    	}else{
+	    	Object.each(obj,function(k,value){
+	    		if(value===undefined){
+	    			if(bIsArray){
+	    				obj.splice(k,1);
+	    			}else{
+	    				delete obj[k];
+	    			}
+	    		}
+	    	});
+	    	return obj;
+    	}
     }
     /**
     * 将类数组对象转换为数组，比如arguments, nodelist
@@ -1757,76 +1817,102 @@ function(Debug,Object,Function,$H){
 })/**
  * 自定义事件类，事件名称支持'all'表示所有事件，支持复杂形式：'event1 event2'或{event1:func1,event:func2}，
  * 事件名称支持命名空间(".name")，如：change.one
- * PS:注意，此类只用来继承，不能直接使用，否则_eventCache属性会污染由他扩展是类，要使用全局事件可以直接使用handy下的方法
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 handy.add('Events',function($H){
 	
 	var Events={
-		_eventCache   : {},              //自定义事件池
-		_parseEvents  : _fParseEvents,   //处理对象类型或者空格相隔的多事件
-		on            : fOn,             //添加事件
-		once          : fOnce,           //监听一次
-		off           : fOff,            //移除事件
-		suspend       : fSuspend,        //挂起事件
-		resume        : fResume,         //恢复事件
-		trigger       : fTrigger         //触发事件
+		_eventCache        : {},                   //自定义事件池
+		_parseEvents       : _fParseEvents,        //分析事件对象
+		_parseCustomEvents : _fParseCustomEvents,  //处理对象类型或者空格相隔的多事件
+		_delegateHandler   : _fDelegateHandler,    //统一代理回调函数
+		on                 : fOn,                  //添加事件
+		once               : fOnce,                //监听一次
+		off                : fOff,                 //移除事件
+		suspend            : fSuspend,             //挂起事件
+		resume             : fResume,              //恢复事件
+		trigger            : fTrigger              //触发事件
 	};
 	
-	var _oArrayProto=Array.prototype;
-	
 	/**
-	 * 处理对象类型或者空格相隔的多事件
-	 * @method _parseEvents(sMethod,name[,param,..])
-	 * @param {string}sMethod 调用的方法名
+	 * 分析事件对象
 	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}
 	 * 							事件名称支持命名空间(".name")，如：change.one
-	 * @param {*=}param 附加参数，具体参照对应的方法
+	 * @param {Function}fCall({Array}aParams) 回调函数，参数aParams是事件名和事件函数，如果aParams长度为1则表示没有事件函数
 	 * @return {boolean} true表示已成功处理事件，false表示未处理
 	 */
-	function _fParseEvents(sMethod,name,param){
+	function _fParseEvents(name,fCall){
 		var me=this;
 		var rSpace=/\s+/;
-		var aArgs=_oArrayProto.slice.call(arguments,2);
 		if(typeof name=='object'){
 			for(var key in name){
-				me[sMethod].apply(me,[key,name[key]].concat(aArgs));
+				fCall([key,name[key]]);
 			}
 			return true;
-		}else if(rSpace.test(name)){
+		}else if(typeof name=='string'&&rSpace.test(name)){
 			//多个空格相隔的事件
 			var aName=name.split(rSpace);
 			for(var i=0,len=aName.length;i<len;i++){
-				me[sMethod].apply(me,[aName[i]].concat(aArgs));
+				fCall([aName[i]]);
 			}
 			return true;
 		}
 		return false;
 	}
 	/**
-	 * 添加事件
+	 * 处理对象类型或者空格相隔的多事件
+	 * @method _parseCustomEvents(sMethod,name[,param,..])
 	 * @param {string}sMethod 调用的方法名
+	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}
+	 * 							事件名称支持命名空间(".name")，如：change.one
+	 * @param {*=}param 附加参数，具体参照对应的方法
+	 * @return {boolean} true表示已成功处理事件，false表示未处理
+	 */
+	function _fParseCustomEvents(sMethod,name,param){
+		var me=this;
+		var aArgs=$H.toArray(arguments,2);
+		return me._parseEvents(name,function(aParams){
+			me[sMethod].apply(me,aParams.concat(aArgs));
+		});
+	}
+	/**
+	 * 统一代理回调函数
+	 * @param {Function}fHandler 回调函数
+	 * @param {*=}context 事件函数执行上下文，默认是this
+	 * @return {Function} 返回代理函数
+	 */
+	function _fDelegateHandler(fHandler,context){
+		var me=this;
+		return function(){
+			if(me.isSuspend!=true){
+				return fHandler.apply(context||me,arguments);
+			}
+		};
+	}
+	/**
+	 * 添加事件
+	 * @method on(name,fHandler[,context,nTimes])如果第三个参数是整形，则它表示执行次数，此时，context为空
 	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}，
 	 * 							事件名称支持命名空间(".name")，如：change.one
 	 * @param {Function=}fHandler 事件函数
-	 * @param {*=}context 事件函数执行上下文
+	 * @param {*=}context 事件函数执行上下文，默认是this
 	 * @param {number=}nTimes 执行次数，默认无限次
 	 */
 	function fOn(name,fHandler,context,nTimes){
 		var me=this;
-		if(me._parseEvents('on',name,fHandler,context,nTimes)){
+		if(me._parseCustomEvents('on',name,fHandler,context,nTimes)){
 			return;
+		}
+		if(typeof context=='number'){
+			nTimes=context;
+			context=null;
 		}
 		var oCache=me._eventCache;
 		var aCache=oCache[name];
 		if(!aCache){
 			aCache=oCache[name]=[];
 		}
-		var fCall=function(){
-			if(me.isSuspend!=true){
-				return fHandler.apply(context||me,arguments);
-			}
-		};
+		var fCall=me._delegateHandler(fHandler,context);
 		aCache.push({
 			times:nTimes,
 			handler:fHandler,
@@ -1839,14 +1925,12 @@ handy.add('Events',function($H){
 	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}
 	 * 							事件名称支持命名空间(".name")，如：change.one
 	 * @param {function=}fHandler 事件函数
-	 * @param {*=}context 事件函数执行上下文
+	 * @param {*=}context 事件函数执行上下文，默认是this
 	 */
 	 function fOnce(name,fHandler,context){
 	 	var me=this;
-		if(me._parseEvents('once',name,fHandler,context,1)){
-			return;
-		}
-	 	me.on(name,fHandler,context,1);
+	 	var aArgs=$H.toArray(arguments);
+	 	me.on.apply(me,aArgs.push(1));
 	 }
 	/**
 	 * 移除事件
@@ -1862,7 +1946,7 @@ handy.add('Events',function($H){
 			me._eventCache={};
 			return true;
 		}
-		if(me._parseEvents('off',name,fHandler)){
+		if(me._parseCustomEvents('off',name,fHandler)){
 			return;
 		}
 		var oCache=me._eventCache;
@@ -1906,13 +1990,13 @@ handy.add('Events',function($H){
 	 */
 	function fTrigger(name,data){
 		var me=this;
-		var aNewArgs=$HO.toArray(arguments);
+		var aNewArgs=$H.toArray(arguments);
 		aNewArgs.unshift('trigger');
-		if(me._parseEvents.apply(me,aNewArgs)){
+		if(me._parseCustomEvents.apply(me,aNewArgs)){
 			return;
 		}
 		var oCache=me._eventCache;
-		var aArgs=_oArrayProto.slice.call(arguments,1);
+		var aArgs=$H.toArray(arguments,1);
 		var result,aCache;
 		//内部函数，执行事件队列
 		function _fExec(aCache){
@@ -2348,18 +2432,17 @@ handy.add("String",function(){
 handy.add('Cookie',function(){
 	
 	var Cookie={
-		get     : fGet,    //获取cookie
-		set     : fSet,    //设置cookie
-		del     : fDelete  //删除cookie
+		getCookie     : fGetCookie,    //获取cookie
+		setCookie     : fSetCookie,    //设置cookie
+		delCookie     : fDeleteCookie  //删除cookie
 	}
 	
 	/**
 	 * 获取cookie
-	 * @method  get
 	 * @param   {string}sName cookie的name
 	 * @param   {boolean}bNotUnescape 不解码
 	 */
-	function fGet(sName,bNotUnescape) {
+	function fGetCookie(sName,bNotUnescape) {
 		var sSearch = sName + "=";
 		var sValue = "";
 		var sCookie = document.cookie;
@@ -2382,7 +2465,7 @@ handy.add('Cookie',function(){
 	}
 	/**
 	 * 设置cookie
-	 * @method  set(sName, sValue[,oOptions])
+	 * @method  setCookie(sName, sValue[,oOptions])
 	 * @param {string}sName cookie的name
 	 * @param {string}sValue cookie的value
 	 * @param {Object}oOptions{
@@ -2392,7 +2475,7 @@ handy.add('Cookie',function(){
 	 *      {boolean}secure : 是否有secure属性
 	 * }
 	 */
-	function fSet(sName, sValue, oOptions) {
+	function fSetCookie(sName, sValue, oOptions) {
 		var aParam = [];
 		if(sName!=undefined&&sValue!=undefined){
 			aParam.push(sName + "=" + escape(sValue));
@@ -2415,10 +2498,9 @@ handy.add('Cookie',function(){
 	}
 	/**
 	 * 删除cookie
-	 * @method del
 	 * @param {string}sName cookie的name
 	 */
-	function fDelete(sName){
+	function fDeleteCookie(sName){
 		//当前时间
 	    var oDate = new Date();
 	    //设置为过期时间
@@ -2545,7 +2627,7 @@ handy.add('Collection','B.Object',function(Object,$H){
 	    if (value == null){
 	    	return _fIdentity;
 	    }
-	    if ($HO.isFunction(value)){
+	    if ($H.isFunction(value)){
 	    	return value;
 	    }
 	    return _fProperty(value);
@@ -2616,7 +2698,7 @@ handy.add('Collection','B.Object',function(Object,$H){
 	    if (fNativeSome && obj.some === fNativeSome){
 	    	return obj.some(fPredicate, context);
 	    }
-	    $HO.each(obj, function(index,value, obj) {
+	    $H.each(obj, function(index,value, obj) {
 	        if (bResult || (bResult = fPredicate.call(context, value, index, obj))){
 	      	    return false;
 	        }
@@ -2641,7 +2723,7 @@ handy.add('Collection','B.Object',function(Object,$H){
 	    if (fNativeEvery && obj.every === fNativeEvery){
 	    	return obj.every(fPredicate, context);
 	    }
-	    $HO.each(obj, function(index,value, list) {
+	    $H.each(obj, function(index,value, list) {
 	      if (!(result=fPredicate.call(context, value, index, list))){
 	      	  return false;
 	      }
@@ -2672,7 +2754,7 @@ handy.add('Collection','B.Object',function(Object,$H){
 	 * 该数组元素是所有回调函数执行时返回值为 true 的原集合元素。它只对数组中的非空元素执行指定的函数，
 	 * 没有赋值或者已经删除的元素将被忽略，同时，新创建的数组也不会包含这些元素。
 	 * @param {Array|Object}obj 参数对象
-	 * @param {Function}fPredicate 判断函数，有三个参数：当前元素，当前元素的索引和当前的集合对象
+	 * @param {Function}fPredicate 判断函数，返回true则添加到结果中，有三个参数：当前元素，当前元素的索引和当前的集合对象
 	 * @param {*=}context 回调函数上下文对象
 	 * @return {Array} 返回包含所有匹配元素的数组，如果没找到，返回空数组
 	 */
@@ -2685,7 +2767,7 @@ handy.add('Collection','B.Object',function(Object,$H){
 	    if (fNativeFilter && obj.filter === fNativeFilter){
 	    	return obj.filter(fPredicate, context);
 	    }
-	    $HO.each(obj, function(index,value, list) {
+	    $H.each(obj, function(index,value, list) {
 	        if (fPredicate.call(context, value, index, list)){
 	      	    results.push(value);
 	        }
@@ -3050,7 +3132,7 @@ function(Debug,Util,$H){
  * 支持类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Support',function($H){
+handy.add('Support','B.Browser',function(Browser,$H){
 	
 	
 	var Support={
@@ -3063,7 +3145,7 @@ handy.add('Support',function($H){
 //	var _supportSvg; //标记是否支持svg
 	
 	//解决IE6下css背景图不缓存bug
-	if($H.Browser.ie()==6){   
+	if(Browser.ie()==6){   
 	    try{   
 	        document.execCommand("BackgroundImageCache", false, true);   
 	    }catch(e){}   
@@ -3109,11 +3191,11 @@ handy.add('Support',function($H){
 	 */
 	function fMediaQuery(){
 		var sCls;
-		if($H.Browser.mobile()){
+		if(Browser.mobile()){
 			sCls="hui-mobile";
 		}else{
 			sCls="hui-pc";
-			var ie=$H.Browser.ie();
+			var ie=Browser.ie();
 			if(ie){
 				sCls+=' ie'+ie;
 			}
@@ -3415,7 +3497,7 @@ handy.add('LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Even
 	 	}else{
 			value=_oUserData.getAttribute(sKey);
 	 	}
-	 	value=Json.parse(value);
+	 	value=Json.parseJson(value);
 	 	return value;
 	 }
 	 /**
@@ -3477,14 +3559,7 @@ handy.add('LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Even
 	H=$H;
 	Hui=$H;
 	$D=$H.Debug;
-	$HB=$H.Browser;
-	$HC=$H.Cookie;
 	$HD=$H.Date;
-	$HF=$H.Function;
-	$HO=$H.Object;
-	$HS=$H.String;
-	$HU=$H.Util;
-	$HE=$H.Events;
 	$Define=$H.Loader.define;
 	$Require=$H.Loader.require;
 	
@@ -3502,7 +3577,7 @@ handy.add('LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Even
 	
 	//拦截jQuery的remove方法，通知组件元素删除
 	var $$=window.$
-	$$.fn.remove=$HF.intercept($$.fn.remove,function(){
+	$$.fn.remove=$H.intercept($$.fn.remove,function(){
 		var oEl=this.target;
 		$H.trigger('removeEl',oEl);
 	});
