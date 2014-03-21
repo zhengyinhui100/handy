@@ -171,7 +171,7 @@ handy.add('Collection','B.Object',function(Object,$H){
 	 * 该数组元素是所有回调函数执行时返回值为 true 的原集合元素。它只对数组中的非空元素执行指定的函数，
 	 * 没有赋值或者已经删除的元素将被忽略，同时，新创建的数组也不会包含这些元素。
 	 * @param {Array|Object}obj 参数对象
-	 * @param {Function}fPredicate 判断函数，有三个参数：当前元素，当前元素的索引和当前的集合对象
+	 * @param {Function}fPredicate 判断函数，返回true则添加到结果中，有三个参数：当前元素，当前元素的索引和当前的集合对象
 	 * @param {*=}context 回调函数上下文对象
 	 * @return {Array} 返回包含所有匹配元素的数组，如果没找到，返回空数组
 	 */

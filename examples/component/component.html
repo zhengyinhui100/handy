@@ -191,9 +191,9 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,
 			});
 			$("#iconsDv").append('<span style="display:inline-block;width:100px;margin-left:10px;line-height:30px;">'+aIcons[i]+'</span>'+(i%5==4?'<br/>':''));
 		}
-	
 		
-		new Button({
+		//全局变量，便于测试
+		button=new Button({
 			renderTo:'#buttonDv',
 			text:'按钮',
 			color:'blue',

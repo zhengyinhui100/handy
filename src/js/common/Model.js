@@ -5,8 +5,9 @@
  */
 //"handy.common.Model"
 $Define('CM.Model',
-'CM.AbstractEvents',
-function(AbstractEvents){
+['CM.AbstractDao',
+'CM.AbstractEvents'],
+function(AbstractDao,AbstractEvents){
 	
 	var Model=AbstractEvents.extend({
 //		_changing             : false,               //是否正在改变
