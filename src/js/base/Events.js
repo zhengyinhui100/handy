@@ -6,46 +6,58 @@
 handy.add('Events',function($H){
 	
 	var Events={
-		_eventCache       : {},                 //自定义事件池
-		_parseEvents      : _fParseEvents,      //处理对象类型或者空格相隔的多事件
-		_delegateHandler  : _fDelegateHandler,  //统一代理回调函数
-		on                : fOn,                //添加事件
-		once              : fOnce,              //监听一次
-		off               : fOff,               //移除事件
-		suspend           : fSuspend,           //挂起事件
-		resume            : fResume,            //恢复事件
-		trigger           : fTrigger            //触发事件
+		_eventCache        : {},                   //自定义事件池
+		_parseEvents       : _fParseEvents,        //分析事件对象
+		_parseCustomEvents : _fParseCustomEvents,  //处理对象类型或者空格相隔的多事件
+		_delegateHandler   : _fDelegateHandler,    //统一代理回调函数
+		on                 : fOn,                  //添加事件
+		once               : fOnce,                //监听一次
+		off                : fOff,                 //移除事件
+		suspend            : fSuspend,             //挂起事件
+		resume             : fResume,              //恢复事件
+		trigger            : fTrigger              //触发事件
 	};
 	
-	var _oArrayProto=Array.prototype;
-	
+	/**
+	 * 分析事件对象
+	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}
+	 * 							事件名称支持命名空间(".name")，如：change.one
+	 * @param {Function}fCall({Array}aParams) 回调函数，参数aParams是事件名和事件函数，如果aParams长度为1则表示没有事件函数
+	 * @return {boolean} true表示已成功处理事件，false表示未处理
+	 */
+	function _fParseEvents(name,fCall){
+		var me=this;
+		var rSpace=/\s+/;
+		if(typeof name=='object'){
+			for(var key in name){
+				fCall([key,name[key]]);
+			}
+			return true;
+		}else if(typeof name=='string'&&rSpace.test(name)){
+			//多个空格相隔的事件
+			var aName=name.split(rSpace);
+			for(var i=0,len=aName.length;i<len;i++){
+				fCall([aName[i]]);
+			}
+			return true;
+		}
+		return false;
+	}
 	/**
 	 * 处理对象类型或者空格相隔的多事件
-	 * @method _parseEvents(sMethod,name[,param,..])
+	 * @method _parseCustomEvents(sMethod,name[,param,..])
 	 * @param {string}sMethod 调用的方法名
 	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}
 	 * 							事件名称支持命名空间(".name")，如：change.one
 	 * @param {*=}param 附加参数，具体参照对应的方法
 	 * @return {boolean} true表示已成功处理事件，false表示未处理
 	 */
-	function _fParseEvents(sMethod,name,param){
+	function _fParseCustomEvents(sMethod,name,param){
 		var me=this;
-		var rSpace=/\s+/;
-		var aArgs=_oArrayProto.slice.call(arguments,2);
-		if(typeof name=='object'){
-			for(var key in name){
-				me[sMethod].apply(me,[key,name[key]].concat(aArgs));
-			}
-			return true;
-		}else if(rSpace.test(name)){
-			//多个空格相隔的事件
-			var aName=name.split(rSpace);
-			for(var i=0,len=aName.length;i<len;i++){
-				me[sMethod].apply(me,[aName[i]].concat(aArgs));
-			}
-			return true;
-		}
-		return false;
+		var aArgs=$H.toArray(arguments,2);
+		return me._parseEvents(name,function(aParams){
+			me[sMethod].apply(me,aParams.concat(aArgs));
+		});
 	}
 	/**
 	 * 统一代理回调函数
@@ -72,12 +84,12 @@ handy.add('Events',function($H){
 	 */
 	function fOn(name,fHandler,context,nTimes){
 		var me=this;
+		if(me._parseCustomEvents('on',name,fHandler,context,nTimes)){
+			return;
+		}
 		if(typeof context=='number'){
 			nTimes=context;
 			context=null;
-		}
-		if(me._parseEvents('on',name,fHandler,context,nTimes)){
-			return;
 		}
 		var oCache=me._eventCache;
 		var aCache=oCache[name];
@@ -101,10 +113,8 @@ handy.add('Events',function($H){
 	 */
 	 function fOnce(name,fHandler,context){
 	 	var me=this;
-		if(me._parseEvents('once',name,fHandler,context,1)){
-			return;
-		}
-	 	me.on(name,fHandler,context,1);
+	 	var aArgs=$H.toArray(arguments);
+	 	me.on.apply(me,aArgs.push(1));
 	 }
 	/**
 	 * 移除事件
@@ -120,7 +130,7 @@ handy.add('Events',function($H){
 			me._eventCache={};
 			return true;
 		}
-		if(me._parseEvents('off',name,fHandler)){
+		if(me._parseCustomEvents('off',name,fHandler)){
 			return;
 		}
 		var oCache=me._eventCache;
@@ -166,11 +176,11 @@ handy.add('Events',function($H){
 		var me=this;
 		var aNewArgs=$H.toArray(arguments);
 		aNewArgs.unshift('trigger');
-		if(me._parseEvents.apply(me,aNewArgs)){
+		if(me._parseCustomEvents.apply(me,aNewArgs)){
 			return;
 		}
 		var oCache=me._eventCache;
-		var aArgs=_oArrayProto.slice.call(arguments,1);
+		var aArgs=$H.toArray(arguments,1);
 		var result,aCache;
 		//内部函数，执行事件队列
 		function _fExec(aCache){

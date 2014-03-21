@@ -12,11 +12,30 @@ function(){
 	$H.extend(AbstractEvents.prototype,$H.Events);
 	
 	$H.extend(AbstractEvents.prototype,{
-		_eventCache   : {},              //自定义事件池
-		_listenTo     : [],              //存储对其它对象的监听
-		listenTo      : fListenTo,       //监听指定对象的事件
-		unListenTo    : fUnListenTo      //移除对其它对象的监听
+		_eventCache          : {},                     //自定义事件池
+		_listenTo            : [],                     //存储对其它对象的监听
+		_parseListenToEvents : _fParseListenToEvents,  //
+		listenTo             : fListenTo,              //监听指定对象的事件
+		unlistenTo           : fUnlistenTo             //移除对其它对象的监听
 	});
+	/**
+	 * 处理对象类型或者空格相隔的多事件
+	 * @method _parseListenToEvents(sMethod,name[,param,..])
+	 * @param {string}sMethod 调用的方法名
+	 * @param {CM.AbstractEvents}oTarget 参数对象，继承自AbstractEvents的实例对象
+	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}
+	 * 							事件名称支持命名空间(".name")，如：change.one
+	 * @param {*=}param 附加参数，具体参照对应的方法
+	 * @return {boolean} true表示已成功处理事件，false表示未处理
+	 */
+	function _fParseListenToEvents(sMethod,oTarget,name,param){
+		var me=this;
+		var aArgs=$H.toArray(arguments,3);
+		return me._parseEvents(name,function(aParams){
+			aParams.unshilft(oTarget);
+			me[sMethod].apply(me,aParams.concat(aArgs));
+		});
+	}
 	/**
 	 * 监听指定对象的事件
 	 * @param {CM.AbstractEvents}oTarget 参数对象，继承自AbstractEvents的实例对象
@@ -24,7 +43,14 @@ function(){
 	 */
 	function fListenTo(oTarget,name,fHandler,context,nTimes){
 		var me=this;
-		var fCall=me._delegateHandler(fHandler);
+		if(me._parseListenToEvents('listenTo',oTarget,name,fHandler,context,nTimes)){
+			return;
+		}
+		if(typeof context=='number'){
+			nTimes=context;
+			context=null;
+		}
+		var fCall=me._delegateHandler(fHandler,context);
 		me._listenTo.push({
 			target:oTarget,
 			name:name,
@@ -39,8 +65,12 @@ function(){
 	 * 							也可以传入'all'，表示移除所有监听
 	 * 其余参数同base.Events.off
 	 */
-	function fUnListenTo(oTarget,name,fHandler){
-		var aListenTo=this._listenTo;
+	function fUnlistenTo(oTarget,name,fHandler){
+		var me=this;
+		if(me._parseListenToEvents('unlistenTo',oTarget,name,fHandler)){
+			return;
+		}
+		var aListenTo=me._listenTo;
 		var bAll=oTarget=='all';
 		var oListenTo;
 		for(var i=0,len=aListenTo.length;i<len;i++){

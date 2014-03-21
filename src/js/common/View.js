@@ -67,6 +67,8 @@ function(ViewManager,AbstractEvents){
 //      listeners           : [],                //类事件配置
 //		_listeners          : {},                //实例事件池
 		
+		_parseListenEvents  : _fParseListenEvents, //处理对象类型或者空格相隔的多事件
+		
 		initialize          : fInitialize,       //初始化
 		doConfig            : fDoConfig,         //初始化配置
 		getEl               : fGetEl,            //获取容器节点
@@ -143,6 +145,23 @@ function(ViewManager,AbstractEvents){
 	function fHtml(oParams){
 		var oView=new this($H.extend({autoRender:false},oParams));
 		return oView.getHtml();
+	}
+	/**
+	 * 处理对象类型或者空格相隔的多事件
+	 * @param {string}sMethod 调用的方法名
+	 * @param {Object}oEvent 参数同this.listen
+	 * @return {boolean} true表示已成功处理事件，false表示未处理
+	 */
+	function _fParseListenEvents(sMethod,oEvent){
+		var me=this;
+		var name=oEvent.name;
+		return me._parseEvents(name,function(aParams){
+			oEvent.name=aParams[0];
+			if(aParams.length==2){
+				oEvent.handler=aParams[0];
+			}
+			me[sMethod].call(me,oEvent);
+		});
 	}
 	/**
 	 * 初始化
@@ -458,30 +477,37 @@ function(ViewManager,AbstractEvents){
 	 * 			{function(Object[,fireParam..])}handler : 监听函数，第一个参数为事件对象oListener，其后的参数为fire时传入的参数
 	 * 			{any=}data        : 数据
 	 * 			{jQuery=}el       : 绑定事件的节点，不传表示容器节点
+	 * 			{CM.AbstractEvents=}target : 监听对象(listenTo方法)，继承自AbstractEvents的实例对象
 	 * 			{boolean=}custom  : 为true时是自定义事件
+	 * 			{number=}times    : 执行次数
 	 * 			{string=}selector : 选择器
 	 * 			{any=}context     : 监听函数执行的上下文对象，默认是对象
 	 * 			{string=}method   : 绑定方式，默认为"bind"
 	 * }
 	 */
 	function fListen(oEvent){
-		var me=this,
-			sName=oEvent.name,
+		var me=this;
+		if(me._parseListenEvents('listen',oEvent)){
+			return;
+		}
+		var sName=oEvent.name,
 			context=oEvent.context,
+			nTimes=oEvent.times,
+			oTarget=oEvent.target,
+			bIsCustom=oEvent.custom,
 			fHandler=oEvent.handler;
-		if(oEvent.custom){
-			me.on(sName,fHandler,context);
+		if(oTarget||bIsCustom){
+			var aArgs=$H.removeUndefined([oTarget,sName,fHandler,context,nTimes]);
+			me[bIsCustom?'on':'listenTo'].apply(me,aArgs);
+		}else if(oEvent.custom){
+			me.on.apply(me,sName,fHandler,context,nTimes);
 		}else{
 			var aListeners=me._listeners,
 				oEl=oEvent.el,
 				sMethod=oEvent.method||"bind",
 				sSel=oEvent.selector,
 				oData=oEvent.data,
-				fFunc=oEvent.delegation=function(){
-					if(me.isSuspend!=true){
-						return fHandler.apply(context||me,arguments);
-					}
-				};
+				fFunc=oEvent.delegation=me._delegateHandler(fHandler,context);
 			//移动浏览器由于click可能会有延迟，这里转换为touchend事件
 			if($H.mobile()){
 				if(sName=="click"){
@@ -518,8 +544,11 @@ function(ViewManager,AbstractEvents){
 	 * }
 	 */
 	function fUnlisten(oEvent){
-		var me=this,
-			sName=oEvent.name,
+		var me=this;
+		if(me._parseListenEvents('unlisten',oEvent)){
+			return;
+		}
+		var sName=oEvent.name,
 			fHandler=oEvent.handler;
 		if(oEvent.custom){
 			me.off(sName,fHandler);
