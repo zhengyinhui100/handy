@@ -48,6 +48,7 @@
 		<concat destfile="${tmp.dir}/${project.name}-common-pkg.js"
 			encoding="${charset}" outputencoding="${charset}">
 
+		    <path path="js/common/AbstractEvents.js" />
 		    <path path="js/common/AbstractDao.js" />
 			<path path="js/common/AbstractManager.js" />
 			<path path="js/common/ViewManager.js" />
@@ -69,6 +70,7 @@
 		<concat destfile="${tmp.dir}/${project.name}-component-pkg.js"
 			encoding="${charset}" outputencoding="${charset}" append="true">
 
+		    <path path="js/component/ComponentManager.js" />
 			<path path="js/component/AbstractComponent.js" />
 			<path path="js/component/Popup.js" />
 			<path path="js/component/ControlGroup.js" />

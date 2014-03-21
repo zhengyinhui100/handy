@@ -5,18 +5,17 @@
 handy.add('Cookie',function(){
 	
 	var Cookie={
-		get     : fGet,    //获取cookie
-		set     : fSet,    //设置cookie
-		del     : fDelete  //删除cookie
+		getCookie     : fGetCookie,    //获取cookie
+		setCookie     : fSetCookie,    //设置cookie
+		delCookie     : fDeleteCookie  //删除cookie
 	}
 	
 	/**
 	 * 获取cookie
-	 * @method  get
 	 * @param   {string}sName cookie的name
 	 * @param   {boolean}bNotUnescape 不解码
 	 */
-	function fGet(sName,bNotUnescape) {
+	function fGetCookie(sName,bNotUnescape) {
 		var sSearch = sName + "=";
 		var sValue = "";
 		var sCookie = document.cookie;
@@ -39,7 +38,7 @@ handy.add('Cookie',function(){
 	}
 	/**
 	 * 设置cookie
-	 * @method  set(sName, sValue[,oOptions])
+	 * @method  setCookie(sName, sValue[,oOptions])
 	 * @param {string}sName cookie的name
 	 * @param {string}sValue cookie的value
 	 * @param {Object}oOptions{
@@ -49,7 +48,7 @@ handy.add('Cookie',function(){
 	 *      {boolean}secure : 是否有secure属性
 	 * }
 	 */
-	function fSet(sName, sValue, oOptions) {
+	function fSetCookie(sName, sValue, oOptions) {
 		var aParam = [];
 		if(sName!=undefined&&sValue!=undefined){
 			aParam.push(sName + "=" + escape(sValue));
@@ -72,10 +71,9 @@ handy.add('Cookie',function(){
 	}
 	/**
 	 * 删除cookie
-	 * @method del
 	 * @param {string}sName cookie的name
 	 */
-	function fDelete(sName){
+	function fDeleteCookie(sName){
 		//当前时间
 	    var oDate = new Date();
 	    //设置为过期时间

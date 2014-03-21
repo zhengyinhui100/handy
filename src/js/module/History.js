@@ -16,7 +16,7 @@ function(HashChange){
 	
 	var _nIndex=0;
 	
-	$HO.extend(History.prototype,{
+	$H.extend(History.prototype,{
 		initialize         : fInitialize,      //历史记录类初始化
 		stateChange        : fStateChange,     //历史状态改变
 		saveState          : fSaveState,       //保存当前状态
@@ -55,7 +55,7 @@ function(HashChange){
 		 	aStates=me.states,
 		 	oCurState=aStates[sCurKey];
 		//跟当前状态一致，不需要调用stateChange，可能是saveState触发的hashchange
-		if(sKey==sCurKey&&$HO.equals(oHashParam.param,oCurState.param)){
+		if(sKey==sCurKey&&$H.equals(oHashParam.param,oCurState.param)){
 			return false;
 		}
 		var oState=aStates[sKey];
@@ -104,7 +104,7 @@ function(HashChange){
 	 */
 	function fSaveHash(param){
 		//这里主动设置之后还会触发hashchange，不能在hashchange里添加set方法屏蔽此次change，因为可能不止一个地方需要hashchange事件
-		$HU.setHash("#"+$H.Json.stringify(param));
+		$H.setHash("#"+$H.Json.stringify(param));
 	}
 	/**
 	 * 获取当前hash参数
@@ -114,8 +114,8 @@ function(HashChange){
 	function fGetHashParam(){
 		var me=this;
 		try{
-			var sHash=$HU.getHash().replace("#","");
-			var oHashParam=$H.Json.parse(sHash);
+			var sHash=$H.getHash().replace("#","");
+			var oHashParam=$H.parseJson(sHash);
 			return oHashParam;
 		}catch(e){
 			$H.Debug.warn("History.getCurrentState:parse hash error:"+e.message);

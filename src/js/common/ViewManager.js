@@ -17,7 +17,7 @@ $Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
 	});
 	
 	//全局快捷别名
-	$V=$HO.getSingleton(ViewManager);
+	$V=$H.getSingleton(ViewManager);
 	
 	/**
 	 * 初始化

@@ -12,7 +12,7 @@ function(AC,Popup){
 	var Dialog=AC.define('Dialog',Popup);
 	
 	//快捷静态方法
-	$HO.extend(Dialog,{
+	$H.extend(Dialog,{
 		alert           : fAlert,    //弹出警告框
 		confirm         : fConfirm,  //弹出确认框
 		prompt          : fPrompt    //弹出输入框

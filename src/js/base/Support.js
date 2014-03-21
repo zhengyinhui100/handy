@@ -2,7 +2,7 @@
  * 支持类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Support',function($H){
+handy.add('Support','B.Browser',function(Browser,$H){
 	
 	
 	var Support={
@@ -15,7 +15,7 @@ handy.add('Support',function($H){
 //	var _supportSvg; //标记是否支持svg
 	
 	//解决IE6下css背景图不缓存bug
-	if($H.Browser.ie()==6){   
+	if(Browser.ie()==6){   
 	    try{   
 	        document.execCommand("BackgroundImageCache", false, true);   
 	    }catch(e){}   
@@ -61,11 +61,11 @@ handy.add('Support',function($H){
 	 */
 	function fMediaQuery(){
 		var sCls;
-		if($H.Browser.mobile()){
+		if(Browser.mobile()){
 			sCls="hui-mobile";
 		}else{
 			sCls="hui-pc";
-			var ie=$H.Browser.ie();
+			var ie=Browser.ie();
 			if(ie){
 				sCls+=' ie'+ie;
 			}

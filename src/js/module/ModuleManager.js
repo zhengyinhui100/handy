@@ -110,7 +110,7 @@ function(History,AbstractManager){
 		var me=this;
 		if(oConf){
 			me.conf=oConf;
-			$HO.extend(me,oConf);
+			$H.extend(me,oConf);
 			me.container=oConf.container?$(oConf.container):$(document.body);
 		}
 		me.defModPackage=me.defModPackage+".";

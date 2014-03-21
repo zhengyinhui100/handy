@@ -65,7 +65,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		$H.inherit(Component,oSuper,null,null,{notCover:function(p){
 			return p == 'define';
 		}});
-		$HO.getSingleton(ViewManager).registerType(sXtype,Component);
+		$H.getSingleton(ViewManager).registerType(sXtype,Component);
 		//快捷别名
 		$C[sXtype]=Component;
 		return Component;
@@ -82,7 +82,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		if(!params){
 			return false;
 		}
-		if($HO.isArray(params)){
+		if($H.isArray(params)){
 			for(var i=0,len=params.length;i<len;i++){
 				if(me.match(sSel,params[i])){
 					return true;
@@ -118,7 +118,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		}
 		//父组件是迷你的，子组件默认也是迷你的
 		if(me.isMini){
-			me.defItem=$HO.extend({isMini:true},me.defItem);
+			me.defItem=$H.extend({isMini:true},me.defItem);
 		}
 	}
 	/**

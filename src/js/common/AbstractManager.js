@@ -8,7 +8,7 @@ $Define("CM.AbstractManager", function() {
 
 	var AbstractManager = $H.createClass();
 	
-	$HO.extend(AbstractManager.prototype, {
+	$H.extend(AbstractManager.prototype, {
 	    _types        : {},               //存储类
 	    _all          : {},               //存储所有实例
 		type          : 'manager',        //被管理对象的类型，也用于生成标记被管理对象的class

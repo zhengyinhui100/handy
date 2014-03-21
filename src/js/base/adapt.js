@@ -8,14 +8,7 @@
 	H=$H;
 	Hui=$H;
 	$D=$H.Debug;
-	$HB=$H.Browser;
-	$HC=$H.Cookie;
 	$HD=$H.Date;
-	$HF=$H.Function;
-	$HO=$H.Object;
-	$HS=$H.String;
-	$HU=$H.Util;
-	$HE=$H.Events;
 	$Define=$H.Loader.define;
 	$Require=$H.Loader.require;
 	
@@ -33,7 +26,7 @@
 	
 	//拦截jQuery的remove方法，通知组件元素删除
 	var $$=window.$
-	$$.fn.remove=$HF.intercept($$.fn.remove,function(){
+	$$.fn.remove=$H.intercept($$.fn.remove,function(){
 		var oEl=this.target;
 		$H.trigger('removeEl',oEl);
 	});

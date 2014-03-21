@@ -9,23 +9,17 @@
  * @created 2013-02-17
  */
 //"handy.common.View"
-$Define('CM.View','CM.ViewManager',function(ViewManager){
+$Define('CM.View',
+['CM.ViewManager',
+'CM.AbstractEvents'],
+function(ViewManager,AbstractEvents){
 	
-	var View=$H.createClass();
 	var _oTagReg=/^(<[a-zA-Z]+)/;
 	var _oHasClsReg=/^[^>]+class=/;
 	var _oClsReg=/(class=")/;
 	
-	
-	$HO.extend(View,{
-		extend              : fExtend,           //扩展原型定义
-		html                : fHtml              //静态初始化视图并生成html
-	});
-	
 	//自定义事件
-	$HO.extend(View.prototype,$H.Events);
-	
-	$HO.extend(View.prototype,{
+	var View=AbstractEvents.extend({
 		
 		xtype               : 'View',    //类型
 		
@@ -120,6 +114,9 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 		beforeDestroy       : fBeforeDestroy,    //销毁前工作
 		destroy             : fDestroy,          //销毁
 		afterDestroy        : fAfterDestroy      //销毁后工作
+	},{
+		extend              : fExtend,           //扩展原型定义
+		html                : fHtml              //静态初始化视图并生成html
 	});
 	/**
 	 * 扩展原型定义
@@ -128,9 +125,9 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 	 */
 	function fExtend(oExtend){
 		var oProt=this.prototype;
-		$HO.extend(oProt, oExtend,{notCover:function(p){
+		$H.extend(oProt, oExtend,{notCover:function(p){
 			//继承父类的事件
-			if($HO.contains(['_customEvents','listeners'],p)){
+			if($H.contains(['_customEvents','listeners'],p)){
 				oProt[p]=(oExtend[p]||[]).concat(oProt[p]||[]);
 				return true;
 			}else if(p=='xtype'||p=='constructor'){
@@ -144,7 +141,7 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 	 * @param {object}oParams 初始化参数
 	 */
 	function fHtml(oParams){
-		var oView=new this($HO.extend({autoRender:false},oParams));
+		var oView=new this($H.extend({autoRender:false},oParams));
 		return oView.getHtml();
 	}
 	/**
@@ -154,7 +151,7 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 	 */
 	function fInitialize(oParams){
 		var me=this;
-		me.manager=me.constructor.manager||$HO.getSingleton(ViewManager);
+		me.manager=me.constructor.manager||$H.getSingleton(ViewManager);
 		//初始化配置
 		me.doConfig(oParams);
 		me.parseItems();
@@ -174,7 +171,7 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 		//保存参数
 		me.params=oParams;
 		//复制参数
-		me.settings=$HO.clone(oParams);
+		me.settings=$H.clone(oParams);
 		if(oParams.renderTo){
 			me.renderTo=$(oParams.renderTo);
 		}else{
@@ -188,11 +185,11 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 		me._listeners=aListeners;
 		
 		//只覆盖基本类型的属性
-		$HO.extend(me,oParams,{notCover:function(sProp){
+		$H.extend(me,oParams,{notCover:function(sProp){
 			var value=me[sProp];
 			//默认事件，可通过参数属性直接添加
-			var bIsCustEvt=$HO.contains(me._customEvents,sProp);
-			var bIsDefEvt=$HO.contains(me._defaultEvents,sProp);
+			var bIsCustEvt=$H.contains(me._customEvents,sProp);
+			var bIsDefEvt=$H.contains(me._defaultEvents,sProp);
 			if(bIsDefEvt){
 				me._listeners.push({
 					name:sProp,
@@ -201,13 +198,13 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 			}else if(bIsCustEvt){
 				me.on(sProp,oParams[sProp]);
 			}
-			if((value!=null&&typeof value=='object')||$HO.isFunction(value)){
+			if((value!=null&&typeof value=='object')||$H.isFunction(value)){
 				return true;
 			}
 		}});
 		//覆盖子视图默认配置
 		if(oParams.defItem){
-			$HO.extend(me.defItem,oParams.defItem);
+			$H.extend(me.defItem,oParams.defItem);
 		}
 	}
 	/**
@@ -486,7 +483,7 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 					}
 				};
 			//移动浏览器由于click可能会有延迟，这里转换为touchend事件
-			if($H.Browser.mobile()){
+			if($H.mobile()){
 				if(sName=="click"){
 					sName="touchend";
 				}
@@ -532,7 +529,7 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 				sSel=oEvent.selector,
 				fDelegation;
 			//移动浏览器由于click可能会有延迟，这里转换为touchend事件
-			if($H.Browser.mobile()){
+			if($H.mobile()){
 				if(sName=="click"){
 					sName="touchend";
 				}
@@ -684,7 +681,7 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 		var aResult=aResult||[];
 		//多个选择器
 		if(sSel.indexOf(",")>0){
-			$HO.each(sSel.split(","),function(i,val){
+			$H.each(sSel.split(","),function(i,val){
 				aResult=aResult.concat(me.find(val));
 			})
 			return aResult;
@@ -825,7 +822,7 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 		var items=oSettings.items;
 		if(!items){
 			oSettings.items=[];
-		}else if(!$HO.isArray(items)){
+		}else if(!$H.isArray(items)){
 			oSettings.items=[items];
 		}
 		oSettings.items.push(oItem);
@@ -846,7 +843,7 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 			var oItem=aItems[i];
 			//默认子视图配置
 			if(me.defItem){
-				$HO.extend(oItem,me.defItem,{notCover:true});
+				$H.extend(oItem,me.defItem,{notCover:true});
 			}
 			//具体视图类处理
 			me.parseItem(oItem);
@@ -881,13 +878,13 @@ $Define('CM.View','CM.ViewManager',function(ViewManager){
 		}
 		var oParent=me.parent;
 		//cid不同
-		oOptions=$HO.extend({
+		oOptions=$H.extend({
 			renderBy:'before',
 			renderTo:me.getEl()
 		},oOptions);
 		if(oParent){
 			//继承默认配置
-			oOptions=$HO.extend(oParent.defItem,oOptions);
+			oOptions=$H.extend(oParent.defItem,oOptions);
 			//具体视图类处理
 			oParent.parseItem(oOptions);
 		}

@@ -13,7 +13,7 @@ function(LS){
 	
 	var AbstractDao=$H.createClass();
 	
-	$HO.extend(AbstractDao.prototype,{
+	$H.extend(AbstractDao.prototype,{
 		ajax         : fAjax,        //ajax方法
 		beforeSend   : $H.noop,      //发送前处理
 		error        : $H.noop,      //错误处理
@@ -33,17 +33,45 @@ function(LS){
 	function fAjax(oParams){
 		var me=this;
 		me.beforeSend(oParams);
-		oParams.error=$HF.intercept(me.error,oParams.error);
-		oParams.success=$HF.intercept(me.success,oParams.success);
+		oParams.error=$H.intercept(me.error,oParams.error);
+		oParams.success=$H.intercept(me.success,oParams.success);
 		return $.ajax(oParams);
 	}
 	/**
-	 * 同步数据
-	 * 
+	 * 获取数据
 	 */
-	function fSync(sMethod,oModel,oOptions){
+	function fGet(){
+	}
+	/**
+	 * 设置数据
+	 */
+	function fSet(){
+	}
+	/**
+	 * 删除数据
+	 */
+	function fRemove(){
+	}
+	/**
+	 * 同步数据
+	 * @param {Object}oOptions 选项{
+	 * 		{string=}method:操作方法(get/set/remove)，默认是get,
+	 * 		{string=}type:存储类型(local/remote),默认是remote
+	 * 		{*=}data:数据，
+	 * 		{Object}param:参数
+	 * }
+	 * @return {*} 如果是get操作，返回指定的数据
+	 */
+	function fSync(oOptions){
+		var me=this;
 		oOptions=oOptions||{};
-		if(){
+		var sMethod=oOptions.method||'get';
+		var sType=oOptions.type||'remote';
+		var oParam=oOptions.param;
+		if(sType=='remote'){
+			me.ajax(oParam);
+		}else{
+			LS[sType+'Item'](oParam);
 		}
 	}
 	

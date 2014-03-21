@@ -50,7 +50,7 @@
 			var oModule=fDefined.apply(window,args);
 			handy.base[sName]=handy[sName]=oModule;
 			//return;
-			if('Class,Browser,Events,Function,Object,String,Template,Util'.indexOf(sName)>=0){
+			if('Browser,Class,Cookie,Events,Function,Json,Object,String,Template,Util'.indexOf(sName)>=0){
 				for(var key in oModule){
 					//!Function[key]专为bind方法
 					if(typeof handy[key]!="undefined"&&('console' in window)&&!Function[key]){
@@ -58,9 +58,6 @@
 						console.log(sName+"命名冲突:"+key);
 					}
 					handy[key]=oModule[key];
-				}
-				if(sName=="Events"){
-					handy._eventCache={};
 				}
 			}
 		}else{

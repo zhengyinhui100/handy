@@ -6,14 +6,11 @@
 //"handy.common.Collection"
 $Define('CM.Collection',
 ['CM.AbstractDao',
+'CM.AbstractEvents',
 'CM.Model'],
-function(AbstractDao,Model){
+function(AbstractDao,AbstractEvents,Model){
 	
-	var Collection=$H.createClass();
-	
-	$HO.extend(Collection.prototype,$H.Events);
-	
-	$HO.extend(Collection.prototype,{
+	var Collection=AbstractEvents.extend({
 		
 //		model                  : Model,               //子对象模型类
 //		models                 : [],                  //模型列表
@@ -55,7 +52,7 @@ function(AbstractDao,Model){
 	var wrapError;
 	
 	//从base.Collection生成方法
-	$HO.each([
+	$H.each([
 		'some','every','find','filter','invoke'
 	], function(sMethod) {
 	    Collection.prototype[sMethod] = function() {
@@ -87,7 +84,7 @@ function(AbstractDao,Model){
         if (oAttrs instanceof Model){
         	return oAttrs;
         }
-        oOptions = oOptions ? $HO.clone(oOptions) : {};
+        oOptions = oOptions ? $H.clone(oOptions) : {};
         oOptions.collection = me;
         var oModel = new me.model(oAttrs, oOptions);
         if (!oModel.validationError){
@@ -165,7 +162,7 @@ function(AbstractDao,Model){
 	    }
 	    me._reset();
 	    if (aModels){
-	    	me.reset(aModels, $HO.extend({silent: true}, oOptions));
+	    	me.reset(aModels, $H.extend({silent: true}, oOptions));
 	    }
 	}
 	/**
@@ -187,7 +184,10 @@ function(AbstractDao,Model){
 	 */
     function fSync(sMethod,oModel,oOptions) {
     	var me=this;
-        return me.dao.sync.apply(me, arguments);
+        return me.dao.sync({
+        	method:sMethod,
+        	param:oOptions
+        });
     }
 	/**
 	 * 添加模型
@@ -195,7 +195,7 @@ function(AbstractDao,Model){
 	 * @return {Model}返回被添加的模型，如果是数组，返回第一个元素
 	 */
     function fAdd(models, oOptions) {
-    	$HO.extend(oOptions,{
+    	$H.extend(oOptions,{
     		add:true,
     		remove:false,
     		merge:false
@@ -209,8 +209,8 @@ function(AbstractDao,Model){
      */
     function fRemove(models, oOptions) {
     	var me=this;
-        var bSingular = !$HO.isArray(models);
-        models = bSingular ? [models] : $HO.clone(models);
+        var bSingular = !$H.isArray(models);
+        models = bSingular ? [models] : $H.clone(models);
         oOptions || (oOptions = {});
         var i, l, index, oModel;
         for (i = 0, l = models.length; i < l; i++) {
@@ -254,8 +254,8 @@ function(AbstractDao,Model){
         if (oOptions.parse){
         	models = me.parse(models, oOptions);
         }
-        var bSingular = !$HO.isArray(models);
-        var aModels = bSingular ? (models ? [models] : []) : $HO.clone(models);
+        var bSingular = !$H.isArray(models);
+        var aModels = bSingular ? (models ? [models] : []) : $H.clone(models);
         var i, l, id, oModel, oAttrs, oExisting, sort;
         var at = oOptions.at;
         var cTargetModel = me.model;
@@ -382,7 +382,7 @@ function(AbstractDao,Model){
         }
         oOptions.previousModels = me.models;
         me._reset();
-        models = me.add(models, $HO.extend({silent: true}, oOptions));
+        models = me.add(models, $H.extend({silent: true}, oOptions));
         if (!oOptions.silent){
         	me.trigger('reset', me, oOptions);
         }
@@ -395,7 +395,7 @@ function(AbstractDao,Model){
 	 */
     function fPush(oModel, oOptions) {
     	var me=this;
-        return me.add(oModel, $HO.extend({at: me.length}, oOptions));
+        return me.add(oModel, $H.extend({at: me.length}, oOptions));
     }
 	/**
 	 * 取出集合最后一个模型
@@ -414,7 +414,7 @@ function(AbstractDao,Model){
 	 * @return {Model} 返回添加的模型
 	 */
     function fUnshift(oModel, oOptions) {
-        return this.add(oModel, $HO.extend({at: 0}, oOptions));
+        return this.add(oModel, $H.extend({at: 0}, oOptions));
     }
 	/**
 	 * 取出集合第一个模型
@@ -467,7 +467,7 @@ function(AbstractDao,Model){
 	 */
     function fWhere(oAttrs, bFirst) {
     	var me=this;
-        if ($HO.isEmpty(oAttrs)){
+        if ($H.isEmpty(oAttrs)){
         	return bFirst ? void 0 : [];
         }
         return me[bFirst ? 'find' : 'filter'](function(oModel) {
@@ -531,6 +531,9 @@ function(AbstractDao,Model){
     function fFetch(oOptions) {
     	var me=this;
         oOptions = oOptions ? $H.clone(oOptions) : {};
+        if(!oOptions.url){
+        	oOptions.url=me.url;
+        }
         if (oOptions.parse === void 0){
         	oOptions.parse = true;
         }
@@ -543,8 +546,7 @@ function(AbstractDao,Model){
         	}
         	me.trigger('sync', me, resp, oOptions);
         };
-        wrapError(me, oOptions);
-        return me.sync('read', me, oOptions);
+        return me.sync('get', me, oOptions);
     }
 	/**
 	 * 新建模型

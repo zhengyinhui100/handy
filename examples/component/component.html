@@ -790,7 +790,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,
 	
 	$D.time(true,'组件初始化时间：');
 	var num=0;
-	$V.eachInEl($(document.body),function(){
+	$CM.eachInEl($(document.body),function(){
 		num++;
 	})
 	$D.log('组件数目：'+num);

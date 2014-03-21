@@ -1,20 +1,20 @@
 /**
  * 自定义事件类，事件名称支持'all'表示所有事件，支持复杂形式：'event1 event2'或{event1:func1,event:func2}，
  * 事件名称支持命名空间(".name")，如：change.one
- * PS:注意，此类只用来继承，不能直接使用，否则_eventCache属性会污染由他扩展是类，要使用全局事件可以直接使用handy下的方法
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 handy.add('Events',function($H){
 	
 	var Events={
-		_eventCache   : {},              //自定义事件池
-		_parseEvents  : _fParseEvents,   //处理对象类型或者空格相隔的多事件
-		on            : fOn,             //添加事件
-		once          : fOnce,           //监听一次
-		off           : fOff,            //移除事件
-		suspend       : fSuspend,        //挂起事件
-		resume        : fResume,         //恢复事件
-		trigger       : fTrigger         //触发事件
+		_eventCache       : {},                 //自定义事件池
+		_parseEvents      : _fParseEvents,      //处理对象类型或者空格相隔的多事件
+		_delegateHandler  : _fDelegateHandler,  //统一代理回调函数
+		on                : fOn,                //添加事件
+		once              : fOnce,              //监听一次
+		off               : fOff,               //移除事件
+		suspend           : fSuspend,           //挂起事件
+		resume            : fResume,            //恢复事件
+		trigger           : fTrigger            //触发事件
 	};
 	
 	var _oArrayProto=Array.prototype;
@@ -48,16 +48,34 @@ handy.add('Events',function($H){
 		return false;
 	}
 	/**
+	 * 统一代理回调函数
+	 * @param {Function}fHandler 回调函数
+	 * @param {*=}context 事件函数执行上下文，默认是this
+	 * @return {Function} 返回代理函数
+	 */
+	function _fDelegateHandler(fHandler,context){
+		var me=this;
+		return function(){
+			if(me.isSuspend!=true){
+				return fHandler.apply(context||me,arguments);
+			}
+		};
+	}
+	/**
 	 * 添加事件
-	 * @param {string}sMethod 调用的方法名
+	 * @method on(name,fHandler[,context,nTimes])如果第三个参数是整形，则它表示执行次数，此时，context为空
 	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}，
 	 * 							事件名称支持命名空间(".name")，如：change.one
 	 * @param {Function=}fHandler 事件函数
-	 * @param {*=}context 事件函数执行上下文
+	 * @param {*=}context 事件函数执行上下文，默认是this
 	 * @param {number=}nTimes 执行次数，默认无限次
 	 */
 	function fOn(name,fHandler,context,nTimes){
 		var me=this;
+		if(typeof context=='number'){
+			nTimes=context;
+			context=null;
+		}
 		if(me._parseEvents('on',name,fHandler,context,nTimes)){
 			return;
 		}
@@ -66,11 +84,7 @@ handy.add('Events',function($H){
 		if(!aCache){
 			aCache=oCache[name]=[];
 		}
-		var fCall=function(){
-			if(me.isSuspend!=true){
-				return fHandler.apply(context||me,arguments);
-			}
-		};
+		var fCall=me._delegateHandler(fHandler,context);
 		aCache.push({
 			times:nTimes,
 			handler:fHandler,
@@ -83,7 +97,7 @@ handy.add('Events',function($H){
 	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}
 	 * 							事件名称支持命名空间(".name")，如：change.one
 	 * @param {function=}fHandler 事件函数
-	 * @param {*=}context 事件函数执行上下文
+	 * @param {*=}context 事件函数执行上下文，默认是this
 	 */
 	 function fOnce(name,fHandler,context){
 	 	var me=this;
@@ -150,7 +164,7 @@ handy.add('Events',function($H){
 	 */
 	function fTrigger(name,data){
 		var me=this;
-		var aNewArgs=$HO.toArray(arguments);
+		var aNewArgs=$H.toArray(arguments);
 		aNewArgs.unshift('trigger');
 		if(me._parseEvents.apply(me,aNewArgs)){
 			return;

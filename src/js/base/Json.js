@@ -8,7 +8,7 @@ handy.add('Json',function($H){
 	
 	var Json={
 		stringify   : fStringify,    //序列化，将json对象转化为字符串
-		parse       : fParse         //将字符串转化为json对象
+		parseJson   : fParseJson     //将字符串转化为json对象
 	}
 	
 	var _bNativeJson='JSON' in window,
@@ -182,7 +182,7 @@ handy.add('Json',function($H){
      * @param {boolean=}bNotNative true表示强制不使用原生的JSON方法
      * @return {Object} 返回json对象
      */
-	function fParse(sText, fReviver,bNotNative) {
+	function fParseJson(sText, fReviver,bNotNative) {
 		if(_bNativeJson&&!bNotNative){
 			return JSON.parse.apply(null,arguments);
 		}

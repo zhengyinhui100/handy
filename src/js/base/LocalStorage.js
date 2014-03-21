@@ -50,7 +50,7 @@ handy.add('LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Even
 	 	}else{
 			value=_oUserData.getAttribute(sKey);
 	 	}
-	 	value=Json.parse(value);
+	 	value=Json.parseJson(value);
 	 	return value;
 	 }
 	 /**

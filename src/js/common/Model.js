@@ -5,13 +5,10 @@
  */
 //"handy.common.Model"
 $Define('CM.Model',
-function(){
+'CM.AbstractEvents',
+function(AbstractEvents){
 	
-	var Model=$H.createClass();
-	
-	$HO.extend(Model.prototype,$H.Events);
-	
-	$HO.extend(Model.prototype,{
+	var Model=AbstractEvents.extend({
 //		_changing             : false,               //是否正在改变
 		_pending              : false,               //
 //		_previousAttributes   : {},                  //较早的值
@@ -59,12 +56,12 @@ function(){
         if (!oOptions.validate || !me.validate){
         	return true;
         }
-        oAttrs = $HO.extend({}, me.attributes, oAttrs);
+        oAttrs = $H.extend({}, me.attributes, oAttrs);
         var error = me.validationError = me.validate(oAttrs, oOptions) || null;
         if (!error){
         	return true;
         }
-        me.trigger('invalid', me, error, $HO.extend(oOptions, {validationError: error}));
+        me.trigger('invalid', me, error, $H.extend(oOptions, {validationError: error}));
         return false;
     }
 	/**
@@ -89,7 +86,7 @@ function(){
 		if (oOptions.parse){
 			oAttrs = me.parse(oAttrs, oOptions) || {};
 		}
-		oAttrs = $HO.extend(oAttrs, $H.Util.result(me, 'defaults'),{notCover:true});
+		oAttrs = $H.extend(oAttrs, $H.Util.result(me, 'defaults'),{notCover:true});
 		me.set(oAttrs, oOptions);
 		me.changed = {};
 	}
@@ -99,7 +96,7 @@ function(){
 	 * @return {Object} 返回对象数据副本
 	 */
     function fToJSON() {
-        return $HO.clone(this.attributes);
+        return $H.clone(this.attributes);
     }
 	/**
 	 * 同步数据，可以通过重写进行自定义
@@ -188,11 +185,11 @@ function(){
 	    for (var sAttr in oAttrs) {
 	   	    val = oAttrs[sAttr];
 	   	    //与当前值不相等，放入改变列表中
-	    	if (!$HO.equals(oCurrent[sAttr], val)){
+	    	if (!$H.equals(oCurrent[sAttr], val)){
 	    		aChanges.push(sAttr);
 	    	}
 	    	//与初始值不相等，放入已经改变的hash对象中
-	    	if (!$HO.equals(oPrev[sAttr], val)) {
+	    	if (!$H.equals(oPrev[sAttr], val)) {
 	            me.changed[sAttr] = val;
 	    	} else {
 	    		//跟初始值相等，即没有变化
@@ -265,9 +262,9 @@ function(){
     function fHasChanged(sAttr) {
     	var oChange=this.changed;
         if (sAttr == null){
-        	return !$HO.isEmpty(oChange);
+        	return !$H.isEmpty(oChange);
         }
-        return $HO.contains(oChange, sAttr);
+        return $H.contains(oChange, sAttr);
     }
 	/**
 	 * 返回改变过的属性，可以指定需要判断的属性
@@ -278,12 +275,12 @@ function(){
     function fChangedAttributes(oDiff) {
     	var me=this;
         if (!oDiff){
-            return me.hasChanged() ? $HO.clone(me.changed) : false;
+            return me.hasChanged() ? $H.clone(me.changed) : false;
         }
         var val, changed = false;
         var oOld = me._changing ? me._previousAttributes : me.attributes;
         for (var sAttr in oDiff) {
-            if (!$HO.equals(oOld[sAttr], (val = oDiff[sAttr]))){
+            if (!$H.equals(oOld[sAttr], (val = oDiff[sAttr]))){
 	            (changed || (changed = {}))[sAttr] = val;
             }
         }
@@ -308,7 +305,7 @@ function(){
 	 * @return {Object} 返回所有修改前的值
 	 */
     function fPreviousAttributes() {
-        return $HO.clone(this._previousAttributes);
+        return $H.clone(this._previousAttributes);
     }
 	/**
 	 * 获取模型数据
@@ -316,7 +313,7 @@ function(){
 	 */
     function fFetch(oOptions) {
     	var me=this;
-        oOptions = oOptions ? $HO.clone(oOptions) : {};
+        oOptions = oOptions ? $H.clone(oOptions) : {};
         if (oOptions.parse === void 0) {
         	oOptions.parse = true;
         }
@@ -356,7 +353,7 @@ function(){
         	(oAttrs = {})[sKey] = val;
         }
 
-        oOptions = $HO.extend({validate: true}, oOptions);
+        oOptions = $H.extend({validate: true}, oOptions);
 
       // If we're not waiting and attributes exist, save acts as
       // `set(attr).save(null, opts)` with validation. Otherwise, check if
@@ -369,7 +366,7 @@ function(){
 
       // Set temporary attributes if `{wait: true}`.
         if (oAttrs && oOptions.wait) {
-            me.attributes = $HO.extend({}, attributes, oAttrs);
+            me.attributes = $H.extend({}, attributes, oAttrs);
         }
 
       // After a successful server-side save, the client is (optionally)
@@ -381,8 +378,8 @@ function(){
 	        // Ensure attributes are restored during synchronous saves.
 	        model.attributes = attributes;
 	        var serverAttrs = model.parse(resp, oOptions);
-	        if (oOptions.wait) serverAttrs = $HO.extend(oAttrs || {}, serverAttrs);
-	        if ($HO.isObject(serverAttrs) && !model.set(serverAttrs, oOptions)) {
+	        if (oOptions.wait) serverAttrs = $H.extend(oAttrs || {}, serverAttrs);
+	        if ($H.isObject(serverAttrs) && !model.set(serverAttrs, oOptions)) {
 	          return false;
 	        }
 	        if (success) success(model, resp, oOptions);
@@ -408,7 +405,7 @@ function(){
 	 */
     function fDestroy(oOptions) {
     	var me=this;
-      oOptions = oOptions ? $HO.clone(oOptions) : {};
+      oOptions = oOptions ? $H.clone(oOptions) : {};
       var model = me;
       var success = oOptions.success;
 
@@ -481,7 +478,7 @@ function(){
 	 * @return {boolean} true表示合法
 	 */
     function fIsValid(oOptions) {
-        return this._validate({}, $HO.extend(oOptions || {}, { validate: true }));
+        return this._validate({}, $H.extend(oOptions || {}, { validate: true }));
     }
 	
 	return Model;

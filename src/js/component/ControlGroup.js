@@ -137,12 +137,12 @@ function(AC){
 		if(sValue){
 			var aValues=sValue.split(','),aSel=[];
 			me.each(function(i,oCmp){
-				oCmp.select($HO.contains(aValues,oCmp.value));
+				oCmp.select($H.contains(aValues,oCmp.value));
 			});
 		}else{
 			var aCmp=me.find('$>[selected=true]');
 			var aValues=[];
-			$HO.each(aCmp,function(i,oCmp){
+			$H.each(aCmp,function(i,oCmp){
 				aValues.push(oCmp.value);
 			})
 			return aValues.join(',');

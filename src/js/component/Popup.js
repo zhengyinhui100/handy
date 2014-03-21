@@ -55,7 +55,7 @@ function(AC){
 		}
 		//Android下弹出遮罩层时，点击仍能聚焦到到输入框，暂时只能在弹出时disable掉，虽然能避免聚焦及弹出输入法，
 		//不过，仍旧会有光标竖线停留在点击的输入框里，要把延迟加到几秒之后才能避免，但又会影响使用
-		if($H.Browser.android()){
+		if($H.android()){
 			me._listeners.push({
 				name:'show',
 				custom:true,

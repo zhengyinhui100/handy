@@ -44,7 +44,7 @@ handy.add('Collection','B.Object',function(Object,$H){
 	    if (value == null){
 	    	return _fIdentity;
 	    }
-	    if ($HO.isFunction(value)){
+	    if ($H.isFunction(value)){
 	    	return value;
 	    }
 	    return _fProperty(value);
@@ -115,7 +115,7 @@ handy.add('Collection','B.Object',function(Object,$H){
 	    if (fNativeSome && obj.some === fNativeSome){
 	    	return obj.some(fPredicate, context);
 	    }
-	    $HO.each(obj, function(index,value, obj) {
+	    $H.each(obj, function(index,value, obj) {
 	        if (bResult || (bResult = fPredicate.call(context, value, index, obj))){
 	      	    return false;
 	        }
@@ -140,7 +140,7 @@ handy.add('Collection','B.Object',function(Object,$H){
 	    if (fNativeEvery && obj.every === fNativeEvery){
 	    	return obj.every(fPredicate, context);
 	    }
-	    $HO.each(obj, function(index,value, list) {
+	    $H.each(obj, function(index,value, list) {
 	      if (!(result=fPredicate.call(context, value, index, list))){
 	      	  return false;
 	      }
@@ -184,7 +184,7 @@ handy.add('Collection','B.Object',function(Object,$H){
 	    if (fNativeFilter && obj.filter === fNativeFilter){
 	    	return obj.filter(fPredicate, context);
 	    }
-	    $HO.each(obj, function(index,value, list) {
+	    $H.each(obj, function(index,value, list) {
 	        if (fPredicate.call(context, value, index, list)){
 	      	    results.push(value);
 	        }
