@@ -18,6 +18,8 @@
 <script type="text/javascript"
 	src="../src/js/base/Function.js"></script>
 <script type="text/javascript"
+	src="../src/js/base/Class.js"></script>
+<script type="text/javascript"
 	src="../src/js/base/Loader.js"></script>
 <script type="text/javascript"
 	src="../src/js/base/Date.js"></script>
@@ -50,17 +52,45 @@
 </div>
 <div><span id="span2"></span></div>
 <script type="text/javascript">
-var o={
-		dd:{
-			sdsd:{
-				sdsf:{
-					d:3
-				}
-			}
-		},
-		dsaa:2
+function fDefine(obj,start,len){
+	for(var i=0;i<len;i++){
+		var num=start+i;
+		obj['attr'+num]=num;
 	}
-$D.log(o,true);
+}
+
+var Base=$H.createClass();
+fDefine(Base.prototype,0,30);
+var Parent=Base.extend();
+fDefine(Parent.prototype,20,30);
+var Sub=Parent.extend();
+fDefine(Sub.prototype,40,30);
+var oBase=new Base();
+var oTest=new Sub();
+fDefine(oTest,60,30);
+
+var attr;
+$D.time();
+for(var i=0;i<1000000;i++){
+	attr=oTest['attr'+(60+i%30)];
+}
+$D.time(true,'读取自身属性时间：');
+$D.time();
+for(var i=0;i<1000000;i++){
+	attr=oTest['attr'+(i%30)];
+}
+$D.time(true,'读取继承属性时间：');
+$D.time();
+for(var i=0;i<1000000;i++){
+	attr=oTest['undefined'+i];
+}
+$D.time(true,'读取未定义属性时间：');
+
+$D.time();
+for(var i=0;i<1000000;i++){
+	attr=oBase['undefined'+i];
+}
+$D.time(true,'读取Base类未定义属性时间：');
 </script>
 </body>
 </html>
