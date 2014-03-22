@@ -72,6 +72,7 @@ function(ViewManager,AbstractEvents){
 		
 		_parseListenEvents  : _fParseListenEvents, //处理对象类型或者空格相隔的多事件
 		
+		//初始化相关
 		initialize          : fInitialize,       //初始化
 		doConfig            : fDoConfig,         //初始化配置
 		getEl               : fGetEl,            //获取容器节点
@@ -93,6 +94,7 @@ function(ViewManager,AbstractEvents){
 		enable              : fEnable,           //启用
 		disable             : fDisable,          //禁用
 		
+		//事件相关
 		listen              : fListen,           //绑定事件
 		unlisten            : fUnlisten,         //解除事件
 		initListeners       : fInitListeners,    //初始化所有事件
@@ -112,6 +114,7 @@ function(ViewManager,AbstractEvents){
 		parseItem           : function(){},      //分析子视图，由具体视图类实现
 		parseItems          : fParseItems,       //分析子视图列表
 		
+		//更新、销毁
 		beforeUpdate        : fBeforeUpdate,     //更新前工作
 		update              : fUpdate,           //更新
 		afterUpdate         : fAfterUpdate,      //更新后工作
@@ -290,10 +293,11 @@ function(ViewManager,AbstractEvents){
 	 */
 	function fFindHtml(sSel){
 		var me=this;
-		var aChildren=sSel==">*"?me.children:me.find(sSel);
+		sSel.indexOf("$")!=0&&(sSel='$'+sSel);
+		var aItems=sSel=="$>*"?me.children:me.find(sSel);
 		var aHtml=[];
-		for(var i=0;i<aChildren.length;i++){
-			aHtml.push(aChildren[i].getHtml());
+		for(var i=0;i<aItems.length;i++){
+			aHtml.push(aItems[i].getHtml());
 		}
 		return aHtml.join('');
 	}
@@ -815,8 +819,10 @@ function(ViewManager,AbstractEvents){
 	 * 添加子视图
 	 * @method add
 	 * @param {object|Array}item 视图对象或视图配置或数组
+	 * @param {number=}nIndex 指定添加的索引，默认添加到最后
+	 * @return {?Component} 添加的子视图只有一个时返回该视图对象，参数是数组时返回空
 	 */
-	function fAdd(item){
+	function fAdd(item,nIndex){
 		var me=this;
 		if($H.isArray(item)){
 			for(var i=0,len=item.length;i<len;i++){
@@ -824,9 +830,15 @@ function(ViewManager,AbstractEvents){
 			}
 			return;
 		}
+		var bNoIndex=nIndex==undefined;
 		//还没初始化子视图配置，直接添加到配置队列里
 		if(!me.startParseItems){
-			me.items.push(item);
+			var aItems=me.items;
+			if(bNoIndex){
+				aItems.push(item);
+			}else{
+				aItems.splice(nIndex,0,item);
+			}
 			return;
 		}
 		
@@ -848,25 +860,52 @@ function(ViewManager,AbstractEvents){
 				$D.error("xtype:"+item.xtype+"未找到");
 			}
 		}
-		me.children.push(item);
+		var aChildren=me.children;
+		if(bNoIndex){
+			aChildren.push(item);
+		}else{
+			aChildren.splice(nIndex,0,item);
+		}
 		item.parent=me;
+		return item;
 	}
 	/**
 	 * 删除子视图
 	 * @method remove
-	 * @param {object}oItem 视图对象
+	 * @param {object|number|string}item 视图对象或视图索引或选择器
 	 * @return {boolean} true表示删除成功
 	 */
-	function fRemove(oItem){
+	function fRemove(item){
 		var me=this;
 		var aChildren=me.children;
 		var bResult=false;
-		for(var i=0,len=aChildren.length;i<len;i++){
-			if(aChildren[i]==oItem){
-				aChildren.splice(i,1);
-				oItem.destroy();
+		var nIndex;
+		if(typeof item=='number'){
+			nIndex=item;
+			item=aChildren[nIndex];
+		}else if(typeof item=='string'){
+			item=me.find(item);
+			for(var i=0,len=item.length;i<len;i++){
+				if(me.remove(item)==false){
+					return false;
+				}
 				bResult=true;
 			}
+		}else if(item instanceof View){
+			if(item.parent==me){
+				for(var i=0,len=aChildren.length;i<len;i++){
+					if(aChildren[i]==item){
+						nIndex=i;
+						break;
+					}
+				}
+			}else{
+				return item.parent.remove(item);
+			}
+		}
+		if(nIndex!=undefined&&item.destroy(true)!=false){
+			aChildren.splice(nIndex,1);
+			bResult=true;
 		}
 		return bResult;
 	}
@@ -905,33 +944,33 @@ function(ViewManager,AbstractEvents){
 			return false;
 		}
 		var oParent=me.parent;
+		var oPlaceholder=$('<span></span>').insertBefore(me.getEl());
 		//cid不同
 		oOptions=$H.extend({
-			renderBy:'before',
-			renderTo:me.getEl()
+			xtype:me.xtype,
+			renderBy:'replaceWith',
+			renderTo:oPlaceholder
 		},oOptions);
-		if(oParent){
-			//继承默认配置
-			oOptions=$H.extend(oParent.defItem,oOptions);
-			//具体视图类处理
-			oParent.parseItem(oOptions);
-		}
 		//不需要改变id/cid
 		if(!oOptions.cid||oOptions.cid==me.cid){
 			oOptions._id=me._id;
 		}
-		var oNew=new me.constructor(oOptions);
+		var oNew;
 		if(oParent){
-			oNew.parent=oParent;
-			oParent.each(function(i,oItem){
-				if(oItem==me){
-					oParent.children.splice(i,1,oNew);
-					return false;
-				}
-			});
+			var nIndex=me.index();
+			if(oParent.remove(me)==false){
+				oPlaceholder.remove();
+				return false;
+			}
+			oNew=oParent.add(oOptions,nIndex);
+		}else{
+			if(me.destroy()==false){
+				oPlaceholder.remove();
+				return false;
+			}
+			oNew=new me.constructor(oOptions);
 		}
-		me.destroy();
-		me.trigger('update');
+		me.trigger('update',oNew);
 		me.afterUpdate(oNew);
 		return oNew;
 	}
@@ -952,12 +991,16 @@ function(ViewManager,AbstractEvents){
 	/**
 	 * 销毁
 	 * @method destroy
-	 * @return {boolean=} 如果没有顺利销毁，则直接返回false
+	 * @param {boolean=} 仅当true时表示从remove里的调用，不需要再这里调用parent.remove
+	 * @return {boolean=} 成功返回true，失败返回false，如果之前已经销毁返回空
 	 */
-	function fDestroy(){
+	function fDestroy(bFromRemove){
 		var me=this;
-		if(me.beforeDestroy()==false||me.destroyed){
+		if(me.beforeDestroy()==false){
 			return false;
+		}
+		if(me.destroyed){
+			return;
 		}
 		me.callChild();
 		
@@ -966,7 +1009,7 @@ function(ViewManager,AbstractEvents){
 		me.getEl().remove();
 		me.destroyed=true;
 		
-		if(me.parent){
+		if(!bFromRemove&&me.parent){
 			me.parent.remove(me);
 		}
 		//注销组件
@@ -977,6 +1020,7 @@ function(ViewManager,AbstractEvents){
 		delete me._listeners;
 		delete me.children;
 		me.afterDestroy();
+		return true;
 	}
 	/**
 	 * 销毁后工作
