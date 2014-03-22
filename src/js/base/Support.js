@@ -75,4 +75,4 @@ handy.add('Support','B.Browser',function(Browser,$H){
 	
 	return Support;
 	
-})
+});

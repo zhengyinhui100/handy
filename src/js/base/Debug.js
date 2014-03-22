@@ -173,4 +173,4 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 	
 	return Debug;
 	
-})
+});

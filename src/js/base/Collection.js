@@ -256,4 +256,4 @@ handy.add('Collection','B.Object',function(Object,$H){
 	
 	return Collection;
 	
-})
+});

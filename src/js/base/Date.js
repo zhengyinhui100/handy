@@ -159,4 +159,4 @@ handy.add('Date',function(){
 	}
 	
 	return Date;
-})
+});

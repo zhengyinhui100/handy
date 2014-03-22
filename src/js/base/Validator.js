@@ -238,4 +238,4 @@ handy.add('Validator',['B.String','B.Object'],function(String,Object,$H){
 	
 	return Validator;
 	
-})
+});

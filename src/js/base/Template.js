@@ -4,19 +4,17 @@
  */
 handy.add('Template',function($H){
 	
-	var _cache={},             //缓存
-		_valPreReg=/^=/,        //简单替换正则
+	var _cache={},                //缓存
+		_valPreReg=/^=/,          //简单替换正则
 		_isNewEngine = ''.trim;   // '__proto__' in {}
 		
 	var T={
+		//配置
 		openTag         : '<%',            //模板语法开始标签
 		closeTag        : '%>',            //模板语法结束标签
+		isEscape        : true,            //是否开启js变量输出转义
 		
-//		_setValue       : _fSetValue,      //设置变量
-		_add            : _fAdd,           //结果函数添加一行字符串
-		_parseHtml      : _fParseHtml,     //处理html
-		_parseScript    : _fParseScript,   //处理脚本
-		_compile        : _fCompile,       //编译模板
+		addPlugin       : fAddPlugin,      //添加插件
 		tmpl            : fTmpl            //渲染模板
 	};
 	/**
@@ -33,11 +31,11 @@ handy.add('Template',function($H){
 	}
 	/**
 	 * 结果函数添加一行字符串
-	 * @method _add
+	 * @method _addLine
 	 * @param {string}sCode 要添加的代码
 	 * @return {string} 返回添加好的代码
 	 */
-	function _fAdd(sCode){
+	function _fAddLine(sCode){
 		//旧浏览器使用数组方式拼接字符串
         return _isNewEngine?'$r+='+sCode+';\n':'$r.push('+sCode+');\n';
 	}
@@ -54,7 +52,7 @@ handy.add('Template',function($H){
             // 换行符转义(windows + linux)
             .replace(/\r/g, '\\r')
             .replace(/\n/g, '\\n')
-		var sCode=T._add('"'+sHtml+'"');
+		var sCode=_fAddLine('"'+sHtml+'"');
 		return sCode;
 	}
 	/**
@@ -66,7 +64,7 @@ handy.add('Template',function($H){
 	function _fParseScript(sScript){
 		sScript=sScript.replace(/this/g,'$data');
 		if(sScript.indexOf('=')==0){
-			sScript=T._add(sScript.replace(_valPreReg,'')+'||""');
+			sScript=_fAddLine(sScript.replace(_valPreReg,'')+'||""');
 		}
 		return sScript+"\n";
 	}
@@ -85,18 +83,23 @@ handy.add('Template',function($H){
 			var aCode=sValue.split(T.closeTag);
 			//[html]
 			if(aCode.length==1){
-				sCode+=T._parseHtml(aCode[0]);
+				sCode+=_fParseHtml(aCode[0]);
 			}else{
 				//[script,html]
-				sCode+=T._parseScript(aCode[0]);
+				sCode+=_fParseScript(aCode[0]);
 				if(aCode[1]){
-					sCode+=T._parseHtml(aCode[1]);
+					sCode+=_fParseHtml(aCode[1]);
 				}
 			}
 		})
 		sCode+='return '+(_isNewEngine?'$r;':'$r.join("");');
 //		$D.log(sCode);
 		return new Function('$data',sCode);
+	}
+	/**
+	 * 添加插件
+	 */
+	function fAddPlugin(){
 	}
 	/**
 	 * 执行模板
@@ -132,7 +135,7 @@ handy.add('Template',function($H){
 				$H.Debug.error('模板未定义');
 				return;
 			}
-			fTmpl=T._compile(sTmpl);
+			fTmpl=_fCompile(sTmpl);
 			//根据id缓存
 			if(sId){
 				_cache[sId]=fTmpl;

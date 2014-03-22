@@ -53,4 +53,4 @@ handy.add('Function',function($H){
 	
 	return Function;
 	
-})
+});

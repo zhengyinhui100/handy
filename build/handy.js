@@ -3549,7 +3549,7 @@ handy.add('LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Even
 	 LocalStorage._init();
 	 
 	 return LocalStorage;
-})/**
+});/**
  * 适配类库
  */
 (function($){

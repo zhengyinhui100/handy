@@ -196,4 +196,4 @@ handy.add("String",function(){
 	}
 	
 	return String;
-})
+});

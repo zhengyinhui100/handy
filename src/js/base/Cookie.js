@@ -82,4 +82,4 @@ handy.add('Cookie',function(){
 	}
 	
 	return Cookie;
-})
+});

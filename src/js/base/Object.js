@@ -535,4 +535,4 @@ handy.add('Object',function($H){
 	
 	return Object;
 	
-})
+});

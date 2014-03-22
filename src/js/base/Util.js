@@ -70,4 +70,4 @@ handy.add('Util',function($H){
 	
 	return Util;
 	
-})
+});
