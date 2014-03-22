@@ -28,7 +28,7 @@ function(AC,ControlGroup){
 		
 		tmpl            : [
 			'<div class="hui-tab">',
-				'<ul class="c-clear">',
+				'<ul class="js-btns c-clear">',
 					'<%for(var i=0,len=this.children.length;i<len;i++){',
 					//IE7下width有小数点时会有偏差(width:500px,len=3,结果会多一像素导致换行)，所以这里统一都没有小数点
 					'var width=Math.floor(100/len);%>',
@@ -49,8 +49,9 @@ function(AC,ControlGroup){
 		
 		doConfig        : fDoConfig,           //初始化配置
 		parseItem       : fParseItem,          //处理子组件配置
+		add             : fAdd,                //添加子组件
 		onItemClick     : fOnItemClick,        //子项点击事件处理
-		setContent      : fSetContent          //设置内容
+		setTabContent   : fSetTabContent       //设置标签页内容
 	});
 	
 	/**
@@ -76,6 +77,36 @@ function(AC,ControlGroup){
 		}
 	}
 	/**
+	 * 添加标签项
+	 * @param {object|Array}item 标签项对象或标签项配置或数组
+	 * @param {number=}nIndex 指定添加的索引，默认添加到最后
+	 * @return {?Component} 添加的标签项只有一个时返回标签项对象，参数是数组时返回空
+	 */
+	function fAdd(item,nIndex){
+		var me=this;
+		if(me._applyArray()){
+			return;
+		}
+		var content=item.content,result;
+		if(content!=undefined){
+			me.hasContent=true;
+			if(typeof content=='string'){
+				content={
+					xtype:'Panel',
+					xrole:'content',
+					content:content,
+					extCls:'js-content'
+				}
+			}
+			result=[item,content];
+		}
+		if(me.inited){
+			var oUl=me.find('.js-btns');
+			var oRenderTo=$('<li class="hui-tab-item"></li>').appendTo(oUl);
+		}
+		me.callSuper(result||item);
+	}
+	/**
 	 * 子项点击事件处理
 	 * @method onItemClick
 	 * @param {jQ:Event}oEvt jQ事件对象
@@ -91,11 +122,10 @@ function(AC,ControlGroup){
 	}
 	/**
 	 * 设置标签页内容
-	 * @method setContent
 	 * @param {number=}nIndex 索引，默认是当前选中的那个
 	 * @param {String}sContent 内容
 	 */
-	function fSetContent(nIndex,sContent){
+	function fSetTabContent(nIndex,sContent){
 		var me=this;
 		nIndex=nIndex||me.getSelected(true);
 		me.find('js-tab-content').index(nIndex).html(sContent);

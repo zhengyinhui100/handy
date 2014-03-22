@@ -68,9 +68,10 @@ function(ViewManager,AbstractEvents){
 			'focus','focusin','focusout',
 			'contextmenu','change','submit'
 		],
-//		_listeners          : {},                //实例事件池
+//		_listeners          : {},                   //实例事件池
 		
-		_parseListenEvents  : _fParseListenEvents, //处理对象类型或者空格相隔的多事件
+		_applyArray         : _fApplyArray,         //在数组上依次执行方法
+		_parseListenEvents  : _fParseListenEvents,  //处理对象类型或者空格相隔的多事件
 		
 		//初始化相关
 		initialize          : fInitialize,       //初始化
@@ -93,6 +94,8 @@ function(ViewManager,AbstractEvents){
 		afterHide           : fAfterHide,        //隐藏后工作
 		enable              : fEnable,           //启用
 		disable             : fDisable,          //禁用
+		getContent          : fGetContent,       //获取内容
+		setContent          : fSetContent,       //设置内容
 		
 		//事件相关
 		listen              : fListen,           //绑定事件
@@ -150,6 +153,35 @@ function(ViewManager,AbstractEvents){
 	function fHtml(oParams){
 		var oView=new this($H.extend({autoRender:false},oParams));
 		return oView.getHtml();
+	}
+	/**
+	 * 在数组上依次执行方法
+	 * @method _applyArray([sMethod,aParams,param...]) 不传参数的话，默认是调用者的方法名和参数
+	 * @param {string=}sMethod 执行的方法名
+	 * @param {Array|*=}aParams 参数对象，如果是数组，则在其元素上分别执行执行方法，
+	 * 							并返回true，如果不是数组，返回false
+	 * @return {boolean} true表示已处理
+	 */
+	function _fApplyArray(sMethod,aParams){
+		var me=this;
+		var aArgs=arguments;
+		if(aArgs.length==0){
+			var fCaller=aArgs.callee.caller;
+			aArgs=fCaller.arguments;
+			aArgs=$H.toArray(aArgs);
+			sMethod=fCaller.$name;
+			aParams=aArgs.shift();
+		}else{
+			aArgs=$H.toArray(aArgs,2);
+		}
+		if($H.isArray(aParams)){
+			for(var i=0,len=aParams.length;i<len;i++){
+				aArgs.unshift(aParams[i]);
+				me[sMethod].apply(me,aArgs);
+			}
+			return true;
+		}
+		return false;
 	}
 	/**
 	 * 处理对象类型或者空格相隔的多事件
@@ -471,6 +503,34 @@ function(ViewManager,AbstractEvents){
 		var me=this;
 		me.suspend();
 		me.getEl().addClass("hui-disable").find('input,textarea,select').attr('disabled','disabled');
+	}
+	/**
+	 * 读取内容
+	 * @param {boolean=}bHtml 仅当false表示获取子组件列表，其它表示获取html内容
+	 * @return {string|Array.<Component>} 返回内容
+	 */
+	function fGetContent(bHtml){
+		var me=this;
+		var aChildren=me.children;
+		if(bHtml==false){
+			return aChildren;
+		}else{
+			return me.getEl().html();
+		}
+	}
+	/**
+	 * 设置内容
+	 * @param {string|Component|Array.<Component>}content 内容，html字符串或组件或组件数组
+	 */
+	function fSetContent(content){
+		var me=this;
+		var oEl=me.getEl();
+		oEl.remove();
+		if(typeof content=='string'){
+			oEl.html(content);
+		}else{
+			me.add(content);
+		}
 	}
 	/**
 	 * 绑定事件
@@ -824,10 +884,7 @@ function(ViewManager,AbstractEvents){
 	 */
 	function fAdd(item,nIndex){
 		var me=this;
-		if($H.isArray(item)){
-			for(var i=0,len=item.length;i<len;i++){
-				me.add(item[i]);
-			}
+		if(me._applyArray()){
 			return;
 		}
 		var bNoIndex=nIndex==undefined;
@@ -853,7 +910,13 @@ function(ViewManager,AbstractEvents){
 			var Item=me.manager.getClass(item.xtype);
 			if(Item){
 				if(!item.renderTo){
-					item.autoRender=false;
+					//初始化过后，默认添加到容器节点里
+					if(me.inited){
+						item.renderTo=me.getEl();
+					}else{
+						//没有初始化时，设置子组件不进行自动render，而是由组件本身进行render
+						item.autoRender=false;
+					}
 				}
 				item=new Item(item);
 			}else{
@@ -920,7 +983,7 @@ function(ViewManager,AbstractEvents){
 		if(!aItems){
 			return;
 		}
-		aItems=aItems.length?aItems:[aItems];
+		aItems=$H.isArray(aItems)?aItems:[aItems];
 		//逐个初始化子视图
 		for(var i=0,len=aItems.length;i<len;i++){
 			me.add(aItems[i]);

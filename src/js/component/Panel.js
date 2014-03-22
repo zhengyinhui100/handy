@@ -15,9 +15,8 @@ function(AC){
 //		content         : '',                 //内容
 		
 		tmpl            : [
-			'<div><%=this.content||this.getHtml(">*")%><div>'
+			'<div><%=#%><%=this.content||this.getHtml(">*")%><div>'
 		]
-		
 	});
 	
 	return Panel;
