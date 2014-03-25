@@ -5,7 +5,7 @@
 handy.add('Object',function($H){
 	
 	var Object={
-		_alias              : {                 //存储别名，建议大写，以便更好地与普通名称区别开
+		_alias              : {                 //存储别名，公共库建议大写，以便更好地与普通名称区别开，具体项目的别名建议小写
 			'B'             : 'handy.base',
 			'C'             : 'handy.component',
 			'M'             : 'handy.module',
