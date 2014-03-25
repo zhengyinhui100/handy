@@ -3,14 +3,16 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 handy.add("Loader",
-["handy.base.Debug","handy.base.Object","handy.base.Function"],
+["B.Debug","B.Object","B.Function"],
 function(Debug,Object,Function,$H){
 	
-	var _RESOURCE_NOT_FOUND= 'Resource not found: ',
+	var _LOADER_PRE='Loader ',
+		_RESOURCE_NOT_FOUND= _LOADER_PRE+'not found: ',
 		_eHead=document.head ||document.getElementsByTagName('head')[0] ||document.documentElement,
 		_UA = navigator.userAgent,
         _bIsWebKit = _UA.indexOf('AppleWebKit'),
     	_aContext=[],         //请求上下文堆栈
+    	_requestingNum=0,     //正在请求(还未返回)的数量
 	    _oCache={};           //缓存
 	
 	var Loader= {
@@ -34,10 +36,13 @@ function(Debug,Object,Function,$H){
 	}
 	
      /**
-	 * 检查对应的资源是否已加载
+	 * 检查对应的资源是否已加载，只要检测到一个不存在的资源就立刻返回
 	 * @method _fChkExisted
 	 * @param {string|Array}id 被检查的资源id
-	 * @return {boolean}返回true表示该资源已经被加载
+	 * @return {Object}  {
+	 * 		{Array}exist: 存在的资源列表
+	 * 		{string}notExist: 不存在的资源id
+	 * }
 	 */
     function _fChkExisted(id){
     	function _fChk(sId){
@@ -52,19 +57,22 @@ function(Debug,Object,Function,$H){
 	    		return Object.namespace(sId);
     		}
     	}
-    	if(typeof id=="string"){
-    		return _fChk(id);
-    	}
+    	var oResult={}
     	var aExist=[];
+    	if(typeof id=="string"){
+    		id=[id];
+    	}
     	for(var i=0,nLen=id.length;i<nLen;i++){
     		var result=_fChk(id[i]);
     		if(!result){
-    			return false;
+    			oResult.notExist=id[i];
+    			return oResult;
     		}else{
     			aExist.push(result);
     		}
     	}
-    	return aExist;
+    	oResult.exist=aExist;
+    	return oResult;
     }
     
     /**
@@ -74,8 +82,6 @@ function(Debug,Object,Function,$H){
 	 * @return {string}sUrl 实际url
 	 */
     function _fGetUrl(sId){
-		//读取实名
-		sId=$H.Object.alias(sId);
     	var sUrl=Loader.urlMap&&Loader.urlMap[sId]&&Loader.urlMap[sId].url;
     	if(!sUrl){
     		var sRoot='';
@@ -124,7 +130,7 @@ function(Debug,Object,Function,$H){
     	_fAddOnload(eScript,fCallback);
 		_eHead.appendChild(eScript);
 		if(Loader.traceLog){
-			Debug.info("Loader request:"+sUrl);
+			Debug.info(_LOADER_PRE+"request:"+sUrl);
    		}
 	}
 	/**
@@ -153,7 +159,7 @@ function(Debug,Object,Function,$H){
     	//插入到皮肤css之前
     	_eHead.insertBefore(eCssNode,Loader.skinNode);
     	if(Loader.traceLog){
-			Debug.info("Loader request:"+sUrl);
+			Debug.info(_LOADER_PRE+"request:"+sUrl);
    		}
 	}
 	/**
@@ -307,6 +313,7 @@ function(Debug,Object,Function,$H){
 	    		}else{
 	    			_fGetScript(sUrl,_fCallback) ;
 	    		}
+	    		_requestingNum++;
     		}
     	}
     	//提示loading
@@ -321,9 +328,10 @@ function(Debug,Object,Function,$H){
 	 */
     function _fResponse(sId){
     	Loader.showLoading(false);
+    	_requestingNum--;
     	_oCache[sId].status='loaded';
     	if(Loader.traceLog){
-			Debug.info("Loader Response: "+sId);
+			Debug.info(_LOADER_PRE+"Response: "+sId);
    		}
     	_fExecContext();
     }
@@ -335,13 +343,15 @@ function(Debug,Object,Function,$H){
     	//每次回调都循环上下文列表
    		for(var i=_aContext.length-1;i>=0;i--){
 	    	var oContext=_aContext[i];
-	    	var aExists=_fChkExisted(oContext.deps);
-	    	if(aExists){
+	    	var oResult=_fChkExisted(oContext.deps);
+	    	if(!oResult.notExist){
 	    		_aContext.splice(i,1);
-	    		oContext.callback.apply(null,aExists);
+	    		oContext.callback.apply(null,oResult.exist);
 	    		//定义成功后重新执行上下文
 	    		_fExecContext();
 	    		break;
+	    	}else if(i==0&&_requestingNum==0){
+	    		$D.error(_RESOURCE_NOT_FOUND+oResult.notExist);
 	    	}
    		}
     }
@@ -354,6 +364,8 @@ function(Debug,Object,Function,$H){
 	 * @return {number}nIndex 返回回调索引
 	 */
 	function fDefine(sId,aDeps,factory){
+		//读取实名
+		sId=$H.Object.alias(sId);
 		var nLen=arguments.length;
 		if(nLen==2){
 			factory=aDeps;
@@ -366,22 +378,26 @@ function(Debug,Object,Function,$H){
 					//考虑到传入依赖是数组，这里回调参数形式依然是数组
 					resource=factory.apply(null,arguments);
 					if(Loader.traceLog){
-						Debug.info("Loader define: "+sId);
+						Debug.info(_LOADER_PRE+"define: "+sId);
 					}
 				}catch(e){
 					//资源定义错误
-					e.message="Loader "+sId+":factory define error:"+e.message;
+					e.message=_LOADER_PRE+sId+":factory define error:"+e.message;
 					Debug.error(e);
 					return;
 				}
 			}else{
 				resource=factory;
 			}
-			Object.namespace(sId,resource);
-			//添加命名空间元数据
-			var sType=typeof resource;
-			if(sType=="object"||sType=="Function"){
-				resource.$ns=sId;
+			if(resource){
+				Object.namespace(sId,resource);
+				//添加命名空间元数据
+				var sType=typeof resource;
+				if(sType=="object"||sType=="Function"){
+					resource.$ns=sId;
+				}
+			}else{
+				$D.error(_LOADER_PRE+'factory no return: '+sId);
 			}
 		});
 	}
@@ -402,8 +418,10 @@ function(Debug,Object,Function,$H){
     	var bNeedContext=true;
     	for(var i=0,nLen=aIds.length;i<nLen;i++){
     		var sId=aIds[i];
-    		var oExisted=_fChkExisted(sId);
-    		if(!oExisted){
+			//读取实名
+			sId=$H.Object.alias(sId);
+    		var oResult=_fChkExisted(sId);
+    		if(oResult.notExist){
     			//未加载资源放进队列中
     			aRequestIds.push(sId);
     			if(bNeedContext){
@@ -417,7 +435,7 @@ function(Debug,Object,Function,$H){
 					Debug.info(_RESOURCE_NOT_FOUND+sId);
 		   		}
     		}else{
-    			aExisteds.push(oExisted);
+    			aExisteds.push(oResult.exist[0]);
     		}
     	}
     	
