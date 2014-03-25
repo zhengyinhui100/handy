@@ -23,7 +23,7 @@ function(AC){
 			extCls           : 'js-item',
 			radius           : null,
 			shadow           : false,
-//			isSelected       : false,             //是否选中
+//			selected         : false,             //是否选中
 			isInline         : false
 		},
 		
@@ -41,8 +41,12 @@ function(AC){
 				handler : function(oEvt){
 					var me=this;
 					var oCurrentEl=$(oEvt.currentTarget);
-					var nIndex=$V.get(oCurrentEl.attr("id")).index();
-					me.onItemClick(oEvt,nIndex);
+					//可能后后代组件有'.js-item'，因此这里只寻找子组件
+					var oCurCmp=me.find('$>[_id="'+oCurrentEl.attr("id")+'"]');
+					if(oCurCmp.length>0){
+						var nIndex=oCurCmp[0].index();
+						me.onItemClick(oEvt,nIndex);
+					}
 				}
 			}
 		],

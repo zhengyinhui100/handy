@@ -40,63 +40,6 @@
 .hui-btn:hover {
   font-weight: bold;
 }
-.hui-btn-active {
-  border: 1px solid #2373a5;
-  background: #5393c5;
-  color: #fff;
-  cursor: pointer;
-  text-shadow: 0 1px 0 #3373a5;
-  text-decoration: none;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#5f9cc5), to(#6facd5));
-  /* old webkit,Saf4+, Chrome */
-
-  background-image: -webkit-linear-gradient(#5f9cc5, #6facd5);
-  /* Chrome 10+, Saf5.1+ */
-
-  background-image: -moz-linear-gradient(#5f9cc5, #6facd5);
-  /* FF3.6 */
-
-  background-image: -ms-linear-gradient(#5f9cc5, #6facd5);
-  /* IE10 */
-
-  background-image: -o-linear-gradient(#5f9cc5, #6facd5);
-  /* Opera 11.10+ */
-
-  background-image: linear-gradient(#5f9cc5, #6facd5);
-}
-.hui-btn-active:hover {
-  border: 1px solid #2373a5;
-  background: #5393c5;
-  color: #fff;
-  cursor: pointer;
-  text-shadow: 0 1px 0 #3373a5;
-  text-decoration: none;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#5f9cc5), to(#6facd5));
-  /* old webkit,Saf4+, Chrome */
-
-  background-image: -webkit-linear-gradient(#5f9cc5, #6facd5);
-  /* Chrome 10+, Saf5.1+ */
-
-  background-image: -moz-linear-gradient(#5f9cc5, #6facd5);
-  /* FF3.6 */
-
-  background-image: -ms-linear-gradient(#5f9cc5, #6facd5);
-  /* IE10 */
-
-  background-image: -o-linear-gradient(#5f9cc5, #6facd5);
-  /* Opera 11.10+ */
-
-  background-image: linear-gradient(#5f9cc5, #6facd5);
-}
-.hui-btn.hui-btn-active-b,
-.hui-btn.hui-btn-active-b:hover {
-  padding-bottom: 0.3em;
-  border-bottom: 0.2em solid #73bf00;
-}
-.hui-btn.hui-btn-active-c .hui-icon-bg,
-.hui-btn.hui-btn-active-c:hover .hui-icon-bg {
-  background-color: #73bf00;
-}
 .hui-btn-gray {
   border: 1px solid #ccc;
   background: #eee;
@@ -230,6 +173,63 @@
   /* Opera 11.10+ */
 
   background-image: linear-gradient(#6facd5, #4272a4);
+}
+.hui-btn-active {
+  border: 1px solid #2373a5;
+  background: #5393c5;
+  color: #fff;
+  cursor: pointer;
+  text-shadow: 0 1px 0 #3373a5;
+  text-decoration: none;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#5f9cc5), to(#6facd5));
+  /* old webkit,Saf4+, Chrome */
+
+  background-image: -webkit-linear-gradient(#5f9cc5, #6facd5);
+  /* Chrome 10+, Saf5.1+ */
+
+  background-image: -moz-linear-gradient(#5f9cc5, #6facd5);
+  /* FF3.6 */
+
+  background-image: -ms-linear-gradient(#5f9cc5, #6facd5);
+  /* IE10 */
+
+  background-image: -o-linear-gradient(#5f9cc5, #6facd5);
+  /* Opera 11.10+ */
+
+  background-image: linear-gradient(#5f9cc5, #6facd5);
+}
+.hui-btn-active:hover {
+  border: 1px solid #2373a5;
+  background: #5393c5;
+  color: #fff;
+  cursor: pointer;
+  text-shadow: 0 1px 0 #3373a5;
+  text-decoration: none;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#5f9cc5), to(#6facd5));
+  /* old webkit,Saf4+, Chrome */
+
+  background-image: -webkit-linear-gradient(#5f9cc5, #6facd5);
+  /* Chrome 10+, Saf5.1+ */
+
+  background-image: -moz-linear-gradient(#5f9cc5, #6facd5);
+  /* FF3.6 */
+
+  background-image: -ms-linear-gradient(#5f9cc5, #6facd5);
+  /* IE10 */
+
+  background-image: -o-linear-gradient(#5f9cc5, #6facd5);
+  /* Opera 11.10+ */
+
+  background-image: linear-gradient(#5f9cc5, #6facd5);
+}
+.hui-btn.hui-btn-active-b,
+.hui-btn.hui-btn-active-b:hover {
+  padding-bottom: 0.3em;
+  border-bottom: 0.2em solid #73bf00;
+}
+.hui-btn.hui-btn-active-c .hui-icon-bg,
+.hui-btn.hui-btn-active-c:hover .hui-icon-bg {
+  background-color: #73bf00;
 }
 .hui-btn.hui-btn-back {
   overflow: visible;

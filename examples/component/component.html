@@ -530,19 +530,19 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,
 			hasContent:true,
 			items:[
 				{
-					text:'一',
-					selected:true,
-					color:'black',
-					items:{
-						name:'edit'
+					title:{
+						text:'一',
+						color:'black',
+						icon:'edit'
 					},
+					selected:true,
 					content:'内容1'
 				},
 				{
-					text:'二',
-					color:'black',
-					items:{
-						name:'edit'
+					title:{
+						text:'二',
+						color:'black',
+						icon:'edit'
 					},
 					content:'内容2',
 					click:function(){
@@ -550,10 +550,10 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,
 					}
 				},
 				{
-					text:'三',
-					color:'black',
-					items:{
-						name:'edit'
+					title:{
+						text:'三',
+						color:'black',
+						icon:'edit'
 					},
 					content:'内容3'
 				}
@@ -590,25 +590,25 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,
 				xtype:'Tab',
 				items:[
 						{
-							text:'一',
 							selected:true,
-							color:'black',
 							items:{
-								name:'edit'
+								text:'一',
+								color:'black',
+								icon:'edit'
 							}
 						},
 						{
-							text:'二',
-							color:'black',
 							items:{
-								name:'edit'
+								text:'二',
+								color:'black',
+								icon:'edit'
 							}
 						},
 						{
-							text:'三',
-							color:'black',
 							items:{
-								name:'edit'
+								text:'三',
+								color:'black',
+								icon:'edit'
 							}
 						}
 					]

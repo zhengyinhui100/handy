@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-21 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-25 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -86,7 +86,7 @@
 		return handy;
 	}
 	
-})()/**
+})();/**
  * Json类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -850,7 +850,7 @@ handy.add('Object',function($H){
 	
 	return Object;
 	
-})/**
+});/**
  * 浏览器环境类，分析浏览器类型、版本号、操作系统、内核类型、壳类型、flash版本
  * 浏览器版本，$H.Browser.ie/firefox/chrome/opera/safari(),如果浏览器是IE的，$H.Browser.ie()的值是浏览器的版本号，!$H.Browser.ie()表示非IE浏览器
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -1194,7 +1194,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 	
 	return Debug;
 	
-})/**
+});/**
  * 函数类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -1249,7 +1249,7 @@ handy.add('Function',function($H){
 	
 	return Function;
 	
-})/**
+});/**
  * 面向对象支持类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -1304,7 +1304,8 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
          * 便捷访问父类方法
          * @method callSuper
          * @param {Class=}oSuper 指定父类，如果不指定，默认为定义此方法的类的父类，如果该值为空，则为实际调用对象的父类
-         * @param {Array}aArgs 参数数组
+         * @param {Array}aArgs 参数数组，默认为调用它的函数的参数
+         * @return {*} 返回对应方法执行结果
          */
         cClass.prototype.callSuper=function(oSuper,aArgs){
         	var me=this;
@@ -1314,16 +1315,13 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
         	}
         	var fCaller=arguments.callee.caller;
         	var oCallerSuper=fCaller.$owner.superProto;
+        	aArgs=aArgs||fCaller.arguments;
         	oSuper=oSuper?oSuper.prototype:(oCallerSuper||me.constructor.superProto);
         	var sMethod=fCaller.$name;
         	if(oSuper){
         		var fMethod=oSuper[sMethod];
         		if(Object.isFunction(fMethod)){
-        			if(aArgs){
-	        			return fMethod.apply(me,aArgs);
-        			}else{
-        				return fMethod.call(me);
-        			}
+        			return fMethod.apply(me,aArgs);
         		}
         	}
         };
@@ -1814,7 +1812,7 @@ function(Debug,Object,Function,$H){
     
     return Loader;
 	
-})/**
+});/**
  * 自定义事件类，事件名称支持'all'表示所有事件，支持复杂形式：'event1 event2'或{event1:func1,event:func2}，
  * 事件名称支持命名空间(".name")，如：change.one
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -2227,7 +2225,7 @@ handy.add('Date',function(){
 	}
 	
 	return Date;
-})/**
+});/**
  * String工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -2425,7 +2423,7 @@ handy.add("String",function(){
 	}
 	
 	return String;
-})/**
+});/**
  * Cookie工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -2509,7 +2507,7 @@ handy.add('Cookie',function(){
 	}
 	
 	return Cookie;
-})/**
+});/**
  * 工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -2581,7 +2579,7 @@ handy.add('Util',function($H){
 	
 	return Util;
 	
-})/**
+});/**
  * 集合类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -2839,30 +2837,36 @@ handy.add('Collection','B.Object',function(Object,$H){
 	
 	return Collection;
 	
-})/**
+});/**
  * 模板类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Template',function($H){
-	
-	var _cache={},             //缓存
-		_valPreReg=/^=/,        //简单替换正则
-		_isNewEngine = ''.trim;   // '__proto__' in {}
+handy.add('Template','B.String',function(String,$H){
 		
 	var T={
+		//配置
 		openTag         : '<%',            //模板语法开始标签
 		closeTag        : '%>',            //模板语法结束标签
+		isEscape        : true,            //是否开启js变量输出转义
 		
-//		_setValue       : _fSetValue,      //设置变量
-		_add            : _fAdd,           //结果函数添加一行字符串
-		_parseHtml      : _fParseHtml,     //处理html
-		_parseScript    : _fParseScript,   //处理脚本
-		_compile        : _fCompile,       //编译模板
+		registerHelper  : fRegisterHelper, //添加辅助函数
 		tmpl            : fTmpl            //渲染模板
 	};
+	
+	var _cache={},                //缓存
+		_valPreReg=/^=/,          //简单替换正则
+		_isNewEngine = ''.trim,   // '__proto__' in {}
+		//辅助函数
+		_helpers={
+			escape:String.escapeHTML,
+			trim:String.trim
+		},
+		//辅助函数内部定义语句
+		_helpersDefine='var oHelpers=arguments.callee.$helpers,escape=oHelpers.escape,trim=oHelpers.trim,';
+		
 	/**
 	 * 设置变量
-	 * @method _setValue
+	 * @method _fSetValue
 	 * @param  {string}sTmpl 模板字符串
 	 * @param  {Object}oData     	数据
 	 * @return {string}          返回结果字符串
@@ -2874,17 +2878,17 @@ handy.add('Template',function($H){
 	}
 	/**
 	 * 结果函数添加一行字符串
-	 * @method _add
+	 * @method _fAddLine
 	 * @param {string}sCode 要添加的代码
 	 * @return {string} 返回添加好的代码
 	 */
-	function _fAdd(sCode){
+	function _fAddLine(sCode){
 		//旧浏览器使用数组方式拼接字符串
         return _isNewEngine?'$r+='+sCode+';\n':'$r.push('+sCode+');\n';
 	}
 	/**
 	 * 处理html
-	 * @method _parseHtml
+	 * @method _fParseHtml
 	 * @param {string}sHtml html字符串
 	 * @return {string} 返回处理过的html
 	 */
@@ -2895,49 +2899,63 @@ handy.add('Template',function($H){
             // 换行符转义(windows + linux)
             .replace(/\r/g, '\\r')
             .replace(/\n/g, '\\n')
-		var sCode=T._add('"'+sHtml+'"');
+		var sCode=_fAddLine('"'+sHtml+'"');
 		return sCode;
 	}
 	/**
 	 * 处理脚本
-	 * @method _parseScript
+	 * @method _fParseScript
 	 * @param {string}sScript script字符串
 	 * @return {string} 返回处理过的脚本
 	 */
 	function _fParseScript(sScript){
 		sScript=sScript.replace(/this/g,'$data');
+		//输出内容
 		if(sScript.indexOf('=')==0){
-			sScript=T._add(sScript.replace(_valPreReg,'')+'||""');
+			sScript=_fAddLine(sScript.replace(_valPreReg,'')+'||""');
 		}
 		return sScript+"\n";
 	}
 	/**
 	 * 编译模板
-	 * @method _compile
+	 * @method _fCompile
 	 * @param  {string}sTmpl 模板字符串
 	 * @return {string}      返回结果字符串
 	 */
 	function _fCompile(sTmpl){
 		//旧浏览器使用数组方式拼接字符串
-		var sCode='var $r='+(_isNewEngine?'""':'[]')+';\n';
+		var sCode=_helpersDefine+'$r='+(_isNewEngine?'""':'[]')+';\n';
 		var oMatch;
 		//循环处理模板，分离html和script部分
 		$H.Object.each(sTmpl.split(T.openTag),function(i,sValue){
 			var aCode=sValue.split(T.closeTag);
 			//[html]
 			if(aCode.length==1){
-				sCode+=T._parseHtml(aCode[0]);
+				sCode+=_fParseHtml(aCode[0]);
 			}else{
 				//[script,html]
-				sCode+=T._parseScript(aCode[0]);
+				sCode+=_fParseScript(aCode[0]);
 				if(aCode[1]){
-					sCode+=T._parseHtml(aCode[1]);
+					sCode+=_fParseHtml(aCode[1]);
 				}
 			}
 		})
 		sCode+='return '+(_isNewEngine?'$r;':'$r.join("");');
 //		$D.log(sCode);
-		return new Function('$data',sCode);
+		var fRender=new Function('$data',sCode);
+		fRender.$helpers=_helpers;
+		return fRender;
+	}
+	/**
+	 * 添加辅助函数
+	 * @param {string}sName 辅助函数名
+	 * @param {Function}fHelper 辅助函数
+	 */
+	function fRegisterHelper(sName,fHelper){
+		if(!_helpers[sName]){
+			_helpersDefine+=sName+'=oHelpers.'+sName+',';
+		}
+		_helpers[sName]=fHelper;
 	}
 	/**
 	 * 执行模板
@@ -2959,7 +2977,7 @@ handy.add('Template',function($H){
 			if(sId=tmpl.id){
 			    if (_cache[sId]) {
 			        fTmpl = _cache[sId];
-			    } else {
+			    } else if(!sTmpl) {
 			    	//从script标签获取模板
 			        var oEl = document.getElementById(sId);
 			        if (oEl) {
@@ -2973,7 +2991,7 @@ handy.add('Template',function($H){
 				$H.Debug.error('模板未定义');
 				return;
 			}
-			fTmpl=T._compile(sTmpl);
+			fTmpl=_fCompile(sTmpl);
 			//根据id缓存
 			if(sId){
 				_cache[sId]=fTmpl;
@@ -3205,7 +3223,7 @@ handy.add('Support','B.Browser',function(Browser,$H){
 	
 	return Support;
 	
-})/**
+});/**
  * 校验类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -3445,7 +3463,7 @@ handy.add('Validator',['B.String','B.Object'],function(String,Object,$H){
 	
 	return Validator;
 	
-})/**
+});/**
  * LocalStorage类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -3583,7 +3601,7 @@ handy.add('LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Even
 	});
 	
 	
-})(handy)/**
+})(handy);/**
  * 抽象事件类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-03-20
@@ -3784,11 +3802,14 @@ $Define("CM.AbstractManager", function() {
 	/**
 	 * 根据xtype获取视图类
 	 * @method getClass
-	 * @param {string}sXType 视图类型
+	 * @param {string|Class}xtype 视图类型或命名空间或视图类
 	 * @return {object} 返回对应的视图类
 	 */
-	function fGetClass(sXtype){
-		return this._types[sXtype];
+	function fGetClass(xtype){
+		if($H.isClass(xtype)){
+			return xtype;
+		}
+		return this._types[xtype]||$H.namespace(xtype);
 	}
 	/**
 	 * 注册视图
@@ -3933,8 +3954,9 @@ $Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
 //"handy.common.View"
 $Define('CM.View',
 ['CM.ViewManager',
-'CM.AbstractEvents'],
-function(ViewManager,AbstractEvents){
+'CM.AbstractEvents',
+'B.Template'],
+function(ViewManager,AbstractEvents,Template){
 	
 	var _oTagReg=/^(<[a-zA-Z]+)/;
 	var _oHasClsReg=/^[^>]+class=/;
@@ -3943,7 +3965,8 @@ function(ViewManager,AbstractEvents){
 	//自定义事件
 	var View=AbstractEvents.extend({
 		
-		xtype               : 'View',    //类型
+		xtype               : 'View',            //类型
+		_placeholder        : '<script id="" type="text/x-placeholder"></script>',        //占位符标签
 		
 		//配置
 //		renderTo            : null,              //渲染节点
@@ -3956,11 +3979,16 @@ function(ViewManager,AbstractEvents){
 		renderBy            : 'append',          //默认渲染方式
 //		extCls              : '',                //附加class
 //		notListen           : false,             //不自动初始化监听器
+		listeners           : [],                //事件配置列表，初始参数可以是对象也可以是对象数组
+		items               : [],                //子视图配置，初始参数可以是对象也可以是对象数组
+//		lazy                : false,             //懒加载，初始化时只设置占位标签，只在调用show方法时进行实际初始化
 		
 		
 		//属性
+//		inited              : false,             //是否已经初始化
+//		startParseItems     : false,             //是否已开始初始化子视图
 //		manager             : null,              //视图管理对象
-//		params              : null,              //初始化时传入的参数
+//		initParam           : null,              //保存初始化时传入的参数
 //		_container          : null,              //试图对象容器节点
 //      listened            : false,             //是否已初始化事件
 //		isSuspend           : false,             //是否挂起事件
@@ -3975,7 +4003,9 @@ function(ViewManager,AbstractEvents){
 			'beforeShow','show','afterShow',
 			'beforeHide','hide','afterHide',
 			'beforeUpdate','update','afterUpdate',
-			'beforeDestroy','destroy','afterDestroy'
+			'beforeDestroy','destroy','afterDestroy',
+			'add','remove'
+//			'layout'    //保留事件
 		],  
 		_defaultEvents      : [                  //默认事件，可以通过参数属性的方式直接进行添加
 			'mousedown','mouseup','mouseover','mousemove','mouseenter','mouseleave',
@@ -3986,12 +4016,14 @@ function(ViewManager,AbstractEvents){
 			'focus','focusin','focusout',
 			'contextmenu','change','submit'
 		],
-//      listeners           : [],                //类事件配置
-//		_listeners          : {},                //实例事件池
+//		_listeners          : {},                   //实例事件池
 		
-		_parseListenEvents  : _fParseListenEvents, //处理对象类型或者空格相隔的多事件
+		_applyArray         : _fApplyArray,         //在数组上依次执行方法
+		_parseListenEvents  : _fParseListenEvents,  //处理对象类型或者空格相隔的多事件
 		
+		//初始化相关
 		initialize          : fInitialize,       //初始化
+		lazyInit            : fLazyInit,         //懒加载，初始化时只设置占位标签，以后再进行真正的初始化
 		doConfig            : fDoConfig,         //初始化配置
 		getEl               : fGetEl,            //获取容器节点
 		getId               : fGetId,            //获取id
@@ -3999,6 +4031,7 @@ function(ViewManager,AbstractEvents){
 		getHtml             : fGetHtml,          //获取html
 		findHtml            : fFindHtml,         //获取子视图html
 		initStyle           : fInitStyle,        //初始化样式
+//		layout              : fLayout,           //布局，保留接口
 		
 		beforeRender        : fBeforeRender,     //渲染前工作
 		render              : fRender,           //渲染
@@ -4011,7 +4044,10 @@ function(ViewManager,AbstractEvents){
 		afterHide           : fAfterHide,        //隐藏后工作
 		enable              : fEnable,           //启用
 		disable             : fDisable,          //禁用
+		getContent          : fGetContent,       //获取内容
+		setContent          : fSetContent,       //设置内容
 		
+		//事件相关
 		listen              : fListen,           //绑定事件
 		unlisten            : fUnlisten,         //解除事件
 		initListeners       : fInitListeners,    //初始化所有事件
@@ -4020,6 +4056,8 @@ function(ViewManager,AbstractEvents){
 		resume              : fResume,           //恢复事件
 		
 		//视图管理相关
+//		get                 : fGet,              //保留接口
+//		set                 : fSet,              //保留接口
 		each                : fEach,             //遍历子视图
 		match               : fMatch,            //匹配选择器
 		find                : fFind,             //查找子元素或子视图
@@ -4028,10 +4066,10 @@ function(ViewManager,AbstractEvents){
 		callChild           : fCallChild,        //调用子视图方法
 		add                 : fAdd,              //添加子视图
 		remove              : fRemove,           //删除子视图
-		addItem             : fAddItem,          //添加子视图配置
 		parseItem           : function(){},      //分析子视图，由具体视图类实现
 		parseItems          : fParseItems,       //分析子视图列表
 		
+		//更新、销毁
 		beforeUpdate        : fBeforeUpdate,     //更新前工作
 		update              : fUpdate,           //更新
 		afterUpdate         : fAfterUpdate,      //更新后工作
@@ -4069,6 +4107,35 @@ function(ViewManager,AbstractEvents){
 		return oView.getHtml();
 	}
 	/**
+	 * 在数组上依次执行方法
+	 * @method _applyArray([sMethod,aParams,param...]) 不传参数的话，默认是调用者的方法名和参数
+	 * @param {string=}sMethod 执行的方法名
+	 * @param {Array|*=}aParams 参数对象，如果是数组，则在其元素上分别执行执行方法，
+	 * 							并返回true，如果不是数组，返回false
+	 * @return {boolean} true表示已处理
+	 */
+	function _fApplyArray(sMethod,aParams){
+		var me=this;
+		var aArgs=arguments;
+		var fCaller=aArgs.callee.caller;
+		var oOwner=fCaller.$owner.prototype;
+		if(aArgs.length==0){
+			aArgs=fCaller.arguments;
+			aArgs=$H.toArray(aArgs);
+			sMethod=fCaller.$name;
+			aParams=aArgs.shift();
+		}else{
+			aArgs=$H.toArray(aArgs,2);
+		}
+		if($H.isArray(aParams)){
+			for(var i=0,len=aParams.length;i<len;i++){
+				oOwner[sMethod].apply(me,[aParams[i]].concat(aArgs));
+			}
+			return true;
+		}
+		return false;
+	}
+	/**
 	 * 处理对象类型或者空格相隔的多事件
 	 * @param {string}sMethod 调用的方法名
 	 * @param {Object}oEvent 参数同this.listen
@@ -4092,7 +4159,15 @@ function(ViewManager,AbstractEvents){
 	 */
 	function fInitialize(oParams){
 		var me=this;
-		me.manager=me.constructor.manager||$H.getSingleton(ViewManager);
+		if(!me.manager){
+			me.manager=me.constructor.manager||$H.getSingleton(ViewManager);
+		}
+		//懒初始化，只在调用show时才开始真正初始化
+		if(me.lazy){
+			me.lazyInit();
+			return;
+		}
+		
 		//初始化配置
 		me.doConfig(oParams);
 		me.parseItems();
@@ -4101,6 +4176,16 @@ function(ViewManager,AbstractEvents){
 		}
 		//注册视图，各继承类自行实现
 		me.manager.register(me);
+		me.inited=true;
+	}
+	/**
+	 * 懒加载，初始化时只设置占位标签，以后再进行真正的初始化
+	 */
+	function fLazyInit(){
+		var me=this;
+		var sId=me.getId();
+		me.renderTo;
+		me.renderBy;
 	}
 	/**
 	 * 初始化配置
@@ -4109,43 +4194,39 @@ function(ViewManager,AbstractEvents){
 	 */
 	function fDoConfig(oParams){
 		var me=this;
-		//保存参数
-		me.params=oParams;
-		//复制参数
-		me.settings=$H.clone(oParams);
+		//复制保存初始参数
+		var oParams=me.initParam=$H.clone(oParams||{});
+		
+		//只覆盖基本类型的属性
+		$H.extend(me,oParams,{notCover:function(p,val){
+			var value=me[p];
+			//默认事件，可通过参数属性直接添加
+			var bIsCustEvt=$H.contains(me._customEvents,p);
+			var bIsDefEvt=$H.contains(me._defaultEvents,p);
+			if(bIsDefEvt){
+				me.listeners.push({
+					name:p,
+					handler:oParams[p]
+				});
+				return true;
+			}else if(bIsCustEvt){
+				me.on(p,oParams[p]);
+				return true;
+			}else if(p=='defItem'){
+				$H.extend(me[p],val);
+				return true;
+			}else if(p=='listener'){
+				me.listeners=me.listeners.concat($H.isArray(val)?val:[val]);
+				return true;
+			}else if(p=='items'){
+				me.add(val);
+				return true;
+			}
+		}});
 		if(oParams.renderTo){
 			me.renderTo=$(oParams.renderTo);
 		}else{
 			me.renderTo=$(document.body);
-		}
-		var aListeners=me.listeners||[];
-		//添加参数中的事件
-		if(oParams.listeners){
-			aListeners=aListeners.concat(oParams.listeners);
-		}
-		me._listeners=aListeners;
-		
-		//只覆盖基本类型的属性
-		$H.extend(me,oParams,{notCover:function(sProp){
-			var value=me[sProp];
-			//默认事件，可通过参数属性直接添加
-			var bIsCustEvt=$H.contains(me._customEvents,sProp);
-			var bIsDefEvt=$H.contains(me._defaultEvents,sProp);
-			if(bIsDefEvt){
-				me._listeners.push({
-					name:sProp,
-					handler:oParams[sProp]
-				});
-			}else if(bIsCustEvt){
-				me.on(sProp,oParams[sProp]);
-			}
-			if((value!=null&&typeof value=='object')||$H.isFunction(value)){
-				return true;
-			}
-		}});
-		//覆盖子视图默认配置
-		if(oParams.defItem){
-			$H.extend(me.defItem,oParams.defItem);
 		}
 	}
 	/**
@@ -4196,7 +4277,7 @@ function(ViewManager,AbstractEvents){
  		}
  		var sHtml=me.initHtml();
 		var bHasCls=_oHasClsReg.test(sHtml);
-		var sExtCls='js-'+me.manager.type+" "+me.extCls+" ";
+		var sExtCls='js-'+me.manager.type+" "+'js-'+me.xtype+" "+me.extCls+" ";
 		if(bHasCls){
 			//添加class
 			sHtml=sHtml.replace(_oClsReg,'$1'+sExtCls);
@@ -4213,10 +4294,11 @@ function(ViewManager,AbstractEvents){
 	 */
 	function fFindHtml(sSel){
 		var me=this;
-		var aChildren=sSel==">*"?me.children:me.find(sSel);
+		sSel.indexOf("$")!=0&&(sSel='$'+sSel);
+		var aItems=sSel=="$>*"?me.children:me.find(sSel);
 		var aHtml=[];
-		for(var i=0;i<aChildren.length;i++){
-			aHtml.push(aChildren[i].getHtml());
+		for(var i=0;i<aItems.length;i++){
+			aHtml.push(aItems[i].getHtml());
 		}
 		return aHtml.join('');
 	}
@@ -4392,6 +4474,34 @@ function(ViewManager,AbstractEvents){
 		me.getEl().addClass("hui-disable").find('input,textarea,select').attr('disabled','disabled');
 	}
 	/**
+	 * 读取内容
+	 * @param {boolean=}bHtml 仅当false表示获取子组件列表，其它表示获取html内容
+	 * @return {string|Array.<Component>} 返回内容
+	 */
+	function fGetContent(bHtml){
+		var me=this;
+		var aChildren=me.children;
+		if(bHtml==false){
+			return aChildren;
+		}else{
+			return me.getEl().html();
+		}
+	}
+	/**
+	 * 设置内容
+	 * @param {string|Component|Array.<Component>}content 内容，html字符串或组件或组件数组
+	 */
+	function fSetContent(content){
+		var me=this;
+		var oEl=me.getEl();
+		oEl.remove();
+		if(typeof content=='string'){
+			oEl.html(content);
+		}else{
+			me.add(content);
+		}
+	}
+	/**
 	 * 绑定事件
 	 * @method listen
 	 * @param {object}事件对象{
@@ -4513,7 +4623,7 @@ function(ViewManager,AbstractEvents){
 			return false;
 		}
 		me.listened=true;
-		var aListeners=me._listeners;
+		var aListeners=me.listeners;
 		me._listeners=[];
 		for(var i=aListeners.length-1;i>=0;i--){
 			me.listen(aListeners[i]);
@@ -4531,6 +4641,7 @@ function(ViewManager,AbstractEvents){
 			me.unlisten(aListeners[i]);
 		}
 		me.off('all');
+		me.unlistenTo('all');
 		me.callChild();
 	}
 	/**
@@ -4618,28 +4729,32 @@ function(ViewManager,AbstractEvents){
 	/**
 	 * 查找子元素或子视图
 	 * @method find
-	 * @param {string}sSel '$'开头表示查找视图，多个选择器间用","隔开('$sel1,$sel2,...')，语法类似jQuery，如：'$xtype[attr=value]'、'$ancestor descendant'、'$parent>child'，
+	 * @param {number|string}sel 数字表示子组件索引，如果是字符串：'$'开头表示查找视图，多个选择器间用","隔开('$sel1,$sel2,...')，语法类似jQuery，如：'$xtype[attr=value]'、'$ancestor descendant'、'$parent>child'，
 	 * 				'$>Button'表示仅查找当前子节点中的按钮，'$Button'表示查找所有后代节点中的按钮，
 	 * @param {Array=}aResult 用于存储结果集的数组
-	 * @return {jQuery|Array} 返回匹配的结果，如果没找到匹配的子视图则返回空数组
+	 * @return {jQuery|Array|View} 返回匹配的结果，如果没找到匹配的子视图则返回空数组，ps:sel为索引数字时直接返回对应视图(非数组)
 	 */
-	function fFind(sSel,aResult){
+	function fFind(sel,aResult){
 		var me=this;
+		if(typeof sel=='number'){
+			var oItem=me.children[sel];
+			return oItem;
+		}
 		//查找元素
-		if(sSel.indexOf('$')!=0){
-			return me.getEl().find(sSel);
+		if(sel.indexOf('$')!=0){
+			return me.getEl().find(sel);
 		}
 		var aResult=aResult||[];
 		//多个选择器
-		if(sSel.indexOf(",")>0){
-			$H.each(sSel.split(","),function(i,val){
+		if(sel.indexOf(",")>0){
+			$H.each(sel.split(","),function(i,val){
 				aResult=aResult.concat(me.find(val));
 			})
 			return aResult;
 		}
 		//查找视图
-		var bOnlyChildren=sSel.indexOf('>')==1;
-		var sCurSel=sSel.replace(/^\$>?\s?/,'');
+		var bOnlyChildren=sel.indexOf('>')==1;
+		var sCurSel=sel.replace(/^\$>?\s?/,'');
 		//分割当前选择器及后代选择器
 		var nIndex=sCurSel.search(/\s|>/);
 		var sCurSel,sExtSel;
@@ -4661,7 +4776,7 @@ function(ViewManager,AbstractEvents){
 			}
 			if(!bOnlyChildren){
 				//如果不是仅限当前子节点，继续从后代开始查找
-				oChild.find(sSel,aResult);
+				oChild.find(sel,aResult);
 			}
 		});
 		return aResult;
@@ -4736,47 +4851,103 @@ function(ViewManager,AbstractEvents){
 	/**
 	 * 添加子视图
 	 * @method add
-	 * @param {object}oItem 视图对象
+	 * @param {object|Array}item 视图对象或视图配置或数组
+	 * @param {number=}nIndex 指定添加的索引，默认添加到最后
+	 * @return {?Component} 添加的子视图只有一个时返回该视图对象，参数是数组时返回空
 	 */
-	function fAdd(oItem){
+	function fAdd(item,nIndex){
 		var me=this;
-		me.children.push(oItem);
-		oItem.parent=me;
+		if(me._applyArray()){
+			return;
+		}
+		var bNoIndex=nIndex==undefined;
+		//还没初始化子视图配置，直接添加到配置队列里
+		if(!me.startParseItems){
+			var aItems=me.items;
+			if(bNoIndex){
+				aItems.push(item);
+			}else{
+				aItems.splice(nIndex,0,item);
+			}
+			return;
+		}
+		
+		//开始初始化后，如果是配置，先创建子视图
+		if(!(item instanceof View)){
+			//默认子视图配置
+			if(me.defItem){
+				$H.extend(item,me.defItem,{notCover:true});
+			}
+			//具体视图类处理
+			me.parseItem(item);
+			var Item=me.manager.getClass(item.xtype);
+			if(Item){
+				if(!item.renderTo){
+					//初始化过后，默认添加到容器节点里
+					if(me.inited){
+						item.renderTo=me.getEl();
+					}else{
+						//没有初始化时，设置子组件不进行自动render，而是由组件本身进行render
+						item.autoRender=false;
+					}
+				}
+				item.parent=me;
+				item=new Item(item);
+			}else{
+				$D.error("xtype:"+item.xtype+"未找到");
+			}
+		}else{
+			item.parent=me;
+		}
+		var aChildren=me.children;
+		if(bNoIndex){
+			aChildren.push(item);
+		}else{
+			aChildren.splice(nIndex,0,item);
+		}
+		me.trigger('add',item);
+		return item;
 	}
 	/**
 	 * 删除子视图
 	 * @method remove
-	 * @param {object}oItem 视图对象
+	 * @param {object|number|string}item 视图对象或视图索引或选择器
 	 * @return {boolean} true表示删除成功
 	 */
-	function fRemove(oItem){
+	function fRemove(item){
 		var me=this;
 		var aChildren=me.children;
 		var bResult=false;
-		for(var i=0,len=aChildren.length;i<len;i++){
-			if(aChildren[i]==oItem){
-				aChildren.splice(i,1);
-				oItem.destroy();
+		var nIndex;
+		if(typeof item=='number'){
+			nIndex=item;
+			item=aChildren[nIndex];
+		}else if(typeof item=='string'){
+			item=me.find(item);
+			for(var i=0,len=item.length;i<len;i++){
+				if(me.remove(item)==false){
+					return false;
+				}
 				bResult=true;
 			}
+		}else if(item instanceof View){
+			if(item.parent==me){
+				for(var i=0,len=aChildren.length;i<len;i++){
+					if(aChildren[i]==item){
+						nIndex=i;
+						break;
+					}
+				}
+			}else{
+				return item.parent.remove(item);
+			}
 		}
+		if(nIndex!=undefined&&item.destroy(true)!=false){
+			aChildren.splice(nIndex,1);
+			bResult=true;
+		}
+		me.trigger('remove',item);
 		return bResult;
-	}
-	/**
-	 * 添加子视图配置
-	 * @method addItem
-	 * @param {object}oItem 子视图配置
-	 */
-	function fAddItem(oItem){
-		var me=this;
-		var oSettings=me.settings;
-		var items=oSettings.items;
-		if(!items){
-			oSettings.items=[];
-		}else if(!$H.isArray(items)){
-			oSettings.items=[items];
-		}
-		oSettings.items.push(oItem);
 	}
 	/**
 	 * 分析子视图列表
@@ -4784,30 +4955,15 @@ function(ViewManager,AbstractEvents){
 	 */
 	function fParseItems(){
 		var me=this;
-		var aItems=me.settings.items;
+		me.startParseItems=true;
+		var aItems=me.items;
 		if(!aItems){
 			return;
 		}
-		aItems=aItems.length?aItems:[aItems];
+		aItems=$H.isArray(aItems)?aItems:[aItems];
 		//逐个初始化子视图
 		for(var i=0,len=aItems.length;i<len;i++){
-			var oItem=aItems[i];
-			//默认子视图配置
-			if(me.defItem){
-				$H.extend(oItem,me.defItem,{notCover:true});
-			}
-			//具体视图类处理
-			me.parseItem(oItem);
-			var Item=me.manager.getClass(oItem.xtype);
-			if(Item){
-				if(!oItem.renderTo){
-					oItem.autoRender=false;
-				}
-				var oItem=new Item(oItem);
-				me.add(oItem);
-			}else{
-				$D.error("xtype:"+oItem.xtype+"未找到");
-			}
+			me.add(aItems[i]);
 		}
 	}
 	/**
@@ -4828,33 +4984,33 @@ function(ViewManager,AbstractEvents){
 			return false;
 		}
 		var oParent=me.parent;
+		var oPlaceholder=$('<span></span>').insertBefore(me.getEl());
 		//cid不同
 		oOptions=$H.extend({
-			renderBy:'before',
-			renderTo:me.getEl()
+			xtype:me.xtype,
+			renderBy:'replaceWith',
+			renderTo:oPlaceholder
 		},oOptions);
-		if(oParent){
-			//继承默认配置
-			oOptions=$H.extend(oParent.defItem,oOptions);
-			//具体视图类处理
-			oParent.parseItem(oOptions);
-		}
 		//不需要改变id/cid
 		if(!oOptions.cid||oOptions.cid==me.cid){
 			oOptions._id=me._id;
 		}
-		var oNew=new me.constructor(oOptions);
+		var oNew;
 		if(oParent){
-			oNew.parent=oParent;
-			oParent.each(function(i,oItem){
-				if(oItem==me){
-					oParent.children.splice(i,1,oNew);
-					return false;
-				}
-			});
+			var nIndex=me.index();
+			if(oParent.remove(me)==false){
+				oPlaceholder.remove();
+				return false;
+			}
+			oNew=oParent.add(oOptions,nIndex);
+		}else{
+			if(me.destroy()==false){
+				oPlaceholder.remove();
+				return false;
+			}
+			oNew=new me.constructor(oOptions);
 		}
-		me.destroy();
-		me.trigger('update');
+		me.trigger('update',oNew);
 		me.afterUpdate(oNew);
 		return oNew;
 	}
@@ -4875,12 +5031,16 @@ function(ViewManager,AbstractEvents){
 	/**
 	 * 销毁
 	 * @method destroy
-	 * @return {boolean=} 如果没有顺利销毁，则直接返回false
+	 * @param {boolean=} 仅当true时表示从remove里的调用，不需要再这里调用parent.remove
+	 * @return {boolean=} 成功返回true，失败返回false，如果之前已经销毁返回空
 	 */
-	function fDestroy(){
+	function fDestroy(bFromRemove){
 		var me=this;
-		if(me.beforeDestroy()==false||me.destroyed){
+		if(me.beforeDestroy()==false){
 			return false;
+		}
+		if(me.destroyed){
+			return;
 		}
 		me.callChild();
 		
@@ -4889,18 +5049,18 @@ function(ViewManager,AbstractEvents){
 		me.getEl().remove();
 		me.destroyed=true;
 		
-		if(me.parent){
+		if(!bFromRemove&&me.parent){
 			me.parent.remove(me);
 		}
 		//注销组件
 		me.manager.unregister(me);
-		delete me.params;
-		delete me.settings;
+		delete me.initParam;
 		delete me._container;
 		delete me.renderTo;
 		delete me._listeners;
 		delete me.children;
 		me.afterDestroy();
+		return true;
 	}
 	/**
 	 * 销毁后工作
@@ -6130,7 +6290,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 	 */
 	function fDoConfig(oParams){
 		var me=this;
-		me.callSuper([oParams]);
+		me.callSuper();
 		
 		//样式名
 		if(!me.cls){
@@ -6139,7 +6299,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		me.extCls=me.getExtCls();
 		//图标视图快捷添加
 		if(me.icon){
-			me.addItem({
+			me.add({
 				xtype:'Icon',
 				name:me.icon
 			})
@@ -6265,6 +6425,29 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 	return AC;
 	
 });/**
+ * 面板类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-01-01
+ */
+
+$Define('C.Panel',
+'C.AbstractComponent',
+function(AC){
+	
+	var Panel=AC.define('Panel');
+	
+	Panel.extend({
+		//初始配置
+//		content         : '',                 //内容
+		
+		tmpl            : [
+			'<div><%=this.content||this.findHtml(">*")%></div>'
+		]
+	});
+	
+	return Panel;
+	
+});/**
  * 弹出层类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-02-01
@@ -6308,10 +6491,10 @@ function(AC){
 	 */
 	function fDoConfig(oParam){
 		var me=this;
-		me.callSuper([oParam]);
+		me.callSuper();
 		//添加点击即隐藏事件
 		if(me.clickHide){
-			me._listeners.push({
+			me.listeners.push({
 				name:'click',
 				el: $(document),
 				handler:function(){
@@ -6322,7 +6505,7 @@ function(AC){
 		//Android下弹出遮罩层时，点击仍能聚焦到到输入框，暂时只能在弹出时disable掉，虽然能避免聚焦及弹出输入法，
 		//不过，仍旧会有光标竖线停留在点击的输入框里，要把延迟加到几秒之后才能避免，但又会影响使用
 		if($H.android()){
-			me._listeners.push({
+			me.listeners.push({
 				name:'show',
 				custom:true,
 				handler:function(){
@@ -6333,7 +6516,7 @@ function(AC){
 					}
 				}
 			});
-			me._listeners.push({
+			me.listeners.push({
 				name:'hide',
 				custom:true,
 				handler:function(){
@@ -6484,7 +6667,7 @@ function(AC){
 			extCls           : 'js-item',
 			radius           : null,
 			shadow           : false,
-//			isSelected       : false,             //是否选中
+//			selected         : false,             //是否选中
 			isInline         : false
 		},
 		
@@ -6502,8 +6685,12 @@ function(AC){
 				handler : function(oEvt){
 					var me=this;
 					var oCurrentEl=$(oEvt.currentTarget);
-					var nIndex=$V.get(oCurrentEl.attr("id")).index();
-					me.onItemClick(oEvt,nIndex);
+					//可能后后代组件有'.js-item'，因此这里只寻找子组件
+					var oCurCmp=me.find('$>[_id="'+oCurrentEl.attr("id")+'"]');
+					if(oCurCmp.length>0){
+						var nIndex=oCurCmp[0].index();
+						me.onItemClick(oEvt,nIndex);
+					}
 				}
 			}
 		],
@@ -6678,7 +6865,7 @@ function(AC){
 //		icon            : null,                //图标名称
 		iconPos         : 'left',              //图标位置，"left"|"top"
 		theme           : 'gray',
-		activeCls       : 'hui-btn-blue',      //激活样式
+		activeCls       : 'hui-btn-active',      //激活样式
 		cls             : 'btn',               //组件样式名
 //		isBack          : false,               //是否是后退按钮
 		
@@ -6687,7 +6874,7 @@ function(AC){
 		},
 		
 		////通用效果
-		radius          : 'normal',               //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
+		radius          : 'normal',            //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 		shadow          : true,        	       //外阴影
 		isInline        : true,                //宽度自适应
 		
@@ -6913,7 +7100,7 @@ function(AC){
 	 */
 	function fDoConfig(oParams){
 		var me=this;
-		me.callSuper([oParams]);
+		me.callSuper();
 		//options配置成菜单
 		var oOptions=oParams.options;
 		//根据默认值设置默认文字
@@ -6925,7 +7112,7 @@ function(AC){
 				break;
 			}
 		}
-		me.addItem({
+		me.add({
 			itemClick:function(oButton,nIndex){
 				var sValue=oButton.value;
 				me.val(sValue);
@@ -7047,13 +7234,13 @@ function(AC){
 	 */
 	function fDoConfig(oSettings){
 		var me=this;
-		me.callSuper([oSettings]);
+		me.callSuper();
 		//搜索框快捷配置方式
 		if(me.type=='search'){
 			me.icon='search';
 		}else if(me.type=="textarea"){
 			//textarea高度自适应，IE6、7、8支持propertychange事件，input被其他浏览器所支持
-			me._listeners.push({
+			me.listeners.push({
 				name:'input propertychange',
 				el:'.js-input',
 				handler:function(){
@@ -7064,7 +7251,7 @@ function(AC){
 		}
 		//清除按钮快捷配置方式
 		if(me.withClear){
-			me.addItem({
+			me.add({
 				xtype:'Button',
 				radius:'big',
 				icon:'delete',
@@ -7200,6 +7387,102 @@ function(AC){
 	return Form;
 	
 });/**
+ * 标签项类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-03-24
+ */
+
+$Define('C.TabItem',
+[
+'C.AbstractComponent',
+'C.Panel'
+],
+function(AC,Panel){
+	
+	var TabItem=AC.define('TabItem');
+	
+	TabItem.extend({
+		//初始配置
+//		title           : ''|{},        //顶部按钮，可以字符串，也可以是Button的配置项
+		defItem         : {             //默认子组件是Button
+			xtype       : 'Button',
+			xrole       : 'title',
+			radius      : null,
+			isInline    : false,
+			iconPos     : 'top',
+			shadow      : false
+		},
+		extCls          : 'js-item',
+		tmpl            :['<div><%=this.findHtml("$>[xrole=\'title\']")%></div>'],
+//		content         : null,         //标签内容，可以是html字符串，也可以是组件配置项
+		doConfig        : fDoConfig,    //初始化配置
+		parseItem       : fParseItem,   //分析处理子组件
+		select          : fSelect       //处理子组件配置
+	});
+	/**
+	 * 初始化配置
+	 * @param {Object}oSettings
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		me.callSuper();
+		var title=oSettings.title;
+		if(typeof title=='string'){
+			title={text:title};
+		}
+		if(typeof title=='object'){
+			me.add(title);
+		}
+		var content=oSettings.content;
+		if(typeof content=='string'){
+			content={
+				xtype:'Panel',
+				content:content
+			}
+		}
+		if(typeof content=='object'){
+			$H.extend(content,{
+				xrole:'content',
+				hidden:!me.selected,
+				extCls:'js-content'
+			});
+			me.add(content);
+		}
+		//默认选中样式
+		if(me.activeType){
+			me.defItem.activeCls='hui-btn-active-'+me.activeType;
+		}
+	}
+	/**
+	 * 分析处理子组件
+	 * @method parseItem
+	 */
+	function fParseItem(oItem){
+		var me=this;
+		if(me.selected&&oItem.xrole=="title"){
+			oItem.isActive=true;
+		}
+	}
+	/**
+	 * 选择
+	 * @param {boolean=} 仅当为false时取消选中
+	 */
+	function fSelect(bSelect){
+		var me=this;
+		var oTitle=me.find('$>[xrole="title"]')[0];
+		var oContent=me.find('$>[xrole="content"]')[0];
+		if(bSelect==false){
+			oTitle.unactive();
+			oContent&&oContent.hide();
+		}else{
+			oTitle.active();
+			oContent&&oContent.show();
+		}
+	}
+	
+	return TabItem;
+	
+});/**
  * 标签类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-16
@@ -7207,8 +7490,9 @@ function(AC){
 
 $Define('C.Tab',
 ['C.AbstractComponent',
+'C.TabItem',
 'C.ControlGroup'],
-function(AC,ControlGroup){
+function(AC,TabItem,ControlGroup){
 	
 	var Tab=AC.define('Tab',ControlGroup);
 	
@@ -7217,86 +7501,77 @@ function(AC,ControlGroup){
 //		hasContent      : false,        //是否有内容框
 //		activeType      : '',           //激活样式类型，
 //		theme           : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
-		defItem         : {             //默认子组件是Button
+		defItem         : {             //默认子组件是TabItem
 //			content     : '',           //tab内容
-			xtype       : 'Button',
-			radius      : null,
-			isInline    : false,
-			extCls      : 'js-item',
-			iconPos     : 'top',
-			shadow      : false
+			xtype       : 'TabItem'
 		},
+		listeners       : [{
+			name        : 'afterRender add remove',
+			custom      : true,
+			handler     : function(){
+				this.layout();
+			}
+			
+		}],
 		
 		tmpl            : [
 			'<div class="hui-tab">',
-				'<ul class="c-clear">',
-					'<%for(var i=0,len=this.children.length;i<len;i++){',
-					//IE7下width有小数点时会有偏差(width:500px,len=3,结果会多一像素导致换行)，所以这里统一都没有小数点
-					'var width=Math.floor(100/len);%>',
-					'<li class="hui-tab-item" style="width:<%=(i==len-1)?(100-width*(len-1)):width%>%">',
-					'<%=this.children[i].getHtml()%>',
-					'</li>',
+				'<ul class="js-tab-btns c-clear">',
+					'<%var aBtns=this.find("$>TabItem");',
+					'for(var i=0,len=aBtns.length;i<len;i++){%>',
+						'<li class="hui-tab-item">',
+						'<%=aBtns[i].getHtml()%>',
+						'</li>',
 					'<%}%>',
 				'</ul>',
-				'<%if(this.hasContent){%>',
-					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
-						'<div class="js-tab-content"<%if(!this.children[i].selected){%> style="display:none"<%}%>>',
-						'<%=this.children[i].content%>',
-						'</div>',
-					'<%}%>',
-				'<%}%>',
+				'<%=this.findHtml("$>TabItem>[xrole=\'content\']")%>',
 			'</div>'
 		],
 		
-		doConfig        : fDoConfig,           //初始化配置
-		parseItem       : fParseItem,          //处理子组件配置
-		onItemClick     : fOnItemClick,        //子项点击事件处理
-		setContent      : fSetContent          //设置内容
+		layout          : fLayout,             //布局
+//		add             : fAdd,                //添加子组件
+		setTabContent   : fSetTabContent       //设置标签页内容
 	});
 	
 	/**
-	 * 初始化配置
-	 * @method doConfig
-	 * @param {Object}oSettings
+	 * 布局
 	 */
-	function fDoConfig(oSettings){
+	function fLayout(){
 		var me=this;
-		me.callSuper([oSettings]);
-		if(me.activeType){
-			me.defItem.activeCls='hui-btn-active-'+me.activeType;
-		}
+		var nLen=me.children.length;
+		var width=Math.floor(100/nLen);
+		me.find('.js-tab-btns>li').each(function(i,el){
+			if(i<nLen-1){
+				el.style.width=width+'%';
+			}else{
+				el.style.width=(100-width*(nLen-1))+'%';
+			}
+		});
 	}
 	/**
-	 * 处理子组件配置
-	 * @method parseItem
-	 * @param {object}oItem 子组件配置
+	 * 添加标签项
+	 * @param {object|Array}item 标签项对象或标签项配置或数组
+	 * @param {number=}nIndex 指定添加的索引，默认添加到最后
+	 * @return {?Component} 添加的标签项只有一个时返回标签项对象，参数是数组时返回空
 	 */
-	function fParseItem(oItem){
-		if(oItem.selected){
-			oItem.isActive=true;
-		}
-	}
-	/**
-	 * 子项点击事件处理
-	 * @method onItemClick
-	 * @param {jQ:Event}oEvt jQ事件对象
-	 * @param {number}nIndex 子项目索引
-	 */
-	function fOnItemClick(oEvt,nIndex){
+	function fAdd(item,nIndex){
 		var me=this;
-		//点击tab按钮显示对应的content
-		if(me.hasContent){
-			me.find('.js-tab-content').hide().eq(nIndex).show();
+		if(me._applyArray()){
+			return;
 		}
-		me.callSuper([oEvt,nIndex]);
+		if(me.inited){
+			var oUl=me.find('.js-tab-btns');
+			var oRenderTo=$('<li class="hui-tab-item"></li>').appendTo(oUl);
+			item.renderTo=oRenderTo;
+		}
+		me.callSuper();
 	}
 	/**
 	 * 设置标签页内容
-	 * @method setContent
-	 * @param {number=}nIndex 索引，默认是当前选中的那个
 	 * @param {String}sContent 内容
+	 * @param {number=}nIndex 索引，默认是当前选中的那个
 	 */
-	function fSetContent(nIndex,sContent){
+	function fSetTabContent(sContent,nIndex){
 		var me=this;
 		nIndex=nIndex||me.getSelected(true);
 		me.find('js-tab-content').index(nIndex).html(sContent);
@@ -7515,11 +7790,11 @@ function(AC,Popup){
 	 */
 	function fDoConfig(oSettings){
 		var me=this;
-		me.callSuper([oSettings]);
+		me.callSuper();
 		var aItems=oSettings.items;
 		if(me.title&&!me.hasConfig('[xrole="dialog-header"]',aItems)){
 			//顶部标题栏
-			me.addItem({
+			me.add({
 				xtype:'Toolbar',
 				title:me.title,
 				theme:'gray',
@@ -7568,7 +7843,7 @@ function(AC,Popup){
 					}
 				});
 			}
-			me.addItem({
+			me.add({
 				xtype:'Tab',
 				xrole:'dialog-action',
 				theme:'border-top',

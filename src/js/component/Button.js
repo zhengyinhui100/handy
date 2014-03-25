@@ -17,7 +17,7 @@ function(AC){
 //		icon            : null,                //图标名称
 		iconPos         : 'left',              //图标位置，"left"|"top"
 		theme           : 'gray',
-		activeCls       : 'hui-btn-blue',      //激活样式
+		activeCls       : 'hui-btn-active',      //激活样式
 		cls             : 'btn',               //组件样式名
 //		isBack          : false,               //是否是后退按钮
 		
@@ -26,7 +26,7 @@ function(AC){
 		},
 		
 		////通用效果
-		radius          : 'normal',               //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
+		radius          : 'normal',            //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 		shadow          : true,        	       //外阴影
 		isInline        : true,                //宽度自适应
 		

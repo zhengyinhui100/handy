@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-21 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-25 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -86,7 +86,7 @@
 		return handy;
 	}
 	
-})()/**
+})();/**
  * Json类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -850,7 +850,7 @@ handy.add('Object',function($H){
 	
 	return Object;
 	
-})/**
+});/**
  * 浏览器环境类，分析浏览器类型、版本号、操作系统、内核类型、壳类型、flash版本
  * 浏览器版本，$H.Browser.ie/firefox/chrome/opera/safari(),如果浏览器是IE的，$H.Browser.ie()的值是浏览器的版本号，!$H.Browser.ie()表示非IE浏览器
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -1194,7 +1194,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 	
 	return Debug;
 	
-})/**
+});/**
  * 函数类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -1249,7 +1249,7 @@ handy.add('Function',function($H){
 	
 	return Function;
 	
-})/**
+});/**
  * 面向对象支持类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -1304,7 +1304,8 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
          * 便捷访问父类方法
          * @method callSuper
          * @param {Class=}oSuper 指定父类，如果不指定，默认为定义此方法的类的父类，如果该值为空，则为实际调用对象的父类
-         * @param {Array}aArgs 参数数组
+         * @param {Array}aArgs 参数数组，默认为调用它的函数的参数
+         * @return {*} 返回对应方法执行结果
          */
         cClass.prototype.callSuper=function(oSuper,aArgs){
         	var me=this;
@@ -1314,16 +1315,13 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
         	}
         	var fCaller=arguments.callee.caller;
         	var oCallerSuper=fCaller.$owner.superProto;
+        	aArgs=aArgs||fCaller.arguments;
         	oSuper=oSuper?oSuper.prototype:(oCallerSuper||me.constructor.superProto);
         	var sMethod=fCaller.$name;
         	if(oSuper){
         		var fMethod=oSuper[sMethod];
         		if(Object.isFunction(fMethod)){
-        			if(aArgs){
-	        			return fMethod.apply(me,aArgs);
-        			}else{
-        				return fMethod.call(me);
-        			}
+        			return fMethod.apply(me,aArgs);
         		}
         	}
         };
@@ -1814,7 +1812,7 @@ function(Debug,Object,Function,$H){
     
     return Loader;
 	
-})/**
+});/**
  * 自定义事件类，事件名称支持'all'表示所有事件，支持复杂形式：'event1 event2'或{event1:func1,event:func2}，
  * 事件名称支持命名空间(".name")，如：change.one
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -2227,7 +2225,7 @@ handy.add('Date',function(){
 	}
 	
 	return Date;
-})/**
+});/**
  * String工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -2425,7 +2423,7 @@ handy.add("String",function(){
 	}
 	
 	return String;
-})/**
+});/**
  * Cookie工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -2509,7 +2507,7 @@ handy.add('Cookie',function(){
 	}
 	
 	return Cookie;
-})/**
+});/**
  * 工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -2581,7 +2579,7 @@ handy.add('Util',function($H){
 	
 	return Util;
 	
-})/**
+});/**
  * 集合类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -2839,30 +2837,36 @@ handy.add('Collection','B.Object',function(Object,$H){
 	
 	return Collection;
 	
-})/**
+});/**
  * 模板类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Template',function($H){
-	
-	var _cache={},             //缓存
-		_valPreReg=/^=/,        //简单替换正则
-		_isNewEngine = ''.trim;   // '__proto__' in {}
+handy.add('Template','B.String',function(String,$H){
 		
 	var T={
+		//配置
 		openTag         : '<%',            //模板语法开始标签
 		closeTag        : '%>',            //模板语法结束标签
+		isEscape        : true,            //是否开启js变量输出转义
 		
-//		_setValue       : _fSetValue,      //设置变量
-		_add            : _fAdd,           //结果函数添加一行字符串
-		_parseHtml      : _fParseHtml,     //处理html
-		_parseScript    : _fParseScript,   //处理脚本
-		_compile        : _fCompile,       //编译模板
+		registerHelper  : fRegisterHelper, //添加辅助函数
 		tmpl            : fTmpl            //渲染模板
 	};
+	
+	var _cache={},                //缓存
+		_valPreReg=/^=/,          //简单替换正则
+		_isNewEngine = ''.trim,   // '__proto__' in {}
+		//辅助函数
+		_helpers={
+			escape:String.escapeHTML,
+			trim:String.trim
+		},
+		//辅助函数内部定义语句
+		_helpersDefine='var oHelpers=arguments.callee.$helpers,escape=oHelpers.escape,trim=oHelpers.trim,';
+		
 	/**
 	 * 设置变量
-	 * @method _setValue
+	 * @method _fSetValue
 	 * @param  {string}sTmpl 模板字符串
 	 * @param  {Object}oData     	数据
 	 * @return {string}          返回结果字符串
@@ -2874,17 +2878,17 @@ handy.add('Template',function($H){
 	}
 	/**
 	 * 结果函数添加一行字符串
-	 * @method _add
+	 * @method _fAddLine
 	 * @param {string}sCode 要添加的代码
 	 * @return {string} 返回添加好的代码
 	 */
-	function _fAdd(sCode){
+	function _fAddLine(sCode){
 		//旧浏览器使用数组方式拼接字符串
         return _isNewEngine?'$r+='+sCode+';\n':'$r.push('+sCode+');\n';
 	}
 	/**
 	 * 处理html
-	 * @method _parseHtml
+	 * @method _fParseHtml
 	 * @param {string}sHtml html字符串
 	 * @return {string} 返回处理过的html
 	 */
@@ -2895,49 +2899,63 @@ handy.add('Template',function($H){
             // 换行符转义(windows + linux)
             .replace(/\r/g, '\\r')
             .replace(/\n/g, '\\n')
-		var sCode=T._add('"'+sHtml+'"');
+		var sCode=_fAddLine('"'+sHtml+'"');
 		return sCode;
 	}
 	/**
 	 * 处理脚本
-	 * @method _parseScript
+	 * @method _fParseScript
 	 * @param {string}sScript script字符串
 	 * @return {string} 返回处理过的脚本
 	 */
 	function _fParseScript(sScript){
 		sScript=sScript.replace(/this/g,'$data');
+		//输出内容
 		if(sScript.indexOf('=')==0){
-			sScript=T._add(sScript.replace(_valPreReg,'')+'||""');
+			sScript=_fAddLine(sScript.replace(_valPreReg,'')+'||""');
 		}
 		return sScript+"\n";
 	}
 	/**
 	 * 编译模板
-	 * @method _compile
+	 * @method _fCompile
 	 * @param  {string}sTmpl 模板字符串
 	 * @return {string}      返回结果字符串
 	 */
 	function _fCompile(sTmpl){
 		//旧浏览器使用数组方式拼接字符串
-		var sCode='var $r='+(_isNewEngine?'""':'[]')+';\n';
+		var sCode=_helpersDefine+'$r='+(_isNewEngine?'""':'[]')+';\n';
 		var oMatch;
 		//循环处理模板，分离html和script部分
 		$H.Object.each(sTmpl.split(T.openTag),function(i,sValue){
 			var aCode=sValue.split(T.closeTag);
 			//[html]
 			if(aCode.length==1){
-				sCode+=T._parseHtml(aCode[0]);
+				sCode+=_fParseHtml(aCode[0]);
 			}else{
 				//[script,html]
-				sCode+=T._parseScript(aCode[0]);
+				sCode+=_fParseScript(aCode[0]);
 				if(aCode[1]){
-					sCode+=T._parseHtml(aCode[1]);
+					sCode+=_fParseHtml(aCode[1]);
 				}
 			}
 		})
 		sCode+='return '+(_isNewEngine?'$r;':'$r.join("");');
 //		$D.log(sCode);
-		return new Function('$data',sCode);
+		var fRender=new Function('$data',sCode);
+		fRender.$helpers=_helpers;
+		return fRender;
+	}
+	/**
+	 * 添加辅助函数
+	 * @param {string}sName 辅助函数名
+	 * @param {Function}fHelper 辅助函数
+	 */
+	function fRegisterHelper(sName,fHelper){
+		if(!_helpers[sName]){
+			_helpersDefine+=sName+'=oHelpers.'+sName+',';
+		}
+		_helpers[sName]=fHelper;
 	}
 	/**
 	 * 执行模板
@@ -2959,7 +2977,7 @@ handy.add('Template',function($H){
 			if(sId=tmpl.id){
 			    if (_cache[sId]) {
 			        fTmpl = _cache[sId];
-			    } else {
+			    } else if(!sTmpl) {
 			    	//从script标签获取模板
 			        var oEl = document.getElementById(sId);
 			        if (oEl) {
@@ -2973,7 +2991,7 @@ handy.add('Template',function($H){
 				$H.Debug.error('模板未定义');
 				return;
 			}
-			fTmpl=T._compile(sTmpl);
+			fTmpl=_fCompile(sTmpl);
 			//根据id缓存
 			if(sId){
 				_cache[sId]=fTmpl;
@@ -3205,7 +3223,7 @@ handy.add('Support','B.Browser',function(Browser,$H){
 	
 	return Support;
 	
-})/**
+});/**
  * 校验类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -3445,7 +3463,7 @@ handy.add('Validator',['B.String','B.Object'],function(String,Object,$H){
 	
 	return Validator;
 	
-})/**
+});/**
  * LocalStorage类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -3549,7 +3567,7 @@ handy.add('LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Even
 	 LocalStorage._init();
 	 
 	 return LocalStorage;
-})/**
+});/**
  * 适配类库
  */
 (function($){
@@ -3583,4 +3601,4 @@ handy.add('LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Even
 	});
 	
 	
-})(handy)
+})(handy);

@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-21 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-25 | zhengyinhui100@gmail.com */
 /**
  * 组件管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -133,7 +133,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 	 */
 	function fDoConfig(oParams){
 		var me=this;
-		me.callSuper([oParams]);
+		me.callSuper();
 		
 		//样式名
 		if(!me.cls){
@@ -142,7 +142,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		me.extCls=me.getExtCls();
 		//图标视图快捷添加
 		if(me.icon){
-			me.addItem({
+			me.add({
 				xtype:'Icon',
 				name:me.icon
 			})
@@ -268,6 +268,29 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 	return AC;
 	
 });/**
+ * 面板类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-01-01
+ */
+
+$Define('C.Panel',
+'C.AbstractComponent',
+function(AC){
+	
+	var Panel=AC.define('Panel');
+	
+	Panel.extend({
+		//初始配置
+//		content         : '',                 //内容
+		
+		tmpl            : [
+			'<div><%=this.content||this.findHtml(">*")%></div>'
+		]
+	});
+	
+	return Panel;
+	
+});/**
  * 弹出层类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-02-01
@@ -311,10 +334,10 @@ function(AC){
 	 */
 	function fDoConfig(oParam){
 		var me=this;
-		me.callSuper([oParam]);
+		me.callSuper();
 		//添加点击即隐藏事件
 		if(me.clickHide){
-			me._listeners.push({
+			me.listeners.push({
 				name:'click',
 				el: $(document),
 				handler:function(){
@@ -325,7 +348,7 @@ function(AC){
 		//Android下弹出遮罩层时，点击仍能聚焦到到输入框，暂时只能在弹出时disable掉，虽然能避免聚焦及弹出输入法，
 		//不过，仍旧会有光标竖线停留在点击的输入框里，要把延迟加到几秒之后才能避免，但又会影响使用
 		if($H.android()){
-			me._listeners.push({
+			me.listeners.push({
 				name:'show',
 				custom:true,
 				handler:function(){
@@ -336,7 +359,7 @@ function(AC){
 					}
 				}
 			});
-			me._listeners.push({
+			me.listeners.push({
 				name:'hide',
 				custom:true,
 				handler:function(){
@@ -487,7 +510,7 @@ function(AC){
 			extCls           : 'js-item',
 			radius           : null,
 			shadow           : false,
-//			isSelected       : false,             //是否选中
+//			selected         : false,             //是否选中
 			isInline         : false
 		},
 		
@@ -505,8 +528,12 @@ function(AC){
 				handler : function(oEvt){
 					var me=this;
 					var oCurrentEl=$(oEvt.currentTarget);
-					var nIndex=$V.get(oCurrentEl.attr("id")).index();
-					me.onItemClick(oEvt,nIndex);
+					//可能后后代组件有'.js-item'，因此这里只寻找子组件
+					var oCurCmp=me.find('$>[_id="'+oCurrentEl.attr("id")+'"]');
+					if(oCurCmp.length>0){
+						var nIndex=oCurCmp[0].index();
+						me.onItemClick(oEvt,nIndex);
+					}
 				}
 			}
 		],
@@ -681,7 +708,7 @@ function(AC){
 //		icon            : null,                //图标名称
 		iconPos         : 'left',              //图标位置，"left"|"top"
 		theme           : 'gray',
-		activeCls       : 'hui-btn-blue',      //激活样式
+		activeCls       : 'hui-btn-active',      //激活样式
 		cls             : 'btn',               //组件样式名
 //		isBack          : false,               //是否是后退按钮
 		
@@ -690,7 +717,7 @@ function(AC){
 		},
 		
 		////通用效果
-		radius          : 'normal',               //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
+		radius          : 'normal',            //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 		shadow          : true,        	       //外阴影
 		isInline        : true,                //宽度自适应
 		
@@ -916,7 +943,7 @@ function(AC){
 	 */
 	function fDoConfig(oParams){
 		var me=this;
-		me.callSuper([oParams]);
+		me.callSuper();
 		//options配置成菜单
 		var oOptions=oParams.options;
 		//根据默认值设置默认文字
@@ -928,7 +955,7 @@ function(AC){
 				break;
 			}
 		}
-		me.addItem({
+		me.add({
 			itemClick:function(oButton,nIndex){
 				var sValue=oButton.value;
 				me.val(sValue);
@@ -1050,13 +1077,13 @@ function(AC){
 	 */
 	function fDoConfig(oSettings){
 		var me=this;
-		me.callSuper([oSettings]);
+		me.callSuper();
 		//搜索框快捷配置方式
 		if(me.type=='search'){
 			me.icon='search';
 		}else if(me.type=="textarea"){
 			//textarea高度自适应，IE6、7、8支持propertychange事件，input被其他浏览器所支持
-			me._listeners.push({
+			me.listeners.push({
 				name:'input propertychange',
 				el:'.js-input',
 				handler:function(){
@@ -1067,7 +1094,7 @@ function(AC){
 		}
 		//清除按钮快捷配置方式
 		if(me.withClear){
-			me.addItem({
+			me.add({
 				xtype:'Button',
 				radius:'big',
 				icon:'delete',
@@ -1203,6 +1230,102 @@ function(AC){
 	return Form;
 	
 });/**
+ * 标签项类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-03-24
+ */
+
+$Define('C.TabItem',
+[
+'C.AbstractComponent',
+'C.Panel'
+],
+function(AC,Panel){
+	
+	var TabItem=AC.define('TabItem');
+	
+	TabItem.extend({
+		//初始配置
+//		title           : ''|{},        //顶部按钮，可以字符串，也可以是Button的配置项
+		defItem         : {             //默认子组件是Button
+			xtype       : 'Button',
+			xrole       : 'title',
+			radius      : null,
+			isInline    : false,
+			iconPos     : 'top',
+			shadow      : false
+		},
+		extCls          : 'js-item',
+		tmpl            :['<div><%=this.findHtml("$>[xrole=\'title\']")%></div>'],
+//		content         : null,         //标签内容，可以是html字符串，也可以是组件配置项
+		doConfig        : fDoConfig,    //初始化配置
+		parseItem       : fParseItem,   //分析处理子组件
+		select          : fSelect       //处理子组件配置
+	});
+	/**
+	 * 初始化配置
+	 * @param {Object}oSettings
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		me.callSuper();
+		var title=oSettings.title;
+		if(typeof title=='string'){
+			title={text:title};
+		}
+		if(typeof title=='object'){
+			me.add(title);
+		}
+		var content=oSettings.content;
+		if(typeof content=='string'){
+			content={
+				xtype:'Panel',
+				content:content
+			}
+		}
+		if(typeof content=='object'){
+			$H.extend(content,{
+				xrole:'content',
+				hidden:!me.selected,
+				extCls:'js-content'
+			});
+			me.add(content);
+		}
+		//默认选中样式
+		if(me.activeType){
+			me.defItem.activeCls='hui-btn-active-'+me.activeType;
+		}
+	}
+	/**
+	 * 分析处理子组件
+	 * @method parseItem
+	 */
+	function fParseItem(oItem){
+		var me=this;
+		if(me.selected&&oItem.xrole=="title"){
+			oItem.isActive=true;
+		}
+	}
+	/**
+	 * 选择
+	 * @param {boolean=} 仅当为false时取消选中
+	 */
+	function fSelect(bSelect){
+		var me=this;
+		var oTitle=me.find('$>[xrole="title"]')[0];
+		var oContent=me.find('$>[xrole="content"]')[0];
+		if(bSelect==false){
+			oTitle.unactive();
+			oContent&&oContent.hide();
+		}else{
+			oTitle.active();
+			oContent&&oContent.show();
+		}
+	}
+	
+	return TabItem;
+	
+});/**
  * 标签类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-16
@@ -1210,8 +1333,9 @@ function(AC){
 
 $Define('C.Tab',
 ['C.AbstractComponent',
+'C.TabItem',
 'C.ControlGroup'],
-function(AC,ControlGroup){
+function(AC,TabItem,ControlGroup){
 	
 	var Tab=AC.define('Tab',ControlGroup);
 	
@@ -1220,86 +1344,77 @@ function(AC,ControlGroup){
 //		hasContent      : false,        //是否有内容框
 //		activeType      : '',           //激活样式类型，
 //		theme           : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
-		defItem         : {             //默认子组件是Button
+		defItem         : {             //默认子组件是TabItem
 //			content     : '',           //tab内容
-			xtype       : 'Button',
-			radius      : null,
-			isInline    : false,
-			extCls      : 'js-item',
-			iconPos     : 'top',
-			shadow      : false
+			xtype       : 'TabItem'
 		},
+		listeners       : [{
+			name        : 'afterRender add remove',
+			custom      : true,
+			handler     : function(){
+				this.layout();
+			}
+			
+		}],
 		
 		tmpl            : [
 			'<div class="hui-tab">',
-				'<ul class="c-clear">',
-					'<%for(var i=0,len=this.children.length;i<len;i++){',
-					//IE7下width有小数点时会有偏差(width:500px,len=3,结果会多一像素导致换行)，所以这里统一都没有小数点
-					'var width=Math.floor(100/len);%>',
-					'<li class="hui-tab-item" style="width:<%=(i==len-1)?(100-width*(len-1)):width%>%">',
-					'<%=this.children[i].getHtml()%>',
-					'</li>',
+				'<ul class="js-tab-btns c-clear">',
+					'<%var aBtns=this.find("$>TabItem");',
+					'for(var i=0,len=aBtns.length;i<len;i++){%>',
+						'<li class="hui-tab-item">',
+						'<%=aBtns[i].getHtml()%>',
+						'</li>',
 					'<%}%>',
 				'</ul>',
-				'<%if(this.hasContent){%>',
-					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
-						'<div class="js-tab-content"<%if(!this.children[i].selected){%> style="display:none"<%}%>>',
-						'<%=this.children[i].content%>',
-						'</div>',
-					'<%}%>',
-				'<%}%>',
+				'<%=this.findHtml("$>TabItem>[xrole=\'content\']")%>',
 			'</div>'
 		],
 		
-		doConfig        : fDoConfig,           //初始化配置
-		parseItem       : fParseItem,          //处理子组件配置
-		onItemClick     : fOnItemClick,        //子项点击事件处理
-		setContent      : fSetContent          //设置内容
+		layout          : fLayout,             //布局
+//		add             : fAdd,                //添加子组件
+		setTabContent   : fSetTabContent       //设置标签页内容
 	});
 	
 	/**
-	 * 初始化配置
-	 * @method doConfig
-	 * @param {Object}oSettings
+	 * 布局
 	 */
-	function fDoConfig(oSettings){
+	function fLayout(){
 		var me=this;
-		me.callSuper([oSettings]);
-		if(me.activeType){
-			me.defItem.activeCls='hui-btn-active-'+me.activeType;
-		}
+		var nLen=me.children.length;
+		var width=Math.floor(100/nLen);
+		me.find('.js-tab-btns>li').each(function(i,el){
+			if(i<nLen-1){
+				el.style.width=width+'%';
+			}else{
+				el.style.width=(100-width*(nLen-1))+'%';
+			}
+		});
 	}
 	/**
-	 * 处理子组件配置
-	 * @method parseItem
-	 * @param {object}oItem 子组件配置
+	 * 添加标签项
+	 * @param {object|Array}item 标签项对象或标签项配置或数组
+	 * @param {number=}nIndex 指定添加的索引，默认添加到最后
+	 * @return {?Component} 添加的标签项只有一个时返回标签项对象，参数是数组时返回空
 	 */
-	function fParseItem(oItem){
-		if(oItem.selected){
-			oItem.isActive=true;
-		}
-	}
-	/**
-	 * 子项点击事件处理
-	 * @method onItemClick
-	 * @param {jQ:Event}oEvt jQ事件对象
-	 * @param {number}nIndex 子项目索引
-	 */
-	function fOnItemClick(oEvt,nIndex){
+	function fAdd(item,nIndex){
 		var me=this;
-		//点击tab按钮显示对应的content
-		if(me.hasContent){
-			me.find('.js-tab-content').hide().eq(nIndex).show();
+		if(me._applyArray()){
+			return;
 		}
-		me.callSuper([oEvt,nIndex]);
+		if(me.inited){
+			var oUl=me.find('.js-tab-btns');
+			var oRenderTo=$('<li class="hui-tab-item"></li>').appendTo(oUl);
+			item.renderTo=oRenderTo;
+		}
+		me.callSuper();
 	}
 	/**
 	 * 设置标签页内容
-	 * @method setContent
-	 * @param {number=}nIndex 索引，默认是当前选中的那个
 	 * @param {String}sContent 内容
+	 * @param {number=}nIndex 索引，默认是当前选中的那个
 	 */
-	function fSetContent(nIndex,sContent){
+	function fSetTabContent(sContent,nIndex){
 		var me=this;
 		nIndex=nIndex||me.getSelected(true);
 		me.find('js-tab-content').index(nIndex).html(sContent);
@@ -1518,11 +1633,11 @@ function(AC,Popup){
 	 */
 	function fDoConfig(oSettings){
 		var me=this;
-		me.callSuper([oSettings]);
+		me.callSuper();
 		var aItems=oSettings.items;
 		if(me.title&&!me.hasConfig('[xrole="dialog-header"]',aItems)){
 			//顶部标题栏
-			me.addItem({
+			me.add({
 				xtype:'Toolbar',
 				title:me.title,
 				theme:'gray',
@@ -1571,7 +1686,7 @@ function(AC,Popup){
 					}
 				});
 			}
-			me.addItem({
+			me.add({
 				xtype:'Tab',
 				xrole:'dialog-action',
 				theme:'border-top',

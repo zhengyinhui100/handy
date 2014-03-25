@@ -84,6 +84,7 @@
 			<path path="js/component/Set.js" />
 			<path path="js/component/Field.js" />
 			<path path="js/component/Form.js" />
+			<path path="js/component/TabItem.js" />
 			<path path="js/component/Tab.js" />
 			<path path="js/component/Toolbar.js" />
 			<path path="js/component/Tips.js" />

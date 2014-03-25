@@ -11,8 +11,9 @@
 //"handy.common.View"
 $Define('CM.View',
 ['CM.ViewManager',
-'CM.AbstractEvents'],
-function(ViewManager,AbstractEvents){
+'CM.AbstractEvents',
+'B.Template'],
+function(ViewManager,AbstractEvents,Template){
 	
 	var _oTagReg=/^(<[a-zA-Z]+)/;
 	var _oHasClsReg=/^[^>]+class=/;
@@ -21,7 +22,8 @@ function(ViewManager,AbstractEvents){
 	//自定义事件
 	var View=AbstractEvents.extend({
 		
-		xtype               : 'View',    //类型
+		xtype               : 'View',            //类型
+		_placeholder        : '<script id="" type="text/x-placeholder"></script>',        //占位符标签
 		
 		//配置
 //		renderTo            : null,              //渲染节点
@@ -36,6 +38,7 @@ function(ViewManager,AbstractEvents){
 //		notListen           : false,             //不自动初始化监听器
 		listeners           : [],                //事件配置列表，初始参数可以是对象也可以是对象数组
 		items               : [],                //子视图配置，初始参数可以是对象也可以是对象数组
+//		lazy                : false,             //懒加载，初始化时只设置占位标签，只在调用show方法时进行实际初始化
 		
 		
 		//属性
@@ -57,7 +60,9 @@ function(ViewManager,AbstractEvents){
 			'beforeShow','show','afterShow',
 			'beforeHide','hide','afterHide',
 			'beforeUpdate','update','afterUpdate',
-			'beforeDestroy','destroy','afterDestroy'
+			'beforeDestroy','destroy','afterDestroy',
+			'add','remove'
+//			'layout'    //保留事件
 		],  
 		_defaultEvents      : [                  //默认事件，可以通过参数属性的方式直接进行添加
 			'mousedown','mouseup','mouseover','mousemove','mouseenter','mouseleave',
@@ -75,6 +80,7 @@ function(ViewManager,AbstractEvents){
 		
 		//初始化相关
 		initialize          : fInitialize,       //初始化
+		lazyInit            : fLazyInit,         //懒加载，初始化时只设置占位标签，以后再进行真正的初始化
 		doConfig            : fDoConfig,         //初始化配置
 		getEl               : fGetEl,            //获取容器节点
 		getId               : fGetId,            //获取id
@@ -82,6 +88,7 @@ function(ViewManager,AbstractEvents){
 		getHtml             : fGetHtml,          //获取html
 		findHtml            : fFindHtml,         //获取子视图html
 		initStyle           : fInitStyle,        //初始化样式
+//		layout              : fLayout,           //布局，保留接口
 		
 		beforeRender        : fBeforeRender,     //渲染前工作
 		render              : fRender,           //渲染
@@ -106,6 +113,8 @@ function(ViewManager,AbstractEvents){
 		resume              : fResume,           //恢复事件
 		
 		//视图管理相关
+//		get                 : fGet,              //保留接口
+//		set                 : fSet,              //保留接口
 		each                : fEach,             //遍历子视图
 		match               : fMatch,            //匹配选择器
 		find                : fFind,             //查找子元素或子视图
@@ -165,8 +174,9 @@ function(ViewManager,AbstractEvents){
 	function _fApplyArray(sMethod,aParams){
 		var me=this;
 		var aArgs=arguments;
+		var fCaller=aArgs.callee.caller;
+		var oOwner=fCaller.$owner.prototype;
 		if(aArgs.length==0){
-			var fCaller=aArgs.callee.caller;
 			aArgs=fCaller.arguments;
 			aArgs=$H.toArray(aArgs);
 			sMethod=fCaller.$name;
@@ -176,8 +186,7 @@ function(ViewManager,AbstractEvents){
 		}
 		if($H.isArray(aParams)){
 			for(var i=0,len=aParams.length;i<len;i++){
-				aArgs.unshift(aParams[i]);
-				me[sMethod].apply(me,aArgs);
+				oOwner[sMethod].apply(me,[aParams[i]].concat(aArgs));
 			}
 			return true;
 		}
@@ -207,7 +216,15 @@ function(ViewManager,AbstractEvents){
 	 */
 	function fInitialize(oParams){
 		var me=this;
-		me.manager=me.constructor.manager||$H.getSingleton(ViewManager);
+		if(!me.manager){
+			me.manager=me.constructor.manager||$H.getSingleton(ViewManager);
+		}
+		//懒初始化，只在调用show时才开始真正初始化
+		if(me.lazy){
+			me.lazyInit();
+			return;
+		}
+		
 		//初始化配置
 		me.doConfig(oParams);
 		me.parseItems();
@@ -219,6 +236,15 @@ function(ViewManager,AbstractEvents){
 		me.inited=true;
 	}
 	/**
+	 * 懒加载，初始化时只设置占位标签，以后再进行真正的初始化
+	 */
+	function fLazyInit(){
+		var me=this;
+		var sId=me.getId();
+		me.renderTo;
+		me.renderBy;
+	}
+	/**
 	 * 初始化配置
 	 * @method doConfig
 	 * @param {Object}oParams 初始化参数
@@ -226,7 +252,7 @@ function(ViewManager,AbstractEvents){
 	function fDoConfig(oParams){
 		var me=this;
 		//复制保存初始参数
-		me.initParam=$H.clone(oParams);
+		var oParams=me.initParam=$H.clone(oParams||{});
 		
 		//只覆盖基本类型的属性
 		$H.extend(me,oParams,{notCover:function(p,val){
@@ -308,7 +334,7 @@ function(ViewManager,AbstractEvents){
  		}
  		var sHtml=me.initHtml();
 		var bHasCls=_oHasClsReg.test(sHtml);
-		var sExtCls='js-'+me.manager.type+" "+me.extCls+" ";
+		var sExtCls='js-'+me.manager.type+" "+'js-'+me.xtype+" "+me.extCls+" ";
 		if(bHasCls){
 			//添加class
 			sHtml=sHtml.replace(_oClsReg,'$1'+sExtCls);
@@ -760,28 +786,32 @@ function(ViewManager,AbstractEvents){
 	/**
 	 * 查找子元素或子视图
 	 * @method find
-	 * @param {string}sSel '$'开头表示查找视图，多个选择器间用","隔开('$sel1,$sel2,...')，语法类似jQuery，如：'$xtype[attr=value]'、'$ancestor descendant'、'$parent>child'，
+	 * @param {number|string}sel 数字表示子组件索引，如果是字符串：'$'开头表示查找视图，多个选择器间用","隔开('$sel1,$sel2,...')，语法类似jQuery，如：'$xtype[attr=value]'、'$ancestor descendant'、'$parent>child'，
 	 * 				'$>Button'表示仅查找当前子节点中的按钮，'$Button'表示查找所有后代节点中的按钮，
 	 * @param {Array=}aResult 用于存储结果集的数组
-	 * @return {jQuery|Array} 返回匹配的结果，如果没找到匹配的子视图则返回空数组
+	 * @return {jQuery|Array|View} 返回匹配的结果，如果没找到匹配的子视图则返回空数组，ps:sel为索引数字时直接返回对应视图(非数组)
 	 */
-	function fFind(sSel,aResult){
+	function fFind(sel,aResult){
 		var me=this;
+		if(typeof sel=='number'){
+			var oItem=me.children[sel];
+			return oItem;
+		}
 		//查找元素
-		if(sSel.indexOf('$')!=0){
-			return me.getEl().find(sSel);
+		if(sel.indexOf('$')!=0){
+			return me.getEl().find(sel);
 		}
 		var aResult=aResult||[];
 		//多个选择器
-		if(sSel.indexOf(",")>0){
-			$H.each(sSel.split(","),function(i,val){
+		if(sel.indexOf(",")>0){
+			$H.each(sel.split(","),function(i,val){
 				aResult=aResult.concat(me.find(val));
 			})
 			return aResult;
 		}
 		//查找视图
-		var bOnlyChildren=sSel.indexOf('>')==1;
-		var sCurSel=sSel.replace(/^\$>?\s?/,'');
+		var bOnlyChildren=sel.indexOf('>')==1;
+		var sCurSel=sel.replace(/^\$>?\s?/,'');
 		//分割当前选择器及后代选择器
 		var nIndex=sCurSel.search(/\s|>/);
 		var sCurSel,sExtSel;
@@ -803,7 +833,7 @@ function(ViewManager,AbstractEvents){
 			}
 			if(!bOnlyChildren){
 				//如果不是仅限当前子节点，继续从后代开始查找
-				oChild.find(sSel,aResult);
+				oChild.find(sel,aResult);
 			}
 		});
 		return aResult;
@@ -918,10 +948,13 @@ function(ViewManager,AbstractEvents){
 						item.autoRender=false;
 					}
 				}
+				item.parent=me;
 				item=new Item(item);
 			}else{
 				$D.error("xtype:"+item.xtype+"未找到");
 			}
+		}else{
+			item.parent=me;
 		}
 		var aChildren=me.children;
 		if(bNoIndex){
@@ -929,7 +962,7 @@ function(ViewManager,AbstractEvents){
 		}else{
 			aChildren.splice(nIndex,0,item);
 		}
-		item.parent=me;
+		me.trigger('add',item);
 		return item;
 	}
 	/**
@@ -970,6 +1003,7 @@ function(ViewManager,AbstractEvents){
 			aChildren.splice(nIndex,1);
 			bResult=true;
 		}
+		me.trigger('remove',item);
 		return bResult;
 	}
 	/**

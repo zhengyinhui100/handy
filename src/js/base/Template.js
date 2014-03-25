@@ -2,11 +2,7 @@
  * 模板类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Template',function($H){
-	
-	var _cache={},                //缓存
-		_valPreReg=/^=/,          //简单替换正则
-		_isNewEngine = ''.trim;   // '__proto__' in {}
+handy.add('Template','B.String',function(String,$H){
 		
 	var T={
 		//配置
@@ -14,12 +10,24 @@ handy.add('Template',function($H){
 		closeTag        : '%>',            //模板语法结束标签
 		isEscape        : true,            //是否开启js变量输出转义
 		
-		addPlugin       : fAddPlugin,      //添加插件
+		registerHelper  : fRegisterHelper, //添加辅助函数
 		tmpl            : fTmpl            //渲染模板
 	};
+	
+	var _cache={},                //缓存
+		_valPreReg=/^=/,          //简单替换正则
+		_isNewEngine = ''.trim,   // '__proto__' in {}
+		//辅助函数
+		_helpers={
+			escape:String.escapeHTML,
+			trim:String.trim
+		},
+		//辅助函数内部定义语句
+		_helpersDefine='var oHelpers=arguments.callee.$helpers,escape=oHelpers.escape,trim=oHelpers.trim,';
+		
 	/**
 	 * 设置变量
-	 * @method _setValue
+	 * @method _fSetValue
 	 * @param  {string}sTmpl 模板字符串
 	 * @param  {Object}oData     	数据
 	 * @return {string}          返回结果字符串
@@ -31,7 +39,7 @@ handy.add('Template',function($H){
 	}
 	/**
 	 * 结果函数添加一行字符串
-	 * @method _addLine
+	 * @method _fAddLine
 	 * @param {string}sCode 要添加的代码
 	 * @return {string} 返回添加好的代码
 	 */
@@ -41,7 +49,7 @@ handy.add('Template',function($H){
 	}
 	/**
 	 * 处理html
-	 * @method _parseHtml
+	 * @method _fParseHtml
 	 * @param {string}sHtml html字符串
 	 * @return {string} 返回处理过的html
 	 */
@@ -57,12 +65,13 @@ handy.add('Template',function($H){
 	}
 	/**
 	 * 处理脚本
-	 * @method _parseScript
+	 * @method _fParseScript
 	 * @param {string}sScript script字符串
 	 * @return {string} 返回处理过的脚本
 	 */
 	function _fParseScript(sScript){
 		sScript=sScript.replace(/this/g,'$data');
+		//输出内容
 		if(sScript.indexOf('=')==0){
 			sScript=_fAddLine(sScript.replace(_valPreReg,'')+'||""');
 		}
@@ -70,13 +79,13 @@ handy.add('Template',function($H){
 	}
 	/**
 	 * 编译模板
-	 * @method _compile
+	 * @method _fCompile
 	 * @param  {string}sTmpl 模板字符串
 	 * @return {string}      返回结果字符串
 	 */
 	function _fCompile(sTmpl){
 		//旧浏览器使用数组方式拼接字符串
-		var sCode='var $r='+(_isNewEngine?'""':'[]')+';\n';
+		var sCode=_helpersDefine+'$r='+(_isNewEngine?'""':'[]')+';\n';
 		var oMatch;
 		//循环处理模板，分离html和script部分
 		$H.Object.each(sTmpl.split(T.openTag),function(i,sValue){
@@ -94,12 +103,20 @@ handy.add('Template',function($H){
 		})
 		sCode+='return '+(_isNewEngine?'$r;':'$r.join("");');
 //		$D.log(sCode);
-		return new Function('$data',sCode);
+		var fRender=new Function('$data',sCode);
+		fRender.$helpers=_helpers;
+		return fRender;
 	}
 	/**
-	 * 添加插件
+	 * 添加辅助函数
+	 * @param {string}sName 辅助函数名
+	 * @param {Function}fHelper 辅助函数
 	 */
-	function fAddPlugin(){
+	function fRegisterHelper(sName,fHelper){
+		if(!_helpers[sName]){
+			_helpersDefine+=sName+'=oHelpers.'+sName+',';
+		}
+		_helpers[sName]=fHelper;
 	}
 	/**
 	 * 执行模板
@@ -121,7 +138,7 @@ handy.add('Template',function($H){
 			if(sId=tmpl.id){
 			    if (_cache[sId]) {
 			        fTmpl = _cache[sId];
-			    } else {
+			    } else if(!sTmpl) {
 			    	//从script标签获取模板
 			        var oEl = document.getElementById(sId);
 			        if (oEl) {
