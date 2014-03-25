@@ -8,7 +8,6 @@ $Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
 
 	var ViewManager = $H.createClass();
 
-	// 静态方法
 	$H.inherit(ViewManager,AbstractManager,{
 		type          : 'view',           //管理类型
 		initialize    : fInitialize,      //初始化
