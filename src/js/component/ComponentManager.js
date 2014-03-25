@@ -9,7 +9,7 @@ $Define("C.ComponentManager",
 'CM.ViewManager'],
 function(AbstractManager,ViewManager) {
 
-	var ComponentManager = AbstractManager.extend({
+	var ComponentManager = AbstractManager.derive({
 		type          : 'component',      //管理类型
 		initialize    : fInitialize       //初始化
 	});

@@ -9,7 +9,7 @@ $Define('CM.Model',
 'CM.AbstractEvents'],
 function(AbstractDao,AbstractEvents){
 	
-	var Model=AbstractEvents.extend({
+	var Model=AbstractEvents.derive({
 //		_changing             : false,               //是否正在改变
 		_pending              : false,               //
 //		_previousAttributes   : {},                  //较早的值

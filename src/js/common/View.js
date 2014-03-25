@@ -20,7 +20,7 @@ function(ViewManager,AbstractEvents,Template){
 	var _oClsReg=/(class=")/;
 	
 	//自定义事件
-	var View=AbstractEvents.extend({
+	var View=AbstractEvents.derive({
 		
 		xtype               : 'View',            //类型
 		_placeholder        : '<script id="" type="text/x-placeholder"></script>',        //占位符标签

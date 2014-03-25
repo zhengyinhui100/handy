@@ -10,7 +10,7 @@ $Define('CM.Collection',
 'CM.Model'],
 function(AbstractDao,AbstractEvents,Model){
 	
-	var Collection=AbstractEvents.extend({
+	var Collection=AbstractEvents.derive({
 		
 //		model                  : Model,               //子对象模型类
 //		models                 : [],                  //模型列表
@@ -246,7 +246,7 @@ function(AbstractDao,AbstractEvents,Model){
 	 */
     function fSet(models, oOptions) {
     	var me=this;
-    	oOptions = $H.Util.extend(oOptions, {
+    	oOptions = $H.extend(oOptions, {
     		add: true,
     		remove: true,
     		merge: true
