@@ -16,6 +16,8 @@ function(AC,Panel){
 	TabItem.extend({
 		//初始配置
 //		title           : ''|{},        //顶部按钮，可以字符串，也可以是Button的配置项
+//		content         : null,         //标签内容，可以是html字符串，也可以是组件配置项
+//		activeType      : '',           //激活样式类型，
 		defItem         : {             //默认子组件是Button
 			xtype       : 'Button',
 			xrole       : 'title',
@@ -26,7 +28,6 @@ function(AC,Panel){
 		},
 		extCls          : 'js-item',
 		tmpl            :['<div><%=this.findHtml("$>[xrole=\'title\']")%></div>'],
-//		content         : null,         //标签内容，可以是html字符串，也可以是组件配置项
 		doConfig        : fDoConfig,    //初始化配置
 		parseItem       : fParseItem,   //分析处理子组件
 		select          : fSelect       //处理子组件配置
