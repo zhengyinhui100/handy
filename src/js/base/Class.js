@@ -44,7 +44,7 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
     	 * @param {Object=} oStaticExtend 需要扩展的静态属性
    	     * @param {object=} oExtendOptions 继承父类静态方法时，extend方法的选项
          */
-        cClass.extend=function(oProtoExtend,oStaticExtend,oExtendOptions){
+        cClass.derive=function(oProtoExtend,oStaticExtend,oExtendOptions){
         	var cChild=Class.createClass();
         	Class.inherit(cChild,cClass,oProtoExtend,oStaticExtend,oExtendOptions);
         	return cChild;
