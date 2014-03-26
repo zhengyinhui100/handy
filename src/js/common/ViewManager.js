@@ -25,12 +25,12 @@ $Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
 	function fInitialize(){
 		var me=this;
 		//监听afterRender自定义事件，调用相关视图的afterRender方法
-		$H.on("afterRender",function(oEl){
+		$H.on("afterRender",function(sEvt,oEl){
 			//调用包含的视图的afterRender方法
 			me.afterRender(oEl);
 		})
 		//监听removeEl自定义事件，jQuery的remove方法被拦截(base/adapt.js)，执行时先触发此事件
-		$H.on('removeEl',function(oEl){
+		$H.on('removeEl',function(sEvt,oEl){
 			//销毁包含的视图
 			me.destroy(oEl);
 		})

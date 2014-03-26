@@ -180,7 +180,7 @@ handy.add('Events',function($H){
 			return;
 		}
 		var oCache=me._eventCache;
-		var aArgs=$H.toArray(arguments,1);
+		var aArgs=$H.toArray(arguments);
 		var result,aCache;
 		//内部函数，执行事件队列
 		function _fExec(aCache){
