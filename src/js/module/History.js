@@ -91,11 +91,10 @@ function(HashChange){
 		var sHistoryKey=me.currentKey=me.key+(++_nIndex);
 		me.states.push(sHistoryKey);
 		me.states[sHistoryKey]=oState;
-		var oHashParam={
+		me.saveHash({
 			hKey    : sHistoryKey,
 			param   : oState.param
-		};
-		me.saveHash(oHashParam);
+		});
 	}
 	/**
 	 * 保存状态值到hash中
