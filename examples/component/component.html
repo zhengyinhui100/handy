@@ -588,6 +588,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,
 			renderTo:'#toolbarDv',
 			items:[{
 				xtype:'Tab',
+				activeType:'b',
 				items:[
 						{
 							selected:true,
@@ -754,26 +755,32 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,
 						xrole:'dialog-action',
 						notSelect:true,
 						items:[{
-							xtype:'Button',
-							text:'取消',
-							click:function(){
-								alert('取消');
-								this.parents().hide();
+							title:{
+								xtype:'Button',
+								text:'取消',
+								click:function(){
+									alert('取消');
+									this.parents().hide();
+								}
 							}
 						},{
-							xtype:'Button',
-							text:'不保存',
-							click:function(){
-								alert('不保存');
-								this.parents().hide();
+							title:{
+								xtype:'Button',
+								text:'不保存',
+								click:function(){
+									alert('不保存');
+									this.parents().hide();
+								}
 							}
 						},{
-							xtype:'Button',
-							isActive:true,
-							text:'保存',
-							click:function(){
-								alert('保存');
-								this.parents().hide();
+							title:{
+								xtype:'Button',
+								isActive:true,
+								text:'保存',
+								click:function(){
+									alert('保存');
+									this.parents().hide();
+								}
 							}
 						}]
 					}]

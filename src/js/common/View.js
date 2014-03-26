@@ -38,7 +38,7 @@ function(ViewManager,AbstractEvents,Template){
 //		notListen           : false,             //不自动初始化监听器
 		listeners           : [],                //事件配置列表，初始参数可以是对象也可以是对象数组
 		items               : [],                //子视图配置，初始参数可以是对象也可以是对象数组
-//		lazy                : false,             //懒加载，初始化时只设置占位标签，只在调用show方法时进行实际初始化
+//		lazy                : false,             //保留属性：懒加载，初始化时只设置占位标签，只在调用show方法时进行实际初始化
 		
 		
 		//属性
@@ -80,7 +80,7 @@ function(ViewManager,AbstractEvents,Template){
 		
 		//初始化相关
 		initialize          : fInitialize,       //初始化
-		lazyInit            : fLazyInit,         //懒加载，初始化时只设置占位标签，以后再进行真正的初始化
+//		lazyInit            : fLazyInit,         //保留方法：懒加载，初始化时只设置占位标签，以后再进行真正的初始化
 		doConfig            : fDoConfig,         //初始化配置
 		getEl               : fGetEl,            //获取容器节点
 		getId               : fGetId,            //获取id
@@ -216,14 +216,10 @@ function(ViewManager,AbstractEvents,Template){
 	 */
 	function fInitialize(oParams){
 		var me=this;
-		if(!me.manager){
-			me.manager=me.constructor.manager||$H.getSingleton(ViewManager);
-		}
-		//懒初始化，只在调用show时才开始真正初始化
-		if(me.lazy){
-			me.lazyInit();
+		if(me.inited){
 			return;
 		}
+		me.manager=me.constructor.manager||$H.getSingleton(ViewManager);
 		
 		//初始化配置
 		me.doConfig(oParams);
@@ -236,15 +232,6 @@ function(ViewManager,AbstractEvents,Template){
 		me.inited=true;
 	}
 	/**
-	 * 懒加载，初始化时只设置占位标签，以后再进行真正的初始化
-	 */
-	function fLazyInit(){
-		var me=this;
-		var sId=me.getId();
-		me.renderTo;
-		me.renderBy;
-	}
-	/**
 	 * 初始化配置
 	 * @method doConfig
 	 * @param {Object}oParams 初始化参数
@@ -254,7 +241,6 @@ function(ViewManager,AbstractEvents,Template){
 		//复制保存初始参数
 		var oParams=me.initParam=$H.clone(oParams||{});
 		
-		//只覆盖基本类型的属性
 		$H.extend(me,oParams,{notCover:function(p,val){
 			var value=me[p];
 			//默认事件，可通过参数属性直接添加
@@ -277,6 +263,11 @@ function(ViewManager,AbstractEvents,Template){
 				return true;
 			}else if(p=='items'){
 				me.add(val);
+				return true;
+			}else if(p=='xtype'){
+				if(me[p]=='View'){
+					me[p]=typeof val=='string'?val:val.$ns.replace(/\./g,'_');
+				}
 				return true;
 			}
 		}});
@@ -533,29 +524,51 @@ function(ViewManager,AbstractEvents,Template){
 	/**
 	 * 读取内容
 	 * @param {boolean=}bHtml 仅当false表示获取子组件列表，其它表示获取html内容
+	 * @param {View|string|number=}obj 指定视图对象，或选择器或索引
 	 * @return {string|Array.<Component>} 返回内容
 	 */
-	function fGetContent(bHtml){
+	function fGetContent(bHtml,obj){
 		var me=this;
-		var aChildren=me.children;
+		if(obj){
+			if(!obj instanceof View){
+				obj=me.find(obj);
+				if($H.isArray(obj)){
+					obj=obj[0];
+				}
+			}
+		}else{
+			obj=me;
+		}
 		if(bHtml==false){
+			var aChildren=obj.children;
 			return aChildren;
 		}else{
-			return me.getEl().html();
+			return obj.getEl().html();
 		}
 	}
 	/**
 	 * 设置内容
 	 * @param {string|Component|Array.<Component>}content 内容，html字符串或组件或组件数组
+	 * @param {View|string|number=}obj 指定视图对象，或选择器或索引
+	 * @retun {View} 如果只添加一个组件(或配置)，则返回该组件
 	 */
-	function fSetContent(content){
+	function fSetContent(content,obj){
 		var me=this;
+		if(obj){
+			if(!obj instanceof View){
+				obj=me.find(obj);
+				if($H.isArray(obj)){
+					obj=obj[0];
+				}
+			}
+			return obj.setContent(content);
+		}
 		var oEl=me.getEl();
-		oEl.remove();
+		oEl.contents().remove();
 		if(typeof content=='string'){
 			oEl.html(content);
 		}else{
-			me.add(content);
+			return me.add(content);
 		}
 	}
 	/**

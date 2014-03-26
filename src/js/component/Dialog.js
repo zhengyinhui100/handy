@@ -153,13 +153,13 @@ function(AC,Popup){
 			if(!me.noCancel){
 				//取消按钮
 				aActions.push({
-					xtype:'Button',
-					radius:null,
-					isActive:me.activeBtn==1,
-					text:me.cancelTxt,
-					click:function(){
-						if((me.cancelCall&&me.cancelCall())!=false){
-							me.hide();
+					title:{
+						isActive:me.activeBtn==1,
+						text:me.cancelTxt,
+						click:function(){
+							if((me.cancelCall&&me.cancelCall())!=false){
+								me.hide();
+							}
 						}
 					}
 				});
@@ -167,13 +167,13 @@ function(AC,Popup){
 			if(!me.noOk){
 				//确定按钮
 				aActions.push({
-					xtype:'Button',
-					text:me.okTxt,
-					isActive:me.activeBtn==2,
-					radius:null,
-					click:function(){
-						if((me.okCall&&me.okCall())!=false){
-							me.hide();
+					title:{
+						text:me.okTxt,
+						isActive:me.activeBtn==2,
+						click:function(){
+							if((me.okCall&&me.okCall())!=false){
+								me.hide();
+							}
 						}
 					}
 				});
