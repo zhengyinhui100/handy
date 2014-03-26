@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-25 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-26 | zhengyinhui100@gmail.com */
 /****************************************************************
 * Author:		郑银辉											*
 * Email:		zhengyinhui100@gmail.com						*
@@ -144,11 +144,10 @@ function(HashChange){
 		var sHistoryKey=me.currentKey=me.key+(++_nIndex);
 		me.states.push(sHistoryKey);
 		me.states[sHistoryKey]=oState;
-		var oHashParam={
+		me.saveHash({
 			hKey    : sHistoryKey,
 			param   : oState.param
-		};
-		me.saveHash(oHashParam);
+		});
 	}
 	/**
 	 * 保存状态值到hash中
@@ -276,14 +275,16 @@ function(History,AbstractManager){
 		me.modules[sModName]={waiting:true};
 		//请求模块
 		$Require(me.defModPackage+sModName,function(Module){
-			var oMod=new Module({
-				renderTo:oParams.renderTo||me.container,
+			var oOptions={
+				renderTo:me.container,
 				name:sModName,
 				xtype:sModName,
 				_id:me.generateId(),
 				extCls:'js-module m-module',
 				hidden:true
-			});
+			};
+			$H.extend(oOptions,oParams);
+			var oMod=new Module(oOptions);
 			me.modules[sModName]=oMod;
 			$H.trigger('afterRender',oMod.getEl());
 			//可能加载完时，已切换到其它模块了

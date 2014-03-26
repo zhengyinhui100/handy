@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-25 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-26 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -33,7 +33,7 @@
 			aRequires=null;
 		}
 		//TODO 由于Loader可能还未定义，这里特殊处理，以后考虑将Loader单独抽出来
-		if(!aRequires||!handy.Loader){
+		if(true||!aRequires||!handy.Loader){
 			if(!handy.base){
 				handy.base={};
 			}
@@ -320,7 +320,7 @@ handy.add('Json',function($H){
 handy.add('Object',function($H){
 	
 	var Object={
-		_alias              : {                 //存储别名，建议大写，以便更好地与普通名称区别开
+		_alias              : {                 //存储别名，公共库建议大写，以便更好地与普通名称区别开，具体项目的别名建议小写
 			'B'             : 'handy.base',
 			'C'             : 'handy.component',
 			'M'             : 'handy.module',
@@ -1295,9 +1295,9 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
     	 * @param {Object=} oStaticExtend 需要扩展的静态属性
    	     * @param {object=} oExtendOptions 继承父类静态方法时，extend方法的选项
          */
-        cClass.extend=function(oProtoExtend,oStaticExtend,oExtendOptions){
+        cClass.derive=function(oProtoExtend,oStaticExtend,oExtendOptions){
         	var cChild=Class.createClass();
-        	Class.inherit(cChild,cClass,oProtoExtend,oStaticExtend,oExtendOptions);
+        	Class.inherit(cChild,this,oProtoExtend,oStaticExtend,oExtendOptions);
         	return cChild;
         }
         /**
@@ -1382,14 +1382,16 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 handy.add("Loader",
-["handy.base.Debug","handy.base.Object","handy.base.Function"],
+["B.Debug","B.Object","B.Function"],
 function(Debug,Object,Function,$H){
 	
-	var _RESOURCE_NOT_FOUND= 'Resource not found: ',
+	var _LOADER_PRE='Loader ',
+		_RESOURCE_NOT_FOUND= _LOADER_PRE+'not found: ',
 		_eHead=document.head ||document.getElementsByTagName('head')[0] ||document.documentElement,
 		_UA = navigator.userAgent,
         _bIsWebKit = _UA.indexOf('AppleWebKit'),
     	_aContext=[],         //请求上下文堆栈
+    	_requestingNum=0,     //正在请求(还未返回)的数量
 	    _oCache={};           //缓存
 	
 	var Loader= {
@@ -1413,10 +1415,13 @@ function(Debug,Object,Function,$H){
 	}
 	
      /**
-	 * 检查对应的资源是否已加载
+	 * 检查对应的资源是否已加载，只要检测到一个不存在的资源就立刻返回
 	 * @method _fChkExisted
 	 * @param {string|Array}id 被检查的资源id
-	 * @return {boolean}返回true表示该资源已经被加载
+	 * @return {Object}  {
+	 * 		{Array}exist: 存在的资源列表
+	 * 		{string}notExist: 不存在的资源id
+	 * }
 	 */
     function _fChkExisted(id){
     	function _fChk(sId){
@@ -1431,19 +1436,22 @@ function(Debug,Object,Function,$H){
 	    		return Object.namespace(sId);
     		}
     	}
-    	if(typeof id=="string"){
-    		return _fChk(id);
-    	}
+    	var oResult={}
     	var aExist=[];
+    	if(typeof id=="string"){
+    		id=[id];
+    	}
     	for(var i=0,nLen=id.length;i<nLen;i++){
     		var result=_fChk(id[i]);
     		if(!result){
-    			return false;
+    			oResult.notExist=id[i];
+    			return oResult;
     		}else{
     			aExist.push(result);
     		}
     	}
-    	return aExist;
+    	oResult.exist=aExist;
+    	return oResult;
     }
     
     /**
@@ -1453,8 +1461,6 @@ function(Debug,Object,Function,$H){
 	 * @return {string}sUrl 实际url
 	 */
     function _fGetUrl(sId){
-		//读取实名
-		sId=$H.Object.alias(sId);
     	var sUrl=Loader.urlMap&&Loader.urlMap[sId]&&Loader.urlMap[sId].url;
     	if(!sUrl){
     		var sRoot='';
@@ -1503,7 +1509,7 @@ function(Debug,Object,Function,$H){
     	_fAddOnload(eScript,fCallback);
 		_eHead.appendChild(eScript);
 		if(Loader.traceLog){
-			Debug.info("Loader request:"+sUrl);
+			Debug.info(_LOADER_PRE+"request:"+sUrl);
    		}
 	}
 	/**
@@ -1532,7 +1538,7 @@ function(Debug,Object,Function,$H){
     	//插入到皮肤css之前
     	_eHead.insertBefore(eCssNode,Loader.skinNode);
     	if(Loader.traceLog){
-			Debug.info("Loader request:"+sUrl);
+			Debug.info(_LOADER_PRE+"request:"+sUrl);
    		}
 	}
 	/**
@@ -1686,6 +1692,7 @@ function(Debug,Object,Function,$H){
 	    		}else{
 	    			_fGetScript(sUrl,_fCallback) ;
 	    		}
+	    		_requestingNum++;
     		}
     	}
     	//提示loading
@@ -1700,9 +1707,10 @@ function(Debug,Object,Function,$H){
 	 */
     function _fResponse(sId){
     	Loader.showLoading(false);
+    	_requestingNum--;
     	_oCache[sId].status='loaded';
     	if(Loader.traceLog){
-			Debug.info("Loader Response: "+sId);
+			Debug.info(_LOADER_PRE+"Response: "+sId);
    		}
     	_fExecContext();
     }
@@ -1714,13 +1722,15 @@ function(Debug,Object,Function,$H){
     	//每次回调都循环上下文列表
    		for(var i=_aContext.length-1;i>=0;i--){
 	    	var oContext=_aContext[i];
-	    	var aExists=_fChkExisted(oContext.deps);
-	    	if(aExists){
+	    	var oResult=_fChkExisted(oContext.deps);
+	    	if(!oResult.notExist){
 	    		_aContext.splice(i,1);
-	    		oContext.callback.apply(null,aExists);
+	    		oContext.callback.apply(null,oResult.exist);
 	    		//定义成功后重新执行上下文
 	    		_fExecContext();
 	    		break;
+	    	}else if(i==0&&_requestingNum==0){
+	    		$D.error(_RESOURCE_NOT_FOUND+oResult.notExist);
 	    	}
    		}
     }
@@ -1733,6 +1743,8 @@ function(Debug,Object,Function,$H){
 	 * @return {number}nIndex 返回回调索引
 	 */
 	function fDefine(sId,aDeps,factory){
+		//读取实名
+		sId=$H.Object.alias(sId);
 		var nLen=arguments.length;
 		if(nLen==2){
 			factory=aDeps;
@@ -1745,22 +1757,26 @@ function(Debug,Object,Function,$H){
 					//考虑到传入依赖是数组，这里回调参数形式依然是数组
 					resource=factory.apply(null,arguments);
 					if(Loader.traceLog){
-						Debug.info("Loader define: "+sId);
+						Debug.info(_LOADER_PRE+"define: "+sId);
 					}
 				}catch(e){
 					//资源定义错误
-					e.message="Loader "+sId+":factory define error:"+e.message;
+					e.message=_LOADER_PRE+sId+":factory define error:"+e.message;
 					Debug.error(e);
 					return;
 				}
 			}else{
 				resource=factory;
 			}
-			Object.namespace(sId,resource);
-			//添加命名空间元数据
-			var sType=typeof resource;
-			if(sType=="object"||sType=="Function"){
-				resource.$ns=sId;
+			if(resource){
+				Object.namespace(sId,resource);
+				//添加命名空间元数据
+				var sType=typeof resource;
+				if(sType=="object"||sType=="function"){
+					resource.$ns=sId;
+				}
+			}else{
+				$D.error(_LOADER_PRE+'factory no return: '+sId);
 			}
 		});
 	}
@@ -1781,8 +1797,10 @@ function(Debug,Object,Function,$H){
     	var bNeedContext=true;
     	for(var i=0,nLen=aIds.length;i<nLen;i++){
     		var sId=aIds[i];
-    		var oExisted=_fChkExisted(sId);
-    		if(!oExisted){
+			//读取实名
+			sId=$H.Object.alias(sId);
+    		var oResult=_fChkExisted(sId);
+    		if(oResult.notExist){
     			//未加载资源放进队列中
     			aRequestIds.push(sId);
     			if(bNeedContext){
@@ -1796,7 +1814,7 @@ function(Debug,Object,Function,$H){
 					Debug.info(_RESOURCE_NOT_FOUND+sId);
 		   		}
     		}else{
-    			aExisteds.push(oExisted);
+    			aExisteds.push(oResult.exist[0]);
     		}
     	}
     	
@@ -1994,7 +2012,7 @@ handy.add('Events',function($H){
 			return;
 		}
 		var oCache=me._eventCache;
-		var aArgs=$H.toArray(arguments,1);
+		var aArgs=$H.toArray(arguments);
 		var result,aCache;
 		//内部函数，执行事件队列
 		function _fExec(aCache){
@@ -2511,13 +2529,14 @@ handy.add('Cookie',function(){
  * 工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Util',function($H){
+handy.add('Util','B.Object',function(Object,$H){
 	
 	var Util={
 		isWindow         : fIsWindow,  //检查是否是window对象
 		getUuid          : fGetUuid,   //获取handy内部uuid
 		getHash          : fGetHash,   //获取hash，不包括“？”开头的query部分
 		setHash          : fSetHash,   //设置hash，不改变“？”开头的query部分
+		distance         : fDistance,  //计算两点距离(单位为米)
 		result           : fResult     //如果对象中的指定属性是函数, 则调用它, 否则, 返回它
 	}
 	
@@ -2562,6 +2581,52 @@ handy.add('Util',function($H){
 		top.location.hash=sHash;
 	}
 	/**
+	 * 计算两点距离(单位为米)
+	 * @param {Object|Array}oCoord1 参数坐标1
+	 * 				Object类型{
+	 * 					{number}latitude:纬度,
+	 * 					{number}longtitude:经度
+	 * 				}
+	 * 				Array类型[{number}latitude,{number}longtitude]
+	 * @param {Object|Array}oCoord2 参数坐标2
+	 * @param {boolean=}bFormat 仅当true进行格式化：小于1000米的单位是m(整数)，
+	 * 					大于1000米的单位是km(取一位小数)，如：32000->3.2km
+	 * @return {number} 返回两点间的距离
+	 */
+	function fDistance(oCoord1,oCoord2,bFormat){
+		/** 
+         * 求某个经纬度的值的角度值 
+         * @param {Object} degree 
+         */  
+        function _fRad(nDegree){  
+            return nDegree*Math.PI/180;  
+        }
+        var EARTH_RADIUS = 6378.137,nLat1,nLng1,nLat2,nLng2;
+        if(Object.isArray(oCoord1)){
+        	nLat1=oCoord1[0];
+	        nLng1=oCoord1[1];
+	        nLat2=oCoord2[0];
+	        nLng2=oCoord2[1];
+        }else{
+	        nLat1=oCoord1.latitude;
+	        nLng1=oCoord1.longtitude;
+	        nLat2=oCoord2.latitude;
+	        nLng2=oCoord2.longtitude;
+        }
+        var nRadLat1 = _fRad(nLat1);
+	    var nRadLat2 = _fRad(nLat2);
+	    var nRadLatDif = nRadLat1 - nRadLat2;
+	    var nRadLngDif = _fRad(nLng1) - _fRad(nLng2);
+	    var nDistance = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(nRadLatDif/2),2) +
+	     	Math.cos(nRadLat1)*Math.cos(nRadLat2)*Math.pow(Math.sin(nRadLngDif/2),2)));
+	    nDistance = nDistance * EARTH_RADIUS;
+	    nDistance = Math.round(nDistance * 10000);
+	    if(bFormat){
+	    	nDistance=nDistance>1000?(nDistance/1000).toFixed(1)+'km':nDistance+'m';
+	    }
+	    return nDistance;
+	}
+	/**
 	 * 如果对象中的指定属性是函数, 则调用它, 否则, 返回它
 	 * @method result
 	 * @param {Object}oObj 参数对象
@@ -2570,7 +2635,7 @@ handy.add('Util',function($H){
 	 */
 	function fResult(oObj,sProp){
 		var value=oObj[sProp];
-		if($H.Object.isFunction(value)){
+		if(Object.isFunction(value)){
 			return value();
 		}else{
 			return value;
@@ -3635,7 +3700,7 @@ function(){
 		var me=this;
 		var aArgs=$H.toArray(arguments,3);
 		return me._parseEvents(name,function(aParams){
-			aParams.unshilft(oTarget);
+			aParams.unshift(oTarget);
 			me[sMethod].apply(me,aParams.concat(aArgs));
 		});
 	}
@@ -3890,7 +3955,6 @@ $Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
 
 	var ViewManager = $H.createClass();
 
-	// 静态方法
 	$H.inherit(ViewManager,AbstractManager,{
 		type          : 'view',           //管理类型
 		initialize    : fInitialize,      //初始化
@@ -3908,12 +3972,12 @@ $Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
 	function fInitialize(){
 		var me=this;
 		//监听afterRender自定义事件，调用相关视图的afterRender方法
-		$H.on("afterRender",function(oEl){
+		$H.on("afterRender",function(sEvt,oEl){
 			//调用包含的视图的afterRender方法
 			me.afterRender(oEl);
 		})
 		//监听removeEl自定义事件，jQuery的remove方法被拦截(base/adapt.js)，执行时先触发此事件
-		$H.on('removeEl',function(oEl){
+		$H.on('removeEl',function(sEvt,oEl){
 			//销毁包含的视图
 			me.destroy(oEl);
 		})
@@ -3963,7 +4027,7 @@ function(ViewManager,AbstractEvents,Template){
 	var _oClsReg=/(class=")/;
 	
 	//自定义事件
-	var View=AbstractEvents.extend({
+	var View=AbstractEvents.derive({
 		
 		xtype               : 'View',            //类型
 		_placeholder        : '<script id="" type="text/x-placeholder"></script>',        //占位符标签
@@ -3981,7 +4045,7 @@ function(ViewManager,AbstractEvents,Template){
 //		notListen           : false,             //不自动初始化监听器
 		listeners           : [],                //事件配置列表，初始参数可以是对象也可以是对象数组
 		items               : [],                //子视图配置，初始参数可以是对象也可以是对象数组
-//		lazy                : false,             //懒加载，初始化时只设置占位标签，只在调用show方法时进行实际初始化
+//		lazy                : false,             //保留属性：懒加载，初始化时只设置占位标签，只在调用show方法时进行实际初始化
 		
 		
 		//属性
@@ -4023,7 +4087,7 @@ function(ViewManager,AbstractEvents,Template){
 		
 		//初始化相关
 		initialize          : fInitialize,       //初始化
-		lazyInit            : fLazyInit,         //懒加载，初始化时只设置占位标签，以后再进行真正的初始化
+//		lazyInit            : fLazyInit,         //保留方法：懒加载，初始化时只设置占位标签，以后再进行真正的初始化
 		doConfig            : fDoConfig,         //初始化配置
 		getEl               : fGetEl,            //获取容器节点
 		getId               : fGetId,            //获取id
@@ -4159,14 +4223,10 @@ function(ViewManager,AbstractEvents,Template){
 	 */
 	function fInitialize(oParams){
 		var me=this;
-		if(!me.manager){
-			me.manager=me.constructor.manager||$H.getSingleton(ViewManager);
-		}
-		//懒初始化，只在调用show时才开始真正初始化
-		if(me.lazy){
-			me.lazyInit();
+		if(me.inited){
 			return;
 		}
+		me.manager=me.constructor.manager||$H.getSingleton(ViewManager);
 		
 		//初始化配置
 		me.doConfig(oParams);
@@ -4179,15 +4239,6 @@ function(ViewManager,AbstractEvents,Template){
 		me.inited=true;
 	}
 	/**
-	 * 懒加载，初始化时只设置占位标签，以后再进行真正的初始化
-	 */
-	function fLazyInit(){
-		var me=this;
-		var sId=me.getId();
-		me.renderTo;
-		me.renderBy;
-	}
-	/**
 	 * 初始化配置
 	 * @method doConfig
 	 * @param {Object}oParams 初始化参数
@@ -4197,7 +4248,6 @@ function(ViewManager,AbstractEvents,Template){
 		//复制保存初始参数
 		var oParams=me.initParam=$H.clone(oParams||{});
 		
-		//只覆盖基本类型的属性
 		$H.extend(me,oParams,{notCover:function(p,val){
 			var value=me[p];
 			//默认事件，可通过参数属性直接添加
@@ -4220,6 +4270,11 @@ function(ViewManager,AbstractEvents,Template){
 				return true;
 			}else if(p=='items'){
 				me.add(val);
+				return true;
+			}else if(p=='xtype'){
+				if(me[p]=='View'){
+					me[p]=typeof val=='string'?val:val.$ns.replace(/\./g,'_');
+				}
 				return true;
 			}
 		}});
@@ -4476,29 +4531,51 @@ function(ViewManager,AbstractEvents,Template){
 	/**
 	 * 读取内容
 	 * @param {boolean=}bHtml 仅当false表示获取子组件列表，其它表示获取html内容
+	 * @param {View|string|number=}obj 指定视图对象，或选择器或索引
 	 * @return {string|Array.<Component>} 返回内容
 	 */
-	function fGetContent(bHtml){
+	function fGetContent(bHtml,obj){
 		var me=this;
-		var aChildren=me.children;
+		if(obj){
+			if(!obj instanceof View){
+				obj=me.find(obj);
+				if($H.isArray(obj)){
+					obj=obj[0];
+				}
+			}
+		}else{
+			obj=me;
+		}
 		if(bHtml==false){
+			var aChildren=obj.children;
 			return aChildren;
 		}else{
-			return me.getEl().html();
+			return obj.getEl().html();
 		}
 	}
 	/**
 	 * 设置内容
 	 * @param {string|Component|Array.<Component>}content 内容，html字符串或组件或组件数组
+	 * @param {View|string|number=}obj 指定视图对象，或选择器或索引
+	 * @retun {View} 如果只添加一个组件(或配置)，则返回该组件
 	 */
-	function fSetContent(content){
+	function fSetContent(content,obj){
 		var me=this;
+		if(obj){
+			if(!obj instanceof View){
+				obj=me.find(obj);
+				if($H.isArray(obj)){
+					obj=obj[0];
+				}
+			}
+			return obj.setContent(content);
+		}
 		var oEl=me.getEl();
-		oEl.remove();
+		oEl.contents().remove();
 		if(typeof content=='string'){
 			oEl.html(content);
 		}else{
-			me.add(content);
+			return me.add(content);
 		}
 	}
 	/**
@@ -5082,7 +5159,7 @@ $Define('CM.Model',
 'CM.AbstractEvents'],
 function(AbstractDao,AbstractEvents){
 	
-	var Model=AbstractEvents.extend({
+	var Model=AbstractEvents.derive({
 //		_changing             : false,               //是否正在改变
 		_pending              : false,               //
 //		_previousAttributes   : {},                  //较早的值
@@ -5096,7 +5173,7 @@ function(AbstractDao,AbstractEvents){
    		_validate             : _fValidate,          //执行校验，如果通过校验返回true，否则，触发"invalid"事件
 		
 		initialize            : fInitialize,         //初始化
-		toJson                : fToJSON,             //返回对象数据副本
+		toJSON                : fToJSON,             //返回对象数据副本
 		sync                  : fSync,               //同步数据，可以通过重写进行自定义
    		get                   : fGet,                //获取指定属性值
    		escape                : fEscape,             //获取html编码过的属性值 
@@ -5569,7 +5646,7 @@ $Define('CM.Collection',
 'CM.Model'],
 function(AbstractDao,AbstractEvents,Model){
 	
-	var Collection=AbstractEvents.extend({
+	var Collection=AbstractEvents.derive({
 		
 //		model                  : Model,               //子对象模型类
 //		models                 : [],                  //模型列表
@@ -5730,7 +5807,8 @@ function(AbstractDao,AbstractEvents,Model){
 	 * @return {Array} 模型数据数组
 	 */
     function fToJSON(oOptions) {
-        return $H.Collection.map(this,function(oModel){
+    	var me=this;
+        return $H.Collection.map(me.models,function(oModel){
         	return oModel.toJSON(oOptions); 
         });
     }
@@ -5805,7 +5883,7 @@ function(AbstractDao,AbstractEvents,Model){
 	 */
     function fSet(models, oOptions) {
     	var me=this;
-    	oOptions = $H.Util.extend(oOptions, {
+    	oOptions = $H.extend(oOptions, {
     		add: true,
     		remove: true,
     		merge: true
@@ -6143,7 +6221,7 @@ function(AbstractDao,AbstractEvents,Model){
      * @param {Object}oOptions
      */
     function fParse(resp, oOptions) {
-        return resp;
+        return resp.data;
     }
 	/**
 	 * 克隆
@@ -6167,7 +6245,7 @@ $Define("C.ComponentManager",
 'CM.ViewManager'],
 function(AbstractManager,ViewManager) {
 
-	var ComponentManager = AbstractManager.extend({
+	var ComponentManager = AbstractManager.derive({
 		type          : 'component',      //管理类型
 		initialize    : fInitialize       //初始化
 	});
@@ -7404,6 +7482,8 @@ function(AC,Panel){
 	TabItem.extend({
 		//初始配置
 //		title           : ''|{},        //顶部按钮，可以字符串，也可以是Button的配置项
+//		content         : null,         //标签内容，可以是html字符串，也可以是组件配置项
+//		activeType      : '',           //激活样式类型，
 		defItem         : {             //默认子组件是Button
 			xtype       : 'Button',
 			xrole       : 'title',
@@ -7413,12 +7493,28 @@ function(AC,Panel){
 			shadow      : false
 		},
 		extCls          : 'js-item',
-		tmpl            :['<div><%=this.findHtml("$>[xrole=\'title\']")%></div>'],
-//		content         : null,         //标签内容，可以是html字符串，也可以是组件配置项
+		
+		//属性
+//		titleCmp        : null,         //标题组件
+//		content         : null,         //内容组件
+		tmpl            : ['<div><%=this.findHtml("$>[xrole=\'title\']")%></div>'],
+		initialize      : fInitialize,  //初始化
 		doConfig        : fDoConfig,    //初始化配置
 		parseItem       : fParseItem,   //分析处理子组件
-		select          : fSelect       //处理子组件配置
+		select          : fSelect,      //处理子组件配置
+		getContent      : fGetContent,  //获取内容
+		setContent      : fSetContent   //设置内容
 	});
+	/**
+	 * 初始化
+	 * @param {Object}oSettings
+	 */
+	function fInitialize(oSettings){
+		var me=this;
+		me.callSuper();
+		me.titleCmp=me.find('$>[xrole="title"]')[0];
+		me.contentCmp=me.find('$>[xrole="content"]')[0];
+	}
 	/**
 	 * 初始化配置
 	 * @param {Object}oSettings
@@ -7469,8 +7565,8 @@ function(AC,Panel){
 	 */
 	function fSelect(bSelect){
 		var me=this;
-		var oTitle=me.find('$>[xrole="title"]')[0];
-		var oContent=me.find('$>[xrole="content"]')[0];
+		var oTitle=me.titleCmp;
+		var oContent=me.contentCmp;
 		if(bSelect==false){
 			oTitle.unactive();
 			oContent&&oContent.hide();
@@ -7478,6 +7574,31 @@ function(AC,Panel){
 			oTitle.active();
 			oContent&&oContent.show();
 		}
+	}
+	/**
+	 * 读取内容
+	 * @param {boolean=}bHtml 仅当false表示获取子组件列表，其它表示获取html内容
+	 * @param {View|string|number=}obj 指定视图对象，或选择器或索引
+	 * @return {string|Array.<Component>} 返回内容
+	 */
+	function fGetContent(bHtml,obj){
+		var me=this;
+		if(!obj){
+			obj=me.contentCmp;
+		}
+		return me.callSuper([bHtml,obj]);
+	}
+	/**
+	 * 设置内容
+	 * @param {string|Component|Array.<Component>}content 内容，html字符串或组件或组件数组
+	 * @param {View|string|number=}obj 指定视图对象，或选择器或索引
+	 */
+	function fSetContent(content,obj){
+		var me=this;
+		if(!obj){
+			obj=me.contentCmp;
+		}
+		return me.callSuper([content,obj]);
 	}
 	
 	return TabItem;
@@ -7498,7 +7619,6 @@ function(AC,TabItem,ControlGroup){
 	
 	Tab.extend({
 		//初始配置
-//		hasContent      : false,        //是否有内容框
 //		activeType      : '',           //激活样式类型，
 //		theme           : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
 		defItem         : {             //默认子组件是TabItem
@@ -7528,11 +7648,23 @@ function(AC,TabItem,ControlGroup){
 			'</div>'
 		],
 		
+		doConfig        : fDoConfig,           //初始化配置
 		layout          : fLayout,             //布局
 //		add             : fAdd,                //添加子组件
 		setTabContent   : fSetTabContent       //设置标签页内容
 	});
-	
+	/**
+	 * 初始化配置
+	 * @param {Object}oSettings
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		me.callSuper();
+		//默认选中样式
+		if(me.activeType){
+			me.defItem.activeType=me.activeType;
+		}
+	}
 	/**
 	 * 布局
 	 */
@@ -7818,13 +7950,13 @@ function(AC,Popup){
 			if(!me.noCancel){
 				//取消按钮
 				aActions.push({
-					xtype:'Button',
-					radius:null,
-					isActive:me.activeBtn==1,
-					text:me.cancelTxt,
-					click:function(){
-						if((me.cancelCall&&me.cancelCall())!=false){
-							me.hide();
+					title:{
+						isActive:me.activeBtn==1,
+						text:me.cancelTxt,
+						click:function(){
+							if((me.cancelCall&&me.cancelCall())!=false){
+								me.hide();
+							}
 						}
 					}
 				});
@@ -7832,13 +7964,13 @@ function(AC,Popup){
 			if(!me.noOk){
 				//确定按钮
 				aActions.push({
-					xtype:'Button',
-					text:me.okTxt,
-					isActive:me.activeBtn==2,
-					radius:null,
-					click:function(){
-						if((me.okCall&&me.okCall())!=false){
-							me.hide();
+					title:{
+						text:me.okTxt,
+						isActive:me.activeBtn==2,
+						click:function(){
+							if((me.okCall&&me.okCall())!=false){
+								me.hide();
+							}
 						}
 					}
 				});
@@ -8085,11 +8217,10 @@ function(HashChange){
 		var sHistoryKey=me.currentKey=me.key+(++_nIndex);
 		me.states.push(sHistoryKey);
 		me.states[sHistoryKey]=oState;
-		var oHashParam={
+		me.saveHash({
 			hKey    : sHistoryKey,
 			param   : oState.param
-		};
-		me.saveHash(oHashParam);
+		});
 	}
 	/**
 	 * 保存状态值到hash中
@@ -8217,14 +8348,16 @@ function(History,AbstractManager){
 		me.modules[sModName]={waiting:true};
 		//请求模块
 		$Require(me.defModPackage+sModName,function(Module){
-			var oMod=new Module({
-				renderTo:oParams.renderTo||me.container,
+			var oOptions={
+				renderTo:me.container,
 				name:sModName,
 				xtype:sModName,
 				_id:me.generateId(),
 				extCls:'js-module m-module',
 				hidden:true
-			});
+			};
+			$H.extend(oOptions,oParams);
+			var oMod=new Module(oOptions);
 			me.modules[sModName]=oMod;
 			$H.trigger('afterRender',oMod.getEl());
 			//可能加载完时，已切换到其它模块了

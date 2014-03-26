@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-25 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-26 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -33,7 +33,7 @@
 			aRequires=null;
 		}
 		//TODO 由于Loader可能还未定义，这里特殊处理，以后考虑将Loader单独抽出来
-		if(!aRequires||!handy.Loader){
+		if(true||!aRequires||!handy.Loader){
 			if(!handy.base){
 				handy.base={};
 			}
@@ -320,7 +320,7 @@ handy.add('Json',function($H){
 handy.add('Object',function($H){
 	
 	var Object={
-		_alias              : {                 //存储别名，建议大写，以便更好地与普通名称区别开
+		_alias              : {                 //存储别名，公共库建议大写，以便更好地与普通名称区别开，具体项目的别名建议小写
 			'B'             : 'handy.base',
 			'C'             : 'handy.component',
 			'M'             : 'handy.module',
@@ -1295,9 +1295,9 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
     	 * @param {Object=} oStaticExtend 需要扩展的静态属性
    	     * @param {object=} oExtendOptions 继承父类静态方法时，extend方法的选项
          */
-        cClass.extend=function(oProtoExtend,oStaticExtend,oExtendOptions){
+        cClass.derive=function(oProtoExtend,oStaticExtend,oExtendOptions){
         	var cChild=Class.createClass();
-        	Class.inherit(cChild,cClass,oProtoExtend,oStaticExtend,oExtendOptions);
+        	Class.inherit(cChild,this,oProtoExtend,oStaticExtend,oExtendOptions);
         	return cChild;
         }
         /**
@@ -1382,14 +1382,16 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 handy.add("Loader",
-["handy.base.Debug","handy.base.Object","handy.base.Function"],
+["B.Debug","B.Object","B.Function"],
 function(Debug,Object,Function,$H){
 	
-	var _RESOURCE_NOT_FOUND= 'Resource not found: ',
+	var _LOADER_PRE='Loader ',
+		_RESOURCE_NOT_FOUND= _LOADER_PRE+'not found: ',
 		_eHead=document.head ||document.getElementsByTagName('head')[0] ||document.documentElement,
 		_UA = navigator.userAgent,
         _bIsWebKit = _UA.indexOf('AppleWebKit'),
     	_aContext=[],         //请求上下文堆栈
+    	_requestingNum=0,     //正在请求(还未返回)的数量
 	    _oCache={};           //缓存
 	
 	var Loader= {
@@ -1413,10 +1415,13 @@ function(Debug,Object,Function,$H){
 	}
 	
      /**
-	 * 检查对应的资源是否已加载
+	 * 检查对应的资源是否已加载，只要检测到一个不存在的资源就立刻返回
 	 * @method _fChkExisted
 	 * @param {string|Array}id 被检查的资源id
-	 * @return {boolean}返回true表示该资源已经被加载
+	 * @return {Object}  {
+	 * 		{Array}exist: 存在的资源列表
+	 * 		{string}notExist: 不存在的资源id
+	 * }
 	 */
     function _fChkExisted(id){
     	function _fChk(sId){
@@ -1431,19 +1436,22 @@ function(Debug,Object,Function,$H){
 	    		return Object.namespace(sId);
     		}
     	}
-    	if(typeof id=="string"){
-    		return _fChk(id);
-    	}
+    	var oResult={}
     	var aExist=[];
+    	if(typeof id=="string"){
+    		id=[id];
+    	}
     	for(var i=0,nLen=id.length;i<nLen;i++){
     		var result=_fChk(id[i]);
     		if(!result){
-    			return false;
+    			oResult.notExist=id[i];
+    			return oResult;
     		}else{
     			aExist.push(result);
     		}
     	}
-    	return aExist;
+    	oResult.exist=aExist;
+    	return oResult;
     }
     
     /**
@@ -1453,8 +1461,6 @@ function(Debug,Object,Function,$H){
 	 * @return {string}sUrl 实际url
 	 */
     function _fGetUrl(sId){
-		//读取实名
-		sId=$H.Object.alias(sId);
     	var sUrl=Loader.urlMap&&Loader.urlMap[sId]&&Loader.urlMap[sId].url;
     	if(!sUrl){
     		var sRoot='';
@@ -1503,7 +1509,7 @@ function(Debug,Object,Function,$H){
     	_fAddOnload(eScript,fCallback);
 		_eHead.appendChild(eScript);
 		if(Loader.traceLog){
-			Debug.info("Loader request:"+sUrl);
+			Debug.info(_LOADER_PRE+"request:"+sUrl);
    		}
 	}
 	/**
@@ -1532,7 +1538,7 @@ function(Debug,Object,Function,$H){
     	//插入到皮肤css之前
     	_eHead.insertBefore(eCssNode,Loader.skinNode);
     	if(Loader.traceLog){
-			Debug.info("Loader request:"+sUrl);
+			Debug.info(_LOADER_PRE+"request:"+sUrl);
    		}
 	}
 	/**
@@ -1686,6 +1692,7 @@ function(Debug,Object,Function,$H){
 	    		}else{
 	    			_fGetScript(sUrl,_fCallback) ;
 	    		}
+	    		_requestingNum++;
     		}
     	}
     	//提示loading
@@ -1700,9 +1707,10 @@ function(Debug,Object,Function,$H){
 	 */
     function _fResponse(sId){
     	Loader.showLoading(false);
+    	_requestingNum--;
     	_oCache[sId].status='loaded';
     	if(Loader.traceLog){
-			Debug.info("Loader Response: "+sId);
+			Debug.info(_LOADER_PRE+"Response: "+sId);
    		}
     	_fExecContext();
     }
@@ -1714,13 +1722,15 @@ function(Debug,Object,Function,$H){
     	//每次回调都循环上下文列表
    		for(var i=_aContext.length-1;i>=0;i--){
 	    	var oContext=_aContext[i];
-	    	var aExists=_fChkExisted(oContext.deps);
-	    	if(aExists){
+	    	var oResult=_fChkExisted(oContext.deps);
+	    	if(!oResult.notExist){
 	    		_aContext.splice(i,1);
-	    		oContext.callback.apply(null,aExists);
+	    		oContext.callback.apply(null,oResult.exist);
 	    		//定义成功后重新执行上下文
 	    		_fExecContext();
 	    		break;
+	    	}else if(i==0&&_requestingNum==0){
+	    		$D.error(_RESOURCE_NOT_FOUND+oResult.notExist);
 	    	}
    		}
     }
@@ -1733,6 +1743,8 @@ function(Debug,Object,Function,$H){
 	 * @return {number}nIndex 返回回调索引
 	 */
 	function fDefine(sId,aDeps,factory){
+		//读取实名
+		sId=$H.Object.alias(sId);
 		var nLen=arguments.length;
 		if(nLen==2){
 			factory=aDeps;
@@ -1745,22 +1757,26 @@ function(Debug,Object,Function,$H){
 					//考虑到传入依赖是数组，这里回调参数形式依然是数组
 					resource=factory.apply(null,arguments);
 					if(Loader.traceLog){
-						Debug.info("Loader define: "+sId);
+						Debug.info(_LOADER_PRE+"define: "+sId);
 					}
 				}catch(e){
 					//资源定义错误
-					e.message="Loader "+sId+":factory define error:"+e.message;
+					e.message=_LOADER_PRE+sId+":factory define error:"+e.message;
 					Debug.error(e);
 					return;
 				}
 			}else{
 				resource=factory;
 			}
-			Object.namespace(sId,resource);
-			//添加命名空间元数据
-			var sType=typeof resource;
-			if(sType=="object"||sType=="Function"){
-				resource.$ns=sId;
+			if(resource){
+				Object.namespace(sId,resource);
+				//添加命名空间元数据
+				var sType=typeof resource;
+				if(sType=="object"||sType=="function"){
+					resource.$ns=sId;
+				}
+			}else{
+				$D.error(_LOADER_PRE+'factory no return: '+sId);
 			}
 		});
 	}
@@ -1781,8 +1797,10 @@ function(Debug,Object,Function,$H){
     	var bNeedContext=true;
     	for(var i=0,nLen=aIds.length;i<nLen;i++){
     		var sId=aIds[i];
-    		var oExisted=_fChkExisted(sId);
-    		if(!oExisted){
+			//读取实名
+			sId=$H.Object.alias(sId);
+    		var oResult=_fChkExisted(sId);
+    		if(oResult.notExist){
     			//未加载资源放进队列中
     			aRequestIds.push(sId);
     			if(bNeedContext){
@@ -1796,7 +1814,7 @@ function(Debug,Object,Function,$H){
 					Debug.info(_RESOURCE_NOT_FOUND+sId);
 		   		}
     		}else{
-    			aExisteds.push(oExisted);
+    			aExisteds.push(oResult.exist[0]);
     		}
     	}
     	
@@ -1994,7 +2012,7 @@ handy.add('Events',function($H){
 			return;
 		}
 		var oCache=me._eventCache;
-		var aArgs=$H.toArray(arguments,1);
+		var aArgs=$H.toArray(arguments);
 		var result,aCache;
 		//内部函数，执行事件队列
 		function _fExec(aCache){
@@ -2511,13 +2529,14 @@ handy.add('Cookie',function(){
  * 工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Util',function($H){
+handy.add('Util','B.Object',function(Object,$H){
 	
 	var Util={
 		isWindow         : fIsWindow,  //检查是否是window对象
 		getUuid          : fGetUuid,   //获取handy内部uuid
 		getHash          : fGetHash,   //获取hash，不包括“？”开头的query部分
 		setHash          : fSetHash,   //设置hash，不改变“？”开头的query部分
+		distance         : fDistance,  //计算两点距离(单位为米)
 		result           : fResult     //如果对象中的指定属性是函数, 则调用它, 否则, 返回它
 	}
 	
@@ -2562,6 +2581,52 @@ handy.add('Util',function($H){
 		top.location.hash=sHash;
 	}
 	/**
+	 * 计算两点距离(单位为米)
+	 * @param {Object|Array}oCoord1 参数坐标1
+	 * 				Object类型{
+	 * 					{number}latitude:纬度,
+	 * 					{number}longtitude:经度
+	 * 				}
+	 * 				Array类型[{number}latitude,{number}longtitude]
+	 * @param {Object|Array}oCoord2 参数坐标2
+	 * @param {boolean=}bFormat 仅当true进行格式化：小于1000米的单位是m(整数)，
+	 * 					大于1000米的单位是km(取一位小数)，如：32000->3.2km
+	 * @return {number} 返回两点间的距离
+	 */
+	function fDistance(oCoord1,oCoord2,bFormat){
+		/** 
+         * 求某个经纬度的值的角度值 
+         * @param {Object} degree 
+         */  
+        function _fRad(nDegree){  
+            return nDegree*Math.PI/180;  
+        }
+        var EARTH_RADIUS = 6378.137,nLat1,nLng1,nLat2,nLng2;
+        if(Object.isArray(oCoord1)){
+        	nLat1=oCoord1[0];
+	        nLng1=oCoord1[1];
+	        nLat2=oCoord2[0];
+	        nLng2=oCoord2[1];
+        }else{
+	        nLat1=oCoord1.latitude;
+	        nLng1=oCoord1.longtitude;
+	        nLat2=oCoord2.latitude;
+	        nLng2=oCoord2.longtitude;
+        }
+        var nRadLat1 = _fRad(nLat1);
+	    var nRadLat2 = _fRad(nLat2);
+	    var nRadLatDif = nRadLat1 - nRadLat2;
+	    var nRadLngDif = _fRad(nLng1) - _fRad(nLng2);
+	    var nDistance = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(nRadLatDif/2),2) +
+	     	Math.cos(nRadLat1)*Math.cos(nRadLat2)*Math.pow(Math.sin(nRadLngDif/2),2)));
+	    nDistance = nDistance * EARTH_RADIUS;
+	    nDistance = Math.round(nDistance * 10000);
+	    if(bFormat){
+	    	nDistance=nDistance>1000?(nDistance/1000).toFixed(1)+'km':nDistance+'m';
+	    }
+	    return nDistance;
+	}
+	/**
 	 * 如果对象中的指定属性是函数, 则调用它, 否则, 返回它
 	 * @method result
 	 * @param {Object}oObj 参数对象
@@ -2570,7 +2635,7 @@ handy.add('Util',function($H){
 	 */
 	function fResult(oObj,sProp){
 		var value=oObj[sProp];
-		if($H.Object.isFunction(value)){
+		if(Object.isFunction(value)){
 			return value();
 		}else{
 			return value;

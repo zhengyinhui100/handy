@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-25 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-26 | zhengyinhui100@gmail.com */
 /**
  * 抽象事件类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -33,7 +33,7 @@ function(){
 		var me=this;
 		var aArgs=$H.toArray(arguments,3);
 		return me._parseEvents(name,function(aParams){
-			aParams.unshilft(oTarget);
+			aParams.unshift(oTarget);
 			me[sMethod].apply(me,aParams.concat(aArgs));
 		});
 	}
@@ -288,7 +288,6 @@ $Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
 
 	var ViewManager = $H.createClass();
 
-	// 静态方法
 	$H.inherit(ViewManager,AbstractManager,{
 		type          : 'view',           //管理类型
 		initialize    : fInitialize,      //初始化
@@ -306,12 +305,12 @@ $Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
 	function fInitialize(){
 		var me=this;
 		//监听afterRender自定义事件，调用相关视图的afterRender方法
-		$H.on("afterRender",function(oEl){
+		$H.on("afterRender",function(sEvt,oEl){
 			//调用包含的视图的afterRender方法
 			me.afterRender(oEl);
 		})
 		//监听removeEl自定义事件，jQuery的remove方法被拦截(base/adapt.js)，执行时先触发此事件
-		$H.on('removeEl',function(oEl){
+		$H.on('removeEl',function(sEvt,oEl){
 			//销毁包含的视图
 			me.destroy(oEl);
 		})
@@ -361,7 +360,7 @@ function(ViewManager,AbstractEvents,Template){
 	var _oClsReg=/(class=")/;
 	
 	//自定义事件
-	var View=AbstractEvents.extend({
+	var View=AbstractEvents.derive({
 		
 		xtype               : 'View',            //类型
 		_placeholder        : '<script id="" type="text/x-placeholder"></script>',        //占位符标签
@@ -379,7 +378,7 @@ function(ViewManager,AbstractEvents,Template){
 //		notListen           : false,             //不自动初始化监听器
 		listeners           : [],                //事件配置列表，初始参数可以是对象也可以是对象数组
 		items               : [],                //子视图配置，初始参数可以是对象也可以是对象数组
-//		lazy                : false,             //懒加载，初始化时只设置占位标签，只在调用show方法时进行实际初始化
+//		lazy                : false,             //保留属性：懒加载，初始化时只设置占位标签，只在调用show方法时进行实际初始化
 		
 		
 		//属性
@@ -421,7 +420,7 @@ function(ViewManager,AbstractEvents,Template){
 		
 		//初始化相关
 		initialize          : fInitialize,       //初始化
-		lazyInit            : fLazyInit,         //懒加载，初始化时只设置占位标签，以后再进行真正的初始化
+//		lazyInit            : fLazyInit,         //保留方法：懒加载，初始化时只设置占位标签，以后再进行真正的初始化
 		doConfig            : fDoConfig,         //初始化配置
 		getEl               : fGetEl,            //获取容器节点
 		getId               : fGetId,            //获取id
@@ -557,14 +556,10 @@ function(ViewManager,AbstractEvents,Template){
 	 */
 	function fInitialize(oParams){
 		var me=this;
-		if(!me.manager){
-			me.manager=me.constructor.manager||$H.getSingleton(ViewManager);
-		}
-		//懒初始化，只在调用show时才开始真正初始化
-		if(me.lazy){
-			me.lazyInit();
+		if(me.inited){
 			return;
 		}
+		me.manager=me.constructor.manager||$H.getSingleton(ViewManager);
 		
 		//初始化配置
 		me.doConfig(oParams);
@@ -577,15 +572,6 @@ function(ViewManager,AbstractEvents,Template){
 		me.inited=true;
 	}
 	/**
-	 * 懒加载，初始化时只设置占位标签，以后再进行真正的初始化
-	 */
-	function fLazyInit(){
-		var me=this;
-		var sId=me.getId();
-		me.renderTo;
-		me.renderBy;
-	}
-	/**
 	 * 初始化配置
 	 * @method doConfig
 	 * @param {Object}oParams 初始化参数
@@ -595,7 +581,6 @@ function(ViewManager,AbstractEvents,Template){
 		//复制保存初始参数
 		var oParams=me.initParam=$H.clone(oParams||{});
 		
-		//只覆盖基本类型的属性
 		$H.extend(me,oParams,{notCover:function(p,val){
 			var value=me[p];
 			//默认事件，可通过参数属性直接添加
@@ -618,6 +603,11 @@ function(ViewManager,AbstractEvents,Template){
 				return true;
 			}else if(p=='items'){
 				me.add(val);
+				return true;
+			}else if(p=='xtype'){
+				if(me[p]=='View'){
+					me[p]=typeof val=='string'?val:val.$ns.replace(/\./g,'_');
+				}
 				return true;
 			}
 		}});
@@ -874,29 +864,51 @@ function(ViewManager,AbstractEvents,Template){
 	/**
 	 * 读取内容
 	 * @param {boolean=}bHtml 仅当false表示获取子组件列表，其它表示获取html内容
+	 * @param {View|string|number=}obj 指定视图对象，或选择器或索引
 	 * @return {string|Array.<Component>} 返回内容
 	 */
-	function fGetContent(bHtml){
+	function fGetContent(bHtml,obj){
 		var me=this;
-		var aChildren=me.children;
+		if(obj){
+			if(!obj instanceof View){
+				obj=me.find(obj);
+				if($H.isArray(obj)){
+					obj=obj[0];
+				}
+			}
+		}else{
+			obj=me;
+		}
 		if(bHtml==false){
+			var aChildren=obj.children;
 			return aChildren;
 		}else{
-			return me.getEl().html();
+			return obj.getEl().html();
 		}
 	}
 	/**
 	 * 设置内容
 	 * @param {string|Component|Array.<Component>}content 内容，html字符串或组件或组件数组
+	 * @param {View|string|number=}obj 指定视图对象，或选择器或索引
+	 * @retun {View} 如果只添加一个组件(或配置)，则返回该组件
 	 */
-	function fSetContent(content){
+	function fSetContent(content,obj){
 		var me=this;
+		if(obj){
+			if(!obj instanceof View){
+				obj=me.find(obj);
+				if($H.isArray(obj)){
+					obj=obj[0];
+				}
+			}
+			return obj.setContent(content);
+		}
 		var oEl=me.getEl();
-		oEl.remove();
+		oEl.contents().remove();
 		if(typeof content=='string'){
 			oEl.html(content);
 		}else{
-			me.add(content);
+			return me.add(content);
 		}
 	}
 	/**
@@ -1480,7 +1492,7 @@ $Define('CM.Model',
 'CM.AbstractEvents'],
 function(AbstractDao,AbstractEvents){
 	
-	var Model=AbstractEvents.extend({
+	var Model=AbstractEvents.derive({
 //		_changing             : false,               //是否正在改变
 		_pending              : false,               //
 //		_previousAttributes   : {},                  //较早的值
@@ -1494,7 +1506,7 @@ function(AbstractDao,AbstractEvents){
    		_validate             : _fValidate,          //执行校验，如果通过校验返回true，否则，触发"invalid"事件
 		
 		initialize            : fInitialize,         //初始化
-		toJson                : fToJSON,             //返回对象数据副本
+		toJSON                : fToJSON,             //返回对象数据副本
 		sync                  : fSync,               //同步数据，可以通过重写进行自定义
    		get                   : fGet,                //获取指定属性值
    		escape                : fEscape,             //获取html编码过的属性值 
@@ -1967,7 +1979,7 @@ $Define('CM.Collection',
 'CM.Model'],
 function(AbstractDao,AbstractEvents,Model){
 	
-	var Collection=AbstractEvents.extend({
+	var Collection=AbstractEvents.derive({
 		
 //		model                  : Model,               //子对象模型类
 //		models                 : [],                  //模型列表
@@ -2128,7 +2140,8 @@ function(AbstractDao,AbstractEvents,Model){
 	 * @return {Array} 模型数据数组
 	 */
     function fToJSON(oOptions) {
-        return $H.Collection.map(this,function(oModel){
+    	var me=this;
+        return $H.Collection.map(me.models,function(oModel){
         	return oModel.toJSON(oOptions); 
         });
     }
@@ -2203,7 +2216,7 @@ function(AbstractDao,AbstractEvents,Model){
 	 */
     function fSet(models, oOptions) {
     	var me=this;
-    	oOptions = $H.Util.extend(oOptions, {
+    	oOptions = $H.extend(oOptions, {
     		add: true,
     		remove: true,
     		merge: true
@@ -2541,7 +2554,7 @@ function(AbstractDao,AbstractEvents,Model){
      * @param {Object}oOptions
      */
     function fParse(resp, oOptions) {
-        return resp;
+        return resp.data;
     }
 	/**
 	 * 克隆

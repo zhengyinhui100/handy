@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-25 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-26 | zhengyinhui100@gmail.com */
 /**
  * 组件管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -10,7 +10,7 @@ $Define("C.ComponentManager",
 'CM.ViewManager'],
 function(AbstractManager,ViewManager) {
 
-	var ComponentManager = AbstractManager.extend({
+	var ComponentManager = AbstractManager.derive({
 		type          : 'component',      //管理类型
 		initialize    : fInitialize       //初始化
 	});
@@ -1247,6 +1247,8 @@ function(AC,Panel){
 	TabItem.extend({
 		//初始配置
 //		title           : ''|{},        //顶部按钮，可以字符串，也可以是Button的配置项
+//		content         : null,         //标签内容，可以是html字符串，也可以是组件配置项
+//		activeType      : '',           //激活样式类型，
 		defItem         : {             //默认子组件是Button
 			xtype       : 'Button',
 			xrole       : 'title',
@@ -1256,12 +1258,28 @@ function(AC,Panel){
 			shadow      : false
 		},
 		extCls          : 'js-item',
-		tmpl            :['<div><%=this.findHtml("$>[xrole=\'title\']")%></div>'],
-//		content         : null,         //标签内容，可以是html字符串，也可以是组件配置项
+		
+		//属性
+//		titleCmp        : null,         //标题组件
+//		content         : null,         //内容组件
+		tmpl            : ['<div><%=this.findHtml("$>[xrole=\'title\']")%></div>'],
+		initialize      : fInitialize,  //初始化
 		doConfig        : fDoConfig,    //初始化配置
 		parseItem       : fParseItem,   //分析处理子组件
-		select          : fSelect       //处理子组件配置
+		select          : fSelect,      //处理子组件配置
+		getContent      : fGetContent,  //获取内容
+		setContent      : fSetContent   //设置内容
 	});
+	/**
+	 * 初始化
+	 * @param {Object}oSettings
+	 */
+	function fInitialize(oSettings){
+		var me=this;
+		me.callSuper();
+		me.titleCmp=me.find('$>[xrole="title"]')[0];
+		me.contentCmp=me.find('$>[xrole="content"]')[0];
+	}
 	/**
 	 * 初始化配置
 	 * @param {Object}oSettings
@@ -1312,8 +1330,8 @@ function(AC,Panel){
 	 */
 	function fSelect(bSelect){
 		var me=this;
-		var oTitle=me.find('$>[xrole="title"]')[0];
-		var oContent=me.find('$>[xrole="content"]')[0];
+		var oTitle=me.titleCmp;
+		var oContent=me.contentCmp;
 		if(bSelect==false){
 			oTitle.unactive();
 			oContent&&oContent.hide();
@@ -1321,6 +1339,31 @@ function(AC,Panel){
 			oTitle.active();
 			oContent&&oContent.show();
 		}
+	}
+	/**
+	 * 读取内容
+	 * @param {boolean=}bHtml 仅当false表示获取子组件列表，其它表示获取html内容
+	 * @param {View|string|number=}obj 指定视图对象，或选择器或索引
+	 * @return {string|Array.<Component>} 返回内容
+	 */
+	function fGetContent(bHtml,obj){
+		var me=this;
+		if(!obj){
+			obj=me.contentCmp;
+		}
+		return me.callSuper([bHtml,obj]);
+	}
+	/**
+	 * 设置内容
+	 * @param {string|Component|Array.<Component>}content 内容，html字符串或组件或组件数组
+	 * @param {View|string|number=}obj 指定视图对象，或选择器或索引
+	 */
+	function fSetContent(content,obj){
+		var me=this;
+		if(!obj){
+			obj=me.contentCmp;
+		}
+		return me.callSuper([content,obj]);
 	}
 	
 	return TabItem;
@@ -1341,7 +1384,6 @@ function(AC,TabItem,ControlGroup){
 	
 	Tab.extend({
 		//初始配置
-//		hasContent      : false,        //是否有内容框
 //		activeType      : '',           //激活样式类型，
 //		theme           : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
 		defItem         : {             //默认子组件是TabItem
@@ -1371,11 +1413,23 @@ function(AC,TabItem,ControlGroup){
 			'</div>'
 		],
 		
+		doConfig        : fDoConfig,           //初始化配置
 		layout          : fLayout,             //布局
 //		add             : fAdd,                //添加子组件
 		setTabContent   : fSetTabContent       //设置标签页内容
 	});
-	
+	/**
+	 * 初始化配置
+	 * @param {Object}oSettings
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		me.callSuper();
+		//默认选中样式
+		if(me.activeType){
+			me.defItem.activeType=me.activeType;
+		}
+	}
 	/**
 	 * 布局
 	 */
@@ -1661,13 +1715,13 @@ function(AC,Popup){
 			if(!me.noCancel){
 				//取消按钮
 				aActions.push({
-					xtype:'Button',
-					radius:null,
-					isActive:me.activeBtn==1,
-					text:me.cancelTxt,
-					click:function(){
-						if((me.cancelCall&&me.cancelCall())!=false){
-							me.hide();
+					title:{
+						isActive:me.activeBtn==1,
+						text:me.cancelTxt,
+						click:function(){
+							if((me.cancelCall&&me.cancelCall())!=false){
+								me.hide();
+							}
 						}
 					}
 				});
@@ -1675,13 +1729,13 @@ function(AC,Popup){
 			if(!me.noOk){
 				//确定按钮
 				aActions.push({
-					xtype:'Button',
-					text:me.okTxt,
-					isActive:me.activeBtn==2,
-					radius:null,
-					click:function(){
-						if((me.okCall&&me.okCall())!=false){
-							me.hide();
+					title:{
+						text:me.okTxt,
+						isActive:me.activeBtn==2,
+						click:function(){
+							if((me.okCall&&me.okCall())!=false){
+								me.hide();
+							}
 						}
 					}
 				});

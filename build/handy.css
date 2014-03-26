@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-25 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-26 | zhengyinhui100@gmail.com */
 html,
 body,
 div,
@@ -1994,6 +1994,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-list .hui-item-content {
   float: left;
+  width: 100%;
+  padding-right: 40px;
 }
 .hui-list .hui-item-title {
   overflow: hidden;
