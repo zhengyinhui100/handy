@@ -23,7 +23,7 @@ function(AbstractDao,AbstractEvents){
    		_validate             : _fValidate,          //执行校验，如果通过校验返回true，否则，触发"invalid"事件
 		
 		initialize            : fInitialize,         //初始化
-		toJson                : fToJSON,             //返回对象数据副本
+		toJSON                : fToJSON,             //返回对象数据副本
 		sync                  : fSync,               //同步数据，可以通过重写进行自定义
    		get                   : fGet,                //获取指定属性值
    		escape                : fEscape,             //获取html编码过的属性值 

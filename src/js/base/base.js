@@ -32,7 +32,7 @@
 			aRequires=null;
 		}
 		//TODO 由于Loader可能还未定义，这里特殊处理，以后考虑将Loader单独抽出来
-		if(!aRequires||!handy.Loader){
+		if(true||!aRequires||!handy.Loader){
 			if(!handy.base){
 				handy.base={};
 			}

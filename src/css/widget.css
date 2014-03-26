@@ -965,6 +965,8 @@
 }
 .hui-list .hui-item-content {
   float: left;
+  width: 100%;
+  padding-right: 40px;
 }
 .hui-list .hui-item-title {
   overflow: hidden;

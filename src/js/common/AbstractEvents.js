@@ -32,7 +32,7 @@ function(){
 		var me=this;
 		var aArgs=$H.toArray(arguments,3);
 		return me._parseEvents(name,function(aParams){
-			aParams.unshilft(oTarget);
+			aParams.unshift(oTarget);
 			me[sMethod].apply(me,aParams.concat(aArgs));
 		});
 	}

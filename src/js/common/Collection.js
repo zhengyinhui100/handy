@@ -171,7 +171,8 @@ function(AbstractDao,AbstractEvents,Model){
 	 * @return {Array} 模型数据数组
 	 */
     function fToJSON(oOptions) {
-        return $H.Collection.map(this,function(oModel){
+    	var me=this;
+        return $H.Collection.map(me.models,function(oModel){
         	return oModel.toJSON(oOptions); 
         });
     }
@@ -584,7 +585,7 @@ function(AbstractDao,AbstractEvents,Model){
      * @param {Object}oOptions
      */
     function fParse(resp, oOptions) {
-        return resp;
+        return resp.data;
     }
 	/**
 	 * 克隆

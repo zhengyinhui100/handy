@@ -46,7 +46,7 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
          */
         cClass.derive=function(oProtoExtend,oStaticExtend,oExtendOptions){
         	var cChild=Class.createClass();
-        	Class.inherit(cChild,cClass,oProtoExtend,oStaticExtend,oExtendOptions);
+        	Class.inherit(cChild,this,oProtoExtend,oStaticExtend,oExtendOptions);
         	return cChild;
         }
         /**

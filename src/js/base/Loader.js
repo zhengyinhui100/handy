@@ -393,7 +393,7 @@ function(Debug,Object,Function,$H){
 				Object.namespace(sId,resource);
 				//添加命名空间元数据
 				var sType=typeof resource;
-				if(sType=="object"||sType=="Function"){
+				if(sType=="object"||sType=="function"){
 					resource.$ns=sId;
 				}
 			}else{
