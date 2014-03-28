@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-26 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-29 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -14,6 +14,7 @@
 	
 	
 	handy.version    = '1.0.0';    //版本号
+	handy.isDebug    = typeof gEnv=='undefined'?false:gEnv=='dev';     //是否是调试状态
 	handy.expando    = "handy" + ( handy.version + Math.random() ).replace( /\D/g, "" );    //自定义属性名
 	handy.add        = fAdd;            //添加子模块
 	handy.noConflict = fNoConflict;     //处理命名冲突
@@ -54,7 +55,7 @@
 			if('Browser,Class,Collection,Cookie,Events,Function,Json,Object,String,Template,Util'.indexOf(sName)>=0){
 				for(var key in oModule){
 					//!Function[key]专为bind方法
-					if(typeof handy[key]!="undefined"&&('console' in window)&&!Function[key]){
+					if(handy.isDebug&&typeof handy[key]!="undefined"&&('console' in window)&&!Function[key]){
 						console.log(handy[key]);
 						console.log(sName+"命名冲突:"+key);
 					}
@@ -332,6 +333,10 @@ handy.add('Object',function($H){
 		mix                 : fMix,             //自定义的继承方式，可以继承object和prototype，prototype方式继承时，非原型链方式继承。
 		isFunction			: fIsFunction,	    //判断对象是否是函数
 		isArray				: fIsArray, 		//判断对象是否是数组
+		isObject            : fIsObject,        //是否是对象
+		isNumber            : fIsNumber,        //是否是数字
+		isString            : fIsString,        //是否是字符串
+		isUndefined         : fIsUndefined,     //是否未定义
 		isClass             : fIsClass,         //判断对象是否是类
 		equals				: fEquals, 		    //对象对比，对比每一个值是否相等
 		clone				: fClone,			//对象复制
@@ -342,6 +347,7 @@ handy.add('Object',function($H){
 		count				: fCount,			//计算对象长度
 		removeUndefined     : fRemoveUndefined, //移除undefined的元素或属性
 		toArray				: fToArray(),       //将类数组对象转换为数组，比如arguments, nodelist
+		fromArray           : fFromArray,       //将元素形如{name:n,value:v}的数组转换为对象
 		getSingleton        : fGetSingleton,    //获取单例
 		generateMethod      : fGenerateMethod   //归纳生成类方法
 	}
@@ -529,6 +535,38 @@ handy.add('Object',function($H){
     */
     function fIsArray(obj) {
         return window.Object.prototype.toString.call(obj) === "[object Array]";
+    }
+    /**
+     * 是否是对象
+     * @param {*}obj 参数对象
+     * @return {boolean} true表示是对象类型
+     */
+    function fIsObject(obj){
+    	return typeof obj=='object'&&!Object.isArray(obj);
+    }
+    /**
+     * 是否是数字
+     * @param {*}obj 参数对象
+     * @return {boolean} true表示是数字
+     */
+    function fIsNumber(obj){
+    	return typeof obj=='number';
+    }
+    /**
+     * 是否是字符串
+     * @param {*}obj 参数对象
+     * @return {boolean} true表示是字符串
+     */
+    function fIsString(obj){
+    	return typeof obj=='string';
+    }
+    /**
+     * 是否未定义
+     * @param {*}obj 参数对象
+     * @return {boolean} true表示未定义
+     */
+    function fIsUndefined(obj){
+    	return typeof obj=='undefined';
     }
     /**
      * 判断对象是否是类
@@ -819,6 +857,18 @@ handy.add('Object',function($H){
     	}
     }
     /**
+     * 将元素形如{name:n,value:v}的数组转换为对象
+     * @param {Array}aParam 参数数组
+     */
+    function fFromArray(aParam){
+    	var oResult={};
+    	for(var i=0,len=aParam.length;i<len;i++){
+    		var oItem=aParam[i];
+    		oResult[oItem.name]=oItem.value;
+    	}
+    	return oResult;
+    }
+    /**
      * 获取单例
      * @param {string|Class}clazz 类或者命名空间
      * @return {Object} 返回单例对象
@@ -1028,7 +1078,7 @@ handy.add("Browser","handy.base.Object",function(Object,$H){
 handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser,$H){
 	
 	var Debug={
-		level	    : 0,            //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
+		level	    : $H.isDebug?0:5,  //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
 		LOG_LEVEL	: 1,            //日志级别
 		DEBUG_LEVEL : 2,            //调试级别
 		INFO_LEVEL  : 3,            //信息级别
@@ -1255,7 +1305,7 @@ handy.add('Function',function($H){
  */
 handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
 	
-	var Class={
+	var CL={
 		createClass         : fCreateClass,     //创建类
 		inherit				: fInherit  		//继承
 	}
@@ -1266,11 +1316,11 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
     * @return {Object} 返回新创建的类
     */
     function fCreateClass(sPath) {
-        //获得一个类定义，并且绑定一个类初始化方法
-        var cClass = function(){
+        //获得一个类定义，并且绑定一个类初始化方法，这里使用名字Class在控制台显得更友好
+        var Class = function(){
         	var me,fInitialize;
-        	//获得initialize引用的对象，如果不是通过new调用(比如:cClass())，就没有this.initialize
-        	if(this.constructor==cClass){
+        	//获得initialize引用的对象，如果不是通过new调用(比如:Class())，就没有this.initialize
+        	if(this.constructor==Class){
         		me = this;
         	}else{
         		me = arguments.callee;
@@ -1288,16 +1338,16 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
             	return fInitialize.apply(me, arguments);
             }
         };
-        cClass.$isClass=true;
+        Class.$isClass=true;
         /**
          * 便捷创建子类方法
          * @param {Object=} oProtoExtend 需要扩展的prototype属性
     	 * @param {Object=} oStaticExtend 需要扩展的静态属性
    	     * @param {object=} oExtendOptions 继承父类静态方法时，extend方法的选项
          */
-        cClass.derive=function(oProtoExtend,oStaticExtend,oExtendOptions){
-        	var cChild=Class.createClass();
-        	Class.inherit(cChild,this,oProtoExtend,oStaticExtend,oExtendOptions);
+        Class.derive=function(oProtoExtend,oStaticExtend,oExtendOptions){
+        	var cChild=CL.createClass();
+        	CL.inherit(cChild,this,oProtoExtend,oStaticExtend,oExtendOptions);
         	return cChild;
         }
         /**
@@ -1307,7 +1357,7 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
          * @param {Array}aArgs 参数数组，默认为调用它的函数的参数
          * @return {*} 返回对应方法执行结果
          */
-        cClass.prototype.callSuper=function(oSuper,aArgs){
+        Class.prototype.callSuper=function(oSuper,aArgs){
         	var me=this;
         	if(oSuper&&!oSuper.$isClass&&oSuper.length!=undefined){
         		aArgs=oSuper;
@@ -1326,9 +1376,9 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
         	}
         };
         if(sPath){
-        	this.namespace(sPath,cClass);
+        	this.namespace(sPath,Class);
         }
-        return cClass;
+        return Class;
     }
     /**
     * 继承
@@ -1375,7 +1425,7 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
         }
     }
 	
-	return Class;
+	return CL;
 	
 });/**
  * 资源加载类
@@ -1839,9 +1889,12 @@ handy.add('Events',function($H){
 	
 	var Events={
 		_eventCache        : {},                   //自定义事件池
+		_execEvtCache      : [],                   //待执行事件队列
 		_parseEvents       : _fParseEvents,        //分析事件对象
 		_parseCustomEvents : _fParseCustomEvents,  //处理对象类型或者空格相隔的多事件
 		_delegateHandler   : _fDelegateHandler,    //统一代理回调函数
+		_pushEvent         : _fPushEvent,          //将需要执行的事件放入执行队列
+		_execEvents        : _fExecEvents,         //执行事件队列
 		on                 : fOn,                  //添加事件
 		once               : fOnce,                //监听一次
 		off                : fOff,                 //移除事件
@@ -1904,6 +1957,36 @@ handy.add('Events',function($H){
 				return fHandler.apply(context||me,arguments);
 			}
 		};
+	}
+	/**
+	 * 将需要执行的事件放入执行队列
+	 * @param {Object}oEvent 参数事件对象
+	 */
+	function _fPushEvent(oEvent){
+		var me=this;
+		me._execEvtCache.push(oEvent);
+	}
+	/**
+	 * 执行事件队列，统一执行周期中，同名的事件会被覆盖，只有最后一个事件有效
+	 * @return {?} 只是返回最后一个函数的结果，返回结果在某些情况(一般是只有一个监听函数时)可以作为通知器使用
+	 */
+	function _fExecEvents(){
+		var me=this,result;
+		$H.each(me._execEvtCache,function(i,oEvent){
+			var fDelegation=oEvent.delegation;
+			//控制执行次数
+			if(typeof oEvent.times=='number'){
+				if(oEvent.times>1){
+					oEvent.times--;
+				}else{
+					me.off(oEvent.name,oEvent.handler);
+				}
+			}
+			//只是返回最后一个函数的结果，返回结果在某些情况可以作为通知器使用
+			result=fDelegation.apply(me,oEvent.args);
+		});
+		me._execEvtCache=[];
+		return result;
 	}
 	/**
 	 * 添加事件
@@ -2002,7 +2085,7 @@ handy.add('Events',function($H){
 	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}
 	 * 							事件名称支持命名空间(".name")，如：change.one
 	 * @param {*}data 传递参数
-	 * @return {*}只是返回最后一个函数的结果，复杂格式事件不返回
+	 * @return {?}只是返回最后一个函数的结果，返回结果在某些情况(一般是只有一个监听函数时)可以作为通知器使用
 	 */
 	function fTrigger(name,data){
 		var me=this;
@@ -2013,7 +2096,7 @@ handy.add('Events',function($H){
 		}
 		var oCache=me._eventCache;
 		var aArgs=$H.toArray(arguments);
-		var result,aCache;
+		var aCache;
 		//内部函数，执行事件队列
 		function _fExec(aCache){
 			if(!aCache){
@@ -2021,17 +2104,11 @@ handy.add('Events',function($H){
 			}
 			for(var i=0,len=aCache.length;i<len;i++){
 				var oEvent=aCache[i];
-				var fDelegation=oEvent.delegation;
-				//控制执行次数
-				if(typeof oEvent.times=='number'){
-					if(oEvent.times>1){
-						oEvent.times--;
-					}else{
-						me.off(key,oEvent.handler);
-					}
-				}
-				//只是返回最后一个函数的结果
-				result=fDelegation.apply(null,aArgs);
+				oEvent.args=aArgs;
+				oEvent.name=name;
+				//这里立即执行，aCache可能会被改变（如update会删除并重新添加事件），所以先放入队列中
+				//另外，也考虑日后扩展事件队列，如优先级，去重等
+				me._pushEvent(oEvent);
 			}
 		}
 		//带命名空间的事件只需执行自身事件
@@ -2052,7 +2129,7 @@ handy.add('Events',function($H){
 		}
 		//all事件
 		_fExec(oCache['all']);
-		return result;
+		return me._execEvents();
 	}
 	/**
 	 * 挂起事件
@@ -2259,7 +2336,7 @@ handy.add("String",function(){
 		check			: fCheck,		    // 检查特殊字符串
 		len				: fLen,         	// 计算字符串打印长度,一个中文字符长度为2
 		left			: fLeft,			// 截断left
-		isNumber		: fIsNumber,        // 字符串是否是数字
+		isNumberStr		: fIsNumberStr,     // 字符串是否是数字
 		hasChn          : fHasChn,          // 字符是否包含中文
 		isChn           : fIsChn,           // 字符是否是中文
 		addParam		: fAddParam		    // 在url后面增加get参数
@@ -2401,11 +2478,11 @@ handy.add("String",function(){
 	};
 	/**
 	 * 判断是否数字
-	 * @method  isNumber
+	 * @method  isNumberStr
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return  {boolean} 返回是否数字   
 	 */
-	function fIsNumber(sStr){
+	function fIsNumberStr(sStr){
 		return (sStr.search(/^\d+$/g) == 0);
 	}
 	/**

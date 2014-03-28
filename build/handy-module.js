@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-26 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-29 | zhengyinhui100@gmail.com */
 /****************************************************************
 * Author:		郑银辉											*
 * Email:		zhengyinhui100@gmail.com						*
@@ -19,17 +19,26 @@ $Define("M.AbstractModule","CM.View",function (View) {
 //		isActived      : false,          //{boolean}模块是否是当前活跃的
 //		renderTo       : null,           //自定义模块容器，{jQuery}对象或选择器
 		                                 //模块初始化后以_container为准，获取需用getEl方法
-		useCache       : true,           //{boolean}是否使用cache
+//		notCache       : false,          //{boolean}是否不使用cache，默认使用,仅当配置成true时不使用
+//      clearCache     : false,          //仅清除一次当前的缓存，下次进入模块时执行清除并恢复原先缓存设置
 //		name           : null,           //{string}模块名
 //		chName         : null,           //{string}模块的中文名称
 		
 //		getData        : null,           //{function()}获取该模块的初始化数据
 //		clone          : null,           //{function()}克隆接口
-		cache          : function(){},   //显示模块缓存
-		init           : function(){},   //初始化函数, 在模块创建后调用（在所有模块动作之前）
-		reset          : function(){},   //重置函数, 在该模块里进入该模块时调用
-		exit           : function(){return true}   //离开该模块前调用, 返回true允许离开, 否则不允许离开
+		useCache       : $H.noop,        //判断是否使用模块缓存
+		cache          : $H.noop,        //显示模块缓存时调用
+		init           : $H.noop,        //初始化函数, 在模块创建后调用（在所有模块动作之前）
+		reset          : $H.noop,        //重置函数, 在该模块里进入该模块时调用
+		exit           : function(){return true},  //离开该模块前调用, 返回true允许离开, 否则不允许离开
+		cleanCache     : fCleanCache     //清除模块缓存
 	});
+	/**
+	 * 清除模块缓存
+	 */
+	function fCleanCache(){
+		this.clearCache=true;
+	}
 	
 	return AbstractModule;
 });/****************************************************************
@@ -108,7 +117,8 @@ function(HashChange){
 		 	aStates=me.states,
 		 	oCurState=aStates[sCurKey];
 		//跟当前状态一致，不需要调用stateChange，可能是saveState触发的hashchange
-		if(sKey==sCurKey&&$H.equals(oHashParam.param,oCurState.param)){
+		//&&$H.equals(oHashParam.param,oCurState.param)
+		if(sKey==sCurKey){
 			return false;
 		}
 		var oState=aStates[sKey];
@@ -260,6 +270,8 @@ function(History,AbstractManager){
 		
 		initialize         : fInitialize,      //初始化模块管理
 		go                 : fGo,              //进入模块
+		update             : fUpdate,          //更新模块
+		clearCache         : fClearCache,      //清除缓存模块
 		back               : fBack             //后退一步
 	});
 	
@@ -392,7 +404,9 @@ function(History,AbstractManager){
 		//如果模块有缓存
 		if(oMod){
 			//标记使用缓存，要调用cache方法
-			if(oMod.useCache){
+			if(oMod.notCache!=true&&oMod.clearCache!=true&&oMod.useCache(param)!=false){
+				//恢复设置
+				oMod.clearCache==false;
 				me._showMod(oMod);
 				oMod.cache(param);
 			}else if(!oMod.waiting){
@@ -417,6 +431,25 @@ function(History,AbstractManager){
 			});
 		}
 		return true;
+	}
+	/**
+	 * 更新模块
+	 * @param {Module}oModule 模块对象
+	 * @param {Object}oParams 参数
+	 */
+	function fUpdate(oModule,oParams){
+		var oNew=oModule.update(oParams);
+		if(oNew){
+			this.modules[oModule.name]=oNew;
+			$H.trigger('afterRender',oNew.getEl());
+		}
+	}
+	/**
+	 * 清除缓存模块
+	 * @param {Module}oModule 参数模块
+	 */
+	function fClearCache(oModule){
+		oModule.notCache=true;
 	}
 	/**
 	 * 后退一步

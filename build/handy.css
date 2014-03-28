@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-26 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-29 | zhengyinhui100@gmail.com */
 html,
 body,
 div,
@@ -1698,6 +1698,11 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   zoom: 1;
   *display: inline;
   vertical-align: middle;
+  overflow: hidden;
+  white-space: nowrap;
+  -o-text-overflow: ellipsis;
+  -ms-text-overflow: ellipsis;
+  text-overflow: ellipsis;
 }
 .hui-form .hui-form-vt {
   vertical-align: top;
@@ -1709,6 +1714,31 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   display: inline-block;
   zoom: 1;
   *display: inline;
+  white-space: pre;
+  /* CSS 2.0 */
+
+  white-space: pre-wrap;
+  /* CSS 2.1 */
+
+  white-space: pre-line;
+  /* CSS 3.0 */
+
+  white-space: -pre-wrap;
+  /* Opera 4-6 */
+
+  white-space: -o-pre-wrap;
+  /* Opera 7 */
+
+  white-space: -moz-pre-wrap;
+  /* Mozilla */
+
+  white-space: -hp-pre-wrap;
+  /* HP Printers */
+
+  word-wrap: break-word;
+  /* IE 5+ */
+  overflow: hidden;
+  word-break: break-all;
 }
 .hui-form .hui-form-action {
   padding-left: 22%;
@@ -1975,6 +2005,31 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-dialog .hui-content-msg {
   margin: 10px 0 10px 0;
+  white-space: pre;
+  /* CSS 2.0 */
+
+  white-space: pre-wrap;
+  /* CSS 2.1 */
+
+  white-space: pre-line;
+  /* CSS 3.0 */
+
+  white-space: -pre-wrap;
+  /* Opera 4-6 */
+
+  white-space: -o-pre-wrap;
+  /* Opera 7 */
+
+  white-space: -moz-pre-wrap;
+  /* Mozilla */
+
+  white-space: -hp-pre-wrap;
+  /* HP Printers */
+
+  word-wrap: break-word;
+  /* IE 5+ */
+  overflow: hidden;
+  word-break: break-all;
 }
 .hui-list .hui-list-item {
   position: relative;

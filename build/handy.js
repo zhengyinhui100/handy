@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-26 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-29 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -14,6 +14,7 @@
 	
 	
 	handy.version    = '1.0.0';    //版本号
+	handy.isDebug    = typeof gEnv=='undefined'?false:gEnv=='dev';     //是否是调试状态
 	handy.expando    = "handy" + ( handy.version + Math.random() ).replace( /\D/g, "" );    //自定义属性名
 	handy.add        = fAdd;            //添加子模块
 	handy.noConflict = fNoConflict;     //处理命名冲突
@@ -54,7 +55,7 @@
 			if('Browser,Class,Collection,Cookie,Events,Function,Json,Object,String,Template,Util'.indexOf(sName)>=0){
 				for(var key in oModule){
 					//!Function[key]专为bind方法
-					if(typeof handy[key]!="undefined"&&('console' in window)&&!Function[key]){
+					if(handy.isDebug&&typeof handy[key]!="undefined"&&('console' in window)&&!Function[key]){
 						console.log(handy[key]);
 						console.log(sName+"命名冲突:"+key);
 					}
@@ -332,6 +333,10 @@ handy.add('Object',function($H){
 		mix                 : fMix,             //自定义的继承方式，可以继承object和prototype，prototype方式继承时，非原型链方式继承。
 		isFunction			: fIsFunction,	    //判断对象是否是函数
 		isArray				: fIsArray, 		//判断对象是否是数组
+		isObject            : fIsObject,        //是否是对象
+		isNumber            : fIsNumber,        //是否是数字
+		isString            : fIsString,        //是否是字符串
+		isUndefined         : fIsUndefined,     //是否未定义
 		isClass             : fIsClass,         //判断对象是否是类
 		equals				: fEquals, 		    //对象对比，对比每一个值是否相等
 		clone				: fClone,			//对象复制
@@ -342,6 +347,7 @@ handy.add('Object',function($H){
 		count				: fCount,			//计算对象长度
 		removeUndefined     : fRemoveUndefined, //移除undefined的元素或属性
 		toArray				: fToArray(),       //将类数组对象转换为数组，比如arguments, nodelist
+		fromArray           : fFromArray,       //将元素形如{name:n,value:v}的数组转换为对象
 		getSingleton        : fGetSingleton,    //获取单例
 		generateMethod      : fGenerateMethod   //归纳生成类方法
 	}
@@ -529,6 +535,38 @@ handy.add('Object',function($H){
     */
     function fIsArray(obj) {
         return window.Object.prototype.toString.call(obj) === "[object Array]";
+    }
+    /**
+     * 是否是对象
+     * @param {*}obj 参数对象
+     * @return {boolean} true表示是对象类型
+     */
+    function fIsObject(obj){
+    	return typeof obj=='object'&&!Object.isArray(obj);
+    }
+    /**
+     * 是否是数字
+     * @param {*}obj 参数对象
+     * @return {boolean} true表示是数字
+     */
+    function fIsNumber(obj){
+    	return typeof obj=='number';
+    }
+    /**
+     * 是否是字符串
+     * @param {*}obj 参数对象
+     * @return {boolean} true表示是字符串
+     */
+    function fIsString(obj){
+    	return typeof obj=='string';
+    }
+    /**
+     * 是否未定义
+     * @param {*}obj 参数对象
+     * @return {boolean} true表示未定义
+     */
+    function fIsUndefined(obj){
+    	return typeof obj=='undefined';
     }
     /**
      * 判断对象是否是类
@@ -819,6 +857,18 @@ handy.add('Object',function($H){
     	}
     }
     /**
+     * 将元素形如{name:n,value:v}的数组转换为对象
+     * @param {Array}aParam 参数数组
+     */
+    function fFromArray(aParam){
+    	var oResult={};
+    	for(var i=0,len=aParam.length;i<len;i++){
+    		var oItem=aParam[i];
+    		oResult[oItem.name]=oItem.value;
+    	}
+    	return oResult;
+    }
+    /**
      * 获取单例
      * @param {string|Class}clazz 类或者命名空间
      * @return {Object} 返回单例对象
@@ -1028,7 +1078,7 @@ handy.add("Browser","handy.base.Object",function(Object,$H){
 handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser,$H){
 	
 	var Debug={
-		level	    : 0,            //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
+		level	    : $H.isDebug?0:5,  //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
 		LOG_LEVEL	: 1,            //日志级别
 		DEBUG_LEVEL : 2,            //调试级别
 		INFO_LEVEL  : 3,            //信息级别
@@ -1255,7 +1305,7 @@ handy.add('Function',function($H){
  */
 handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
 	
-	var Class={
+	var CL={
 		createClass         : fCreateClass,     //创建类
 		inherit				: fInherit  		//继承
 	}
@@ -1266,11 +1316,11 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
     * @return {Object} 返回新创建的类
     */
     function fCreateClass(sPath) {
-        //获得一个类定义，并且绑定一个类初始化方法
-        var cClass = function(){
+        //获得一个类定义，并且绑定一个类初始化方法，这里使用名字Class在控制台显得更友好
+        var Class = function(){
         	var me,fInitialize;
-        	//获得initialize引用的对象，如果不是通过new调用(比如:cClass())，就没有this.initialize
-        	if(this.constructor==cClass){
+        	//获得initialize引用的对象，如果不是通过new调用(比如:Class())，就没有this.initialize
+        	if(this.constructor==Class){
         		me = this;
         	}else{
         		me = arguments.callee;
@@ -1288,16 +1338,16 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
             	return fInitialize.apply(me, arguments);
             }
         };
-        cClass.$isClass=true;
+        Class.$isClass=true;
         /**
          * 便捷创建子类方法
          * @param {Object=} oProtoExtend 需要扩展的prototype属性
     	 * @param {Object=} oStaticExtend 需要扩展的静态属性
    	     * @param {object=} oExtendOptions 继承父类静态方法时，extend方法的选项
          */
-        cClass.derive=function(oProtoExtend,oStaticExtend,oExtendOptions){
-        	var cChild=Class.createClass();
-        	Class.inherit(cChild,this,oProtoExtend,oStaticExtend,oExtendOptions);
+        Class.derive=function(oProtoExtend,oStaticExtend,oExtendOptions){
+        	var cChild=CL.createClass();
+        	CL.inherit(cChild,this,oProtoExtend,oStaticExtend,oExtendOptions);
         	return cChild;
         }
         /**
@@ -1307,7 +1357,7 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
          * @param {Array}aArgs 参数数组，默认为调用它的函数的参数
          * @return {*} 返回对应方法执行结果
          */
-        cClass.prototype.callSuper=function(oSuper,aArgs){
+        Class.prototype.callSuper=function(oSuper,aArgs){
         	var me=this;
         	if(oSuper&&!oSuper.$isClass&&oSuper.length!=undefined){
         		aArgs=oSuper;
@@ -1326,9 +1376,9 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
         	}
         };
         if(sPath){
-        	this.namespace(sPath,cClass);
+        	this.namespace(sPath,Class);
         }
-        return cClass;
+        return Class;
     }
     /**
     * 继承
@@ -1375,7 +1425,7 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
         }
     }
 	
-	return Class;
+	return CL;
 	
 });/**
  * 资源加载类
@@ -1839,9 +1889,12 @@ handy.add('Events',function($H){
 	
 	var Events={
 		_eventCache        : {},                   //自定义事件池
+		_execEvtCache      : [],                   //待执行事件队列
 		_parseEvents       : _fParseEvents,        //分析事件对象
 		_parseCustomEvents : _fParseCustomEvents,  //处理对象类型或者空格相隔的多事件
 		_delegateHandler   : _fDelegateHandler,    //统一代理回调函数
+		_pushEvent         : _fPushEvent,          //将需要执行的事件放入执行队列
+		_execEvents        : _fExecEvents,         //执行事件队列
 		on                 : fOn,                  //添加事件
 		once               : fOnce,                //监听一次
 		off                : fOff,                 //移除事件
@@ -1904,6 +1957,36 @@ handy.add('Events',function($H){
 				return fHandler.apply(context||me,arguments);
 			}
 		};
+	}
+	/**
+	 * 将需要执行的事件放入执行队列
+	 * @param {Object}oEvent 参数事件对象
+	 */
+	function _fPushEvent(oEvent){
+		var me=this;
+		me._execEvtCache.push(oEvent);
+	}
+	/**
+	 * 执行事件队列，统一执行周期中，同名的事件会被覆盖，只有最后一个事件有效
+	 * @return {?} 只是返回最后一个函数的结果，返回结果在某些情况(一般是只有一个监听函数时)可以作为通知器使用
+	 */
+	function _fExecEvents(){
+		var me=this,result;
+		$H.each(me._execEvtCache,function(i,oEvent){
+			var fDelegation=oEvent.delegation;
+			//控制执行次数
+			if(typeof oEvent.times=='number'){
+				if(oEvent.times>1){
+					oEvent.times--;
+				}else{
+					me.off(oEvent.name,oEvent.handler);
+				}
+			}
+			//只是返回最后一个函数的结果，返回结果在某些情况可以作为通知器使用
+			result=fDelegation.apply(me,oEvent.args);
+		});
+		me._execEvtCache=[];
+		return result;
 	}
 	/**
 	 * 添加事件
@@ -2002,7 +2085,7 @@ handy.add('Events',function($H){
 	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}
 	 * 							事件名称支持命名空间(".name")，如：change.one
 	 * @param {*}data 传递参数
-	 * @return {*}只是返回最后一个函数的结果，复杂格式事件不返回
+	 * @return {?}只是返回最后一个函数的结果，返回结果在某些情况(一般是只有一个监听函数时)可以作为通知器使用
 	 */
 	function fTrigger(name,data){
 		var me=this;
@@ -2013,7 +2096,7 @@ handy.add('Events',function($H){
 		}
 		var oCache=me._eventCache;
 		var aArgs=$H.toArray(arguments);
-		var result,aCache;
+		var aCache;
 		//内部函数，执行事件队列
 		function _fExec(aCache){
 			if(!aCache){
@@ -2021,17 +2104,11 @@ handy.add('Events',function($H){
 			}
 			for(var i=0,len=aCache.length;i<len;i++){
 				var oEvent=aCache[i];
-				var fDelegation=oEvent.delegation;
-				//控制执行次数
-				if(typeof oEvent.times=='number'){
-					if(oEvent.times>1){
-						oEvent.times--;
-					}else{
-						me.off(key,oEvent.handler);
-					}
-				}
-				//只是返回最后一个函数的结果
-				result=fDelegation.apply(null,aArgs);
+				oEvent.args=aArgs;
+				oEvent.name=name;
+				//这里立即执行，aCache可能会被改变（如update会删除并重新添加事件），所以先放入队列中
+				//另外，也考虑日后扩展事件队列，如优先级，去重等
+				me._pushEvent(oEvent);
 			}
 		}
 		//带命名空间的事件只需执行自身事件
@@ -2052,7 +2129,7 @@ handy.add('Events',function($H){
 		}
 		//all事件
 		_fExec(oCache['all']);
-		return result;
+		return me._execEvents();
 	}
 	/**
 	 * 挂起事件
@@ -2259,7 +2336,7 @@ handy.add("String",function(){
 		check			: fCheck,		    // 检查特殊字符串
 		len				: fLen,         	// 计算字符串打印长度,一个中文字符长度为2
 		left			: fLeft,			// 截断left
-		isNumber		: fIsNumber,        // 字符串是否是数字
+		isNumberStr		: fIsNumberStr,     // 字符串是否是数字
 		hasChn          : fHasChn,          // 字符是否包含中文
 		isChn           : fIsChn,           // 字符是否是中文
 		addParam		: fAddParam		    // 在url后面增加get参数
@@ -2401,11 +2478,11 @@ handy.add("String",function(){
 	};
 	/**
 	 * 判断是否数字
-	 * @method  isNumber
+	 * @method  isNumberStr
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return  {boolean} 返回是否数字   
 	 */
-	function fIsNumber(sStr){
+	function fIsNumberStr(sStr){
 		return (sStr.search(/^\d+$/g) == 0);
 	}
 	/**
@@ -3718,6 +3795,7 @@ function(){
 			nTimes=context;
 			context=null;
 		}
+		context=context||me;
 		var fCall=me._delegateHandler(fHandler,context);
 		me._listenTo.push({
 			target:oTarget,
@@ -3725,7 +3803,7 @@ function(){
 			delegation:fCall,
 			handler:fHandler
 		});
-		oTarget.on(name,fCall,context||me,nTimes);
+		oTarget.on(name,fCall,context,nTimes);
 	}
 	/**
 	 * 移除对其它对象的监听
@@ -3740,14 +3818,12 @@ function(){
 		}
 		var aListenTo=me._listenTo;
 		var bAll=oTarget=='all';
-		var oListenTo;
-		for(var i=0,len=aListenTo.length;i<len;i++){
-			oListenTo=aListenTo[i];
+		$H.each(aListenTo,function(i,oListenTo){
 			if(bAll||(oListenTo.name==name&&oListenTo.handler==fHandler&&oListenTo.target==oTarget)){
-				oTarget.off(name,oListenTo.delegation);
+				oListenTo.target.off(oListenTo.name,oListenTo.delegation);
 				aListenTo.splice(i,1);
 			}
-		}
+		})
 	}
 	
 	return AbstractEvents;
@@ -3767,19 +3843,32 @@ function(LS){
 	var AbstractDao=$H.createClass();
 	
 	$H.extend(AbstractDao.prototype,{
-		ajax         : fAjax,        //ajax方法
-		beforeSend   : $H.noop,      //发送前处理
-		error        : $H.noop,      //错误处理
-		success      : $H.noop,      //成功处理
-		get          : fGet,         //获取数据
-		set          : fSet,         //设置数据
-		remove       : fRemove,      //删除数据
-		sync         : fSync         //同步数据
+		_ajaxMethodMap   : {
+			'create': 'POST',
+			'update': 'POST',
+			'patch':  'PATCH',
+			'delete': 'DELETE',
+			'read':   'GET'
+	    },
+	    _localMethodMap  : {
+	    	'create': 'setItem',
+			'update': 'setItem',
+			'patch':  'setItem',
+			'delete': 'removeItem',
+			'read':   'getItem'
+	    },
+		ajax             : fAjax,        //ajax方法
+		beforeSend       : $H.noop,      //发送前处理
+		error            : $H.noop,      //错误处理
+		success          : $H.noop,      //成功处理
+		get              : fGet,         //获取数据
+		set              : fSet,         //设置数据
+		remove           : fRemove,      //删除数据
+		sync             : fSync         //同步数据
 	});
 	
 	/**
 	 * ajax
-	 * @method ajax
 	 * @param {Object}oParams
 	 * 
 	 */
@@ -3807,25 +3896,42 @@ function(LS){
 	}
 	/**
 	 * 同步数据
+	 * @param {string}sMethod 操作方法(read/update/delete/create/patch）
+	 * @param {Model|Collection}oModel 参数模型或集合对象
 	 * @param {Object}oOptions 选项{
-	 * 		{string=}method:操作方法(get/set/remove)，默认是get,
-	 * 		{string=}type:存储类型(local/remote),默认是remote
-	 * 		{*=}data:数据，
-	 * 		{Object}param:参数
+	 * 		{string=}storeType:存储类型(local/remote),默认是remote
+	 * 		{string=}data:要同步的数据
+	 * 		{Object=}attrs:要同步的键值对
 	 * }
 	 * @return {*} 如果是get操作，返回指定的数据
 	 */
-	function fSync(oOptions){
+	function fSync(sMethod, oModel, oOptions){
 		var me=this;
 		oOptions=oOptions||{};
-		var sMethod=oOptions.method||'get';
-		var sType=oOptions.type||'remote';
-		var oParam=oOptions.param;
-		if(sType=='remote'){
+		var sToreType=oOptions.storeType||'remote';
+		//ajax请求参数
+		var oParam={type: 'POST'||me._ajaxMethodMap[sMethod], dataType: 'json'};
+		if(!oOptions.url){
+		    oParam.url =oModel.getUrl();
+		}
+	    if (oOptions.data == null && oModel && (sMethod === 'create' || sMethod === 'update' || sMethod === 'patch')) {
+	        //oParam.contentType = 'application/json';
+	        oParam.data = oOptions.attrs || oModel.toJSON(oOptions);
+	    }
+	    
+		if(sToreType=='remote'){
+			//服务端存储
+			if(sMethod=='update'){
+				sMethod='patch';
+			}
+			oParam.url+='/'+sMethod+'.do';
+			$H.extend(oParam,oOptions);
 			me.ajax(oParam);
 		}else{
-			LS[sType+'Item'](oParam);
+			//本地存储
+			LS[me._localMethodMap[sMethod]](oParam);
 		}
+		oModel.trigger('request', oModel, oOptions);
 	}
 	
 	return AbstractDao;
@@ -4246,7 +4352,7 @@ function(ViewManager,AbstractEvents,Template){
 	function fDoConfig(oParams){
 		var me=this;
 		//复制保存初始参数
-		var oParams=me.initParam=$H.clone(oParams||{});
+		var oParams=me.initParam=oParams||{};
 		
 		$H.extend(me,oParams,{notCover:function(p,val){
 			var value=me[p];
@@ -4273,7 +4379,7 @@ function(ViewManager,AbstractEvents,Template){
 				return true;
 			}else if(p=='xtype'){
 				if(me[p]=='View'){
-					me[p]=typeof val=='string'?val:val.$ns.replace(/\./g,'_');
+					me[p]=typeof val=='string'?val:val.$ns;
 				}
 				return true;
 			}
@@ -4585,8 +4691,8 @@ function(ViewManager,AbstractEvents,Template){
 	 * 			{string}name      : 事件名
 	 * 			{function(Object[,fireParam..])}handler : 监听函数，第一个参数为事件对象oListener，其后的参数为fire时传入的参数
 	 * 			{any=}data        : 数据
-	 * 			{jQuery=}el       : 绑定事件的节点，不传表示容器节点
-	 * 			{CM.AbstractEvents=}target : 监听对象(listenTo方法)，继承自AbstractEvents的实例对象
+	 * 			{jQuery|Function(this:this)=}el       : 绑定事件的节点，不传表示容器节点，传入函数(this是本视图对象)则使用函数返回值
+	 * 			{CM.AbstractEvents|Function=}target : 监听对象(listenTo方法)，继承自AbstractEvents的实例对象，传入函数(this是本视图对象)则使用函数返回值
 	 * 			{boolean=}custom  : 为true时是自定义事件
 	 * 			{number=}times    : 执行次数
 	 * 			{string=}selector : 选择器
@@ -4605,6 +4711,9 @@ function(ViewManager,AbstractEvents,Template){
 			oTarget=oEvent.target,
 			bIsCustom=oEvent.custom,
 			fHandler=oEvent.handler;
+		if($H.isFunction(oTarget)){
+			oTarget=oTarget.call(me);
+		}
 		if(oTarget||bIsCustom){
 			var aArgs=$H.removeUndefined([oTarget,sName,fHandler,context,nTimes]);
 			me[bIsCustom?'on':'listenTo'].apply(me,aArgs);
@@ -4617,6 +4726,9 @@ function(ViewManager,AbstractEvents,Template){
 				sSel=oEvent.selector,
 				oData=oEvent.data,
 				fFunc=oEvent.delegation=me._delegateHandler(fHandler,context);
+			if($H.isFunction(oEl)){
+				oEl=oEl.call(me);
+			}
 			//移动浏览器由于click可能会有延迟，这里转换为touchend事件
 			if($H.mobile()){
 				if(sName=="click"){
@@ -5063,11 +5175,11 @@ function(ViewManager,AbstractEvents,Template){
 		var oParent=me.parent;
 		var oPlaceholder=$('<span></span>').insertBefore(me.getEl());
 		//cid不同
-		oOptions=$H.extend({
+		oOptions=$H.extend(oOptions||me.initParam,{
 			xtype:me.xtype,
 			renderBy:'replaceWith',
 			renderTo:oPlaceholder
-		},oOptions);
+		});
 		//不需要改变id/cid
 		if(!oOptions.cid||oOptions.cid==me.cid){
 			oOptions._id=me._id;
@@ -5187,11 +5299,11 @@ function(AbstractDao,AbstractEvents){
    		fetch                 : fFetch,              //获取模型数据
    		save                  : fSave,               //保存模型
    		destroy               : fDestroy,            //销毁/删除模型
-   		url                   : fUrl,                //获取模型url
+   		getUrl                : fGetUrl,             //获取模型url
    		parse                 : fParse,              //分析处理回调数据，默认直接返回response
    		clone                 : fClone,              //克隆模型
    		isNew                 : fIsNew,              //判断是否是新模型(没有提交保存，并且缺少id属性)
-   		isValid               : fIsValid            //校验当前是否是合法的状态
+   		isValid               : fIsValid             //校验当前是否是合法的状态
 	});
 	
 	var wrapError;
@@ -5217,7 +5329,6 @@ function(AbstractDao,AbstractEvents){
     }
 	/**
 	 * 初始化
-	 * @method initialize
 	 * @param {Object}oAttributes 初始化的对象
 	 * @param {Object}oOptions 选项{
 	 * 		{common.Collection}collection 集合对象
@@ -5257,8 +5368,7 @@ function(AbstractDao,AbstractEvents){
 	 * @return {*} 根据同步方法的结果
 	 */
     function fSync(sMethod,oModel,oOptions) {
-    	var me=this;
-        return me.dao.sync.apply(me, arguments);
+        return this.dao.sync(sMethod,oModel,oOptions);
     }
     /**
      * 获取指定属性值
@@ -5488,6 +5598,8 @@ function(AbstractDao,AbstractEvents){
 	 * @param {Object}oOptions 选项{
 	 * 		{boolean=}unset 是否取消设置
 	 * 		{boolean=}silent 是否不触发事件
+	 * 		{boolean=}patch true时只更新改变的值
+	 * 		{boolean=}now 是否立即更新模型，默认是等到回调返回时才更新
 	 * }
 	 */
     // Set a hash of model attributes, and sync the model to the server.
@@ -5495,8 +5607,8 @@ function(AbstractDao,AbstractEvents){
     // state will be `set` again.
     function fSave(sKey, val, oOptions) {
     	var me=this;
-        var oAttrs, method, xhr, attributes = me.attributes;
-      // Handle both `"sKey", value` and `{sKey: value}` -style arguments.
+        var oAttrs, sMethod, oXhr, oAttributes = me.attributes;
+        //sKey, value 或者 {sKey: value}
         if (sKey == null || typeof sKey === 'object') {
         	oAttrs = sKey;
         	oOptions = val;
@@ -5509,89 +5621,100 @@ function(AbstractDao,AbstractEvents){
       // If we're not waiting and attributes exist, save acts as
       // `set(attr).save(null, opts)` with validation. Otherwise, check if
       // the model will be valid when the attributes, if any, are set.
-        if (oAttrs && !oOptions.wait) {
-       	    if (!me.set(oAttrs, oOptions)) return false;
+        //now==true，立刻设置数据
+        if (oAttrs && oOptions.now) {
+       	    if (!me.set(oAttrs, oOptions)){
+       	    	return false;
+       	    }
         } else {
-        	if (!me._validate(oAttrs, oOptions)) return false;
+        	if (!me._validate(oAttrs, oOptions)){
+		        return false;
+		    }
         }
 
-      // Set temporary attributes if `{wait: true}`.
-        if (oAttrs && oOptions.wait) {
-            me.attributes = $H.extend({}, attributes, oAttrs);
+        //now!=true,先临时设置数据
+        if (oAttrs && !oOptions.now) {
+        	var tmp=$H.extend({}, oAttributes)
+            me.attributes = $H.extend(tmp, oAttrs);
         }
 
-      // After a successful server-side save, the client is (optionally)
-      // updated with the server-side state.
-        if (oOptions.parse === void 0) oOptions.parse = true;
-        var model = me;
-        var success = oOptions.success;
+        if (oOptions.parse === void 0){
+        	oOptions.parse = true;
+        }
+        var fSuccess = oOptions.success;
         oOptions.success = function(resp) {
 	        // Ensure attributes are restored during synchronous saves.
-	        model.attributes = attributes;
-	        var serverAttrs = model.parse(resp, oOptions);
-	        if (oOptions.wait) serverAttrs = $H.extend(oAttrs || {}, serverAttrs);
-	        if ($H.isObject(serverAttrs) && !model.set(serverAttrs, oOptions)) {
-	          return false;
+	        me.attributes = oAttributes;
+	        var oServerAttrs = me.parse(resp, oOptions);
+	        //now!=true，确保更新相应数据(可能没有返回相应数据)
+	        if (!oOptions.now){
+	        	oServerAttrs = $H.extend(oAttrs || {}, oServerAttrs);
 	        }
-	        if (success) success(model, resp, oOptions);
-	        model.trigger('sync', model, resp, oOptions);
-	      };
-      	wrapError(me, oOptions);
+	        if ($H.isObject(oServerAttrs) && !me.set(oServerAttrs, oOptions)) {
+	            return false;
+	        }
+	        if (fSuccess){
+	        	fSuccess(me, resp, oOptions);
+	        }
+	        me.trigger('sync', me, resp, oOptions);
+	    };
 
-	    method = me.isNew() ? 'create' : (oOptions.patch ? 'patch' : 'update');
-	    if (method === 'patch') oOptions.oAttrs = oAttrs;
-	    xhr = me.sync(method, me, oOptions);
-	
-	      // Restore attributes.
-	    if (oAttrs && oOptions.wait){
-	    	me.attributes = attributes;
+	    sMethod = me.isNew() ? 'create' : (oOptions.patch ? 'patch' : 'update');
+	    if (sMethod === 'patch'){
+	    	oOptions.attrs = oAttrs;
 	    }
-	    return xhr;
+	    me.sync(sMethod, me, oOptions);
+	
+	    //now!=true，恢复数据
+	    if (oAttrs && !oOptions.now){
+	    	me.attributes = oAttributes;
+	    }
     }
 	/**
 	 * 销毁/删除模型
 	 * @param {Object=}oOptions 备选参数{
-	 * 		{boolean=}wait: true表示等提交成功后才修改属性
+	 * 		{boolean=}now 是否立即更新模型，默认是等到回调返回时才更新
 	 * }
 	 */
     function fDestroy(oOptions) {
     	var me=this;
-      oOptions = oOptions ? $H.clone(oOptions) : {};
-      var model = me;
-      var success = oOptions.success;
+        oOptions = oOptions ? $H.clone(oOptions) : {};
+        var fSuccess = oOptions.success;
 
-      var destroy = function() {
-        model.trigger('destroy', model, model.collection, oOptions);
-      };
+        var destroy = function() {
+            me.trigger('destroy', me, me.collection, oOptions);
+        };
 
-      oOptions.success = function(resp) {
-        if (oOptions.wait || model.isNew()) destroy();
-        if (success) success(model, resp, oOptions);
-        if (!model.isNew()) model.trigger('sync', model, resp, oOptions);
-      };
+        oOptions.success = function(resp) {
+	        if (!oOptions.now || me.isNew()){
+	        	destroy();
+	        }
+	        if (fSuccess){
+	        	fSuccess(me, resp, oOptions);
+	        }
+	        if (!me.isNew()){
+	        	me.trigger('sync', me, resp, oOptions);
+	        }
+	    };
 
-      if (me.isNew()) {
-        oOptions.success();
-        return false;
-      }
-      wrapError(me, oOptions);
+        if (me.isNew()) {
+       	    oOptions.success();
+            return false;
+        }
 
-      var xhr = me.sync('delete', me, oOptions);
-      if (!oOptions.wait) destroy();
-      return xhr;
+        var oXhr = me.sync('delete', me, oOptions);
+        if (oOptions.now){
+        	destroy();
+        }
+        return oXhr;
     }
 	/**
 	 * 获取模型url
 	 * @return {string} 返回模型url
 	 */
-    // Default URL for the model's representation on the server -- if you're
-    // using Backbone's restful methods, override me to change the endpoint
-    // that will be called.
-    function fUrl() {
+    function fGetUrl() {
     	var me=this;
-        var sUrl =
-        $H.Util.result(me, 'urlRoot') ||
-        $H.Util.result(me.collection, 'url');
+        var sUrl =$H.result(me, 'url') ||$H.result(me.collection, 'url');
         if(!sUrl){
         	$D.error(new Error('必须设置一个url属性或者函数'));
         }
@@ -5606,7 +5729,11 @@ function(AbstractDao,AbstractEvents){
      * @param {Object}oOptions
      */
     function fParse(resp, oOptions) {
-        return resp;
+    	if(resp.code&&resp.data){
+	        return resp.data;
+    	}else{
+    		return resp;
+    	}
     }
     /**
      * 克隆模型
@@ -5647,12 +5774,15 @@ $Define('CM.Collection',
 function(AbstractDao,AbstractEvents,Model){
 	
 	var Collection=AbstractEvents.derive({
-		
+		//可扩展属性
+//		url                    : '',                  //集合url
 //		model                  : Model,               //子对象模型类
+//		dao                    : null,                //数据访问对象，默认为common.AbstractDao
+		
+		//内部属性
 //		models                 : [],                  //模型列表
 //		_byId                  : {},                  //根据id和cid索引
 //		length                 : 0,                   //模型集合长度
-//		dao                    : null,                //数据访问对象，默认为common.AbstractDao
 		
 		_reset                 : _fReset,             //重置集合
 		_prepareModel          : _fPrepareModel,      //初始化模型
@@ -5678,6 +5808,7 @@ function(AbstractDao,AbstractEvents,Model){
 		findWhere              : fFindWhere,          //返回包含指定 key-value 组合的第一个模型
 		sort                   : fSort,               //排序
 		pluck                  : fPluck,              //提取集合里指定的属性值
+		getUrl                 : fGetUrl,             //获取集合url
 		fetch                  : fFetch,              //请求数据
 		create                 : fCreate,             //新建模型
 		parse                  : fParse,              //分析处理回调数据，默认直接返回response
@@ -5815,16 +5946,12 @@ function(AbstractDao,AbstractEvents,Model){
 	/**
 	 * 同步数据，可以通过重写进行自定义
 	 * @param {string}sMethod 方法名
-	 * @param {CM.Model}oModel 模型对象
+	 * @param {Collection}oCollection 集合对象
 	 * @param {Object}oOptions 设置
-	 * @return {*} 根据同步方法的结果
+	 * @return {*} 返回同步方法的结果
 	 */
-    function fSync(sMethod,oModel,oOptions) {
-    	var me=this;
-        return me.dao.sync({
-        	method:sMethod,
-        	param:oOptions
-        });
+    function fSync(sMethod,oCollection,oOptions) {
+        return this.dao.sync(sMethod,oCollection,oOptions);
     }
 	/**
 	 * 添加模型
@@ -6157,6 +6284,13 @@ function(AbstractDao,AbstractEvents,Model){
     function fPluck(sAttr) {
       return $H.Collection.invoke(this.models, 'get', sAttr);
     }
+    /**
+     * 获取url
+     * @return {string}返回集合的url
+     */
+    function fGetUrl(){
+    	return this.url;
+    }
 	/**
 	 * 请求数据
 	 * @param {Object=}oOptions
@@ -6168,9 +6302,6 @@ function(AbstractDao,AbstractEvents,Model){
     function fFetch(oOptions) {
     	var me=this;
         oOptions = oOptions ? $H.clone(oOptions) : {};
-        if(!oOptions.url){
-        	oOptions.url=me.url;
-        }
         if (oOptions.parse === void 0){
         	oOptions.parse = true;
         }
@@ -6183,7 +6314,7 @@ function(AbstractDao,AbstractEvents,Model){
         	}
         	me.trigger('sync', me, resp, oOptions);
         };
-        return me.sync('get', me, oOptions);
+        return me.sync('read', me, oOptions);
     }
 	/**
 	 * 新建模型
@@ -6200,12 +6331,12 @@ function(AbstractDao,AbstractEvents,Model){
         if (!(oModel = me._prepareModel(oModel, oOptions))){
         	return false;
         }
-        if (!oOptions.wait){
+        if (oOptions.now){
         	me.add(oModel, oOptions);
         }
         var success = oOptions.success;
         oOptions.success = function(oModel, resp) {
-        	if (oOptions.wait){
+        	if (!oOptions.now){
         		me.add(oModel, oOptions);
         	}
         	if (success){
@@ -6474,7 +6605,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 	 */
 	function fValid(){
 		var me=this;
-		var oValidator=me.settings.validator;
+		var oValidator=me.validator;
 		if(oValidator){
 			var sValue=me.val();
 			if(!oValidator.error){
@@ -8092,17 +8223,26 @@ $Define("M.AbstractModule","CM.View",function (View) {
 //		isActived      : false,          //{boolean}模块是否是当前活跃的
 //		renderTo       : null,           //自定义模块容器，{jQuery}对象或选择器
 		                                 //模块初始化后以_container为准，获取需用getEl方法
-		useCache       : true,           //{boolean}是否使用cache
+//		notCache       : false,          //{boolean}是否不使用cache，默认使用,仅当配置成true时不使用
+//      clearCache     : false,          //仅清除一次当前的缓存，下次进入模块时执行清除并恢复原先缓存设置
 //		name           : null,           //{string}模块名
 //		chName         : null,           //{string}模块的中文名称
 		
 //		getData        : null,           //{function()}获取该模块的初始化数据
 //		clone          : null,           //{function()}克隆接口
-		cache          : function(){},   //显示模块缓存
-		init           : function(){},   //初始化函数, 在模块创建后调用（在所有模块动作之前）
-		reset          : function(){},   //重置函数, 在该模块里进入该模块时调用
-		exit           : function(){return true}   //离开该模块前调用, 返回true允许离开, 否则不允许离开
+		useCache       : $H.noop,        //判断是否使用模块缓存
+		cache          : $H.noop,        //显示模块缓存时调用
+		init           : $H.noop,        //初始化函数, 在模块创建后调用（在所有模块动作之前）
+		reset          : $H.noop,        //重置函数, 在该模块里进入该模块时调用
+		exit           : function(){return true},  //离开该模块前调用, 返回true允许离开, 否则不允许离开
+		cleanCache     : fCleanCache     //清除模块缓存
 	});
+	/**
+	 * 清除模块缓存
+	 */
+	function fCleanCache(){
+		this.clearCache=true;
+	}
 	
 	return AbstractModule;
 });/****************************************************************
@@ -8181,7 +8321,8 @@ function(HashChange){
 		 	aStates=me.states,
 		 	oCurState=aStates[sCurKey];
 		//跟当前状态一致，不需要调用stateChange，可能是saveState触发的hashchange
-		if(sKey==sCurKey&&$H.equals(oHashParam.param,oCurState.param)){
+		//&&$H.equals(oHashParam.param,oCurState.param)
+		if(sKey==sCurKey){
 			return false;
 		}
 		var oState=aStates[sKey];
@@ -8333,6 +8474,8 @@ function(History,AbstractManager){
 		
 		initialize         : fInitialize,      //初始化模块管理
 		go                 : fGo,              //进入模块
+		update             : fUpdate,          //更新模块
+		clearCache         : fClearCache,      //清除缓存模块
 		back               : fBack             //后退一步
 	});
 	
@@ -8465,7 +8608,9 @@ function(History,AbstractManager){
 		//如果模块有缓存
 		if(oMod){
 			//标记使用缓存，要调用cache方法
-			if(oMod.useCache){
+			if(oMod.notCache!=true&&oMod.clearCache!=true&&oMod.useCache(param)!=false){
+				//恢复设置
+				oMod.clearCache==false;
 				me._showMod(oMod);
 				oMod.cache(param);
 			}else if(!oMod.waiting){
@@ -8490,6 +8635,25 @@ function(History,AbstractManager){
 			});
 		}
 		return true;
+	}
+	/**
+	 * 更新模块
+	 * @param {Module}oModule 模块对象
+	 * @param {Object}oParams 参数
+	 */
+	function fUpdate(oModule,oParams){
+		var oNew=oModule.update(oParams);
+		if(oNew){
+			this.modules[oModule.name]=oNew;
+			$H.trigger('afterRender',oNew.getEl());
+		}
+	}
+	/**
+	 * 清除缓存模块
+	 * @param {Module}oModule 参数模块
+	 */
+	function fClearCache(oModule){
+		oModule.notCache=true;
 	}
 	/**
 	 * 后退一步

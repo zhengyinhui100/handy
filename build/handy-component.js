@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-26 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-29 | zhengyinhui100@gmail.com */
 /**
  * 组件管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -239,7 +239,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 	 */
 	function fValid(){
 		var me=this;
-		var oValidator=me.settings.validator;
+		var oValidator=me.validator;
 		if(oValidator){
 			var sValue=me.val();
 			if(!oValidator.error){
