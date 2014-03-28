@@ -7,9 +7,12 @@ handy.add('Events',function($H){
 	
 	var Events={
 		_eventCache        : {},                   //自定义事件池
+		_execEvtCache      : [],                   //待执行事件队列
 		_parseEvents       : _fParseEvents,        //分析事件对象
 		_parseCustomEvents : _fParseCustomEvents,  //处理对象类型或者空格相隔的多事件
 		_delegateHandler   : _fDelegateHandler,    //统一代理回调函数
+		_pushEvent         : _fPushEvent,          //将需要执行的事件放入执行队列
+		_execEvents        : _fExecEvents,         //执行事件队列
 		on                 : fOn,                  //添加事件
 		once               : fOnce,                //监听一次
 		off                : fOff,                 //移除事件
@@ -72,6 +75,36 @@ handy.add('Events',function($H){
 				return fHandler.apply(context||me,arguments);
 			}
 		};
+	}
+	/**
+	 * 将需要执行的事件放入执行队列
+	 * @param {Object}oEvent 参数事件对象
+	 */
+	function _fPushEvent(oEvent){
+		var me=this;
+		me._execEvtCache.push(oEvent);
+	}
+	/**
+	 * 执行事件队列，统一执行周期中，同名的事件会被覆盖，只有最后一个事件有效
+	 * @return {?} 只是返回最后一个函数的结果，返回结果在某些情况(一般是只有一个监听函数时)可以作为通知器使用
+	 */
+	function _fExecEvents(){
+		var me=this,result;
+		$H.each(me._execEvtCache,function(i,oEvent){
+			var fDelegation=oEvent.delegation;
+			//控制执行次数
+			if(typeof oEvent.times=='number'){
+				if(oEvent.times>1){
+					oEvent.times--;
+				}else{
+					me.off(oEvent.name,oEvent.handler);
+				}
+			}
+			//只是返回最后一个函数的结果，返回结果在某些情况可以作为通知器使用
+			result=fDelegation.apply(me,oEvent.args);
+		});
+		me._execEvtCache=[];
+		return result;
 	}
 	/**
 	 * 添加事件
@@ -170,7 +203,7 @@ handy.add('Events',function($H){
 	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}
 	 * 							事件名称支持命名空间(".name")，如：change.one
 	 * @param {*}data 传递参数
-	 * @return {*}只是返回最后一个函数的结果，复杂格式事件不返回
+	 * @return {?}只是返回最后一个函数的结果，返回结果在某些情况(一般是只有一个监听函数时)可以作为通知器使用
 	 */
 	function fTrigger(name,data){
 		var me=this;
@@ -181,7 +214,7 @@ handy.add('Events',function($H){
 		}
 		var oCache=me._eventCache;
 		var aArgs=$H.toArray(arguments);
-		var result,aCache;
+		var aCache;
 		//内部函数，执行事件队列
 		function _fExec(aCache){
 			if(!aCache){
@@ -189,17 +222,11 @@ handy.add('Events',function($H){
 			}
 			for(var i=0,len=aCache.length;i<len;i++){
 				var oEvent=aCache[i];
-				var fDelegation=oEvent.delegation;
-				//控制执行次数
-				if(typeof oEvent.times=='number'){
-					if(oEvent.times>1){
-						oEvent.times--;
-					}else{
-						me.off(key,oEvent.handler);
-					}
-				}
-				//只是返回最后一个函数的结果
-				result=fDelegation.apply(null,aArgs);
+				oEvent.args=aArgs;
+				oEvent.name=name;
+				//这里立即执行，aCache可能会被改变（如update会删除并重新添加事件），所以先放入队列中
+				//另外，也考虑日后扩展事件队列，如优先级，去重等
+				me._pushEvent(oEvent);
 			}
 		}
 		//带命名空间的事件只需执行自身事件
@@ -220,7 +247,7 @@ handy.add('Events',function($H){
 		}
 		//all事件
 		_fExec(oCache['all']);
-		return result;
+		return me._execEvents();
 	}
 	/**
 	 * 挂起事件

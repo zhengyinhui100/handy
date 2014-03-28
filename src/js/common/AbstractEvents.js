@@ -50,6 +50,7 @@ function(){
 			nTimes=context;
 			context=null;
 		}
+		context=context||me;
 		var fCall=me._delegateHandler(fHandler,context);
 		me._listenTo.push({
 			target:oTarget,
@@ -57,7 +58,7 @@ function(){
 			delegation:fCall,
 			handler:fHandler
 		});
-		oTarget.on(name,fCall,context||me,nTimes);
+		oTarget.on(name,fCall,context,nTimes);
 	}
 	/**
 	 * 移除对其它对象的监听
@@ -72,14 +73,12 @@ function(){
 		}
 		var aListenTo=me._listenTo;
 		var bAll=oTarget=='all';
-		var oListenTo;
-		for(var i=0,len=aListenTo.length;i<len;i++){
-			oListenTo=aListenTo[i];
+		$H.each(aListenTo,function(i,oListenTo){
 			if(bAll||(oListenTo.name==name&&oListenTo.handler==fHandler&&oListenTo.target==oTarget)){
-				oTarget.off(name,oListenTo.delegation);
+				oListenTo.target.off(oListenTo.name,oListenTo.delegation);
 				aListenTo.splice(i,1);
 			}
-		}
+		})
 	}
 	
 	return AbstractEvents;
