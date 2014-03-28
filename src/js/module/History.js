@@ -55,7 +55,8 @@ function(HashChange){
 		 	aStates=me.states,
 		 	oCurState=aStates[sCurKey];
 		//跟当前状态一致，不需要调用stateChange，可能是saveState触发的hashchange
-		if(sKey==sCurKey&&$H.equals(oHashParam.param,oCurState.param)){
+		//&&$H.equals(oHashParam.param,oCurState.param)
+		if(sKey==sCurKey){
 			return false;
 		}
 		var oState=aStates[sKey];
