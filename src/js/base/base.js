@@ -13,6 +13,7 @@
 	
 	
 	handy.version    = '1.0.0';    //版本号
+	handy.isDebug    = typeof gEnv=='undefined'?false:gEnv=='dev';     //是否是调试状态
 	handy.expando    = "handy" + ( handy.version + Math.random() ).replace( /\D/g, "" );    //自定义属性名
 	handy.add        = fAdd;            //添加子模块
 	handy.noConflict = fNoConflict;     //处理命名冲突
@@ -53,7 +54,7 @@
 			if('Browser,Class,Collection,Cookie,Events,Function,Json,Object,String,Template,Util'.indexOf(sName)>=0){
 				for(var key in oModule){
 					//!Function[key]专为bind方法
-					if(typeof handy[key]!="undefined"&&('console' in window)&&!Function[key]){
+					if(handy.isDebug&&typeof handy[key]!="undefined"&&('console' in window)&&!Function[key]){
 						console.log(handy[key]);
 						console.log(sName+"命名冲突:"+key);
 					}
