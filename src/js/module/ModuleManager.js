@@ -36,6 +36,8 @@ function(History,AbstractManager){
 		
 		initialize         : fInitialize,      //初始化模块管理
 		go                 : fGo,              //进入模块
+		update             : fUpdate,          //更新模块
+		clearCache         : fClearCache,      //清除缓存模块
 		back               : fBack             //后退一步
 	});
 	
@@ -168,7 +170,9 @@ function(History,AbstractManager){
 		//如果模块有缓存
 		if(oMod){
 			//标记使用缓存，要调用cache方法
-			if(oMod.useCache){
+			if(oMod.notCache!=true&&oMod.clearCache!=true&&oMod.useCache(param)!=false){
+				//恢复设置
+				oMod.clearCache==false;
 				me._showMod(oMod);
 				oMod.cache(param);
 			}else if(!oMod.waiting){
@@ -193,6 +197,25 @@ function(History,AbstractManager){
 			});
 		}
 		return true;
+	}
+	/**
+	 * 更新模块
+	 * @param {Module}oModule 模块对象
+	 * @param {Object}oParams 参数
+	 */
+	function fUpdate(oModule,oParams){
+		var oNew=oModule.update(oParams);
+		if(oNew){
+			this.modules[oModule.name]=oNew;
+			$H.trigger('afterRender',oNew.getEl());
+		}
+	}
+	/**
+	 * 清除缓存模块
+	 * @param {Module}oModule 参数模块
+	 */
+	function fClearCache(oModule){
+		oModule.notCache=true;
 	}
 	/**
 	 * 后退一步
