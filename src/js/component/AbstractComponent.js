@@ -208,7 +208,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 	 */
 	function fValid(){
 		var me=this;
-		var oValidator=me.settings.validator;
+		var oValidator=me.validator;
 		if(oValidator){
 			var sValue=me.val();
 			if(!oValidator.error){
