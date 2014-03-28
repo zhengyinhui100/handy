@@ -11,12 +11,15 @@ $Define('CM.Collection',
 function(AbstractDao,AbstractEvents,Model){
 	
 	var Collection=AbstractEvents.derive({
-		
+		//可扩展属性
+//		url                    : '',                  //集合url
 //		model                  : Model,               //子对象模型类
+//		dao                    : null,                //数据访问对象，默认为common.AbstractDao
+		
+		//内部属性
 //		models                 : [],                  //模型列表
 //		_byId                  : {},                  //根据id和cid索引
 //		length                 : 0,                   //模型集合长度
-//		dao                    : null,                //数据访问对象，默认为common.AbstractDao
 		
 		_reset                 : _fReset,             //重置集合
 		_prepareModel          : _fPrepareModel,      //初始化模型
@@ -42,6 +45,7 @@ function(AbstractDao,AbstractEvents,Model){
 		findWhere              : fFindWhere,          //返回包含指定 key-value 组合的第一个模型
 		sort                   : fSort,               //排序
 		pluck                  : fPluck,              //提取集合里指定的属性值
+		getUrl                 : fGetUrl,             //获取集合url
 		fetch                  : fFetch,              //请求数据
 		create                 : fCreate,             //新建模型
 		parse                  : fParse,              //分析处理回调数据，默认直接返回response
@@ -179,16 +183,12 @@ function(AbstractDao,AbstractEvents,Model){
 	/**
 	 * 同步数据，可以通过重写进行自定义
 	 * @param {string}sMethod 方法名
-	 * @param {CM.Model}oModel 模型对象
+	 * @param {Collection}oCollection 集合对象
 	 * @param {Object}oOptions 设置
-	 * @return {*} 根据同步方法的结果
+	 * @return {*} 返回同步方法的结果
 	 */
-    function fSync(sMethod,oModel,oOptions) {
-    	var me=this;
-        return me.dao.sync({
-        	method:sMethod,
-        	param:oOptions
-        });
+    function fSync(sMethod,oCollection,oOptions) {
+        return this.dao.sync(sMethod,oCollection,oOptions);
     }
 	/**
 	 * 添加模型
@@ -521,6 +521,13 @@ function(AbstractDao,AbstractEvents,Model){
     function fPluck(sAttr) {
       return $H.Collection.invoke(this.models, 'get', sAttr);
     }
+    /**
+     * 获取url
+     * @return {string}返回集合的url
+     */
+    function fGetUrl(){
+    	return this.url;
+    }
 	/**
 	 * 请求数据
 	 * @param {Object=}oOptions
@@ -532,9 +539,6 @@ function(AbstractDao,AbstractEvents,Model){
     function fFetch(oOptions) {
     	var me=this;
         oOptions = oOptions ? $H.clone(oOptions) : {};
-        if(!oOptions.url){
-        	oOptions.url=me.url;
-        }
         if (oOptions.parse === void 0){
         	oOptions.parse = true;
         }
@@ -547,7 +551,7 @@ function(AbstractDao,AbstractEvents,Model){
         	}
         	me.trigger('sync', me, resp, oOptions);
         };
-        return me.sync('get', me, oOptions);
+        return me.sync('read', me, oOptions);
     }
 	/**
 	 * 新建模型
@@ -564,12 +568,12 @@ function(AbstractDao,AbstractEvents,Model){
         if (!(oModel = me._prepareModel(oModel, oOptions))){
         	return false;
         }
-        if (!oOptions.wait){
+        if (oOptions.now){
         	me.add(oModel, oOptions);
         }
         var success = oOptions.success;
         oOptions.success = function(oModel, resp) {
-        	if (oOptions.wait){
+        	if (!oOptions.now){
         		me.add(oModel, oOptions);
         	}
         	if (success){

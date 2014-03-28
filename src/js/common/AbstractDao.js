@@ -14,19 +14,32 @@ function(LS){
 	var AbstractDao=$H.createClass();
 	
 	$H.extend(AbstractDao.prototype,{
-		ajax         : fAjax,        //ajax方法
-		beforeSend   : $H.noop,      //发送前处理
-		error        : $H.noop,      //错误处理
-		success      : $H.noop,      //成功处理
-		get          : fGet,         //获取数据
-		set          : fSet,         //设置数据
-		remove       : fRemove,      //删除数据
-		sync         : fSync         //同步数据
+		_ajaxMethodMap   : {
+			'create': 'POST',
+			'update': 'POST',
+			'patch':  'PATCH',
+			'delete': 'DELETE',
+			'read':   'GET'
+	    },
+	    _localMethodMap  : {
+	    	'create': 'setItem',
+			'update': 'setItem',
+			'patch':  'setItem',
+			'delete': 'removeItem',
+			'read':   'getItem'
+	    },
+		ajax             : fAjax,        //ajax方法
+		beforeSend       : $H.noop,      //发送前处理
+		error            : $H.noop,      //错误处理
+		success          : $H.noop,      //成功处理
+		get              : fGet,         //获取数据
+		set              : fSet,         //设置数据
+		remove           : fRemove,      //删除数据
+		sync             : fSync         //同步数据
 	});
 	
 	/**
 	 * ajax
-	 * @method ajax
 	 * @param {Object}oParams
 	 * 
 	 */
@@ -54,25 +67,42 @@ function(LS){
 	}
 	/**
 	 * 同步数据
+	 * @param {string}sMethod 操作方法(read/update/delete/create/patch）
+	 * @param {Model|Collection}oModel 参数模型或集合对象
 	 * @param {Object}oOptions 选项{
-	 * 		{string=}method:操作方法(get/set/remove)，默认是get,
-	 * 		{string=}type:存储类型(local/remote),默认是remote
-	 * 		{*=}data:数据，
-	 * 		{Object}param:参数
+	 * 		{string=}storeType:存储类型(local/remote),默认是remote
+	 * 		{string=}data:要同步的数据
+	 * 		{Object=}attrs:要同步的键值对
 	 * }
 	 * @return {*} 如果是get操作，返回指定的数据
 	 */
-	function fSync(oOptions){
+	function fSync(sMethod, oModel, oOptions){
 		var me=this;
 		oOptions=oOptions||{};
-		var sMethod=oOptions.method||'get';
-		var sType=oOptions.type||'remote';
-		var oParam=oOptions.param;
-		if(sType=='remote'){
+		var sToreType=oOptions.storeType||'remote';
+		//ajax请求参数
+		var oParam={type: 'POST'||me._ajaxMethodMap[sMethod], dataType: 'json'};
+		if(!oOptions.url){
+		    oParam.url =oModel.getUrl();
+		}
+	    if (oOptions.data == null && oModel && (sMethod === 'create' || sMethod === 'update' || sMethod === 'patch')) {
+	        //oParam.contentType = 'application/json';
+	        oParam.data = oOptions.attrs || oModel.toJSON(oOptions);
+	    }
+	    
+		if(sToreType=='remote'){
+			//服务端存储
+			if(sMethod=='update'){
+				sMethod='patch';
+			}
+			oParam.url+='/'+sMethod+'.do';
+			$H.extend(oParam,oOptions);
 			me.ajax(oParam);
 		}else{
-			LS[sType+'Item'](oParam);
+			//本地存储
+			LS[me._localMethodMap[sMethod]](oParam);
 		}
+		oModel.trigger('request', oModel, oOptions);
 	}
 	
 	return AbstractDao;

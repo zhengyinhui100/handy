@@ -37,11 +37,11 @@ function(AbstractDao,AbstractEvents){
    		fetch                 : fFetch,              //获取模型数据
    		save                  : fSave,               //保存模型
    		destroy               : fDestroy,            //销毁/删除模型
-   		url                   : fUrl,                //获取模型url
+   		getUrl                : fGetUrl,             //获取模型url
    		parse                 : fParse,              //分析处理回调数据，默认直接返回response
    		clone                 : fClone,              //克隆模型
    		isNew                 : fIsNew,              //判断是否是新模型(没有提交保存，并且缺少id属性)
-   		isValid               : fIsValid            //校验当前是否是合法的状态
+   		isValid               : fIsValid             //校验当前是否是合法的状态
 	});
 	
 	var wrapError;
@@ -67,7 +67,6 @@ function(AbstractDao,AbstractEvents){
     }
 	/**
 	 * 初始化
-	 * @method initialize
 	 * @param {Object}oAttributes 初始化的对象
 	 * @param {Object}oOptions 选项{
 	 * 		{common.Collection}collection 集合对象
@@ -107,8 +106,7 @@ function(AbstractDao,AbstractEvents){
 	 * @return {*} 根据同步方法的结果
 	 */
     function fSync(sMethod,oModel,oOptions) {
-    	var me=this;
-        return me.dao.sync.apply(me, arguments);
+        return this.dao.sync(sMethod,oModel,oOptions);
     }
     /**
      * 获取指定属性值
@@ -338,6 +336,8 @@ function(AbstractDao,AbstractEvents){
 	 * @param {Object}oOptions 选项{
 	 * 		{boolean=}unset 是否取消设置
 	 * 		{boolean=}silent 是否不触发事件
+	 * 		{boolean=}patch true时只更新改变的值
+	 * 		{boolean=}now 是否立即更新模型，默认是等到回调返回时才更新
 	 * }
 	 */
     // Set a hash of model attributes, and sync the model to the server.
@@ -345,8 +345,8 @@ function(AbstractDao,AbstractEvents){
     // state will be `set` again.
     function fSave(sKey, val, oOptions) {
     	var me=this;
-        var oAttrs, method, xhr, attributes = me.attributes;
-      // Handle both `"sKey", value` and `{sKey: value}` -style arguments.
+        var oAttrs, sMethod, oXhr, oAttributes = me.attributes;
+        //sKey, value 或者 {sKey: value}
         if (sKey == null || typeof sKey === 'object') {
         	oAttrs = sKey;
         	oOptions = val;
@@ -359,89 +359,100 @@ function(AbstractDao,AbstractEvents){
       // If we're not waiting and attributes exist, save acts as
       // `set(attr).save(null, opts)` with validation. Otherwise, check if
       // the model will be valid when the attributes, if any, are set.
-        if (oAttrs && !oOptions.wait) {
-       	    if (!me.set(oAttrs, oOptions)) return false;
+        //now==true，立刻设置数据
+        if (oAttrs && oOptions.now) {
+       	    if (!me.set(oAttrs, oOptions)){
+       	    	return false;
+       	    }
         } else {
-        	if (!me._validate(oAttrs, oOptions)) return false;
+        	if (!me._validate(oAttrs, oOptions)){
+		        return false;
+		    }
         }
 
-      // Set temporary attributes if `{wait: true}`.
-        if (oAttrs && oOptions.wait) {
-            me.attributes = $H.extend({}, attributes, oAttrs);
+        //now!=true,先临时设置数据
+        if (oAttrs && !oOptions.now) {
+        	var tmp=$H.extend({}, oAttributes)
+            me.attributes = $H.extend(tmp, oAttrs);
         }
 
-      // After a successful server-side save, the client is (optionally)
-      // updated with the server-side state.
-        if (oOptions.parse === void 0) oOptions.parse = true;
-        var model = me;
-        var success = oOptions.success;
+        if (oOptions.parse === void 0){
+        	oOptions.parse = true;
+        }
+        var fSuccess = oOptions.success;
         oOptions.success = function(resp) {
 	        // Ensure attributes are restored during synchronous saves.
-	        model.attributes = attributes;
-	        var serverAttrs = model.parse(resp, oOptions);
-	        if (oOptions.wait) serverAttrs = $H.extend(oAttrs || {}, serverAttrs);
-	        if ($H.isObject(serverAttrs) && !model.set(serverAttrs, oOptions)) {
-	          return false;
+	        me.attributes = oAttributes;
+	        var oServerAttrs = me.parse(resp, oOptions);
+	        //now!=true，确保更新相应数据(可能没有返回相应数据)
+	        if (!oOptions.now){
+	        	oServerAttrs = $H.extend(oAttrs || {}, oServerAttrs);
 	        }
-	        if (success) success(model, resp, oOptions);
-	        model.trigger('sync', model, resp, oOptions);
-	      };
-      	wrapError(me, oOptions);
+	        if ($H.isObject(oServerAttrs) && !me.set(oServerAttrs, oOptions)) {
+	            return false;
+	        }
+	        if (fSuccess){
+	        	fSuccess(me, resp, oOptions);
+	        }
+	        me.trigger('sync', me, resp, oOptions);
+	    };
 
-	    method = me.isNew() ? 'create' : (oOptions.patch ? 'patch' : 'update');
-	    if (method === 'patch') oOptions.oAttrs = oAttrs;
-	    xhr = me.sync(method, me, oOptions);
-	
-	      // Restore attributes.
-	    if (oAttrs && oOptions.wait){
-	    	me.attributes = attributes;
+	    sMethod = me.isNew() ? 'create' : (oOptions.patch ? 'patch' : 'update');
+	    if (sMethod === 'patch'){
+	    	oOptions.attrs = oAttrs;
 	    }
-	    return xhr;
+	    me.sync(sMethod, me, oOptions);
+	
+	    //now!=true，恢复数据
+	    if (oAttrs && !oOptions.now){
+	    	me.attributes = oAttributes;
+	    }
     }
 	/**
 	 * 销毁/删除模型
 	 * @param {Object=}oOptions 备选参数{
-	 * 		{boolean=}wait: true表示等提交成功后才修改属性
+	 * 		{boolean=}now 是否立即更新模型，默认是等到回调返回时才更新
 	 * }
 	 */
     function fDestroy(oOptions) {
     	var me=this;
-      oOptions = oOptions ? $H.clone(oOptions) : {};
-      var model = me;
-      var success = oOptions.success;
+        oOptions = oOptions ? $H.clone(oOptions) : {};
+        var fSuccess = oOptions.success;
 
-      var destroy = function() {
-        model.trigger('destroy', model, model.collection, oOptions);
-      };
+        var destroy = function() {
+            me.trigger('destroy', me, me.collection, oOptions);
+        };
 
-      oOptions.success = function(resp) {
-        if (oOptions.wait || model.isNew()) destroy();
-        if (success) success(model, resp, oOptions);
-        if (!model.isNew()) model.trigger('sync', model, resp, oOptions);
-      };
+        oOptions.success = function(resp) {
+	        if (!oOptions.now || me.isNew()){
+	        	destroy();
+	        }
+	        if (fSuccess){
+	        	fSuccess(me, resp, oOptions);
+	        }
+	        if (!me.isNew()){
+	        	me.trigger('sync', me, resp, oOptions);
+	        }
+	    };
 
-      if (me.isNew()) {
-        oOptions.success();
-        return false;
-      }
-      wrapError(me, oOptions);
+        if (me.isNew()) {
+       	    oOptions.success();
+            return false;
+        }
 
-      var xhr = me.sync('delete', me, oOptions);
-      if (!oOptions.wait) destroy();
-      return xhr;
+        var oXhr = me.sync('delete', me, oOptions);
+        if (oOptions.now){
+        	destroy();
+        }
+        return oXhr;
     }
 	/**
 	 * 获取模型url
 	 * @return {string} 返回模型url
 	 */
-    // Default URL for the model's representation on the server -- if you're
-    // using Backbone's restful methods, override me to change the endpoint
-    // that will be called.
-    function fUrl() {
+    function fGetUrl() {
     	var me=this;
-        var sUrl =
-        $H.Util.result(me, 'urlRoot') ||
-        $H.Util.result(me.collection, 'url');
+        var sUrl =$H.result(me, 'url') ||$H.result(me.collection, 'url');
         if(!sUrl){
         	$D.error(new Error('必须设置一个url属性或者函数'));
         }
@@ -456,7 +467,11 @@ function(AbstractDao,AbstractEvents){
      * @param {Object}oOptions
      */
     function fParse(resp, oOptions) {
-        return resp;
+    	if(resp.code&&resp.data){
+	        return resp.data;
+    	}else{
+    		return resp;
+    	}
     }
     /**
      * 克隆模型
