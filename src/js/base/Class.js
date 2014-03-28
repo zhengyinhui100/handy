@@ -4,7 +4,7 @@
  */
 handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
 	
-	var Class={
+	var CL={
 		createClass         : fCreateClass,     //创建类
 		inherit				: fInherit  		//继承
 	}
@@ -15,11 +15,11 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
     * @return {Object} 返回新创建的类
     */
     function fCreateClass(sPath) {
-        //获得一个类定义，并且绑定一个类初始化方法
-        var cClass = function(){
+        //获得一个类定义，并且绑定一个类初始化方法，这里使用名字Class在控制台显得更友好
+        var Class = function(){
         	var me,fInitialize;
-        	//获得initialize引用的对象，如果不是通过new调用(比如:cClass())，就没有this.initialize
-        	if(this.constructor==cClass){
+        	//获得initialize引用的对象，如果不是通过new调用(比如:Class())，就没有this.initialize
+        	if(this.constructor==Class){
         		me = this;
         	}else{
         		me = arguments.callee;
@@ -37,16 +37,16 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
             	return fInitialize.apply(me, arguments);
             }
         };
-        cClass.$isClass=true;
+        Class.$isClass=true;
         /**
          * 便捷创建子类方法
          * @param {Object=} oProtoExtend 需要扩展的prototype属性
     	 * @param {Object=} oStaticExtend 需要扩展的静态属性
    	     * @param {object=} oExtendOptions 继承父类静态方法时，extend方法的选项
          */
-        cClass.derive=function(oProtoExtend,oStaticExtend,oExtendOptions){
-        	var cChild=Class.createClass();
-        	Class.inherit(cChild,this,oProtoExtend,oStaticExtend,oExtendOptions);
+        Class.derive=function(oProtoExtend,oStaticExtend,oExtendOptions){
+        	var cChild=CL.createClass();
+        	CL.inherit(cChild,this,oProtoExtend,oStaticExtend,oExtendOptions);
         	return cChild;
         }
         /**
@@ -56,7 +56,7 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
          * @param {Array}aArgs 参数数组，默认为调用它的函数的参数
          * @return {*} 返回对应方法执行结果
          */
-        cClass.prototype.callSuper=function(oSuper,aArgs){
+        Class.prototype.callSuper=function(oSuper,aArgs){
         	var me=this;
         	if(oSuper&&!oSuper.$isClass&&oSuper.length!=undefined){
         		aArgs=oSuper;
@@ -75,9 +75,9 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
         	}
         };
         if(sPath){
-        	this.namespace(sPath,cClass);
+        	this.namespace(sPath,Class);
         }
-        return cClass;
+        return Class;
     }
     /**
     * 继承
@@ -124,6 +124,6 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
         }
     }
 	
-	return Class;
+	return CL;
 	
 });

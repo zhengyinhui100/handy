@@ -7,7 +7,7 @@
 handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser,$H){
 	
 	var Debug={
-		level	    : 0,            //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
+		level	    : $H.isDebug?0:5,  //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
 		LOG_LEVEL	: 1,            //日志级别
 		DEBUG_LEVEL : 2,            //调试级别
 		INFO_LEVEL  : 3,            //信息级别
