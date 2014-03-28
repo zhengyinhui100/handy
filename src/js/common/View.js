@@ -239,7 +239,7 @@ function(ViewManager,AbstractEvents,Template){
 	function fDoConfig(oParams){
 		var me=this;
 		//复制保存初始参数
-		var oParams=me.initParam=$H.clone(oParams||{});
+		var oParams=me.initParam=oParams||{};
 		
 		$H.extend(me,oParams,{notCover:function(p,val){
 			var value=me[p];
@@ -266,7 +266,7 @@ function(ViewManager,AbstractEvents,Template){
 				return true;
 			}else if(p=='xtype'){
 				if(me[p]=='View'){
-					me[p]=typeof val=='string'?val:val.$ns.replace(/\./g,'_');
+					me[p]=typeof val=='string'?val:val.$ns;
 				}
 				return true;
 			}
@@ -578,8 +578,8 @@ function(ViewManager,AbstractEvents,Template){
 	 * 			{string}name      : 事件名
 	 * 			{function(Object[,fireParam..])}handler : 监听函数，第一个参数为事件对象oListener，其后的参数为fire时传入的参数
 	 * 			{any=}data        : 数据
-	 * 			{jQuery=}el       : 绑定事件的节点，不传表示容器节点
-	 * 			{CM.AbstractEvents=}target : 监听对象(listenTo方法)，继承自AbstractEvents的实例对象
+	 * 			{jQuery|Function(this:this)=}el       : 绑定事件的节点，不传表示容器节点，传入函数(this是本视图对象)则使用函数返回值
+	 * 			{CM.AbstractEvents|Function=}target : 监听对象(listenTo方法)，继承自AbstractEvents的实例对象，传入函数(this是本视图对象)则使用函数返回值
 	 * 			{boolean=}custom  : 为true时是自定义事件
 	 * 			{number=}times    : 执行次数
 	 * 			{string=}selector : 选择器
@@ -598,6 +598,9 @@ function(ViewManager,AbstractEvents,Template){
 			oTarget=oEvent.target,
 			bIsCustom=oEvent.custom,
 			fHandler=oEvent.handler;
+		if($H.isFunction(oTarget)){
+			oTarget=oTarget.call(me);
+		}
 		if(oTarget||bIsCustom){
 			var aArgs=$H.removeUndefined([oTarget,sName,fHandler,context,nTimes]);
 			me[bIsCustom?'on':'listenTo'].apply(me,aArgs);
@@ -610,6 +613,9 @@ function(ViewManager,AbstractEvents,Template){
 				sSel=oEvent.selector,
 				oData=oEvent.data,
 				fFunc=oEvent.delegation=me._delegateHandler(fHandler,context);
+			if($H.isFunction(oEl)){
+				oEl=oEl.call(me);
+			}
 			//移动浏览器由于click可能会有延迟，这里转换为touchend事件
 			if($H.mobile()){
 				if(sName=="click"){
@@ -1056,11 +1062,11 @@ function(ViewManager,AbstractEvents,Template){
 		var oParent=me.parent;
 		var oPlaceholder=$('<span></span>').insertBefore(me.getEl());
 		//cid不同
-		oOptions=$H.extend({
+		oOptions=$H.extend(oOptions||me.initParam,{
 			xtype:me.xtype,
 			renderBy:'replaceWith',
 			renderTo:oPlaceholder
-		},oOptions);
+		});
 		//不需要改变id/cid
 		if(!oOptions.cid||oOptions.cid==me.cid){
 			oOptions._id=me._id;
