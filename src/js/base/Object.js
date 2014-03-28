@@ -17,6 +17,10 @@ handy.add('Object',function($H){
 		mix                 : fMix,             //自定义的继承方式，可以继承object和prototype，prototype方式继承时，非原型链方式继承。
 		isFunction			: fIsFunction,	    //判断对象是否是函数
 		isArray				: fIsArray, 		//判断对象是否是数组
+		isObject            : fIsObject,        //是否是对象
+		isNumber            : fIsNumber,        //是否是数字
+		isString            : fIsString,        //是否是字符串
+		isUndefined         : fIsUndefined,     //是否未定义
 		isClass             : fIsClass,         //判断对象是否是类
 		equals				: fEquals, 		    //对象对比，对比每一个值是否相等
 		clone				: fClone,			//对象复制
@@ -27,6 +31,7 @@ handy.add('Object',function($H){
 		count				: fCount,			//计算对象长度
 		removeUndefined     : fRemoveUndefined, //移除undefined的元素或属性
 		toArray				: fToArray(),       //将类数组对象转换为数组，比如arguments, nodelist
+		fromArray           : fFromArray,       //将元素形如{name:n,value:v}的数组转换为对象
 		getSingleton        : fGetSingleton,    //获取单例
 		generateMethod      : fGenerateMethod   //归纳生成类方法
 	}
@@ -214,6 +219,38 @@ handy.add('Object',function($H){
     */
     function fIsArray(obj) {
         return window.Object.prototype.toString.call(obj) === "[object Array]";
+    }
+    /**
+     * 是否是对象
+     * @param {*}obj 参数对象
+     * @return {boolean} true表示是对象类型
+     */
+    function fIsObject(obj){
+    	return typeof obj=='object'&&!Object.isArray(obj);
+    }
+    /**
+     * 是否是数字
+     * @param {*}obj 参数对象
+     * @return {boolean} true表示是数字
+     */
+    function fIsNumber(obj){
+    	return typeof obj=='number';
+    }
+    /**
+     * 是否是字符串
+     * @param {*}obj 参数对象
+     * @return {boolean} true表示是字符串
+     */
+    function fIsString(obj){
+    	return typeof obj=='string';
+    }
+    /**
+     * 是否未定义
+     * @param {*}obj 参数对象
+     * @return {boolean} true表示未定义
+     */
+    function fIsUndefined(obj){
+    	return typeof obj=='undefined';
     }
     /**
      * 判断对象是否是类
@@ -502,6 +539,18 @@ handy.add('Object',function($H){
     			return Array.prototype.slice.call(oParam,nStart||0,nEnd||oParam.length);
     		}
     	}
+    }
+    /**
+     * 将元素形如{name:n,value:v}的数组转换为对象
+     * @param {Array}aParam 参数数组
+     */
+    function fFromArray(aParam){
+    	var oResult={};
+    	for(var i=0,len=aParam.length;i<len;i++){
+    		var oItem=aParam[i];
+    		oResult[oItem.name]=oItem.value;
+    	}
+    	return oResult;
     }
     /**
      * 获取单例
