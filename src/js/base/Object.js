@@ -32,7 +32,6 @@ handy.add('Object',function($H){
 		removeUndefined     : fRemoveUndefined, //移除undefined的元素或属性
 		toArray				: fToArray(),       //将类数组对象转换为数组，比如arguments, nodelist
 		fromArray           : fFromArray,       //将元素形如{name:n,value:v}的数组转换为对象
-		getSingleton        : fGetSingleton,    //获取单例
 		generateMethod      : fGenerateMethod   //归纳生成类方法
 	}
 	/**
@@ -116,6 +115,9 @@ handy.add('Object',function($H){
     * @return {Object} 扩展后的对象
     */
     function fExtend(oDestination, oSource, oOptions) {
+    	if(!oSource||Object.isString(oSource)||Object.isNumber(oSource)){
+    		return oDestination;
+    	}
     	var notCover=oOptions?oOptions.notCover:false;
     	var aCover=oOptions?oOptions.cover:null;
     	var bIsClone=oOptions?oOptions.IsClone:false;
@@ -551,20 +553,6 @@ handy.add('Object',function($H){
     		oResult[oItem.name]=oItem.value;
     	}
     	return oResult;
-    }
-    /**
-     * 获取单例
-     * @param {string|Class}clazz 类或者命名空间
-     * @return {Object} 返回单例对象
-     */
-    function fGetSingleton(clazz){
-    	var cClass;
-    	if(typeof clazz=='string'){
-    		cClass=Object.namespace(clazz);
-    	}else{
-    		cClass=clazz;
-    	}
-    	return cClass._singleton||(cClass._singleton=new cClass());
     }
     /**
     * 归纳生成类方法

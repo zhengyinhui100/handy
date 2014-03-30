@@ -6,7 +6,8 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
 	
 	var CL={
 		createClass         : fCreateClass,     //创建类
-		inherit				: fInherit  		//继承
+		inherit				: fInherit,  		//继承
+		getSingleton        : fGetSingleton     //获取单例
 	}
 	
 	/**
@@ -122,6 +123,20 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
         if(oProtoExtend){
             Object.extend(oChild.prototype, oProtoExtend);
         }
+    }
+    /**
+     * 获取单例
+     * @param {string|Class}clazz 类或者命名空间
+     * @return {Object} 返回单例对象
+     */
+    function fGetSingleton(clazz){
+    	var cClass;
+    	if(typeof clazz=='string'){
+    		cClass=Object.namespace(clazz);
+    	}else{
+    		cClass=clazz;
+    	}
+    	return cClass&&(cClass.$singleton||(cClass.$singleton=new cClass()));
     }
 	
 	return CL;
