@@ -55,15 +55,15 @@ function(AbstractDao,AbstractEvents,Model){
 	
 	var wrapError;
 	
-	//从base.Collection生成方法
+	//从base.Array生成方法
 	$H.each([
-		'some','every','find','filter','invoke'
-	], function(sMethod) {
+		'some','every','find','filter','invoke','indexOf'
+	], function(i,sMethod) {
 	    Collection.prototype[sMethod] = function() {
 	      var aArgs = Array.prototype.slice.call(arguments);
-	      var HC=$H.Collection;
+	      var HA=$H.Array;
 	      aArgs.unshift(this.models);
-	      return HC[sMethod].apply(HC, aArgs);
+	      return HA[sMethod].apply(HA, aArgs);
 	    };
 	});
 	
@@ -196,11 +196,11 @@ function(AbstractDao,AbstractEvents,Model){
 	 * @return {Model}返回被添加的模型，如果是数组，返回第一个元素
 	 */
     function fAdd(models, oOptions) {
-    	$H.extend(oOptions,{
+    	oOptions=$H.extend({
     		add:true,
     		remove:false,
     		merge:false
-    	});
+    	},oOptions);
         return this.set(models,oOptions);
     }
     /**
@@ -247,11 +247,11 @@ function(AbstractDao,AbstractEvents,Model){
 	 */
     function fSet(models, oOptions) {
     	var me=this;
-    	oOptions = $H.extend(oOptions, {
+    	oOptions = $H.extend({
     		add: true,
     		remove: true,
     		merge: true
-    	});
+    	},oOptions);
         if (oOptions.parse){
         	models = me.parse(models, oOptions);
         }

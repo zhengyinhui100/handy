@@ -27,7 +27,7 @@
 			<path path="js/base/String.js" />
 			<path path="js/base/Cookie.js" />
 			<path path="js/base/Util.js" />
-			<path path="js/base/Collection.js" />
+			<path path="js/base/Array.js" />
 			<path path="js/base/Template.js" />
 			<path path="js/base/HashChange.js" />
 			<path path="js/base/Support.js" />

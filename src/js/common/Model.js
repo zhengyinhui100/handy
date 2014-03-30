@@ -44,8 +44,6 @@ function(AbstractDao,AbstractEvents){
    		isValid               : fIsValid             //校验当前是否是合法的状态
 	});
 	
-	var wrapError;
-	
 	/**
 	 * 执行校验，如果通过校验返回true，否则，触发"invalid"事件
 	 * @param {Object=}oAttrs 参数属性，传入表示只校验参数属性
@@ -92,7 +90,6 @@ function(AbstractDao,AbstractEvents){
 	}
 	/**
 	 * 返回对象数据副本
-	 * @method toJSON
 	 * @return {Object} 返回对象数据副本
 	 */
     function fToJSON() {
@@ -110,7 +107,6 @@ function(AbstractDao,AbstractEvents){
     }
     /**
      * 获取指定属性值
-     * @method get
      * @param {string}sAttr 参数属性名
      * @return {*} 返回对应属性
      */
@@ -119,7 +115,6 @@ function(AbstractDao,AbstractEvents){
     }
 	/**
 	 * 获取html编码过的属性值
-	 * @method escape
 	 * @param {string}sAttr 参数属性名
      * @return {*} 返回对应属性编码后的值
 	 */
@@ -128,7 +123,6 @@ function(AbstractDao,AbstractEvents){
     }
 	/**
 	 * 判断是否含有参数属性
-	 * @method has
 	 * @param {string}sAttr 参数属性
 	 * @return {boolean} 指定属性不为空则返回true
 	 */
@@ -138,7 +132,6 @@ function(AbstractDao,AbstractEvents){
     }
 	/**
 	 * 设置值，并触发change事件(如果发生了变化)
-	 * @method set
 	 * @param {String}sKey 属性
 	 * @param {*}val 值
 	 * @param {Object}oOptions 选项{
@@ -227,7 +220,6 @@ function(AbstractDao,AbstractEvents){
     }
     /**
      * 移除指定属性
-     * @method unset
      * @param {string}sAttr 参数属性
      * @param {Object=}oOptions 备选参数
      * @return {Model}返回模型对象本身
@@ -239,7 +231,6 @@ function(AbstractDao,AbstractEvents){
     }
     /**
      * 清除所有属性
-     * @method clear
      * @param {Object=}oOptions 
      */
     function fClear(oOptions) {
@@ -254,7 +245,6 @@ function(AbstractDao,AbstractEvents){
     }
 	/**
 	 * 判断自上次change事件后有没有修改，可以指定属性
-	 * @method hasChanged
 	 * @param {string=}sAttr 参数属性，为空表示判断对象有没有修改
 	 * @retur {boolean} true表示有修改
 	 */
@@ -267,7 +257,6 @@ function(AbstractDao,AbstractEvents){
     }
 	/**
 	 * 返回改变过的属性，可以指定需要判断的属性
-	 * @method hasChanged
 	 * @param {Object=}oDiff 参数属性，表示只判断传入的属性
 	 * @retur {boolean} 如果有改变，返回改变的属性，否则，返回false
 	 */
@@ -287,7 +276,6 @@ function(AbstractDao,AbstractEvents){
     }
 	/**
 	 * 返回修改前的值，如果没有修改过，则返回null
-	 * @method previous
 	 * @param {string}sAttr 指定属性
 	 * @return {*} 返回修改前的值，如果没有修改过，则返回null
 	 */
@@ -300,7 +288,6 @@ function(AbstractDao,AbstractEvents){
     }
 	/**
 	 * 返回所有修改前的值
-	 * @method previousAttributes
 	 * @return {Object} 返回所有修改前的值
 	 */
     function fPreviousAttributes() {
@@ -326,8 +313,7 @@ function(AbstractDao,AbstractEvents){
         	}
         	me.trigger('sync', me, resp, oOptions);
         };
-        wrapError(me, oOptions);
-        return me.sync('read', me, oOptions);
+        me.sync('read', me, oOptions);
     }
 	/**
 	 * 保存模型
@@ -336,13 +322,10 @@ function(AbstractDao,AbstractEvents){
 	 * @param {Object}oOptions 选项{
 	 * 		{boolean=}unset 是否取消设置
 	 * 		{boolean=}silent 是否不触发事件
-	 * 		{boolean=}patch true时只更新改变的值
+	 * 		{boolean=}update true时执行update操作
 	 * 		{boolean=}now 是否立即更新模型，默认是等到回调返回时才更新
 	 * }
 	 */
-    // Set a hash of model attributes, and sync the model to the server.
-    // If the server returns an attributes hash that differs, the model's
-    // state will be `set` again.
     function fSave(sKey, val, oOptions) {
     	var me=this;
         var oAttrs, sMethod, oXhr, oAttributes = me.attributes;
@@ -356,9 +339,6 @@ function(AbstractDao,AbstractEvents){
 
         oOptions = $H.extend({validate: true}, oOptions);
 
-      // If we're not waiting and attributes exist, save acts as
-      // `set(attr).save(null, opts)` with validation. Otherwise, check if
-      // the model will be valid when the attributes, if any, are set.
         //now==true，立刻设置数据
         if (oAttrs && oOptions.now) {
        	    if (!me.set(oAttrs, oOptions)){
@@ -381,13 +361,13 @@ function(AbstractDao,AbstractEvents){
         }
         var fSuccess = oOptions.success;
         oOptions.success = function(resp) {
-	        // Ensure attributes are restored during synchronous saves.
 	        me.attributes = oAttributes;
 	        var oServerAttrs = me.parse(resp, oOptions);
 	        //now!=true，确保更新相应数据(可能没有返回相应数据)
 	        if (!oOptions.now){
 	        	oServerAttrs = $H.extend(oAttrs || {}, oServerAttrs);
 	        }
+	        //服务器返回的值可能跟现在不一样，还要根据返回值修改
 	        if ($H.isObject(oServerAttrs) && !me.set(oServerAttrs, oOptions)) {
 	            return false;
 	        }
@@ -397,7 +377,7 @@ function(AbstractDao,AbstractEvents){
 	        me.trigger('sync', me, resp, oOptions);
 	    };
 
-	    sMethod = me.isNew() ? 'create' : (oOptions.patch ? 'patch' : 'update');
+	    sMethod = me.isNew() ? 'create' : (oOptions.update ? 'update':'patch' );
 	    if (sMethod === 'patch'){
 	    	oOptions.attrs = oAttrs;
 	    }
@@ -440,11 +420,10 @@ function(AbstractDao,AbstractEvents){
             return false;
         }
 
-        var oXhr = me.sync('delete', me, oOptions);
+        me.sync('delete', me, oOptions);
         if (oOptions.now){
         	destroy();
         }
-        return oXhr;
     }
 	/**
 	 * 获取模型url
