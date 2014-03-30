@@ -51,7 +51,7 @@
 			var oModule=fDefined.apply(window,args);
 			handy.base[sName]=handy[sName]=oModule;
 			//return;
-			if('Browser,Class,Collection,Cookie,Events,Function,Json,Object,String,Template,Util'.indexOf(sName)>=0){
+			if('Browser,Class,Array,Cookie,Events,Function,Json,Object,String,Template,Util'.indexOf(sName)>=0){
 				for(var key in oModule){
 					//!Function[key]专为bind方法
 					if(handy.isDebug&&typeof handy[key]!="undefined"&&('console' in window)&&!Function[key]){

@@ -92,9 +92,6 @@ function(LS){
 	    
 		if(sToreType=='remote'){
 			//服务端存储
-			if(sMethod=='update'){
-				sMethod='patch';
-			}
 			oParam.url+='/'+sMethod+'.do';
 			$H.extend(oParam,oOptions);
 			me.ajax(oParam);

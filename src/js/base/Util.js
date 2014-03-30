@@ -58,9 +58,9 @@ handy.add('Util','B.Object',function(Object,$H){
 	 * @param {Object|Array}oCoord1 参数坐标1
 	 * 				Object类型{
 	 * 					{number}latitude:纬度,
-	 * 					{number}longtitude:经度
+	 * 					{number}longitude:经度
 	 * 				}
-	 * 				Array类型[{number}latitude,{number}longtitude]
+	 * 				Array类型[{number}latitude,{number}longitude]
 	 * @param {Object|Array}oCoord2 参数坐标2
 	 * @param {boolean=}bFormat 仅当true进行格式化：小于1000米的单位是m(整数)，
 	 * 					大于1000米的单位是km(取一位小数)，如：32000->3.2km
@@ -78,13 +78,16 @@ handy.add('Util','B.Object',function(Object,$H){
         if(Object.isArray(oCoord1)){
         	nLat1=oCoord1[0];
 	        nLng1=oCoord1[1];
+        }else{
+	        nLat1=oCoord1.latitude;
+	        nLng1=oCoord1.longitude;
+        }
+        if(Object.isArray(oCoord2)){
 	        nLat2=oCoord2[0];
 	        nLng2=oCoord2[1];
         }else{
-	        nLat1=oCoord1.latitude;
-	        nLng1=oCoord1.longtitude;
 	        nLat2=oCoord2.latitude;
-	        nLng2=oCoord2.longtitude;
+	        nLng2=oCoord2.longitude;
         }
         var nRadLat1 = _fRad(nLat1);
 	    var nRadLat2 = _fRad(nLat2);
@@ -95,6 +98,9 @@ handy.add('Util','B.Object',function(Object,$H){
 	    nDistance = nDistance * EARTH_RADIUS;
 	    nDistance = Math.round(nDistance * 10000);
 	    if(bFormat){
+	    	if(isNaN(nDistance)){
+	    		return '未知';
+	    	}
 	    	nDistance=nDistance>1000?(nDistance/1000).toFixed(1)+'km':nDistance+'m';
 	    }
 	    return nDistance;
