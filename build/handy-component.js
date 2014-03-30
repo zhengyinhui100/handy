@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-29 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-30 | zhengyinhui100@gmail.com */
 /**
  * 组件管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -67,7 +67,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		
 		//属性
 //		cls                 : '',                //组件样式名，空则使用xtype的小写，如Dialog，cls为"dialog"，因此样式前缀是“hui-dialog-”
-//		xrole               : '',                //保留属性，用于模板中筛选组件的选择器，如this.findHtml("$>[xrole='content']")
+//		xrole               : '',                //保留属性，用于模板中筛选组件的选择器，如this.findHtml(">[xrole='content']")
 		
 		//组件初始化相关
 		hasConfig           : fHasConfig,        //检查是否已存在指定配置
@@ -221,10 +221,10 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 	function fTxt(sTxt){
 		var me=this;
 		//先寻找js私有的class
-		var oTxtEl=me.find('.js-'+me.cls+'-txt');
+		var oTxtEl=me.findEl('.js-'+me.cls+'-txt');
 		//如果找不到，再通过css的class查找
 		if(oTxtEl.length==0){
-			oTxtEl=me.find('.hui-'+me.cls+'-txt')
+			oTxtEl=me.findEl('.hui-'+me.cls+'-txt')
 		}
 		if(sTxt!=undefined){
 			oTxtEl.text(sTxt);
@@ -317,7 +317,7 @@ function(AC){
 		shadowOverlay   : true,
 		
 		tmpl            : [
-			'<div class="hui-popup"><%=this.findHtml("$>*")%></div>'
+			'<div class="hui-popup"><%=this.findHtml(">*")%></div>'
 		],
 		
 		doConfig         : fDoConfig,        //初始化配置
@@ -516,7 +516,7 @@ function(AC){
 		
 		tmpl                 : [
 			'<div class="hui-ctrlgp<%if(this.direction=="h"){%> hui-ctrlgp-h<%}else{%> hui-ctrlgp-v<%}%>">',
-			'<%=this.findHtml("$>*")%>',
+			'<%=this.findHtml(">*")%>',
 			'</div>'
 		],
 		
@@ -529,7 +529,7 @@ function(AC){
 					var me=this;
 					var oCurrentEl=$(oEvt.currentTarget);
 					//可能后后代组件有'.js-item'，因此这里只寻找子组件
-					var oCurCmp=me.find('$>[_id="'+oCurrentEl.attr("id")+'"]');
+					var oCurCmp=me.find('>[_id="'+oCurrentEl.attr("id")+'"]');
 					if(oCurCmp.length>0){
 						var nIndex=oCurCmp[0].index();
 						me.onItemClick(oEvt,nIndex);
@@ -631,7 +631,7 @@ function(AC){
 				oCmp.select($H.contains(aValues,oCmp.value));
 			});
 		}else{
-			var aCmp=me.find('$>[selected=true]');
+			var aCmp=me.find('>[selected=true]');
 			var aValues=[];
 			$H.each(aCmp,function(i,oCmp){
 				aValues.push(oCmp.value);
@@ -726,7 +726,7 @@ function(AC){
 							'if(this.isBack){%> hui-btn-back<%}',
 							'if(this.hasIcon&&this.text){%> hui-btn-icon-<%=this.iconPos%><%}%>">',
 							'<span class="hui-btn-txt"><%=this.text%></span>',
-							'<%=this.findHtml("$>*")%>',
+							'<%=this.findHtml(">*")%>',
 							'</a>'],
 							
 		parseItem       : fParseItem           //分析处理子组件
@@ -786,7 +786,7 @@ function(AC){
 		var me=this;
 		bSelect=!(bSelect==false);
 		me.selected=bSelect;
-		var oInput=me.find('input');
+		var oInput=me.findEl('input');
 		var oEl=me.getEl();
 		if(bSelect){
 			oInput.attr("checked",true);
@@ -806,7 +806,7 @@ function(AC){
 		var me=this;
 		if(sValue){
 			me.value=sValue;
-			me.find('input').val(sValue);
+			me.findEl('input').val(sValue);
 		}else{
 			return me.value;
 		}
@@ -858,7 +858,7 @@ function(AC){
 		var me=this;
 		bSelected=!(bSelected==false);
 		me.selected=bSelected;
-		var oInput=me.find('input');
+		var oInput=me.findEl('input');
 		var oEl=me.getEl();
 		if(bSelected){
 			oInput.attr("checked",true);
@@ -878,7 +878,7 @@ function(AC){
 		var me=this;
 		if(sValue){
 			me.value=sValue;
-			me.find('input').val(sValue);
+			me.findEl('input').val(sValue);
 		}else{
 			return me.value;
 		}
@@ -984,12 +984,12 @@ function(AC){
 		if(sValue){
 			if(me.value!=sValue){
 				var oMenu=me.children[0];
-				var oItem=oMenu.find('$>[value="'+sValue+'"]');
+				var oItem=oMenu.find('>[value="'+sValue+'"]');
 				if(oItem.length>0){
 					me.trigger("change");
 					oItem=oItem[0];
 					me.value=sValue;
-					var oSel=me.find('input');
+					var oSel=me.findEl('input');
 					oSel.attr('value',sValue);
 					me.txt(oItem.text);
 					//更新菜单选中状态
@@ -1033,7 +1033,7 @@ function(AC){
 			'<%if(this.hasBtn){%>',
 				' hui-input-btn-<%=this.btnPos%>',
 			'<%}%>">',
-			'<%=this.findHtml("$>*")%>',
+			'<%=this.findHtml(">*")%>',
 			'<%if(this.type=="textarea"){%>',
 				'<textarea class="js-input"',
 			'<%}else{%>',
@@ -1087,7 +1087,7 @@ function(AC){
 				name:'input propertychange',
 				el:'.js-input',
 				handler:function(){
-					var oTextarea=me.find(".js-input");
+					var oTextarea=me.findEl(".js-input");
 					oTextarea.css("height",oTextarea[0].scrollHeight);
 				}
 			});
@@ -1099,7 +1099,7 @@ function(AC){
 				radius:'big',
 				icon:'delete',
 				click:function(){
-					this.parent.find('input').val('').focus();
+					this.parent.findEl('input').val('').focus();
 				}
 			});
 		}
@@ -1123,7 +1123,7 @@ function(AC){
 	 * @return {string=} 如果是读取操作，返回当前值
 	 */
 	function fVal(sValue){
-		var oInput=this.find('input,textarea');
+		var oInput=this.findEl('input,textarea');
 		if(sValue){
 			oInput.val(sValue);
 		}else{
@@ -1135,7 +1135,7 @@ function(AC){
 	 * @method focus
 	 */
 	function fFocus(){
-		this.find('input').focus();
+		this.findEl('input').focus();
 	}
 	
 	return Input;
@@ -1160,7 +1160,7 @@ function(AC){
 			'<div class="hui-set">',
 				'<h1 class="hui-set-title"><%=this.title%></h1>',
 				'<div class="hui-set-content">',
-					'<%=this.findHtml("$>*")%>',
+					'<%=this.findHtml(">*")%>',
 				'</div>',
 			'</div>'
 		]
@@ -1192,7 +1192,7 @@ function(AC){
 				'<label class="hui-form-left" for="<%=this.forName%>"><%=this.label%></label>',
 				'<div class="hui-form-right">',
 					'<%=this.text%>',
-					'<%=this.findHtml("$>*")%>',
+					'<%=this.findHtml(">*")%>',
 				'</div>',
 			'</div>'
 		]
@@ -1220,7 +1220,7 @@ function(AC){
 			'<div class="hui-form">',
 				'<form action="">',
 				'<div class="hui-form-tips c-error"></div>',
-					'<%=this.findHtml("$>*")%>',
+					'<%=this.findHtml(">*")%>',
 				'</form>',
 			'</div>'
 		]
@@ -1262,7 +1262,7 @@ function(AC,Panel){
 		//属性
 //		titleCmp        : null,         //标题组件
 //		content         : null,         //内容组件
-		tmpl            : ['<div><%=this.findHtml("$>[xrole=\'title\']")%></div>'],
+		tmpl            : ['<div><%=this.findHtml(">[xrole=\'title\']")%></div>'],
 		initialize      : fInitialize,  //初始化
 		doConfig        : fDoConfig,    //初始化配置
 		parseItem       : fParseItem,   //分析处理子组件
@@ -1277,8 +1277,8 @@ function(AC,Panel){
 	function fInitialize(oSettings){
 		var me=this;
 		me.callSuper();
-		me.titleCmp=me.find('$>[xrole="title"]')[0];
-		me.contentCmp=me.find('$>[xrole="content"]')[0];
+		me.titleCmp=me.find('>[xrole="title"]')[0];
+		me.contentCmp=me.find('>[xrole="content"]')[0];
 	}
 	/**
 	 * 初始化配置
@@ -1402,14 +1402,14 @@ function(AC,TabItem,ControlGroup){
 		tmpl            : [
 			'<div class="hui-tab">',
 				'<ul class="js-tab-btns c-clear">',
-					'<%var aBtns=this.find("$>TabItem");',
+					'<%var aBtns=this.find(">TabItem");',
 					'for(var i=0,len=aBtns.length;i<len;i++){%>',
 						'<li class="hui-tab-item">',
 						'<%=aBtns[i].getHtml()%>',
 						'</li>',
 					'<%}%>',
 				'</ul>',
-				'<%=this.findHtml("$>TabItem>[xrole=\'content\']")%>',
+				'<%=this.findHtml(">TabItem>[xrole=\'content\']")%>',
 			'</div>'
 		],
 		
@@ -1437,7 +1437,7 @@ function(AC,TabItem,ControlGroup){
 		var me=this;
 		var nLen=me.children.length;
 		var width=Math.floor(100/nLen);
-		me.find('.js-tab-btns>li').each(function(i,el){
+		me.findEl('.js-tab-btns>li').each(function(i,el){
 			if(i<nLen-1){
 				el.style.width=width+'%';
 			}else{
@@ -1457,7 +1457,7 @@ function(AC,TabItem,ControlGroup){
 			return;
 		}
 		if(me.inited){
-			var oUl=me.find('.js-tab-btns');
+			var oUl=me.findEl('.js-tab-btns');
 			var oRenderTo=$('<li class="hui-tab-item"></li>').appendTo(oUl);
 			item.renderTo=oRenderTo;
 		}
@@ -1471,7 +1471,7 @@ function(AC,TabItem,ControlGroup){
 	function fSetTabContent(sContent,nIndex){
 		var me=this;
 		nIndex=nIndex||me.getSelected(true);
-		me.find('js-tab-content').index(nIndex).html(sContent);
+		me.findEl('.js-tab-content').index(nIndex).html(sContent);
 	}
 	
 	return Tab;
@@ -1546,12 +1546,12 @@ function(AC,Popup,ControlGroup){
 		//初始配置
 //		text            : '',
 		theme           : 'black',
-		timeout         : 2000,
+		timeout         : 1000,
 		radius          : 'normal',
 		
 		tmpl            : [
 			'<div class="hui-tips<%if(!this.text){%> hui-tips-notxt<%}%>">',
-				'<%=this.findHtml("$>*")%>',
+				'<%=this.findHtml(">*")%>',
 				'<%if(this.text){%><span class="hui-tips-txt"><%=this.text%></span><%}%>',
 			'</div>'
 		]
@@ -1604,18 +1604,18 @@ function(AC,Popup){
 		
 		tmpl            : [
 			'<div class="hui-dialog">',
-				'<%=this.findHtml("$>[xrole=\'dialog-header\']")%>',
+				'<%=this.findHtml(">[xrole=\'dialog-header\']")%>',
 				'<div class="hui-dialog-body">',
 					'<%if(this.content){%><%=this.content%><%}else{%>',
 						'<div class="hui-body-content">',
 							'<h1 class="hui-content-title"><%=this.contentTitle%></h1>',
 							'<div class="hui-content-msg"><%=this.contentMsg%></div>',
-							'<%=this.findHtml("$>[xrole=\'dialog-content\']")%>',
+							'<%=this.findHtml(">[xrole=\'dialog-content\']")%>',
 						'</div>',
 					'<%}%>',
 					'<%if(!this.noAction){%>',
 						'<div class="hui-body-action">',
-						'<%=this.findHtml("$>[xrole=\'dialog-action\']")%>',
+						'<%=this.findHtml(">[xrole=\'dialog-action\']")%>',
 						'</div>',
 					'<%}%>',
 				'</div>',
@@ -1675,7 +1675,7 @@ function(AC,Popup){
 				value:sDefault
 			},
 			okCall:function(){
-				var value=this.find('$Input')[0].val();
+				var value=this.find('Input')[0].val();
 				return fCall&&fCall(value);
 			}
 		});

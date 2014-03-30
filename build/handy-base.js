@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-29 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-30 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -52,7 +52,7 @@
 			var oModule=fDefined.apply(window,args);
 			handy.base[sName]=handy[sName]=oModule;
 			//return;
-			if('Browser,Class,Collection,Cookie,Events,Function,Json,Object,String,Template,Util'.indexOf(sName)>=0){
+			if('Browser,Class,Array,Cookie,Events,Function,Json,Object,String,Template,Util'.indexOf(sName)>=0){
 				for(var key in oModule){
 					//!Function[key]专为bind方法
 					if(handy.isDebug&&typeof handy[key]!="undefined"&&('console' in window)&&!Function[key]){
@@ -348,7 +348,6 @@ handy.add('Object',function($H){
 		removeUndefined     : fRemoveUndefined, //移除undefined的元素或属性
 		toArray				: fToArray(),       //将类数组对象转换为数组，比如arguments, nodelist
 		fromArray           : fFromArray,       //将元素形如{name:n,value:v}的数组转换为对象
-		getSingleton        : fGetSingleton,    //获取单例
 		generateMethod      : fGenerateMethod   //归纳生成类方法
 	}
 	/**
@@ -432,6 +431,9 @@ handy.add('Object',function($H){
     * @return {Object} 扩展后的对象
     */
     function fExtend(oDestination, oSource, oOptions) {
+    	if(!oSource||Object.isString(oSource)||Object.isNumber(oSource)){
+    		return oDestination;
+    	}
     	var notCover=oOptions?oOptions.notCover:false;
     	var aCover=oOptions?oOptions.cover:null;
     	var bIsClone=oOptions?oOptions.IsClone:false;
@@ -869,20 +871,6 @@ handy.add('Object',function($H){
     	return oResult;
     }
     /**
-     * 获取单例
-     * @param {string|Class}clazz 类或者命名空间
-     * @return {Object} 返回单例对象
-     */
-    function fGetSingleton(clazz){
-    	var cClass;
-    	if(typeof clazz=='string'){
-    		cClass=Object.namespace(clazz);
-    	}else{
-    		cClass=clazz;
-    	}
-    	return cClass._singleton||(cClass._singleton=new cClass());
-    }
-    /**
     * 归纳生成类方法
     * @method generateMethod
     * @param {Object}oTarget 需要生成方法的对象
@@ -1307,7 +1295,8 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
 	
 	var CL={
 		createClass         : fCreateClass,     //创建类
-		inherit				: fInherit  		//继承
+		inherit				: fInherit,  		//继承
+		getSingleton        : fGetSingleton     //获取单例
 	}
 	
 	/**
@@ -1423,6 +1412,20 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
         if(oProtoExtend){
             Object.extend(oChild.prototype, oProtoExtend);
         }
+    }
+    /**
+     * 获取单例
+     * @param {string|Class}clazz 类或者命名空间
+     * @return {Object} 返回单例对象
+     */
+    function fGetSingleton(clazz){
+    	var cClass;
+    	if(typeof clazz=='string'){
+    		cClass=Object.namespace(clazz);
+    	}else{
+    		cClass=clazz;
+    	}
+    	return cClass&&(cClass.$singleton||(cClass.$singleton=new cClass()));
     }
 	
 	return CL;
@@ -2662,9 +2665,9 @@ handy.add('Util','B.Object',function(Object,$H){
 	 * @param {Object|Array}oCoord1 参数坐标1
 	 * 				Object类型{
 	 * 					{number}latitude:纬度,
-	 * 					{number}longtitude:经度
+	 * 					{number}longitude:经度
 	 * 				}
-	 * 				Array类型[{number}latitude,{number}longtitude]
+	 * 				Array类型[{number}latitude,{number}longitude]
 	 * @param {Object|Array}oCoord2 参数坐标2
 	 * @param {boolean=}bFormat 仅当true进行格式化：小于1000米的单位是m(整数)，
 	 * 					大于1000米的单位是km(取一位小数)，如：32000->3.2km
@@ -2682,13 +2685,16 @@ handy.add('Util','B.Object',function(Object,$H){
         if(Object.isArray(oCoord1)){
         	nLat1=oCoord1[0];
 	        nLng1=oCoord1[1];
+        }else{
+	        nLat1=oCoord1.latitude;
+	        nLng1=oCoord1.longitude;
+        }
+        if(Object.isArray(oCoord2)){
 	        nLat2=oCoord2[0];
 	        nLng2=oCoord2[1];
         }else{
-	        nLat1=oCoord1.latitude;
-	        nLng1=oCoord1.longtitude;
 	        nLat2=oCoord2.latitude;
-	        nLng2=oCoord2.longtitude;
+	        nLng2=oCoord2.longitude;
         }
         var nRadLat1 = _fRad(nLat1);
 	    var nRadLat2 = _fRad(nLat2);
@@ -2699,6 +2705,9 @@ handy.add('Util','B.Object',function(Object,$H){
 	    nDistance = nDistance * EARTH_RADIUS;
 	    nDistance = Math.round(nDistance * 10000);
 	    if(bFormat){
+	    	if(isNaN(nDistance)){
+	    		return '未知';
+	    	}
 	    	nDistance=nDistance>1000?(nDistance/1000).toFixed(1)+'km':nDistance+'m';
 	    }
 	    return nDistance;
@@ -2722,21 +2731,23 @@ handy.add('Util','B.Object',function(Object,$H){
 	return Util;
 	
 });/**
- * 集合类
+ * 数组类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Collection','B.Object',function(Object,$H){
+handy.add('Array','B.Object',function(Object,$H){
 	
-	var Collection={
+	var Arr={
 		map           : fMap,          //映射每一个值, 通过一个转换函数产生一个新的数组
 		pluck         : fPluck,        //提取集合里指定的属性值
 		some          : fSome,         //检查集合是否包含某种元素
 		every         : fEvery,        //检查是否每一个元素都符合
+		indexOf       : fIndexOf,      //返回元素 value 在数组 array 里的索引位置
 		find          : fFind,         //查找元素，只返回第一个匹配的元素
 		filter        : fFilter,       //过滤集合，返回所有匹配元素的数组
 		where         : fWhere,        //返回包含指定 key-value 组合的对象的数组
 		findWhere     : fFindWhere,    //返回包含指定 key-value 组合的第一个对象
 		invoke        : fInvoke,       //在集合里的每个元素上调用指定名称的函数
+		sortedIndex   : fSortedIndex,  //获取 value 插入到排好序的 list 里的所在位置的索引.
 		sortBy        : fSortBy        //排序
 	}
 	
@@ -2871,6 +2882,34 @@ handy.add('Collection','B.Object',function(Object,$H){
 	    return !!result;
 	}
 	/**
+	 * 返回元素 value 在数组 array 里的索引位置, 如果元素没在数组 array 中, 将返回 -1. 
+	 * 此函数将使用原生的 indexOf 方法, 除非原生的方法无故消失或者被覆盖重写了, 才使用非原生的. 
+	 * 如果您要处理一个大型数组, 而且确定数组已经排序, 参数 isSorted 可以传 true, 
+	 * 函数将使用更快的二分搜索来进行处理,或者, 传一个数字作为 第三个参数, 以便于在指定索引之后开始寻找对应值.
+	 * @param {Array}aParam
+	 * @param {*} item
+	 * @param {boolean=}
+	 * @return {number}
+	 */
+     function fIndexOf(array, item, isSorted) {
+	     if (array == null) return -1;
+	     var i = 0, length = array.length;
+	     if (isSorted) {
+	         if (typeof isSorted == 'number') {
+	             i = (isSorted < 0 ? Math.max(0, length + isSorted) : isSorted);
+	         } else {
+	         	i = Arr.sortedIndex(array, item);
+	         	return array[i] === item ? i : -1;
+	         }
+	     }
+	     var fNativeIndexOf=Array.prototype.indexOf;
+	     if ( fNativeIndexOf&& array.indexOf === fNativeIndexOf){
+	     	return array.indexOf(item, isSorted);
+	     }
+	     for (; i < length; i++) if (array[i] === item) return i;
+	     return -1;
+	}
+	/**
 	 * 查找元素，只返回第一个匹配的元素，对集合中的每个元素都执行一次指定的函数（callback），直到此函数返回 true，
 	 * 如果发现这个元素，将返回此元素，如果回调函数对每个元素执行后都返回 false ，将返回undefined。
 	 * 它只对集合中的非空元素执行指定的函数，没有赋值或者已经删除的元素将被忽略。
@@ -2946,6 +2985,23 @@ handy.add('Collection','B.Object',function(Object,$H){
         });
 	}
 	/**
+	 * 为了保持 list 已经排好的顺序, 使用二分搜索来检测 value 应该 插入到 list 里的所在位置的索引. 
+	 * 如果传入了一个 iterator , 它将用来计算每个值的排名, 包括所传的 value 参数.
+	 * @param {}
+	 */
+	// Use a comparator function to figure out the smallest index at which
+  // an object should be inserted so as to maintain order. Uses binary search.
+    function fSortedIndex(array, obj, iterator, context) {
+	    iterator = _fGetIterator(iterator);
+	    var value = iterator.call(context, obj);
+	    var low = 0, high = array.length;
+	    while (low < high) {
+	      var mid = (low + high) >>> 1;
+	      iterator.call(context, array[mid]) < value ? low = mid + 1 : high = mid;
+	    }
+	    return low;
+	}
+	/**
 	 * 排序
 	 * @param {Array}obj 参数对象
 	 * @param {Function|string=}value 为空时返回获取本身的迭代函数，为字符串时返回获取该属性的迭代函数，
@@ -2977,7 +3033,7 @@ handy.add('Collection','B.Object',function(Object,$H){
 	    }), 'value');
 	}
 	
-	return Collection;
+	return Arr;
 	
 });/**
  * 模板类

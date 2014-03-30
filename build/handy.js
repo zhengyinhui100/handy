@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-29 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-03-30 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -52,7 +52,7 @@
 			var oModule=fDefined.apply(window,args);
 			handy.base[sName]=handy[sName]=oModule;
 			//return;
-			if('Browser,Class,Collection,Cookie,Events,Function,Json,Object,String,Template,Util'.indexOf(sName)>=0){
+			if('Browser,Class,Array,Cookie,Events,Function,Json,Object,String,Template,Util'.indexOf(sName)>=0){
 				for(var key in oModule){
 					//!Function[key]专为bind方法
 					if(handy.isDebug&&typeof handy[key]!="undefined"&&('console' in window)&&!Function[key]){
@@ -348,7 +348,6 @@ handy.add('Object',function($H){
 		removeUndefined     : fRemoveUndefined, //移除undefined的元素或属性
 		toArray				: fToArray(),       //将类数组对象转换为数组，比如arguments, nodelist
 		fromArray           : fFromArray,       //将元素形如{name:n,value:v}的数组转换为对象
-		getSingleton        : fGetSingleton,    //获取单例
 		generateMethod      : fGenerateMethod   //归纳生成类方法
 	}
 	/**
@@ -432,6 +431,9 @@ handy.add('Object',function($H){
     * @return {Object} 扩展后的对象
     */
     function fExtend(oDestination, oSource, oOptions) {
+    	if(!oSource||Object.isString(oSource)||Object.isNumber(oSource)){
+    		return oDestination;
+    	}
     	var notCover=oOptions?oOptions.notCover:false;
     	var aCover=oOptions?oOptions.cover:null;
     	var bIsClone=oOptions?oOptions.IsClone:false;
@@ -869,20 +871,6 @@ handy.add('Object',function($H){
     	return oResult;
     }
     /**
-     * 获取单例
-     * @param {string|Class}clazz 类或者命名空间
-     * @return {Object} 返回单例对象
-     */
-    function fGetSingleton(clazz){
-    	var cClass;
-    	if(typeof clazz=='string'){
-    		cClass=Object.namespace(clazz);
-    	}else{
-    		cClass=clazz;
-    	}
-    	return cClass._singleton||(cClass._singleton=new cClass());
-    }
-    /**
     * 归纳生成类方法
     * @method generateMethod
     * @param {Object}oTarget 需要生成方法的对象
@@ -1307,7 +1295,8 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
 	
 	var CL={
 		createClass         : fCreateClass,     //创建类
-		inherit				: fInherit  		//继承
+		inherit				: fInherit,  		//继承
+		getSingleton        : fGetSingleton     //获取单例
 	}
 	
 	/**
@@ -1423,6 +1412,20 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
         if(oProtoExtend){
             Object.extend(oChild.prototype, oProtoExtend);
         }
+    }
+    /**
+     * 获取单例
+     * @param {string|Class}clazz 类或者命名空间
+     * @return {Object} 返回单例对象
+     */
+    function fGetSingleton(clazz){
+    	var cClass;
+    	if(typeof clazz=='string'){
+    		cClass=Object.namespace(clazz);
+    	}else{
+    		cClass=clazz;
+    	}
+    	return cClass&&(cClass.$singleton||(cClass.$singleton=new cClass()));
     }
 	
 	return CL;
@@ -2662,9 +2665,9 @@ handy.add('Util','B.Object',function(Object,$H){
 	 * @param {Object|Array}oCoord1 参数坐标1
 	 * 				Object类型{
 	 * 					{number}latitude:纬度,
-	 * 					{number}longtitude:经度
+	 * 					{number}longitude:经度
 	 * 				}
-	 * 				Array类型[{number}latitude,{number}longtitude]
+	 * 				Array类型[{number}latitude,{number}longitude]
 	 * @param {Object|Array}oCoord2 参数坐标2
 	 * @param {boolean=}bFormat 仅当true进行格式化：小于1000米的单位是m(整数)，
 	 * 					大于1000米的单位是km(取一位小数)，如：32000->3.2km
@@ -2682,13 +2685,16 @@ handy.add('Util','B.Object',function(Object,$H){
         if(Object.isArray(oCoord1)){
         	nLat1=oCoord1[0];
 	        nLng1=oCoord1[1];
+        }else{
+	        nLat1=oCoord1.latitude;
+	        nLng1=oCoord1.longitude;
+        }
+        if(Object.isArray(oCoord2)){
 	        nLat2=oCoord2[0];
 	        nLng2=oCoord2[1];
         }else{
-	        nLat1=oCoord1.latitude;
-	        nLng1=oCoord1.longtitude;
 	        nLat2=oCoord2.latitude;
-	        nLng2=oCoord2.longtitude;
+	        nLng2=oCoord2.longitude;
         }
         var nRadLat1 = _fRad(nLat1);
 	    var nRadLat2 = _fRad(nLat2);
@@ -2699,6 +2705,9 @@ handy.add('Util','B.Object',function(Object,$H){
 	    nDistance = nDistance * EARTH_RADIUS;
 	    nDistance = Math.round(nDistance * 10000);
 	    if(bFormat){
+	    	if(isNaN(nDistance)){
+	    		return '未知';
+	    	}
 	    	nDistance=nDistance>1000?(nDistance/1000).toFixed(1)+'km':nDistance+'m';
 	    }
 	    return nDistance;
@@ -2722,21 +2731,23 @@ handy.add('Util','B.Object',function(Object,$H){
 	return Util;
 	
 });/**
- * 集合类
+ * 数组类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Collection','B.Object',function(Object,$H){
+handy.add('Array','B.Object',function(Object,$H){
 	
-	var Collection={
+	var Arr={
 		map           : fMap,          //映射每一个值, 通过一个转换函数产生一个新的数组
 		pluck         : fPluck,        //提取集合里指定的属性值
 		some          : fSome,         //检查集合是否包含某种元素
 		every         : fEvery,        //检查是否每一个元素都符合
+		indexOf       : fIndexOf,      //返回元素 value 在数组 array 里的索引位置
 		find          : fFind,         //查找元素，只返回第一个匹配的元素
 		filter        : fFilter,       //过滤集合，返回所有匹配元素的数组
 		where         : fWhere,        //返回包含指定 key-value 组合的对象的数组
 		findWhere     : fFindWhere,    //返回包含指定 key-value 组合的第一个对象
 		invoke        : fInvoke,       //在集合里的每个元素上调用指定名称的函数
+		sortedIndex   : fSortedIndex,  //获取 value 插入到排好序的 list 里的所在位置的索引.
 		sortBy        : fSortBy        //排序
 	}
 	
@@ -2871,6 +2882,34 @@ handy.add('Collection','B.Object',function(Object,$H){
 	    return !!result;
 	}
 	/**
+	 * 返回元素 value 在数组 array 里的索引位置, 如果元素没在数组 array 中, 将返回 -1. 
+	 * 此函数将使用原生的 indexOf 方法, 除非原生的方法无故消失或者被覆盖重写了, 才使用非原生的. 
+	 * 如果您要处理一个大型数组, 而且确定数组已经排序, 参数 isSorted 可以传 true, 
+	 * 函数将使用更快的二分搜索来进行处理,或者, 传一个数字作为 第三个参数, 以便于在指定索引之后开始寻找对应值.
+	 * @param {Array}aParam
+	 * @param {*} item
+	 * @param {boolean=}
+	 * @return {number}
+	 */
+     function fIndexOf(array, item, isSorted) {
+	     if (array == null) return -1;
+	     var i = 0, length = array.length;
+	     if (isSorted) {
+	         if (typeof isSorted == 'number') {
+	             i = (isSorted < 0 ? Math.max(0, length + isSorted) : isSorted);
+	         } else {
+	         	i = Arr.sortedIndex(array, item);
+	         	return array[i] === item ? i : -1;
+	         }
+	     }
+	     var fNativeIndexOf=Array.prototype.indexOf;
+	     if ( fNativeIndexOf&& array.indexOf === fNativeIndexOf){
+	     	return array.indexOf(item, isSorted);
+	     }
+	     for (; i < length; i++) if (array[i] === item) return i;
+	     return -1;
+	}
+	/**
 	 * 查找元素，只返回第一个匹配的元素，对集合中的每个元素都执行一次指定的函数（callback），直到此函数返回 true，
 	 * 如果发现这个元素，将返回此元素，如果回调函数对每个元素执行后都返回 false ，将返回undefined。
 	 * 它只对集合中的非空元素执行指定的函数，没有赋值或者已经删除的元素将被忽略。
@@ -2946,6 +2985,23 @@ handy.add('Collection','B.Object',function(Object,$H){
         });
 	}
 	/**
+	 * 为了保持 list 已经排好的顺序, 使用二分搜索来检测 value 应该 插入到 list 里的所在位置的索引. 
+	 * 如果传入了一个 iterator , 它将用来计算每个值的排名, 包括所传的 value 参数.
+	 * @param {}
+	 */
+	// Use a comparator function to figure out the smallest index at which
+  // an object should be inserted so as to maintain order. Uses binary search.
+    function fSortedIndex(array, obj, iterator, context) {
+	    iterator = _fGetIterator(iterator);
+	    var value = iterator.call(context, obj);
+	    var low = 0, high = array.length;
+	    while (low < high) {
+	      var mid = (low + high) >>> 1;
+	      iterator.call(context, array[mid]) < value ? low = mid + 1 : high = mid;
+	    }
+	    return low;
+	}
+	/**
 	 * 排序
 	 * @param {Array}obj 参数对象
 	 * @param {Function|string=}value 为空时返回获取本身的迭代函数，为字符串时返回获取该属性的迭代函数，
@@ -2977,7 +3033,7 @@ handy.add('Collection','B.Object',function(Object,$H){
 	    }), 'value');
 	}
 	
-	return Collection;
+	return Arr;
 	
 });/**
  * 模板类
@@ -3921,9 +3977,6 @@ function(LS){
 	    
 		if(sToreType=='remote'){
 			//服务端存储
-			if(sMethod=='update'){
-				sMethod='patch';
-			}
 			oParam.url+='/'+sMethod+'.do';
 			$H.extend(oParam,oOptions);
 			me.ajax(oParam);
@@ -4151,7 +4204,7 @@ function(ViewManager,AbstractEvents,Template){
 //		notListen           : false,             //不自动初始化监听器
 		listeners           : [],                //事件配置列表，初始参数可以是对象也可以是对象数组
 		items               : [],                //子视图配置，初始参数可以是对象也可以是对象数组
-//		lazy                : false,             //保留属性：懒加载，初始化时只设置占位标签，只在调用show方法时进行实际初始化
+////	lazy                : false,             //保留属性：懒加载，初始化时只设置占位标签，只在调用show方法时进行实际初始化
 		
 		
 		//属性
@@ -4175,7 +4228,7 @@ function(ViewManager,AbstractEvents,Template){
 			'beforeUpdate','update','afterUpdate',
 			'beforeDestroy','destroy','afterDestroy',
 			'add','remove'
-//			'layout'    //保留事件
+////		'layout'    //保留事件
 		],  
 		_defaultEvents      : [                  //默认事件，可以通过参数属性的方式直接进行添加
 			'mousedown','mouseup','mouseover','mousemove','mouseenter','mouseleave',
@@ -4193,7 +4246,7 @@ function(ViewManager,AbstractEvents,Template){
 		
 		//初始化相关
 		initialize          : fInitialize,       //初始化
-//		lazyInit            : fLazyInit,         //保留方法：懒加载，初始化时只设置占位标签，以后再进行真正的初始化
+////	lazyInit            : fLazyInit,         //保留方法：懒加载，初始化时只设置占位标签，以后再进行真正的初始化
 		doConfig            : fDoConfig,         //初始化配置
 		getEl               : fGetEl,            //获取容器节点
 		getId               : fGetId,            //获取id
@@ -4201,7 +4254,7 @@ function(ViewManager,AbstractEvents,Template){
 		getHtml             : fGetHtml,          //获取html
 		findHtml            : fFindHtml,         //获取子视图html
 		initStyle           : fInitStyle,        //初始化样式
-//		layout              : fLayout,           //布局，保留接口
+////	layout              : fLayout,           //布局，保留接口
 		
 		beforeRender        : fBeforeRender,     //渲染前工作
 		render              : fRender,           //渲染
@@ -4225,13 +4278,16 @@ function(ViewManager,AbstractEvents,Template){
 		suspend             : fSuspend,          //挂起事件
 		resume              : fResume,           //恢复事件
 		
+		findEl              : fFindEl,           //查找视图内节点
+		parentsEl           : fParentsEl,        //查找视图的祖先节点
+		
 		//视图管理相关
-//		get                 : fGet,              //保留接口
-//		set                 : fSet,              //保留接口
+////	get                 : fGet,              //保留接口
+////	set                 : fSet,              //保留接口
 		each                : fEach,             //遍历子视图
 		match               : fMatch,            //匹配选择器
-		find                : fFind,             //查找子元素或子视图
-		parents             : fParents,          //查找祖先元素或祖先视图
+		find                : fFind,             //查找视图
+		parents             : fParents,          //查找祖先视图
 		index               : fIndex,            //获取本身的索引，如果没有父视图则返回null
 		callChild           : fCallChild,        //调用子视图方法
 		add                 : fAdd,              //添加子视图
@@ -4347,12 +4403,16 @@ function(ViewManager,AbstractEvents,Template){
 	/**
 	 * 初始化配置
 	 * @method doConfig
-	 * @param {Object}oParams 初始化参数
+	 * @param {Object}oSettings 初始化参数
 	 */
-	function fDoConfig(oParams){
+	function fDoConfig(oSettings){
 		var me=this;
 		//复制保存初始参数
-		var oParams=me.initParam=oParams||{};
+		me.initParam=oSettings;
+		if(typeof oSettings=='string'){
+			oSettings={text:oSettings};
+		}
+		var oParams=oSettings||{};
 		
 		$H.extend(me,oParams,{notCover:function(p,val){
 			var value=me[p];
@@ -4455,8 +4515,7 @@ function(ViewManager,AbstractEvents,Template){
 	 */
 	function fFindHtml(sSel){
 		var me=this;
-		sSel.indexOf("$")!=0&&(sSel='$'+sSel);
-		var aItems=sSel=="$>*"?me.children:me.find(sSel);
+		var aItems=me.find(sSel);
 		var aHtml=[];
 		for(var i=0;i<aItems.length;i++){
 			aHtml.push(aItems[i].getHtml());
@@ -4644,10 +4703,7 @@ function(ViewManager,AbstractEvents,Template){
 		var me=this;
 		if(obj){
 			if(!obj instanceof View){
-				obj=me.find(obj);
-				if($H.isArray(obj)){
-					obj=obj[0];
-				}
+				obj=me.find(obj)[0];
 			}
 		}else{
 			obj=me;
@@ -4669,10 +4725,7 @@ function(ViewManager,AbstractEvents,Template){
 		var me=this;
 		if(obj){
 			if(!obj instanceof View){
-				obj=me.find(obj);
-				if($H.isArray(obj)){
-					obj=obj[0];
-				}
+				obj=me.find(obj)[0];
 			}
 			return obj.setContent(content);
 		}
@@ -4714,12 +4767,12 @@ function(ViewManager,AbstractEvents,Template){
 		if($H.isFunction(oTarget)){
 			oTarget=oTarget.call(me);
 		}
+		//自定义事件
 		if(oTarget||bIsCustom){
 			var aArgs=$H.removeUndefined([oTarget,sName,fHandler,context,nTimes]);
 			me[bIsCustom?'on':'listenTo'].apply(me,aArgs);
-		}else if(oEvent.custom){
-			me.on.apply(me,sName,fHandler,context,nTimes);
 		}else{
+			//element事件
 			var aListeners=me._listeners,
 				oEl=oEvent.el,
 				sMethod=oEvent.method||"bind",
@@ -4735,7 +4788,7 @@ function(ViewManager,AbstractEvents,Template){
 					sName="touchend";
 				}
 			}
-			oEl=oEl?typeof oEl=='string'?me.find(oEl):oEl:me.getEl();
+			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
 			if(sSel){
 				if(oData){
 					oEl[sMethod](sSel,sName,oData,fFunc);
@@ -4784,7 +4837,7 @@ function(ViewManager,AbstractEvents,Template){
 					sName="touchend";
 				}
 			}
-			oEl=oEl?typeof oEl=='string'?me.find(oEl):oEl:me.getEl();
+			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
 			for(var i=me._listeners.length-1;i>=0;i--){
 				var oListener=me._listeners[i]
 				if(oListener.handler==fHandler){
@@ -4860,6 +4913,22 @@ function(ViewManager,AbstractEvents,Template){
 		me.callChild();
 	}
 	/**
+	 * 查找视图内节点
+	 * @param {string}sSel jQuery选择器
+	 * @return {jQuery} 返回结果
+	 */
+	function fFindEl(sSel){
+		return this.getEl().find(sSel);
+	}
+	/**
+	 * 查找视图的祖先节点
+	 * @param {string}sSel jQuery选择器
+	 * @return {jQuery} 返回结果
+	 */
+	function fParentsEl(sSel){
+		return this.getEl().parents(sSel);
+	}
+	/**
 	 * 遍历子视图
 	 * @method each
      * @param {function}fCallback 回调函数:fCallback(i,oChild)|fCallback(args)this=oChild,返回false时退出遍历
@@ -4918,70 +4987,73 @@ function(ViewManager,AbstractEvents,Template){
 	/**
 	 * 查找子元素或子视图
 	 * @method find
-	 * @param {number|string}sel 数字表示子组件索引，如果是字符串：'$'开头表示查找视图，多个选择器间用","隔开('$sel1,$sel2,...')，语法类似jQuery，如：'$xtype[attr=value]'、'$ancestor descendant'、'$parent>child'，
-	 * 				'$>Button'表示仅查找当前子节点中的按钮，'$Button'表示查找所有后代节点中的按钮，
+	 * @param {number|string|Function(View)}sel 数字表示子组件索引，
+	 * 				如果是字符串：多个选择器间用","隔开('sel1,sel2,...')，语法类似jQuery，
+	 * 				如：'xtype[attr=value]'、'ancestor descendant'、'parent>child'，
+	 * 				'>Button'表示仅查找当前子节点中的按钮，'Button'表示查找所有后代节点中的按钮，
+	 * 				如果是函数(参数是当前匹配的视图对象)，则将返回true的结果加入结果集
 	 * @param {Array=}aResult 用于存储结果集的数组
-	 * @return {jQuery|Array|View} 返回匹配的结果，如果没找到匹配的子视图则返回空数组，ps:sel为索引数字时直接返回对应视图(非数组)
+	 * @return {Array} 返回匹配的结果，如果没找到匹配的子视图则返回空数组，ps:只有一个结果也返回数组，便于统一接口
 	 */
 	function fFind(sel,aResult){
-		var me=this;
-		if(typeof sel=='number'){
+		var me=this,aResult=aResult||[];
+		if($H.isNumber(sel)){
 			var oItem=me.children[sel];
-			return oItem;
-		}
-		//查找元素
-		if(sel.indexOf('$')!=0){
-			return me.getEl().find(sel);
-		}
-		var aResult=aResult||[];
-		//多个选择器
-		if(sel.indexOf(",")>0){
-			$H.each(sel.split(","),function(i,val){
-				aResult=aResult.concat(me.find(val));
-			})
-			return aResult;
-		}
-		//查找视图
-		var bOnlyChildren=sel.indexOf('>')==1;
-		var sCurSel=sel.replace(/^\$>?\s?/,'');
-		//分割当前选择器及后代选择器
-		var nIndex=sCurSel.search(/\s|>/);
-		var sCurSel,sExtSel;
-		if(nIndex>0){
-			sExtSel=sCurSel.substring(nIndex);
-			sCurSel=sCurSel.substring(0,nIndex);
-		}
-		//匹配子视图
-		me.each(function(i,oChild){
-			var bMatch=oChild.match(sCurSel);
-			if(bMatch){
-				//已匹配所有表达式，加入结果集
-				if(!sExtSel){
-					aResult.push(oChild);
-				}else{
-					//还有未匹配的表达式，继续查找
-					oChild.find('$'+sExtSel,aResult);
+			aResult.push(oItem);
+		}else if($H.isString(sel)){
+			//多个选择器
+			if(sel.indexOf(",")>0){
+				$H.each(sel.split(","),function(i,val){
+					aResult=aResult.concat(me.find(val));
+				})
+				return aResult;
+			}
+			//查找视图
+			var bOnlyChildren=sel.indexOf('>')==0;
+			var sCurSel=sel.replace(/^>?\s?/,'');
+			//分割当前选择器及后代选择器
+			var nIndex=sCurSel.search(/\s|>/);
+			var sCurSel,sExtSel;
+			if(nIndex>0){
+				sExtSel=sCurSel.substring(nIndex);
+				sCurSel=sCurSel.substring(0,nIndex);
+			}
+			//匹配子视图
+			me.each(function(i,oChild){
+				var bMatch=oChild.match(sCurSel);
+				if(bMatch){
+					//已匹配所有表达式，加入结果集
+					if(!sExtSel){
+						aResult.push(oChild);
+					}else{
+						//还有未匹配的表达式，继续查找
+						oChild.find(sExtSel,aResult);
+					}
 				}
-			}
-			if(!bOnlyChildren){
-				//如果不是仅限当前子节点，继续从后代开始查找
+				if(!bOnlyChildren){
+					//如果不是仅限当前子节点，继续从后代开始查找
+					oChild.find(sel,aResult);
+				}
+			});
+		}else if($H.isFunction(sel)){
+			//匹配子视图
+			me.each(function(i,oChild){
+				if(sel(oChild)){
+					aResult.push(oChild);
+				}
 				oChild.find(sel,aResult);
-			}
-		});
+			});
+		}
 		return aResult;
 	}
 	/**
-	 * 查找祖先元素或祖先视图
+	 * 查找祖先视图
 	 * @method parents
-	 * @param {string=}sSel 若此参数为空，直接返回最顶级祖先视图，'$'开头表示查找视图，如：'$xtype[attr=value]'
+	 * @param {string=}sSel 若此参数为空，直接返回最顶级祖先视图
 	 * @return {jQuery|Component|null} 返回匹配的结果，如果没找到匹配的视图则返回null
 	 */
 	function fParents(sSel){
 		var me=this;
-		//查找元素
-		if(sSel&&sSel.indexOf('$')!=0){
-			return me.getEl().parents(sSel);
-		}
 		var oCurrent=me;
 		while(oCurrent.parent){
 			oCurrent=oCurrent.parent;
@@ -5105,16 +5177,19 @@ function(ViewManager,AbstractEvents,Template){
 	 */
 	function fRemove(item){
 		var me=this;
+		if(me._applyArray()){
+			return;
+		}
 		var aChildren=me.children;
 		var bResult=false;
 		var nIndex;
-		if(typeof item=='number'){
+		if($H.isNumber(item)){
 			nIndex=item;
 			item=aChildren[nIndex];
-		}else if(typeof item=='string'){
+		}else if($H.isString(item)||$H.isFunction(item)){
 			item=me.find(item);
 			for(var i=0,len=item.length;i<len;i++){
-				if(me.remove(item)==false){
+				if(me.remove(item[i])==false){
 					return false;
 				}
 				bResult=true;
@@ -5306,8 +5381,6 @@ function(AbstractDao,AbstractEvents){
    		isValid               : fIsValid             //校验当前是否是合法的状态
 	});
 	
-	var wrapError;
-	
 	/**
 	 * 执行校验，如果通过校验返回true，否则，触发"invalid"事件
 	 * @param {Object=}oAttrs 参数属性，传入表示只校验参数属性
@@ -5354,7 +5427,6 @@ function(AbstractDao,AbstractEvents){
 	}
 	/**
 	 * 返回对象数据副本
-	 * @method toJSON
 	 * @return {Object} 返回对象数据副本
 	 */
     function fToJSON() {
@@ -5372,7 +5444,6 @@ function(AbstractDao,AbstractEvents){
     }
     /**
      * 获取指定属性值
-     * @method get
      * @param {string}sAttr 参数属性名
      * @return {*} 返回对应属性
      */
@@ -5381,7 +5452,6 @@ function(AbstractDao,AbstractEvents){
     }
 	/**
 	 * 获取html编码过的属性值
-	 * @method escape
 	 * @param {string}sAttr 参数属性名
      * @return {*} 返回对应属性编码后的值
 	 */
@@ -5390,7 +5460,6 @@ function(AbstractDao,AbstractEvents){
     }
 	/**
 	 * 判断是否含有参数属性
-	 * @method has
 	 * @param {string}sAttr 参数属性
 	 * @return {boolean} 指定属性不为空则返回true
 	 */
@@ -5400,7 +5469,6 @@ function(AbstractDao,AbstractEvents){
     }
 	/**
 	 * 设置值，并触发change事件(如果发生了变化)
-	 * @method set
 	 * @param {String}sKey 属性
 	 * @param {*}val 值
 	 * @param {Object}oOptions 选项{
@@ -5489,7 +5557,6 @@ function(AbstractDao,AbstractEvents){
     }
     /**
      * 移除指定属性
-     * @method unset
      * @param {string}sAttr 参数属性
      * @param {Object=}oOptions 备选参数
      * @return {Model}返回模型对象本身
@@ -5501,7 +5568,6 @@ function(AbstractDao,AbstractEvents){
     }
     /**
      * 清除所有属性
-     * @method clear
      * @param {Object=}oOptions 
      */
     function fClear(oOptions) {
@@ -5516,7 +5582,6 @@ function(AbstractDao,AbstractEvents){
     }
 	/**
 	 * 判断自上次change事件后有没有修改，可以指定属性
-	 * @method hasChanged
 	 * @param {string=}sAttr 参数属性，为空表示判断对象有没有修改
 	 * @retur {boolean} true表示有修改
 	 */
@@ -5529,7 +5594,6 @@ function(AbstractDao,AbstractEvents){
     }
 	/**
 	 * 返回改变过的属性，可以指定需要判断的属性
-	 * @method hasChanged
 	 * @param {Object=}oDiff 参数属性，表示只判断传入的属性
 	 * @retur {boolean} 如果有改变，返回改变的属性，否则，返回false
 	 */
@@ -5549,7 +5613,6 @@ function(AbstractDao,AbstractEvents){
     }
 	/**
 	 * 返回修改前的值，如果没有修改过，则返回null
-	 * @method previous
 	 * @param {string}sAttr 指定属性
 	 * @return {*} 返回修改前的值，如果没有修改过，则返回null
 	 */
@@ -5562,7 +5625,6 @@ function(AbstractDao,AbstractEvents){
     }
 	/**
 	 * 返回所有修改前的值
-	 * @method previousAttributes
 	 * @return {Object} 返回所有修改前的值
 	 */
     function fPreviousAttributes() {
@@ -5588,8 +5650,7 @@ function(AbstractDao,AbstractEvents){
         	}
         	me.trigger('sync', me, resp, oOptions);
         };
-        wrapError(me, oOptions);
-        return me.sync('read', me, oOptions);
+        me.sync('read', me, oOptions);
     }
 	/**
 	 * 保存模型
@@ -5598,13 +5659,10 @@ function(AbstractDao,AbstractEvents){
 	 * @param {Object}oOptions 选项{
 	 * 		{boolean=}unset 是否取消设置
 	 * 		{boolean=}silent 是否不触发事件
-	 * 		{boolean=}patch true时只更新改变的值
+	 * 		{boolean=}update true时执行update操作
 	 * 		{boolean=}now 是否立即更新模型，默认是等到回调返回时才更新
 	 * }
 	 */
-    // Set a hash of model attributes, and sync the model to the server.
-    // If the server returns an attributes hash that differs, the model's
-    // state will be `set` again.
     function fSave(sKey, val, oOptions) {
     	var me=this;
         var oAttrs, sMethod, oXhr, oAttributes = me.attributes;
@@ -5618,9 +5676,6 @@ function(AbstractDao,AbstractEvents){
 
         oOptions = $H.extend({validate: true}, oOptions);
 
-      // If we're not waiting and attributes exist, save acts as
-      // `set(attr).save(null, opts)` with validation. Otherwise, check if
-      // the model will be valid when the attributes, if any, are set.
         //now==true，立刻设置数据
         if (oAttrs && oOptions.now) {
        	    if (!me.set(oAttrs, oOptions)){
@@ -5643,13 +5698,13 @@ function(AbstractDao,AbstractEvents){
         }
         var fSuccess = oOptions.success;
         oOptions.success = function(resp) {
-	        // Ensure attributes are restored during synchronous saves.
 	        me.attributes = oAttributes;
 	        var oServerAttrs = me.parse(resp, oOptions);
 	        //now!=true，确保更新相应数据(可能没有返回相应数据)
 	        if (!oOptions.now){
 	        	oServerAttrs = $H.extend(oAttrs || {}, oServerAttrs);
 	        }
+	        //服务器返回的值可能跟现在不一样，还要根据返回值修改
 	        if ($H.isObject(oServerAttrs) && !me.set(oServerAttrs, oOptions)) {
 	            return false;
 	        }
@@ -5659,7 +5714,7 @@ function(AbstractDao,AbstractEvents){
 	        me.trigger('sync', me, resp, oOptions);
 	    };
 
-	    sMethod = me.isNew() ? 'create' : (oOptions.patch ? 'patch' : 'update');
+	    sMethod = me.isNew() ? 'create' : (oOptions.update ? 'update':'patch' );
 	    if (sMethod === 'patch'){
 	    	oOptions.attrs = oAttrs;
 	    }
@@ -5702,11 +5757,10 @@ function(AbstractDao,AbstractEvents){
             return false;
         }
 
-        var oXhr = me.sync('delete', me, oOptions);
+        me.sync('delete', me, oOptions);
         if (oOptions.now){
         	destroy();
         }
-        return oXhr;
     }
 	/**
 	 * 获取模型url
@@ -5818,15 +5872,15 @@ function(AbstractDao,AbstractEvents,Model){
 	
 	var wrapError;
 	
-	//从base.Collection生成方法
+	//从base.Array生成方法
 	$H.each([
-		'some','every','find','filter','invoke'
-	], function(sMethod) {
+		'some','every','find','filter','invoke','indexOf'
+	], function(i,sMethod) {
 	    Collection.prototype[sMethod] = function() {
 	      var aArgs = Array.prototype.slice.call(arguments);
-	      var HC=$H.Collection;
+	      var HA=$H.Array;
 	      aArgs.unshift(this.models);
-	      return HC[sMethod].apply(HC, aArgs);
+	      return HA[sMethod].apply(HA, aArgs);
 	    };
 	});
 	
@@ -5959,11 +6013,11 @@ function(AbstractDao,AbstractEvents,Model){
 	 * @return {Model}返回被添加的模型，如果是数组，返回第一个元素
 	 */
     function fAdd(models, oOptions) {
-    	$H.extend(oOptions,{
+    	oOptions=$H.extend({
     		add:true,
     		remove:false,
     		merge:false
-    	});
+    	},oOptions);
         return this.set(models,oOptions);
     }
     /**
@@ -6010,11 +6064,11 @@ function(AbstractDao,AbstractEvents,Model){
 	 */
     function fSet(models, oOptions) {
     	var me=this;
-    	oOptions = $H.extend(oOptions, {
+    	oOptions = $H.extend({
     		add: true,
     		remove: true,
     		merge: true
-    	});
+    	},oOptions);
         if (oOptions.parse){
         	models = me.parse(models, oOptions);
         }
@@ -6433,7 +6487,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		
 		//属性
 //		cls                 : '',                //组件样式名，空则使用xtype的小写，如Dialog，cls为"dialog"，因此样式前缀是“hui-dialog-”
-//		xrole               : '',                //保留属性，用于模板中筛选组件的选择器，如this.findHtml("$>[xrole='content']")
+//		xrole               : '',                //保留属性，用于模板中筛选组件的选择器，如this.findHtml(">[xrole='content']")
 		
 		//组件初始化相关
 		hasConfig           : fHasConfig,        //检查是否已存在指定配置
@@ -6587,10 +6641,10 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 	function fTxt(sTxt){
 		var me=this;
 		//先寻找js私有的class
-		var oTxtEl=me.find('.js-'+me.cls+'-txt');
+		var oTxtEl=me.findEl('.js-'+me.cls+'-txt');
 		//如果找不到，再通过css的class查找
 		if(oTxtEl.length==0){
-			oTxtEl=me.find('.hui-'+me.cls+'-txt')
+			oTxtEl=me.findEl('.hui-'+me.cls+'-txt')
 		}
 		if(sTxt!=undefined){
 			oTxtEl.text(sTxt);
@@ -6683,7 +6737,7 @@ function(AC){
 		shadowOverlay   : true,
 		
 		tmpl            : [
-			'<div class="hui-popup"><%=this.findHtml("$>*")%></div>'
+			'<div class="hui-popup"><%=this.findHtml(">*")%></div>'
 		],
 		
 		doConfig         : fDoConfig,        //初始化配置
@@ -6882,7 +6936,7 @@ function(AC){
 		
 		tmpl                 : [
 			'<div class="hui-ctrlgp<%if(this.direction=="h"){%> hui-ctrlgp-h<%}else{%> hui-ctrlgp-v<%}%>">',
-			'<%=this.findHtml("$>*")%>',
+			'<%=this.findHtml(">*")%>',
 			'</div>'
 		],
 		
@@ -6895,7 +6949,7 @@ function(AC){
 					var me=this;
 					var oCurrentEl=$(oEvt.currentTarget);
 					//可能后后代组件有'.js-item'，因此这里只寻找子组件
-					var oCurCmp=me.find('$>[_id="'+oCurrentEl.attr("id")+'"]');
+					var oCurCmp=me.find('>[_id="'+oCurrentEl.attr("id")+'"]');
 					if(oCurCmp.length>0){
 						var nIndex=oCurCmp[0].index();
 						me.onItemClick(oEvt,nIndex);
@@ -6997,7 +7051,7 @@ function(AC){
 				oCmp.select($H.contains(aValues,oCmp.value));
 			});
 		}else{
-			var aCmp=me.find('$>[selected=true]');
+			var aCmp=me.find('>[selected=true]');
 			var aValues=[];
 			$H.each(aCmp,function(i,oCmp){
 				aValues.push(oCmp.value);
@@ -7092,7 +7146,7 @@ function(AC){
 							'if(this.isBack){%> hui-btn-back<%}',
 							'if(this.hasIcon&&this.text){%> hui-btn-icon-<%=this.iconPos%><%}%>">',
 							'<span class="hui-btn-txt"><%=this.text%></span>',
-							'<%=this.findHtml("$>*")%>',
+							'<%=this.findHtml(">*")%>',
 							'</a>'],
 							
 		parseItem       : fParseItem           //分析处理子组件
@@ -7152,7 +7206,7 @@ function(AC){
 		var me=this;
 		bSelect=!(bSelect==false);
 		me.selected=bSelect;
-		var oInput=me.find('input');
+		var oInput=me.findEl('input');
 		var oEl=me.getEl();
 		if(bSelect){
 			oInput.attr("checked",true);
@@ -7172,7 +7226,7 @@ function(AC){
 		var me=this;
 		if(sValue){
 			me.value=sValue;
-			me.find('input').val(sValue);
+			me.findEl('input').val(sValue);
 		}else{
 			return me.value;
 		}
@@ -7224,7 +7278,7 @@ function(AC){
 		var me=this;
 		bSelected=!(bSelected==false);
 		me.selected=bSelected;
-		var oInput=me.find('input');
+		var oInput=me.findEl('input');
 		var oEl=me.getEl();
 		if(bSelected){
 			oInput.attr("checked",true);
@@ -7244,7 +7298,7 @@ function(AC){
 		var me=this;
 		if(sValue){
 			me.value=sValue;
-			me.find('input').val(sValue);
+			me.findEl('input').val(sValue);
 		}else{
 			return me.value;
 		}
@@ -7350,12 +7404,12 @@ function(AC){
 		if(sValue){
 			if(me.value!=sValue){
 				var oMenu=me.children[0];
-				var oItem=oMenu.find('$>[value="'+sValue+'"]');
+				var oItem=oMenu.find('>[value="'+sValue+'"]');
 				if(oItem.length>0){
 					me.trigger("change");
 					oItem=oItem[0];
 					me.value=sValue;
-					var oSel=me.find('input');
+					var oSel=me.findEl('input');
 					oSel.attr('value',sValue);
 					me.txt(oItem.text);
 					//更新菜单选中状态
@@ -7399,7 +7453,7 @@ function(AC){
 			'<%if(this.hasBtn){%>',
 				' hui-input-btn-<%=this.btnPos%>',
 			'<%}%>">',
-			'<%=this.findHtml("$>*")%>',
+			'<%=this.findHtml(">*")%>',
 			'<%if(this.type=="textarea"){%>',
 				'<textarea class="js-input"',
 			'<%}else{%>',
@@ -7453,7 +7507,7 @@ function(AC){
 				name:'input propertychange',
 				el:'.js-input',
 				handler:function(){
-					var oTextarea=me.find(".js-input");
+					var oTextarea=me.findEl(".js-input");
 					oTextarea.css("height",oTextarea[0].scrollHeight);
 				}
 			});
@@ -7465,7 +7519,7 @@ function(AC){
 				radius:'big',
 				icon:'delete',
 				click:function(){
-					this.parent.find('input').val('').focus();
+					this.parent.findEl('input').val('').focus();
 				}
 			});
 		}
@@ -7489,7 +7543,7 @@ function(AC){
 	 * @return {string=} 如果是读取操作，返回当前值
 	 */
 	function fVal(sValue){
-		var oInput=this.find('input,textarea');
+		var oInput=this.findEl('input,textarea');
 		if(sValue){
 			oInput.val(sValue);
 		}else{
@@ -7501,7 +7555,7 @@ function(AC){
 	 * @method focus
 	 */
 	function fFocus(){
-		this.find('input').focus();
+		this.findEl('input').focus();
 	}
 	
 	return Input;
@@ -7526,7 +7580,7 @@ function(AC){
 			'<div class="hui-set">',
 				'<h1 class="hui-set-title"><%=this.title%></h1>',
 				'<div class="hui-set-content">',
-					'<%=this.findHtml("$>*")%>',
+					'<%=this.findHtml(">*")%>',
 				'</div>',
 			'</div>'
 		]
@@ -7558,7 +7612,7 @@ function(AC){
 				'<label class="hui-form-left" for="<%=this.forName%>"><%=this.label%></label>',
 				'<div class="hui-form-right">',
 					'<%=this.text%>',
-					'<%=this.findHtml("$>*")%>',
+					'<%=this.findHtml(">*")%>',
 				'</div>',
 			'</div>'
 		]
@@ -7586,7 +7640,7 @@ function(AC){
 			'<div class="hui-form">',
 				'<form action="">',
 				'<div class="hui-form-tips c-error"></div>',
-					'<%=this.findHtml("$>*")%>',
+					'<%=this.findHtml(">*")%>',
 				'</form>',
 			'</div>'
 		]
@@ -7628,7 +7682,7 @@ function(AC,Panel){
 		//属性
 //		titleCmp        : null,         //标题组件
 //		content         : null,         //内容组件
-		tmpl            : ['<div><%=this.findHtml("$>[xrole=\'title\']")%></div>'],
+		tmpl            : ['<div><%=this.findHtml(">[xrole=\'title\']")%></div>'],
 		initialize      : fInitialize,  //初始化
 		doConfig        : fDoConfig,    //初始化配置
 		parseItem       : fParseItem,   //分析处理子组件
@@ -7643,8 +7697,8 @@ function(AC,Panel){
 	function fInitialize(oSettings){
 		var me=this;
 		me.callSuper();
-		me.titleCmp=me.find('$>[xrole="title"]')[0];
-		me.contentCmp=me.find('$>[xrole="content"]')[0];
+		me.titleCmp=me.find('>[xrole="title"]')[0];
+		me.contentCmp=me.find('>[xrole="content"]')[0];
 	}
 	/**
 	 * 初始化配置
@@ -7768,14 +7822,14 @@ function(AC,TabItem,ControlGroup){
 		tmpl            : [
 			'<div class="hui-tab">',
 				'<ul class="js-tab-btns c-clear">',
-					'<%var aBtns=this.find("$>TabItem");',
+					'<%var aBtns=this.find(">TabItem");',
 					'for(var i=0,len=aBtns.length;i<len;i++){%>',
 						'<li class="hui-tab-item">',
 						'<%=aBtns[i].getHtml()%>',
 						'</li>',
 					'<%}%>',
 				'</ul>',
-				'<%=this.findHtml("$>TabItem>[xrole=\'content\']")%>',
+				'<%=this.findHtml(">TabItem>[xrole=\'content\']")%>',
 			'</div>'
 		],
 		
@@ -7803,7 +7857,7 @@ function(AC,TabItem,ControlGroup){
 		var me=this;
 		var nLen=me.children.length;
 		var width=Math.floor(100/nLen);
-		me.find('.js-tab-btns>li').each(function(i,el){
+		me.findEl('.js-tab-btns>li').each(function(i,el){
 			if(i<nLen-1){
 				el.style.width=width+'%';
 			}else{
@@ -7823,7 +7877,7 @@ function(AC,TabItem,ControlGroup){
 			return;
 		}
 		if(me.inited){
-			var oUl=me.find('.js-tab-btns');
+			var oUl=me.findEl('.js-tab-btns');
 			var oRenderTo=$('<li class="hui-tab-item"></li>').appendTo(oUl);
 			item.renderTo=oRenderTo;
 		}
@@ -7837,7 +7891,7 @@ function(AC,TabItem,ControlGroup){
 	function fSetTabContent(sContent,nIndex){
 		var me=this;
 		nIndex=nIndex||me.getSelected(true);
-		me.find('js-tab-content').index(nIndex).html(sContent);
+		me.findEl('.js-tab-content').index(nIndex).html(sContent);
 	}
 	
 	return Tab;
@@ -7912,12 +7966,12 @@ function(AC,Popup,ControlGroup){
 		//初始配置
 //		text            : '',
 		theme           : 'black',
-		timeout         : 2000,
+		timeout         : 1000,
 		radius          : 'normal',
 		
 		tmpl            : [
 			'<div class="hui-tips<%if(!this.text){%> hui-tips-notxt<%}%>">',
-				'<%=this.findHtml("$>*")%>',
+				'<%=this.findHtml(">*")%>',
 				'<%if(this.text){%><span class="hui-tips-txt"><%=this.text%></span><%}%>',
 			'</div>'
 		]
@@ -7970,18 +8024,18 @@ function(AC,Popup){
 		
 		tmpl            : [
 			'<div class="hui-dialog">',
-				'<%=this.findHtml("$>[xrole=\'dialog-header\']")%>',
+				'<%=this.findHtml(">[xrole=\'dialog-header\']")%>',
 				'<div class="hui-dialog-body">',
 					'<%if(this.content){%><%=this.content%><%}else{%>',
 						'<div class="hui-body-content">',
 							'<h1 class="hui-content-title"><%=this.contentTitle%></h1>',
 							'<div class="hui-content-msg"><%=this.contentMsg%></div>',
-							'<%=this.findHtml("$>[xrole=\'dialog-content\']")%>',
+							'<%=this.findHtml(">[xrole=\'dialog-content\']")%>',
 						'</div>',
 					'<%}%>',
 					'<%if(!this.noAction){%>',
 						'<div class="hui-body-action">',
-						'<%=this.findHtml("$>[xrole=\'dialog-action\']")%>',
+						'<%=this.findHtml(">[xrole=\'dialog-action\']")%>',
 						'</div>',
 					'<%}%>',
 				'</div>',
@@ -8041,7 +8095,7 @@ function(AC,Popup){
 				value:sDefault
 			},
 			okCall:function(){
-				var value=this.find('$Input')[0].val();
+				var value=this.find('Input')[0].val();
 				return fCall&&fCall(value);
 			}
 		});
