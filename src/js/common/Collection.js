@@ -53,19 +53,27 @@ function(AbstractDao,AbstractEvents,Model){
 		
 	});
 	
-	var wrapError;
-	
+    var HA=$H.Array;
+    
 	//从base.Array生成方法
 	$H.each([
-		'some','every','find','filter','invoke','indexOf'
+		'map','some','every','find','filter','invoke','indexOf'
 	], function(i,sMethod) {
 	    Collection.prototype[sMethod] = function() {
 	      var aArgs = Array.prototype.slice.call(arguments);
-	      var HA=$H.Array;
 	      aArgs.unshift(this.models);
 	      return HA[sMethod].apply(HA, aArgs);
 	    };
 	});
+	
+	$H.each(['sortBy','groupBy','countBy'], function(sMethod) {
+	    Collection.prototype[sMethod] = function(value, context) {
+	        var iterator = $H.isFunction(value) ? value : function(oModel) {
+	            return oModel.get(value);
+	        };
+	        return HA[sMethod](this.models, iterator, context);
+        };
+    });
 	
 	/**
 	 * 重置集合
