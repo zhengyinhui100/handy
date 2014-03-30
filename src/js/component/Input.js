@@ -28,7 +28,7 @@ function(AC){
 			'<%if(this.hasBtn){%>',
 				' hui-input-btn-<%=this.btnPos%>',
 			'<%}%>">',
-			'<%=this.findHtml("$>*")%>',
+			'<%=this.findHtml(">*")%>',
 			'<%if(this.type=="textarea"){%>',
 				'<textarea class="js-input"',
 			'<%}else{%>',
@@ -82,7 +82,7 @@ function(AC){
 				name:'input propertychange',
 				el:'.js-input',
 				handler:function(){
-					var oTextarea=me.find(".js-input");
+					var oTextarea=me.findEl(".js-input");
 					oTextarea.css("height",oTextarea[0].scrollHeight);
 				}
 			});
@@ -94,7 +94,7 @@ function(AC){
 				radius:'big',
 				icon:'delete',
 				click:function(){
-					this.parent.find('input').val('').focus();
+					this.parent.findEl('input').val('').focus();
 				}
 			});
 		}
@@ -118,7 +118,7 @@ function(AC){
 	 * @return {string=} 如果是读取操作，返回当前值
 	 */
 	function fVal(sValue){
-		var oInput=this.find('input,textarea');
+		var oInput=this.findEl('input,textarea');
 		if(sValue){
 			oInput.val(sValue);
 		}else{
@@ -130,7 +130,7 @@ function(AC){
 	 * @method focus
 	 */
 	function fFocus(){
-		this.find('input').focus();
+		this.findEl('input').focus();
 	}
 	
 	return Input;

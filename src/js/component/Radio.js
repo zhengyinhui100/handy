@@ -40,7 +40,7 @@ function(AC){
 		var me=this;
 		bSelect=!(bSelect==false);
 		me.selected=bSelect;
-		var oInput=me.find('input');
+		var oInput=me.findEl('input');
 		var oEl=me.getEl();
 		if(bSelect){
 			oInput.attr("checked",true);
@@ -60,7 +60,7 @@ function(AC){
 		var me=this;
 		if(sValue){
 			me.value=sValue;
-			me.find('input').val(sValue);
+			me.findEl('input').val(sValue);
 		}else{
 			return me.value;
 		}

@@ -96,12 +96,12 @@ function(AC){
 		if(sValue){
 			if(me.value!=sValue){
 				var oMenu=me.children[0];
-				var oItem=oMenu.find('$>[value="'+sValue+'"]');
+				var oItem=oMenu.find('>[value="'+sValue+'"]');
 				if(oItem.length>0){
 					me.trigger("change");
 					oItem=oItem[0];
 					me.value=sValue;
-					var oSel=me.find('input');
+					var oSel=me.findEl('input');
 					oSel.attr('value',sValue);
 					me.txt(oItem.text);
 					//更新菜单选中状态

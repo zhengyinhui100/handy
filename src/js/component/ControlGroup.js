@@ -29,7 +29,7 @@ function(AC){
 		
 		tmpl                 : [
 			'<div class="hui-ctrlgp<%if(this.direction=="h"){%> hui-ctrlgp-h<%}else{%> hui-ctrlgp-v<%}%>">',
-			'<%=this.findHtml("$>*")%>',
+			'<%=this.findHtml(">*")%>',
 			'</div>'
 		],
 		
@@ -42,7 +42,7 @@ function(AC){
 					var me=this;
 					var oCurrentEl=$(oEvt.currentTarget);
 					//可能后后代组件有'.js-item'，因此这里只寻找子组件
-					var oCurCmp=me.find('$>[_id="'+oCurrentEl.attr("id")+'"]');
+					var oCurCmp=me.find('>[_id="'+oCurrentEl.attr("id")+'"]');
 					if(oCurCmp.length>0){
 						var nIndex=oCurCmp[0].index();
 						me.onItemClick(oEvt,nIndex);
@@ -144,7 +144,7 @@ function(AC){
 				oCmp.select($H.contains(aValues,oCmp.value));
 			});
 		}else{
-			var aCmp=me.find('$>[selected=true]');
+			var aCmp=me.find('>[selected=true]');
 			var aValues=[];
 			$H.each(aCmp,function(i,oCmp){
 				aValues.push(oCmp.value);

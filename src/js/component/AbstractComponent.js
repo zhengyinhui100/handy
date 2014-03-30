@@ -36,7 +36,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		
 		//属性
 //		cls                 : '',                //组件样式名，空则使用xtype的小写，如Dialog，cls为"dialog"，因此样式前缀是“hui-dialog-”
-//		xrole               : '',                //保留属性，用于模板中筛选组件的选择器，如this.findHtml("$>[xrole='content']")
+//		xrole               : '',                //保留属性，用于模板中筛选组件的选择器，如this.findHtml(">[xrole='content']")
 		
 		//组件初始化相关
 		hasConfig           : fHasConfig,        //检查是否已存在指定配置
@@ -190,10 +190,10 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 	function fTxt(sTxt){
 		var me=this;
 		//先寻找js私有的class
-		var oTxtEl=me.find('.js-'+me.cls+'-txt');
+		var oTxtEl=me.findEl('.js-'+me.cls+'-txt');
 		//如果找不到，再通过css的class查找
 		if(oTxtEl.length==0){
-			oTxtEl=me.find('.hui-'+me.cls+'-txt')
+			oTxtEl=me.findEl('.hui-'+me.cls+'-txt')
 		}
 		if(sTxt!=undefined){
 			oTxtEl.text(sTxt);

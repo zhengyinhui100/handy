@@ -18,7 +18,7 @@ function(AC){
 			'<div class="hui-set">',
 				'<h1 class="hui-set-title"><%=this.title%></h1>',
 				'<div class="hui-set-content">',
-					'<%=this.findHtml("$>*")%>',
+					'<%=this.findHtml(">*")%>',
 				'</div>',
 			'</div>'
 		]

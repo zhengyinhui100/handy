@@ -17,7 +17,7 @@ function(AC){
 			'<div class="hui-form">',
 				'<form action="">',
 				'<div class="hui-form-tips c-error"></div>',
-					'<%=this.findHtml("$>*")%>',
+					'<%=this.findHtml(">*")%>',
 				'</form>',
 			'</div>'
 		]

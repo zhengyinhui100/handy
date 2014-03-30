@@ -21,7 +21,7 @@ function(AC){
 				'<label class="hui-form-left" for="<%=this.forName%>"><%=this.label%></label>',
 				'<div class="hui-form-right">',
 					'<%=this.text%>',
-					'<%=this.findHtml("$>*")%>',
+					'<%=this.findHtml(">*")%>',
 				'</div>',
 			'</div>'
 		]

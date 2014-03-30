@@ -32,14 +32,14 @@ function(AC,TabItem,ControlGroup){
 		tmpl            : [
 			'<div class="hui-tab">',
 				'<ul class="js-tab-btns c-clear">',
-					'<%var aBtns=this.find("$>TabItem");',
+					'<%var aBtns=this.find(">TabItem");',
 					'for(var i=0,len=aBtns.length;i<len;i++){%>',
 						'<li class="hui-tab-item">',
 						'<%=aBtns[i].getHtml()%>',
 						'</li>',
 					'<%}%>',
 				'</ul>',
-				'<%=this.findHtml("$>TabItem>[xrole=\'content\']")%>',
+				'<%=this.findHtml(">TabItem>[xrole=\'content\']")%>',
 			'</div>'
 		],
 		
@@ -67,7 +67,7 @@ function(AC,TabItem,ControlGroup){
 		var me=this;
 		var nLen=me.children.length;
 		var width=Math.floor(100/nLen);
-		me.find('.js-tab-btns>li').each(function(i,el){
+		me.findEl('.js-tab-btns>li').each(function(i,el){
 			if(i<nLen-1){
 				el.style.width=width+'%';
 			}else{
@@ -87,7 +87,7 @@ function(AC,TabItem,ControlGroup){
 			return;
 		}
 		if(me.inited){
-			var oUl=me.find('.js-tab-btns');
+			var oUl=me.findEl('.js-tab-btns');
 			var oRenderTo=$('<li class="hui-tab-item"></li>').appendTo(oUl);
 			item.renderTo=oRenderTo;
 		}
@@ -101,7 +101,7 @@ function(AC,TabItem,ControlGroup){
 	function fSetTabContent(sContent,nIndex){
 		var me=this;
 		nIndex=nIndex||me.getSelected(true);
-		me.find('js-tab-content').index(nIndex).html(sContent);
+		me.findEl('.js-tab-content').index(nIndex).html(sContent);
 	}
 	
 	return Tab;

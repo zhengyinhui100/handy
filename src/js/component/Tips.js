@@ -16,12 +16,12 @@ function(AC,Popup,ControlGroup){
 		//初始配置
 //		text            : '',
 		theme           : 'black',
-		timeout         : 2000,
+		timeout         : 1000,
 		radius          : 'normal',
 		
 		tmpl            : [
 			'<div class="hui-tips<%if(!this.text){%> hui-tips-notxt<%}%>">',
-				'<%=this.findHtml("$>*")%>',
+				'<%=this.findHtml(">*")%>',
 				'<%if(this.text){%><span class="hui-tips-txt"><%=this.text%></span><%}%>',
 			'</div>'
 		]

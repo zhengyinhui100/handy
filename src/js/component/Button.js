@@ -35,7 +35,7 @@ function(AC){
 							'if(this.isBack){%> hui-btn-back<%}',
 							'if(this.hasIcon&&this.text){%> hui-btn-icon-<%=this.iconPos%><%}%>">',
 							'<span class="hui-btn-txt"><%=this.text%></span>',
-							'<%=this.findHtml("$>*")%>',
+							'<%=this.findHtml(">*")%>',
 							'</a>'],
 							
 		parseItem       : fParseItem           //分析处理子组件

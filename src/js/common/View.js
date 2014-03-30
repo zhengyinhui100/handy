@@ -38,7 +38,7 @@ function(ViewManager,AbstractEvents,Template){
 //		notListen           : false,             //不自动初始化监听器
 		listeners           : [],                //事件配置列表，初始参数可以是对象也可以是对象数组
 		items               : [],                //子视图配置，初始参数可以是对象也可以是对象数组
-//		lazy                : false,             //保留属性：懒加载，初始化时只设置占位标签，只在调用show方法时进行实际初始化
+////	lazy                : false,             //保留属性：懒加载，初始化时只设置占位标签，只在调用show方法时进行实际初始化
 		
 		
 		//属性
@@ -62,7 +62,7 @@ function(ViewManager,AbstractEvents,Template){
 			'beforeUpdate','update','afterUpdate',
 			'beforeDestroy','destroy','afterDestroy',
 			'add','remove'
-//			'layout'    //保留事件
+////		'layout'    //保留事件
 		],  
 		_defaultEvents      : [                  //默认事件，可以通过参数属性的方式直接进行添加
 			'mousedown','mouseup','mouseover','mousemove','mouseenter','mouseleave',
@@ -80,7 +80,7 @@ function(ViewManager,AbstractEvents,Template){
 		
 		//初始化相关
 		initialize          : fInitialize,       //初始化
-//		lazyInit            : fLazyInit,         //保留方法：懒加载，初始化时只设置占位标签，以后再进行真正的初始化
+////	lazyInit            : fLazyInit,         //保留方法：懒加载，初始化时只设置占位标签，以后再进行真正的初始化
 		doConfig            : fDoConfig,         //初始化配置
 		getEl               : fGetEl,            //获取容器节点
 		getId               : fGetId,            //获取id
@@ -88,7 +88,7 @@ function(ViewManager,AbstractEvents,Template){
 		getHtml             : fGetHtml,          //获取html
 		findHtml            : fFindHtml,         //获取子视图html
 		initStyle           : fInitStyle,        //初始化样式
-//		layout              : fLayout,           //布局，保留接口
+////	layout              : fLayout,           //布局，保留接口
 		
 		beforeRender        : fBeforeRender,     //渲染前工作
 		render              : fRender,           //渲染
@@ -112,13 +112,16 @@ function(ViewManager,AbstractEvents,Template){
 		suspend             : fSuspend,          //挂起事件
 		resume              : fResume,           //恢复事件
 		
+		findEl              : fFindEl,           //查找视图内节点
+		parentsEl           : fParentsEl,        //查找视图的祖先节点
+		
 		//视图管理相关
-//		get                 : fGet,              //保留接口
-//		set                 : fSet,              //保留接口
+////	get                 : fGet,              //保留接口
+////	set                 : fSet,              //保留接口
 		each                : fEach,             //遍历子视图
 		match               : fMatch,            //匹配选择器
-		find                : fFind,             //查找子元素或子视图
-		parents             : fParents,          //查找祖先元素或祖先视图
+		find                : fFind,             //查找视图
+		parents             : fParents,          //查找祖先视图
 		index               : fIndex,            //获取本身的索引，如果没有父视图则返回null
 		callChild           : fCallChild,        //调用子视图方法
 		add                 : fAdd,              //添加子视图
@@ -234,12 +237,16 @@ function(ViewManager,AbstractEvents,Template){
 	/**
 	 * 初始化配置
 	 * @method doConfig
-	 * @param {Object}oParams 初始化参数
+	 * @param {Object}oSettings 初始化参数
 	 */
-	function fDoConfig(oParams){
+	function fDoConfig(oSettings){
 		var me=this;
 		//复制保存初始参数
-		var oParams=me.initParam=oParams||{};
+		me.initParam=oSettings;
+		if(typeof oSettings=='string'){
+			oSettings={text:oSettings};
+		}
+		var oParams=oSettings||{};
 		
 		$H.extend(me,oParams,{notCover:function(p,val){
 			var value=me[p];
@@ -342,8 +349,7 @@ function(ViewManager,AbstractEvents,Template){
 	 */
 	function fFindHtml(sSel){
 		var me=this;
-		sSel.indexOf("$")!=0&&(sSel='$'+sSel);
-		var aItems=sSel=="$>*"?me.children:me.find(sSel);
+		var aItems=me.find(sSel);
 		var aHtml=[];
 		for(var i=0;i<aItems.length;i++){
 			aHtml.push(aItems[i].getHtml());
@@ -531,10 +537,7 @@ function(ViewManager,AbstractEvents,Template){
 		var me=this;
 		if(obj){
 			if(!obj instanceof View){
-				obj=me.find(obj);
-				if($H.isArray(obj)){
-					obj=obj[0];
-				}
+				obj=me.find(obj)[0];
 			}
 		}else{
 			obj=me;
@@ -556,10 +559,7 @@ function(ViewManager,AbstractEvents,Template){
 		var me=this;
 		if(obj){
 			if(!obj instanceof View){
-				obj=me.find(obj);
-				if($H.isArray(obj)){
-					obj=obj[0];
-				}
+				obj=me.find(obj)[0];
 			}
 			return obj.setContent(content);
 		}
@@ -601,12 +601,12 @@ function(ViewManager,AbstractEvents,Template){
 		if($H.isFunction(oTarget)){
 			oTarget=oTarget.call(me);
 		}
+		//自定义事件
 		if(oTarget||bIsCustom){
 			var aArgs=$H.removeUndefined([oTarget,sName,fHandler,context,nTimes]);
 			me[bIsCustom?'on':'listenTo'].apply(me,aArgs);
-		}else if(oEvent.custom){
-			me.on.apply(me,sName,fHandler,context,nTimes);
 		}else{
+			//element事件
 			var aListeners=me._listeners,
 				oEl=oEvent.el,
 				sMethod=oEvent.method||"bind",
@@ -622,7 +622,7 @@ function(ViewManager,AbstractEvents,Template){
 					sName="touchend";
 				}
 			}
-			oEl=oEl?typeof oEl=='string'?me.find(oEl):oEl:me.getEl();
+			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
 			if(sSel){
 				if(oData){
 					oEl[sMethod](sSel,sName,oData,fFunc);
@@ -671,7 +671,7 @@ function(ViewManager,AbstractEvents,Template){
 					sName="touchend";
 				}
 			}
-			oEl=oEl?typeof oEl=='string'?me.find(oEl):oEl:me.getEl();
+			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
 			for(var i=me._listeners.length-1;i>=0;i--){
 				var oListener=me._listeners[i]
 				if(oListener.handler==fHandler){
@@ -747,6 +747,22 @@ function(ViewManager,AbstractEvents,Template){
 		me.callChild();
 	}
 	/**
+	 * 查找视图内节点
+	 * @param {string}sSel jQuery选择器
+	 * @return {jQuery} 返回结果
+	 */
+	function fFindEl(sSel){
+		return this.getEl().find(sSel);
+	}
+	/**
+	 * 查找视图的祖先节点
+	 * @param {string}sSel jQuery选择器
+	 * @return {jQuery} 返回结果
+	 */
+	function fParentsEl(sSel){
+		return this.getEl().parents(sSel);
+	}
+	/**
 	 * 遍历子视图
 	 * @method each
      * @param {function}fCallback 回调函数:fCallback(i,oChild)|fCallback(args)this=oChild,返回false时退出遍历
@@ -805,70 +821,73 @@ function(ViewManager,AbstractEvents,Template){
 	/**
 	 * 查找子元素或子视图
 	 * @method find
-	 * @param {number|string}sel 数字表示子组件索引，如果是字符串：'$'开头表示查找视图，多个选择器间用","隔开('$sel1,$sel2,...')，语法类似jQuery，如：'$xtype[attr=value]'、'$ancestor descendant'、'$parent>child'，
-	 * 				'$>Button'表示仅查找当前子节点中的按钮，'$Button'表示查找所有后代节点中的按钮，
+	 * @param {number|string|Function(View)}sel 数字表示子组件索引，
+	 * 				如果是字符串：多个选择器间用","隔开('sel1,sel2,...')，语法类似jQuery，
+	 * 				如：'xtype[attr=value]'、'ancestor descendant'、'parent>child'，
+	 * 				'>Button'表示仅查找当前子节点中的按钮，'Button'表示查找所有后代节点中的按钮，
+	 * 				如果是函数(参数是当前匹配的视图对象)，则将返回true的结果加入结果集
 	 * @param {Array=}aResult 用于存储结果集的数组
-	 * @return {jQuery|Array|View} 返回匹配的结果，如果没找到匹配的子视图则返回空数组，ps:sel为索引数字时直接返回对应视图(非数组)
+	 * @return {Array} 返回匹配的结果，如果没找到匹配的子视图则返回空数组，ps:只有一个结果也返回数组，便于统一接口
 	 */
 	function fFind(sel,aResult){
-		var me=this;
-		if(typeof sel=='number'){
+		var me=this,aResult=aResult||[];
+		if($H.isNumber(sel)){
 			var oItem=me.children[sel];
-			return oItem;
-		}
-		//查找元素
-		if(sel.indexOf('$')!=0){
-			return me.getEl().find(sel);
-		}
-		var aResult=aResult||[];
-		//多个选择器
-		if(sel.indexOf(",")>0){
-			$H.each(sel.split(","),function(i,val){
-				aResult=aResult.concat(me.find(val));
-			})
-			return aResult;
-		}
-		//查找视图
-		var bOnlyChildren=sel.indexOf('>')==1;
-		var sCurSel=sel.replace(/^\$>?\s?/,'');
-		//分割当前选择器及后代选择器
-		var nIndex=sCurSel.search(/\s|>/);
-		var sCurSel,sExtSel;
-		if(nIndex>0){
-			sExtSel=sCurSel.substring(nIndex);
-			sCurSel=sCurSel.substring(0,nIndex);
-		}
-		//匹配子视图
-		me.each(function(i,oChild){
-			var bMatch=oChild.match(sCurSel);
-			if(bMatch){
-				//已匹配所有表达式，加入结果集
-				if(!sExtSel){
-					aResult.push(oChild);
-				}else{
-					//还有未匹配的表达式，继续查找
-					oChild.find('$'+sExtSel,aResult);
+			aResult.push(oItem);
+		}else if($H.isString(sel)){
+			//多个选择器
+			if(sel.indexOf(",")>0){
+				$H.each(sel.split(","),function(i,val){
+					aResult=aResult.concat(me.find(val));
+				})
+				return aResult;
+			}
+			//查找视图
+			var bOnlyChildren=sel.indexOf('>')==0;
+			var sCurSel=sel.replace(/^>?\s?/,'');
+			//分割当前选择器及后代选择器
+			var nIndex=sCurSel.search(/\s|>/);
+			var sCurSel,sExtSel;
+			if(nIndex>0){
+				sExtSel=sCurSel.substring(nIndex);
+				sCurSel=sCurSel.substring(0,nIndex);
+			}
+			//匹配子视图
+			me.each(function(i,oChild){
+				var bMatch=oChild.match(sCurSel);
+				if(bMatch){
+					//已匹配所有表达式，加入结果集
+					if(!sExtSel){
+						aResult.push(oChild);
+					}else{
+						//还有未匹配的表达式，继续查找
+						oChild.find(sExtSel,aResult);
+					}
 				}
-			}
-			if(!bOnlyChildren){
-				//如果不是仅限当前子节点，继续从后代开始查找
+				if(!bOnlyChildren){
+					//如果不是仅限当前子节点，继续从后代开始查找
+					oChild.find(sel,aResult);
+				}
+			});
+		}else if($H.isFunction(sel)){
+			//匹配子视图
+			me.each(function(i,oChild){
+				if(sel(oChild)){
+					aResult.push(oChild);
+				}
 				oChild.find(sel,aResult);
-			}
-		});
+			});
+		}
 		return aResult;
 	}
 	/**
-	 * 查找祖先元素或祖先视图
+	 * 查找祖先视图
 	 * @method parents
-	 * @param {string=}sSel 若此参数为空，直接返回最顶级祖先视图，'$'开头表示查找视图，如：'$xtype[attr=value]'
+	 * @param {string=}sSel 若此参数为空，直接返回最顶级祖先视图
 	 * @return {jQuery|Component|null} 返回匹配的结果，如果没找到匹配的视图则返回null
 	 */
 	function fParents(sSel){
 		var me=this;
-		//查找元素
-		if(sSel&&sSel.indexOf('$')!=0){
-			return me.getEl().parents(sSel);
-		}
 		var oCurrent=me;
 		while(oCurrent.parent){
 			oCurrent=oCurrent.parent;
@@ -992,16 +1011,19 @@ function(ViewManager,AbstractEvents,Template){
 	 */
 	function fRemove(item){
 		var me=this;
+		if(me._applyArray()){
+			return;
+		}
 		var aChildren=me.children;
 		var bResult=false;
 		var nIndex;
-		if(typeof item=='number'){
+		if($H.isNumber(item)){
 			nIndex=item;
 			item=aChildren[nIndex];
-		}else if(typeof item=='string'){
+		}else if($H.isString(item)||$H.isFunction(item)){
 			item=me.find(item);
 			for(var i=0,len=item.length;i<len;i++){
-				if(me.remove(item)==false){
+				if(me.remove(item[i])==false){
 					return false;
 				}
 				bResult=true;
