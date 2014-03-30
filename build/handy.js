@@ -2748,7 +2748,9 @@ handy.add('Array','B.Object',function(Object,$H){
 		findWhere     : fFindWhere,    //返回包含指定 key-value 组合的第一个对象
 		invoke        : fInvoke,       //在集合里的每个元素上调用指定名称的函数
 		sortedIndex   : fSortedIndex,  //获取 value 插入到排好序的 list 里的所在位置的索引.
-		sortBy        : fSortBy        //排序
+		sortBy        : fSortBy,       //排序
+		groupBy       : fGroupBy(),    //把一个集合分为多个集合
+		countBy       : fCountBy()     //把一个数组分组并返回每一组内对象个数
 	}
 	
 	/**
@@ -2801,6 +2803,22 @@ handy.add('Array','B.Object',function(Object,$H){
 	        return true;
 	    }
 	}
+	/**
+	 * 分组，具体分组依赖分组行为函数
+	 * @param {Function}fBehavior 分组行为函数，决定如何分组
+	 * @param {Object}返回分组结果
+	 */
+	function _fGroup(fBehavior) {
+	    return function(obj, iterator, context) {
+	        var oResult = {};
+	        iterator = _fGetIterator(iterator);
+	        Object.each(obj, function(index,value) {
+	            var key = iterator.call(context, value, index, obj);
+	            fBehavior(oResult, key, value);
+	        });
+	        return oResult;
+	    };
+	};
 	/**
 	 * 映射每一个值, 通过一个转换函数产生一个新的数组. 
 	 * 如果有原生的 map 函数, 将用之代替. 如果 list 是一个 JavaScript 对象, 
@@ -2886,13 +2904,15 @@ handy.add('Array','B.Object',function(Object,$H){
 	 * 此函数将使用原生的 indexOf 方法, 除非原生的方法无故消失或者被覆盖重写了, 才使用非原生的. 
 	 * 如果您要处理一个大型数组, 而且确定数组已经排序, 参数 isSorted 可以传 true, 
 	 * 函数将使用更快的二分搜索来进行处理,或者, 传一个数字作为 第三个参数, 以便于在指定索引之后开始寻找对应值.
-	 * @param {Array}aParam
-	 * @param {*} item
-	 * @param {boolean=}
+	 * @param {Array}array 待查找的数组
+	 * @param {*}item 带查找的元素
+	 * @param {boolean|number=}isSorted true表示数组已排序，可以使用二分查找，如果是数字，表示起始查找索引
 	 * @return {number}
 	 */
      function fIndexOf(array, item, isSorted) {
-	     if (array == null) return -1;
+	     if (array == null){
+	     	return -1;
+	     }
 	     var i = 0, length = array.length;
 	     if (isSorted) {
 	         if (typeof isSorted == 'number') {
@@ -2906,7 +2926,11 @@ handy.add('Array','B.Object',function(Object,$H){
 	     if ( fNativeIndexOf&& array.indexOf === fNativeIndexOf){
 	     	return array.indexOf(item, isSorted);
 	     }
-	     for (; i < length; i++) if (array[i] === item) return i;
+	     for (; i < length; i++){
+	     	if (array[i] === item){
+	     		return i;
+	     	}
+	     }
 	     return -1;
 	}
 	/**
@@ -2987,24 +3011,27 @@ handy.add('Array','B.Object',function(Object,$H){
 	/**
 	 * 为了保持 list 已经排好的顺序, 使用二分搜索来检测 value 应该 插入到 list 里的所在位置的索引. 
 	 * 如果传入了一个 iterator , 它将用来计算每个值的排名, 包括所传的 value 参数.
-	 * @param {}
+	 * @param {Array}array 要查找的数组
+	 * @param {*}obj 待插入的值
+	 * @param {Function|string=}iterator 为空时返回获取本身的迭代函数，为字符串时返回获取该属性的迭代函数，
+	 * 							如果是函数则返回自身,有三个参数：当前元素，当前元素的索引和当前的集合对象
+	 * @param {*=}context 迭代器执行上下文对象
+	 * 
 	 */
-	// Use a comparator function to figure out the smallest index at which
-  // an object should be inserted so as to maintain order. Uses binary search.
     function fSortedIndex(array, obj, iterator, context) {
 	    iterator = _fGetIterator(iterator);
 	    var value = iterator.call(context, obj);
 	    var low = 0, high = array.length;
 	    while (low < high) {
-	      var mid = (low + high) >>> 1;
-	      iterator.call(context, array[mid]) < value ? low = mid + 1 : high = mid;
+	        var mid = (low + high) >>> 1;
+	        iterator.call(context, array[mid]) < value ? low = mid + 1 : high = mid;
 	    }
 	    return low;
 	}
 	/**
 	 * 排序
 	 * @param {Array}obj 参数对象
-	 * @param {Function|string=}value 为空时返回获取本身的迭代函数，为字符串时返回获取该属性的迭代函数，
+	 * @param {Function|string=}iterator 为空时返回获取本身的迭代函数，为字符串时返回获取该属性的迭代函数，
 	 * 							如果是函数则返回自身,有三个参数：当前元素，当前元素的索引和当前的集合对象
 	 * @param {*=}context 判断函数上下文对象
 	 * @return {Array} 返回排序过后的集合
@@ -3032,6 +3059,41 @@ handy.add('Array','B.Object',function(Object,$H){
 	        return left.index - right.index;
 	    }), 'value');
 	}
+	/**
+	 * 把一个集合分为多个集合, 通过 iterator 返回的结果进行分组. 如果 iterator 是一个字符串而不是函数, 
+	 * 那么将使用 iterator 作为各元素的属性名来对比进行分组
+	 * @method groupBy(array,iterator,context)
+	 * @param {Array}array 参数数组
+	 * @param {Function|string=}iterator 为空时返回获取本身的迭代函数，为字符串时返回获取该属性的迭代函数，
+	 * 							如果是函数则返回自身,有三个参数：当前元素，当前元素的索引和当前的集合对象
+	 * @param {*=}context 判断函数上下文对象
+	 * @return {Object} 返回分组结果
+	 * @example Array.groupBy([1.3, 2.1, 2.4], function(num){ return Math.floor(num); });
+	 * 			=> {1: [1.3], 2: [2.1, 2.4]}
+	 * 			Array.groupBy(['one', 'two', 'three'], 'length');
+	 * 			=> {3: ["one", "two"], 5: ["three"]}
+	 */
+    function fGroupBy(){
+	    return _fGroup(function(oResult, key, value) {
+		    oResult[key] ? oResult[key].push(value) : oResult[key] = [value];
+		})
+    }
+    /**
+	 * 把一个数组分组并返回每一组内对象个数. 与 groupBy 相似, 但不是返回一组值, 而是组内对象的个数
+	 * @method countBy(array,iterator,context)
+	 * @param {Array}array 参数数组
+	 * @param {Function|string=}iterator 为空时返回获取本身的迭代函数，为字符串时返回获取该属性的迭代函数，
+	 * 							如果是函数则返回自身,有三个参数：当前元素，当前元素的索引和当前的集合对象
+	 * @param {*=}context 判断函数上下文对象
+	 * @return {Object} 返回统计结果
+	 * @example Array.countBy([1, 2, 3, 4, 5], function(num) {return num % 2 == 0 ? 'even': 'odd';});
+	 * 			=> {odd: 3, even: 2}
+	 */
+    function fCountBy(){
+	    return _fGroup(function(oResult, key) {
+		    oResult[key] ? oResult[key]++ : oResult[key] = 1;
+		})
+    }
 	
 	return Arr;
 	
@@ -5870,19 +5932,27 @@ function(AbstractDao,AbstractEvents,Model){
 		
 	});
 	
-	var wrapError;
-	
+    var HA=$H.Array;
+    
 	//从base.Array生成方法
 	$H.each([
-		'some','every','find','filter','invoke','indexOf'
+		'map','some','every','find','filter','invoke','indexOf'
 	], function(i,sMethod) {
 	    Collection.prototype[sMethod] = function() {
 	      var aArgs = Array.prototype.slice.call(arguments);
-	      var HA=$H.Array;
 	      aArgs.unshift(this.models);
 	      return HA[sMethod].apply(HA, aArgs);
 	    };
 	});
+	
+	$H.each(['sortBy','groupBy','countBy'], function(sMethod) {
+	    Collection.prototype[sMethod] = function(value, context) {
+	        var iterator = $H.isFunction(value) ? value : function(oModel) {
+	            return oModel.get(value);
+	        };
+	        return HA[sMethod](this.models, iterator, context);
+        };
+    });
 	
 	/**
 	 * 重置集合
