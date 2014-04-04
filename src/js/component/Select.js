@@ -59,13 +59,18 @@ function(AC){
 		//options配置成菜单
 		var oOptions=oParams.options;
 		//根据默认值设置默认文字
+		var bHasVal=false;
 		for(var i=0,len=oOptions.length;i<len;i++){
 			var oOption=oOptions[i];
 			if(oOption.value==oParams.value){
 				me.text=oOption.text;
 				oOption.selected=true;
+				bHasVal=true;
 				break;
 			}
+		}
+		if(!bHasVal){
+			delete me.value;
 		}
 		me.add({
 			itemClick:function(oButton,nIndex){

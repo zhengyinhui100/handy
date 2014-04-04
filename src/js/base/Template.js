@@ -73,7 +73,9 @@ handy.add('Template','B.String',function(String,$H){
 		sScript=sScript.replace(/this/g,'$data');
 		//输出内容
 		if(sScript.indexOf('=')==0){
-			sScript=_fAddLine(sScript.replace(_valPreReg,'')+'||""');
+			var sExp=sScript.replace(_valPreReg,'');
+			sExp=sExp+'==undefined?"":'+sExp;
+			sScript=_fAddLine(sExp);
 		}
 		return sScript+"\n";
 	}

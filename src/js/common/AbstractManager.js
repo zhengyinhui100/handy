@@ -42,7 +42,7 @@ $Define("CM.AbstractManager", function() {
 		if($H.isClass(xtype)){
 			return xtype;
 		}
-		return this._types[xtype]||$H.namespace(xtype);
+		return this._types[xtype]||$H.ns(xtype);
 	}
 	/**
 	 * 注册视图

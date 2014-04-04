@@ -6,7 +6,7 @@ handy.add("Loader",
 ["B.Debug","B.Object","B.Function"],
 function(Debug,Object,Function,$H){
 	
-	var _LOADER_PRE='Loader ',
+	var _LOADER_PRE='[Handy Loader] ',
 		_RESOURCE_NOT_FOUND= _LOADER_PRE+'not found: ',
 		_eHead=document.head ||document.getElementsByTagName('head')[0] ||document.documentElement,
 		_UA = navigator.userAgent,
@@ -54,7 +54,7 @@ function(Debug,Object,Function,$H){
     			return Loader.urlMap[sId].chkExist();
     		}else{
     			//标准命名空间规则验证
-	    		return Object.namespace(sId);
+	    		return Object.ns(sId);
     		}
     	}
     	var oResult={}
@@ -390,7 +390,7 @@ function(Debug,Object,Function,$H){
 				resource=factory;
 			}
 			if(resource){
-				Object.namespace(sId,resource);
+				Object.ns(sId,resource);
 				//添加命名空间元数据
 				var sType=typeof resource;
 				if(sType=="object"||sType=="function"){

@@ -40,10 +40,10 @@
 			var args=[];
 			if(aRequires){
 				if(typeof aRequires=="string"){
-					args.push(handy.base.Object.namespace(aRequires));
+					args.push(handy.base.Object.ns(aRequires));
 				}else{
 					for(var i=0;i<aRequires.length;i++){
-						args.push(handy.base.Object.namespace(aRequires[i]));
+						args.push(handy.base.Object.ns(aRequires[i]));
 					}
 				}
 			}

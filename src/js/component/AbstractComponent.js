@@ -7,7 +7,7 @@
 $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,View){
 	
 	//访问component包内容的快捷别名
-	$C=$H.namespace('C',{});
+	$C=$H.ns('C',{});
 	
 	var AC=$H.createClass();
 	

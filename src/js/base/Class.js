@@ -76,7 +76,7 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
         	}
         };
         if(sPath){
-        	this.namespace(sPath,Class);
+        	this.ns(sPath,Class);
         }
         return Class;
     }
@@ -132,7 +132,7 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
     function fGetSingleton(clazz){
     	var cClass;
     	if(typeof clazz=='string'){
-    		cClass=Object.namespace(clazz);
+    		cClass=Object.ns(clazz);
     	}else{
     		cClass=clazz;
     	}
