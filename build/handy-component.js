@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-30 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-04 | zhengyinhui100@gmail.com */
 /**
  * 组件管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -38,7 +38,7 @@ function(AbstractManager,ViewManager) {
 $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,View){
 	
 	//访问component包内容的快捷别名
-	$C=$H.namespace('C',{});
+	$C=$H.ns('C',{});
 	
 	var AC=$H.createClass();
 	
@@ -947,13 +947,18 @@ function(AC){
 		//options配置成菜单
 		var oOptions=oParams.options;
 		//根据默认值设置默认文字
+		var bHasVal=false;
 		for(var i=0,len=oOptions.length;i<len;i++){
 			var oOption=oOptions[i];
 			if(oOption.value==oParams.value){
 				me.text=oOption.text;
 				oOption.selected=true;
+				bHasVal=true;
 				break;
 			}
+		}
+		if(!bHasVal){
+			delete me.value;
 		}
 		me.add({
 			itemClick:function(oButton,nIndex){

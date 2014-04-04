@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-03-30 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-04 | zhengyinhui100@gmail.com */
 /**
  * 抽象事件类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -83,6 +83,66 @@ function(){
 	}
 	
 	return AbstractEvents;
+});/**
+ * 数据仓库类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+//"handy.common.DataStore"
+$Define('CM.DataStore',
+function(){
+	var DataStore=$H.createClass();
+	
+	$H.extend(DataStore.prototype,{
+		get            : fGet,
+//		find           : fFind,
+		push           : fPush
+	});
+	//缓存池
+	var _cache={
+//		name : []
+	};
+	
+	//全局快捷别名
+	$S=$H.getSingleton(DataStore);
+	
+	/**
+	 * 获取数据
+	 * @param {string}sName 模型名称或者cid
+	 * @param {Object=}oOptions
+	 * @return {Model|Array} 如果通过cid或id获取，返回模型对象，否则返回匹配的模型数组
+	 */
+	function fGet(sName,oOptions){
+		var aCache;
+		if(aCache=_cache[sName]){
+			if(!oOptions){
+				return aCache;
+			}else{
+				
+			}
+		}
+	}
+	/**
+	 * 放入仓库
+	 * @param {string=}sCid 客户id
+	 * @param {*}data 数据
+	 */
+	function fPush(sCid,data){
+		if(typeof sCid!='string'){
+			data=sCid;
+			sCid=null;
+		}
+		var sName=data.constructor.$ns;
+		var aCache=_cache[sName]||(_cache[sName]=[]);
+		aCache.push(data);
+		if(sCid){
+			if(!_cache[sCid]){
+				_cache[sCid]=data;
+			}
+		}
+	}
+	
+	return DataStore;
+	
 });/****************************************************************
 * Author:		郑银辉											*
 * Email:		zhengyinhui100@gmail.com						*
@@ -233,7 +293,7 @@ $Define("CM.AbstractManager", function() {
 		if($H.isClass(xtype)){
 			return xtype;
 		}
-		return this._types[xtype]||$H.namespace(xtype);
+		return this._types[xtype]||$H.ns(xtype);
 	}
 	/**
 	 * 注册视图
@@ -1547,17 +1607,42 @@ $Define('CM.Model',
 function(AbstractDao,AbstractEvents){
 	
 	var Model=AbstractEvents.derive({
-//		_changing             : false,               //是否正在改变
+		//可扩展属性
+//      fields                : {},                  
+		/**
+		 * 属性声明列表，一般是需要额外处理的定制属性，基本类型的属性不需要在此声明，{
+	     *	普通形式：
+	     *	{string}name:{
+		 *	    {string|Class=}type:类型，可以是字符串(string/number/Date/Model/Collection),也可以是类
+		 *   	{Function=}parse:设置该属性时自定义解析操作,
+		 *   	{Array=}depends:依赖的属性，计算属性需要此配置检查和计算
+	     *	}
+	     *	简便形式:
+	     *	{name:type}
+	     *}
+	     */
+//      belongsTo             : null,                
+		/**
+		 * 描述一对一关系，
+		 */
+//      hasMany               : null,                //描述一对多关系
+//		cid                   : 0,                   //客户id
+        idAttribute           : 'id',                //id默认属性名
+//      defaults              : {},                  //默认属性
+//		dao                   : null,                //数据访问对象，默认为common.AbstractDao
+		
+        //内部属性
+//		_changing             : false,               //是否正在改变，但未保存
 		_pending              : false,               //
 //		_previousAttributes   : {},                  //较早的值
-//		cid                   : 0,                   //客户id
-//		attributes            : {},                  //属性对象
-//    	changed               : {},                  //改变了的值
+//		_attributes            : {},                 //属性对象
+//    	_changed               : {},                 //改变了的值
 //	    validationError       : {},                  //校验错误的值
-        idAttribute           : 'id',                //id默认属性名
-//		dao                   : null,                //数据访问对象，默认为common.AbstractDao
+        
         
    		_validate             : _fValidate,          //执行校验，如果通过校验返回true，否则，触发"invalid"事件
+   		_initDepFields        : _fInitDepFields,     //初始化计算/依赖属性
+   		_parseFields          : _fParseFields,       //属性预处理
 		
 		initialize            : fInitialize,         //初始化
 		toJSON                : fToJSON,             //返回对象数据副本
@@ -1592,13 +1677,69 @@ function(AbstractDao,AbstractEvents){
         if (!oOptions.validate || !me.validate){
         	return true;
         }
-        oAttrs = $H.extend({}, me.attributes, oAttrs);
+        oAttrs = $H.extend({}, me._attributes, oAttrs);
         var error = me.validationError = me.validate(oAttrs, oOptions) || null;
         if (!error){
         	return true;
         }
         me.trigger('invalid', me, error, $H.extend(oOptions, {validationError: error}));
         return false;
+    }
+    /**
+     * 初始化计算/依赖属性
+     */
+    function _fInitDepFields(){
+    	var me=this;
+    	//处理计算属性
+	    var oFields=me.fields,oField,aDeps;
+	    for(var key in oFields){
+	    	var oField=oFields[key];
+			if(aDeps=oField.depends){
+				for(var i=0;i<aDeps.length;i++){
+			    	//当依赖属性变化时，设置计算属性
+					me.on('change:'+aDeps[i],function(){
+						me.set(key);
+					});
+				}
+			}
+	    }
+    }
+    /**
+     * 属性预处理
+     * @param {Object}oAttrs 属性表
+     * @return {Object} 返回处理好的属性表
+     */
+    function _fParseFields(oAttrs){
+    	var me=this;
+    	var oFields;
+    	if(!(oFields=me.fields)){
+    		return oAttrs;
+    	}
+    	var oField,fParse,val,aDeps,type;
+    	var oResult={};
+		for(var key in oAttrs){
+			val=oAttrs[key];
+			if(oField=oFields[key]){
+				type=$H.isObject(oField)?oField.type:oField;
+				//自定义解析
+				if(fParse=oField.parse){
+					val=fParse.apply(me,[val,oAttrs]);
+				}
+				//自定义类型，包括Model和Collection
+				if($H.isString(type)){
+					if(type=='Date'){
+						val=$H.parseDate(val);
+					}else if(type.indexOf('.')>0){
+						type=$H.ns(type);
+					}
+				}
+				if($H.isClass(type)&&!(val instanceof type)){
+					val=new type(val);
+				}
+			}
+			oResult[key]=val;
+		}
+		return oResult;
     }
 	/**
 	 * 初始化
@@ -1610,11 +1751,13 @@ function(AbstractDao,AbstractEvents){
 	 */
 	function fInitialize(oAttributes, oOptions) {
 		var me=this;
+		//配置dao对象
 		me.dao=me.dao||$H.getSingleton(AbstractDao);
+		me._initDepFields();
 		var oAttrs = oAttributes || {};
 		oOptions || (oOptions = {});
 		me.cid = $H.Util.getUuid();
-		me.attributes = {};
+		me._attributes = {};
 		if (oOptions.collection){
 			me.collection = oOptions.collection;
 		}
@@ -1623,14 +1766,14 @@ function(AbstractDao,AbstractEvents){
 		}
 		oAttrs = $H.extend(oAttrs, $H.Util.result(me, 'defaults'),{notCover:true});
 		me.set(oAttrs, oOptions);
-		me.changed = {};
+		me._changed = {};
 	}
 	/**
 	 * 返回对象数据副本
 	 * @return {Object} 返回对象数据副本
 	 */
     function fToJSON() {
-        return $H.clone(this.attributes);
+        return $H.clone(this._attributes);
     }
 	/**
 	 * 同步数据，可以通过重写进行自定义
@@ -1648,7 +1791,7 @@ function(AbstractDao,AbstractEvents){
      * @return {*} 返回对应属性
      */
     function fGet(sAttr) {
-        return this.attributes[sAttr];
+        return this._attributes[sAttr];
     }
 	/**
 	 * 获取html编码过的属性值
@@ -1672,7 +1815,7 @@ function(AbstractDao,AbstractEvents){
 	 * @param {String}sKey 属性
 	 * @param {*}val 值
 	 * @param {Object}oOptions 选项{
-	 * 		{boolean=}unset 是否取消设置
+	 * 		{boolean=}unset 是否清除设置
 	 * 		{boolean=}silent 是否不触发事件
 	 * }
 	 */
@@ -1686,6 +1829,8 @@ function(AbstractDao,AbstractEvents){
 	    	(oAttrs = {})[sKey] = val;
 	    }
 	    oOptions || (oOptions = {});
+	    //属性预处理
+	    oAttrs= me._parseFields(oAttrs);
 	    //先执行校验
 	    if (!me._validate(oAttrs, oOptions)){
 	    	return false;
@@ -1699,17 +1844,17 @@ function(AbstractDao,AbstractEvents){
 	
 	    //开始改变前，先存储初始值
 	    if (!bChanging) {
-	        me._previousAttributes = $H.Object.clone(me.attributes);
-	    	me.changed = {};
+	        me._previousAttributes = $H.Object.clone(me._attributes);
+	    	me._changed = {};
 	    }
-	    var oCurrent = me.attributes, 
+	    var oCurrent = me._attributes, 
 	    	oPrev = me._previousAttributes;
 	
-	    //TODO Check for aChanges of `id`.
+	    //id特殊处理
 	    if (me.idAttribute in oAttrs){
 	  	    me.id = oAttrs[me.idAttribute];
 	    }
-	
+	    
 	    //循环进行设置、更新、删除
 	    for (var sAttr in oAttrs) {
 	   	    val = oAttrs[sAttr];
@@ -1719,14 +1864,15 @@ function(AbstractDao,AbstractEvents){
 	    	}
 	    	//与初始值不相等，放入已经改变的hash对象中
 	    	if (!$H.equals(oPrev[sAttr], val)) {
-	            me.changed[sAttr] = val;
+	            me._changed[sAttr] = val;
 	    	} else {
 	    		//跟初始值相等，即没有变化
-	        	delete me.changed[sAttr];
+	        	delete me._changed[sAttr];
 	    	}
 	    	//如果取消设置，删除对应属性
 	    	bUnset ? delete oCurrent[sAttr] : oCurrent[sAttr] = val;
 	    }
+	    
 	
 	    //触发对应属性change事件
 	    if (!bSilent) {
@@ -1773,7 +1919,7 @@ function(AbstractDao,AbstractEvents){
     function fClear(oOptions) {
     	var me=this;
         var oAttrs = {};
-        for (var sKey in me.attributes) {
+        for (var sKey in me._attributes) {
             oAttrs[sKey] = void 0;
         }
         oOptions=oOptions||{};
@@ -1786,7 +1932,7 @@ function(AbstractDao,AbstractEvents){
 	 * @retur {boolean} true表示有修改
 	 */
     function fHasChanged(sAttr) {
-    	var oChange=this.changed;
+    	var oChange=this._changed;
         if (sAttr == null){
         	return !$H.isEmpty(oChange);
         }
@@ -1800,10 +1946,10 @@ function(AbstractDao,AbstractEvents){
     function fChangedAttributes(oDiff) {
     	var me=this;
         if (!oDiff){
-            return me.hasChanged() ? $H.clone(me.changed) : false;
+            return me.hasChanged() ? $H.clone(me._changed) : false;
         }
         var val, changed = false;
-        var oOld = me._changing ? me._previousAttributes : me.attributes;
+        var oOld = me._changing ? me._previousAttributes : me._attributes;
         for (var sAttr in oDiff) {
             if (!$H.equals(oOld[sAttr], (val = oDiff[sAttr]))){
 	            (changed || (changed = {}))[sAttr] = val;
@@ -1865,7 +2011,7 @@ function(AbstractDao,AbstractEvents){
 	 */
     function fSave(sKey, val, oOptions) {
     	var me=this;
-        var oAttrs, sMethod, oXhr, oAttributes = me.attributes;
+        var oAttrs, sMethod, oXhr, oAttributes = me._attributes;
         //sKey, value 或者 {sKey: value}
         if (sKey == null || typeof sKey === 'object') {
         	oAttrs = sKey;
@@ -1882,15 +2028,10 @@ function(AbstractDao,AbstractEvents){
        	    	return false;
        	    }
         } else {
+        	//验证数据
         	if (!me._validate(oAttrs, oOptions)){
 		        return false;
 		    }
-        }
-
-        //now!=true,先临时设置数据
-        if (oAttrs && !oOptions.now) {
-        	var tmp=$H.extend({}, oAttributes)
-            me.attributes = $H.extend(tmp, oAttrs);
         }
 
         if (oOptions.parse === void 0){
@@ -1898,7 +2039,7 @@ function(AbstractDao,AbstractEvents){
         }
         var fSuccess = oOptions.success;
         oOptions.success = function(resp) {
-	        me.attributes = oAttributes;
+	        me._attributes = oAttributes;
 	        var oServerAttrs = me.parse(resp, oOptions);
 	        //now!=true，确保更新相应数据(可能没有返回相应数据)
 	        if (!oOptions.now){
@@ -1916,14 +2057,17 @@ function(AbstractDao,AbstractEvents){
 
 	    sMethod = me.isNew() ? 'create' : (oOptions.update ? 'update':'patch' );
 	    if (sMethod === 'patch'){
-	    	oOptions.attrs = oAttrs;
+	    	var oChanged=me.changedAttrbutes(oAttrs);
+	    	//没有改变的属性，直接执行回调函数
+	    	if(!oChanged){
+	    		if (fSuccess){
+		        	fSuccess(me, oOptions);
+		        }
+		        return;
+	    	}
+	    	oOptions.attrs = oChanged;
 	    }
 	    me.sync(sMethod, me, oOptions);
-	
-	    //now!=true，恢复数据
-	    if (oAttrs && !oOptions.now){
-	    	me.attributes = oAttributes;
-	    }
     }
 	/**
 	 * 销毁/删除模型
@@ -1995,7 +2139,7 @@ function(AbstractDao,AbstractEvents){
      */
     function fClone() {
     	var me=this;
-        return new me.constructor(me.attributes);
+        return new me.constructor(me._attributes);
     }
 	/**
 	 * 判断是否是新模型(没有提交保存，并且缺少id属性)
