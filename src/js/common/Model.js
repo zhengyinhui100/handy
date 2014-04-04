@@ -24,11 +24,8 @@ function(AbstractDao,AbstractEvents){
 	     *	{name:type}
 	     *}
 	     */
-//      belongsTo             : null,                
-		/**
-		 * 描述一对一关系，
-		 */
-//      hasMany               : null,                //描述一对多关系
+////    belongsTo             : null,                //保留属性，描述一对一关系，
+////    hasMany               : null,                //保留属性，描述一对多关系
 //		cid                   : 0,                   //客户id
         idAttribute           : 'id',                //id默认属性名
 //      defaults              : {},                  //默认属性
