@@ -49,6 +49,7 @@
 			encoding="${charset}" outputencoding="${charset}">
 
 		    <path path="js/common/AbstractEvents.js" />
+			<path path="js/common/DataStore.js" />
 		    <path path="js/common/AbstractDao.js" />
 			<path path="js/common/AbstractManager.js" />
 			<path path="js/common/ViewManager.js" />
