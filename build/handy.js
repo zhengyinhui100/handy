@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-04 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-05 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -5459,7 +5459,7 @@ function(ViewManager,AbstractEvents,Template){
 	return View;
 	
 });/**
- * 模型类
+ * 模型类，负责数据封装，可监听事件：invalid、sync、destroy、change:attr、change
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-03-06
  */
@@ -5484,11 +5484,8 @@ function(AbstractDao,AbstractEvents){
 	     *	{name:type}
 	     *}
 	     */
-//      belongsTo             : null,                
-		/**
-		 * 描述一对一关系，
-		 */
-//      hasMany               : null,                //描述一对多关系
+////    belongsTo             : null,                //保留属性，描述一对一关系，
+////    hasMany               : null,                //保留属性，描述一对多关系
 //		cid                   : 0,                   //客户id
         idAttribute           : 'id',                //id默认属性名
 //      defaults              : {},                  //默认属性
@@ -5506,6 +5503,7 @@ function(AbstractDao,AbstractEvents){
    		_validate             : _fValidate,          //执行校验，如果通过校验返回true，否则，触发"invalid"事件
    		_initDepFields        : _fInitDepFields,     //初始化计算/依赖属性
    		_parseFields          : _fParseFields,       //属性预处理
+   		_onAttrEvent          : _fOnAttrEvent,       //处理属性模型和集合事件
 		
 		initialize            : fInitialize,         //初始化
 		toJSON                : fToJSON,             //返回对象数据副本
@@ -5598,11 +5596,30 @@ function(AbstractDao,AbstractEvents){
 				}
 				if($H.isClass(type)&&!(val instanceof type)){
 					val=new type(val);
+					//监听所有事件
+					val.on('all',$H.bind(me._onAttrEvent,me,key));
 				}
 			}
 			oResult[key]=val;
 		}
 		return oResult;
+    }
+    /**
+	 * 处理属性模型和集合事件
+	 * @param {string}sAttr 属性名
+	 * @param {string}sEvent 事件名称
+	 * @param {Model|Collection}obj 对象
+	 */
+    function _fOnAttrEvent(sAttr,sEvent, obj) {
+    	if(sEvent=='invalid'||sEvent=='sync'){
+    		return;
+    	}
+    	var me=this;
+    	var oVal=me.get(sAttr);
+        if (sEvent.indexOf('change:')!=0){
+        	me.trigger('change:'+sAttr,me,oVal);
+        	me.trigger('change',me);
+        }
     }
 	/**
 	 * 初始化
@@ -5945,6 +5962,7 @@ function(AbstractDao,AbstractEvents){
 
         var destroy = function() {
             me.trigger('destroy', me, me.collection, oOptions);
+            me.off('all');
         };
 
         oOptions.success = function(resp) {
@@ -6023,7 +6041,7 @@ function(AbstractDao,AbstractEvents){
 	return Model;
 	
 });/**
- * 集合类
+ * 集合类，封装模型集合，可监听事件：invalid、add、remove、sync、sort、reset及模型的事件
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-03-06
  */
@@ -6041,7 +6059,7 @@ function(AbstractDao,AbstractEvents,Model){
 //		dao                    : null,                //数据访问对象，默认为common.AbstractDao
 		
 		//内部属性
-//		models                 : [],                  //模型列表
+//		_models                : [],                  //模型列表
 //		_byId                  : {},                  //根据id和cid索引
 //		length                 : 0,                   //模型集合长度
 		
@@ -6085,7 +6103,7 @@ function(AbstractDao,AbstractEvents,Model){
 	], function(i,sMethod) {
 	    Collection.prototype[sMethod] = function() {
 	      var aArgs = Array.prototype.slice.call(arguments);
-	      aArgs.unshift(this.models);
+	      aArgs.unshift(this._models);
 	      return HA[sMethod].apply(HA, aArgs);
 	    };
 	});
@@ -6095,7 +6113,7 @@ function(AbstractDao,AbstractEvents,Model){
 	        var iterator = $H.isFunction(value) ? value : function(oModel) {
 	            return oModel.get(value);
 	        };
-	        return HA[sMethod](this.models, iterator, context);
+	        return HA[sMethod](this._models, iterator, context);
         };
     });
 	
@@ -6105,7 +6123,7 @@ function(AbstractDao,AbstractEvents,Model){
     function _fReset() {
     	var me=this;
         me.length = 0;
-        me.models = [];
+        me._models = [];
         me._byId  = {};
     }
 
@@ -6170,6 +6188,7 @@ function(AbstractDao,AbstractEvents,Model){
         if (sEvent === 'destroy'){
         	me.remove(oModel, oOptions);
         }
+        //id特殊处理
         if (oModel && sEvent === 'change:' + oModel.idAttribute) {
             delete me._byId[oModel.previous(oModel.idAttribute)];
             if (oModel.id != null){
@@ -6208,7 +6227,7 @@ function(AbstractDao,AbstractEvents,Model){
 	 */
     function fToJSON(oOptions) {
     	var me=this;
-        return $H.Collection.map(me.models,function(oModel){
+        return $H.map(me._models,function(oModel){
         	return oModel.toJSON(oOptions); 
         });
     }
@@ -6254,7 +6273,7 @@ function(AbstractDao,AbstractEvents,Model){
         	delete me._byId[oModel.id];
         	delete me._byId[oModel.cid];
         	index = me.indexOf(oModel);
-        	me.models.splice(index, 1);
+        	me._models.splice(index, 1);
         	me.length--;
         	if (!oOptions.silent) {
           		oOptions.index = index;
@@ -6353,7 +6372,7 @@ function(AbstractDao,AbstractEvents,Model){
         //如果有需要的话，移除相应模型
         if (bRemove) {
         	for (i = 0, l = me.length; i < l; ++i) {
-           		if (!oModelMap[(oModel = me.models[i]).cid]){
+           		if (!oModelMap[(oModel = me._models[i]).cid]){
            			aToRemove.push(oModel);
            		}
         	}
@@ -6371,15 +6390,15 @@ function(AbstractDao,AbstractEvents,Model){
             //指定位置上添加
         	if (at != null) {
             	for (i = 0, l = aToAdd.length; i < l; i++) {
-            		me.models.splice(at + i, 0, aToAdd[i]);
+            		me._models.splice(at + i, 0, aToAdd[i]);
           		}
        		} else {
           		if (order){
-          			me.models.length = 0;
+          			me._models.length = 0;
           		}
           		var orderedModels = order || aToAdd;
           		for (i = 0, l = orderedModels.length; i < l; i++) {
-            		me.models.push(orderedModels[i]);
+            		me._models.push(orderedModels[i]);
           		}
         	}
         }
@@ -6410,10 +6429,10 @@ function(AbstractDao,AbstractEvents,Model){
     function fReset(models, oOptions) {
     	var me=this;
         oOptions || (oOptions = {});
-        for (var i = 0, l = me.models.length; i < l; i++) {
-        	me._removeReference(me.models[i], oOptions);
+        for (var i = 0, l = me._models.length; i < l; i++) {
+        	me._removeReference(me._models[i], oOptions);
         }
-        oOptions.previousModels = me.models;
+        oOptions.previousModels = me._models;
         me._reset();
         models = me.add(models, $H.extend({silent: true}, oOptions));
         if (!oOptions.silent){
@@ -6470,7 +6489,7 @@ function(AbstractDao,AbstractEvents,Model){
 	 * @return {Array} 选定的元素的数组
 	 */
     function fSlice() {
-      return Array.prototype.slice.apply(this.models, arguments);
+      return Array.prototype.slice.apply(this._models, arguments);
     }
 	/**
 	 * 通过id或cid获取模型
@@ -6490,7 +6509,7 @@ function(AbstractDao,AbstractEvents,Model){
 	 * @return {Model} 返回该模型
 	 */
     function fAt(nIndex) {
-        return this.models[nIndex];
+        return this._models[nIndex];
     }
 	/**
 	 * 返回包含指定 key-value 组合的模型的数组
@@ -6535,9 +6554,9 @@ function(AbstractDao,AbstractEvents,Model){
         oOptions || (oOptions = {});
 
         if (typeof me.comparator=='string' || me.comparator.length === 1) {
-        	me.models = me.sortBy(me.comparator, me);
+        	me._models = me.sortBy(me.comparator, me);
         } else {
-       		me.models.sort($H.Function.bind(me.comparator, me));
+       		me._models.sort($H.Function.bind(me.comparator, me));
         }
 
         if (!oOptions.silent){
@@ -6551,7 +6570,7 @@ function(AbstractDao,AbstractEvents,Model){
 	 *  @return {Array} 返回集合对应属性的数组
      */
     function fPluck(sAttr) {
-      return $H.Collection.invoke(this.models, 'get', sAttr);
+      return $H.invoke(this._models, 'get', sAttr);
     }
     /**
      * 获取url
@@ -6629,7 +6648,7 @@ function(AbstractDao,AbstractEvents,Model){
 	 */
     function fClone() {
     	var me=this;
-        return new me.constructor(me.models);
+        return new me.constructor(me._models);
     }
 	
 	return Collection;

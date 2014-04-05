@@ -1,5 +1,5 @@
 /**
- * 集合类
+ * 集合类，封装模型集合，可监听事件：invalid、add、remove、sync、sort、reset及模型的事件
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-03-06
  */
@@ -146,6 +146,7 @@ function(AbstractDao,AbstractEvents,Model){
         if (sEvent === 'destroy'){
         	me.remove(oModel, oOptions);
         }
+        //id特殊处理
         if (oModel && sEvent === 'change:' + oModel.idAttribute) {
             delete me._byId[oModel.previous(oModel.idAttribute)];
             if (oModel.id != null){

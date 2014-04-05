@@ -1,5 +1,5 @@
 /**
- * 模型类
+ * 模型类，负责数据封装，可监听事件：invalid、sync、destroy、change:attr、change
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-03-06
  */
@@ -43,6 +43,7 @@ function(AbstractDao,AbstractEvents){
    		_validate             : _fValidate,          //执行校验，如果通过校验返回true，否则，触发"invalid"事件
    		_initDepFields        : _fInitDepFields,     //初始化计算/依赖属性
    		_parseFields          : _fParseFields,       //属性预处理
+   		_onAttrEvent          : _fOnAttrEvent,       //处理属性模型和集合事件
 		
 		initialize            : fInitialize,         //初始化
 		toJSON                : fToJSON,             //返回对象数据副本
@@ -135,11 +136,30 @@ function(AbstractDao,AbstractEvents){
 				}
 				if($H.isClass(type)&&!(val instanceof type)){
 					val=new type(val);
+					//监听所有事件
+					val.on('all',$H.bind(me._onAttrEvent,me,key));
 				}
 			}
 			oResult[key]=val;
 		}
 		return oResult;
+    }
+    /**
+	 * 处理属性模型和集合事件
+	 * @param {string}sAttr 属性名
+	 * @param {string}sEvent 事件名称
+	 * @param {Model|Collection}obj 对象
+	 */
+    function _fOnAttrEvent(sAttr,sEvent, obj) {
+    	if(sEvent=='invalid'||sEvent=='sync'){
+    		return;
+    	}
+    	var me=this;
+    	var oVal=me.get(sAttr);
+        if (sEvent.indexOf('change:')!=0){
+        	me.trigger('change:'+sAttr,me,oVal);
+        	me.trigger('change',me);
+        }
     }
 	/**
 	 * 初始化
@@ -482,6 +502,7 @@ function(AbstractDao,AbstractEvents){
 
         var destroy = function() {
             me.trigger('destroy', me, me.collection, oOptions);
+            me.off('all');
         };
 
         oOptions.success = function(resp) {
