@@ -263,7 +263,7 @@ function(ViewManager,AbstractEvents,Template){
 				me.on(p,oParams[p]);
 				return true;
 			}else if(p=='defItem'){
-				$H.extend(me[p],val);
+				me[p]=$H.extend(me[p],val);
 				return true;
 			}else if(p=='listener'){
 				me.listeners=me.listeners.concat($H.isArray(val)?val:[val]);
@@ -966,7 +966,6 @@ function(ViewManager,AbstractEvents,Template){
 			}
 			return;
 		}
-		
 		//开始初始化后，如果是配置，先创建子视图
 		if(!(item instanceof View)){
 			//默认子视图配置

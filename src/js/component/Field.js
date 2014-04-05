@@ -18,7 +18,7 @@ function(AC){
 		
 		tmpl            : [
 			'<div class="hui-form-field">',
-				'<label class="hui-form-left" for="<%=this.forName%>"><%=this.label%></label>',
+				'<label class="hui-form-left<%if(this.labelTheme){%> hui-label-<%=this.labelTheme%><%}%>" for="<%=this.forName%>"><%=this.label%></label>',
 				'<div class="hui-form-right">',
 					'<%=this.text%>',
 					'<%=this.findHtml(">*")%>',
