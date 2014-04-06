@@ -494,33 +494,64 @@
 		margin-top:-15px;
 	}
 }
-
+//右边垂直居中的箭头图标
+.hui-click-arrow{
+	position:absolute;
+	margin-top:-18px;
+	width:36px;
+	height:36px;
+	top:50%;
+	right:0;
+	text-align:center;
+	vertical-align:middle;
+	.hui-icon{
+		position:absolute;
+		top:50%;
+		left:50%;
+		margin-top:-11px;
+		margin-left:-11px;
+	}
+}
+//行，有右箭头、下划线
+.hui-rowitem{
+	position:relative;
+	padding:.8em 0;
+	&.hui-rowitem-txt{
+		.fn_word_break();
+	}
+	&.hui-rowitem-underline{
+		border-bottom:1px solid #ccc;
+	}
+}
+//域，左右两边的结构
+.hui-field{
+	.hui-field-left{
+		.c-gray();
+		width:20%;
+		vertical-align:middle;
+		.fn_inline_block();
+		.fn_text_overflow();
+	}
+	.hui-label-default{
+		.c-default();
+	}
+	.hui-field-right{
+		position:relative;
+		width:78%;
+		vertical-align:middle;
+		.fn_inline_block();
+	}
+	&.hui-field-padding{
+		padding:.7em 0;
+	}
+}
 //普通表单
 .hui-form{
 	.hui-form-tips{
 		text-align:center;
 	}
-	.hui-form-field{
-		margin:1em 0;
-	}
-	.hui-form-left{
-		width:20%;
-		text-align:right;
-		.fn_inline_block();
-		vertical-align:middle;
-		.fn_text_overflow();
-	}
-	.hui-label-gray{
-		.c-gray();
-	}
 	.hui-form-vt{
 		vertical-align:top;
-	}
-	.hui-form-right{
-		width:78%;
-		vertical-align:middle;
-		.fn_inline_block();
-		.fn_word_break();
 	}
 	.hui-form-action{
 		padding-left:22%;
@@ -737,16 +768,17 @@
 		}
 	}
 	.hui-item-image{
-		float:left;
-		margin-right:10px;
+		position:absolute;
+		left:10px;
 		img{
 			height:75px;
 		}
 	}
 	.hui-item-content{
-		float:left;
-		width:100%;
 		padding-right:40px;
+	}
+	.hui-item-img{
+		padding-left:80px;
 	}
 	.hui-item-title{
 		.fn_text_overflow();
@@ -762,23 +794,6 @@
 		padding-bottom:1px;
 		.hui-icon{
 			margin-right:2px;
-		}
-	}
-	.hui-item-link{
-		position:absolute;
-		margin-top:-18px;
-		width:36px;
-		height:36px;
-		top:50%;
-		right:5px;
-		text-align:center;
-		vertical-align:middle;
-		.hui-icon{
-			position:absolute;
-			top:50%;
-			left:50%;
-			margin-top:-11px;
-			margin-left:-11px;
 		}
 	}
 }
