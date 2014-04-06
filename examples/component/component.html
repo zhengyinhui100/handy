@@ -141,6 +141,8 @@ $Require([
 "C.ControlGroup",
 "C.Radio",
 "C.Checkbox",
+"C.Label",
+"C.RowItem",
 "C.Menu",
 "C.Select",
 "C.Input",
@@ -151,7 +153,7 @@ $Require([
 "C.Toolbar",
 "C.Tips",
 "C.Dialog"],
-function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,
+function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Select,Input,
 		Set,Field,Form,Tab,Toolbar,Tips,Dialog){
 	
 	function example(){
@@ -459,12 +461,29 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,
 				title:'资料',
 				items:[{
 					xtype:'Field',
-					label:'用户名：',
-					text:'xiaoxiao'
+					title:'用户名：',
+					content:'xiaoxiao',
+					click:function(){
+						alert('详情')
+					}
 				},{
 					xtype:'Field',
-					label:'邮箱：',
-					labelTheme:'gray',
+					title:'昵称：',
+					underline:false,
+					content:'bb'
+				},{
+					xtype:'Field',
+					title:'头像：',
+					content:{
+						hasArrow:true,
+						underline:true,
+						icon:'user'
+					}
+				},{
+					xtype:'Field',
+					title:'邮箱：',
+					labelColor:'gray',
+					labelAlign:'right',
 					items:{
 						xtype:'Input',
 						name:'email',
@@ -478,7 +497,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,
 					}
 				},{
 					xtype:'Field',
-					label:'性别：',
+					title:'性别：',
 					items:{
 						xtype:'Select',
 						name:'level',
@@ -500,7 +519,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Menu,Select,Input,
 					}
 				},{
 					xtype:"Field",
-					label:'描述：',
+					title:'描述：',
 					items:{
 						xtype:'Input',
 						type:'textarea',

@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-05 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-06 | zhengyinhui100@gmail.com */
 /**
  * 抽象事件类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -613,7 +613,7 @@ function(ViewManager,AbstractEvents,Template){
 		}else{
 			aArgs=$H.toArray(aArgs,2);
 		}
-		if($H.isArray(aParams)){
+		if($H.isArr(aParams)){
 			for(var i=0,len=aParams.length;i<len;i++){
 				oOwner[sMethod].apply(me,[aParams[i]].concat(aArgs));
 			}
@@ -689,10 +689,10 @@ function(ViewManager,AbstractEvents,Template){
 				me.on(p,oParams[p]);
 				return true;
 			}else if(p=='defItem'){
-				$H.extend(me[p],val);
+				me[p]=$H.extend(me[p],val);
 				return true;
 			}else if(p=='listener'){
-				me.listeners=me.listeners.concat($H.isArray(val)?val:[val]);
+				me.listeners=me.listeners.concat($H.isArr(val)?val:[val]);
 				return true;
 			}else if(p=='items'){
 				me.add(val);
@@ -1024,7 +1024,7 @@ function(ViewManager,AbstractEvents,Template){
 			oTarget=oEvent.target,
 			bIsCustom=oEvent.custom,
 			fHandler=oEvent.handler;
-		if($H.isFunction(oTarget)){
+		if($H.isFunc(oTarget)){
 			oTarget=oTarget.call(me);
 		}
 		//自定义事件
@@ -1039,7 +1039,7 @@ function(ViewManager,AbstractEvents,Template){
 				sSel=oEvent.selector,
 				oData=oEvent.data,
 				fFunc=oEvent.delegation=me._delegateHandler(fHandler,context);
-			if($H.isFunction(oEl)){
+			if($H.isFunc(oEl)){
 				oEl=oEl.call(me);
 			}
 			//移动浏览器由于click可能会有延迟，这里转换为touchend事件
@@ -1230,14 +1230,17 @@ function(ViewManager,AbstractEvents,Template){
 		}
 		var o=oObj||this,m,prop,op,value;
 		//'Button[attr=value]'=>'[xtype=Button][attr=value]'
-		sSel=sSel.replace(/^([^\[]+)/,'[xtype="$1"]');
+		sSel=sSel.replace(/^([^\[]+)/,'[xtype=$1]');
 		//循环检查
 		var r=/\[([^=|\!]+)(=|\!=)([^=]+)\]/g;
 		while(m=r.exec(sSel)){
 			prop=m[1];
 			//操作符：=|!=
 			op=m[2];
-			value=eval(m[3]);
+			value=m[3];
+			if(value=='false'||value=='true'){
+				value=eval(value);
+			}
 			if(op==="="?o[prop]!=value:o[prop]==value){
 				return false;
 			}
@@ -1257,10 +1260,10 @@ function(ViewManager,AbstractEvents,Template){
 	 */
 	function fFind(sel,aResult){
 		var me=this,aResult=aResult||[];
-		if($H.isNumber(sel)){
+		if($H.isNum(sel)){
 			var oItem=me.children[sel];
 			aResult.push(oItem);
-		}else if($H.isString(sel)){
+		}else if($H.isStr(sel)){
 			//多个选择器
 			if(sel.indexOf(",")>0){
 				$H.each(sel.split(","),function(i,val){
@@ -1295,7 +1298,7 @@ function(ViewManager,AbstractEvents,Template){
 					oChild.find(sel,aResult);
 				}
 			});
-		}else if($H.isFunction(sel)){
+		}else if($H.isFunc(sel)){
 			//匹配子视图
 			me.each(function(i,oChild){
 				if(sel(oChild)){
@@ -1392,7 +1395,6 @@ function(ViewManager,AbstractEvents,Template){
 			}
 			return;
 		}
-		
 		//开始初始化后，如果是配置，先创建子视图
 		if(!(item instanceof View)){
 			//默认子视图配置
@@ -1443,10 +1445,10 @@ function(ViewManager,AbstractEvents,Template){
 		var aChildren=me.children;
 		var bResult=false;
 		var nIndex;
-		if($H.isNumber(item)){
+		if($H.isNum(item)){
 			nIndex=item;
 			item=aChildren[nIndex];
-		}else if($H.isString(item)||$H.isFunction(item)){
+		}else if($H.isStr(item)||$H.isFunc(item)){
 			item=me.find(item);
 			for(var i=0,len=item.length;i<len;i++){
 				if(me.remove(item[i])==false){
@@ -1484,7 +1486,7 @@ function(ViewManager,AbstractEvents,Template){
 		if(!aItems){
 			return;
 		}
-		aItems=$H.isArray(aItems)?aItems:[aItems];
+		aItems=$H.isArr(aItems)?aItems:[aItems];
 		//逐个初始化子视图
 		for(var i=0,len=aItems.length;i<len;i++){
 			me.add(aItems[i]);
@@ -1718,13 +1720,13 @@ function(AbstractDao,AbstractEvents){
 		for(var key in oAttrs){
 			val=oAttrs[key];
 			if(oField=oFields[key]){
-				type=$H.isObject(oField)?oField.type:oField;
+				type=$H.isObj(oField)?oField.type:oField;
 				//自定义解析
 				if(fParse=oField.parse){
 					val=fParse.apply(me,[val,oAttrs]);
 				}
 				//自定义类型，包括Model和Collection
-				if($H.isString(type)){
+				if($H.isStr(type)){
 					if(type=='Date'){
 						val=$H.parseDate(val);
 					}else if(type.indexOf('.')>0){
@@ -2063,7 +2065,7 @@ function(AbstractDao,AbstractEvents){
 	        	oServerAttrs = $H.extend(oAttrs || {}, oServerAttrs);
 	        }
 	        //服务器返回的值可能跟现在不一样，还要根据返回值修改
-	        if ($H.isObject(oServerAttrs) && !me.set(oServerAttrs, oOptions)) {
+	        if ($H.isObj(oServerAttrs) && !me.set(oServerAttrs, oOptions)) {
 	            return false;
 	        }
 	        if (fSuccess){
@@ -2219,6 +2221,7 @@ function(AbstractDao,AbstractEvents,Model){
 		shift                  : fShift,              //取出集合第一个模型
 		slice                  : fSlice,              //返回选定的元素的数组，同"Array.slice"
 		get                    : fGet,                //通过id或cid获取模型
+		size                   : fSize,               //获取集合元素个数
 		at                     : fAt,                 //获取指定位置的模型
 		where                  : fWhere,              //返回包含指定 key-value 组合的模型的数组
 		findWhere              : fFindWhere,          //返回包含指定 key-value 组合的第一个模型
@@ -2247,7 +2250,7 @@ function(AbstractDao,AbstractEvents,Model){
 	
 	$H.each(['sortBy','groupBy','countBy'], function(sMethod) {
 	    Collection.prototype[sMethod] = function(value, context) {
-	        var iterator = $H.isFunction(value) ? value : function(oModel) {
+	        var iterator = $H.isFunc(value) ? value : function(oModel) {
 	            return oModel.get(value);
 	        };
 	        return HA[sMethod](this._models, iterator, context);
@@ -2398,7 +2401,7 @@ function(AbstractDao,AbstractEvents,Model){
      */
     function fRemove(models, oOptions) {
     	var me=this;
-        var bSingular = !$H.isArray(models);
+        var bSingular = !$H.isArr(models);
         models = bSingular ? [models] : $H.clone(models);
         oOptions || (oOptions = {});
         var i, l, index, oModel;
@@ -2443,7 +2446,7 @@ function(AbstractDao,AbstractEvents,Model){
         if (oOptions.parse){
         	models = me.parse(models, oOptions);
         }
-        var bSingular = !$H.isArray(models);
+        var bSingular = !$H.isArr(models);
         var aModels = bSingular ? (models ? [models] : []) : $H.clone(models);
         var i, l, id, oModel, oAttrs, oExisting, sort;
         var at = oOptions.at;
@@ -2639,6 +2642,13 @@ function(AbstractDao,AbstractEvents,Model){
       		return void 0;
         }
         return me._byId[obj] || me._byId[obj.id] || me._byId[obj.cid];
+    }
+    /**
+     * 获取集合元素个数
+     * @return {number} 返回元素个数
+     */
+    function fSize(){
+    	return this.length;
     }
 	/**
 	 * 获取指定位置的模型

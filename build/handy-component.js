@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-05 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-06 | zhengyinhui100@gmail.com */
 /**
  * 组件管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -113,7 +113,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		if(!params){
 			return false;
 		}
-		if($H.isArray(params)){
+		if($H.isArr(params)){
 			for(var i=0,len=params.length;i<len;i++){
 				if(me.match(sSel,params[i])){
 					return true;
@@ -282,6 +282,7 @@ function(AC){
 	Panel.extend({
 		//初始配置
 //		content         : '',                 //内容
+		
 		
 		tmpl            : [
 			'<div><%=this.content||this.findHtml(">*")%></div>'
@@ -529,7 +530,7 @@ function(AC){
 					var me=this;
 					var oCurrentEl=$(oEvt.currentTarget);
 					//可能后后代组件有'.js-item'，因此这里只寻找子组件
-					var oCurCmp=me.find('>[_id="'+oCurrentEl.attr("id")+'"]');
+					var oCurCmp=me.find('>[_id='+oCurrentEl.attr("id")+']');
 					if(oCurCmp.length>0){
 						var nIndex=oCurCmp[0].index();
 						me.onItemClick(oEvt,nIndex);
@@ -989,7 +990,7 @@ function(AC){
 		if(sValue){
 			if(me.value!=sValue){
 				var oMenu=me.children[0];
-				var oItem=oMenu.find('>[value="'+sValue+'"]');
+				var oItem=oMenu.find('>[value='+sValue+']');
 				if(oItem.length>0){
 					me.trigger("change");
 					oItem=oItem[0];
@@ -1146,6 +1147,81 @@ function(AC){
 	return Input;
 	
 });/**
+ * 文字标签类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+
+$Define('C.Label',
+'C.AbstractComponent',
+function(AC){
+	
+	var Label=AC.define('Label');
+	
+	Label.extend({
+		//初始配置
+//		labelColor      : '',      //label字体颜色
+//		labelAlign      : '',      //label文字对齐，默认左对齐
+		
+		tmpl            : [
+			'<label class="',
+				'<%if(this.labelColor){%> hui-label-<%=this.labelColor%><%}%><%if(this.labelAlign){%> c-txt-<%=this.labelAlign%><%}%>" for="<%=this.forName%>">',
+				'<%=this.text%>',
+			'</label>'
+		]
+		
+	});
+	
+	return Label;
+	
+});/**
+ * 列表行类，用于多行的结构
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+
+$Define('C.RowItem',
+'C.AbstractComponent',
+function(AC){
+	
+	var RowItem=AC.define('RowItem');
+	
+	RowItem.extend({
+		//初始配置
+//		text            :'',       //文字
+//		underline       : false,   //右边下划线，文字域默认有下划线
+//		hasArrow        : false,   //右边箭头，有click事件时默认有箭头
+		cls             : 'rowitem',
+		
+		tmpl            : [
+			'<div class="hui-rowitem<%if(this.text){%> hui-rowitem-txt<%}%><%if(this.underline){%> hui-rowitem-underline<%}%>">',
+				'<%=this.text%>',
+				'<%=this.findHtml(">*")%>',
+				'<%if(this.hasArrow){%>',
+					'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情"><span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span></a>',
+				'<%}%>',
+			'</div>'
+		],
+		doConfig       : fDoconfig    //初始化配置
+	});
+	/**
+	 * 初始化配置
+	 * @param {Object}oSettings
+	 */
+	function fDoconfig(oSettings){
+		var me=this;
+		me.callSuper();
+		//默认文字域有下划线
+		if(me.text&&me.underline==undefined){
+			me.underline=true;
+		}
+		//有点击函数时默认有右箭头
+		if(oSettings.click&&me.hasArrow==undefined){
+			me.hasArrow=true;
+		}
+	}
+	
+	return RowItem;
+	
+});/**
  * 集合类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-02-25
@@ -1189,20 +1265,67 @@ function(AC){
 	Field.extend({
 		//初始配置
 //		forName         : '',      //label标签for名字
-//		label           : '',      //label文字
-//		text            : '',      //右边文字
+//		title           : '',      //label文字字符串，或者Label或其它组件的配置项
+//		content         : '',      //右边文字，或组件配置
+//		noPadding       : false,   //true表示没有上下间隙
+		
+		defItem         : {
+			xtype       : 'RowItem',
+			xrole       : 'content'
+		},
 		
 		tmpl            : [
-			'<div class="hui-form-field">',
-				'<label class="hui-form-left" for="<%=this.forName%>"><%=this.label%></label>',
-				'<div class="hui-form-right">',
-					'<%=this.text%>',
-					'<%=this.findHtml(">*")%>',
+			'<div class="hui-field<%if(!this.noPadding){%> hui-field-padding<%}%>">',
+				'<div class="hui-field-left">',
+					'<%=this.findHtml(">[xrole=title]")%>',
+				'</div>',
+				'<div class="hui-field-right">',
+					'<%=this.findHtml(">[xrole=content]")%>',
 				'</div>',
 			'</div>'
-		]
-		
+		],
+		doConfig       : fDoconfig    //初始化配置
 	});
+	/**
+	 * 初始化配置
+	 * @param {Object}oSettings
+	 */
+	function fDoconfig(oSettings){
+		var me=this;
+		me.callSuper();
+		var title=me.title;
+		if($H.isSimple(title)){
+			title={
+				text:title
+			};
+		}
+		title=$H.extend({
+			xtype:'Label',
+			xrole:'title'
+		},title);
+		me.add(title);
+		
+		//内容
+		var content=me.content;
+		//默认有空白字符
+		if(content==undefined&&!oSettings.items){
+			content='&nbsp;';
+		}
+		//包装文字内容
+		if($H.isSimple(content)){
+			content=({
+				text:content,
+				//默认文字域有下划线
+				underline:true,
+				//有点击函数时默认有右箭头
+				hasArrow:true
+			})
+		}
+		if(content){
+			me.noPadding=true;
+			me.add(content);
+		}
+	}
 	
 	return Field;
 	
@@ -1267,7 +1390,7 @@ function(AC,Panel){
 		//属性
 //		titleCmp        : null,         //标题组件
 //		content         : null,         //内容组件
-		tmpl            : ['<div><%=this.findHtml(">[xrole=\'title\']")%></div>'],
+		tmpl            : ['<div><%=this.findHtml(">[xrole=title]")%></div>'],
 		initialize      : fInitialize,  //初始化
 		doConfig        : fDoConfig,    //初始化配置
 		parseItem       : fParseItem,   //分析处理子组件
@@ -1282,8 +1405,8 @@ function(AC,Panel){
 	function fInitialize(oSettings){
 		var me=this;
 		me.callSuper();
-		me.titleCmp=me.find('>[xrole="title"]')[0];
-		me.contentCmp=me.find('>[xrole="content"]')[0];
+		me.titleCmp=me.find('>[xrole=title]')[0];
+		me.contentCmp=me.find('>[xrole=content]')[0];
 	}
 	/**
 	 * 初始化配置
@@ -1414,7 +1537,7 @@ function(AC,TabItem,ControlGroup){
 						'</li>',
 					'<%}%>',
 				'</ul>',
-				'<%=this.findHtml(">TabItem>[xrole=\'content\']")%>',
+				'<%=this.findHtml(">TabItem>[xrole=content]")%>',
 			'</div>'
 		],
 		
@@ -1609,18 +1732,18 @@ function(AC,Popup){
 		
 		tmpl            : [
 			'<div class="hui-dialog">',
-				'<%=this.findHtml(">[xrole=\'dialog-header\']")%>',
+				'<%=this.findHtml(">[xrole=dialog-header]")%>',
 				'<div class="hui-dialog-body">',
 					'<%if(this.content){%><%=this.content%><%}else{%>',
 						'<div class="hui-body-content">',
 							'<h1 class="hui-content-title"><%=this.contentTitle%></h1>',
 							'<div class="hui-content-msg"><%=this.contentMsg%></div>',
-							'<%=this.findHtml(">[xrole=\'dialog-content\']")%>',
+							'<%=this.findHtml(">[xrole=dialog-content]")%>',
 						'</div>',
 					'<%}%>',
 					'<%if(!this.noAction){%>',
 						'<div class="hui-body-action">',
-						'<%=this.findHtml(">[xrole=\'dialog-action\']")%>',
+						'<%=this.findHtml(">[xrole=dialog-action]")%>',
 						'</div>',
 					'<%}%>',
 				'</div>',
@@ -1694,7 +1817,7 @@ function(AC,Popup){
 		var me=this;
 		me.callSuper();
 		var aItems=oSettings.items;
-		if(me.title&&!me.hasConfig('[xrole="dialog-header"]',aItems)){
+		if(me.title&&!me.hasConfig('[xrole=dialog-header]',aItems)){
 			//顶部标题栏
 			me.add({
 				xtype:'Toolbar',
@@ -1715,7 +1838,7 @@ function(AC,Popup){
 				}
 			})
 		}
-		if(!me.noAction&&!me.hasConfig('[xrole="dialog-action"]',aItems)){
+		if(!me.noAction&&!me.hasConfig('[xrole=dialog-action]',aItems)){
 			var aActions=[];
 			if(!me.noCancel){
 				//取消按钮

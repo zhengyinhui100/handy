@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-05 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-06 | zhengyinhui100@gmail.com */
 html,
 body,
 div,
@@ -231,6 +231,15 @@ oder:
 }
 .c-right {
   float: right;
+}
+.c-txt-left {
+  text-align: left;
+}
+.c-txt-center {
+  text-align: center;
+}
+.c-txt-right {
+  text-align: right;
 }
 .c-clear {
   zoom: 1;
@@ -1027,6 +1036,77 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-icon-loading {
   background-image: url(../img/loading.gif);
 }
+.c-left {
+  float: left;
+}
+.c-right {
+  float: right;
+}
+.c-txt-left {
+  text-align: left;
+}
+.c-txt-center {
+  text-align: center;
+}
+.c-txt-right {
+  text-align: right;
+}
+.c-clear {
+  zoom: 1;
+}
+.c-clear:after {
+  clear: both;
+  content: ".";
+  display: block;
+  height: 0;
+  visibility: hidden;
+  overflow: hidden;
+}
+.c-inline {
+  display: -moz-inline-stack;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
+}
+.c-error,
+.c-red {
+  color: #c00;
+}
+.c-warn,
+.c-yellow {
+  color: #ffd306;
+}
+.c-default {
+  color: #222;
+}
+.c-dimgray {
+  color: #333;
+}
+.c-dark {
+  color: #505050;
+}
+.c-gray {
+  color: #6a6a6a;
+}
+.c-light {
+  color: #888;
+}
+.c-h-middle-container {
+  text-align: center;
+}
+.c-h-middle {
+  margin-left: auto;
+  margin-right: auto;
+}
+.c-v-middle {
+  position: absolute;
+  top: 50%;
+}
+.c-v-middle-line {
+  height: 4em;
+  line-height: 4em;
+  overflow: hidden;
+}
 .hui-icon {
   width: 22px;
   height: 22px;
@@ -1684,39 +1764,69 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-input-btn-right .hui-btn-icon-notxt {
   margin-top: -15px;
 }
-.hui-form .hui-form-tips {
+.hui-click-arrow {
+  position: absolute;
+  margin-top: -18px;
+  width: 36px;
+  height: 36px;
+  top: 50%;
+  right: 0;
   text-align: center;
+  vertical-align: middle;
 }
-.hui-form .hui-form-field {
-  margin: 1em 0;
+.hui-click-arrow .hui-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -11px;
+  margin-left: -11px;
 }
-.hui-form .hui-form-left {
+.hui-rowitem {
+  position: relative;
+  padding: .8em 0;
+}
+.hui-rowitem.hui-rowitem-txt {
+  word-wrap: break-word;
+  overflow: hidden;
+  word-break: break-all;
+}
+.hui-rowitem.hui-rowitem-underline {
+  border-bottom: 1px solid #ccc;
+}
+.hui-field .hui-field-left {
+  color: #6a6a6a;
   width: 20%;
-  text-align: right;
+  vertical-align: middle;
   display: -moz-inline-stack;
   display: inline-block;
   zoom: 1;
   *display: inline;
-  vertical-align: middle;
   overflow: hidden;
   white-space: nowrap;
   -o-text-overflow: ellipsis;
   -ms-text-overflow: ellipsis;
   text-overflow: ellipsis;
 }
-.hui-form .hui-form-vt {
-  vertical-align: top;
+.hui-field .hui-label-default {
+  color: #222;
 }
-.hui-form .hui-form-right {
+.hui-field .hui-field-right {
+  position: relative;
   width: 78%;
   vertical-align: middle;
   display: -moz-inline-stack;
   display: inline-block;
   zoom: 1;
   *display: inline;
-  word-wrap: break-word;
-  overflow: hidden;
-  word-break: break-all;
+}
+.hui-field.hui-field-padding {
+  padding: .7em 0;
+}
+.hui-form .hui-form-tips {
+  text-align: center;
+}
+.hui-form .hui-form-vt {
+  vertical-align: top;
 }
 .hui-form .hui-form-action {
   padding-left: 22%;
@@ -1997,16 +2107,17 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   background: #f3f3f3;
 }
 .hui-list .hui-item-image {
-  float: left;
-  margin-right: 10px;
+  position: absolute;
+  left: 10px;
 }
 .hui-list .hui-item-image img {
   height: 75px;
 }
 .hui-list .hui-item-content {
-  float: left;
-  width: 100%;
   padding-right: 40px;
+}
+.hui-list .hui-item-img {
+  padding-left: 80px;
 }
 .hui-list .hui-item-title {
   overflow: hidden;
@@ -2031,23 +2142,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-list .hui-item-desc .hui-icon {
   margin-right: 2px;
-}
-.hui-list .hui-item-link {
-  position: absolute;
-  margin-top: -18px;
-  width: 36px;
-  height: 36px;
-  top: 50%;
-  right: 5px;
-  text-align: center;
-  vertical-align: middle;
-}
-.hui-list .hui-item-link .hui-icon {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-top: -11px;
-  margin-left: -11px;
 }
 .hui-mask {
   position: absolute;

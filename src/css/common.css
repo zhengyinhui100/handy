@@ -4,6 +4,15 @@
 .c-right {
   float: right;
 }
+.c-txt-left {
+  text-align: left;
+}
+.c-txt-center {
+  text-align: center;
+}
+.c-txt-right {
+  text-align: right;
+}
 .c-clear {
   zoom: 1;
 }

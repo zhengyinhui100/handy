@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-05 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-06 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -330,12 +330,14 @@ handy.add('Object',function($H){
 		alias               : fAlias,           //创建别名/读取实名
 		extend              : fExtend,          //对象的属性扩展
 		mix                 : fMix,             //自定义的继承方式，可以继承object和prototype，prototype方式继承时，非原型链方式继承。
-		isFunction			: fIsFunction,	    //判断对象是否是函数
-		isArray				: fIsArray, 		//判断对象是否是数组
-		isObject            : fIsObject,        //是否是对象
-		isNumber            : fIsNumber,        //是否是数字
-		isString            : fIsString,        //是否是字符串
-		isUndefined         : fIsUndefined,     //是否未定义
+		isNum               : fIsNum,           //是否是数字
+		isStr               : fIsStr,           //是否是字符串
+		isBool              : fIsBool,          //是否是布尔类型
+		isSimple            : fIsSimple,        //是否是基本类型：string/number/boolean
+		isUndef             : fIsUndef,         //是否未定义
+		isFunc		    	: fIsFunc,	        //判断对象是否是函数
+		isArr				: fIsArr,    		//判断对象是否是数组
+		isObj               : fIsObj,           //是否是对象
 		isClass             : fIsClass,         //判断对象是否是类
 		equals				: fEquals, 		    //对象对比，对比每一个值是否相等
 		clone				: fClone,			//对象复制
@@ -430,7 +432,7 @@ handy.add('Object',function($H){
     * @return {Obj} 扩展后的对象
     */
     function fExtend(oDestination, oSource, oOptions) {
-    	if(!oSource||Obj.isString(oSource)||Obj.isNumber(oSource)){
+    	if(!oSource||Obj.isStr(oSource)||Obj.isNum(oSource)){
     		return oDestination;
     	}
     	var notCover=oOptions?oOptions.notCover:false;
@@ -450,16 +452,16 @@ handy.add('Object',function($H){
 		        	var bHas=oDestination.hasOwnProperty(sProperty);
 		        	var bNotCover=notCover===true?bHas:false;
 		        	//当此参数为数组时，仅不覆盖数组中的原有属性
-		        	if(Obj.isArray(notCover)){
+		        	if(Obj.isArr(notCover)){
 		        		bNotCover=Obj.contains(notCover,sProperty)&&bHas;
-		        	}else if(Obj.isFunction(notCover)){
+		        	}else if(Obj.isFunc(notCover)){
 		        		//当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
 		        		bNotCover=notCover(sProperty,value);
 		        	}
 		            if (!bNotCover) {
 		            	var value=bIsClone?Obj.clone(value):value;
 		            	//为方法添加元数据：方法名和声明此方法的类
-						if(bAddMeta&&Obj.isFunction(value)){
+						if(bAddMeta&&Obj.isFunc(value)){
 							value.$name=sProperty;
 							value.$owner=oConstructor;
 						}
@@ -486,7 +488,7 @@ handy.add('Object',function($H){
             oChild.superProto = {};
         }
         for (var sProperty in oParent) {
-            if(Obj.isFunction(oParent[sProperty])){// 如果是方法
+            if(Obj.isFunc(oParent[sProperty])){// 如果是方法
                 if(!oChild.superProto[sProperty]){// superProto里面没有对应的方法，直接指向父类方法
                     oChild.superProto[sProperty] = oParent[sProperty];
                 }else{// superProto里有对应方法，需要新建一个function依次调用
@@ -520,37 +522,11 @@ handy.add('Object',function($H){
         return oChild;
     };
     /**
-    * 对象是否是函数类型
-    * @method isFunction
-    * @param {Obj} obj 对象
-    * @return {boolean} 返回判断结果
-    */
-    function fIsFunction(obj) {
-        return Object.prototype.toString.call(obj) === "[object Function]";
-    }
-    /**
-    * 对象是否是数组类型
-    * method isArray
-    * @param {Obj} obj 对象
-    * @return {boolean} 返回判断结果
-    */
-    function fIsArray(obj) {
-        return Object.prototype.toString.call(obj) === "[object Array]";
-    }
-    /**
-     * 是否是对象
-     * @param {*}obj 参数对象
-     * @return {boolean} true表示是对象类型
-     */
-    function fIsObject(obj){
-    	return typeof obj=='object'&&!Obj.isArray(obj);
-    }
-    /**
      * 是否是数字
      * @param {*}obj 参数对象
      * @return {boolean} true表示是数字
      */
-    function fIsNumber(obj){
+    function fIsNum(obj){
     	return typeof obj=='number';
     }
     /**
@@ -558,16 +534,58 @@ handy.add('Object',function($H){
      * @param {*}obj 参数对象
      * @return {boolean} true表示是字符串
      */
-    function fIsString(obj){
+    function fIsStr(obj){
     	return typeof obj=='string';
+    }
+    /**
+     * 是否是布尔类型
+     * @param {*}obj 参数对象
+     * @return {boolean} true表示是布尔类型
+     */
+    function fIsBool(obj){
+    	return typeof obj=='boolean';
+    }
+    /**
+     * 是否是基本类型：string/number/boolean
+     * @param {*}obj 参数对象
+     * @return {boolean} true表示是基本类型
+     */
+    function fIsSimple(obj){
+    	return Obj.isStr(obj)||Obj.isNum(obj)||Obj.isBool(obj);
     }
     /**
      * 是否未定义
      * @param {*}obj 参数对象
      * @return {boolean} true表示未定义
      */
-    function fIsUndefined(obj){
+    function fIsUndef(obj){
     	return typeof obj=='undefined';
+    }
+    /**
+    * 对象是否是函数类型
+    * @method isFunc
+    * @param {Obj} obj 对象
+    * @return {boolean} 返回判断结果
+    */
+    function fIsFunc(obj) {
+        return Object.prototype.toString.call(obj) === "[object Function]";
+    }
+    /**
+    * 对象是否是数组类型
+    * method isArr
+    * @param {Obj} obj 对象
+    * @return {boolean} 返回判断结果
+    */
+    function fIsArr(obj) {
+        return Object.prototype.toString.call(obj) === "[object Array]";
+    }
+    /**
+     * 是否是对象
+     * @param {*}obj 参数对象
+     * @return {boolean} true表示是对象类型
+     */
+    function fIsObj(obj){
+    	return typeof obj=='object'&&!Obj.isArr(obj);
     }
     /**
      * 判断对象是否是类
@@ -575,7 +593,7 @@ handy.add('Object',function($H){
      * @return {boolean} true表示参数对象是类
      */
     function fIsClass(obj){
-    	return Obj.isFunction(obj)&&obj.$isClass===true;
+    	return Obj.isFunc(obj)&&obj.$isClass===true;
     }
     /**
     * 对比对象值是否相同
@@ -599,7 +617,7 @@ handy.add('Object',function($H){
                     //两个对象引用不同，循环判断他们的值是否相同
                 } else {
                     //数组判断
-                    if (Obj.isArray(o1) && Obj.isArray(o2)) {
+                    if (Obj.isArr(o1) && Obj.isArr(o2)) {
                         //数组长度不相等，不相等
                         if (o1.length != o2.length) {
                             return false;
@@ -611,7 +629,7 @@ handy.add('Object',function($H){
                         }
                         return true;
                         //对象判断
-                    } else if (!Obj.isArray(o1) && !Obj.isArray(o2)) {
+                    } else if (!Obj.isArr(o1) && !Obj.isArr(o2)) {
                     	//对象属性项不一样
                     	if(Obj.count(o1)!=Obj.count(o2)){
                     		return false;
@@ -676,7 +694,7 @@ handy.add('Object',function($H){
     * @return {boolean} 返回判断结果
     */
     function fIsEmpty(object) {
-        if (Obj.isArray(object)) {
+        if (Obj.isArr(object)) {
             return object.length == 0;
         } else {
             for (var k in object) {
@@ -698,7 +716,7 @@ handy.add('Object',function($H){
     	}
     	var sName, i = 0,
 			nLength = object.length,len,
-			bIsObj = nLength === undefined || Obj.isFunction( object );
+			bIsObj = nLength === undefined || Obj.isFunc( object );
 		if ( args ) {
 			if ( bIsObj ) {
 				for ( sName in object ) {
@@ -789,7 +807,7 @@ handy.add('Object',function($H){
     * @return {number} 返回对象长度
     */
     function fCount(oParam) {
-        if (Obj.isArray(oParam)) {
+        if (Obj.isArr(oParam)) {
             return oParam.length;
         } else {
 	        var nCount = 0;
@@ -806,7 +824,7 @@ handy.add('Object',function($H){
      * @param {Obj|Array} 返回结果
      */
     function fRemoveUndefined(obj,bNew){
-    	var bIsArray=Obj.isArray(obj);
+    	var bIsArray=Obj.isArr(obj);
     	if(bNew){
     		if(bIsArray){
     			var aResult=[];
@@ -884,7 +902,7 @@ handy.add('Object',function($H){
     * @return {Array} 返回转换后的数组
     */
     function fGenerateMethod(oTarget,method,fDefined){
-    	var aMethod=Obj.isArray(method)?method:method.split(",");
+    	var aMethod=Obj.isArr(method)?method:method.split(",");
     	for ( var i = 0; i < aMethod.length; i++ ){
 			var sMethod = aMethod[i];
 			oTarget[sMethod] = fDefined(sMethod);
@@ -1275,7 +1293,7 @@ handy.add('Function',function($H){
 	 * @return  {function()}    返回新构造的函数
 	 */
 	function fIntercept(fExecFunc,fInterceptFunc,oExecScope,oInterceptScope) {
-		if($H.Object.isFunction(fExecFunc)&&$H.Object.isFunction(fInterceptFunc)){
+		if($H.Object.isFunc(fExecFunc)&&$H.Object.isFunc(fInterceptFunc)){
 			return function() {
 						var oExScope=oExecScope||this;
 						var oInterScope={};
@@ -1364,7 +1382,7 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
         	var sMethod=fCaller.$name;
         	if(oSuper){
         		var fMethod=oSuper[sMethod];
-        		if(Object.isFunction(fMethod)){
+        		if(Object.isFunc(fMethod)){
         			return fMethod.apply(me,aArgs);
         		}
         	}
@@ -2334,7 +2352,7 @@ handy.add("String",function(){
 		check			: fCheck,		    // 检查特殊字符串
 		len				: fLen,         	// 计算字符串打印长度,一个中文字符长度为2
 		left			: fLeft,			// 截断left
-		isNumberStr		: fIsNumberStr,     // 字符串是否是数字
+		isNumStr		: fIsNumStr,        // 字符串是否是数字
 		hasChn          : fHasChn,          // 字符是否包含中文
 		isChn           : fIsChn,           // 字符是否是中文
 		addParam		: fAddParam		    // 在url后面增加get参数
@@ -2476,11 +2494,11 @@ handy.add("String",function(){
 	};
 	/**
 	 * 判断是否数字
-	 * @method  isNumberStr
+	 * @method  isNumStr
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return  {boolean} 返回是否数字   
 	 */
-	function fIsNumberStr(sStr){
+	function fIsNumStr(sStr){
 		return (sStr.search(/^\d+$/g) == 0);
 	}
 	/**
@@ -2683,7 +2701,7 @@ handy.add('Util','B.Object',function(Object,$H){
         function _fFormatData(oCoord){
         	if(oCoord.get){
 	        	oCoord=[oCoord.get("latitude"),oCoord.get("longitude")];
-	        }else if($H.isObject(oCoord)){
+	        }else if($H.isObj(oCoord)){
 	        	oCoord=[oCoord.latitude,oCoord.longitude];
 	        }
 	        return oCoord;
@@ -2720,7 +2738,7 @@ handy.add('Util','B.Object',function(Object,$H){
 	 */
 	function fResult(oObj,sProp){
 		var value=oObj[sProp];
-		if(Object.isFunction(value)){
+		if(Object.isFunc(value)){
 			return value();
 		}else{
 			return value;
@@ -2779,7 +2797,7 @@ handy.add('Array','B.Object',function(Object,$H){
 	    if (value == null){
 	    	return _fIdentity;
 	    }
-	    if ($H.isFunction(value)){
+	    if ($H.isFunc(value)){
 	    	return value;
 	    }
 	    return _fProperty(value);
@@ -3002,7 +3020,7 @@ handy.add('Array','B.Object',function(Object,$H){
 	 */
 	function fInvoke(obj,method){
 		var aArgs = Array.prototype.slice.call(arguments, 2);
-        var bIsFunc = Object.isFunction(method);
+        var bIsFunc = Object.isFunc(method);
         return this.map(obj, function(value) {
             return (bIsFunc ? method : value[method]).apply(value, aArgs);
         });
@@ -3171,7 +3189,7 @@ handy.add('Template','B.String',function(String,$H){
 		sScript=sScript.replace(/this/g,'$data');
 		//输出内容
 		if(sScript.indexOf('=')==0){
-			var sExp=sScript.replace(_valPreReg,'');
+			var sExp="("+sScript.replace(_valPreReg,'')+")";
 			sExp=sExp+'==undefined?"":'+sExp;
 			sScript=_fAddLine(sExp);
 		}
@@ -3686,7 +3704,7 @@ handy.add('Validator',['B.String','B.Object'],function(String,Object,$H){
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
 	function fMinlength( value ,nLen) {
-		var length = Object.isArray( value ) ? value.length : String.trim(''+value).length;
+		var length = Object.isArr( value ) ? value.length : String.trim(''+value).length;
 		return length >= nLen;
 	}
 	/**
@@ -3697,7 +3715,7 @@ handy.add('Validator',['B.String','B.Object'],function(String,Object,$H){
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
 	function fMaxlength( value,nLen ) {
-		var length = Object.isArray( value ) ? value.length : String.trim(''+value).length;
+		var length = Object.isArr( value ) ? value.length : String.trim(''+value).length;
 		return length <= nLen;
 	}
 	/**
@@ -3708,7 +3726,7 @@ handy.add('Validator',['B.String','B.Object'],function(String,Object,$H){
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
 	function fRangelength( value,aRange ) {
-		var length = Object.isArray( value ) ? value.length : String.trim(''+value).length;
+		var length = Object.isArr( value ) ? value.length : String.trim(''+value).length;
 		return ( length >= aRange[0] && length <= aRange[1] );
 	}
 	/**
@@ -4476,7 +4494,7 @@ function(ViewManager,AbstractEvents,Template){
 		}else{
 			aArgs=$H.toArray(aArgs,2);
 		}
-		if($H.isArray(aParams)){
+		if($H.isArr(aParams)){
 			for(var i=0,len=aParams.length;i<len;i++){
 				oOwner[sMethod].apply(me,[aParams[i]].concat(aArgs));
 			}
@@ -4552,10 +4570,10 @@ function(ViewManager,AbstractEvents,Template){
 				me.on(p,oParams[p]);
 				return true;
 			}else if(p=='defItem'){
-				$H.extend(me[p],val);
+				me[p]=$H.extend(me[p],val);
 				return true;
 			}else if(p=='listener'){
-				me.listeners=me.listeners.concat($H.isArray(val)?val:[val]);
+				me.listeners=me.listeners.concat($H.isArr(val)?val:[val]);
 				return true;
 			}else if(p=='items'){
 				me.add(val);
@@ -4887,7 +4905,7 @@ function(ViewManager,AbstractEvents,Template){
 			oTarget=oEvent.target,
 			bIsCustom=oEvent.custom,
 			fHandler=oEvent.handler;
-		if($H.isFunction(oTarget)){
+		if($H.isFunc(oTarget)){
 			oTarget=oTarget.call(me);
 		}
 		//自定义事件
@@ -4902,7 +4920,7 @@ function(ViewManager,AbstractEvents,Template){
 				sSel=oEvent.selector,
 				oData=oEvent.data,
 				fFunc=oEvent.delegation=me._delegateHandler(fHandler,context);
-			if($H.isFunction(oEl)){
+			if($H.isFunc(oEl)){
 				oEl=oEl.call(me);
 			}
 			//移动浏览器由于click可能会有延迟，这里转换为touchend事件
@@ -5093,14 +5111,17 @@ function(ViewManager,AbstractEvents,Template){
 		}
 		var o=oObj||this,m,prop,op,value;
 		//'Button[attr=value]'=>'[xtype=Button][attr=value]'
-		sSel=sSel.replace(/^([^\[]+)/,'[xtype="$1"]');
+		sSel=sSel.replace(/^([^\[]+)/,'[xtype=$1]');
 		//循环检查
 		var r=/\[([^=|\!]+)(=|\!=)([^=]+)\]/g;
 		while(m=r.exec(sSel)){
 			prop=m[1];
 			//操作符：=|!=
 			op=m[2];
-			value=eval(m[3]);
+			value=m[3];
+			if(value=='false'||value=='true'){
+				value=eval(value);
+			}
 			if(op==="="?o[prop]!=value:o[prop]==value){
 				return false;
 			}
@@ -5120,10 +5141,10 @@ function(ViewManager,AbstractEvents,Template){
 	 */
 	function fFind(sel,aResult){
 		var me=this,aResult=aResult||[];
-		if($H.isNumber(sel)){
+		if($H.isNum(sel)){
 			var oItem=me.children[sel];
 			aResult.push(oItem);
-		}else if($H.isString(sel)){
+		}else if($H.isStr(sel)){
 			//多个选择器
 			if(sel.indexOf(",")>0){
 				$H.each(sel.split(","),function(i,val){
@@ -5158,7 +5179,7 @@ function(ViewManager,AbstractEvents,Template){
 					oChild.find(sel,aResult);
 				}
 			});
-		}else if($H.isFunction(sel)){
+		}else if($H.isFunc(sel)){
 			//匹配子视图
 			me.each(function(i,oChild){
 				if(sel(oChild)){
@@ -5255,7 +5276,6 @@ function(ViewManager,AbstractEvents,Template){
 			}
 			return;
 		}
-		
 		//开始初始化后，如果是配置，先创建子视图
 		if(!(item instanceof View)){
 			//默认子视图配置
@@ -5306,10 +5326,10 @@ function(ViewManager,AbstractEvents,Template){
 		var aChildren=me.children;
 		var bResult=false;
 		var nIndex;
-		if($H.isNumber(item)){
+		if($H.isNum(item)){
 			nIndex=item;
 			item=aChildren[nIndex];
-		}else if($H.isString(item)||$H.isFunction(item)){
+		}else if($H.isStr(item)||$H.isFunc(item)){
 			item=me.find(item);
 			for(var i=0,len=item.length;i<len;i++){
 				if(me.remove(item[i])==false){
@@ -5347,7 +5367,7 @@ function(ViewManager,AbstractEvents,Template){
 		if(!aItems){
 			return;
 		}
-		aItems=$H.isArray(aItems)?aItems:[aItems];
+		aItems=$H.isArr(aItems)?aItems:[aItems];
 		//逐个初始化子视图
 		for(var i=0,len=aItems.length;i<len;i++){
 			me.add(aItems[i]);
@@ -5581,13 +5601,13 @@ function(AbstractDao,AbstractEvents){
 		for(var key in oAttrs){
 			val=oAttrs[key];
 			if(oField=oFields[key]){
-				type=$H.isObject(oField)?oField.type:oField;
+				type=$H.isObj(oField)?oField.type:oField;
 				//自定义解析
 				if(fParse=oField.parse){
 					val=fParse.apply(me,[val,oAttrs]);
 				}
 				//自定义类型，包括Model和Collection
-				if($H.isString(type)){
+				if($H.isStr(type)){
 					if(type=='Date'){
 						val=$H.parseDate(val);
 					}else if(type.indexOf('.')>0){
@@ -5926,7 +5946,7 @@ function(AbstractDao,AbstractEvents){
 	        	oServerAttrs = $H.extend(oAttrs || {}, oServerAttrs);
 	        }
 	        //服务器返回的值可能跟现在不一样，还要根据返回值修改
-	        if ($H.isObject(oServerAttrs) && !me.set(oServerAttrs, oOptions)) {
+	        if ($H.isObj(oServerAttrs) && !me.set(oServerAttrs, oOptions)) {
 	            return false;
 	        }
 	        if (fSuccess){
@@ -6082,6 +6102,7 @@ function(AbstractDao,AbstractEvents,Model){
 		shift                  : fShift,              //取出集合第一个模型
 		slice                  : fSlice,              //返回选定的元素的数组，同"Array.slice"
 		get                    : fGet,                //通过id或cid获取模型
+		size                   : fSize,               //获取集合元素个数
 		at                     : fAt,                 //获取指定位置的模型
 		where                  : fWhere,              //返回包含指定 key-value 组合的模型的数组
 		findWhere              : fFindWhere,          //返回包含指定 key-value 组合的第一个模型
@@ -6110,7 +6131,7 @@ function(AbstractDao,AbstractEvents,Model){
 	
 	$H.each(['sortBy','groupBy','countBy'], function(sMethod) {
 	    Collection.prototype[sMethod] = function(value, context) {
-	        var iterator = $H.isFunction(value) ? value : function(oModel) {
+	        var iterator = $H.isFunc(value) ? value : function(oModel) {
 	            return oModel.get(value);
 	        };
 	        return HA[sMethod](this._models, iterator, context);
@@ -6261,7 +6282,7 @@ function(AbstractDao,AbstractEvents,Model){
      */
     function fRemove(models, oOptions) {
     	var me=this;
-        var bSingular = !$H.isArray(models);
+        var bSingular = !$H.isArr(models);
         models = bSingular ? [models] : $H.clone(models);
         oOptions || (oOptions = {});
         var i, l, index, oModel;
@@ -6306,7 +6327,7 @@ function(AbstractDao,AbstractEvents,Model){
         if (oOptions.parse){
         	models = me.parse(models, oOptions);
         }
-        var bSingular = !$H.isArray(models);
+        var bSingular = !$H.isArr(models);
         var aModels = bSingular ? (models ? [models] : []) : $H.clone(models);
         var i, l, id, oModel, oAttrs, oExisting, sort;
         var at = oOptions.at;
@@ -6502,6 +6523,13 @@ function(AbstractDao,AbstractEvents,Model){
       		return void 0;
         }
         return me._byId[obj] || me._byId[obj.id] || me._byId[obj.cid];
+    }
+    /**
+     * 获取集合元素个数
+     * @return {number} 返回元素个数
+     */
+    function fSize(){
+    	return this.length;
     }
 	/**
 	 * 获取指定位置的模型
@@ -6767,7 +6795,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		if(!params){
 			return false;
 		}
-		if($H.isArray(params)){
+		if($H.isArr(params)){
 			for(var i=0,len=params.length;i<len;i++){
 				if(me.match(sSel,params[i])){
 					return true;
@@ -6936,6 +6964,7 @@ function(AC){
 	Panel.extend({
 		//初始配置
 //		content         : '',                 //内容
+		
 		
 		tmpl            : [
 			'<div><%=this.content||this.findHtml(">*")%></div>'
@@ -7183,7 +7212,7 @@ function(AC){
 					var me=this;
 					var oCurrentEl=$(oEvt.currentTarget);
 					//可能后后代组件有'.js-item'，因此这里只寻找子组件
-					var oCurCmp=me.find('>[_id="'+oCurrentEl.attr("id")+'"]');
+					var oCurCmp=me.find('>[_id='+oCurrentEl.attr("id")+']');
 					if(oCurCmp.length>0){
 						var nIndex=oCurCmp[0].index();
 						me.onItemClick(oEvt,nIndex);
@@ -7643,7 +7672,7 @@ function(AC){
 		if(sValue){
 			if(me.value!=sValue){
 				var oMenu=me.children[0];
-				var oItem=oMenu.find('>[value="'+sValue+'"]');
+				var oItem=oMenu.find('>[value='+sValue+']');
 				if(oItem.length>0){
 					me.trigger("change");
 					oItem=oItem[0];
@@ -7800,6 +7829,81 @@ function(AC){
 	return Input;
 	
 });/**
+ * 文字标签类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+
+$Define('C.Label',
+'C.AbstractComponent',
+function(AC){
+	
+	var Label=AC.define('Label');
+	
+	Label.extend({
+		//初始配置
+//		labelColor      : '',      //label字体颜色
+//		labelAlign      : '',      //label文字对齐，默认左对齐
+		
+		tmpl            : [
+			'<label class="',
+				'<%if(this.labelColor){%> hui-label-<%=this.labelColor%><%}%><%if(this.labelAlign){%> c-txt-<%=this.labelAlign%><%}%>" for="<%=this.forName%>">',
+				'<%=this.text%>',
+			'</label>'
+		]
+		
+	});
+	
+	return Label;
+	
+});/**
+ * 列表行类，用于多行的结构
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+
+$Define('C.RowItem',
+'C.AbstractComponent',
+function(AC){
+	
+	var RowItem=AC.define('RowItem');
+	
+	RowItem.extend({
+		//初始配置
+//		text            :'',       //文字
+//		underline       : false,   //右边下划线，文字域默认有下划线
+//		hasArrow        : false,   //右边箭头，有click事件时默认有箭头
+		cls             : 'rowitem',
+		
+		tmpl            : [
+			'<div class="hui-rowitem<%if(this.text){%> hui-rowitem-txt<%}%><%if(this.underline){%> hui-rowitem-underline<%}%>">',
+				'<%=this.text%>',
+				'<%=this.findHtml(">*")%>',
+				'<%if(this.hasArrow){%>',
+					'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情"><span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span></a>',
+				'<%}%>',
+			'</div>'
+		],
+		doConfig       : fDoconfig    //初始化配置
+	});
+	/**
+	 * 初始化配置
+	 * @param {Object}oSettings
+	 */
+	function fDoconfig(oSettings){
+		var me=this;
+		me.callSuper();
+		//默认文字域有下划线
+		if(me.text&&me.underline==undefined){
+			me.underline=true;
+		}
+		//有点击函数时默认有右箭头
+		if(oSettings.click&&me.hasArrow==undefined){
+			me.hasArrow=true;
+		}
+	}
+	
+	return RowItem;
+	
+});/**
  * 集合类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-02-25
@@ -7843,20 +7947,67 @@ function(AC){
 	Field.extend({
 		//初始配置
 //		forName         : '',      //label标签for名字
-//		label           : '',      //label文字
-//		text            : '',      //右边文字
+//		title           : '',      //label文字字符串，或者Label或其它组件的配置项
+//		content         : '',      //右边文字，或组件配置
+//		noPadding       : false,   //true表示没有上下间隙
+		
+		defItem         : {
+			xtype       : 'RowItem',
+			xrole       : 'content'
+		},
 		
 		tmpl            : [
-			'<div class="hui-form-field">',
-				'<label class="hui-form-left" for="<%=this.forName%>"><%=this.label%></label>',
-				'<div class="hui-form-right">',
-					'<%=this.text%>',
-					'<%=this.findHtml(">*")%>',
+			'<div class="hui-field<%if(!this.noPadding){%> hui-field-padding<%}%>">',
+				'<div class="hui-field-left">',
+					'<%=this.findHtml(">[xrole=title]")%>',
+				'</div>',
+				'<div class="hui-field-right">',
+					'<%=this.findHtml(">[xrole=content]")%>',
 				'</div>',
 			'</div>'
-		]
-		
+		],
+		doConfig       : fDoconfig    //初始化配置
 	});
+	/**
+	 * 初始化配置
+	 * @param {Object}oSettings
+	 */
+	function fDoconfig(oSettings){
+		var me=this;
+		me.callSuper();
+		var title=me.title;
+		if($H.isSimple(title)){
+			title={
+				text:title
+			};
+		}
+		title=$H.extend({
+			xtype:'Label',
+			xrole:'title'
+		},title);
+		me.add(title);
+		
+		//内容
+		var content=me.content;
+		//默认有空白字符
+		if(content==undefined&&!oSettings.items){
+			content='&nbsp;';
+		}
+		//包装文字内容
+		if($H.isSimple(content)){
+			content=({
+				text:content,
+				//默认文字域有下划线
+				underline:true,
+				//有点击函数时默认有右箭头
+				hasArrow:true
+			})
+		}
+		if(content){
+			me.noPadding=true;
+			me.add(content);
+		}
+	}
 	
 	return Field;
 	
@@ -7921,7 +8072,7 @@ function(AC,Panel){
 		//属性
 //		titleCmp        : null,         //标题组件
 //		content         : null,         //内容组件
-		tmpl            : ['<div><%=this.findHtml(">[xrole=\'title\']")%></div>'],
+		tmpl            : ['<div><%=this.findHtml(">[xrole=title]")%></div>'],
 		initialize      : fInitialize,  //初始化
 		doConfig        : fDoConfig,    //初始化配置
 		parseItem       : fParseItem,   //分析处理子组件
@@ -7936,8 +8087,8 @@ function(AC,Panel){
 	function fInitialize(oSettings){
 		var me=this;
 		me.callSuper();
-		me.titleCmp=me.find('>[xrole="title"]')[0];
-		me.contentCmp=me.find('>[xrole="content"]')[0];
+		me.titleCmp=me.find('>[xrole=title]')[0];
+		me.contentCmp=me.find('>[xrole=content]')[0];
 	}
 	/**
 	 * 初始化配置
@@ -8068,7 +8219,7 @@ function(AC,TabItem,ControlGroup){
 						'</li>',
 					'<%}%>',
 				'</ul>',
-				'<%=this.findHtml(">TabItem>[xrole=\'content\']")%>',
+				'<%=this.findHtml(">TabItem>[xrole=content]")%>',
 			'</div>'
 		],
 		
@@ -8263,18 +8414,18 @@ function(AC,Popup){
 		
 		tmpl            : [
 			'<div class="hui-dialog">',
-				'<%=this.findHtml(">[xrole=\'dialog-header\']")%>',
+				'<%=this.findHtml(">[xrole=dialog-header]")%>',
 				'<div class="hui-dialog-body">',
 					'<%if(this.content){%><%=this.content%><%}else{%>',
 						'<div class="hui-body-content">',
 							'<h1 class="hui-content-title"><%=this.contentTitle%></h1>',
 							'<div class="hui-content-msg"><%=this.contentMsg%></div>',
-							'<%=this.findHtml(">[xrole=\'dialog-content\']")%>',
+							'<%=this.findHtml(">[xrole=dialog-content]")%>',
 						'</div>',
 					'<%}%>',
 					'<%if(!this.noAction){%>',
 						'<div class="hui-body-action">',
-						'<%=this.findHtml(">[xrole=\'dialog-action\']")%>',
+						'<%=this.findHtml(">[xrole=dialog-action]")%>',
 						'</div>',
 					'<%}%>',
 				'</div>',
@@ -8348,7 +8499,7 @@ function(AC,Popup){
 		var me=this;
 		me.callSuper();
 		var aItems=oSettings.items;
-		if(me.title&&!me.hasConfig('[xrole="dialog-header"]',aItems)){
+		if(me.title&&!me.hasConfig('[xrole=dialog-header]',aItems)){
 			//顶部标题栏
 			me.add({
 				xtype:'Toolbar',
@@ -8369,7 +8520,7 @@ function(AC,Popup){
 				}
 			})
 		}
-		if(!me.noAction&&!me.hasConfig('[xrole="dialog-action"]',aItems)){
+		if(!me.noAction&&!me.hasConfig('[xrole=dialog-action]',aItems)){
 			var aActions=[];
 			if(!me.noCancel){
 				//取消按钮

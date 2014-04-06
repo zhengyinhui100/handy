@@ -82,6 +82,8 @@
 			<path path="js/component/Checkbox.js" />
 			<path path="js/component/Select.js" />
 			<path path="js/component/Input.js" />
+			<path path="js/component/Label.js" />
+			<path path="js/component/RowItem.js" />
 			<path path="js/component/Set.js" />
 			<path path="js/component/Field.js" />
 			<path path="js/component/Form.js" />

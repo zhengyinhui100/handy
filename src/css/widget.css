@@ -4,6 +4,15 @@
 .c-right {
   float: right;
 }
+.c-txt-left {
+  text-align: left;
+}
+.c-txt-center {
+  text-align: center;
+}
+.c-txt-right {
+  text-align: right;
+}
 .c-clear {
   zoom: 1;
 }
@@ -717,42 +726,69 @@
 .hui-input-btn-right .hui-btn-icon-notxt {
   margin-top: -15px;
 }
-.hui-form .hui-form-tips {
+.hui-click-arrow {
+  position: absolute;
+  margin-top: -18px;
+  width: 36px;
+  height: 36px;
+  top: 50%;
+  right: 0;
   text-align: center;
+  vertical-align: middle;
 }
-.hui-form .hui-form-field {
-  margin: 1em 0;
+.hui-click-arrow .hui-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -11px;
+  margin-left: -11px;
 }
-.hui-form .hui-form-left {
+.hui-rowitem {
+  position: relative;
+  padding: .8em 0;
+}
+.hui-rowitem.hui-rowitem-txt {
+  word-wrap: break-word;
+  overflow: hidden;
+  word-break: break-all;
+}
+.hui-rowitem.hui-rowitem-underline {
+  border-bottom: 1px solid #ccc;
+}
+.hui-field .hui-field-left {
+  color: #6a6a6a;
   width: 20%;
-  text-align: right;
+  vertical-align: middle;
   display: -moz-inline-stack;
   display: inline-block;
   zoom: 1;
   *display: inline;
-  vertical-align: middle;
   overflow: hidden;
   white-space: nowrap;
   -o-text-overflow: ellipsis;
   -ms-text-overflow: ellipsis;
   text-overflow: ellipsis;
 }
-.hui-form .hui-label-gray {
-  color: #6a6a6a;
+.hui-field .hui-label-default {
+  color: #222;
 }
-.hui-form .hui-form-vt {
-  vertical-align: top;
-}
-.hui-form .hui-form-right {
+.hui-field .hui-field-right {
+  position: relative;
   width: 78%;
   vertical-align: middle;
   display: -moz-inline-stack;
   display: inline-block;
   zoom: 1;
   *display: inline;
-  word-wrap: break-word;
-  overflow: hidden;
-  word-break: break-all;
+}
+.hui-field.hui-field-padding {
+  padding: .7em 0;
+}
+.hui-form .hui-form-tips {
+  text-align: center;
+}
+.hui-form .hui-form-vt {
+  vertical-align: top;
 }
 .hui-form .hui-form-action {
   padding-left: 22%;
@@ -1033,16 +1069,17 @@
   background: #f3f3f3;
 }
 .hui-list .hui-item-image {
-  float: left;
-  margin-right: 10px;
+  position: absolute;
+  left: 10px;
 }
 .hui-list .hui-item-image img {
   height: 75px;
 }
 .hui-list .hui-item-content {
-  float: left;
-  width: 100%;
   padding-right: 40px;
+}
+.hui-list .hui-item-img {
+  padding-left: 80px;
 }
 .hui-list .hui-item-title {
   overflow: hidden;
@@ -1067,23 +1104,6 @@
 }
 .hui-list .hui-item-desc .hui-icon {
   margin-right: 2px;
-}
-.hui-list .hui-item-link {
-  position: absolute;
-  margin-top: -18px;
-  width: 36px;
-  height: 36px;
-  top: 50%;
-  right: 5px;
-  text-align: center;
-  vertical-align: middle;
-}
-.hui-list .hui-item-link .hui-icon {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-top: -11px;
-  margin-left: -11px;
 }
 .hui-mask {
   position: absolute;
