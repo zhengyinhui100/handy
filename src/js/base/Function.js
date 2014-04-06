@@ -36,7 +36,7 @@ handy.add('Function',function($H){
 	 * @return  {function()}    返回新构造的函数
 	 */
 	function fIntercept(fExecFunc,fInterceptFunc,oExecScope,oInterceptScope) {
-		if($H.Object.isFunction(fExecFunc)&&$H.Object.isFunction(fInterceptFunc)){
+		if($H.Object.isFunc(fExecFunc)&&$H.Object.isFunc(fInterceptFunc)){
 			return function() {
 						var oExScope=oExecScope||this;
 						var oInterScope={};

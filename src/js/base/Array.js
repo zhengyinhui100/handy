@@ -48,7 +48,7 @@ handy.add('Array','B.Object',function(Object,$H){
 	    if (value == null){
 	    	return _fIdentity;
 	    }
-	    if ($H.isFunction(value)){
+	    if ($H.isFunc(value)){
 	    	return value;
 	    }
 	    return _fProperty(value);
@@ -271,7 +271,7 @@ handy.add('Array','B.Object',function(Object,$H){
 	 */
 	function fInvoke(obj,method){
 		var aArgs = Array.prototype.slice.call(arguments, 2);
-        var bIsFunc = Object.isFunction(method);
+        var bIsFunc = Object.isFunc(method);
         return this.map(obj, function(value) {
             return (bIsFunc ? method : value[method]).apply(value, aArgs);
         });

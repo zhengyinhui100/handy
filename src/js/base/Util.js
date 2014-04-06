@@ -81,7 +81,7 @@ handy.add('Util','B.Object',function(Object,$H){
         function _fFormatData(oCoord){
         	if(oCoord.get){
 	        	oCoord=[oCoord.get("latitude"),oCoord.get("longitude")];
-	        }else if($H.isObject(oCoord)){
+	        }else if($H.isObj(oCoord)){
 	        	oCoord=[oCoord.latitude,oCoord.longitude];
 	        }
 	        return oCoord;
@@ -118,7 +118,7 @@ handy.add('Util','B.Object',function(Object,$H){
 	 */
 	function fResult(oObj,sProp){
 		var value=oObj[sProp];
-		if(Object.isFunction(value)){
+		if(Object.isFunc(value)){
 			return value();
 		}else{
 			return value;

@@ -121,13 +121,13 @@ function(AbstractDao,AbstractEvents){
 		for(var key in oAttrs){
 			val=oAttrs[key];
 			if(oField=oFields[key]){
-				type=$H.isObject(oField)?oField.type:oField;
+				type=$H.isObj(oField)?oField.type:oField;
 				//自定义解析
 				if(fParse=oField.parse){
 					val=fParse.apply(me,[val,oAttrs]);
 				}
 				//自定义类型，包括Model和Collection
-				if($H.isString(type)){
+				if($H.isStr(type)){
 					if(type=='Date'){
 						val=$H.parseDate(val);
 					}else if(type.indexOf('.')>0){
@@ -466,7 +466,7 @@ function(AbstractDao,AbstractEvents){
 	        	oServerAttrs = $H.extend(oAttrs || {}, oServerAttrs);
 	        }
 	        //服务器返回的值可能跟现在不一样，还要根据返回值修改
-	        if ($H.isObject(oServerAttrs) && !me.set(oServerAttrs, oOptions)) {
+	        if ($H.isObj(oServerAttrs) && !me.set(oServerAttrs, oOptions)) {
 	            return false;
 	        }
 	        if (fSuccess){

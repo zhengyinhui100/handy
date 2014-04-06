@@ -70,7 +70,7 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
         	var sMethod=fCaller.$name;
         	if(oSuper){
         		var fMethod=oSuper[sMethod];
-        		if(Object.isFunction(fMethod)){
+        		if(Object.isFunc(fMethod)){
         			return fMethod.apply(me,aArgs);
         		}
         	}

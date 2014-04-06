@@ -40,6 +40,7 @@ function(AbstractDao,AbstractEvents,Model){
 		shift                  : fShift,              //取出集合第一个模型
 		slice                  : fSlice,              //返回选定的元素的数组，同"Array.slice"
 		get                    : fGet,                //通过id或cid获取模型
+		size                   : fSize,               //获取集合元素个数
 		at                     : fAt,                 //获取指定位置的模型
 		where                  : fWhere,              //返回包含指定 key-value 组合的模型的数组
 		findWhere              : fFindWhere,          //返回包含指定 key-value 组合的第一个模型
@@ -68,7 +69,7 @@ function(AbstractDao,AbstractEvents,Model){
 	
 	$H.each(['sortBy','groupBy','countBy'], function(sMethod) {
 	    Collection.prototype[sMethod] = function(value, context) {
-	        var iterator = $H.isFunction(value) ? value : function(oModel) {
+	        var iterator = $H.isFunc(value) ? value : function(oModel) {
 	            return oModel.get(value);
 	        };
 	        return HA[sMethod](this._models, iterator, context);
@@ -219,7 +220,7 @@ function(AbstractDao,AbstractEvents,Model){
      */
     function fRemove(models, oOptions) {
     	var me=this;
-        var bSingular = !$H.isArray(models);
+        var bSingular = !$H.isArr(models);
         models = bSingular ? [models] : $H.clone(models);
         oOptions || (oOptions = {});
         var i, l, index, oModel;
@@ -264,7 +265,7 @@ function(AbstractDao,AbstractEvents,Model){
         if (oOptions.parse){
         	models = me.parse(models, oOptions);
         }
-        var bSingular = !$H.isArray(models);
+        var bSingular = !$H.isArr(models);
         var aModels = bSingular ? (models ? [models] : []) : $H.clone(models);
         var i, l, id, oModel, oAttrs, oExisting, sort;
         var at = oOptions.at;
@@ -460,6 +461,13 @@ function(AbstractDao,AbstractEvents,Model){
       		return void 0;
         }
         return me._byId[obj] || me._byId[obj.id] || me._byId[obj.cid];
+    }
+    /**
+     * 获取集合元素个数
+     * @return {number} 返回元素个数
+     */
+    function fSize(){
+    	return this.length;
     }
 	/**
 	 * 获取指定位置的模型

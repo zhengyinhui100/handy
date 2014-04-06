@@ -187,7 +187,7 @@ function(ViewManager,AbstractEvents,Template){
 		}else{
 			aArgs=$H.toArray(aArgs,2);
 		}
-		if($H.isArray(aParams)){
+		if($H.isArr(aParams)){
 			for(var i=0,len=aParams.length;i<len;i++){
 				oOwner[sMethod].apply(me,[aParams[i]].concat(aArgs));
 			}
@@ -266,7 +266,7 @@ function(ViewManager,AbstractEvents,Template){
 				me[p]=$H.extend(me[p],val);
 				return true;
 			}else if(p=='listener'){
-				me.listeners=me.listeners.concat($H.isArray(val)?val:[val]);
+				me.listeners=me.listeners.concat($H.isArr(val)?val:[val]);
 				return true;
 			}else if(p=='items'){
 				me.add(val);
@@ -598,7 +598,7 @@ function(ViewManager,AbstractEvents,Template){
 			oTarget=oEvent.target,
 			bIsCustom=oEvent.custom,
 			fHandler=oEvent.handler;
-		if($H.isFunction(oTarget)){
+		if($H.isFunc(oTarget)){
 			oTarget=oTarget.call(me);
 		}
 		//自定义事件
@@ -613,7 +613,7 @@ function(ViewManager,AbstractEvents,Template){
 				sSel=oEvent.selector,
 				oData=oEvent.data,
 				fFunc=oEvent.delegation=me._delegateHandler(fHandler,context);
-			if($H.isFunction(oEl)){
+			if($H.isFunc(oEl)){
 				oEl=oEl.call(me);
 			}
 			//移动浏览器由于click可能会有延迟，这里转换为touchend事件
@@ -804,14 +804,17 @@ function(ViewManager,AbstractEvents,Template){
 		}
 		var o=oObj||this,m,prop,op,value;
 		//'Button[attr=value]'=>'[xtype=Button][attr=value]'
-		sSel=sSel.replace(/^([^\[]+)/,'[xtype="$1"]');
+		sSel=sSel.replace(/^([^\[]+)/,'[xtype=$1]');
 		//循环检查
 		var r=/\[([^=|\!]+)(=|\!=)([^=]+)\]/g;
 		while(m=r.exec(sSel)){
 			prop=m[1];
 			//操作符：=|!=
 			op=m[2];
-			value=eval(m[3]);
+			value=m[3];
+			if(value=='false'||value=='true'){
+				value=eval(value);
+			}
 			if(op==="="?o[prop]!=value:o[prop]==value){
 				return false;
 			}
@@ -831,10 +834,10 @@ function(ViewManager,AbstractEvents,Template){
 	 */
 	function fFind(sel,aResult){
 		var me=this,aResult=aResult||[];
-		if($H.isNumber(sel)){
+		if($H.isNum(sel)){
 			var oItem=me.children[sel];
 			aResult.push(oItem);
-		}else if($H.isString(sel)){
+		}else if($H.isStr(sel)){
 			//多个选择器
 			if(sel.indexOf(",")>0){
 				$H.each(sel.split(","),function(i,val){
@@ -869,7 +872,7 @@ function(ViewManager,AbstractEvents,Template){
 					oChild.find(sel,aResult);
 				}
 			});
-		}else if($H.isFunction(sel)){
+		}else if($H.isFunc(sel)){
 			//匹配子视图
 			me.each(function(i,oChild){
 				if(sel(oChild)){
@@ -1016,10 +1019,10 @@ function(ViewManager,AbstractEvents,Template){
 		var aChildren=me.children;
 		var bResult=false;
 		var nIndex;
-		if($H.isNumber(item)){
+		if($H.isNum(item)){
 			nIndex=item;
 			item=aChildren[nIndex];
-		}else if($H.isString(item)||$H.isFunction(item)){
+		}else if($H.isStr(item)||$H.isFunc(item)){
 			item=me.find(item);
 			for(var i=0,len=item.length;i<len;i++){
 				if(me.remove(item[i])==false){
@@ -1057,7 +1060,7 @@ function(ViewManager,AbstractEvents,Template){
 		if(!aItems){
 			return;
 		}
-		aItems=$H.isArray(aItems)?aItems:[aItems];
+		aItems=$H.isArr(aItems)?aItems:[aItems];
 		//逐个初始化子视图
 		for(var i=0,len=aItems.length;i<len;i++){
 			me.add(aItems[i]);

@@ -82,7 +82,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		if(!params){
 			return false;
 		}
-		if($H.isArray(params)){
+		if($H.isArr(params)){
 			for(var i=0,len=params.length;i<len;i++){
 				if(me.match(sSel,params[i])){
 					return true;

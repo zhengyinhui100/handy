@@ -200,7 +200,7 @@ handy.add('Validator',['B.String','B.Object'],function(String,Object,$H){
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
 	function fMinlength( value ,nLen) {
-		var length = Object.isArray( value ) ? value.length : String.trim(''+value).length;
+		var length = Object.isArr( value ) ? value.length : String.trim(''+value).length;
 		return length >= nLen;
 	}
 	/**
@@ -211,7 +211,7 @@ handy.add('Validator',['B.String','B.Object'],function(String,Object,$H){
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
 	function fMaxlength( value,nLen ) {
-		var length = Object.isArray( value ) ? value.length : String.trim(''+value).length;
+		var length = Object.isArr( value ) ? value.length : String.trim(''+value).length;
 		return length <= nLen;
 	}
 	/**
@@ -222,7 +222,7 @@ handy.add('Validator',['B.String','B.Object'],function(String,Object,$H){
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
 	function fRangelength( value,aRange ) {
-		var length = Object.isArray( value ) ? value.length : String.trim(''+value).length;
+		var length = Object.isArr( value ) ? value.length : String.trim(''+value).length;
 		return ( length >= aRange[0] && length <= aRange[1] );
 	}
 	/**

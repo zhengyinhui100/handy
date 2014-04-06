@@ -14,7 +14,7 @@ handy.add("String",function(){
 		check			: fCheck,		    // 检查特殊字符串
 		len				: fLen,         	// 计算字符串打印长度,一个中文字符长度为2
 		left			: fLeft,			// 截断left
-		isNumberStr		: fIsNumberStr,     // 字符串是否是数字
+		isNumStr		: fIsNumStr,        // 字符串是否是数字
 		hasChn          : fHasChn,          // 字符是否包含中文
 		isChn           : fIsChn,           // 字符是否是中文
 		addParam		: fAddParam		    // 在url后面增加get参数
@@ -156,11 +156,11 @@ handy.add("String",function(){
 	};
 	/**
 	 * 判断是否数字
-	 * @method  isNumberStr
+	 * @method  isNumStr
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return  {boolean} 返回是否数字   
 	 */
-	function fIsNumberStr(sStr){
+	function fIsNumStr(sStr){
 		return (sStr.search(/^\d+$/g) == 0);
 	}
 	/**
