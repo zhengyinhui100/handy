@@ -14,6 +14,7 @@ function(AC){
 		//初始配置
 //		content         : '',                 //内容
 		
+		
 		tmpl            : [
 			'<div><%=this.content||this.findHtml(">*")%></div>'
 		]

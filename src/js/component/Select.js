@@ -101,7 +101,7 @@ function(AC){
 		if(sValue){
 			if(me.value!=sValue){
 				var oMenu=me.children[0];
-				var oItem=oMenu.find('>[value="'+sValue+'"]');
+				var oItem=oMenu.find('>[value='+sValue+']');
 				if(oItem.length>0){
 					me.trigger("change");
 					oItem=oItem[0];

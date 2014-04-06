@@ -39,7 +39,7 @@ function(AC,TabItem,ControlGroup){
 						'</li>',
 					'<%}%>',
 				'</ul>',
-				'<%=this.findHtml(">TabItem>[xrole=\'content\']")%>',
+				'<%=this.findHtml(">TabItem>[xrole=content]")%>',
 			'</div>'
 		],
 		

@@ -42,18 +42,18 @@ function(AC,Popup){
 		
 		tmpl            : [
 			'<div class="hui-dialog">',
-				'<%=this.findHtml(">[xrole=\'dialog-header\']")%>',
+				'<%=this.findHtml(">[xrole=dialog-header]")%>',
 				'<div class="hui-dialog-body">',
 					'<%if(this.content){%><%=this.content%><%}else{%>',
 						'<div class="hui-body-content">',
 							'<h1 class="hui-content-title"><%=this.contentTitle%></h1>',
 							'<div class="hui-content-msg"><%=this.contentMsg%></div>',
-							'<%=this.findHtml(">[xrole=\'dialog-content\']")%>',
+							'<%=this.findHtml(">[xrole=dialog-content]")%>',
 						'</div>',
 					'<%}%>',
 					'<%if(!this.noAction){%>',
 						'<div class="hui-body-action">',
-						'<%=this.findHtml(">[xrole=\'dialog-action\']")%>',
+						'<%=this.findHtml(">[xrole=dialog-action]")%>',
 						'</div>',
 					'<%}%>',
 				'</div>',
@@ -127,7 +127,7 @@ function(AC,Popup){
 		var me=this;
 		me.callSuper();
 		var aItems=oSettings.items;
-		if(me.title&&!me.hasConfig('[xrole="dialog-header"]',aItems)){
+		if(me.title&&!me.hasConfig('[xrole=dialog-header]',aItems)){
 			//顶部标题栏
 			me.add({
 				xtype:'Toolbar',
@@ -148,7 +148,7 @@ function(AC,Popup){
 				}
 			})
 		}
-		if(!me.noAction&&!me.hasConfig('[xrole="dialog-action"]',aItems)){
+		if(!me.noAction&&!me.hasConfig('[xrole=dialog-action]',aItems)){
 			var aActions=[];
 			if(!me.noCancel){
 				//取消按钮
