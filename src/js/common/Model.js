@@ -431,7 +431,7 @@ function(AbstractDao,AbstractEvents){
 	 */
     function fSave(sKey, val, oOptions) {
     	var me=this;
-        var oAttrs, sMethod, oXhr, oAttributes = me._attributes;
+        var oAttrs, sMethod, oXhr;
         //sKey, value 或者 {sKey: value}
         if (sKey == null || typeof sKey === 'object') {
         	oAttrs = sKey;
@@ -459,7 +459,6 @@ function(AbstractDao,AbstractEvents){
         }
         var fSuccess = oOptions.success;
         oOptions.success = function(resp) {
-	        me._attributes = oAttributes;
 	        var oServerAttrs = me.parse(resp, oOptions);
 	        //now!=true，确保更新相应数据(可能没有返回相应数据)
 	        if (!oOptions.now){
@@ -476,6 +475,7 @@ function(AbstractDao,AbstractEvents){
 	    };
 
 	    sMethod = me.isNew() ? 'create' : (oOptions.update ? 'update':'patch' );
+    	//patch只提交所有改变的值
 	    if (sMethod === 'patch'){
 	    	var oChanged=me.changedAttrbutes(oAttrs);
 	    	//没有改变的属性，直接执行回调函数
@@ -486,6 +486,10 @@ function(AbstractDao,AbstractEvents){
 		        return;
 	    	}
 	    	oOptions.attrs = oChanged;
+	    }else{
+	    	//提交所有属性值
+	    	var oCurrent=$H.extend({},me._attributes);
+	    	oOptions.attrs = $H.extend(oCurrent,oAttrs);
 	    }
 	    me.sync(sMethod, me, oOptions);
     }

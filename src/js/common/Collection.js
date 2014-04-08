@@ -171,6 +171,9 @@ function(AbstractDao,AbstractEvents,Model){
 	    if (oOptions.model) {
 	    	me.model = oOptions.model;
 	    }
+	    if (oOptions.url) {
+	    	me.url = oOptions.url;
+	    }
 	    if (oOptions.comparator !== void 0) {
 	    	me.comparator = oOptions.comparator;
 	    }
