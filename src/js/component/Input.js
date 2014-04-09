@@ -83,7 +83,11 @@ function(AC){
 				el:'.js-input',
 				handler:function(){
 					var oTextarea=me.findEl(".js-input");
-					oTextarea.css("height",oTextarea[0].scrollHeight);
+					var nNewHeight=oTextarea[0].scrollHeight;
+					//TODO Firefox下scrollHeight不准确，会忽略padding
+					if(nNewHeight>=50){
+						oTextarea.css("height",nNewHeight);
+					}
 				}
 			});
 		}
