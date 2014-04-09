@@ -23,7 +23,7 @@ function(AC){
 		},
 		
 		tmpl            : [
-			'<div class="hui-field<%if(!this.noPadding){%> hui-field-padding<%}%>">',
+			'<div class="hui-field<%if(this.noPadding){%> hui-field-nopadding<%}%>">',
 				'<div class="hui-field-left">',
 					'<%=this.findHtml(">[xrole=title]")%>',
 				'</div>',
@@ -64,9 +64,7 @@ function(AC){
 			content=({
 				text:content,
 				//默认文字域有下划线
-				underline:true,
-				//有点击函数时默认有右箭头
-				hasArrow:true
+				underline:true
 			})
 		}
 		if(content){

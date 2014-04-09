@@ -462,15 +462,19 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Select,In
 				items:[{
 					xtype:'Field',
 					title:'用户名：',
-					content:'xiaoxiao',
-					click:function(){
-						alert('详情')
+					content:{
+						text:'xiaoxiao',
+						click:function(){
+							alert('详情')
+						}
 					}
 				},{
 					xtype:'Field',
 					title:'昵称：',
-					underline:false,
-					content:'bb'
+					content:{
+						underline:false,
+						text:'bb'
+					}
 				},{
 					xtype:'Field',
 					title:'头像：',

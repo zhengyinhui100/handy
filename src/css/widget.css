@@ -755,6 +755,9 @@
 .hui-rowitem.hui-rowitem-underline {
   border-bottom: 1px solid #ccc;
 }
+.hui-field {
+  padding: .7em 0;
+}
 .hui-field .hui-field-left {
   color: #6a6a6a;
   width: 20%;
@@ -781,8 +784,8 @@
   zoom: 1;
   *display: inline;
 }
-.hui-field.hui-field-padding {
-  padding: .7em 0;
+.hui-field.hui-field-nopadding {
+  padding: 0;
 }
 .hui-form .hui-form-tips {
   text-align: center;
@@ -1073,7 +1076,7 @@
   left: 10px;
 }
 .hui-list .hui-item-image img {
-  height: 75px;
+  height: 60px;
 }
 .hui-list .hui-item-content {
   padding-right: 40px;

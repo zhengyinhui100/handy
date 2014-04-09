@@ -9,7 +9,7 @@ handy.add('Util','B.Object',function(Object,$H){
 		getUuid          : fGetUuid,   //获取handy内部uuid
 		getHash          : fGetHash,   //获取hash，不包括“？”开头的query部分
 		setHash          : fSetHash,   //设置hash，不改变“？”开头的query部分
-		distance         : fDistance,  //计算两点距离(单位为米)
+		distance         : fDistance,  //计算两点距离(单位为km，保留两位小数)
 		result           : fResult     //如果对象中的指定属性是函数, 则调用它, 否则, 返回它
 	}
 	
@@ -54,7 +54,7 @@ handy.add('Util','B.Object',function(Object,$H){
 		top.location.hash=sHash;
 	}
 	/**
-	 * 计算两点距离(单位为米)
+	 * 计算两点距离(单位为km，保留两位小数)
 	 * @param {Object|Array|Model}oCoord1 参数坐标1
 	 * 				Object类型{
 	 * 					{number}latitude:纬度,
@@ -63,8 +63,7 @@ handy.add('Util','B.Object',function(Object,$H){
 	 * 				Array类型[{number}latitude,{number}longitude]
 	 * 				Model类型，包含latitude和longitude属性
 	 * @param {Object|Array}oCoord2 参数坐标2
-	 * @param {boolean=}bFormat 仅当true进行格式化：小于1000米的单位是m(整数)，
-	 * 					大于1000米的单位是km(取一位小数)，如：32000->3.2km
+	 * @param {boolean=}bFormat 仅当true进行格式化：单位是km(取两位小数)，如：32120->3.21km
 	 * @return {number} 返回两点间的距离
 	 */
 	function fDistance(oCoord1,oCoord2,bFormat){
@@ -101,11 +100,12 @@ handy.add('Util','B.Object',function(Object,$H){
 	     	Math.cos(nRadLat1)*Math.cos(nRadLat2)*Math.pow(Math.sin(nRadLngDif/2),2)));
 	    nDistance = nDistance * EARTH_RADIUS;
 	    nDistance = Math.round(nDistance * 10000);
+	    nDistance=(nDistance/1000).toFixed(2);
 	    if(bFormat){
 	    	if(isNaN(nDistance)){
 	    		return '未知';
 	    	}
-	    	nDistance=nDistance>1000?(nDistance/1000).toFixed(1)+'km':nDistance+'m';
+	    	nDistance+='km';
 	    }
 	    return nDistance;
 	}
