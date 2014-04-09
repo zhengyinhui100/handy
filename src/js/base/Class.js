@@ -18,13 +18,20 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
     function fCreateClass(sPath) {
         //获得一个类定义，并且绑定一个类初始化方法，这里使用名字Class在控制台显得更友好
         var Class = function(){
-        	var me,fInitialize;
-        	//获得initialize引用的对象，如果不是通过new调用(比如:Class())，就没有this.initialize
+        	var me,fInitialize,oArgs=arguments;
+        	//new 方式调用
         	if(this.constructor==Class){
         		me = this;
         	}else{
-        		me = arguments.callee;
+        		//非new方式(如Class(args))，转换为new方式，但一般不推荐这种方式
+        		me = oArgs.callee;
+        		var t=function(){};
+        		t.prototype=me.prototype;
+        		var newObj=new t;
+        		me.apply(newObj,oArgs);
+        		return newObj;
         	}
+        	//获得initialize引用的对象，如果不是通过new调用(比如:Class())，就没有this.initialize
         	fInitialize = me.initialize;
             if (fInitialize) {
             	//所有对象类型包括数组类型的属性都重新clone，避免在实例方法中修改到类属性
@@ -35,7 +42,7 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
             		}
             	}
                 // 返回当前class派生出来对象可以被定义
-            	return fInitialize.apply(me, arguments);
+            	return fInitialize.apply(me, oArgs);
             }
         };
         Class.$isClass=true;
