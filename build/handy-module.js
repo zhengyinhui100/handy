@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-06 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-10 | zhengyinhui100@gmail.com */
 /****************************************************************
 * Author:		郑银辉											*
 * Email:		zhengyinhui100@gmail.com						*
@@ -292,7 +292,7 @@ function(History,AbstractManager){
 				name:sModName,
 				xtype:sModName,
 				_id:me.generateId(),
-				extCls:'js-module m-module',
+				extCls:'js-module m-module m-'+sModName.replace(/\./g,'-'),
 				hidden:true
 			};
 			$H.extend(oOptions,oParams);

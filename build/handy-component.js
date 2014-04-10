@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-06 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-10 | zhengyinhui100@gmail.com */
 /**
  * 组件管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -160,7 +160,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 	function fGetExtCls(){
 		var me=this;
 		//组件标志class
-		var aCls=['js-component'];
+		var aCls=['js-component','hui-'+me.cls];
 		if(me.extCls){
 			aCls.push(me.extCls);
 		}
@@ -318,7 +318,7 @@ function(AC){
 		shadowOverlay   : true,
 		
 		tmpl            : [
-			'<div class="hui-popup"><%=this.findHtml(">*")%></div>'
+			'<div><%=this.findHtml(">*")%></div>'
 		],
 		
 		doConfig         : fDoConfig,        //初始化配置
@@ -505,6 +505,7 @@ function(AC){
 //		notSelect            : false,                //点击不需要选中
 //		itemClick            : function(oCmp,nIndex){},         //子项点击事件函数，函数参数为子组件对象及索引
 		
+		cls                  : 'ctrlgp',
 		//默认子组件配置
 		defItem              : {
 			xtype            : 'Button',
@@ -516,7 +517,7 @@ function(AC){
 		},
 		
 		tmpl                 : [
-			'<div class="hui-ctrlgp<%if(this.direction=="h"){%> hui-ctrlgp-h<%}else{%> hui-ctrlgp-v<%}%>">',
+			'<div class="<%if(this.direction=="h"){%> hui-ctrlgp-h<%}else{%> hui-ctrlgp-v<%}%>">',
 			'<%=this.findHtml(">*")%>',
 			'</div>'
 		],
@@ -677,7 +678,7 @@ function(AC){
 //		name            : '',                 //图标名称
 		
 		tmpl            : [
-			'<span class="hui-icon',
+			'<span class="',
 			'<%if(this.isAlt){%>',
 				' hui-alt-icon',
 			'<%}%>',
@@ -709,7 +710,7 @@ function(AC){
 //		icon            : null,                //图标名称
 		iconPos         : 'left',              //图标位置，"left"|"top"
 		theme           : 'gray',
-		activeCls       : 'hui-btn-active',      //激活样式
+		activeCls       : 'hui-btn-active',    //激活样式
 		cls             : 'btn',               //组件样式名
 //		isBack          : false,               //是否是后退按钮
 		
@@ -722,7 +723,7 @@ function(AC){
 		shadow          : true,        	       //外阴影
 		isInline        : true,                //宽度自适应
 		
-		tmpl            : ['<a href="javascript:;" hidefocus="true" class="hui-btn',
+		tmpl            : ['<a href="javascript:;" hidefocus="true" class="',
 							'<%if(!this.text){%> hui-btn-icon-notxt<%}',
 							'if(this.isBack){%> hui-btn-back<%}',
 							'if(this.hasIcon&&this.text){%> hui-btn-icon-<%=this.iconPos%><%}%>">',
@@ -765,7 +766,7 @@ function(AC){
 //		selected        : false,               //是否选中
 		
 		tmpl            : [
-			'<div class="hui-radio hui-btn hui-btn-gray<%if(this.selected){%> hui-radio-on<%}%>">',
+			'<div class="hui-btn hui-btn-gray<%if(this.selected){%> hui-radio-on<%}%>">',
 				'<span class="hui-icon hui-icon-radio"></span>',
 				'<input type="radio"<%if(this.selected){%> checked=true<%}%>',
 				'<%if(this.name){%> name="<%=this.name%>"<%}%>',
@@ -774,8 +775,8 @@ function(AC){
 			'</div>'
 		],
 		
-		select          : fSelect,          //选中
-		val             : fVal                  //获取/设置输入框的值
+		select          : fSelect,            //选中
+		val             : fVal                //获取/设置输入框的值
 	});
 	
 	/**
@@ -837,7 +838,7 @@ function(AC){
 		
 		cls             : 'chkbox',            //组件样式名
 		tmpl            : [
-			'<div class="hui-chkbox hui-btn hui-btn-gray<%if(this.selected){%> hui-chkbox-on<%}%>">',
+			'<div class="hui-btn hui-btn-gray<%if(this.selected){%> hui-chkbox-on<%}%>">',
 				'<span class="hui-icon hui-icon-chkbox"></span>',
 				'<input type="checkbox"<%if(this.selected){%> checked=true<%}%>',
 				'<%if(this.name){%> name="<%=this.name%>"<%}%>',
@@ -916,7 +917,7 @@ function(AC){
 		
 		_customEvents   : ['change'],
 		tmpl            : [
-			'<div class="hui-select hui-btn hui-btn-gray hui-btn-icon-right">',
+			'<div class="hui-btn hui-btn-gray hui-btn-icon-right">',
 				'<span class="hui-icon hui-alt-icon hui-icon-carat-d hui-light"></span>',
 				'<input value="<%=this.value%>" name="<%=this.name%>"/>',
 				'<span class="hui-btn-txt js-select-txt"><%=this.text%></span>',
@@ -1032,7 +1033,7 @@ function(AC){
 		btnPos          : 'right',             //按钮位置
 		
 		tmpl            : [
-		'<div class="hui-input',
+		'<div class="',
 			'<%if(this.hasIcon){%>',
 				' hui-input-icon-<%=this.iconPos%>',
 			'<%}%>',
@@ -1094,7 +1095,11 @@ function(AC){
 				el:'.js-input',
 				handler:function(){
 					var oTextarea=me.findEl(".js-input");
-					oTextarea.css("height",oTextarea[0].scrollHeight);
+					var nNewHeight=oTextarea[0].scrollHeight;
+					//TODO Firefox下scrollHeight不准确，会忽略padding
+					if(nNewHeight>=50){
+						oTextarea.css("height",nNewHeight);
+					}
 				}
 			});
 		}
@@ -1192,7 +1197,7 @@ function(AC){
 		cls             : 'rowitem',
 		
 		tmpl            : [
-			'<div class="hui-rowitem<%if(this.text){%> hui-rowitem-txt<%}%><%if(this.underline){%> hui-rowitem-underline<%}%>">',
+			'<div class="<%if(this.text){%> hui-rowitem-txt<%}%><%if(this.underline){%> hui-rowitem-underline<%}%>">',
 				'<%=this.text%>',
 				'<%=this.findHtml(">*")%>',
 				'<%if(this.hasArrow){%>',
@@ -1238,7 +1243,7 @@ function(AC){
 //		title           : '',      //标题
 		
 		tmpl            : [
-			'<div class="hui-set">',
+			'<div>',
 				'<h1 class="hui-set-title"><%=this.title%></h1>',
 				'<div class="hui-set-content">',
 					'<%=this.findHtml(">*")%>',
@@ -1275,7 +1280,7 @@ function(AC){
 		},
 		
 		tmpl            : [
-			'<div class="hui-field<%if(!this.noPadding){%> hui-field-padding<%}%>">',
+			'<div class="<%if(this.noPadding){%> hui-field-nopadding<%}%>">',
 				'<div class="hui-field-left">',
 					'<%=this.findHtml(">[xrole=title]")%>',
 				'</div>',
@@ -1309,16 +1314,14 @@ function(AC){
 		var content=me.content;
 		//默认有空白字符
 		if(content==undefined&&!oSettings.items){
-			content='&nbsp;';
+			content='';
 		}
 		//包装文字内容
 		if($H.isSimple(content)){
 			content=({
 				text:content,
 				//默认文字域有下划线
-				underline:true,
-				//有点击函数时默认有右箭头
-				hasArrow:true
+				underline:true
 			})
 		}
 		if(content){
@@ -1345,7 +1348,7 @@ function(AC){
 		//初始配置
 		
 		tmpl            : [
-			'<div class="hui-form">',
+			'<div>',
 				'<form action="">',
 				'<div class="hui-form-tips c-error"></div>',
 					'<%=this.findHtml(">*")%>',
@@ -1514,6 +1517,7 @@ function(AC,TabItem,ControlGroup){
 		//初始配置
 //		activeType      : '',           //激活样式类型，
 //		theme           : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
+		cls             : 'tab',
 		defItem         : {             //默认子组件是TabItem
 //			content     : '',           //tab内容
 			xtype       : 'TabItem'
@@ -1528,7 +1532,7 @@ function(AC,TabItem,ControlGroup){
 		}],
 		
 		tmpl            : [
-			'<div class="hui-tab">',
+			'<div>',
 				'<ul class="js-tab-btns c-clear">',
 					'<%var aBtns=this.find(">TabItem");',
 					'for(var i=0,len=aBtns.length;i<len;i++){%>',
@@ -1623,13 +1627,11 @@ function(AC){
 //		type             : null,                //null|'header'|'footer'
 		defItem          : {
 			xtype        : 'Button',
-			theme        : 'black',
-			pos          : 'right',
-			isMini       : true
+			theme        : 'black'
 		},
 		
 		tmpl             : [
-			'<div class="hui-tbar<%if(this.type=="header"){%> hui-header<%}else if(this.type=="footer"){%> hui-footer<%}%>">',
+			'<div class="<%if(this.type=="header"){%> hui-header<%}else if(this.type=="footer"){%> hui-footer<%}%>">',
 				'<%=this.findHtml(">*")%>',
 				'<%if(this.title){%><h1 class="hui-tbar-title js-tbar-txt"><%=this.title%></h1><%}%>',
 			'</div>'
@@ -1673,12 +1675,13 @@ function(AC,Popup,ControlGroup){
 	Tips.extend({
 		//初始配置
 //		text            : '',
+		cls             : 'tips',
 		theme           : 'black',
 		timeout         : 1000,
 		radius          : 'normal',
 		
 		tmpl            : [
-			'<div class="hui-tips<%if(!this.text){%> hui-tips-notxt<%}%>">',
+			'<div class="<%if(!this.text){%> hui-tips-notxt<%}%>">',
 				'<%=this.findHtml(">*")%>',
 				'<%if(this.text){%><span class="hui-tips-txt"><%=this.text%></span><%}%>',
 			'</div>'
@@ -1731,7 +1734,7 @@ function(AC,Popup){
 		radius          : 'little',
 		
 		tmpl            : [
-			'<div class="hui-dialog">',
+			'<div>',
 				'<%=this.findHtml(">[xrole=dialog-header]")%>',
 				'<div class="hui-dialog-body">',
 					'<%if(this.content){%><%=this.content%><%}else{%>',
@@ -1901,9 +1904,10 @@ function(AC,Popup,ControlGroup){
 		//初始配置
 //		markType        : null,         //选中的标记类型，默认不带选中效果，'active'是组件active效果，'dot'是点选效果
 		notDestroy      : true,
+		cls             : 'menu',
 		
 		tmpl            : [
-			'<div class="hui-menu<%if(this.markType=="dot"){%> hui-menu-mark<%}%>">',
+			'<div class="<%if(this.markType=="dot"){%> hui-menu-mark<%}%>">',
 				'<ul>',
 					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
 						'<li class="hui-menu-item<%if(this.children[i].selected){%> hui-item-mark<%}%>">',
@@ -1956,8 +1960,9 @@ function(AC,ControlGroup){
 	var List=AC.define('List',ControlGroup);
 	
 	List.extend({
+		cls               : 'list',
 		tmpl              : [
-			'<div class="hui-list">',
+			'<div>',
 				'<div class="hui-list-item c-clear">',
 				'</div>',
 			'</div>'

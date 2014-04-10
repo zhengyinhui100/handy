@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-06 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-10 | zhengyinhui100@gmail.com */
 /**
  * 抽象事件类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -477,7 +477,7 @@ function(ViewManager,AbstractEvents,Template){
 //		isSuspend           : false,             //是否挂起事件
 //		destroyed           : false,             //是否已销毁
 //		_id                 : null,              //id
-//		tmpl                : [],                //模板，首次初始化前为数组，初始化后为字符串，ps:模板容器节点上不能带有id属性
+		tmpl                : '<div><%=this.findHtml(">*")%></div>',    //模板，字符串或数组字符串，ps:模板容器节点上不能带有id属性
 //		rendered            : false,             //是否已渲染
 //      showed              : false,             //是否已显示
 		children            : [],                //子视图列表
@@ -650,6 +650,13 @@ function(ViewManager,AbstractEvents,Template){
 		}
 		me.manager=me.constructor.manager||$H.getSingleton(ViewManager);
 		
+		//编译模板，一个类只需执行一次
+		var tmpl=me.tmpl;
+		if(!$H.isFunc(tmpl)){
+			console.log('tmpl:'+me.xtype);
+			me.tmpl=me.constructor.prototype.tmpl=$H.tmpl(tmpl);
+		}
+		
 		//初始化配置
 		me.doConfig(oParams);
 		me.parseItems();
@@ -697,6 +704,9 @@ function(ViewManager,AbstractEvents,Template){
 			}else if(p=='items'){
 				me.add(val);
 				return true;
+			}else if(p=='extCls'&&me[p]){
+				me[p]+=' '+val;
+				return true;
 			}else if(p=='xtype'){
 				if(me[p]=='View'){
 					me[p]=typeof val=='string'?val:val.$ns;
@@ -734,12 +744,8 @@ function(ViewManager,AbstractEvents,Template){
 	 */
 	function fInitHtml(){
 		var me=this;
-		//将数组方式的模板转为字符串
-		if(typeof me.tmpl!='string'){
-			me.tmpl=me.constructor.prototype.tmpl=me.tmpl.join('');
-		}
 		//由模板生成html
-		var sHtml=$H.Template.tmpl({id:me.xtype,tmpl:me.tmpl},me);
+		var sHtml=me.tmpl(me);
 		return sHtml;
 	}
 	/**
@@ -2030,7 +2036,7 @@ function(AbstractDao,AbstractEvents){
 	 */
     function fSave(sKey, val, oOptions) {
     	var me=this;
-        var oAttrs, sMethod, oXhr, oAttributes = me._attributes;
+        var oAttrs, sMethod, oXhr;
         //sKey, value 或者 {sKey: value}
         if (sKey == null || typeof sKey === 'object') {
         	oAttrs = sKey;
@@ -2058,7 +2064,6 @@ function(AbstractDao,AbstractEvents){
         }
         var fSuccess = oOptions.success;
         oOptions.success = function(resp) {
-	        me._attributes = oAttributes;
 	        var oServerAttrs = me.parse(resp, oOptions);
 	        //now!=true，确保更新相应数据(可能没有返回相应数据)
 	        if (!oOptions.now){
@@ -2075,6 +2080,7 @@ function(AbstractDao,AbstractEvents){
 	    };
 
 	    sMethod = me.isNew() ? 'create' : (oOptions.update ? 'update':'patch' );
+    	//patch只提交所有改变的值
 	    if (sMethod === 'patch'){
 	    	var oChanged=me.changedAttrbutes(oAttrs);
 	    	//没有改变的属性，直接执行回调函数
@@ -2085,6 +2091,10 @@ function(AbstractDao,AbstractEvents){
 		        return;
 	    	}
 	    	oOptions.attrs = oChanged;
+	    }else{
+	    	//提交所有属性值
+	    	var oCurrent=$H.extend({},me._attributes);
+	    	oOptions.attrs = $H.extend(oCurrent,oAttrs);
 	    }
 	    me.sync(sMethod, me, oOptions);
     }
@@ -2351,6 +2361,9 @@ function(AbstractDao,AbstractEvents,Model){
 	    oOptions || (oOptions = {});
 	    if (oOptions.model) {
 	    	me.model = oOptions.model;
+	    }
+	    if (oOptions.url) {
+	    	me.url = oOptions.url;
 	    }
 	    if (oOptions.comparator !== void 0) {
 	    	me.comparator = oOptions.comparator;

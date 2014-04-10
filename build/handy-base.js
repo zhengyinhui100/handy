@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-06 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-10 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -1330,13 +1330,20 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
     function fCreateClass(sPath) {
         //获得一个类定义，并且绑定一个类初始化方法，这里使用名字Class在控制台显得更友好
         var Class = function(){
-        	var me,fInitialize;
-        	//获得initialize引用的对象，如果不是通过new调用(比如:Class())，就没有this.initialize
+        	var me,fInitialize,oArgs=arguments;
+        	//new 方式调用
         	if(this.constructor==Class){
         		me = this;
         	}else{
-        		me = arguments.callee;
+        		//非new方式(如Class(args))，转换为new方式，但一般不推荐这种方式
+        		me = oArgs.callee;
+        		var t=function(){};
+        		t.prototype=me.prototype;
+        		var newObj=new t;
+        		me.apply(newObj,oArgs);
+        		return newObj;
         	}
+        	//获得initialize引用的对象，如果不是通过new调用(比如:Class())，就没有this.initialize
         	fInitialize = me.initialize;
             if (fInitialize) {
             	//所有对象类型包括数组类型的属性都重新clone，避免在实例方法中修改到类属性
@@ -1347,7 +1354,7 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
             		}
             	}
                 // 返回当前class派生出来对象可以被定义
-            	return fInitialize.apply(me, arguments);
+            	return fInitialize.apply(me, oArgs);
             }
         };
         Class.$isClass=true;
@@ -2200,8 +2207,14 @@ handy.add('Date',function(){
 		getDaysInYear        : fGetDaysInYear,       //返回该年总共有几天
 		getDayIndexOfYear    : fGetDayIndexOfYear,   //计算该天是该年的第几天
 		formatDate           : fFormatDate,          //返回指定格式的日期字符串
-		parseDate            : fParseDate            //将日期字符串转换为Date对象
+		parseDate            : fParseDate,           //将日期字符串转换为Date对象
+		now                  : fNow,                 //设置/读取服务器时间
+		howLong              : fHowLong              //计算距离现在多久了
 	}
+	
+	//客户端和服务器端时间差
+	var _timeDif=0;
+	
 	/**
 	 * 返回周几
 	 * @method getWeek
@@ -2295,16 +2308,28 @@ handy.add('Date',function(){
 	}
 	/**
 	 * 将日期字符串转换为Date对象
-	 * @method parseDate(sDateStr[,sFormator])
-	 * @param  {string} sDateStr 需要分析的日期字符串，除了日期数据外不能有数字出现，如：("2012年 12/13","yyyy年 MM/dd")是正确的，("2012年 11 12/13","yyyy年 11 MM/dd")是错误的
+	 * @method parseDate(date[,sFormator])
+	 * @param  {number|string} date 需要分析的日期字符串或者getTime方法返回的数字，其它类型的参数直接返回参数本身，除了日期数据外不能有数字出现，如：参数("2012年 12/13","yyyy年 MM/dd")是正确的，而参数("2012年 11 12/13","yyyy年 11 MM/dd")的11是错误的
 	 * @param  {string}sFormator(可选)  格式化因子,除了formator元素外，不能出现字母(与第一个参数类似)，如：'yyyy年 M月d日 H时m分s秒S毫秒',默认是'yyyy-MM-dd HH:mm:ss'
 	 * @return {Object} 返回Date对象
 	 */
-	function fParseDate(sDateStr, sFormator) {
+	function fParseDate(date, sFormator) {
+		var sType=typeof date;
+		var oDate=new WDate();
+		if(sType=='number'){
+			oDate.setTime(date);
+			return oDate;
+		}
+		if(sType!='string'){
+			return date;
+		}
 		var sFormator=sFormator||'yyyy-MM-dd HH:mm:ss';
 		var aFormatorMatches=sFormator.match(/[a-zA-Z]+/g);
-		var aNumMatches=sDateStr.match(/\d+/g);
-		var oDate=new WDate();
+		var aNumMatches=date.match(/\d+/g);
+		//格式错误，返回空值
+		if(!aNumMatches){
+			return;
+		}
 		for(var i=0;i<aNumMatches.length;i++){
 			var sFormatorMatch=aFormatorMatches[i];
 			var nNum=parseInt(aNumMatches[i]);
@@ -2333,6 +2358,49 @@ handy.add('Date',function(){
 			}
 		}
 		return oDate;
+	}
+	/**
+	 * 设置/读取服务器时间
+	 * @param {number|string|Date=}time 不传表示读取
+	 * @param {Date} 返回当前服务器时间
+	 */
+	function fNow(time){
+		var oNow = new WDate();
+		if(time){
+			if(typeof time!='number'){
+				time=Date.parseDate(time).getTime();
+			}
+			_timeDif=time-oNow.getTime();
+		}else{
+			oNow.setTime(oNow.getTime()+_timeDif);
+			return oNow;
+		}
+	}
+	/**
+	 * 计算距离现在多久了
+	 * @param {Date}oTime 参数时间
+	 * @param {boolean=}bFormat 仅当true进行格式化：小于60分钟的单位是分钟，
+	 * 					小于一天的单位是小时，小于30天的单位是天，大于30天返回"30天前"
+	 */
+	function fHowLong(oTime,bFormat){
+		var oNow=Date.now();
+		var time=oNow.getTime()-oTime.getTime();
+		if(bFormat){
+			var sUnit;
+			if((time=time/(1000*60))<60){
+				sUnit='分钟'; 
+				time=time||1;
+			}else if((time=time/60)<24){
+				sUnit='小时'; 
+			}else if((time=time/24)<30){
+				sUnit='天'; 
+			}else{
+				return '30天前'; 
+			}
+			//最少显示一分钟前
+			time=(Math.floor(time)||1)+sUnit+'前';
+		}
+		return time;
 	}
 	
 	return Date;
@@ -2629,7 +2697,7 @@ handy.add('Util','B.Object',function(Object,$H){
 		getUuid          : fGetUuid,   //获取handy内部uuid
 		getHash          : fGetHash,   //获取hash，不包括“？”开头的query部分
 		setHash          : fSetHash,   //设置hash，不改变“？”开头的query部分
-		distance         : fDistance,  //计算两点距离(单位为米)
+		distance         : fDistance,  //计算两点距离(单位为km，保留两位小数)
 		result           : fResult     //如果对象中的指定属性是函数, 则调用它, 否则, 返回它
 	}
 	
@@ -2674,7 +2742,7 @@ handy.add('Util','B.Object',function(Object,$H){
 		top.location.hash=sHash;
 	}
 	/**
-	 * 计算两点距离(单位为米)
+	 * 计算两点距离(单位为km，保留两位小数)
 	 * @param {Object|Array|Model}oCoord1 参数坐标1
 	 * 				Object类型{
 	 * 					{number}latitude:纬度,
@@ -2683,8 +2751,7 @@ handy.add('Util','B.Object',function(Object,$H){
 	 * 				Array类型[{number}latitude,{number}longitude]
 	 * 				Model类型，包含latitude和longitude属性
 	 * @param {Object|Array}oCoord2 参数坐标2
-	 * @param {boolean=}bFormat 仅当true进行格式化：小于1000米的单位是m(整数)，
-	 * 					大于1000米的单位是km(取一位小数)，如：32000->3.2km
+	 * @param {boolean=}bFormat 仅当true进行格式化：单位是km(取两位小数)，如：32120->3.21km
 	 * @return {number} 返回两点间的距离
 	 */
 	function fDistance(oCoord1,oCoord2,bFormat){
@@ -2721,11 +2788,12 @@ handy.add('Util','B.Object',function(Object,$H){
 	     	Math.cos(nRadLat1)*Math.cos(nRadLat2)*Math.pow(Math.sin(nRadLngDif/2),2)));
 	    nDistance = nDistance * EARTH_RADIUS;
 	    nDistance = Math.round(nDistance * 10000);
+	    nDistance=(nDistance/1000).toFixed(2);
 	    if(bFormat){
 	    	if(isNaN(nDistance)){
 	    		return '未知';
 	    	}
-	    	nDistance=nDistance>1000?(nDistance/1000).toFixed(1)+'km':nDistance+'m';
+	    	nDistance+='km';
 	    }
 	    return nDistance;
 	}
@@ -3239,10 +3307,10 @@ handy.add('Template','B.String',function(String,$H){
 	/**
 	 * 执行模板
 	 * @method tmpl
-	 * @param {object|string}tmpl 当tmpl为字符串时，表示模板内容，为对象时如下：
+	 * @param {object|string|Array}tmpl 当tmpl为字符串或字符串数组时，表示模板内容，为对象时如下：
 	 * {
 	 * 		{string}id : 模板的id，要使用缓存，就必须传入id
-	 * 		{string=}tmpl : 模板字符串，以id为缓存key，此参数为空时，表示内容为根据id查找到的script标签的内容
+	 * 		{string|Array=}tmpl : 模板字符串，以id为缓存key，此参数为空时，表示内容为根据id查找到的script标签的内容
 	 * }
 	 * @param {object}oData 数据
 	 * @return {function|string} 当oData为空时返回编译后的模板函数，不为空时返回渲染后的字符串
@@ -3251,6 +3319,8 @@ handy.add('Template','B.String',function(String,$H){
 		var sTmpl,fTmpl,sId;
 		if(typeof tmpl=='string'){
 			sTmpl=tmpl;
+		}else if(tmpl.length!=undefined){
+			sTmpl=tmpl.join('');
 		}else{
 			sTmpl=tmpl.tmpl;
 			if(sId=tmpl.id){
