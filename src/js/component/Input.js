@@ -21,7 +21,7 @@ function(AC){
 		btnPos          : 'right',             //按钮位置
 		
 		tmpl            : [
-		'<div class="hui-input',
+		'<div class="',
 			'<%if(this.hasIcon){%>',
 				' hui-input-icon-<%=this.iconPos%>',
 			'<%}%>',

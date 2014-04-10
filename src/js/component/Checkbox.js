@@ -20,7 +20,7 @@ function(AC){
 		
 		cls             : 'chkbox',            //组件样式名
 		tmpl            : [
-			'<div class="hui-chkbox hui-btn hui-btn-gray<%if(this.selected){%> hui-chkbox-on<%}%>">',
+			'<div class="hui-btn hui-btn-gray<%if(this.selected){%> hui-chkbox-on<%}%>">',
 				'<span class="hui-icon hui-icon-chkbox"></span>',
 				'<input type="checkbox"<%if(this.selected){%> checked=true<%}%>',
 				'<%if(this.name){%> name="<%=this.name%>"<%}%>',

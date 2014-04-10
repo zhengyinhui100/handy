@@ -15,12 +15,13 @@ function(AC,Popup,ControlGroup){
 	Tips.extend({
 		//初始配置
 //		text            : '',
+		cls             : 'tips',
 		theme           : 'black',
 		timeout         : 1000,
 		radius          : 'normal',
 		
 		tmpl            : [
-			'<div class="hui-tips<%if(!this.text){%> hui-tips-notxt<%}%>">',
+			'<div class="<%if(!this.text){%> hui-tips-notxt<%}%>">',
 				'<%=this.findHtml(">*")%>',
 				'<%if(this.text){%><span class="hui-tips-txt"><%=this.text%></span><%}%>',
 			'</div>'

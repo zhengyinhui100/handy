@@ -58,7 +58,7 @@ function(History,AbstractManager){
 				name:sModName,
 				xtype:sModName,
 				_id:me.generateId(),
-				extCls:'js-module m-module',
+				extCls:'js-module m-module m-'+sModName.replace(/\./g,'-'),
 				hidden:true
 			};
 			$H.extend(oOptions,oParams);

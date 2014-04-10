@@ -15,7 +15,7 @@ function(AC){
 //		title           : '',      //标题
 		
 		tmpl            : [
-			'<div class="hui-set">',
+			'<div>',
 				'<h1 class="hui-set-title"><%=this.title%></h1>',
 				'<div class="hui-set-content">',
 					'<%=this.findHtml(">*")%>',

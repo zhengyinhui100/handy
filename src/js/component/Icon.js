@@ -17,7 +17,7 @@ function(AC){
 //		name            : '',                 //图标名称
 		
 		tmpl            : [
-			'<span class="hui-icon',
+			'<span class="',
 			'<%if(this.isAlt){%>',
 				' hui-alt-icon',
 			'<%}%>',

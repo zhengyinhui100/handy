@@ -23,7 +23,7 @@ function(AC){
 		},
 		
 		tmpl            : [
-			'<div class="hui-field<%if(this.noPadding){%> hui-field-nopadding<%}%>">',
+			'<div class="<%if(this.noPadding){%> hui-field-nopadding<%}%>">',
 				'<div class="hui-field-left">',
 					'<%=this.findHtml(">[xrole=title]")%>',
 				'</div>',
@@ -57,7 +57,7 @@ function(AC){
 		var content=me.content;
 		//默认有空白字符
 		if(content==undefined&&!oSettings.items){
-			content='&nbsp;';
+			content='';
 		}
 		//包装文字内容
 		if($H.isSimple(content)){

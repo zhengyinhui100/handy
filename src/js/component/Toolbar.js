@@ -17,13 +17,11 @@ function(AC){
 //		type             : null,                //null|'header'|'footer'
 		defItem          : {
 			xtype        : 'Button',
-			theme        : 'black',
-			pos          : 'right',
-			isMini       : true
+			theme        : 'black'
 		},
 		
 		tmpl             : [
-			'<div class="hui-tbar<%if(this.type=="header"){%> hui-header<%}else if(this.type=="footer"){%> hui-footer<%}%>">',
+			'<div class="<%if(this.type=="header"){%> hui-header<%}else if(this.type=="footer"){%> hui-footer<%}%>">',
 				'<%=this.findHtml(">*")%>',
 				'<%if(this.title){%><h1 class="hui-tbar-title js-tbar-txt"><%=this.title%></h1><%}%>',
 			'</div>'

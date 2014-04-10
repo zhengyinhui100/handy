@@ -198,7 +198,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Select,In
 		button=new Button({
 			renderTo:'#buttonDv',
 			text:'按钮',
-			color:'blue',
+			theme:'blue',
 			radius:'normal',
 			click:function(){
 		  		  $D.log(1);
@@ -556,7 +556,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Select,In
 				{
 					title:{
 						text:'一',
-						color:'black',
+						theme:'black',
 						icon:'edit'
 					},
 					selected:true,
@@ -565,7 +565,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Select,In
 				{
 					title:{
 						text:'二',
-						color:'black',
+						theme:'black',
 						icon:'edit'
 					},
 					content:'内容2',
@@ -576,7 +576,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Select,In
 				{
 					title:{
 						text:'三',
-						color:'black',
+						theme:'black',
 						icon:'edit'
 					},
 					content:'内容3'
@@ -595,7 +595,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Select,In
 				text:'后退',
 				isMini:true,
 				pos:'left',
-				color:'blue',
+				theme:'blue',
 				click:function(){
 					$D.log(1);
 				}
@@ -604,7 +604,26 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Select,In
 				text:'按钮',
 				isMini:true,
 				pos:'right',
-				color:'black'
+				theme:'black'
+			}]
+		})
+		
+		new Toolbar({
+			renderTo:'#toolbarDv',
+			type:'footer',
+			height:'2.5em',
+			items:[{
+				xtype:'Button',
+				text:'后退',
+				width:'45%',
+				pos:'left',
+				theme:'blue'
+			},{
+				xtype:'Button',
+				text:'按钮',
+				width:'45%',
+				pos:'right',
+				theme:'black'
 			}]
 		})
 		
@@ -618,21 +637,21 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Select,In
 							selected:true,
 							items:{
 								text:'一',
-								color:'black',
+								theme:'black',
 								icon:'edit'
 							}
 						},
 						{
 							items:{
 								text:'二',
-								color:'black',
+								theme:'black',
 								icon:'edit'
 							}
 						},
 						{
 							items:{
 								text:'三',
-								color:'black',
+								theme:'black',
 								icon:'edit'
 							}
 						}

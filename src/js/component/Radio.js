@@ -18,7 +18,7 @@ function(AC){
 //		selected        : false,               //是否选中
 		
 		tmpl            : [
-			'<div class="hui-radio hui-btn hui-btn-gray<%if(this.selected){%> hui-radio-on<%}%>">',
+			'<div class="hui-btn hui-btn-gray<%if(this.selected){%> hui-radio-on<%}%>">',
 				'<span class="hui-icon hui-icon-radio"></span>',
 				'<input type="radio"<%if(this.selected){%> checked=true<%}%>',
 				'<%if(this.name){%> name="<%=this.name%>"<%}%>',
@@ -27,8 +27,8 @@ function(AC){
 			'</div>'
 		],
 		
-		select          : fSelect,          //选中
-		val             : fVal                  //获取/设置输入框的值
+		select          : fSelect,            //选中
+		val             : fVal                //获取/设置输入框的值
 	});
 	
 	/**

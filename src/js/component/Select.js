@@ -27,7 +27,7 @@ function(AC){
 		
 		_customEvents   : ['change'],
 		tmpl            : [
-			'<div class="hui-select hui-btn hui-btn-gray hui-btn-icon-right">',
+			'<div class="hui-btn hui-btn-gray hui-btn-icon-right">',
 				'<span class="hui-icon hui-alt-icon hui-icon-carat-d hui-light"></span>',
 				'<input value="<%=this.value%>" name="<%=this.name%>"/>',
 				'<span class="hui-btn-txt js-select-txt"><%=this.text%></span>',

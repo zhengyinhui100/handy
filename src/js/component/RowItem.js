@@ -17,7 +17,7 @@ function(AC){
 		cls             : 'rowitem',
 		
 		tmpl            : [
-			'<div class="hui-rowitem<%if(this.text){%> hui-rowitem-txt<%}%><%if(this.underline){%> hui-rowitem-underline<%}%>">',
+			'<div class="<%if(this.text){%> hui-rowitem-txt<%}%><%if(this.underline){%> hui-rowitem-underline<%}%>">',
 				'<%=this.text%>',
 				'<%=this.findHtml(">*")%>',
 				'<%if(this.hasArrow){%>',

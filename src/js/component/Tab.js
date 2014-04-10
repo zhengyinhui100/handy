@@ -16,6 +16,7 @@ function(AC,TabItem,ControlGroup){
 		//初始配置
 //		activeType      : '',           //激活样式类型，
 //		theme           : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
+		cls             : 'tab',
 		defItem         : {             //默认子组件是TabItem
 //			content     : '',           //tab内容
 			xtype       : 'TabItem'
@@ -30,7 +31,7 @@ function(AC,TabItem,ControlGroup){
 		}],
 		
 		tmpl            : [
-			'<div class="hui-tab">',
+			'<div>',
 				'<ul class="js-tab-btns c-clear">',
 					'<%var aBtns=this.find(">TabItem");',
 					'for(var i=0,len=aBtns.length;i<len;i++){%>',

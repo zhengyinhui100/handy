@@ -41,7 +41,7 @@ function(AC,Popup){
 		radius          : 'little',
 		
 		tmpl            : [
-			'<div class="hui-dialog">',
+			'<div>',
 				'<%=this.findHtml(">[xrole=dialog-header]")%>',
 				'<div class="hui-dialog-body">',
 					'<%if(this.content){%><%=this.content%><%}else{%>',

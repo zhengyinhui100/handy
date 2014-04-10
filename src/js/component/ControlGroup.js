@@ -17,6 +17,7 @@ function(AC){
 //		notSelect            : false,                //点击不需要选中
 //		itemClick            : function(oCmp,nIndex){},         //子项点击事件函数，函数参数为子组件对象及索引
 		
+		cls                  : 'ctrlgp',
 		//默认子组件配置
 		defItem              : {
 			xtype            : 'Button',
@@ -28,7 +29,7 @@ function(AC){
 		},
 		
 		tmpl                 : [
-			'<div class="hui-ctrlgp<%if(this.direction=="h"){%> hui-ctrlgp-h<%}else{%> hui-ctrlgp-v<%}%>">',
+			'<div class="<%if(this.direction=="h"){%> hui-ctrlgp-h<%}else{%> hui-ctrlgp-v<%}%>">',
 			'<%=this.findHtml(">*")%>',
 			'</div>'
 		],

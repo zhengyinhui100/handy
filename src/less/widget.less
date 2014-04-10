@@ -88,6 +88,22 @@
 		.fn_linear_gradient_top(#6facd5,#4272a4);
 	}
 }
+//绿色按钮
+.hui-btn-green{
+	border: 1px solid #37AD2D;
+	background: #1fa745;
+	color: #fff;
+	text-shadow: 0 1px 0 #197E2D;
+	.fn_linear_gradient_top(#0FE978, #1fa745);
+	&:hover{
+		border: 1px solid #37AD2D ;
+		background: #24B44D;
+		font-weight: bold;
+		color: #fff;
+		text-shadow: 0 1px 0 #197E2D;
+		.fn_linear_gradient_top(#34e589,#24B44D);
+	}
+}
 //激活按钮
 .hui-btn-active {
 	border: 1px solid #2373a5;
@@ -512,6 +528,9 @@
 		margin-left:-11px;
 	}
 }
+.hui-label{
+	
+}
 //行，有右箭头、下划线
 .hui-rowitem{
 	position:relative;
@@ -578,12 +597,12 @@
 	position: relative;
 	zoom: 1;
 	width:100%;
+	min-height:2em;
 	font-family: Helvetica,Arial,sans-serif;
-	background: #111;
+	background: #444;
 	color: #fff;
 	font-weight: 700;
 	text-shadow: 0 -1px 0 #000;
-	.fn_linear_gradient_top(#3c3c3c,#111);
 	.hui-tbar-title{
 		min-height: 1.1em;
 		text-align: center;
@@ -595,9 +614,14 @@
 		white-space: nowrap;
 		outline: 0!important;
 	}
+	.hui-btn{
+		margin-top:0.3em;
+		margin-bottom:0.3em;
+	}
 	.hui-tbar-btn-left,.hui-tbar-btn-right{
 		position:absolute;
 		top:50%;
+		margin-top:-1.1em;
 		&.hui-mini{
 			margin-top:-1.1em;
 		}

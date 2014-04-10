@@ -123,10 +123,10 @@ handy.add('Template','B.String',function(String,$H){
 	/**
 	 * 执行模板
 	 * @method tmpl
-	 * @param {object|string}tmpl 当tmpl为字符串时，表示模板内容，为对象时如下：
+	 * @param {object|string|Array}tmpl 当tmpl为字符串或字符串数组时，表示模板内容，为对象时如下：
 	 * {
 	 * 		{string}id : 模板的id，要使用缓存，就必须传入id
-	 * 		{string=}tmpl : 模板字符串，以id为缓存key，此参数为空时，表示内容为根据id查找到的script标签的内容
+	 * 		{string|Array=}tmpl : 模板字符串，以id为缓存key，此参数为空时，表示内容为根据id查找到的script标签的内容
 	 * }
 	 * @param {object}oData 数据
 	 * @return {function|string} 当oData为空时返回编译后的模板函数，不为空时返回渲染后的字符串
@@ -135,6 +135,8 @@ handy.add('Template','B.String',function(String,$H){
 		var sTmpl,fTmpl,sId;
 		if(typeof tmpl=='string'){
 			sTmpl=tmpl;
+		}else if(tmpl.length!=undefined){
+			sTmpl=tmpl.join('');
 		}else{
 			sTmpl=tmpl.tmpl;
 			if(sId=tmpl.id){

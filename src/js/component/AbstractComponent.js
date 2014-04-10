@@ -129,7 +129,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 	function fGetExtCls(){
 		var me=this;
 		//组件标志class
-		var aCls=['js-component'];
+		var aCls=['js-component','hui-'+me.cls];
 		if(me.extCls){
 			aCls.push(me.extCls);
 		}

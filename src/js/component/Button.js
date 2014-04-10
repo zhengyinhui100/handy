@@ -17,7 +17,7 @@ function(AC){
 //		icon            : null,                //图标名称
 		iconPos         : 'left',              //图标位置，"left"|"top"
 		theme           : 'gray',
-		activeCls       : 'hui-btn-active',      //激活样式
+		activeCls       : 'hui-btn-active',    //激活样式
 		cls             : 'btn',               //组件样式名
 //		isBack          : false,               //是否是后退按钮
 		
@@ -30,7 +30,7 @@ function(AC){
 		shadow          : true,        	       //外阴影
 		isInline        : true,                //宽度自适应
 		
-		tmpl            : ['<a href="javascript:;" hidefocus="true" class="hui-btn',
+		tmpl            : ['<a href="javascript:;" hidefocus="true" class="',
 							'<%if(!this.text){%> hui-btn-icon-notxt<%}',
 							'if(this.isBack){%> hui-btn-back<%}',
 							'if(this.hasIcon&&this.text){%> hui-btn-icon-<%=this.iconPos%><%}%>">',

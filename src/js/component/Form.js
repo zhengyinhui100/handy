@@ -14,7 +14,7 @@ function(AC){
 		//初始配置
 		
 		tmpl            : [
-			'<div class="hui-form">',
+			'<div>',
 				'<form action="">',
 				'<div class="hui-form-tips c-error"></div>',
 					'<%=this.findHtml(">*")%>',

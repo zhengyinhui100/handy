@@ -12,8 +12,9 @@ function(AC,ControlGroup){
 	var List=AC.define('List',ControlGroup);
 	
 	List.extend({
+		cls               : 'list',
 		tmpl              : [
-			'<div class="hui-list">',
+			'<div>',
 				'<div class="hui-list-item c-clear">',
 				'</div>',
 			'</div>'
