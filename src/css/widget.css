@@ -245,6 +245,51 @@
 
   background-image: linear-gradient(#6facd5, #4272a4);
 }
+.hui-btn-green {
+  border: 1px solid #37AD2D;
+  background: #1fa745;
+  color: #fff;
+  text-shadow: 0 1px 0 #197E2D;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#0fe978), to(#1fa745));
+  /* old webkit,Saf4+, Chrome */
+
+  background-image: -webkit-linear-gradient(#0fe978, #1fa745);
+  /* Chrome 10+, Saf5.1+ */
+
+  background-image: -moz-linear-gradient(#0fe978, #1fa745);
+  /* FF3.6 */
+
+  background-image: -ms-linear-gradient(#0fe978, #1fa745);
+  /* IE10 */
+
+  background-image: -o-linear-gradient(#0fe978, #1fa745);
+  /* Opera 11.10+ */
+
+  background-image: linear-gradient(#0fe978, #1fa745);
+}
+.hui-btn-green:hover {
+  border: 1px solid #37AD2D ;
+  background: #24B44D;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 1px 0 #197E2D;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#34e589), to(#24b44d));
+  /* old webkit,Saf4+, Chrome */
+
+  background-image: -webkit-linear-gradient(#34e589, #24b44d);
+  /* Chrome 10+, Saf5.1+ */
+
+  background-image: -moz-linear-gradient(#34e589, #24b44d);
+  /* FF3.6 */
+
+  background-image: -ms-linear-gradient(#34e589, #24b44d);
+  /* IE10 */
+
+  background-image: -o-linear-gradient(#34e589, #24b44d);
+  /* Opera 11.10+ */
+
+  background-image: linear-gradient(#34e589, #24b44d);
+}
 .hui-btn-active {
   border: 1px solid #2373a5;
   background: #5393c5;
@@ -812,27 +857,12 @@
   position: relative;
   zoom: 1;
   width: 100%;
+  min-height: 2em;
   font-family: Helvetica, Arial, sans-serif;
-  background: #111;
+  background: #444;
   color: #fff;
   font-weight: 700;
   text-shadow: 0 -1px 0 #000000;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#3c3c3c), to(#111111));
-  /* old webkit,Saf4+, Chrome */
-
-  background-image: -webkit-linear-gradient(#3c3c3c, #111111);
-  /* Chrome 10+, Saf5.1+ */
-
-  background-image: -moz-linear-gradient(#3c3c3c, #111111);
-  /* FF3.6 */
-
-  background-image: -ms-linear-gradient(#3c3c3c, #111111);
-  /* IE10 */
-
-  background-image: -o-linear-gradient(#3c3c3c, #111111);
-  /* Opera 11.10+ */
-
-  background-image: linear-gradient(#3c3c3c, #111111);
 }
 .hui-tbar .hui-tbar-title {
   min-height: 1.1em;
@@ -845,10 +875,15 @@
   white-space: nowrap;
   outline: 0!important;
 }
+.hui-tbar .hui-btn {
+  margin-top: 0.3em;
+  margin-bottom: 0.3em;
+}
 .hui-tbar .hui-tbar-btn-left,
 .hui-tbar .hui-tbar-btn-right {
   position: absolute;
   top: 50%;
+  margin-top: -1.1em;
 }
 .hui-tbar .hui-tbar-btn-left.hui-mini,
 .hui-tbar .hui-tbar-btn-right.hui-mini {
