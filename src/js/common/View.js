@@ -80,7 +80,7 @@ function(ViewManager,AbstractEvents,Template){
 		
 		//初始化相关
 		initialize          : fInitialize,       //初始化
-////	init                : fInit,             //保留方法
+////	init                : fInit,             //子类初始方法，doConfig后调用
 ////	lazyInit            : fLazyInit,         //保留方法：懒加载，初始化时只设置占位标签，以后再进行真正的初始化
 		doConfig            : fDoConfig,         //初始化配置
 		getEl               : fGetEl,            //获取容器节点
@@ -233,6 +233,10 @@ function(ViewManager,AbstractEvents,Template){
 		
 		//初始化配置
 		me.doConfig(oParams);
+		//子类自定义配置
+		if(me.init){
+			me.init(oParams);
+		}
 		me.parseItems();
 		if(me.autoRender!=false){
 			me.render();

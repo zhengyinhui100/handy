@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-10 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-11 | zhengyinhui100@gmail.com */
 html,
 body,
 div,
@@ -1826,6 +1826,9 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   margin-top: -11px;
   margin-left: -11px;
 }
+.hui-label.hui-label-default {
+  color: #222;
+}
 .hui-rowitem {
   position: relative;
   padding: .8em 0;
@@ -1839,12 +1842,13 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   border-bottom: 1px solid #ccc;
 }
 .hui-field {
+  text-align: left;
   padding: .7em 0;
 }
 .hui-field .hui-field-left {
-  color: #6a6a6a;
   width: 20%;
   vertical-align: middle;
+  color: #6a6a6a;
   display: -moz-inline-stack;
   display: inline-block;
   zoom: 1;
@@ -1854,9 +1858,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   -o-text-overflow: ellipsis;
   -ms-text-overflow: ellipsis;
   text-overflow: ellipsis;
-}
-.hui-field .hui-label-default {
-  color: #222;
 }
 .hui-field .hui-field-right {
   position: relative;

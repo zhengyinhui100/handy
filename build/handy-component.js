@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-10 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-11 | zhengyinhui100@gmail.com */
 /**
  * 组件管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -1164,12 +1164,12 @@ function(AC){
 	
 	Label.extend({
 		//初始配置
-//		labelColor      : '',      //label字体颜色
-//		labelAlign      : '',      //label文字对齐，默认左对齐
+//		color           : '',      //label字体颜色
+//		textAlign       : '',      //label文字对齐，默认左对齐
 		
 		tmpl            : [
 			'<label class="',
-				'<%if(this.labelColor){%> hui-label-<%=this.labelColor%><%}%><%if(this.labelAlign){%> c-txt-<%=this.labelAlign%><%}%>" for="<%=this.forName%>">',
+				'<%if(this.color){%> hui-label-<%=this.color%><%}%><%if(this.textAlign){%> c-txt-<%=this.textAlign%><%}%>" for="<%=this.forName%>">',
 				'<%=this.text%>',
 			'</label>'
 		]
