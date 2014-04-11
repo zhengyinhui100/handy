@@ -69,7 +69,16 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 			oAppender.innerHTML += sType+" : "+sMsg+"<br/>";
 			oAppender.scrollTop=oAppender.scrollHeight;
 		}
+		//尝试获取调用位置
+		var fCaller=arguments.callee.caller;
+		if(!fCaller.$owner){
+			fCaller=fCaller.caller;
+		}
 		try{
+			//如果是类方法，输出方法定位信息
+			if(fCaller.$owner){
+				console[sType](fCaller.$owner.$ns+'.'+fCaller.$name);
+			}
 			console[sType](oVar);
 		}catch(e){
 		}
