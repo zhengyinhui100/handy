@@ -208,7 +208,7 @@ function(ViewManager,AbstractEvents,Template){
 		return me._parseEvents(name,function(aParams){
 			oEvent.name=aParams[0];
 			if(aParams.length==2){
-				oEvent.handler=aParams[0];
+				oEvent.handler=aParams[1];
 			}
 			me[sMethod].call(me,oEvent);
 		});
