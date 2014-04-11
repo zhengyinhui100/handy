@@ -77,7 +77,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 		try{
 			//如果是类方法，输出方法定位信息
 			if(fCaller.$owner){
-				console[sType](fCaller.$owner.$ns+'.'+fCaller.$name);
+				console[sType]('['+fCaller.$owner.$ns+'->'+fCaller.$name+']');
 			}
 			console[sType](oVar);
 		}catch(e){
