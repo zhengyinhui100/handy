@@ -788,6 +788,9 @@
   margin-top: -11px;
   margin-left: -11px;
 }
+.hui-label.hui-label-default {
+  color: #222;
+}
 .hui-rowitem {
   position: relative;
   padding: .8em 0;
@@ -801,12 +804,13 @@
   border-bottom: 1px solid #ccc;
 }
 .hui-field {
+  text-align: left;
   padding: .7em 0;
 }
 .hui-field .hui-field-left {
-  color: #6a6a6a;
   width: 20%;
   vertical-align: middle;
+  color: #6a6a6a;
   display: -moz-inline-stack;
   display: inline-block;
   zoom: 1;
@@ -816,9 +820,6 @@
   -o-text-overflow: ellipsis;
   -ms-text-overflow: ellipsis;
   text-overflow: ellipsis;
-}
-.hui-field .hui-label-default {
-  color: #222;
 }
 .hui-field .hui-field-right {
   position: relative;

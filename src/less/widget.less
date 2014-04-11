@@ -529,7 +529,9 @@
 	}
 }
 .hui-label{
-	
+	&.hui-label-default{
+		.c-default();
+	}
 }
 //行，有右箭头、下划线
 .hui-rowitem{
@@ -544,16 +546,14 @@
 }
 //域，左右两边的结构
 .hui-field{
+	text-align:left;
 	padding:.7em 0;
 	.hui-field-left{
-		.c-gray();
 		width:20%;
 		vertical-align:middle;
+		.c-gray();
 		.fn_inline_block();
 		.fn_text_overflow();
-	}
-	.hui-label-default{
-		.c-default();
 	}
 	.hui-field-right{
 		position:relative;

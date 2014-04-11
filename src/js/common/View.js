@@ -80,6 +80,7 @@ function(ViewManager,AbstractEvents,Template){
 		
 		//初始化相关
 		initialize          : fInitialize,       //初始化
+////	init                : fInit,             //保留方法
 ////	lazyInit            : fLazyInit,         //保留方法：懒加载，初始化时只设置占位标签，以后再进行真正的初始化
 		doConfig            : fDoConfig,         //初始化配置
 		getEl               : fGetEl,            //获取容器节点
@@ -88,7 +89,7 @@ function(ViewManager,AbstractEvents,Template){
 		getHtml             : fGetHtml,          //获取html
 		findHtml            : fFindHtml,         //获取子视图html
 		initStyle           : fInitStyle,        //初始化样式
-////	layout              : fLayout,           //布局，保留接口
+//   	layout              : fLayout,           //布局
 		
 		beforeRender        : fBeforeRender,     //渲染前工作
 		render              : fRender,           //渲染
@@ -227,7 +228,6 @@ function(ViewManager,AbstractEvents,Template){
 		//编译模板，一个类只需执行一次
 		var tmpl=me.tmpl;
 		if(!$H.isFunc(tmpl)){
-			console.log('tmpl:'+me.xtype);
 			me.tmpl=me.constructor.prototype.tmpl=$H.tmpl(tmpl);
 		}
 		
@@ -809,6 +809,8 @@ function(ViewManager,AbstractEvents,Template){
 			return true;
 		}
 		var o=oObj||this,m,prop,op,value;
+		//#btn => [cid=tbn]
+		sSel=sSel.replace(/#([^\s,\[]+)/,'[cid=$1]');
 		//'Button[attr=value]'=>'[xtype=Button][attr=value]'
 		sSel=sSel.replace(/^([^\[]+)/,'[xtype=$1]');
 		//循环检查
@@ -833,6 +835,7 @@ function(ViewManager,AbstractEvents,Template){
 	 * @param {number|string|Function(View)}sel 数字表示子组件索引，
 	 * 				如果是字符串：多个选择器间用","隔开('sel1,sel2,...')，语法类似jQuery，
 	 * 				如：'xtype[attr=value]'、'ancestor descendant'、'parent>child'，
+	 * 				'#'表示cid，如'#btn'，表示cid为btn的视图
 	 * 				'>Button'表示仅查找当前子节点中的按钮，'Button'表示查找所有后代节点中的按钮，
 	 * 				如果是函数(参数是当前匹配的视图对象)，则将返回true的结果加入结果集
 	 * @param {Array=}aResult 用于存储结果集的数组

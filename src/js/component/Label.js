@@ -11,12 +11,12 @@ function(AC){
 	
 	Label.extend({
 		//初始配置
-//		labelColor      : '',      //label字体颜色
-//		labelAlign      : '',      //label文字对齐，默认左对齐
+//		color           : '',      //label字体颜色
+//		textAlign       : '',      //label文字对齐，默认左对齐
 		
 		tmpl            : [
 			'<label class="',
-				'<%if(this.labelColor){%> hui-label-<%=this.labelColor%><%}%><%if(this.labelAlign){%> c-txt-<%=this.labelAlign%><%}%>" for="<%=this.forName%>">',
+				'<%if(this.color){%> hui-label-<%=this.color%><%}%><%if(this.textAlign){%> c-txt-<%=this.textAlign%><%}%>" for="<%=this.forName%>">',
 				'<%=this.text%>',
 			'</label>'
 		]
