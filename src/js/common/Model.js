@@ -187,6 +187,8 @@ function(AbstractDao,AbstractEvents){
 		oAttrs = $H.extend(oAttrs, $H.Util.result(me, 'defaults'),{notCover:true});
 		me.set(oAttrs, oOptions);
 		me._changed = {};
+		//放入数据仓库
+		$S.push(me);
 	}
 	/**
 	 * 返回对象数据副本

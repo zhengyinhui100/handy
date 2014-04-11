@@ -99,7 +99,13 @@ function(AbstractDao,AbstractEvents,Model){
         }
         oOptions = oOptions ? $H.clone(oOptions) : {};
         oOptions.collection = me;
-        var oModel = new me.model(oAttrs, oOptions);
+        //如果数据仓库里已经存在，直接使用
+        var oModel=$S.get(me.model.$ns,{id:oOptions.id});
+        if(oModel=oModel&&oModel[0]){
+        	return oModel;
+        }
+        
+        oModel = new me.model(oAttrs, oOptions);
         if (!oModel.validationError){
         	return oModel;
         }
@@ -315,6 +321,7 @@ function(AbstractDao,AbstractEvents,Model){
          		aModels[i] = oExisting;
 
         	} else if (bAdd) {
+        		oOptions.id=id;
          		//添加	
             	oModel = aModels[i] = me._prepareModel(oAttrs, oOptions);
             	if (!oModel){

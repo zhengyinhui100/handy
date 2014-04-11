@@ -23,7 +23,7 @@ function(){
 	/**
 	 * 获取数据
 	 * @param {string}sName 模型名称或者cid
-	 * @param {Object=}oOptions
+	 * @param {Object=}oOptions 用于匹配的键值对
 	 * @return {Model|Array} 如果通过cid或id获取，返回模型对象，否则返回匹配的模型数组
 	 */
 	function fGet(sName,oOptions){
@@ -32,7 +32,7 @@ function(){
 			if(!oOptions){
 				return aCache;
 			}else{
-				
+				return $H.where(aCache,oOptions);
 			}
 		}
 	}
