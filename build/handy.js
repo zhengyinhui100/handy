@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-13 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-14 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -2014,7 +2014,9 @@ handy.add('Events',function($H){
 	 */
 	function _fExecEvents(){
 		var me=this,result;
-		$H.each(me._execEvtCache,function(i,oEvent){
+		var aEvts=me._execEvtCache;
+		$H.each(aEvts,function(i,oEvent){
+			aEvts.splice(i,1);
 			var fDelegation=oEvent.delegation;
 			//控制执行次数
 			if(typeof oEvent.times=='number'){
@@ -2027,7 +2029,6 @@ handy.add('Events',function($H){
 			//只是返回最后一个函数的结果，返回结果在某些情况可以作为通知器使用
 			result=fDelegation.apply(me,oEvent.args);
 		});
-		me._execEvtCache=[];
 		return result;
 	}
 	/**
@@ -5675,9 +5676,7 @@ function(AbstractDao,AbstractEvents){
 			if(aDeps=oField.depends){
 				for(var i=0;i<aDeps.length;i++){
 			    	//当依赖属性变化时，设置计算属性
-					me.on('change:'+aDeps[i],function(){
-						me.set(key);
-					});
+					me.on('change:'+aDeps[i],$H.bind(me.set,me,key));
 				}
 			}
 	    }
@@ -6001,9 +6000,10 @@ function(AbstractDao,AbstractEvents){
 	 * 保存模型
 	 * @param {String}sKey 属性
 	 * @param {*}val 值
-	 * @param {Object}oOptions 选项{
+	 * @param {Object|Function=}oOptions 选项，如果传入的是函数，表示成功回调函数{
 	 * 		{boolean=}unset 是否取消设置
 	 * 		{boolean=}silent 是否不触发事件
+	 * 		{function=}success 成功回调函数
 	 * 		{boolean=}update true时执行update操作
 	 * 		{boolean=}now 是否立即更新模型，默认是等到回调返回时才更新
 	 * }
@@ -6019,6 +6019,9 @@ function(AbstractDao,AbstractEvents){
         	(oAttrs = {})[sKey] = val;
         }
 
+        if($H.isFunc(oOptions)){
+        	oOptions={success:oOptions};
+        }
         oOptions = $H.extend({validate: true}, oOptions);
 
         //now==true，立刻设置数据
@@ -8889,7 +8892,7 @@ function(AC,ControlGroup){
 		cls               : 'list',
 		tmpl              : [
 			'<div>',
-				'<div class="hui-list-item c-clear">',
+				'<div class="hui-list-item">',
 				'</div>',
 			'</div>'
 		]

@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-13 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-14 | zhengyinhui100@gmail.com */
 /**
  * 组件管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -2094,7 +2094,7 @@ function(AC,ControlGroup){
 		cls               : 'list',
 		tmpl              : [
 			'<div>',
-				'<div class="hui-list-item c-clear">',
+				'<div class="hui-list-item">',
 				'</div>',
 			'</div>'
 		]

@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-13 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-14 | zhengyinhui100@gmail.com */
 /**
  * 抽象事件类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -1710,9 +1710,7 @@ function(AbstractDao,AbstractEvents){
 			if(aDeps=oField.depends){
 				for(var i=0;i<aDeps.length;i++){
 			    	//当依赖属性变化时，设置计算属性
-					me.on('change:'+aDeps[i],function(){
-						me.set(key);
-					});
+					me.on('change:'+aDeps[i],$H.bind(me.set,me,key));
 				}
 			}
 	    }
@@ -2036,9 +2034,10 @@ function(AbstractDao,AbstractEvents){
 	 * 保存模型
 	 * @param {String}sKey 属性
 	 * @param {*}val 值
-	 * @param {Object}oOptions 选项{
+	 * @param {Object|Function=}oOptions 选项，如果传入的是函数，表示成功回调函数{
 	 * 		{boolean=}unset 是否取消设置
 	 * 		{boolean=}silent 是否不触发事件
+	 * 		{function=}success 成功回调函数
 	 * 		{boolean=}update true时执行update操作
 	 * 		{boolean=}now 是否立即更新模型，默认是等到回调返回时才更新
 	 * }
@@ -2054,6 +2053,9 @@ function(AbstractDao,AbstractEvents){
         	(oAttrs = {})[sKey] = val;
         }
 
+        if($H.isFunc(oOptions)){
+        	oOptions={success:oOptions};
+        }
         oOptions = $H.extend({validate: true}, oOptions);
 
         //now==true，立刻设置数据

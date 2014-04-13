@@ -576,7 +576,7 @@ function(AbstractDao,AbstractEvents){
 	 */
     function fIsNew() {
     	var me=this;
-        return !me.has(me.idAttribute);
+        return me.id==undefined;
     }
 	/**
 	 * 校验当前是否是合法的状态

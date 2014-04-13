@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-13 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-14 | zhengyinhui100@gmail.com */
 html,
 body,
 div,
@@ -1985,7 +1985,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-tab .hui-tab-item:last-child .hui-btn {
   border-right-width: 1px;
 }
-.hui-tab .hui-btn {
+.hui-tab .hui-tab-item .hui-btn {
   border-right-width: 0;
 }
 .hui-tab-border-top .hui-btn,
@@ -2185,6 +2185,9 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-hcard .hui-content-desc .hui-icon {
   margin-right: 2px;
+}
+.hui-vcard {
+  margin: 10px 0;
 }
 .hui-vcard .hui-vcard-title {
   position: relative;
