@@ -947,7 +947,7 @@
 .hui-tab .hui-tab-item:last-child .hui-btn {
   border-right-width: 1px;
 }
-.hui-tab .hui-btn {
+.hui-tab .hui-tab-item .hui-btn {
   border-right-width: 0;
 }
 .hui-tab-border-top .hui-btn,
@@ -1147,6 +1147,9 @@
 }
 .hui-hcard .hui-content-desc .hui-icon {
   margin-right: 2px;
+}
+.hui-vcard {
+  margin: 10px 0;
 }
 .hui-vcard .hui-vcard-title {
   position: relative;
