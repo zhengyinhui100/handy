@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-11 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-13 | zhengyinhui100@gmail.com */
 /**
  * 组件管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -685,9 +685,22 @@ function(AC){
 			' hui-icon-<%=this.name%>',
 			'<%if(!this.noBg){%>',
 			' hui-icon-bg',
-			'<%}%>"></span>']
+			'<%}%>"></span>'],
+		doConfig        : fDoConfig          //初始化配置
 		
 	});
+	
+	/**
+	 * 初始化配置
+	 * @param {Object}oSettings 参数配置
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		if($H.isStr(oSettings)){
+			oSettings={name:oSettings};
+		}
+		me.callSuper([oSettings]);
+	}
 	
 	return Icon;
 	
@@ -1945,6 +1958,124 @@ function(AC,Popup,ControlGroup){
 	}
 	
 	return Menu;
+	
+});/**
+ * 横向卡片类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+
+$Define('C.Hcard',
+'C.AbstractComponent',
+function(AC){
+	
+	var Hcard=AC.define('Hcard');
+	
+	Hcard.extend({
+		//初始配置
+//		image    : '',    //图片
+//		title    : '',    //标题
+//		desc     : [],    //描述，可以是单个配置也可以是配置数组{icon:图标,text:文字}
+//		hasArrow : false, //是否有右边箭头，有点击函数时默认有右箭头
+		
+		tmpl     : [
+			'<div class="hui-hcard',
+				'<%if(this.image){%> hui-hcard-hasimg">',
+					'<div class="hui-hcard-img">',
+						'<img src="<%=this.image%>">',
+					'</div>',
+				'<%}else{%>',
+				'"><%}%>',
+				'<div class="hui-hcard-content">',
+					'<div class="hui-content-title"><%=this.title%></div>',
+					'<%var aDesc=this.desc;aDesc=$H.isArr(aDesc)?aDesc:[aDesc];for(var i=0;i<aDesc.length;i++){%>',
+						'<div class="hui-content-desc">',
+							'<%var icon;if(icon=aDesc[i].icon){%>',
+							'<span class="hui-icon hui-mini hui-alt-icon hui-icon-<%=icon%> hui-light"></span>',
+							'<%}%>',
+							'<%=aDesc[i].text%>',
+						'</div>',
+					'<%}%>',
+				'</div>',
+				'<%if(this.hasArrow){%>',
+					'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情">',
+						'<span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span>',
+					'</a>',
+				'<%}%>',
+			'</div>'
+		],
+		doConfig       : fDoconfig    //初始化配置
+	});
+	/**
+	 * 初始化配置
+	 * @param {Object}oSettings
+	 */
+	function fDoconfig(oSettings){
+		var me=this;
+		me.callSuper();
+		//有点击函数时默认有右箭头
+		if(oSettings.click&&me.hasArrow==undefined){
+			me.hasArrow=true;
+		}
+	}
+		
+	return Hcard;
+	
+});/**
+ * 纵向卡片类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+
+$Define('C.Vcard',
+'C.AbstractComponent',
+function(AC){
+	
+	var Vcard=AC.define('Vcard');
+	
+	Vcard.extend({
+		//初始配置
+//		image        : '',    //图片
+//		title        : '',    //标题
+//		extraTitle   : '',    //标题右边文字
+		
+		tmpl         : [
+			'<div class="hui-vcard">',
+				'<div class="hui-vcard-title hui-title-hasimg c-clear">',
+					'<div class="hui-title-img">',
+						'<img alt="" src="<%=this.image%>">',
+					'</div>',
+					'<div class="hui-title-txt"><%=this.title%></div>',
+					'<div class="hui-title-extra"><%=this.extraTitle%></div>',
+				'</div>',
+				'<%=this.findHtml(">[xrole!=action]")%>',
+				'<div class="hui-vcard-action">',
+					'<%=this.findHtml(">[xrole=action]")%>',
+				'</div>',
+			'</div>'
+		],
+		doConfig        : fDoConfig          //初始化配置
+		
+	});
+	
+	/**
+	 * 初始化配置
+	 * @param {Object}oSettings 参数配置
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		me.callSuper();
+		var oAction=oSettings.action;
+		if(oAction){
+			oAction=$H.extend({
+				xtype:'Button',
+				radius:null,
+				isInline:false,
+				xrole:'action'
+			},oAction);
+			me.add(oAction);
+		}
+	}
+	
+	return Vcard;
 	
 });/**
  * 列表类

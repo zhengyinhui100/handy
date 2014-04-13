@@ -15,7 +15,7 @@ function(AC,ControlGroup){
 		cls               : 'list',
 		tmpl              : [
 			'<div>',
-				'<div class="hui-list-item c-clear">',
+				'<div class="hui-list-item">',
 				'</div>',
 			'</div>'
 		]

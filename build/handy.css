@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-11 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-13 | zhengyinhui100@gmail.com */
 html,
 body,
 div,
@@ -2139,26 +2139,30 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-list .hui-list-item {
   position: relative;
   border-bottom: 1px solid #d5d6d7;
-  padding: 5px;
 }
 .hui-list .hui-list-item:hover,
 .hui-list .hui-list-item:active {
   background: #f3f3f3;
 }
-.hui-list .hui-item-image {
+.hui-hcard {
+  position: relative;
+  padding: 5px;
+  min-height: 4.5em;
+}
+.hui-hcard.hui-hcard-hasimg {
+  padding-left: 80px;
+}
+.hui-hcard .hui-hcard-img {
   position: absolute;
   left: 10px;
 }
-.hui-list .hui-item-image img {
+.hui-hcard .hui-hcard-img img {
   height: 60px;
 }
-.hui-list .hui-item-content {
+.hui-hcard .hui-hcard-content {
   padding-right: 40px;
 }
-.hui-list .hui-item-img {
-  padding-left: 80px;
-}
-.hui-list .hui-item-title {
+.hui-hcard .hui-content-title {
   overflow: hidden;
   white-space: nowrap;
   -o-text-overflow: ellipsis;
@@ -2168,7 +2172,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   font-size: 16px;
   padding-bottom: 5px;
 }
-.hui-list .hui-item-desc {
+.hui-hcard .hui-content-desc {
   overflow: hidden;
   white-space: nowrap;
   -o-text-overflow: ellipsis;
@@ -2179,8 +2183,34 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   vertical-align: bottom;
   padding-bottom: 1px;
 }
-.hui-list .hui-item-desc .hui-icon {
+.hui-hcard .hui-content-desc .hui-icon {
   margin-right: 2px;
+}
+.hui-vcard .hui-vcard-title {
+  position: relative;
+  background: #f1f1f1;
+}
+.hui-vcard .hui-vcard-title.hui-title-hasimg {
+  padding-left: 45px;
+}
+.hui-vcard .hui-vcard-title .hui-title-img {
+  position: absolute;
+  left: 10px;
+}
+.hui-vcard .hui-vcard-title .hui-title-img img {
+  height: 30px;
+}
+.hui-vcard .hui-vcard-title .hui-title-txt {
+  padding: 0.4em 0;
+}
+.hui-vcard .hui-vcard-title .hui-title-extra {
+  position: absolute;
+  top: 0;
+  right: 10px;
+  padding: 0.4em;
+}
+.hui-vcard .hui-vcard-action .hui-btn {
+  margin: 0;
 }
 .hui-mask {
   position: absolute;

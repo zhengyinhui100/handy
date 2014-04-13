@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-11 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-13 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -3195,7 +3195,7 @@ handy.add('Array','B.Object',function(Object,$H){
  * 模板类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Template','B.String',function(String,$H){
+handy.add('Template',['B.String','B.Debug'],function(String,Debug,$H){
 		
 	var T={
 		//配置
@@ -3297,8 +3297,13 @@ handy.add('Template','B.String',function(String,$H){
 			}
 		})
 		sCode+='return '+(_isNewEngine?'$r;':'$r.join("");');
-//		$D.log(sCode);
-		var fRender=new Function('$data',sCode);
+		try{
+			var fRender=new Function('$data',sCode);
+		}catch(e){
+			Debug.log(sCode);
+			Debug.error(e);
+			return;
+		}
 		fRender.$helpers=_helpers;
 		return fRender;
 	}
@@ -4466,7 +4471,7 @@ function(ViewManager,AbstractEvents,Template){
 		
 		//初始化相关
 		initialize          : fInitialize,       //初始化
-////	init                : fInit,             //保留方法
+////	init                : fInit,             //子类初始方法，doConfig后调用
 ////	lazyInit            : fLazyInit,         //保留方法：懒加载，初始化时只设置占位标签，以后再进行真正的初始化
 		doConfig            : fDoConfig,         //初始化配置
 		getEl               : fGetEl,            //获取容器节点
@@ -4594,7 +4599,7 @@ function(ViewManager,AbstractEvents,Template){
 		return me._parseEvents(name,function(aParams){
 			oEvent.name=aParams[0];
 			if(aParams.length==2){
-				oEvent.handler=aParams[0];
+				oEvent.handler=aParams[1];
 			}
 			me[sMethod].call(me,oEvent);
 		});
@@ -4619,6 +4624,10 @@ function(ViewManager,AbstractEvents,Template){
 		
 		//初始化配置
 		me.doConfig(oParams);
+		//子类自定义配置
+		if(me.init){
+			me.init(oParams);
+		}
 		me.parseItems();
 		if(me.autoRender!=false){
 			me.render();
@@ -7471,9 +7480,22 @@ function(AC){
 			' hui-icon-<%=this.name%>',
 			'<%if(!this.noBg){%>',
 			' hui-icon-bg',
-			'<%}%>"></span>']
+			'<%}%>"></span>'],
+		doConfig        : fDoConfig          //初始化配置
 		
 	});
+	
+	/**
+	 * 初始化配置
+	 * @param {Object}oSettings 参数配置
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		if($H.isStr(oSettings)){
+			oSettings={name:oSettings};
+		}
+		me.callSuper([oSettings]);
+	}
 	
 	return Icon;
 	
@@ -8731,6 +8753,124 @@ function(AC,Popup,ControlGroup){
 	}
 	
 	return Menu;
+	
+});/**
+ * 横向卡片类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+
+$Define('C.Hcard',
+'C.AbstractComponent',
+function(AC){
+	
+	var Hcard=AC.define('Hcard');
+	
+	Hcard.extend({
+		//初始配置
+//		image    : '',    //图片
+//		title    : '',    //标题
+//		desc     : [],    //描述，可以是单个配置也可以是配置数组{icon:图标,text:文字}
+//		hasArrow : false, //是否有右边箭头，有点击函数时默认有右箭头
+		
+		tmpl     : [
+			'<div class="hui-hcard',
+				'<%if(this.image){%> hui-hcard-hasimg">',
+					'<div class="hui-hcard-img">',
+						'<img src="<%=this.image%>">',
+					'</div>',
+				'<%}else{%>',
+				'"><%}%>',
+				'<div class="hui-hcard-content">',
+					'<div class="hui-content-title"><%=this.title%></div>',
+					'<%var aDesc=this.desc;aDesc=$H.isArr(aDesc)?aDesc:[aDesc];for(var i=0;i<aDesc.length;i++){%>',
+						'<div class="hui-content-desc">',
+							'<%var icon;if(icon=aDesc[i].icon){%>',
+							'<span class="hui-icon hui-mini hui-alt-icon hui-icon-<%=icon%> hui-light"></span>',
+							'<%}%>',
+							'<%=aDesc[i].text%>',
+						'</div>',
+					'<%}%>',
+				'</div>',
+				'<%if(this.hasArrow){%>',
+					'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情">',
+						'<span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span>',
+					'</a>',
+				'<%}%>',
+			'</div>'
+		],
+		doConfig       : fDoconfig    //初始化配置
+	});
+	/**
+	 * 初始化配置
+	 * @param {Object}oSettings
+	 */
+	function fDoconfig(oSettings){
+		var me=this;
+		me.callSuper();
+		//有点击函数时默认有右箭头
+		if(oSettings.click&&me.hasArrow==undefined){
+			me.hasArrow=true;
+		}
+	}
+		
+	return Hcard;
+	
+});/**
+ * 纵向卡片类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+
+$Define('C.Vcard',
+'C.AbstractComponent',
+function(AC){
+	
+	var Vcard=AC.define('Vcard');
+	
+	Vcard.extend({
+		//初始配置
+//		image        : '',    //图片
+//		title        : '',    //标题
+//		extraTitle   : '',    //标题右边文字
+		
+		tmpl         : [
+			'<div class="hui-vcard">',
+				'<div class="hui-vcard-title hui-title-hasimg c-clear">',
+					'<div class="hui-title-img">',
+						'<img alt="" src="<%=this.image%>">',
+					'</div>',
+					'<div class="hui-title-txt"><%=this.title%></div>',
+					'<div class="hui-title-extra"><%=this.extraTitle%></div>',
+				'</div>',
+				'<%=this.findHtml(">[xrole!=action]")%>',
+				'<div class="hui-vcard-action">',
+					'<%=this.findHtml(">[xrole=action]")%>',
+				'</div>',
+			'</div>'
+		],
+		doConfig        : fDoConfig          //初始化配置
+		
+	});
+	
+	/**
+	 * 初始化配置
+	 * @param {Object}oSettings 参数配置
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		me.callSuper();
+		var oAction=oSettings.action;
+		if(oAction){
+			oAction=$H.extend({
+				xtype:'Button',
+				radius:null,
+				isInline:false,
+				xrole:'action'
+			},oAction);
+			me.add(oAction);
+		}
+	}
+	
+	return Vcard;
 	
 });/**
  * 列表类

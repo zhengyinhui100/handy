@@ -28,6 +28,9 @@
 		background:#ccc;
 	}
 </style>
+<script type="text/javascript">
+gEnv='dev';
+</script>
 </head>
 <body>
 	<h3>图标：</h3>
@@ -86,7 +89,16 @@
 	<div id="dialogDv"></div>
 	<br/><br/><br/><br/>
 	
+	<h3>横向卡片：</h3>
+	<div id="hcardDv"></div>
+	<br/><br/><br/><br/>
+	
+	<h3>纵向卡片：</h3>
+	<div id="vcardDv"></div>
+	<br/><br/><br/><br/>
+	
 	<h3>列表：</h3>
+	<div id="listDv"></div>
 	<br/><br/><br/><br/>
 	
 </body>
@@ -152,9 +164,12 @@ $Require([
 "C.Tab",
 "C.Toolbar",
 "C.Tips",
-"C.Dialog"],
+"C.Dialog",
+"C.Hcard",
+"C.Vcard",
+"C.List"],
 function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Select,Input,
-		Set,Field,Form,Tab,Toolbar,Tips,Dialog){
+		Set,Field,Form,Tab,Toolbar,Tips,Dialog,Hcard,Vcard,List){
 	
 	function example(){
 	
@@ -828,6 +843,41 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Select,In
 						}]
 					}]
 				});
+			}
+		});
+		
+		//横向卡片
+		new Hcard({
+			renderTo:'#hcardDv',
+			image:'../../html/img.jpg',
+			title:'标题',
+			desc:[{
+				icon:'location',
+				text:'1.50km'
+			},{
+				icon:'edit',
+				text:'1.50km'
+			}],
+			click:function(){
+				alert(1);
+			}
+		});
+		
+		//纵向卡片
+		new Vcard({
+			renderTo:'#vcardDv',
+			image:'../../html/img.jpg',
+			title:'标题',
+			extraTitle:'1.11km',
+			action:{
+				text:'确定',
+				click:function(){
+					alert("确定");
+				}
+			},
+			items:{
+				xtype:'Panel',
+				content:'内容'
 			}
 		});
 	
