@@ -787,31 +787,36 @@
 	.hui-list-item{
 		position:relative;
 		border-bottom:1px solid #d5d6d7;
-		padding:5px;
 		&:hover,&:active{
 			background:#f3f3f3;
 		}
 	}
-	.hui-item-image{
+}
+//横向卡片
+.hui-hcard{
+	position:relative;
+	padding:5px;
+	min-height:4.5em;
+	&.hui-hcard-hasimg{
+		padding-left:80px;
+	}
+	.hui-hcard-img{
 		position:absolute;
 		left:10px;
 		img{
 			height:60px;
 		}
 	}
-	.hui-item-content{
+	.hui-hcard-content{
 		padding-right:40px;
 	}
-	.hui-item-img{
-		padding-left:80px;
-	}
-	.hui-item-title{
+	.hui-content-title{
 		.fn_text_overflow();
 		color:#222;
 		font-size:16px;
 		padding-bottom:5px;
 	}
-	.hui-item-desc{
+	.hui-content-desc{
 		.fn_text_overflow();
 		font-size:12px;
 		color:#6a6a6a;
@@ -819,6 +824,37 @@
 		padding-bottom:1px;
 		.hui-icon{
 			margin-right:2px;
+		}
+	}
+}
+//纵向卡片
+.hui-vcard{
+	.hui-vcard-title{
+		position:relative;
+		background:#f1f1f1;
+		&.hui-title-hasimg{
+			padding-left:45px;
+		}
+		.hui-title-img{
+			position:absolute;
+			left:10px;
+			img{
+				height:30px;
+			}
+		}
+		.hui-title-txt{
+			padding:0.4em 0;
+		}
+		.hui-title-extra{
+			position:absolute;
+			top:0;
+			right:10px;
+			padding:0.4em;
+		}
+	}
+	.hui-vcard-action{
+		.hui-btn{
+			margin:0;
 		}
 	}
 }

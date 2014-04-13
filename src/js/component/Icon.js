@@ -24,9 +24,22 @@ function(AC){
 			' hui-icon-<%=this.name%>',
 			'<%if(!this.noBg){%>',
 			' hui-icon-bg',
-			'<%}%>"></span>']
+			'<%}%>"></span>'],
+		doConfig        : fDoConfig          //初始化配置
 		
 	});
+	
+	/**
+	 * 初始化配置
+	 * @param {Object}oSettings 参数配置
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		if($H.isStr(oSettings)){
+			oSettings={name:oSettings};
+		}
+		me.callSuper([oSettings]);
+	}
 	
 	return Icon;
 	

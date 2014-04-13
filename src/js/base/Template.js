@@ -2,7 +2,7 @@
  * 模板类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Template','B.String',function(String,$H){
+handy.add('Template',['B.String','B.Debug'],function(String,Debug,$H){
 		
 	var T={
 		//配置
@@ -104,8 +104,13 @@ handy.add('Template','B.String',function(String,$H){
 			}
 		})
 		sCode+='return '+(_isNewEngine?'$r;':'$r.join("");');
-//		$D.log(sCode);
-		var fRender=new Function('$data',sCode);
+		try{
+			var fRender=new Function('$data',sCode);
+		}catch(e){
+			Debug.log(sCode);
+			Debug.error(e);
+			return;
+		}
 		fRender.$helpers=_helpers;
 		return fRender;
 	}
