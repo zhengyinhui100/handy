@@ -90,7 +90,9 @@ handy.add('Events',function($H){
 	 */
 	function _fExecEvents(){
 		var me=this,result;
-		$H.each(me._execEvtCache,function(i,oEvent){
+		var aEvts=me._execEvtCache;
+		$H.each(aEvts,function(i,oEvent){
+			aEvts.splice(i,1);
 			var fDelegation=oEvent.delegation;
 			//控制执行次数
 			if(typeof oEvent.times=='number'){
@@ -103,7 +105,6 @@ handy.add('Events',function($H){
 			//只是返回最后一个函数的结果，返回结果在某些情况可以作为通知器使用
 			result=fDelegation.apply(me,oEvent.args);
 		});
-		me._execEvtCache=[];
 		return result;
 	}
 	/**
