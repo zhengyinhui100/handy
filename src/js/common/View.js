@@ -133,6 +133,7 @@ function(ViewManager,AbstractEvents,Template){
 		//更新、销毁
 		beforeUpdate        : fBeforeUpdate,     //更新前工作
 		update              : fUpdate,           //更新
+		replace             : fReplace,          //替换视图
 		afterUpdate         : fAfterUpdate,      //更新后工作
 		beforeDestroy       : fBeforeDestroy,    //销毁前工作
 		destroy             : fDestroy,          //销毁
@@ -1089,21 +1090,30 @@ function(ViewManager,AbstractEvents,Template){
 	/**
 	 * 更新
 	 * @param {Object}oOptions
+	 * @param {boolean=}bNewConfig 仅当为true时，表示全新的配置，否则，从当前组件初始配置里扩展配置
 	 * @return {boolean|Object} 更新失败返回false，成功则返回更新后的视图对象
 	 */
-	function fUpdate(oOptions){
+	function fUpdate(oOptions,bNewConfig){
 		var me=this;
 		if(me.beforeUpdate()==false){
 			return false;
 		}
 		var oParent=me.parent;
 		var oPlaceholder=$('<span></span>').insertBefore(me.getEl());
+		
+		if(!bNewConfig){
+			//由于子组件的初始配置都是autoRender=false，这里需要特殊处理下
+			if(oOptions.autoRender==undefined){
+				oOptions.autoRender=true;
+			}
+			oOptions=$H.extend(oOptions,me.initParam,{notCover:true});
+		}
 		//cid不同
-		oOptions=$H.extend(oOptions||me.initParam,{
+		oOptions=$H.extend(oOptions,{
 			xtype:me.xtype,
 			renderBy:'replaceWith',
 			renderTo:oPlaceholder
-		});
+		},{notCover:['xtype']});
 		//不需要改变id/cid
 		if(!oOptions.cid||oOptions.cid==me.cid){
 			oOptions._id=me._id;
@@ -1126,6 +1136,14 @@ function(ViewManager,AbstractEvents,Template){
 		me.trigger('update',oNew);
 		me.afterUpdate(oNew);
 		return oNew;
+	}
+	/**
+	 * 替换视图
+	 * @param {Object}oConfig 配置项
+	 * @return {boolean|Object} 更新失败返回false，成功则返回更新后的视图对象
+	 */
+	function fReplace(oConfig){
+		return this.update(oConfig,true);
 	}
 	/**
 	 * 更新后工作
