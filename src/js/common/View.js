@@ -1098,6 +1098,7 @@ function(ViewManager,AbstractEvents,Template){
 		if(me.beforeUpdate()==false){
 			return false;
 		}
+		oOptions=oOptions||{};
 		var oParent=me.parent;
 		var oPlaceholder=$('<span></span>').insertBefore(me.getEl());
 		
