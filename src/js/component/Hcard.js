@@ -35,6 +35,7 @@ function(AC){
 						'</div>',
 					'<%}%>',
 				'</div>',
+				'<%=this.findHtml(">*")%>',
 				'<%if(this.hasArrow){%>',
 					'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情">',
 						'<span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span>',
