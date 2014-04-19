@@ -35,8 +35,8 @@ function(AbstractDao,AbstractEvents){
 //		_changing             : false,               //是否正在改变，但未保存
 		_pending              : false,               //
 //		_previousAttributes   : {},                  //较早的值
-//		_attributes            : {},                 //属性对象
-//    	_changed               : {},                 //改变了的值
+//		_attributes           : {},                 //属性对象
+//    	_changed              : {},                 //改变了的值
 //	    validationError       : {},                  //校验错误的值
         
         
@@ -304,8 +304,6 @@ function(AbstractDao,AbstractEvents){
 	        }
 	    }
 	
-	  // You might be wondering why there's a `while` loop here. Changes can
-	  // be recursively nested within `"change"` events.
 	    if (bChanging){
 	    	return me;
 	    }

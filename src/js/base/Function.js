@@ -22,8 +22,9 @@ handy.add('Function',function($H){
 	function fBind(fFunc,oScope,args) {
 		var aBindArgs = Array.prototype.slice.call(arguments,2);
 		return function() {
-			Array.prototype.push.apply(aBindArgs, arguments);
-			return fFunc.apply(oScope, aBindArgs);
+			var aArgs=aBindArgs.slice();
+			Array.prototype.push.apply(aArgs, arguments);
+			return fFunc.apply(oScope, aArgs);
 		};
 	}
 	/**

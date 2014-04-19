@@ -265,6 +265,7 @@ function(ViewManager,AbstractEvents,Template){
 			//默认事件，可通过参数属性直接添加
 			var bIsCustEvt=$H.contains(me._customEvents,p);
 			var bIsDefEvt=$H.contains(me._defaultEvents,p);
+			
 			if(bIsDefEvt){
 				me.listeners.push({
 					name:p,
