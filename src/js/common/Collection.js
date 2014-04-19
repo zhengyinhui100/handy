@@ -33,6 +33,7 @@ function(AbstractDao,AbstractEvents,Model){
 		add                    : fAdd,                //添加模型
 		remove                 : fRemove,             //移除模型
 		set                    : fSet,                //设置模型
+		each                   : fEach,               //遍历集合
 		reset                  : fReset,              //重置模型，此方法不会触发add、remove等事件，只会触发reset事件
 		push                   : fPush,               //添加到集合最后
 		pop                    : fPop,                //取出集合最后一个模型
@@ -102,6 +103,7 @@ function(AbstractDao,AbstractEvents,Model){
         //如果数据仓库里已经存在，直接使用
         var oModel=$S.get(me.model.$ns,{id:oOptions.id});
         if(oModel=oModel&&oModel[0]){
+        	oModel.set(oAttrs,oOptions);
         	return oModel;
         }
         
@@ -389,6 +391,13 @@ function(AbstractDao,AbstractEvents,Model){
 
         //返回被设置的模型，如果是数组，返回第一个元素
         return bSingular ? aModels[0] : aModels;
+    }
+    /**
+     * 遍历集合
+     * @param {function}fCall(nIndex,oModel) 回调函数
+     */
+    function fEach(fCall){
+    	$H.each(this._models,fCall);
     }
 	/**
 	 * 重置模型，此方法不会触发add、remove等事件，只会触发reset事件
