@@ -28,6 +28,7 @@
 			<path path="js/base/Cookie.js" />
 			<path path="js/base/Util.js" />
 			<path path="js/base/Array.js" />
+			<path path="js/base/Geo.js" />
 			<path path="js/base/Template.js" />
 			<path path="js/base/HashChange.js" />
 			<path path="js/base/Support.js" />
@@ -95,7 +96,7 @@
 			<path path="js/component/Menu.js" />
 			<path path="js/component/Hcard.js" />
 			<path path="js/component/Vcard.js" />
-			<path path="js/component/List.js" />
+			<path path="js/component/ModelList.js" />
 
 		</concat>
 		<concat destfile="${tmp.dir}/${project.name}-pkg.js" encoding="${charset}"
