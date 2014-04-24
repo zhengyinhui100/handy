@@ -72,11 +72,12 @@ function(AC){
 	 */
 	function fDoConfig(oSettings){
 		var me=this;
-		me.callSuper();
 		//搜索框快捷配置方式
-		if(me.type=='search'){
+		if(oSettings.type=='search'){
 			me.icon='search';
-		}else if(me.type=="textarea"){
+		}
+		me.callSuper();
+		if(me.type=="textarea"){
 			//textarea高度自适应，IE6、7、8支持propertychange事件，input被其他浏览器所支持
 			me.listeners.push({
 				name:'input propertychange',

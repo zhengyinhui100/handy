@@ -109,7 +109,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 			me.cls=me.xtype.toLowerCase();
 		}
 		me.extCls=me.getExtCls();
-		//图标视图快捷添加
+		//图标组件快捷添加
 		if(me.icon){
 			me.add({
 				xtype:'Icon',
