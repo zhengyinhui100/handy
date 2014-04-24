@@ -98,7 +98,7 @@ function(AbstractDao,AbstractEvents){
 			if(aDeps=oField.depends){
 				for(var i=0;i<aDeps.length;i++){
 			    	//当依赖属性变化时，设置计算属性
-					me.on('change:'+aDeps[i],$H.bind(me.set,me,key));
+					me.on('change:'+aDeps[i],$H.bind(me.set,me,key,null,null));
 				}
 			}
 	    }
@@ -404,13 +404,19 @@ function(AbstractDao,AbstractEvents){
         if (oOptions.parse === void 0) {
         	oOptions.parse = true;
         }
-        var success = oOptions.success;
+        var fSuccess = oOptions.success;
+        var fBeforeSet = oOptions.beforeSet;
         oOptions.success = function(resp) {
+        	if (fBeforeSet){
+        		if(fBeforeSet(me, resp, oOptions)==false){
+        			return;
+        		}
+        	}
         	if (!me.set(me.parse(resp, oOptions), oOptions)){
         		return false;
         	}
-        	if (success){
-        		success(me, resp, oOptions);
+        	if (fSuccess){
+        		fSuccess(me, resp, oOptions);
         	}
         	me.trigger('sync', me, resp, oOptions);
         };

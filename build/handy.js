@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-14 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-24 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -51,7 +51,7 @@
 			args.push(handy);
 			var oModule=fDefined.apply(window,args);
 			handy.base[sName]=handy[sName]=oModule;
-			if('Browser,Class,Array,Cookie,Date,Events,Function,Json,Object,String,Template,Util'.indexOf(sName)>=0){
+			if('Browser,Class,Array,Geo,Cookie,Date,Events,Function,Json,Object,String,Template,Util'.indexOf(sName)>=0){
 				for(var key in oModule){
 					//!Function[key]专为bind方法
 					if(handy.isDebug&&typeof handy[key]!="undefined"&&('console' in window)&&!Function[key]){
@@ -1288,8 +1288,9 @@ handy.add('Function',function($H){
 	function fBind(fFunc,oScope,args) {
 		var aBindArgs = Array.prototype.slice.call(arguments,2);
 		return function() {
-			Array.prototype.push.apply(aBindArgs, arguments);
-			return fFunc.apply(oScope, aBindArgs);
+			var aArgs=aBindArgs.slice();
+			Array.prototype.push.apply(aArgs, arguments);
+			return fFunc.apply(oScope, aArgs);
 		};
 	}
 	/**
@@ -2389,13 +2390,16 @@ handy.add('Date',function(){
 	/**
 	 * 计算距离现在多久了
 	 * @param {Date}oTime 参数时间
-	 * @param {boolean=}bFormat 仅当true进行格式化：小于60分钟的单位是分钟，
+	 * @param {boolean=}bFormat 仅当false时不进行格式化：小于60分钟的单位是分钟，
 	 * 					小于一天的单位是小时，小于30天的单位是天，大于30天返回"30天前"
 	 */
 	function fHowLong(oTime,bFormat){
+		if(!oTime){
+			return;
+		}
 		var oNow=Date.now();
 		var time=oNow.getTime()-oTime.getTime();
-		if(bFormat){
+		if(bFormat!=false){
 			var sUnit;
 			if((time=time/(1000*60))<60){
 				sUnit='分钟'; 
@@ -2707,7 +2711,6 @@ handy.add('Util','B.Object',function(Object,$H){
 		getUuid          : fGetUuid,   //获取handy内部uuid
 		getHash          : fGetHash,   //获取hash，不包括“？”开头的query部分
 		setHash          : fSetHash,   //设置hash，不改变“？”开头的query部分
-		distance         : fDistance,  //计算两点距离(单位为km，保留两位小数)
 		result           : fResult     //如果对象中的指定属性是函数, 则调用它, 否则, 返回它
 	}
 	
@@ -2750,62 +2753,6 @@ handy.add('Util','B.Object',function(Object,$H){
 			sHash=sOrgHash.replace(/#[^\?]*/,sHash);
 		}
 		top.location.hash=sHash;
-	}
-	/**
-	 * 计算两点距离(单位为km，保留两位小数)
-	 * @param {Object|Array|Model}oCoord1 参数坐标1
-	 * 				Object类型{
-	 * 					{number}latitude:纬度,
-	 * 					{number}longitude:经度
-	 * 				}
-	 * 				Array类型[{number}latitude,{number}longitude]
-	 * 				Model类型，包含latitude和longitude属性
-	 * @param {Object|Array}oCoord2 参数坐标2
-	 * @param {boolean=}bFormat 仅当true进行格式化：单位是km(取两位小数)，如：32120->3.21km
-	 * @return {number} 返回两点间的距离
-	 */
-	function fDistance(oCoord1,oCoord2,bFormat){
-		/** 
-         * 求某个经纬度的值的角度值 
-         * @param {Object} degree 
-         */  
-        function _fRad(nDegree){  
-            return nDegree*Math.PI/180;  
-        }
-        /**
-         * 格式化输入数据，返回数组形式
-         */
-        function _fFormatData(oCoord){
-        	if(oCoord.get){
-	        	oCoord=[oCoord.get("latitude"),oCoord.get("longitude")];
-	        }else if($H.isObj(oCoord)){
-	        	oCoord=[oCoord.latitude,oCoord.longitude];
-	        }
-	        return oCoord;
-        }
-        var EARTH_RADIUS = 6378.137,nLat1,nLng1,nLat2,nLng2;
-        oCoord1=_fFormatData(oCoord1);
-    	nLat1=oCoord1[0];
-        nLng1=oCoord1[1];
-        oCoord2=_fFormatData(oCoord2);
-        nLat2=oCoord2[0];
-        nLng2=oCoord2[1];
-        var nRadLat1 = _fRad(nLat1);
-	    var nRadLat2 = _fRad(nLat2);
-	    var nRadLatDif = nRadLat1 - nRadLat2;
-	    var nRadLngDif = _fRad(nLng1) - _fRad(nLng2);
-	    var nDistance = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(nRadLatDif/2),2) +
-	     	Math.cos(nRadLat1)*Math.cos(nRadLat2)*Math.pow(Math.sin(nRadLngDif/2),2)));
-	    nDistance = nDistance * EARTH_RADIUS;
-	    nDistance = Math.round(nDistance * 10000);
-	    nDistance=(nDistance/1000).toFixed(2);
-	    if(bFormat){
-	    	if(isNaN(nDistance)){
-	    		return '未知';
-	    	}
-	    	nDistance+='km';
-	    }
-	    return nDistance;
 	}
 	/**
 	 * 如果对象中的指定属性是函数, 则调用它, 否则, 返回它
@@ -3191,6 +3138,74 @@ handy.add('Array','B.Object',function(Object,$H){
     }
 	
 	return Arr;
+	
+});/**
+ * 地理类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+handy.add('Geo',function($H){
+	
+	var Geo={
+		distance         : fDistance          //计算两点距离(单位为km，保留两位小数)
+	}
+	
+	/**
+	 * 计算两点距离(单位为km，保留两位小数)
+	 * @param {Object|Array|Model}oCoord1 参数坐标1
+	 * 				Object类型{
+	 * 					{number}latitude:纬度,
+	 * 					{number}longitude:经度
+	 * 				}
+	 * 				Array类型[{number}latitude,{number}longitude]
+	 * 				Model类型，包含latitude和longitude属性
+	 * @param {Object|Array}oCoord2 参数坐标2
+	 * @param {boolean=}bFormat 仅当false时不进行格式化：单位是km(取两位小数)，如：32120->3.21km
+	 * @return {number} 返回两点间的距离
+	 */
+	function fDistance(oCoord1,oCoord2,bFormat){
+		/** 
+         * 求某个经纬度的值的角度值 
+         * @param {Object} degree 
+         */  
+        function _fRad(nDegree){  
+            return nDegree*Math.PI/180;  
+        }
+        /**
+         * 格式化输入数据，返回数组形式
+         */
+        function _fFormatData(oCoord){
+        	if(oCoord.get){
+	        	oCoord=[oCoord.get("latitude"),oCoord.get("longitude")];
+	        }else if($H.isObj(oCoord)){
+	        	oCoord=[oCoord.latitude,oCoord.longitude];
+	        }
+	        return oCoord;
+        }
+        var EARTH_RADIUS = 6371,nLat1,nLng1,nLat2,nLng2;
+        oCoord1=_fFormatData(oCoord1);
+    	nLat1=oCoord1[0];
+        nLng1=oCoord1[1];
+        oCoord2=_fFormatData(oCoord2);
+        nLat2=oCoord2[0];
+        nLng2=oCoord2[1];
+        var nRadLat1 = _fRad(nLat1);
+	    var nRadLat2 = _fRad(nLat2);
+	    var nDistance = EARTH_RADIUS
+						* Math.acos(Math.cos(nRadLat2) * Math.cos(nRadLat1)
+						* Math.cos(_fRad(nLng1) - _fRad(nLng2))
+						+ Math.sin(nRadLat2)
+						* Math.sin(nRadLat1));
+	    nDistance=nDistance.toFixed(2);
+	    if(bFormat!=false){
+	    	if(isNaN(nDistance)){
+	    		return '未知';
+	    	}
+	    	nDistance+='km';
+	    }
+	    return nDistance;
+	}
+	
+	return Geo;
 	
 });/**
  * 模板类
@@ -4059,9 +4074,9 @@ function(){
 	var DataStore=$H.createClass();
 	
 	$H.extend(DataStore.prototype,{
-		get            : fGet,
+		get            : fGet,       //获取数据
 //		find           : fFind,
-		push           : fPush
+		push           : fPush       //放入仓库
 	});
 	//缓存池
 	var _cache={
@@ -4418,7 +4433,7 @@ function(ViewManager,AbstractEvents,Template){
 		_placeholder        : '<script id="" type="text/x-placeholder"></script>',        //占位符标签
 		
 		//配置
-//		renderTo            : null,              //渲染节点
+//		renderTo            : null,              //渲染节点或选择器，可以是函数，调用上下文为本视图对象，如果选择器字符以">"开头，表示在父视图内查找节点
 //		defItem             : null,              //默认子视图配置
 //		hidden              : false,             //是否隐藏
 //		delayShow           : false,             //是否延迟显示，主要用于弹出层
@@ -4525,6 +4540,7 @@ function(ViewManager,AbstractEvents,Template){
 		//更新、销毁
 		beforeUpdate        : fBeforeUpdate,     //更新前工作
 		update              : fUpdate,           //更新
+		replace             : fReplace,          //替换视图
 		afterUpdate         : fAfterUpdate,      //更新后工作
 		beforeDestroy       : fBeforeDestroy,    //销毁前工作
 		destroy             : fDestroy,          //销毁
@@ -4581,9 +4597,9 @@ function(ViewManager,AbstractEvents,Template){
 			aArgs=$H.toArray(aArgs,2);
 		}
 		if($H.isArr(aParams)){
-			for(var i=0,len=aParams.length;i<len;i++){
-				oOwner[sMethod].apply(me,[aParams[i]].concat(aArgs));
-			}
+			$H.each(aParams,function(i,oItem){
+				oOwner[sMethod].apply(me,[oItem].concat(aArgs));
+			});
 			return true;
 		}
 		return false;
@@ -4656,6 +4672,7 @@ function(ViewManager,AbstractEvents,Template){
 			//默认事件，可通过参数属性直接添加
 			var bIsCustEvt=$H.contains(me._customEvents,p);
 			var bIsDefEvt=$H.contains(me._defaultEvents,p);
+			
 			if(bIsDefEvt){
 				me.listeners.push({
 					name:p,
@@ -4684,8 +4701,16 @@ function(ViewManager,AbstractEvents,Template){
 				return true;
 			}
 		}});
-		if(oParams.renderTo){
-			me.renderTo=$(oParams.renderTo);
+		var renderTo;
+		if(renderTo=oParams.renderTo){
+			if($H.isFunc(renderTo)){
+				renderTo=renderTo.call(me);
+			}else if($H.isStr(renderTo)&&renderTo.indexOf('>')==0){
+				renderTo=me.parent.findEl(renderTo.substring(1));
+			}else{
+				renderTo=$(renderTo);
+			}
+			me.renderTo=renderTo;
 		}else{
 			me.renderTo=$(document.body);
 		}
@@ -4994,6 +5019,11 @@ function(ViewManager,AbstractEvents,Template){
 		if(me._parseListenEvents('listen',oEvent)){
 			return;
 		}
+		//没有初始化事件，直接放入队列中
+		if(!me.listened){
+			me.listeners.push(oEvent);
+			return;
+		}
 		var sName=oEvent.name,
 			context=oEvent.context,
 			nTimes=oEvent.times,
@@ -5228,12 +5258,13 @@ function(ViewManager,AbstractEvents,Template){
 	/**
 	 * 查找子元素或子视图
 	 * @method find
-	 * @param {number|string|Function(View)}sel 数字表示子组件索引，
+	 * @param {number|string|Function(View)|Class}sel 数字表示子组件索引，
 	 * 				如果是字符串：多个选择器间用","隔开('sel1,sel2,...')，语法类似jQuery，
 	 * 				如：'xtype[attr=value]'、'ancestor descendant'、'parent>child'，
 	 * 				'#'表示cid，如'#btn'，表示cid为btn的视图
 	 * 				'>Button'表示仅查找当前子节点中的按钮，'Button'表示查找所有后代节点中的按钮，
-	 * 				如果是函数(参数是当前匹配的视图对象)，则将返回true的结果加入结果集
+	 * 				如果是函数(参数是当前匹配的视图对象)，则将返回true的结果加入结果集，
+	 * 				如果是类，查找该类的实例
 	 * @param {Array=}aResult 用于存储结果集的数组
 	 * @return {Array} 返回匹配的结果，如果没找到匹配的子视图则返回空数组，ps:只有一个结果也返回数组，便于统一接口
 	 */
@@ -5278,9 +5309,10 @@ function(ViewManager,AbstractEvents,Template){
 				}
 			});
 		}else if($H.isFunc(sel)){
+			var bIsClass=$H.isClass(sel);
 			//匹配子视图
 			me.each(function(i,oChild){
-				if(sel(oChild)){
+				if((bIsClass&&oChild instanceof sel)||(!bIsClass&&sel(oChild))){
 					aResult.push(oChild);
 				}
 				oChild.find(sel,aResult);
@@ -5481,21 +5513,31 @@ function(ViewManager,AbstractEvents,Template){
 	/**
 	 * 更新
 	 * @param {Object}oOptions
+	 * @param {boolean=}bNewConfig 仅当为true时，表示全新的配置，否则，从当前组件初始配置里扩展配置
 	 * @return {boolean|Object} 更新失败返回false，成功则返回更新后的视图对象
 	 */
-	function fUpdate(oOptions){
+	function fUpdate(oOptions,bNewConfig){
 		var me=this;
 		if(me.beforeUpdate()==false){
 			return false;
 		}
+		oOptions=oOptions||{};
 		var oParent=me.parent;
 		var oPlaceholder=$('<span></span>').insertBefore(me.getEl());
+		
+		if(!bNewConfig){
+			//由于子组件的初始配置都是autoRender=false，这里需要特殊处理下
+			if(oOptions.autoRender==undefined){
+				oOptions.autoRender=true;
+			}
+			oOptions=$H.extend(oOptions,me.initParam,{notCover:true});
+		}
 		//cid不同
-		oOptions=$H.extend(oOptions||me.initParam,{
+		oOptions=$H.extend(oOptions,{
 			xtype:me.xtype,
 			renderBy:'replaceWith',
 			renderTo:oPlaceholder
-		});
+		},{notCover:['xtype']});
 		//不需要改变id/cid
 		if(!oOptions.cid||oOptions.cid==me.cid){
 			oOptions._id=me._id;
@@ -5518,6 +5560,14 @@ function(ViewManager,AbstractEvents,Template){
 		me.trigger('update',oNew);
 		me.afterUpdate(oNew);
 		return oNew;
+	}
+	/**
+	 * 替换视图
+	 * @param {Object}oConfig 配置项
+	 * @return {boolean|Object} 更新失败返回false，成功则返回更新后的视图对象
+	 */
+	function fReplace(oConfig){
+		return this.update(oConfig,true);
 	}
 	/**
 	 * 更新后工作
@@ -5613,8 +5663,8 @@ function(AbstractDao,AbstractEvents){
 //		_changing             : false,               //是否正在改变，但未保存
 		_pending              : false,               //
 //		_previousAttributes   : {},                  //较早的值
-//		_attributes            : {},                 //属性对象
-//    	_changed               : {},                 //改变了的值
+//		_attributes           : {},                 //属性对象
+//    	_changed              : {},                 //改变了的值
 //	    validationError       : {},                  //校验错误的值
         
         
@@ -5676,7 +5726,7 @@ function(AbstractDao,AbstractEvents){
 			if(aDeps=oField.depends){
 				for(var i=0;i<aDeps.length;i++){
 			    	//当依赖属性变化时，设置计算属性
-					me.on('change:'+aDeps[i],$H.bind(me.set,me,key));
+					me.on('change:'+aDeps[i],$H.bind(me.set,me,key,null,null));
 				}
 			}
 	    }
@@ -5882,8 +5932,6 @@ function(AbstractDao,AbstractEvents){
 	        }
 	    }
 	
-	  // You might be wondering why there's a `while` loop here. Changes can
-	  // be recursively nested within `"change"` events.
 	    if (bChanging){
 	    	return me;
 	    }
@@ -5984,13 +6032,19 @@ function(AbstractDao,AbstractEvents){
         if (oOptions.parse === void 0) {
         	oOptions.parse = true;
         }
-        var success = oOptions.success;
+        var fSuccess = oOptions.success;
+        var fBeforeSet = oOptions.beforeSet;
         oOptions.success = function(resp) {
+        	if (fBeforeSet){
+        		if(fBeforeSet(me, resp, oOptions)==false){
+        			return;
+        		}
+        	}
         	if (!me.set(me.parse(resp, oOptions), oOptions)){
         		return false;
         	}
-        	if (success){
-        		success(me, resp, oOptions);
+        	if (fSuccess){
+        		fSuccess(me, resp, oOptions);
         	}
         	me.trigger('sync', me, resp, oOptions);
         };
@@ -6154,7 +6208,7 @@ function(AbstractDao,AbstractEvents){
 	 */
     function fIsNew() {
     	var me=this;
-        return !me.has(me.idAttribute);
+        return me.id==undefined;
     }
 	/**
 	 * 校验当前是否是合法的状态
@@ -6201,6 +6255,7 @@ function(AbstractDao,AbstractEvents,Model){
 		add                    : fAdd,                //添加模型
 		remove                 : fRemove,             //移除模型
 		set                    : fSet,                //设置模型
+		each                   : fEach,               //遍历集合
 		reset                  : fReset,              //重置模型，此方法不会触发add、remove等事件，只会触发reset事件
 		push                   : fPush,               //添加到集合最后
 		pop                    : fPop,                //取出集合最后一个模型
@@ -6270,6 +6325,7 @@ function(AbstractDao,AbstractEvents,Model){
         //如果数据仓库里已经存在，直接使用
         var oModel=$S.get(me.model.$ns,{id:oOptions.id});
         if(oModel=oModel&&oModel[0]){
+        	oModel.set(oAttrs,oOptions);
         	return oModel;
         }
         
@@ -6434,6 +6490,9 @@ function(AbstractDao,AbstractEvents,Model){
 	 */
     function fSet(models, oOptions) {
     	var me=this;
+    	if(!models){
+    		return;
+    	}
     	oOptions = $H.extend({
     		add: true,
     		remove: true,
@@ -6558,6 +6617,13 @@ function(AbstractDao,AbstractEvents,Model){
         //返回被设置的模型，如果是数组，返回第一个元素
         return bSingular ? aModels[0] : aModels;
     }
+    /**
+     * 遍历集合
+     * @param {function}fCall(nIndex,oModel) 回调函数
+     */
+    function fEach(fCall){
+    	$H.each(this._models,fCall);
+    }
 	/**
 	 * 重置模型，此方法不会触发add、remove等事件，只会触发reset事件
 	 * @param 同"set"方法
@@ -6571,7 +6637,9 @@ function(AbstractDao,AbstractEvents,Model){
         }
         oOptions.previousModels = me._models;
         me._reset();
-        models = me.add(models, $H.extend({silent: true}, oOptions));
+        if(models){
+	        models = me.add(models, $H.extend({silent: true}, oOptions));
+        }
         if (!oOptions.silent){
         	me.trigger('reset', me, oOptions);
         }
@@ -6737,12 +6805,18 @@ function(AbstractDao,AbstractEvents,Model){
         if (oOptions.parse === void 0){
         	oOptions.parse = true;
         }
-        var success = oOptions.success;
+        var fSuccess = oOptions.success;
+        var fBeforeSet = oOptions.beforeSet;
         oOptions.success = function(resp) {
-        	var method = oOptions.reset ? 'reset' : 'set';
+        	if (fBeforeSet){
+        		if(fBeforeSet(me, resp, oOptions)==false){
+        			return;
+        		}
+        	}
+        	var method = oOptions.reset ? 'reset' : oOptions.add?'add':'set';
         	me[method](resp, oOptions);
-        	if (success){
-        		success(me, resp, oOptions);
+        	if (fSuccess){
+        		fSuccess(me, resp, oOptions);
         	}
         	me.trigger('sync', me, resp, oOptions);
         };
@@ -8002,9 +8076,9 @@ function(AC){
 	
 	RowItem.extend({
 		//初始配置
-//		text            :'',       //文字
-//		underline       : false,   //右边下划线，文字域默认有下划线
-//		hasArrow        : false,   //右边箭头，有click事件时默认有箭头
+//		text            :'',             //文字
+//		underline       : false,         //右边下划线，文字域默认有下划线
+//		hasArrow        : false,         //右边箭头，有click事件时默认有箭头
 		cls             : 'rowitem',
 		
 		tmpl            : [
@@ -8025,6 +8099,10 @@ function(AC){
 	function fDoconfig(oSettings){
 		var me=this;
 		me.callSuper();
+		//空格占位符
+		if(!me.text){
+			me.text="&nbsp;";
+		}
 		//默认文字域有下划线
 		if(me.text&&me.underline==undefined){
 			me.underline=true;
@@ -8794,6 +8872,7 @@ function(AC){
 						'</div>',
 					'<%}%>',
 				'</div>',
+				'<%=this.findHtml(">*")%>',
 				'<%if(this.hasArrow){%>',
 					'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情">',
 						'<span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span>',
@@ -8876,29 +8955,77 @@ function(AC){
 	return Vcard;
 	
 });/**
- * 列表类
+ * 列表视图
  * @author 郑银辉(zhengyinhui100@gmail.com)
- * @created 2014-02-06
  */
 
-$Define('C.List',
-['C.AbstractComponent',
-'C.ControlGroup'],
-function(AC,ControlGroup){
+$Define("C.ModelList",
+'C.AbstractComponent',
+function(AC){
 	
-	var List=AC.define('List',ControlGroup);
+	var ModelList=AC.define('ModelList');
 	
-	List.extend({
-		cls               : 'list',
-		tmpl              : [
-			'<div>',
-				'<div class="hui-list-item">',
-				'</div>',
+	ModelList.extend({
+		emptyTips   : '空',
+		tmpl        : [
+			'<div class="hui-list">',
+				'<div id="emptyContent"<%if(this.children.length>0){%> style="display:none"<%}%> class="hui-list-empty"><%=this.emptyTips%></div>',
 			'</div>'
-		]
+		],
+		init                : fInit,               //初始化
+		addListItem         : fAddListItem,        //添加列表项
+		removeListItem      : fRemoveListItem      //删除列表项
 	});
+	/**
+	 * 初始化
+	 */
+	function fInit(){
+		var me=this;
+		var oListItems=me.model;
+		me.listenTo(oListItems,{
+			'add':function(sEvt,oListItem){
+				me.addListItem(oListItem);
+			},
+			'remove':function(sEvt,oListItem){
+				me.removeListItem(oListItem);
+			},
+			'reset':function(){
+				me.removeListItem('emptyAll');
+			}
+		});
+	}
+	/**
+	 * 添加列表项
+	 * @param {Object}oListItem 列表项模型
+	 */
+	function fAddListItem(oListItem){
+		var me=this;
+		if(me.inited){
+			me.findEl("#emptyContent").hide();
+		}
+		me.add({
+			model:oListItem
+		});
+	}
+	/**
+	 * 删除列表项
+	 * @param {Object}oListItem 列表项模型
+	 */
+	function fRemoveListItem(oListItem){
+		var me=this;
+		if(oListItem=='emptyAll'){
+			me.remove(me.children);
+		}else{
+			me.remove(function(oView){
+				return oView.model&&oView.model.id==oListItem.id;
+			});
+		}
+		if(me.children.length==0){
+			me.findEl("#emptyContent").show();
+		}
+	}
 	
-	return List;
+	return ModelList;
 });/****************************************************************
 * Author:		郑银辉											*
 * Email:		zhengyinhui100@gmail.com						*
@@ -9336,6 +9463,7 @@ function(History,AbstractManager){
 	 * 更新模块
 	 * @param {Module}oModule 模块对象
 	 * @param {Object}oParams 参数
+	 * @return {Module}oNew 返回新的模块对象
 	 */
 	function fUpdate(oModule,oParams){
 		var oNew=oModule.update(oParams);
@@ -9343,6 +9471,7 @@ function(History,AbstractManager){
 			this.modules[oModule.name]=oNew;
 			$H.trigger('afterRender',oNew.getEl());
 		}
+		return oNew;
 	}
 	/**
 	 * 清除缓存模块

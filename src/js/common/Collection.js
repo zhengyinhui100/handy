@@ -268,6 +268,9 @@ function(AbstractDao,AbstractEvents,Model){
 	 */
     function fSet(models, oOptions) {
     	var me=this;
+    	if(!models){
+    		return;
+    	}
     	oOptions = $H.extend({
     		add: true,
     		remove: true,
@@ -412,7 +415,9 @@ function(AbstractDao,AbstractEvents,Model){
         }
         oOptions.previousModels = me._models;
         me._reset();
-        models = me.add(models, $H.extend({silent: true}, oOptions));
+        if(models){
+	        models = me.add(models, $H.extend({silent: true}, oOptions));
+        }
         if (!oOptions.silent){
         	me.trigger('reset', me, oOptions);
         }
@@ -578,12 +583,18 @@ function(AbstractDao,AbstractEvents,Model){
         if (oOptions.parse === void 0){
         	oOptions.parse = true;
         }
-        var success = oOptions.success;
+        var fSuccess = oOptions.success;
+        var fBeforeSet = oOptions.beforeSet;
         oOptions.success = function(resp) {
-        	var method = oOptions.reset ? 'reset' : 'set';
+        	if (fBeforeSet){
+        		if(fBeforeSet(me, resp, oOptions)==false){
+        			return;
+        		}
+        	}
+        	var method = oOptions.reset ? 'reset' : oOptions.add?'add':'set';
         	me[method](resp, oOptions);
-        	if (success){
-        		success(me, resp, oOptions);
+        	if (fSuccess){
+        		fSuccess(me, resp, oOptions);
         	}
         	me.trigger('sync', me, resp, oOptions);
         };

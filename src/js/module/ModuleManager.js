@@ -202,6 +202,7 @@ function(History,AbstractManager){
 	 * 更新模块
 	 * @param {Module}oModule 模块对象
 	 * @param {Object}oParams 参数
+	 * @return {Module}oNew 返回新的模块对象
 	 */
 	function fUpdate(oModule,oParams){
 		var oNew=oModule.update(oParams);
@@ -209,6 +210,7 @@ function(History,AbstractManager){
 			this.modules[oModule.name]=oNew;
 			$H.trigger('afterRender',oNew.getEl());
 		}
+		return oNew;
 	}
 	/**
 	 * 清除缓存模块

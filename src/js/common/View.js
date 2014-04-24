@@ -26,7 +26,7 @@ function(ViewManager,AbstractEvents,Template){
 		_placeholder        : '<script id="" type="text/x-placeholder"></script>',        //占位符标签
 		
 		//配置
-//		renderTo            : null,              //渲染节点
+//		renderTo            : null,              //渲染节点或选择器，可以是函数，调用上下文为本视图对象，如果选择器字符以">"开头，表示在父视图内查找节点
 //		defItem             : null,              //默认子视图配置
 //		hidden              : false,             //是否隐藏
 //		delayShow           : false,             //是否延迟显示，主要用于弹出层
@@ -190,9 +190,9 @@ function(ViewManager,AbstractEvents,Template){
 			aArgs=$H.toArray(aArgs,2);
 		}
 		if($H.isArr(aParams)){
-			for(var i=0,len=aParams.length;i<len;i++){
-				oOwner[sMethod].apply(me,[aParams[i]].concat(aArgs));
-			}
+			$H.each(aParams,function(i,oItem){
+				oOwner[sMethod].apply(me,[oItem].concat(aArgs));
+			});
 			return true;
 		}
 		return false;
@@ -294,8 +294,16 @@ function(ViewManager,AbstractEvents,Template){
 				return true;
 			}
 		}});
-		if(oParams.renderTo){
-			me.renderTo=$(oParams.renderTo);
+		var renderTo;
+		if(renderTo=oParams.renderTo){
+			if($H.isFunc(renderTo)){
+				renderTo=renderTo.call(me);
+			}else if($H.isStr(renderTo)&&renderTo.indexOf('>')==0){
+				renderTo=me.parent.findEl(renderTo.substring(1));
+			}else{
+				renderTo=$(renderTo);
+			}
+			me.renderTo=renderTo;
 		}else{
 			me.renderTo=$(document.body);
 		}
@@ -604,6 +612,11 @@ function(ViewManager,AbstractEvents,Template){
 		if(me._parseListenEvents('listen',oEvent)){
 			return;
 		}
+		//没有初始化事件，直接放入队列中
+		if(!me.listened){
+			me.listeners.push(oEvent);
+			return;
+		}
 		var sName=oEvent.name,
 			context=oEvent.context,
 			nTimes=oEvent.times,
@@ -838,12 +851,13 @@ function(ViewManager,AbstractEvents,Template){
 	/**
 	 * 查找子元素或子视图
 	 * @method find
-	 * @param {number|string|Function(View)}sel 数字表示子组件索引，
+	 * @param {number|string|Function(View)|Class}sel 数字表示子组件索引，
 	 * 				如果是字符串：多个选择器间用","隔开('sel1,sel2,...')，语法类似jQuery，
 	 * 				如：'xtype[attr=value]'、'ancestor descendant'、'parent>child'，
 	 * 				'#'表示cid，如'#btn'，表示cid为btn的视图
 	 * 				'>Button'表示仅查找当前子节点中的按钮，'Button'表示查找所有后代节点中的按钮，
-	 * 				如果是函数(参数是当前匹配的视图对象)，则将返回true的结果加入结果集
+	 * 				如果是函数(参数是当前匹配的视图对象)，则将返回true的结果加入结果集，
+	 * 				如果是类，查找该类的实例
 	 * @param {Array=}aResult 用于存储结果集的数组
 	 * @return {Array} 返回匹配的结果，如果没找到匹配的子视图则返回空数组，ps:只有一个结果也返回数组，便于统一接口
 	 */
@@ -888,9 +902,10 @@ function(ViewManager,AbstractEvents,Template){
 				}
 			});
 		}else if($H.isFunc(sel)){
+			var bIsClass=$H.isClass(sel);
 			//匹配子视图
 			me.each(function(i,oChild){
-				if(sel(oChild)){
+				if((bIsClass&&oChild instanceof sel)||(!bIsClass&&sel(oChild))){
 					aResult.push(oChild);
 				}
 				oChild.find(sel,aResult);

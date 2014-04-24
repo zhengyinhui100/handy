@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-14 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-24 | zhengyinhui100@gmail.com */
 /**
  * 组件管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -1204,9 +1204,9 @@ function(AC){
 	
 	RowItem.extend({
 		//初始配置
-//		text            :'',       //文字
-//		underline       : false,   //右边下划线，文字域默认有下划线
-//		hasArrow        : false,   //右边箭头，有click事件时默认有箭头
+//		text            :'',             //文字
+//		underline       : false,         //右边下划线，文字域默认有下划线
+//		hasArrow        : false,         //右边箭头，有click事件时默认有箭头
 		cls             : 'rowitem',
 		
 		tmpl            : [
@@ -1227,6 +1227,10 @@ function(AC){
 	function fDoconfig(oSettings){
 		var me=this;
 		me.callSuper();
+		//空格占位符
+		if(!me.text){
+			me.text="&nbsp;";
+		}
 		//默认文字域有下划线
 		if(me.text&&me.underline==undefined){
 			me.underline=true;
@@ -1996,6 +2000,7 @@ function(AC){
 						'</div>',
 					'<%}%>',
 				'</div>',
+				'<%=this.findHtml(">*")%>',
 				'<%if(this.hasArrow){%>',
 					'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情">',
 						'<span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span>',
@@ -2078,27 +2083,75 @@ function(AC){
 	return Vcard;
 	
 });/**
- * 列表类
+ * 列表视图
  * @author 郑银辉(zhengyinhui100@gmail.com)
- * @created 2014-02-06
  */
 
-$Define('C.List',
-['C.AbstractComponent',
-'C.ControlGroup'],
-function(AC,ControlGroup){
+$Define("C.ModelList",
+'C.AbstractComponent',
+function(AC){
 	
-	var List=AC.define('List',ControlGroup);
+	var ModelList=AC.define('ModelList');
 	
-	List.extend({
-		cls               : 'list',
-		tmpl              : [
-			'<div>',
-				'<div class="hui-list-item">',
-				'</div>',
+	ModelList.extend({
+		emptyTips   : '空',
+		tmpl        : [
+			'<div class="hui-list">',
+				'<div id="emptyContent"<%if(this.children.length>0){%> style="display:none"<%}%> class="hui-list-empty"><%=this.emptyTips%></div>',
 			'</div>'
-		]
+		],
+		init                : fInit,               //初始化
+		addListItem         : fAddListItem,        //添加列表项
+		removeListItem      : fRemoveListItem      //删除列表项
 	});
+	/**
+	 * 初始化
+	 */
+	function fInit(){
+		var me=this;
+		var oListItems=me.model;
+		me.listenTo(oListItems,{
+			'add':function(sEvt,oListItem){
+				me.addListItem(oListItem);
+			},
+			'remove':function(sEvt,oListItem){
+				me.removeListItem(oListItem);
+			},
+			'reset':function(){
+				me.removeListItem('emptyAll');
+			}
+		});
+	}
+	/**
+	 * 添加列表项
+	 * @param {Object}oListItem 列表项模型
+	 */
+	function fAddListItem(oListItem){
+		var me=this;
+		if(me.inited){
+			me.findEl("#emptyContent").hide();
+		}
+		me.add({
+			model:oListItem
+		});
+	}
+	/**
+	 * 删除列表项
+	 * @param {Object}oListItem 列表项模型
+	 */
+	function fRemoveListItem(oListItem){
+		var me=this;
+		if(oListItem=='emptyAll'){
+			me.remove(me.children);
+		}else{
+			me.remove(function(oView){
+				return oView.model&&oView.model.id==oListItem.id;
+			});
+		}
+		if(me.children.length==0){
+			me.findEl("#emptyContent").show();
+		}
+	}
 	
-	return List;
+	return ModelList;
 });

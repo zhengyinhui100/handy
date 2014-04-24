@@ -11,9 +11,9 @@ function(AC){
 	
 	RowItem.extend({
 		//初始配置
-//		text            :'',       //文字
-//		underline       : false,   //右边下划线，文字域默认有下划线
-//		hasArrow        : false,   //右边箭头，有click事件时默认有箭头
+//		text            :'',             //文字
+//		underline       : false,         //右边下划线，文字域默认有下划线
+//		hasArrow        : false,         //右边箭头，有click事件时默认有箭头
 		cls             : 'rowitem',
 		
 		tmpl            : [
@@ -34,6 +34,10 @@ function(AC){
 	function fDoconfig(oSettings){
 		var me=this;
 		me.callSuper();
+		//空格占位符
+		if(!me.text){
+			me.text="&nbsp;";
+		}
 		//默认文字域有下划线
 		if(me.text&&me.underline==undefined){
 			me.underline=true;

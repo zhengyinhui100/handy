@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-14 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-24 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -51,7 +51,7 @@
 			args.push(handy);
 			var oModule=fDefined.apply(window,args);
 			handy.base[sName]=handy[sName]=oModule;
-			if('Browser,Class,Array,Cookie,Date,Events,Function,Json,Object,String,Template,Util'.indexOf(sName)>=0){
+			if('Browser,Class,Array,Geo,Cookie,Date,Events,Function,Json,Object,String,Template,Util'.indexOf(sName)>=0){
 				for(var key in oModule){
 					//!Function[key]专为bind方法
 					if(handy.isDebug&&typeof handy[key]!="undefined"&&('console' in window)&&!Function[key]){
@@ -1288,8 +1288,9 @@ handy.add('Function',function($H){
 	function fBind(fFunc,oScope,args) {
 		var aBindArgs = Array.prototype.slice.call(arguments,2);
 		return function() {
-			Array.prototype.push.apply(aBindArgs, arguments);
-			return fFunc.apply(oScope, aBindArgs);
+			var aArgs=aBindArgs.slice();
+			Array.prototype.push.apply(aArgs, arguments);
+			return fFunc.apply(oScope, aArgs);
 		};
 	}
 	/**
@@ -2389,13 +2390,16 @@ handy.add('Date',function(){
 	/**
 	 * 计算距离现在多久了
 	 * @param {Date}oTime 参数时间
-	 * @param {boolean=}bFormat 仅当true进行格式化：小于60分钟的单位是分钟，
+	 * @param {boolean=}bFormat 仅当false时不进行格式化：小于60分钟的单位是分钟，
 	 * 					小于一天的单位是小时，小于30天的单位是天，大于30天返回"30天前"
 	 */
 	function fHowLong(oTime,bFormat){
+		if(!oTime){
+			return;
+		}
 		var oNow=Date.now();
 		var time=oNow.getTime()-oTime.getTime();
-		if(bFormat){
+		if(bFormat!=false){
 			var sUnit;
 			if((time=time/(1000*60))<60){
 				sUnit='分钟'; 
@@ -2707,7 +2711,6 @@ handy.add('Util','B.Object',function(Object,$H){
 		getUuid          : fGetUuid,   //获取handy内部uuid
 		getHash          : fGetHash,   //获取hash，不包括“？”开头的query部分
 		setHash          : fSetHash,   //设置hash，不改变“？”开头的query部分
-		distance         : fDistance,  //计算两点距离(单位为km，保留两位小数)
 		result           : fResult     //如果对象中的指定属性是函数, 则调用它, 否则, 返回它
 	}
 	
@@ -2750,62 +2753,6 @@ handy.add('Util','B.Object',function(Object,$H){
 			sHash=sOrgHash.replace(/#[^\?]*/,sHash);
 		}
 		top.location.hash=sHash;
-	}
-	/**
-	 * 计算两点距离(单位为km，保留两位小数)
-	 * @param {Object|Array|Model}oCoord1 参数坐标1
-	 * 				Object类型{
-	 * 					{number}latitude:纬度,
-	 * 					{number}longitude:经度
-	 * 				}
-	 * 				Array类型[{number}latitude,{number}longitude]
-	 * 				Model类型，包含latitude和longitude属性
-	 * @param {Object|Array}oCoord2 参数坐标2
-	 * @param {boolean=}bFormat 仅当true进行格式化：单位是km(取两位小数)，如：32120->3.21km
-	 * @return {number} 返回两点间的距离
-	 */
-	function fDistance(oCoord1,oCoord2,bFormat){
-		/** 
-         * 求某个经纬度的值的角度值 
-         * @param {Object} degree 
-         */  
-        function _fRad(nDegree){  
-            return nDegree*Math.PI/180;  
-        }
-        /**
-         * 格式化输入数据，返回数组形式
-         */
-        function _fFormatData(oCoord){
-        	if(oCoord.get){
-	        	oCoord=[oCoord.get("latitude"),oCoord.get("longitude")];
-	        }else if($H.isObj(oCoord)){
-	        	oCoord=[oCoord.latitude,oCoord.longitude];
-	        }
-	        return oCoord;
-        }
-        var EARTH_RADIUS = 6378.137,nLat1,nLng1,nLat2,nLng2;
-        oCoord1=_fFormatData(oCoord1);
-    	nLat1=oCoord1[0];
-        nLng1=oCoord1[1];
-        oCoord2=_fFormatData(oCoord2);
-        nLat2=oCoord2[0];
-        nLng2=oCoord2[1];
-        var nRadLat1 = _fRad(nLat1);
-	    var nRadLat2 = _fRad(nLat2);
-	    var nRadLatDif = nRadLat1 - nRadLat2;
-	    var nRadLngDif = _fRad(nLng1) - _fRad(nLng2);
-	    var nDistance = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(nRadLatDif/2),2) +
-	     	Math.cos(nRadLat1)*Math.cos(nRadLat2)*Math.pow(Math.sin(nRadLngDif/2),2)));
-	    nDistance = nDistance * EARTH_RADIUS;
-	    nDistance = Math.round(nDistance * 10000);
-	    nDistance=(nDistance/1000).toFixed(2);
-	    if(bFormat){
-	    	if(isNaN(nDistance)){
-	    		return '未知';
-	    	}
-	    	nDistance+='km';
-	    }
-	    return nDistance;
 	}
 	/**
 	 * 如果对象中的指定属性是函数, 则调用它, 否则, 返回它
@@ -3191,6 +3138,74 @@ handy.add('Array','B.Object',function(Object,$H){
     }
 	
 	return Arr;
+	
+});/**
+ * 地理类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+handy.add('Geo',function($H){
+	
+	var Geo={
+		distance         : fDistance          //计算两点距离(单位为km，保留两位小数)
+	}
+	
+	/**
+	 * 计算两点距离(单位为km，保留两位小数)
+	 * @param {Object|Array|Model}oCoord1 参数坐标1
+	 * 				Object类型{
+	 * 					{number}latitude:纬度,
+	 * 					{number}longitude:经度
+	 * 				}
+	 * 				Array类型[{number}latitude,{number}longitude]
+	 * 				Model类型，包含latitude和longitude属性
+	 * @param {Object|Array}oCoord2 参数坐标2
+	 * @param {boolean=}bFormat 仅当false时不进行格式化：单位是km(取两位小数)，如：32120->3.21km
+	 * @return {number} 返回两点间的距离
+	 */
+	function fDistance(oCoord1,oCoord2,bFormat){
+		/** 
+         * 求某个经纬度的值的角度值 
+         * @param {Object} degree 
+         */  
+        function _fRad(nDegree){  
+            return nDegree*Math.PI/180;  
+        }
+        /**
+         * 格式化输入数据，返回数组形式
+         */
+        function _fFormatData(oCoord){
+        	if(oCoord.get){
+	        	oCoord=[oCoord.get("latitude"),oCoord.get("longitude")];
+	        }else if($H.isObj(oCoord)){
+	        	oCoord=[oCoord.latitude,oCoord.longitude];
+	        }
+	        return oCoord;
+        }
+        var EARTH_RADIUS = 6371,nLat1,nLng1,nLat2,nLng2;
+        oCoord1=_fFormatData(oCoord1);
+    	nLat1=oCoord1[0];
+        nLng1=oCoord1[1];
+        oCoord2=_fFormatData(oCoord2);
+        nLat2=oCoord2[0];
+        nLng2=oCoord2[1];
+        var nRadLat1 = _fRad(nLat1);
+	    var nRadLat2 = _fRad(nLat2);
+	    var nDistance = EARTH_RADIUS
+						* Math.acos(Math.cos(nRadLat2) * Math.cos(nRadLat1)
+						* Math.cos(_fRad(nLng1) - _fRad(nLng2))
+						+ Math.sin(nRadLat2)
+						* Math.sin(nRadLat1));
+	    nDistance=nDistance.toFixed(2);
+	    if(bFormat!=false){
+	    	if(isNaN(nDistance)){
+	    		return '未知';
+	    	}
+	    	nDistance+='km';
+	    }
+	    return nDistance;
+	}
+	
+	return Geo;
 	
 });/**
  * 模板类

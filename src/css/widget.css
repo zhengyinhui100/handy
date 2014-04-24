@@ -1098,6 +1098,16 @@
   overflow: hidden;
   word-break: break-all;
 }
+.hui-list .hui-list-empty {
+  text-align: center;
+  padding: 2em 0;
+}
+.hui-list .hui-list-more {
+  text-align: center;
+}
+.hui-list .hui-list-more .hui-btn {
+  width: 150px;
+}
 .hui-list .hui-list-item {
   position: relative;
   border-bottom: 1px solid #d5d6d7;

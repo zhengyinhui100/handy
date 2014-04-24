@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-14 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-24 | zhengyinhui100@gmail.com */
 /**
  * 抽象事件类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -93,9 +93,9 @@ function(){
 	var DataStore=$H.createClass();
 	
 	$H.extend(DataStore.prototype,{
-		get            : fGet,
+		get            : fGet,       //获取数据
 //		find           : fFind,
-		push           : fPush
+		push           : fPush       //放入仓库
 	});
 	//缓存池
 	var _cache={
@@ -452,7 +452,7 @@ function(ViewManager,AbstractEvents,Template){
 		_placeholder        : '<script id="" type="text/x-placeholder"></script>',        //占位符标签
 		
 		//配置
-//		renderTo            : null,              //渲染节点
+//		renderTo            : null,              //渲染节点或选择器，可以是函数，调用上下文为本视图对象，如果选择器字符以">"开头，表示在父视图内查找节点
 //		defItem             : null,              //默认子视图配置
 //		hidden              : false,             //是否隐藏
 //		delayShow           : false,             //是否延迟显示，主要用于弹出层
@@ -559,6 +559,7 @@ function(ViewManager,AbstractEvents,Template){
 		//更新、销毁
 		beforeUpdate        : fBeforeUpdate,     //更新前工作
 		update              : fUpdate,           //更新
+		replace             : fReplace,          //替换视图
 		afterUpdate         : fAfterUpdate,      //更新后工作
 		beforeDestroy       : fBeforeDestroy,    //销毁前工作
 		destroy             : fDestroy,          //销毁
@@ -615,9 +616,9 @@ function(ViewManager,AbstractEvents,Template){
 			aArgs=$H.toArray(aArgs,2);
 		}
 		if($H.isArr(aParams)){
-			for(var i=0,len=aParams.length;i<len;i++){
-				oOwner[sMethod].apply(me,[aParams[i]].concat(aArgs));
-			}
+			$H.each(aParams,function(i,oItem){
+				oOwner[sMethod].apply(me,[oItem].concat(aArgs));
+			});
 			return true;
 		}
 		return false;
@@ -690,6 +691,7 @@ function(ViewManager,AbstractEvents,Template){
 			//默认事件，可通过参数属性直接添加
 			var bIsCustEvt=$H.contains(me._customEvents,p);
 			var bIsDefEvt=$H.contains(me._defaultEvents,p);
+			
 			if(bIsDefEvt){
 				me.listeners.push({
 					name:p,
@@ -718,8 +720,16 @@ function(ViewManager,AbstractEvents,Template){
 				return true;
 			}
 		}});
-		if(oParams.renderTo){
-			me.renderTo=$(oParams.renderTo);
+		var renderTo;
+		if(renderTo=oParams.renderTo){
+			if($H.isFunc(renderTo)){
+				renderTo=renderTo.call(me);
+			}else if($H.isStr(renderTo)&&renderTo.indexOf('>')==0){
+				renderTo=me.parent.findEl(renderTo.substring(1));
+			}else{
+				renderTo=$(renderTo);
+			}
+			me.renderTo=renderTo;
 		}else{
 			me.renderTo=$(document.body);
 		}
@@ -1028,6 +1038,11 @@ function(ViewManager,AbstractEvents,Template){
 		if(me._parseListenEvents('listen',oEvent)){
 			return;
 		}
+		//没有初始化事件，直接放入队列中
+		if(!me.listened){
+			me.listeners.push(oEvent);
+			return;
+		}
 		var sName=oEvent.name,
 			context=oEvent.context,
 			nTimes=oEvent.times,
@@ -1262,12 +1277,13 @@ function(ViewManager,AbstractEvents,Template){
 	/**
 	 * 查找子元素或子视图
 	 * @method find
-	 * @param {number|string|Function(View)}sel 数字表示子组件索引，
+	 * @param {number|string|Function(View)|Class}sel 数字表示子组件索引，
 	 * 				如果是字符串：多个选择器间用","隔开('sel1,sel2,...')，语法类似jQuery，
 	 * 				如：'xtype[attr=value]'、'ancestor descendant'、'parent>child'，
 	 * 				'#'表示cid，如'#btn'，表示cid为btn的视图
 	 * 				'>Button'表示仅查找当前子节点中的按钮，'Button'表示查找所有后代节点中的按钮，
-	 * 				如果是函数(参数是当前匹配的视图对象)，则将返回true的结果加入结果集
+	 * 				如果是函数(参数是当前匹配的视图对象)，则将返回true的结果加入结果集，
+	 * 				如果是类，查找该类的实例
 	 * @param {Array=}aResult 用于存储结果集的数组
 	 * @return {Array} 返回匹配的结果，如果没找到匹配的子视图则返回空数组，ps:只有一个结果也返回数组，便于统一接口
 	 */
@@ -1312,9 +1328,10 @@ function(ViewManager,AbstractEvents,Template){
 				}
 			});
 		}else if($H.isFunc(sel)){
+			var bIsClass=$H.isClass(sel);
 			//匹配子视图
 			me.each(function(i,oChild){
-				if(sel(oChild)){
+				if((bIsClass&&oChild instanceof sel)||(!bIsClass&&sel(oChild))){
 					aResult.push(oChild);
 				}
 				oChild.find(sel,aResult);
@@ -1515,21 +1532,31 @@ function(ViewManager,AbstractEvents,Template){
 	/**
 	 * 更新
 	 * @param {Object}oOptions
+	 * @param {boolean=}bNewConfig 仅当为true时，表示全新的配置，否则，从当前组件初始配置里扩展配置
 	 * @return {boolean|Object} 更新失败返回false，成功则返回更新后的视图对象
 	 */
-	function fUpdate(oOptions){
+	function fUpdate(oOptions,bNewConfig){
 		var me=this;
 		if(me.beforeUpdate()==false){
 			return false;
 		}
+		oOptions=oOptions||{};
 		var oParent=me.parent;
 		var oPlaceholder=$('<span></span>').insertBefore(me.getEl());
+		
+		if(!bNewConfig){
+			//由于子组件的初始配置都是autoRender=false，这里需要特殊处理下
+			if(oOptions.autoRender==undefined){
+				oOptions.autoRender=true;
+			}
+			oOptions=$H.extend(oOptions,me.initParam,{notCover:true});
+		}
 		//cid不同
-		oOptions=$H.extend(oOptions||me.initParam,{
+		oOptions=$H.extend(oOptions,{
 			xtype:me.xtype,
 			renderBy:'replaceWith',
 			renderTo:oPlaceholder
-		});
+		},{notCover:['xtype']});
 		//不需要改变id/cid
 		if(!oOptions.cid||oOptions.cid==me.cid){
 			oOptions._id=me._id;
@@ -1552,6 +1579,14 @@ function(ViewManager,AbstractEvents,Template){
 		me.trigger('update',oNew);
 		me.afterUpdate(oNew);
 		return oNew;
+	}
+	/**
+	 * 替换视图
+	 * @param {Object}oConfig 配置项
+	 * @return {boolean|Object} 更新失败返回false，成功则返回更新后的视图对象
+	 */
+	function fReplace(oConfig){
+		return this.update(oConfig,true);
 	}
 	/**
 	 * 更新后工作
@@ -1647,8 +1682,8 @@ function(AbstractDao,AbstractEvents){
 //		_changing             : false,               //是否正在改变，但未保存
 		_pending              : false,               //
 //		_previousAttributes   : {},                  //较早的值
-//		_attributes            : {},                 //属性对象
-//    	_changed               : {},                 //改变了的值
+//		_attributes           : {},                 //属性对象
+//    	_changed              : {},                 //改变了的值
 //	    validationError       : {},                  //校验错误的值
         
         
@@ -1710,7 +1745,7 @@ function(AbstractDao,AbstractEvents){
 			if(aDeps=oField.depends){
 				for(var i=0;i<aDeps.length;i++){
 			    	//当依赖属性变化时，设置计算属性
-					me.on('change:'+aDeps[i],$H.bind(me.set,me,key));
+					me.on('change:'+aDeps[i],$H.bind(me.set,me,key,null,null));
 				}
 			}
 	    }
@@ -1916,8 +1951,6 @@ function(AbstractDao,AbstractEvents){
 	        }
 	    }
 	
-	  // You might be wondering why there's a `while` loop here. Changes can
-	  // be recursively nested within `"change"` events.
 	    if (bChanging){
 	    	return me;
 	    }
@@ -2018,13 +2051,19 @@ function(AbstractDao,AbstractEvents){
         if (oOptions.parse === void 0) {
         	oOptions.parse = true;
         }
-        var success = oOptions.success;
+        var fSuccess = oOptions.success;
+        var fBeforeSet = oOptions.beforeSet;
         oOptions.success = function(resp) {
+        	if (fBeforeSet){
+        		if(fBeforeSet(me, resp, oOptions)==false){
+        			return;
+        		}
+        	}
         	if (!me.set(me.parse(resp, oOptions), oOptions)){
         		return false;
         	}
-        	if (success){
-        		success(me, resp, oOptions);
+        	if (fSuccess){
+        		fSuccess(me, resp, oOptions);
         	}
         	me.trigger('sync', me, resp, oOptions);
         };
@@ -2188,7 +2227,7 @@ function(AbstractDao,AbstractEvents){
 	 */
     function fIsNew() {
     	var me=this;
-        return !me.has(me.idAttribute);
+        return me.id==undefined;
     }
 	/**
 	 * 校验当前是否是合法的状态
@@ -2235,6 +2274,7 @@ function(AbstractDao,AbstractEvents,Model){
 		add                    : fAdd,                //添加模型
 		remove                 : fRemove,             //移除模型
 		set                    : fSet,                //设置模型
+		each                   : fEach,               //遍历集合
 		reset                  : fReset,              //重置模型，此方法不会触发add、remove等事件，只会触发reset事件
 		push                   : fPush,               //添加到集合最后
 		pop                    : fPop,                //取出集合最后一个模型
@@ -2304,6 +2344,7 @@ function(AbstractDao,AbstractEvents,Model){
         //如果数据仓库里已经存在，直接使用
         var oModel=$S.get(me.model.$ns,{id:oOptions.id});
         if(oModel=oModel&&oModel[0]){
+        	oModel.set(oAttrs,oOptions);
         	return oModel;
         }
         
@@ -2468,6 +2509,9 @@ function(AbstractDao,AbstractEvents,Model){
 	 */
     function fSet(models, oOptions) {
     	var me=this;
+    	if(!models){
+    		return;
+    	}
     	oOptions = $H.extend({
     		add: true,
     		remove: true,
@@ -2592,6 +2636,13 @@ function(AbstractDao,AbstractEvents,Model){
         //返回被设置的模型，如果是数组，返回第一个元素
         return bSingular ? aModels[0] : aModels;
     }
+    /**
+     * 遍历集合
+     * @param {function}fCall(nIndex,oModel) 回调函数
+     */
+    function fEach(fCall){
+    	$H.each(this._models,fCall);
+    }
 	/**
 	 * 重置模型，此方法不会触发add、remove等事件，只会触发reset事件
 	 * @param 同"set"方法
@@ -2605,7 +2656,9 @@ function(AbstractDao,AbstractEvents,Model){
         }
         oOptions.previousModels = me._models;
         me._reset();
-        models = me.add(models, $H.extend({silent: true}, oOptions));
+        if(models){
+	        models = me.add(models, $H.extend({silent: true}, oOptions));
+        }
         if (!oOptions.silent){
         	me.trigger('reset', me, oOptions);
         }
@@ -2771,12 +2824,18 @@ function(AbstractDao,AbstractEvents,Model){
         if (oOptions.parse === void 0){
         	oOptions.parse = true;
         }
-        var success = oOptions.success;
+        var fSuccess = oOptions.success;
+        var fBeforeSet = oOptions.beforeSet;
         oOptions.success = function(resp) {
-        	var method = oOptions.reset ? 'reset' : 'set';
+        	if (fBeforeSet){
+        		if(fBeforeSet(me, resp, oOptions)==false){
+        			return;
+        		}
+        	}
+        	var method = oOptions.reset ? 'reset' : oOptions.add?'add':'set';
         	me[method](resp, oOptions);
-        	if (success){
-        		success(me, resp, oOptions);
+        	if (fSuccess){
+        		fSuccess(me, resp, oOptions);
         	}
         	me.trigger('sync', me, resp, oOptions);
         };

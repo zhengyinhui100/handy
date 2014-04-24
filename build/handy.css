@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-14 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-04-24 | zhengyinhui100@gmail.com */
 html,
 body,
 div,
@@ -2135,6 +2135,16 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   word-wrap: break-word;
   overflow: hidden;
   word-break: break-all;
+}
+.hui-list .hui-list-empty {
+  text-align: center;
+  padding: 2em 0;
+}
+.hui-list .hui-list-more {
+  text-align: center;
+}
+.hui-list .hui-list-more .hui-btn {
+  width: 150px;
 }
 .hui-list .hui-list-item {
   position: relative;

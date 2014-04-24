@@ -8,9 +8,9 @@ function(){
 	var DataStore=$H.createClass();
 	
 	$H.extend(DataStore.prototype,{
-		get            : fGet,
+		get            : fGet,       //获取数据
 //		find           : fFind,
-		push           : fPush
+		push           : fPush       //放入仓库
 	});
 	//缓存池
 	var _cache={

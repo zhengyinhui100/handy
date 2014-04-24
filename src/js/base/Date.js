@@ -185,13 +185,16 @@ handy.add('Date',function(){
 	/**
 	 * 计算距离现在多久了
 	 * @param {Date}oTime 参数时间
-	 * @param {boolean=}bFormat 仅当true进行格式化：小于60分钟的单位是分钟，
+	 * @param {boolean=}bFormat 仅当false时不进行格式化：小于60分钟的单位是分钟，
 	 * 					小于一天的单位是小时，小于30天的单位是天，大于30天返回"30天前"
 	 */
 	function fHowLong(oTime,bFormat){
+		if(!oTime){
+			return;
+		}
 		var oNow=Date.now();
 		var time=oNow.getTime()-oTime.getTime();
-		if(bFormat){
+		if(bFormat!=false){
 			var sUnit;
 			if((time=time/(1000*60))<60){
 				sUnit='分钟'; 

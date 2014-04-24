@@ -9,7 +9,6 @@ handy.add('Util','B.Object',function(Object,$H){
 		getUuid          : fGetUuid,   //获取handy内部uuid
 		getHash          : fGetHash,   //获取hash，不包括“？”开头的query部分
 		setHash          : fSetHash,   //设置hash，不改变“？”开头的query部分
-		distance         : fDistance,  //计算两点距离(单位为km，保留两位小数)
 		result           : fResult     //如果对象中的指定属性是函数, 则调用它, 否则, 返回它
 	}
 	
@@ -52,62 +51,6 @@ handy.add('Util','B.Object',function(Object,$H){
 			sHash=sOrgHash.replace(/#[^\?]*/,sHash);
 		}
 		top.location.hash=sHash;
-	}
-	/**
-	 * 计算两点距离(单位为km，保留两位小数)
-	 * @param {Object|Array|Model}oCoord1 参数坐标1
-	 * 				Object类型{
-	 * 					{number}latitude:纬度,
-	 * 					{number}longitude:经度
-	 * 				}
-	 * 				Array类型[{number}latitude,{number}longitude]
-	 * 				Model类型，包含latitude和longitude属性
-	 * @param {Object|Array}oCoord2 参数坐标2
-	 * @param {boolean=}bFormat 仅当true进行格式化：单位是km(取两位小数)，如：32120->3.21km
-	 * @return {number} 返回两点间的距离
-	 */
-	function fDistance(oCoord1,oCoord2,bFormat){
-		/** 
-         * 求某个经纬度的值的角度值 
-         * @param {Object} degree 
-         */  
-        function _fRad(nDegree){  
-            return nDegree*Math.PI/180;  
-        }
-        /**
-         * 格式化输入数据，返回数组形式
-         */
-        function _fFormatData(oCoord){
-        	if(oCoord.get){
-	        	oCoord=[oCoord.get("latitude"),oCoord.get("longitude")];
-	        }else if($H.isObj(oCoord)){
-	        	oCoord=[oCoord.latitude,oCoord.longitude];
-	        }
-	        return oCoord;
-        }
-        var EARTH_RADIUS = 6378.137,nLat1,nLng1,nLat2,nLng2;
-        oCoord1=_fFormatData(oCoord1);
-    	nLat1=oCoord1[0];
-        nLng1=oCoord1[1];
-        oCoord2=_fFormatData(oCoord2);
-        nLat2=oCoord2[0];
-        nLng2=oCoord2[1];
-        var nRadLat1 = _fRad(nLat1);
-	    var nRadLat2 = _fRad(nLat2);
-	    var nRadLatDif = nRadLat1 - nRadLat2;
-	    var nRadLngDif = _fRad(nLng1) - _fRad(nLng2);
-	    var nDistance = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(nRadLatDif/2),2) +
-	     	Math.cos(nRadLat1)*Math.cos(nRadLat2)*Math.pow(Math.sin(nRadLngDif/2),2)));
-	    nDistance = nDistance * EARTH_RADIUS;
-	    nDistance = Math.round(nDistance * 10000);
-	    nDistance=(nDistance/1000).toFixed(2);
-	    if(bFormat){
-	    	if(isNaN(nDistance)){
-	    		return '未知';
-	    	}
-	    	nDistance+='km';
-	    }
-	    return nDistance;
 	}
 	/**
 	 * 如果对象中的指定属性是函数, 则调用它, 否则, 返回它
