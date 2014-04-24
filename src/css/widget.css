@@ -985,6 +985,9 @@
 .hui-tips .hui-tips-txt {
   font-weight: bold;
 }
+.hui-tips.hui-mini {
+  padding: .2em .5em;
+}
 .hui-tips-notxt {
   padding: 0;
 }

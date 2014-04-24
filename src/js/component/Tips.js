@@ -25,9 +25,31 @@ function(AC,Popup,ControlGroup){
 				'<%=this.findHtml(">*")%>',
 				'<%if(this.text){%><span class="hui-tips-txt"><%=this.text%></span><%}%>',
 			'</div>'
-		]
+		],
+		doConfig        : fDoConfig     //初始化配置
 		
 	});
+	
+	/**
+	 * 初始化配置
+	 * @param {Object}oSettings 设置项
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		//顶部提示默认配置
+		if(oSettings.showPos=='top'){
+			$H.extend(me,{
+				isMini:true
+			},{noCover:true});
+			if(oSettings.icon=='loading-mini'){
+				$H.extend(me,{
+					shadowOverlay:null,
+					theme:null
+				},{noCover:true});
+			}
+		}
+		me.callSuper();
+	}
 	
 	return Tips;
 	

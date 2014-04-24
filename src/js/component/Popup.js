@@ -31,6 +31,7 @@ function(AC){
 		doConfig         : fDoConfig,        //初始化配置
 		afterShow        : fAfterShow,       //显示
 		hide             : fHide,            //隐藏
+		top              : fTop,             //顶部显示
 		center           : fCenter,          //居中显示
 		followEl         : fFollowEl,        //根据指定节点显示
 		mask             : fMask,            //显示遮罩层
@@ -131,6 +132,18 @@ function(AC){
 				me.destroy();
 			}
 		}
+	}
+	/**
+	 * 顶部显示
+	 */
+	function fTop(){
+		var me=this;
+		var oEl=me.getEl();
+		oEl.css({
+			left: "100px",
+			top:"8px",
+			position:'fixed'
+		});
 	}
 	/**
 	 * 居中显示

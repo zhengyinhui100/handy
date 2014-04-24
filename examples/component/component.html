@@ -695,6 +695,29 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Select,In
 		})
 		new Button({
 			renderTo:'#tipsDv',
+			text:'顶部提示',
+			click:function(){
+				new Tips({
+					text:'提示',
+					showPos:'top',
+					timeout:null,
+					theme:'error'
+				})
+			}
+		})
+		new Button({
+			renderTo:'#tipsDv',
+			text:'顶部loading提示',
+			click:function(){
+				new Tips({
+					showPos:'top',
+					timeout:null,
+					icon:'loading-mini'
+				})
+			}
+		})
+		new Button({
+			renderTo:'#tipsDv',
 			text:'loading提示',
 			click:function(){
 				new Tips({
