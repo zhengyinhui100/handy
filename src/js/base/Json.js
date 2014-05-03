@@ -75,66 +75,68 @@ handy.add('Json',function($H){
         }
 
         switch (typeof value) {
-        case 'string':
-            return _fQuote(value);
-        case 'number':
-        	//无穷大的数字转换为null
-            return isFinite(value) ? String(value) : 'null';
-        case 'boolean':
-        case 'null':
-        	//typeof null=='object'，而不是'null',这里只是为了将来可能修正的情况
-            return String(value);
-        case 'object':
-        	//value==null
-            if (!value) {
-                return 'null';
-            }
-            gap += _indent;
-            aResult = [];
-
-            if (Object.prototype.toString.apply(value) === '[object Array]') {
-                length = value.length;
-                for (i = 0; i < length; i += 1) {
-                	//对每个元素递归调用
-                    aResult[i] = _fToString(i, value) || 'null';
-                }
-                val = aResult.length === 0? '[]'
-                    : gap? '[\n' + gap + aResult.join(',\n' + gap) + '\n' + mind + ']'
-                    : '[' + aResult.join(',') + ']';
-                gap = mind;
-                return val;
-            }
-
-			//如果替换参数是数组，只检出此数组中包含的key
-            if (_replacer && typeof _replacer === 'object') {
-                length = _replacer.length;
-                for (i = 0; i < length; i += 1) {
-                    if (typeof _replacer[i] === 'string') {
-                        k = _replacer[i];
-                        val = _fToString(k, value);
-                        if (val) {
-                            aResult.push(_fQuote(k) + (gap ? ': ' : ':') + val);
-                        }
-                    }
-                }
-            } else {
-                for (k in value) {
-                    if (Object.prototype.hasOwnProperty.call(value, k)) {
-                        val = _fToString(k, value);
-                        if (val) {
-                            aResult.push(_fQuote(k) + (gap ? ': ' : ':') + val);
-                        }
-                    }
-                }
-            }
-
-            val = aResult.length === 0
-                ? '{}'
-                : gap
-                ? '{\n' + gap + aResult.join(',\n' + gap) + '\n' + mind + '}'
-                : '{' + aResult.join(',') + '}';
-            gap = mind;
-            return val;
+	        case 'undefined':
+	            return 'undefined';
+	        case 'string':
+	            return _fQuote(value);
+	        case 'number':
+	        	//无穷大的数字转换为null
+	            return isFinite(value) ? String(value) : 'null';
+	        case 'boolean':
+	        case 'null':
+	        	//typeof null=='object'，而不是'null',这里只是为了将来可能修正的情况
+	            return String(value);
+	        case 'object':
+	        	//value==null
+	            if (!value) {
+	                return 'null';
+	            }
+	            gap += _indent;
+	            aResult = [];
+	
+	            if (Object.prototype.toString.apply(value) === '[object Array]') {
+	                length = value.length;
+	                for (i = 0; i < length; i += 1) {
+	                	//对每个元素递归调用
+	                    aResult[i] = _fToString(i, value) || 'null';
+	                }
+	                val = aResult.length === 0? '[]'
+	                    : gap? '[\n' + gap + aResult.join(',\n' + gap) + '\n' + mind + ']'
+	                    : '[' + aResult.join(',') + ']';
+	                gap = mind;
+	                return val;
+	            }
+	
+				//如果替换参数是数组，只检出此数组中包含的key
+	            if (_replacer && typeof _replacer === 'object') {
+	                length = _replacer.length;
+	                for (i = 0; i < length; i += 1) {
+	                    if (typeof _replacer[i] === 'string') {
+	                        k = _replacer[i];
+	                        val = _fToString(k, value);
+	                        if (val) {
+	                            aResult.push(_fQuote(k) + (gap ? ': ' : ':') + val);
+	                        }
+	                    }
+	                }
+	            } else {
+	                for (k in value) {
+	                    if (Object.prototype.hasOwnProperty.call(value, k)) {
+	                        val = _fToString(k, value);
+	                        if (val) {
+	                            aResult.push(_fQuote(k) + (gap ? ': ' : ':') + val);
+	                        }
+	                    }
+	                }
+	            }
+	
+	            val = aResult.length === 0
+	                ? '{}'
+	                : gap
+	                ? '{\n' + gap + aResult.join(',\n' + gap) + '\n' + mind + '}'
+	                : '{' + aResult.join(',') + '}';
+	            gap = mind;
+	            return val;
         }
     }
     /**

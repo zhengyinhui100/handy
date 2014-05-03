@@ -7,7 +7,8 @@
 $Define('CM.Collection',
 ['CM.AbstractDao',
 'CM.AbstractEvents',
-'CM.Model'],
+'CM.Model',
+'CM.DataStore'],
 function(AbstractDao,AbstractEvents,Model){
 	
 	var Collection=AbstractEvents.derive({

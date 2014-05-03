@@ -6,7 +6,8 @@
 //"handy.common.Model"
 $Define('CM.Model',
 ['CM.AbstractDao',
-'CM.AbstractEvents'],
+'CM.AbstractEvents',
+'CM.DataStore'],
 function(AbstractDao,AbstractEvents){
 	
 	var Model=AbstractEvents.derive({
