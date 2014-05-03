@@ -99,7 +99,6 @@
   padding: .4em 1em;
   min-width: .75em;
   text-overflow: ellipsis;
-  overflow: hidden;
   white-space: nowrap;
   zoom: 1;
   font-weight: 700;
@@ -703,7 +702,6 @@
   color: #333;
   text-shadow: 0 1px 0 #fff;
   background: #f9f9f9;
-  overflow: hidden;
 }
 .hui-input .hui-input-txt,
 .hui-input textarea {
@@ -984,6 +982,13 @@
 }
 .hui-tips .hui-tips-txt {
   font-weight: bold;
+}
+.hui-tips.hui-tips-inline {
+  padding: 0 .4em;
+}
+.hui-tips.hui-tips-inline .hui-tips-txt {
+  font-size: 0.8em;
+  font-weight: normal;
 }
 .hui-tips.hui-mini {
   padding: .2em .5em;
