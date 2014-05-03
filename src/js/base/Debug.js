@@ -42,31 +42,38 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 				oDebugDiv.innerHTML = [
 					'<a href="javascript:void(0)" onclick="this.parentNode.style.display=\'none\'">关闭</a>',
 					'<a href="javascript:void(0)" onclick="this.parentNode.getElementsByTagName(\'DIV\')[0].innerHTML=\'\';">清空</a>',
-					'<a href="javascript:void(0)" onclick="if(this.innerHTML==\'全屏\'){this.parentNode.style.height=\''+oDocument.body.offsetHeight+'px\';this.innerHTML=\'收起\'}else{this.parentNode.style.height=\'100px\';this.innerHTML=\'全屏\';}">全屏</a>',
+					'<a href="javascript:void(0)" onclick="if(this.innerHTML==\'全屏\'){this.parentNode.style.height=\''+oDocument.body.offsetHeight+'px\';this.innerHTML=\'收起\'}else{this.parentNode.style.height=\'100px\';this.innerHTML=\'全屏\';}">收起</a>',
 					'<a href="javascript:void(0)" onclick="var oDv=this.parentNode.getElementsByTagName(\'div\')[0];if(this.innerHTML==\'底部\'){oDv.scrollTop=oDv.scrollHeight;this.innerHTML=\'顶部\';}else{oDv.scrollTop=0;this.innerHTML=\'底部\';}">顶部</a>',
 					'<a href="javascript:void(0)" onclick="location.reload();">刷新</a>',
 					'<a href="javascript:void(0)" onclick="history.back();">后退</a>'
 				].join('&nbsp;&nbsp;&nbsp;&nbsp;')+'<div style="padding-top:5px;height:90%;overflow:auto;"></div>';
 				oDebugDiv.style.position = 'fixed';
-				oDebugDiv.style.width = (oDocument.body.offsetWidth-20)+'px';
+				oDebugDiv.style.width = '100%';
 				oDebugDiv.style.left = 0;
 				oDebugDiv.style.top = 0;
 				oDebugDiv.style.right = 0;
-				oDebugDiv.style.height = '150px';
+				oDebugDiv.style.height = '100%';
 				oDebugDiv.style.backgroundColor = '#aaa';
 				oDebugDiv.style.fontSize = '12px';
 				oDebugDiv.style.padding = '10px';
 				oDebugDiv.style.zIndex = 9999999999;
-				oDebugDiv.style.opacity=0.8;
-				oDebugDiv.style.filter="alpha(opacity=80)";
+				oDebugDiv.style.opacity=0.95;
+				oDebugDiv.style.filter="alpha(opacity=95)";
 				oDocument.body.appendChild(oDebugDiv);
 			}else{
 				oDebugDiv.style.display = 'block';
 			}
 			var oAppender=oDebugDiv.getElementsByTagName('DIV')[0];
 			//这里原生的JSON.stringify有问题(&nbsp;中最后的'p;'会丢失)，统一强制使用自定义方法
-			var sMsg=$H.Json.stringify(oVar, null, '&nbsp;&nbsp;&nbsp;&nbsp;',true).replace(/\n/g,'<br/>');
-			oAppender.innerHTML += sType+" : "+sMsg+"<br/>";
+			var sMsg=typeof oVar=='string'?oVar:$H.Json.stringify(oVar, null, '&nbsp;&nbsp;&nbsp;&nbsp;',true);
+			sMsg=sMsg.replace(/\n|\\n/g,'<br/>');
+			var sStyle;
+			if(sType=='log'){
+				sStyle='';
+			}else{
+				sStyle=' style="color:'+(sType=='error'?'red':sType=='info'?'green':'yellow');
+			}
+			oAppender.innerHTML += '<div'+sStyle+'">'+sType+":<br/>"+sMsg+"</div><br/><br/>";
 			oAppender.scrollTop=oAppender.scrollHeight;
 		}
 		//尝试获取调用位置
