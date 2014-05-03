@@ -129,9 +129,6 @@ function(Debug,Object,Function,$H){
     	eScript.type="text/javascript";
     	_fAddOnload(eScript,fCallback);
 		_eHead.appendChild(eScript);
-		if(Loader.traceLog){
-			Debug.info(_LOADER_PRE+"request:"+sUrl);
-   		}
 	}
 	/**
 	 * 获取css
@@ -158,9 +155,6 @@ function(Debug,Object,Function,$H){
     	_fAddOnload(eCssNode,fCallback);
     	//插入到皮肤css之前
     	_eHead.insertBefore(eCssNode,Loader.skinNode);
-    	if(Loader.traceLog){
-			Debug.info(_LOADER_PRE+"request:"+sUrl);
-   		}
 	}
 	/**
 	 * 为css/script资源添加onload事件，包含超时处理
@@ -198,8 +192,8 @@ function(Debug,Object,Function,$H){
 	 * @param {function()}fCallback 回调函数
 	 */
 	function _fScriptOnload(eNode, fCallback) {
-		eNode.onload = eNode.onerror = eNode.onreadystatechange = function() {
-			if (/loaded|complete|undefined/.test(eNode.readyState)) {
+		var _fCall=function() {
+		if (/loaded|complete|undefined/.test(eNode.readyState)) {
 				// 保证只运行一次回调
 				eNode.onload = eNode.onerror = eNode.onreadystatechange = null;
 //				//TODO 防止内存泄露
@@ -225,6 +219,11 @@ function(Debug,Object,Function,$H){
 				setTimeout(fCallback, 0);
 			}
 		};
+		eNode.onload  = eNode.onreadystatechange = _fCall;
+		eNode.onerror=function(){
+			Debug.error(_LOADER_PRE+'load script error:\n'+eNode.src);
+			_fCall();
+		}
 		// 注意:在opera下，当文件是404时，不会发生任何事件，回调函数会在超时的时候执行
 	}
 	/**
@@ -308,6 +307,9 @@ function(Debug,Object,Function,$H){
 					status:'loading'
 				}
 				var _fCallback=Function.bind(_fResponse,null,sId);
+	    		if(Loader.traceLog){
+					Debug.info(_LOADER_PRE+"request:\n"+sUrl);
+		   		}
 	    		if(/.css$/.test(sUrl)){
 	    			_fGetCss(sUrl,_fCallback);
 	    		}else{
@@ -331,7 +333,7 @@ function(Debug,Object,Function,$H){
     	_requestingNum--;
     	_oCache[sId].status='loaded';
     	if(Loader.traceLog){
-			Debug.info(_LOADER_PRE+"Response: "+sId);
+			Debug.info(_LOADER_PRE+"Response:\n"+sId);
    		}
     	_fExecContext();
     }
@@ -351,7 +353,7 @@ function(Debug,Object,Function,$H){
 	    		_fExecContext();
 	    		break;
 	    	}else if(i==0&&_requestingNum==0){
-	    		$D.error(_RESOURCE_NOT_FOUND+oResult.notExist);
+	    		Debug.error(_RESOURCE_NOT_FOUND+oResult.notExist);
 	    	}
    		}
     }
@@ -375,14 +377,14 @@ function(Debug,Object,Function,$H){
 			var resource;
 			if(typeof factory=="function"){
 				try{
+					if(Loader.traceLog){
+						Debug.info(_LOADER_PRE+"define:\n"+sId);
+					}
 					//考虑到传入依赖是数组，这里回调参数形式依然是数组
 					resource=factory.apply(null,arguments);
-					if(Loader.traceLog){
-						Debug.info(_LOADER_PRE+"define: "+sId);
-					}
 				}catch(e){
 					//资源定义错误
-					e.message=_LOADER_PRE+sId+":factory define error:"+e.message;
+					e.message=_LOADER_PRE+sId+":\nfactory define error:\n"+e.message;
 					Debug.error(e);
 					return;
 				}
@@ -397,7 +399,7 @@ function(Debug,Object,Function,$H){
 					resource.$ns=sId;
 				}
 			}else{
-				$D.error(_LOADER_PRE+'factory no return: '+sId);
+				Debug.error(_LOADER_PRE+'factory no return:\n'+sId);
 			}
 		});
 	}
