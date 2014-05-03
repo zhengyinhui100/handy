@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-24 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-05-02 | zhengyinhui100@gmail.com */
 /**
  * 组件管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -140,7 +140,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 			me.cls=me.xtype.toLowerCase();
 		}
 		me.extCls=me.getExtCls();
-		//图标视图快捷添加
+		//图标组件快捷添加
 		if(me.icon){
 			me.add({
 				xtype:'Icon',
@@ -324,6 +324,7 @@ function(AC){
 		doConfig         : fDoConfig,        //初始化配置
 		afterShow        : fAfterShow,       //显示
 		hide             : fHide,            //隐藏
+		top              : fTop,             //顶部显示
 		center           : fCenter,          //居中显示
 		followEl         : fFollowEl,        //根据指定节点显示
 		mask             : fMask,            //显示遮罩层
@@ -424,6 +425,18 @@ function(AC){
 				me.destroy();
 			}
 		}
+	}
+	/**
+	 * 顶部显示
+	 */
+	function fTop(){
+		var me=this;
+		var oEl=me.getEl();
+		oEl.css({
+			left: "100px",
+			top:"8px",
+			position:'fixed'
+		});
 	}
 	/**
 	 * 居中显示
@@ -1097,11 +1110,12 @@ function(AC){
 	 */
 	function fDoConfig(oSettings){
 		var me=this;
-		me.callSuper();
 		//搜索框快捷配置方式
-		if(me.type=='search'){
+		if(oSettings.type=='search'){
 			me.icon='search';
-		}else if(me.type=="textarea"){
+		}
+		me.callSuper();
+		if(me.type=="textarea"){
 			//textarea高度自适应，IE6、7、8支持propertychange事件，input被其他浏览器所支持
 			me.listeners.push({
 				name:'input propertychange',
@@ -1702,9 +1716,31 @@ function(AC,Popup,ControlGroup){
 				'<%=this.findHtml(">*")%>',
 				'<%if(this.text){%><span class="hui-tips-txt"><%=this.text%></span><%}%>',
 			'</div>'
-		]
+		],
+		doConfig        : fDoConfig     //初始化配置
 		
 	});
+	
+	/**
+	 * 初始化配置
+	 * @param {Object}oSettings 设置项
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		//顶部提示默认配置
+		if(oSettings.showPos=='top'){
+			$H.extend(me,{
+				isMini:true
+			},{noCover:true});
+			if(oSettings.icon=='loading-mini'){
+				$H.extend(me,{
+					shadowOverlay:null,
+					theme:null
+				},{noCover:true});
+			}
+		}
+		me.callSuper();
+	}
 	
 	return Tips;
 	
@@ -2083,7 +2119,7 @@ function(AC){
 	return Vcard;
 	
 });/**
- * 列表视图
+ * 模型列表
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
@@ -2094,9 +2130,11 @@ function(AC){
 	var ModelList=AC.define('ModelList');
 	
 	ModelList.extend({
-		emptyTips   : '空',
+		emptyTips   : '暂无结果',
+//		itemXtype   : '',       //子组件默认xtype
 		tmpl        : [
 			'<div class="hui-list">',
+				'<%=this.findHtml(">*")%>',
 				'<div id="emptyContent"<%if(this.children.length>0){%> style="display:none"<%}%> class="hui-list-empty"><%=this.emptyTips%></div>',
 			'</div>'
 		],
@@ -2109,7 +2147,13 @@ function(AC){
 	 */
 	function fInit(){
 		var me=this;
+		if(me.itemXtype){
+			(me.defItem||(me.defItem={})).xtype=me.itemXtype;
+		}
 		var oListItems=me.model;
+		oListItems.each(function(i,item){
+			me.addListItem(item);
+		});
 		me.listenTo(oListItems,{
 			'add':function(sEvt,oListItem){
 				me.addListItem(oListItem);
@@ -2121,6 +2165,7 @@ function(AC){
 				me.removeListItem('emptyAll');
 			}
 		});
+		console.log(me);
 	}
 	/**
 	 * 添加列表项

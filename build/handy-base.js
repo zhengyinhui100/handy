@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-24 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-05-02 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -163,66 +163,68 @@ handy.add('Json',function($H){
         }
 
         switch (typeof value) {
-        case 'string':
-            return _fQuote(value);
-        case 'number':
-        	//无穷大的数字转换为null
-            return isFinite(value) ? String(value) : 'null';
-        case 'boolean':
-        case 'null':
-        	//typeof null=='object'，而不是'null',这里只是为了将来可能修正的情况
-            return String(value);
-        case 'object':
-        	//value==null
-            if (!value) {
-                return 'null';
-            }
-            gap += _indent;
-            aResult = [];
-
-            if (Object.prototype.toString.apply(value) === '[object Array]') {
-                length = value.length;
-                for (i = 0; i < length; i += 1) {
-                	//对每个元素递归调用
-                    aResult[i] = _fToString(i, value) || 'null';
-                }
-                val = aResult.length === 0? '[]'
-                    : gap? '[\n' + gap + aResult.join(',\n' + gap) + '\n' + mind + ']'
-                    : '[' + aResult.join(',') + ']';
-                gap = mind;
-                return val;
-            }
-
-			//如果替换参数是数组，只检出此数组中包含的key
-            if (_replacer && typeof _replacer === 'object') {
-                length = _replacer.length;
-                for (i = 0; i < length; i += 1) {
-                    if (typeof _replacer[i] === 'string') {
-                        k = _replacer[i];
-                        val = _fToString(k, value);
-                        if (val) {
-                            aResult.push(_fQuote(k) + (gap ? ': ' : ':') + val);
-                        }
-                    }
-                }
-            } else {
-                for (k in value) {
-                    if (Object.prototype.hasOwnProperty.call(value, k)) {
-                        val = _fToString(k, value);
-                        if (val) {
-                            aResult.push(_fQuote(k) + (gap ? ': ' : ':') + val);
-                        }
-                    }
-                }
-            }
-
-            val = aResult.length === 0
-                ? '{}'
-                : gap
-                ? '{\n' + gap + aResult.join(',\n' + gap) + '\n' + mind + '}'
-                : '{' + aResult.join(',') + '}';
-            gap = mind;
-            return val;
+	        case 'undefined':
+	            return 'undefined';
+	        case 'string':
+	            return _fQuote(value);
+	        case 'number':
+	        	//无穷大的数字转换为null
+	            return isFinite(value) ? String(value) : 'null';
+	        case 'boolean':
+	        case 'null':
+	        	//typeof null=='object'，而不是'null',这里只是为了将来可能修正的情况
+	            return String(value);
+	        case 'object':
+	        	//value==null
+	            if (!value) {
+	                return 'null';
+	            }
+	            gap += _indent;
+	            aResult = [];
+	
+	            if (Object.prototype.toString.apply(value) === '[object Array]') {
+	                length = value.length;
+	                for (i = 0; i < length; i += 1) {
+	                	//对每个元素递归调用
+	                    aResult[i] = _fToString(i, value) || 'null';
+	                }
+	                val = aResult.length === 0? '[]'
+	                    : gap? '[\n' + gap + aResult.join(',\n' + gap) + '\n' + mind + ']'
+	                    : '[' + aResult.join(',') + ']';
+	                gap = mind;
+	                return val;
+	            }
+	
+				//如果替换参数是数组，只检出此数组中包含的key
+	            if (_replacer && typeof _replacer === 'object') {
+	                length = _replacer.length;
+	                for (i = 0; i < length; i += 1) {
+	                    if (typeof _replacer[i] === 'string') {
+	                        k = _replacer[i];
+	                        val = _fToString(k, value);
+	                        if (val) {
+	                            aResult.push(_fQuote(k) + (gap ? ': ' : ':') + val);
+	                        }
+	                    }
+	                }
+	            } else {
+	                for (k in value) {
+	                    if (Object.prototype.hasOwnProperty.call(value, k)) {
+	                        val = _fToString(k, value);
+	                        if (val) {
+	                            aResult.push(_fQuote(k) + (gap ? ': ' : ':') + val);
+	                        }
+	                    }
+	                }
+	            }
+	
+	            val = aResult.length === 0
+	                ? '{}'
+	                : gap
+	                ? '{\n' + gap + aResult.join(',\n' + gap) + '\n' + mind + '}'
+	                : '{' + aResult.join(',') + '}';
+	            gap = mind;
+	            return val;
         }
     }
     /**
@@ -1124,31 +1126,38 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 				oDebugDiv.innerHTML = [
 					'<a href="javascript:void(0)" onclick="this.parentNode.style.display=\'none\'">关闭</a>',
 					'<a href="javascript:void(0)" onclick="this.parentNode.getElementsByTagName(\'DIV\')[0].innerHTML=\'\';">清空</a>',
-					'<a href="javascript:void(0)" onclick="if(this.innerHTML==\'全屏\'){this.parentNode.style.height=\''+oDocument.body.offsetHeight+'px\';this.innerHTML=\'收起\'}else{this.parentNode.style.height=\'100px\';this.innerHTML=\'全屏\';}">全屏</a>',
+					'<a href="javascript:void(0)" onclick="if(this.innerHTML==\'全屏\'){this.parentNode.style.height=\''+oDocument.body.offsetHeight+'px\';this.innerHTML=\'收起\'}else{this.parentNode.style.height=\'100px\';this.innerHTML=\'全屏\';}">收起</a>',
 					'<a href="javascript:void(0)" onclick="var oDv=this.parentNode.getElementsByTagName(\'div\')[0];if(this.innerHTML==\'底部\'){oDv.scrollTop=oDv.scrollHeight;this.innerHTML=\'顶部\';}else{oDv.scrollTop=0;this.innerHTML=\'底部\';}">顶部</a>',
 					'<a href="javascript:void(0)" onclick="location.reload();">刷新</a>',
 					'<a href="javascript:void(0)" onclick="history.back();">后退</a>'
 				].join('&nbsp;&nbsp;&nbsp;&nbsp;')+'<div style="padding-top:5px;height:90%;overflow:auto;"></div>';
 				oDebugDiv.style.position = 'fixed';
-				oDebugDiv.style.width = (oDocument.body.offsetWidth-20)+'px';
+				oDebugDiv.style.width = '100%';
 				oDebugDiv.style.left = 0;
 				oDebugDiv.style.top = 0;
 				oDebugDiv.style.right = 0;
-				oDebugDiv.style.height = '150px';
+				oDebugDiv.style.height = '100%';
 				oDebugDiv.style.backgroundColor = '#aaa';
 				oDebugDiv.style.fontSize = '12px';
 				oDebugDiv.style.padding = '10px';
 				oDebugDiv.style.zIndex = 9999999999;
-				oDebugDiv.style.opacity=0.8;
-				oDebugDiv.style.filter="alpha(opacity=80)";
+				oDebugDiv.style.opacity=0.95;
+				oDebugDiv.style.filter="alpha(opacity=95)";
 				oDocument.body.appendChild(oDebugDiv);
 			}else{
 				oDebugDiv.style.display = 'block';
 			}
 			var oAppender=oDebugDiv.getElementsByTagName('DIV')[0];
 			//这里原生的JSON.stringify有问题(&nbsp;中最后的'p;'会丢失)，统一强制使用自定义方法
-			var sMsg=$H.Json.stringify(oVar, null, '&nbsp;&nbsp;&nbsp;&nbsp;',true).replace(/\n/g,'<br/>');
-			oAppender.innerHTML += sType+" : "+sMsg+"<br/>";
+			var sMsg=typeof oVar=='string'?oVar:$H.Json.stringify(oVar, null, '&nbsp;&nbsp;&nbsp;&nbsp;',true);
+			sMsg=sMsg.replace(/\n|\\n/g,'<br/>');
+			var sStyle;
+			if(sType=='log'){
+				sStyle='';
+			}else{
+				sStyle=' style="color:'+(sType=='error'?'red':sType=='info'?'green':'yellow');
+			}
+			oAppender.innerHTML += '<div'+sStyle+'">'+sType+":<br/>"+sMsg+"</div><br/><br/>";
 			oAppender.scrollTop=oAppender.scrollHeight;
 		}
 		//尝试获取调用位置
@@ -1601,9 +1610,6 @@ function(Debug,Object,Function,$H){
     	eScript.type="text/javascript";
     	_fAddOnload(eScript,fCallback);
 		_eHead.appendChild(eScript);
-		if(Loader.traceLog){
-			Debug.info(_LOADER_PRE+"request:"+sUrl);
-   		}
 	}
 	/**
 	 * 获取css
@@ -1630,9 +1636,6 @@ function(Debug,Object,Function,$H){
     	_fAddOnload(eCssNode,fCallback);
     	//插入到皮肤css之前
     	_eHead.insertBefore(eCssNode,Loader.skinNode);
-    	if(Loader.traceLog){
-			Debug.info(_LOADER_PRE+"request:"+sUrl);
-   		}
 	}
 	/**
 	 * 为css/script资源添加onload事件，包含超时处理
@@ -1670,8 +1673,8 @@ function(Debug,Object,Function,$H){
 	 * @param {function()}fCallback 回调函数
 	 */
 	function _fScriptOnload(eNode, fCallback) {
-		eNode.onload = eNode.onerror = eNode.onreadystatechange = function() {
-			if (/loaded|complete|undefined/.test(eNode.readyState)) {
+		var _fCall=function() {
+		if (/loaded|complete|undefined/.test(eNode.readyState)) {
 				// 保证只运行一次回调
 				eNode.onload = eNode.onerror = eNode.onreadystatechange = null;
 //				//TODO 防止内存泄露
@@ -1697,6 +1700,11 @@ function(Debug,Object,Function,$H){
 				setTimeout(fCallback, 0);
 			}
 		};
+		eNode.onload  = eNode.onreadystatechange = _fCall;
+		eNode.onerror=function(){
+			Debug.error(_LOADER_PRE+'load script error:\n'+eNode.src);
+			_fCall();
+		}
 		// 注意:在opera下，当文件是404时，不会发生任何事件，回调函数会在超时的时候执行
 	}
 	/**
@@ -1780,6 +1788,9 @@ function(Debug,Object,Function,$H){
 					status:'loading'
 				}
 				var _fCallback=Function.bind(_fResponse,null,sId);
+	    		if(Loader.traceLog){
+					Debug.info(_LOADER_PRE+"request:\n"+sUrl);
+		   		}
 	    		if(/.css$/.test(sUrl)){
 	    			_fGetCss(sUrl,_fCallback);
 	    		}else{
@@ -1803,7 +1814,7 @@ function(Debug,Object,Function,$H){
     	_requestingNum--;
     	_oCache[sId].status='loaded';
     	if(Loader.traceLog){
-			Debug.info(_LOADER_PRE+"Response: "+sId);
+			Debug.info(_LOADER_PRE+"Response:\n"+sId);
    		}
     	_fExecContext();
     }
@@ -1823,7 +1834,7 @@ function(Debug,Object,Function,$H){
 	    		_fExecContext();
 	    		break;
 	    	}else if(i==0&&_requestingNum==0){
-	    		$D.error(_RESOURCE_NOT_FOUND+oResult.notExist);
+	    		Debug.error(_RESOURCE_NOT_FOUND+oResult.notExist);
 	    	}
    		}
     }
@@ -1847,14 +1858,14 @@ function(Debug,Object,Function,$H){
 			var resource;
 			if(typeof factory=="function"){
 				try{
+					if(Loader.traceLog){
+						Debug.info(_LOADER_PRE+"define:\n"+sId);
+					}
 					//考虑到传入依赖是数组，这里回调参数形式依然是数组
 					resource=factory.apply(null,arguments);
-					if(Loader.traceLog){
-						Debug.info(_LOADER_PRE+"define: "+sId);
-					}
 				}catch(e){
 					//资源定义错误
-					e.message=_LOADER_PRE+sId+":factory define error:"+e.message;
+					e.message=_LOADER_PRE+sId+":\nfactory define error:\n"+e.message;
 					Debug.error(e);
 					return;
 				}
@@ -1869,7 +1880,7 @@ function(Debug,Object,Function,$H){
 					resource.$ns=sId;
 				}
 			}else{
-				$D.error(_LOADER_PRE+'factory no return: '+sId);
+				Debug.error(_LOADER_PRE+'factory no return:\n'+sId);
 			}
 		});
 	}

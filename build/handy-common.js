@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-04-24 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-05-02 | zhengyinhui100@gmail.com */
 /**
  * 抽象事件类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -1047,15 +1047,15 @@ function(ViewManager,AbstractEvents,Template){
 			context=oEvent.context,
 			nTimes=oEvent.times,
 			oTarget=oEvent.target,
-			bIsCustom=oEvent.custom,
+			bIsCustom=oEvent.custom||oTarget||$H.contains(me._customEvents,sName),
 			fHandler=oEvent.handler;
 		if($H.isFunc(oTarget)){
 			oTarget=oTarget.call(me);
 		}
 		//自定义事件
-		if(oTarget||bIsCustom){
+		if(bIsCustom){
 			var aArgs=$H.removeUndefined([oTarget,sName,fHandler,context,nTimes]);
-			me[bIsCustom?'on':'listenTo'].apply(me,aArgs);
+			me[oTarget?'listenTo':'on'].apply(me,aArgs);
 		}else{
 			//element事件
 			var aListeners=me._listeners,
@@ -1070,7 +1070,7 @@ function(ViewManager,AbstractEvents,Template){
 			//移动浏览器由于click可能会有延迟，这里转换为touchend事件
 			if($H.mobile()){
 				if(sName=="click"){
-					sName="touchend";
+//					sName="touchend";
 				}
 			}
 			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
@@ -1119,7 +1119,7 @@ function(ViewManager,AbstractEvents,Template){
 			//移动浏览器由于click可能会有延迟，这里转换为touchend事件
 			if($H.mobile()){
 				if(sName=="click"){
-					sName="touchend";
+//					sName="touchend";
 				}
 			}
 			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
@@ -1653,7 +1653,8 @@ function(ViewManager,AbstractEvents,Template){
 //"handy.common.Model"
 $Define('CM.Model',
 ['CM.AbstractDao',
-'CM.AbstractEvents'],
+'CM.AbstractEvents',
+'CM.DataStore'],
 function(AbstractDao,AbstractEvents){
 	
 	var Model=AbstractEvents.derive({
@@ -2248,7 +2249,8 @@ function(AbstractDao,AbstractEvents){
 $Define('CM.Collection',
 ['CM.AbstractDao',
 'CM.AbstractEvents',
-'CM.Model'],
+'CM.Model',
+'CM.DataStore'],
 function(AbstractDao,AbstractEvents,Model){
 	
 	var Collection=AbstractEvents.derive({
