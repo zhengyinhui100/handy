@@ -336,7 +336,7 @@ h3 {
 			<div class="hui-set">
 				<h1 class="hui-set-title">fieldset1:</h1>
 				<div class="hui-set-content">
-					<div class="hui-form-tips c-error">错误提示</div>
+					<div class="hui-form-tips c-txt-error">错误提示</div>
 					<div class="hui-field">
 						<label class="hui-field-left">文字：</label
 						><div class="hui-field-right hui-field-txt hui-field-underline">文文文字
@@ -595,6 +595,42 @@ h3 {
 	<!-- S 列表 -->
 	<div class="hui-list">
 		<div class="hui-list-empty">暂无活动</div>
+		<!-- S 下拉刷新，下拉class:hui-pd-pull，松开class:hui-pd-release，刷新class:hui-pd-refresh -->
+		<div class="hui-list-pulldown hui-pd-pull c-h-middle-container">
+			<div class="c-h-middle">
+				<span class="hui-icon hui-alt-icon hui-icon-arrow-d hui-light"></span>
+				<span class="hui-icon hui-alt-icon hui-icon-loading-white"></span>
+				<div class="hui-pd-txt">
+					<div>下拉可刷新</div>
+					<div class="hui-pd-comment">最后刷新时间：一分钟前</div>
+				</div>
+			</div>
+		</div>
+		<!-- E 下拉刷新 -->
+		<!-- S 松开刷新 -->
+		<div class="hui-list-pulldown hui-pd-release c-h-middle-container">
+			<div class="c-h-middle">
+				<span class="hui-icon hui-alt-icon hui-icon-arrow-d hui-light"></span>
+				<span class="hui-icon hui-alt-icon hui-icon-loading-white"></span>
+				<div class="hui-pd-txt">
+					<div>松开可刷新</div>
+					<div class="hui-pd-comment">最后刷新时间：一分钟前</div>
+				</div>
+			</div>
+		</div>
+		<!-- E 松开刷新 -->
+		<!-- S 正在刷新 -->
+		<div class="hui-list-pulldown hui-pd-refresh c-h-middle-container">
+			<div class="c-h-middle">
+				<span class="hui-icon hui-alt-icon hui-icon-arrow-d hui-light"></span>
+				<span class="hui-icon hui-alt-icon hui-icon-loading-white"></span>
+				<div class="hui-pd-txt">
+					<div>正在刷新</div>
+					<div class="hui-pd-comment">最后刷新时间：一分钟前</div>
+				</div>
+			</div>
+		</div>
+		<!-- E 正在刷新 -->
 		<!-- S 列表项：横向卡片 -->
 		<div class="hui-list-item hui-hcard">
 			<div class="hui-hcard-content">
