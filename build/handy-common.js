@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-05-02 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-05-08 | zhengyinhui100@gmail.com */
 /**
  * 抽象事件类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -1067,12 +1067,6 @@ function(ViewManager,AbstractEvents,Template){
 			if($H.isFunc(oEl)){
 				oEl=oEl.call(me);
 			}
-			//移动浏览器由于click可能会有延迟，这里转换为touchend事件
-			if($H.mobile()){
-				if(sName=="click"){
-//					sName="touchend";
-				}
-			}
 			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
 			if(sSel){
 				if(oData){
@@ -1116,12 +1110,6 @@ function(ViewManager,AbstractEvents,Template){
 				sMethod=oEvent.method=="delegate"?"undelegate":"unbind",
 				sSel=oEvent.selector,
 				fDelegation;
-			//移动浏览器由于click可能会有延迟，这里转换为touchend事件
-			if($H.mobile()){
-				if(sName=="click"){
-//					sName="touchend";
-				}
-			}
 			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
 			for(var i=me._listeners.length-1;i>=0;i--){
 				var oListener=me._listeners[i]

@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-05-02 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-05-08 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -1589,10 +1589,7 @@ function(Debug,Object,Function,$H){
     			//命名空间
     			sUrl=sId.replace(/\./g,"/")+".js";
     		}
-    		if(sUrl.indexOf('/')!=0){
-    			sUrl='/'+sUrl;
-    		}
-    		sUrl=sRoot+sUrl;
+    		sUrl=sRoot.replace(/\/$/,'')+'/'+sUrl.replace(/^\//,'');
     	}
 		return sUrl;
     }
@@ -5059,12 +5056,6 @@ function(ViewManager,AbstractEvents,Template){
 			if($H.isFunc(oEl)){
 				oEl=oEl.call(me);
 			}
-			//移动浏览器由于click可能会有延迟，这里转换为touchend事件
-			if($H.mobile()){
-				if(sName=="click"){
-//					sName="touchend";
-				}
-			}
 			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
 			if(sSel){
 				if(oData){
@@ -5108,12 +5099,6 @@ function(ViewManager,AbstractEvents,Template){
 				sMethod=oEvent.method=="delegate"?"undelegate":"unbind",
 				sSel=oEvent.selector,
 				fDelegation;
-			//移动浏览器由于click可能会有延迟，这里转换为touchend事件
-			if($H.mobile()){
-				if(sName=="click"){
-//					sName="touchend";
-				}
-			}
 			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
 			for(var i=me._listeners.length-1;i>=0;i--){
 				var oListener=me._listeners[i]
@@ -8266,7 +8251,7 @@ function(AC){
 		tmpl            : [
 			'<div>',
 				'<form action="">',
-				'<div class="hui-form-tips c-error"></div>',
+				'<div class="hui-form-tips c-txt-error"></div>',
 					'<%=this.findHtml(">*")%>',
 				'</form>',
 			'</div>'
@@ -9015,17 +9000,46 @@ function(AC){
 	var ModelList=AC.define('ModelList');
 	
 	ModelList.extend({
-		emptyTips   : '暂无结果',
-//		itemXtype   : '',       //子组件默认xtype
+		emptyTips   : '暂无结果',         //空列表提示
+		pdText      : '下拉可刷新',       //下拉刷新提示文字
+		pdComment   : '上次刷新时间：',    //下拉刷新附加说明
+//		pdTime      : '',                //上次刷新时间
+//		hasPullRefresh : false,          //是否有下拉刷新
+//		itemXtype   : '',                //子组件默认xtype
+//		refresh     : null,              //刷新接口
+//		getMore     : null,              //获取更多接口
+		
 		tmpl        : [
-			'<div class="hui-list">',
-				'<%=this.findHtml(">*")%>',
-				'<div id="emptyContent"<%if(this.children.length>0){%> style="display:none"<%}%> class="hui-list-empty"><%=this.emptyTips%></div>',
+			'<div class="hui-list s-scroll">',
+				'<div class="hui-list-inner">',
+					'<div<%if(this.children.length>0){%> style="display:none"<%}%> class="hui-list-empty js-empty"><%=this.emptyTips%></div>',
+					'<%if(this.hasPullRefresh){%>',
+						'<div class="hui-list-pulldown hui-pd-pull c-h-middle-container">',
+							'<div class="c-h-middle">',
+								'<span class="hui-icon hui-alt-icon hui-icon-arrow-d hui-light"></span>',
+								'<span class="hui-icon hui-alt-icon hui-icon-loading-white"></span>',
+								'<div class="hui-pd-txt">',
+									'<%if(this.pdText){%><div class="js-txt"><%=this.pdText%></div><%}%>',
+									'<%if(this.pdComment){%><div class="js-comment hui-pd-comment"><span class="js-pdComment"><%=this.pdComment%></span><span class="js-pdTime"><%=this.pdTime%></span></div><%}%>',
+								'</div>',
+							'</div>',
+						'</div>',
+					'<%}%>',
+					'<div class="js-item-container"><%=this.findHtml(">*")%></div>',
+					'<%if(this.hasPullRefresh){%>',
+						'<div class="hui-list-more">',
+							'<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-shadow hui-inline hui-radius-normal">',
+								'<span class="hui-btn-txt">查看更多</span>',
+							'</a>',
+						'</div>',
+					'<%}%>',
+				'</div>',
 			'</div>'
 		],
 		init                : fInit,               //初始化
 		addListItem         : fAddListItem,        //添加列表项
-		removeListItem      : fRemoveListItem      //删除列表项
+		removeListItem      : fRemoveListItem,     //删除列表项
+		destroy             : fDestroy             //销毁
 	});
 	/**
 	 * 初始化
@@ -9050,7 +9064,65 @@ function(AC){
 				me.removeListItem('emptyAll');
 			}
 		});
-		console.log(me);
+		
+		if(me.hasPullRefresh){
+			me.listeners=me.listeners.concat([{
+				name : 'afterRender',
+				handler : function(){
+					var me=this;
+					var oWrapper=me.getEl();
+					oWrapper.css({height:document.body.clientHeight-40});
+					var oPdEl=oWrapper.find('.hui-list-pulldown');
+					var oPdTxt=oPdEl.find('.js-txt');
+					var nStartY=50;
+					me.scroller= new window.iScroll(oWrapper[0], {
+						useTransition: true,
+						topOffset: nStartY,
+						onRefresh: function () {
+							if(oPdEl.hasClass('hui-pd-refresh')){
+				                oPdEl.removeClass('hui-pd-refresh hui-pd-release');  
+				                oPdTxt.html('下拉可刷新');  
+							}
+						},
+						onScrollMove: function () {
+							if (this.y > 5 && !oPdEl.hasClass('hui-pd-release')) {  
+				                oPdEl.addClass('hui-pd-release');  
+				                oPdTxt.html('松开可刷新');  
+								this.minScrollY = 0;
+				            } else if (this.y < 5 && oPdEl.hasClass('hui-pd-release')) {  
+				                oPdEl.removeClass('hui-pd-release');;  
+				                oPdTxt.html('下拉可刷新'); 
+								this.minScrollY = -nStartY;
+				            } 
+						},
+						onScrollEnd: function () {
+							if (oPdEl.hasClass('hui-pd-release')) {  
+				                oPdEl.addClass('hui-pd-refresh');  
+				                oPdTxt.html('正在刷新'); 
+				                me.refresh();
+				            }
+						}
+					});
+					
+					//同步数据后需要刷新
+					me.listenTo(me.model,'sync',function(){
+						setTimeout(function(){
+							//仅在页面显示时才刷新，否则scroller会不可用
+							if(oWrapper[0].clientHeight){
+						    	me.scroller.refresh();
+							}
+						},0);
+					});
+				}
+			},{
+				name    : 'click',
+				method : 'delegate',
+				selector : '.hui-list-more',
+				handler : function(){
+					me.getMore();
+				}
+			}]);
+		}
 	}
 	/**
 	 * 添加列表项
@@ -9059,10 +9131,11 @@ function(AC){
 	function fAddListItem(oListItem){
 		var me=this;
 		if(me.inited){
-			me.findEl("#emptyContent").hide();
+			me.findEl(".js-empty").hide();
 		}
 		me.add({
-			model:oListItem
+			model:oListItem,
+			renderTo:'>.js-item-container'
 		});
 	}
 	/**
@@ -9079,8 +9152,17 @@ function(AC){
 			});
 		}
 		if(me.children.length==0){
-			me.findEl("#emptyContent").show();
+			me.findEl(".js-empty").show();
 		}
+	}
+	
+	function fDestroy(){
+		var me=this;
+		if(me.scroller){
+			me.scroller.destroy();
+			me.scroller=null;
+		}
+		me.callSuper();
 	}
 	
 	return ModelList;

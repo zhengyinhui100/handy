@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-05-02 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-05-08 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -1589,10 +1589,7 @@ function(Debug,Object,Function,$H){
     			//命名空间
     			sUrl=sId.replace(/\./g,"/")+".js";
     		}
-    		if(sUrl.indexOf('/')!=0){
-    			sUrl='/'+sUrl;
-    		}
-    		sUrl=sRoot+sUrl;
+    		sUrl=sRoot.replace(/\/$/,'')+'/'+sUrl.replace(/^\//,'');
     	}
 		return sUrl;
     }
