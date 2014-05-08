@@ -641,12 +641,6 @@ function(ViewManager,AbstractEvents,Template){
 			if($H.isFunc(oEl)){
 				oEl=oEl.call(me);
 			}
-			//移动浏览器由于click可能会有延迟，这里转换为touchend事件
-			if($H.mobile()){
-				if(sName=="click"){
-//					sName="touchend";
-				}
-			}
 			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
 			if(sSel){
 				if(oData){
@@ -690,12 +684,6 @@ function(ViewManager,AbstractEvents,Template){
 				sMethod=oEvent.method=="delegate"?"undelegate":"unbind",
 				sSel=oEvent.selector,
 				fDelegation;
-			//移动浏览器由于click可能会有延迟，这里转换为touchend事件
-			if($H.mobile()){
-				if(sName=="click"){
-//					sName="touchend";
-				}
-			}
 			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
 			for(var i=me._listeners.length-1;i>=0;i--){
 				var oListener=me._listeners[i]
