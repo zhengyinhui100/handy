@@ -30,28 +30,40 @@
   zoom: 1;
   *display: inline;
 }
-.c-error,
-.c-red {
+.c-txt-error,
+.c-txt-red {
   color: #c00;
 }
-.c-warn,
-.c-yellow {
+.c-txt-warn,
+.c-txt-yellow {
   color: #ffd306;
 }
-.c-default {
+.c-txt-default {
   color: #222;
 }
-.c-dimgray {
+.c-txt-dimgray {
   color: #333;
 }
-.c-dark {
+.c-txt-dark {
   color: #505050;
 }
-.c-gray {
+.c-txt-gray {
   color: #6a6a6a;
 }
-.c-light {
+.c-txt-light {
   color: #888;
+}
+.c-txt-big {
+  font-size: 1.2em;
+}
+.c-txt-def {
+  font-size: 1em;
+}
+.c-txt-little {
+  font-size: .8em;
+}
+.c-txt-mini {
+  font-size: .6em;
 }
 .c-h-middle-container {
   text-align: center;
@@ -808,6 +820,7 @@
 .hui-field .hui-field-left {
   width: 20%;
   vertical-align: middle;
+  font-size: 1em;
   color: #6a6a6a;
   display: -moz-inline-stack;
   display: inline-block;
@@ -1110,18 +1123,56 @@
   text-align: center;
   padding: 2em 0;
 }
+.hui-list .hui-list-pulldown {
+  padding: .5em 0;
+}
+.hui-list .hui-list-pulldown .hui-icon {
+  margin-top: -1em;
+}
+.hui-list .hui-list-pulldown .hui-pd-txt {
+  text-align: left;
+  display: -moz-inline-stack;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
+}
+.hui-list .hui-list-pulldown .hui-pd-comment {
+  font-size: .6em;
+  color: #888;
+}
+.hui-list .hui-list-pulldown.hui-pd-release .hui-icon {
+  -moz-transform: rotate(180deg);
+  -webkit-transform: rotate(180deg);
+  -o-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+.hui-list .hui-list-pulldown .hui-icon-arrow-d {
+  display: inline-block;
+}
+.hui-list .hui-list-pulldown .hui-icon-loading-white {
+  display: none;
+}
+.hui-list .hui-list-pulldown.hui-pd-refresh .hui-icon-arrow-d {
+  display: none;
+}
+.hui-list .hui-list-pulldown.hui-pd-refresh .hui-icon-loading-white {
+  display: inline-block;
+}
 .hui-list .hui-list-more {
   text-align: center;
+  padding-bottom: 1.5em;
 }
 .hui-list .hui-list-more .hui-btn {
+  margin-bottom: 0;
   width: 150px;
 }
 .hui-list .hui-list-item {
   position: relative;
   border-bottom: 1px solid #d5d6d7;
 }
-.hui-list .hui-list-item:hover,
-.hui-list .hui-list-item:active {
+.hui-pc .hui-list .hui-list-item:hover,
+.hui-pc .hui-list .hui-list-item:active {
   background: #f3f3f3;
 }
 .hui-hcard {

@@ -16,7 +16,7 @@ function(AC){
 		tmpl            : [
 			'<div>',
 				'<form action="">',
-				'<div class="hui-form-tips c-error"></div>',
+				'<div class="hui-form-tips c-txt-error"></div>',
 					'<%=this.findHtml(">*")%>',
 				'</form>',
 			'</div>'

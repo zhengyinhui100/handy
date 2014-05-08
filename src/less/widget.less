@@ -528,7 +528,7 @@
 }
 .hui-label{
 	&.hui-label-default{
-		.c-default();
+		.c-txt-default();
 	}
 }
 //行，有右箭头、下划线
@@ -549,7 +549,8 @@
 	.hui-field-left{
 		width:20%;
 		vertical-align:middle;
-		.c-gray();
+		font-size:1em;
+		.c-txt-gray();
 		.fn_inline_block();
 		.fn_text_overflow();
 	}
@@ -796,18 +797,53 @@
 		text-align:center;
 		padding:2em 0;
 	}
+	.hui-list-pulldown{
+		padding:.5em 0;
+		.hui-icon{
+			margin-top:-1em;
+		}
+		.hui-pd-txt{
+			text-align:left;
+			.fn_inline_block();
+		}
+		.hui-pd-comment{
+			.c-txt-mini();
+			.c-txt-light();
+		}
+		&.hui-pd-release .hui-icon{
+			.fn_transform(rotate(180deg));
+		}
+		.hui-icon-arrow-d{
+			display:inline-block;
+		}
+		.hui-icon-loading-white{
+			display:none;
+		}
+		&.hui-pd-refresh{
+			.hui-icon-arrow-d{
+				display:none;
+			}
+			.hui-icon-loading-white{
+				display:inline-block;
+			}
+		}
+	}
 	.hui-list-more{
 		text-align:center;
+		padding-bottom:1.5em;
 		.hui-btn{
+			margin-bottom:0;
 			width:150px;
 		}
 	}
 	.hui-list-item{
 		position:relative;
 		border-bottom:1px solid #d5d6d7;
-		&:hover,&:active{
-			background:#f3f3f3;
-		}
+	}
+}
+.hui-pc .hui-list .hui-list-item{
+	&:hover,&:active{
+		background:#f3f3f3;
 	}
 }
 //横向卡片

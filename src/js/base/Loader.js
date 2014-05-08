@@ -108,10 +108,7 @@ function(Debug,Object,Function,$H){
     			//命名空间
     			sUrl=sId.replace(/\./g,"/")+".js";
     		}
-    		if(sUrl.indexOf('/')!=0){
-    			sUrl='/'+sUrl;
-    		}
-    		sUrl=sRoot+sUrl;
+    		sUrl=sRoot.replace(/\/$/,'')+'/'+sUrl.replace(/^\//,'');
     	}
 		return sUrl;
     }
