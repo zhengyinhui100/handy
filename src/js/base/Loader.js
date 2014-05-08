@@ -305,7 +305,7 @@ function(Debug,Object,Function,$H){
 				}
 				var _fCallback=Function.bind(_fResponse,null,sId);
 	    		if(Loader.traceLog){
-					Debug.info(_LOADER_PRE+"request:\n"+sUrl);
+					Debug.log(_LOADER_PRE+"request:\n"+sUrl);
 		   		}
 	    		if(/.css$/.test(sUrl)){
 	    			_fGetCss(sUrl,_fCallback);
@@ -330,7 +330,7 @@ function(Debug,Object,Function,$H){
     	_requestingNum--;
     	_oCache[sId].status='loaded';
     	if(Loader.traceLog){
-			Debug.info(_LOADER_PRE+"Response:\n"+sId);
+			Debug.log(_LOADER_PRE+"Response:\n"+sId);
    		}
     	_fExecContext();
     }
@@ -375,7 +375,7 @@ function(Debug,Object,Function,$H){
 			if(typeof factory=="function"){
 				try{
 					if(Loader.traceLog){
-						Debug.info(_LOADER_PRE+"define:\n"+sId);
+						Debug.log(_LOADER_PRE+"define:\n"+sId);
 					}
 					//考虑到传入依赖是数组，这里回调参数形式依然是数组
 					resource=factory.apply(null,arguments);
@@ -431,7 +431,7 @@ function(Debug,Object,Function,$H){
 	    			});
     			}
     			if(Loader.traceLog){
-					Debug.info(_RESOURCE_NOT_FOUND+sId);
+					Debug.log(_RESOURCE_NOT_FOUND+sId);
 		   		}
     		}else{
     			aExisteds.push(oResult.exist[0]);

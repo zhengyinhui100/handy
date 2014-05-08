@@ -1,5 +1,6 @@
 /**
  * 模型列表
+ * ps:使用下拉刷新需要引入iScroll4
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
@@ -74,7 +75,8 @@ function(AC){
 				me.removeListItem('emptyAll');
 			}
 		});
-		
+		//下拉刷新
+		me.hasPullRefresh=me.hasPullRefresh&&window.iScroll;
 		if(me.hasPullRefresh){
 			me.listeners=me.listeners.concat([{
 				name : 'afterRender',
@@ -85,29 +87,31 @@ function(AC){
 					var oPdEl=oWrapper.find('.hui-list-pulldown');
 					var oPdTxt=oPdEl.find('.js-txt');
 					var nStartY=50;
+					var sRefreshCls='hui-pd-refresh';
+					var sReleaseCls='hui-pd-release';
 					me.scroller= new window.iScroll(oWrapper[0], {
 						useTransition: true,
 						topOffset: nStartY,
 						onRefresh: function () {
-							if(oPdEl.hasClass('hui-pd-refresh')){
-				                oPdEl.removeClass('hui-pd-refresh hui-pd-release');  
+							if(oPdEl.hasClass(sRefreshCls)){
+				                oPdEl.removeClass(sRefreshCls+' '+sReleaseCls);  
 				                oPdTxt.html('下拉可刷新');  
 							}
 						},
 						onScrollMove: function () {
-							if (this.y > 5 && !oPdEl.hasClass('hui-pd-release')) {  
-				                oPdEl.addClass('hui-pd-release');  
+							if (this.y > 5 && !oPdEl.hasClass(sReleaseCls)) {  
+				                oPdEl.addClass(sReleaseCls);  
 				                oPdTxt.html('松开可刷新');  
 								this.minScrollY = 0;
-				            } else if (this.y < 5 && oPdEl.hasClass('hui-pd-release')) {  
-				                oPdEl.removeClass('hui-pd-release');;  
+				            } else if (this.y < 5 && oPdEl.hasClass(sReleaseCls)) {  
+				                oPdEl.removeClass(sReleaseCls);;  
 				                oPdTxt.html('下拉可刷新'); 
 								this.minScrollY = -nStartY;
 				            } 
 						},
 						onScrollEnd: function () {
-							if (oPdEl.hasClass('hui-pd-release')) {  
-				                oPdEl.addClass('hui-pd-refresh');  
+							if (oPdEl.hasClass(sReleaseCls)) {  
+				                oPdEl.addClass(sRefreshCls);  
 				                oPdTxt.html('正在刷新'); 
 				                me.refresh();
 				            }
@@ -116,6 +120,7 @@ function(AC){
 					
 					//同步数据后需要刷新
 					me.listenTo(me.model,'sync',function(){
+						oPdEl.find('.js-pdTime').html($H.formatDate($H.now(),'HH:mm'));
 						setTimeout(function(){
 							//仅在页面显示时才刷新，否则scroller会不可用
 							if(oWrapper[0].clientHeight){

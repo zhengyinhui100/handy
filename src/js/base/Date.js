@@ -86,7 +86,7 @@ handy.add('Date',function(){
 	 */
 	function fFormatDate(oDate, sFormator) {
 		var sFormator=sFormator||'yyyy-MM-dd HH:mm:ss';
-		var oDate=oDate||new WDate();
+		var oDate=oDate;
 
 		var nHours=oDate.getHours();
 		var nQuarter=Math.floor((oDate.getMonth() + 3) / 3)
