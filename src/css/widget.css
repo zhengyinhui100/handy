@@ -68,6 +68,10 @@
 .c-h-middle-container {
   text-align: center;
 }
+.c-v-middle-container {
+  position: relative;
+  height: 100%;
+}
 .c-h-middle {
   margin-left: auto;
   margin-right: auto;
@@ -548,6 +552,34 @@
 .hui-btn-icon-notxt .hui-icon {
   margin: 3px 1px 2px 1px;
 }
+.hui-panel .hui-panel-loading {
+  position: relative;
+  height: 100%;
+}
+.hui-panel .hui-panel-loading .hui-loading-container {
+  display: -moz-inline-stack;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
+  text-align: center;
+  position: absolute;
+  top: 50%;
+  margin-top: -50px;
+  width: 100%;
+}
+.hui-panel .hui-panel-loading .hui-tips {
+  position: static;
+  display: -moz-inline-stack;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
+  margin-left: auto;
+  margin-right: auto;
+}
+.hui-panel .hui-panel-loading .hui-mask {
+  filter: alpha(opacity= 10 );
+  opacity: 0.1;
+}
 .hui-ctrlgp {
   border: 1px solid #ccc;
 }
@@ -981,10 +1013,12 @@
   z-index: 1000;
   -webkit-transform: translateZ(0);
   z-index: 99999;
-  padding: 0.8em 1.5em;
   text-align: center;
 }
-.hui-tips .hui-icon-loading {
+.hui-tips.hui-tips-big {
+  padding: 0.8em 1.5em;
+}
+.hui-tips.hui-tips-big .hui-icon-loading {
   display: block;
   width: 2.75em;
   height: 2.75em;
@@ -993,28 +1027,20 @@
   -moz-border-radius: 2.25em;
   border-radius: 2.25em;
 }
-.hui-tips .hui-tips-txt {
-  font-weight: bold;
+.hui-tips.hui-tips-big .hui-tips-txt {
+  white-space: nowrap;
 }
-.hui-tips.hui-tips-inline {
-  padding: 0 .4em;
-}
-.hui-tips.hui-tips-inline .hui-tips-txt {
-  font-size: 0.8em;
-  font-weight: normal;
-}
-.hui-tips.hui-mini {
+.hui-tips.hui-tips-mini {
   padding: .2em .5em;
+}
+.hui-tips.hui-tips-mini .hui-tips-txt {
+  font-size: 0.8em;
 }
 .hui-tips-notxt {
   padding: 0;
 }
 .hui-tips-notxt .hui-icon {
   margin: 0;
-}
-.hui-tips-notxt .hui-icon-loading {
-  filter: alpha(opacity= 18 );
-  opacity: 0.18;
 }
 .hui-tips-white {
   background: #fff;
@@ -1150,13 +1176,14 @@
 .hui-list .hui-list-pulldown .hui-icon-arrow-d {
   display: inline-block;
 }
-.hui-list .hui-list-pulldown .hui-icon-loading-white {
+.hui-list .hui-list-pulldown .hui-icon-loading-mini {
+  background-size: cover;
   display: none;
 }
 .hui-list .hui-list-pulldown.hui-pd-refresh .hui-icon-arrow-d {
   display: none;
 }
-.hui-list .hui-list-pulldown.hui-pd-refresh .hui-icon-loading-white {
+.hui-list .hui-list-pulldown.hui-pd-refresh .hui-icon-loading-mini {
   display: inline-block;
 }
 .hui-list .hui-list-more {

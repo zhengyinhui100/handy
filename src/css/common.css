@@ -68,6 +68,10 @@
 .c-h-middle-container {
   text-align: center;
 }
+.c-v-middle-container {
+  position: relative;
+  height: 100%;
+}
 .c-h-middle {
   margin-left: auto;
   margin-right: auto;

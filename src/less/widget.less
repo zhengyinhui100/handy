@@ -311,6 +311,30 @@
 	}
 }
 
+//面板
+.hui-panel{
+	.hui-panel-loading{
+		position:relative;
+		height:100%;
+		.c-v-middle-container();
+		.hui-loading-container{
+			.fn_inline_block();
+			.c-h-middle-container();
+			.c-v-middle();
+			margin-top:-50px;
+			width:100%;
+		}
+		.hui-tips{
+			position:static;
+			.fn_inline_block();
+			.c-h-middle();
+		}
+		.hui-mask{
+			.fn_opacity(0.1);
+		}
+	}
+}
+
 //控制组
 .hui-ctrlgp{
 	border: 1px solid #ccc;
@@ -695,36 +719,31 @@
 .hui-tips{
 	.hui-popup();
 	z-index:99999;
-	padding:0.8em 1.5em;
 	text-align:center;
-	.hui-icon-loading{
-		display:block;
-		width:2.75em;
-		height:2.75em;
-		margin:0 auto .625em;
-		.fn_border_radius(2.25em);
-	}
-	.hui-tips-txt{
-		font-weight:bold;
-	}
-	&.hui-tips-inline{
-		padding:0 .4em;
+	&.hui-tips-big{
+		padding:0.8em 1.5em;
+		.hui-icon-loading{
+			display:block;
+			width:2.75em;
+			height:2.75em;
+			margin:0 auto .625em;
+			.fn_border_radius(2.25em);
+		}
 		.hui-tips-txt{
-			font-size:0.8em;
-			font-weight:normal;
+			white-space:nowrap;
 		}
 	}
-	&.hui-mini{
+	&.hui-tips-mini{
 		padding:.2em .5em;
+		.hui-tips-txt{
+			font-size:0.8em;
+		}
 	}
 }
 .hui-tips-notxt{
 	padding:0;
 	.hui-icon{
 		margin:0;
-	}
-	.hui-icon-loading{
-		.fn_opacity(0.18);
 	}
 }
 .hui-tips-white{
@@ -816,14 +835,15 @@
 		.hui-icon-arrow-d{
 			display:inline-block;
 		}
-		.hui-icon-loading-white{
+		.hui-icon-loading-mini{
+			background-size:cover;
 			display:none;
 		}
 		&.hui-pd-refresh{
 			.hui-icon-arrow-d{
 				display:none;
 			}
-			.hui-icon-loading-white{
+			.hui-icon-loading-mini{
 				display:inline-block;
 			}
 		}

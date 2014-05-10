@@ -45,6 +45,10 @@ gEnv='dev';
 	<div id="buttonDv"></div>
 	<br/><br/><br/><br/>
 	
+	<h3>面板：</h3>
+	<div id="panelDv"></div>
+	<br/><br/><br/><br/>
+	
 	<h3>控制组：</h3>
 	<div id="controlGroupDv"></div>
 	<br/><br/><br/><br/>
@@ -150,6 +154,7 @@ $Require([
 "C.ComponentManager",
 "C.Icon",
 "C.Button",
+"C.Panel",
 "C.ControlGroup",
 "C.Radio",
 "C.Checkbox",
@@ -167,7 +172,7 @@ $Require([
 "C.Dialog",
 "C.Hcard",
 "C.Vcard"],
-function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Select,Input,
+function(CM,Icon,Button,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Select,Input,
 		Set,Field,Form,Tab,Toolbar,Tips,Dialog,Hcard,Vcard){
 	
 	function example(){
@@ -235,6 +240,12 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Select,In
 				name:"carat-l"
 			}
 		})
+		
+		new Panel({
+			height:200,
+			renderTo:'#panelDv',
+			isLoading:true
+		});
 		
 		var oControl=new ControlGroup({
 			renderTo:'#controlGroupDv',
@@ -699,8 +710,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Select,In
 			click:function(){
 				new Tips({
 					text:'提示',
-					showPos:'top',
-					timeout:null,
+					type:'topTips',
 					theme:'error'
 				})
 			}
@@ -710,9 +720,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Select,In
 			text:'顶部loading提示',
 			click:function(){
 				new Tips({
-					showPos:'top',
-					timeout:null,
-					icon:'loading-mini'
+					type:'miniLoading'
 				})
 			}
 		})
@@ -721,9 +729,7 @@ function(CM,Icon,Button,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Select,In
 			text:'loading提示',
 			click:function(){
 				new Tips({
-					text:'提示',
-					theme:'black',
-					icon:'loading'
+					type:'loading'
 				})
 			}
 		})
