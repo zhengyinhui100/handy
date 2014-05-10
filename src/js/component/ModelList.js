@@ -21,14 +21,14 @@ function(AC){
 //		getMore     : null,              //获取更多接口
 		
 		tmpl        : [
-			'<div class="hui-list s-scroll">',
+			'<div class="hui-list">',
 				'<div class="hui-list-inner">',
 					'<div<%if(this.children.length>0){%> style="display:none"<%}%> class="hui-list-empty js-empty"><%=this.emptyTips%></div>',
 					'<%if(this.hasPullRefresh){%>',
 						'<div class="hui-list-pulldown hui-pd-pull c-h-middle-container">',
 							'<div class="c-h-middle">',
 								'<span class="hui-icon hui-alt-icon hui-icon-arrow-d hui-light"></span>',
-								'<span class="hui-icon hui-alt-icon hui-icon-loading-white"></span>',
+								'<span class="hui-icon hui-alt-icon hui-icon-loading-mini"></span>',
 								'<div class="hui-pd-txt">',
 									'<%if(this.pdText){%><div class="js-txt"><%=this.pdText%></div><%}%>',
 									'<%if(this.pdComment){%><div class="js-comment hui-pd-comment"><span class="js-pdComment"><%=this.pdComment%></span><span class="js-pdTime"><%=this.pdTime%></span></div><%}%>',
@@ -46,10 +46,11 @@ function(AC){
 					'<%}%>',
 				'</div>',
 			'</div>'
-		],
+		].join(''),
 		init                : fInit,               //初始化
 		addListItem         : fAddListItem,        //添加列表项
 		removeListItem      : fRemoveListItem,     //删除列表项
+		refreshScroller     : fRefreshScroller,    //刷新iScroll
 		destroy             : fDestroy             //销毁
 	});
 	/**
@@ -78,12 +79,12 @@ function(AC){
 		//下拉刷新
 		me.hasPullRefresh=me.hasPullRefresh&&window.iScroll;
 		if(me.hasPullRefresh){
-			me.listeners=me.listeners.concat([{
+			//如果在afterShow里初始化iScroll，会看见下拉刷新的元素，所以这里先初始化，afterShow时再调用refresh
+			me.listen({
 				name : 'afterRender',
 				handler : function(){
 					var me=this;
 					var oWrapper=me.getEl();
-					oWrapper.css({height:document.body.clientHeight-40});
 					var oPdEl=oWrapper.find('.hui-list-pulldown');
 					var oPdTxt=oPdEl.find('.js-txt');
 					var nStartY=50;
@@ -118,25 +119,30 @@ function(AC){
 						}
 					});
 					
-					//同步数据后需要刷新
-					me.listenTo(me.model,'sync',function(){
-						oPdEl.find('.js-pdTime').html($H.formatDate($H.now(),'HH:mm'));
-						setTimeout(function(){
-							//仅在页面显示时才刷新，否则scroller会不可用
-							if(oWrapper[0].clientHeight){
-						    	me.scroller.refresh();
-							}
-						},0);
-					});
 				}
-			},{
+			});
+			//同步数据后需要刷新
+			me.listenTo(me.model,'sync',function(){
+				me.findEl('.js-pdTime').html($H.formatDate($H.now(),'HH:mm'));
+				setTimeout(function(){
+					me.refreshScroller();
+				},0);
+			});
+			//show后需要refresh下，否则无法滚动，iscroll需要浏览器渲染后才能正常初始化
+			me.listen({
+				name:'afterShow',
+				handler:function(){
+					me.refreshScroller();
+				}
+			});
+			me.listen({
 				name    : 'click',
 				method : 'delegate',
 				selector : '.hui-list-more',
 				handler : function(){
 					me.getMore();
 				}
-			}]);
+			});
 		}
 	}
 	/**
@@ -170,7 +176,19 @@ function(AC){
 			me.findEl(".js-empty").show();
 		}
 	}
-	
+	/**
+	 * 刷新iScroll
+	 */
+	function fRefreshScroller(){
+		var me=this;
+			//仅在页面显示时才刷新，否则scroller会不可用
+		if(me.scroller&&me.getEl()[0].clientHeight){
+	    	me.scroller.refresh();
+		}
+	}
+	/**
+	 * 销毁
+	 */
 	function fDestroy(){
 		var me=this;
 		if(me.scroller){
