@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-05-08 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-05-09 | zhengyinhui100@gmail.com */
 /**
  * 抽象事件类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -146,7 +146,7 @@ function(){
 });/****************************************************************
 * Author:		郑银辉											*
 * Email:		zhengyinhui100@gmail.com						*
-* Created:		2013-01-25										*
+* Created:		2014-01-25										*
 *****************************************************************/
 /**
  * 数据访问对象抽象类，模块的dao都要继承此类，dao内的方法只可以使用此类的方法进行数据操作，以便进行统一的管理
@@ -174,9 +174,12 @@ function(LS){
 			'read':   'getItem'
 	    },
 		ajax             : fAjax,        //ajax方法
-		beforeSend       : $H.noop,      //发送前处理
+		parseParam       : $H.noop,      //预处理请求参数
+		beforeSend       : fBeforeSend,  //发送前处理
+		complete         : fComplete,    //发送完处理
 		error            : $H.noop,      //错误处理
 		success          : $H.noop,      //成功处理
+		showLoading      : $H.noop,      //显示/隐藏loading提示
 		get              : fGet,         //获取数据
 		set              : fSet,         //设置数据
 		remove           : fRemove,      //删除数据
@@ -184,16 +187,39 @@ function(LS){
 	});
 	
 	/**
-	 * ajax
-	 * @param {Object}oParams
+	 * 发送ajax请求，这里回调函数的设计师为了方便统一处理公共的逻辑，比如登录超时等，同时又能保证各模块能够自行处理回调而避开公共处理逻辑
+	 * @param {Object}oParams{
+	 * 			{function=}beforeSucc 成功回调函数，在公共this.success方法前执行，若beforeSucc返回false则不继续执行this.success方法
+	 * 			{function=}success 成功回调函数，在公共this.success方法后执行，如果公共方法已经作出了处理并返回false，则此方法不执行
+	 * 			{function=}beforeErr 执行机制类似beforeSucc
+	 * 			{function=}error 执行机制类似success
+	 * }
 	 * 
 	 */
 	function fAjax(oParams){
 		var me=this;
-		me.beforeSend(oParams);
-		oParams.error=$H.intercept(me.error,oParams.error);
-		oParams.success=$H.intercept(me.success,oParams.success);
+		//处理参数
+		oParams=me.parseParam(oParams);
+		//包装回调函数
+		var fError=$H.intercept(oParams.error,me.error);
+		oParams.error=$H.intercept(fError,oParams.beforeErr);
+		var fSucc=$H.intercept(oParams.success,me.success);
+		oParams.success=$H.intercept(fSucc,oParams.beforeSucc);
+		oParams.beforeSend=$H.intercept($H.bind(me.beforeSend,me),oParams.beforeSend);
+		oParams.complete=$H.intercept($H.bind(me.complete,me),oParams.complete);
 		return $.ajax(oParams);
+	}
+	/**
+	 * 发送前处理
+	 */
+	function fBeforeSend(){
+		this.showLoading(true);
+	}
+	/**
+	 * 发送完处理
+	 */
+	function fComplete(){
+		this.showLoading(false);
 	}
 	/**
 	 * 获取数据
@@ -725,7 +751,8 @@ function(ViewManager,AbstractEvents,Template){
 			if($H.isFunc(renderTo)){
 				renderTo=renderTo.call(me);
 			}else if($H.isStr(renderTo)&&renderTo.indexOf('>')==0){
-				renderTo=me.parent.findEl(renderTo.substring(1));
+				var oParent=me.parent;
+				renderTo=oParent.inited&&oParent.findEl(renderTo.substring(1));
 			}else{
 				renderTo=$(renderTo);
 			}
@@ -837,7 +864,6 @@ function(ViewManager,AbstractEvents,Template){
 		if(me.beforeRender()==false){
 			return false;
 		}
-		me.trigger('render');
 		var sHtml=me.getHtml();
 		me.renderTo[me.renderBy](sHtml);
 		me.afterRender();
@@ -852,6 +878,7 @@ function(ViewManager,AbstractEvents,Template){
 		if(me.rendered){
 			return false;
 		}
+		me.trigger('render');
 		me.callChild();
 		//缓存容器
 		me._container=$("#"+me.getId());
@@ -918,7 +945,11 @@ function(ViewManager,AbstractEvents,Template){
 	 * @method afterShow
 	 */
 	function fAfterShow(){
-		this.trigger('afterShow');
+		var me=this;
+		//等浏览器渲染后才触发事件
+		setTimeout(function(){
+			me.trigger('afterShow');
+		},0);
 	}
 	/**
 	 * 隐藏前工作
@@ -1038,11 +1069,7 @@ function(ViewManager,AbstractEvents,Template){
 		if(me._parseListenEvents('listen',oEvent)){
 			return;
 		}
-		//没有初始化事件，直接放入队列中
-		if(!me.listened){
-			me.listeners.push(oEvent);
-			return;
-		}
+		
 		var sName=oEvent.name,
 			context=oEvent.context,
 			nTimes=oEvent.times,
@@ -1057,6 +1084,11 @@ function(ViewManager,AbstractEvents,Template){
 			var aArgs=$H.removeUndefined([oTarget,sName,fHandler,context,nTimes]);
 			me[oTarget?'listenTo':'on'].apply(me,aArgs);
 		}else{
+			//没有初始化事件，直接放入队列中
+			if(!me.listened){
+				me.listeners.push(oEvent);
+				return;
+			}
 			//element事件
 			var aListeners=me._listeners,
 				oEl=oEvent.el,
@@ -1423,7 +1455,12 @@ function(ViewManager,AbstractEvents,Template){
 			me.parseItem(item);
 			var Item=me.manager.getClass(item.xtype);
 			if(Item){
-				if(!item.renderTo){
+				var renderTo=item.renderTo;
+				//父组件未初始化，不能通过>选择器render
+				if(!me.inited&&$H.isStr(renderTo)&&renderTo.indexOf('>')==0){
+					renderTo=null;
+				}
+				if(!renderTo){
 					//初始化过后，默认添加到容器节点里
 					if(me.inited){
 						item.renderTo=me.getEl();

@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-05-08 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-05-09 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -1786,7 +1786,7 @@ function(Debug,Object,Function,$H){
 				}
 				var _fCallback=Function.bind(_fResponse,null,sId);
 	    		if(Loader.traceLog){
-					Debug.info(_LOADER_PRE+"request:\n"+sUrl);
+					Debug.log(_LOADER_PRE+"request:\n"+sUrl);
 		   		}
 	    		if(/.css$/.test(sUrl)){
 	    			_fGetCss(sUrl,_fCallback);
@@ -1811,7 +1811,7 @@ function(Debug,Object,Function,$H){
     	_requestingNum--;
     	_oCache[sId].status='loaded';
     	if(Loader.traceLog){
-			Debug.info(_LOADER_PRE+"Response:\n"+sId);
+			Debug.log(_LOADER_PRE+"Response:\n"+sId);
    		}
     	_fExecContext();
     }
@@ -1856,7 +1856,7 @@ function(Debug,Object,Function,$H){
 			if(typeof factory=="function"){
 				try{
 					if(Loader.traceLog){
-						Debug.info(_LOADER_PRE+"define:\n"+sId);
+						Debug.log(_LOADER_PRE+"define:\n"+sId);
 					}
 					//考虑到传入依赖是数组，这里回调参数形式依然是数组
 					resource=factory.apply(null,arguments);
@@ -1912,7 +1912,7 @@ function(Debug,Object,Function,$H){
 	    			});
     			}
     			if(Loader.traceLog){
-					Debug.info(_RESOURCE_NOT_FOUND+sId);
+					Debug.log(_RESOURCE_NOT_FOUND+sId);
 		   		}
     		}else{
     			aExisteds.push(oResult.exist[0]);
@@ -2081,7 +2081,8 @@ handy.add('Events',function($H){
 	 function fOnce(name,fHandler,context){
 	 	var me=this;
 	 	var aArgs=$H.toArray(arguments);
-	 	me.on.apply(me,aArgs.push(1));
+	 	aArgs.push(1);
+	 	me.on.apply(me,aArgs);
 	 }
 	/**
 	 * 移除事件
@@ -2299,7 +2300,7 @@ handy.add('Date',function(){
 	 */
 	function fFormatDate(oDate, sFormator) {
 		var sFormator=sFormator||'yyyy-MM-dd HH:mm:ss';
-		var oDate=oDate||new WDate();
+		var oDate=oDate;
 
 		var nHours=oDate.getHours();
 		var nQuarter=Math.floor((oDate.getMonth() + 3) / 3)

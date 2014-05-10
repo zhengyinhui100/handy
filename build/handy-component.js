@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-05-08 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-05-09 | zhengyinhui100@gmail.com */
 /**
  * 组件管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -53,7 +53,8 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		////通用样式
 //		width               : null,              //宽度(默认单位是px)
 //		height              : null,              //高度(默认单位是px)
-//		theme               : null,              //组件主题
+//		tType               : null,              //组件主题类型
+//		theme               : null,              //组件主题样式
 //		radius              : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 //		shadow              : false,        	 //外阴影
 //		shadowInset         : false,        	 //内阴影
@@ -164,6 +165,9 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		if(me.extCls){
 			aCls.push(me.extCls);
 		}
+		if(me.tType){
+			aCls.push('hui-'+me.cls+'-'+me.tType);
+		}
 		if(me.theme){
 			aCls.push('hui-'+me.cls+'-'+me.theme);
 		}
@@ -268,6 +272,106 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 	return AC;
 	
 });/**
+ * 图标类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-01-01
+ */
+
+$Define('C.Icon',
+'C.AbstractComponent',
+function(AC){
+	
+	var Icon=AC.define('Icon');
+	
+	Icon.extend({
+		//初始配置
+//		noBg            : false,              //是否取消背景
+//		isAlt           : false,              //是否使用深色图标
+//		name            : '',                 //图标名称
+		
+		tmpl            : [
+			'<span class="',
+			'<%if(this.isAlt){%>',
+				' hui-alt-icon',
+			'<%}%>',
+			' hui-icon-<%=this.name%>',
+			'<%if(!this.noBg){%>',
+			' hui-icon-bg',
+			'<%}%>"></span>'].join(''),
+		doConfig        : fDoConfig          //初始化配置
+		
+	});
+	
+	/**
+	 * 初始化配置
+	 * @param {Object}oSettings 参数配置
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		if($H.isStr(oSettings)){
+			oSettings={name:oSettings};
+		}
+		me.callSuper([oSettings]);
+	}
+	
+	return Icon;
+	
+});/**
+ * 按钮类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-01-13
+ */
+
+$Define('C.Button',
+'C.AbstractComponent',
+function(AC){
+	
+	var Button=AC.define('Button');
+	
+	Button.extend({
+		//初始配置
+//		text            : '',                  //按钮文字
+//		isActive        : false,               //是否是激活状态
+//		icon            : null,                //图标名称
+		iconPos         : 'left',              //图标位置，"left"|"top"
+		theme           : 'gray',
+		activeCls       : 'hui-btn-active',    //激活样式
+		cls             : 'btn',               //组件样式名
+//		isBack          : false,               //是否是后退按钮
+		
+		defItem         : {
+			xtype       : 'Icon'
+		},
+		
+		////通用效果
+		radius          : 'normal',            //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
+		shadow          : true,        	       //外阴影
+		isInline        : true,                //宽度自适应
+		
+		tmpl            : ['<a href="javascript:;" hidefocus="true" class="',
+							'<%if(!this.text){%> hui-btn-icon-notxt<%}',
+							'if(this.isBack){%> hui-btn-back<%}',
+							'if(this.hasIcon&&this.text){%> hui-btn-icon-<%=this.iconPos%><%}%>">',
+							'<span class="hui-btn-txt"><%=this.text%></span>',
+							'<%=this.findHtml(">*")%>',
+							'</a>'].join(''),
+							
+		parseItem       : fParseItem           //分析处理子组件
+	});
+	/**
+	 * 分析处理子组件
+	 * @method parseItem
+	 */
+	function fParseItem(oItem){
+		var me=this;
+		if(oItem.xtype=="Icon"){
+			me.hasIcon=true;
+		}
+	}
+	
+	return Button;
+	
+});/**
  * 面板类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-01
@@ -281,12 +385,27 @@ function(AC){
 	
 	Panel.extend({
 		//初始配置
-//		content         : '',                 //内容
+//		content         : '',               //内容
+		isLoading       : false,            //是否显示正在加载中
+		loadingTxt      : '正在加载中...',   //正在加载中的提示文字
 		
 		
 		tmpl            : [
-			'<div><%=this.content||this.findHtml(">*")%></div>'
-		]
+			'<div>',
+				'<%if(this.isLoading){%>',
+					'<div class="hui-panel-loading">',
+						'<div class="hui-mask"></div>',
+						'<div class="hui-loading-container">',
+							'<div class="hui-tips hui-tips-big hui-tips-black hui-radius-little">',
+								'<span class="hui-icon hui-icon-loading"></span>',
+								'<span class="hui-tips-txt"><%=this.loadingTxt%></span>',
+							'</div>',
+						'</div>',
+					'</div>',
+				'<%}%>',
+				'<%=this.content||this.findHtml(">*")%>',
+			'</div>'
+		].join('')
 	});
 	
 	return Panel;
@@ -311,15 +430,13 @@ function(AC){
 		clickHide       : true,            //是否点击就隐藏
 //		timeout         : null,            //自动隐藏的时间(毫秒)，不指定此值则不自动隐藏
 		showPos         : 'center',        //定位方法名，或者传入自定义定位函数
-//		notDestroy      : false,           //隐藏时保留对象，不自动销毁，默认弹出层会自动销毁
+		destroyWhenHide : true,            //隐藏时保留对象，不自动销毁，默认弹出层会自动销毁
 //		noMask          : false,           //仅当true时没有遮罩层
 		
 		//组件共有配置
 		shadowOverlay   : true,
 		
-		tmpl            : [
-			'<div><%=this.findHtml(">*")%></div>'
-		],
+		tmpl            : '<div><%=this.findHtml(">*")%></div>',
 		
 		doConfig         : fDoConfig,        //初始化配置
 		afterShow        : fAfterShow,       //显示
@@ -421,7 +538,7 @@ function(AC){
 			if(!me.noMask){
 				me.unmask();
 			}
-			if(!me.notDestroy){
+			if(me.destroyWhenHide){
 				me.destroy();
 			}
 		}
@@ -433,7 +550,7 @@ function(AC){
 		var me=this;
 		var oEl=me.getEl();
 		oEl.css({
-			left: "100px",
+			left: "80px",
 			top:"8px",
 			position:'fixed'
 		});
@@ -446,8 +563,8 @@ function(AC){
 		// 设置定位坐标
 		var me=this;
 		var oEl=me.getEl();
-		var width=me.width||oEl.width();
-		var height=me.height||oEl.height();
+		var width=me.width||oEl.outerWidth();
+		var height=me.height||oEl.outerHeight();
 		var oDoc=document;
 		var x = ((oDoc.documentElement.offsetWidth || oDoc.body.offsetWidth) - width)/2;
 		var y = ((oDoc.documentElement.clientHeight || oDoc.body.clientHeight) - height)/2 + (oDoc.documentElement.scrollTop||oDoc.body.scrollTop);
@@ -533,7 +650,7 @@ function(AC){
 			'<div class="<%if(this.direction=="h"){%> hui-ctrlgp-h<%}else{%> hui-ctrlgp-v<%}%>">',
 			'<%=this.findHtml(">*")%>',
 			'</div>'
-		],
+		].join(''),
 		
 		listeners       : [
 			{
@@ -675,106 +792,6 @@ function(AC){
 });/**
  * 图标类
  * @author 郑银辉(zhengyinhui100@gmail.com)
- * @created 2014-01-01
- */
-
-$Define('C.Icon',
-'C.AbstractComponent',
-function(AC){
-	
-	var Icon=AC.define('Icon');
-	
-	Icon.extend({
-		//初始配置
-//		noBg            : false,              //是否取消背景
-//		isAlt           : false,              //是否使用深色图标
-//		name            : '',                 //图标名称
-		
-		tmpl            : [
-			'<span class="',
-			'<%if(this.isAlt){%>',
-				' hui-alt-icon',
-			'<%}%>',
-			' hui-icon-<%=this.name%>',
-			'<%if(!this.noBg){%>',
-			' hui-icon-bg',
-			'<%}%>"></span>'],
-		doConfig        : fDoConfig          //初始化配置
-		
-	});
-	
-	/**
-	 * 初始化配置
-	 * @param {Object}oSettings 参数配置
-	 */
-	function fDoConfig(oSettings){
-		var me=this;
-		if($H.isStr(oSettings)){
-			oSettings={name:oSettings};
-		}
-		me.callSuper([oSettings]);
-	}
-	
-	return Icon;
-	
-});/**
- * 按钮类
- * @author 郑银辉(zhengyinhui100@gmail.com)
- * @created 2014-01-13
- */
-
-$Define('C.Button',
-'C.AbstractComponent',
-function(AC){
-	
-	var Button=AC.define('Button');
-	
-	Button.extend({
-		//初始配置
-//		text            : '',                  //按钮文字
-//		isActive        : false,               //是否是激活状态
-//		icon            : null,                //图标名称
-		iconPos         : 'left',              //图标位置，"left"|"top"
-		theme           : 'gray',
-		activeCls       : 'hui-btn-active',    //激活样式
-		cls             : 'btn',               //组件样式名
-//		isBack          : false,               //是否是后退按钮
-		
-		defItem         : {
-			xtype       : 'Icon'
-		},
-		
-		////通用效果
-		radius          : 'normal',            //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
-		shadow          : true,        	       //外阴影
-		isInline        : true,                //宽度自适应
-		
-		tmpl            : ['<a href="javascript:;" hidefocus="true" class="',
-							'<%if(!this.text){%> hui-btn-icon-notxt<%}',
-							'if(this.isBack){%> hui-btn-back<%}',
-							'if(this.hasIcon&&this.text){%> hui-btn-icon-<%=this.iconPos%><%}%>">',
-							'<span class="hui-btn-txt"><%=this.text%></span>',
-							'<%=this.findHtml(">*")%>',
-							'</a>'],
-							
-		parseItem       : fParseItem           //分析处理子组件
-	});
-	/**
-	 * 分析处理子组件
-	 * @method parseItem
-	 */
-	function fParseItem(oItem){
-		var me=this;
-		if(oItem.xtype=="Icon"){
-			me.hasIcon=true;
-		}
-	}
-	
-	return Button;
-	
-});/**
- * 图标类
- * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-29
  */
 
@@ -799,7 +816,7 @@ function(AC){
 				'<%if(this.value){%> value="<%=this.value%>"<%}%>/>',
 				'<span class="hui-radio-txt"><%=this.text%></span>',
 			'</div>'
-		],
+		].join(''),
 		
 		select          : fSelect,            //选中
 		val             : fVal                //获取/设置输入框的值
@@ -871,7 +888,7 @@ function(AC){
 				'<%if(this.value){%> value="<%=this.value%>"<%}%>/>',
 				'<span class="hui-chkbox-txt"><%=this.text%></span>',
 			'</div>'
-		],
+		].join(''),
 		
 		select          : fSelect,          //选中
 		val             : fVal                  //获取/设置输入框的值
@@ -948,7 +965,7 @@ function(AC){
 				'<input value="<%=this.value%>" name="<%=this.name%>"/>',
 				'<span class="hui-btn-txt js-select-txt"><%=this.text%></span>',
 			'</div>'
-		],
+		].join(''),
 		
 		listeners       : [
 			{
@@ -1081,7 +1098,7 @@ function(AC){
 			'<%}else{%>',
 				' value="<%=this.value%>"/>',
 			'<%}%> ',
-		'</div>'],
+		'</div>'].join(''),
 		listeners       : [
 			{
 				name : 'focus',
@@ -1199,7 +1216,7 @@ function(AC){
 				'<%if(this.color){%> hui-label-<%=this.color%><%}%><%if(this.textAlign){%> c-txt-<%=this.textAlign%><%}%>" for="<%=this.forName%>">',
 				'<%=this.text%>',
 			'</label>'
-		]
+		].join('')
 		
 	});
 	
@@ -1231,7 +1248,7 @@ function(AC){
 					'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情"><span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span></a>',
 				'<%}%>',
 			'</div>'
-		],
+		].join(''),
 		doConfig       : fDoconfig    //初始化配置
 	});
 	/**
@@ -1280,7 +1297,7 @@ function(AC){
 					'<%=this.findHtml(">*")%>',
 				'</div>',
 			'</div>'
-		]
+		].join('')
 		
 	});
 	
@@ -1319,7 +1336,7 @@ function(AC){
 					'<%=this.findHtml(">[xrole=content]")%>',
 				'</div>',
 			'</div>'
-		],
+		].join(''),
 		doConfig       : fDoconfig    //初始化配置
 	});
 	/**
@@ -1385,7 +1402,7 @@ function(AC){
 					'<%=this.findHtml(">*")%>',
 				'</form>',
 			'</div>'
-		]
+		].join('')
 		
 	});
 	
@@ -1424,7 +1441,7 @@ function(AC,Panel){
 		//属性
 //		titleCmp        : null,         //标题组件
 //		content         : null,         //内容组件
-		tmpl            : ['<div><%=this.findHtml(">[xrole=title]")%></div>'],
+		tmpl            : '<div><%=this.findHtml(">[xrole=title]")%></div>',
 		initialize      : fInitialize,  //初始化
 		doConfig        : fDoConfig,    //初始化配置
 		parseItem       : fParseItem,   //分析处理子组件
@@ -1574,7 +1591,7 @@ function(AC,TabItem,ControlGroup){
 				'</ul>',
 				'<%=this.findHtml(">TabItem>[xrole=content]")%>',
 			'</div>'
-		],
+		].join(''),
 		
 		doConfig        : fDoConfig,           //初始化配置
 		layout          : fLayout,             //布局
@@ -1666,7 +1683,7 @@ function(AC){
 				'<%=this.findHtml(">*")%>',
 				'<%if(this.title){%><h1 class="hui-tbar-title js-tbar-txt"><%=this.title%></h1><%}%>',
 			'</div>'
-		],
+		].join(''),
 		
 		parseItem        : fParseItem           //处理子组件配置
 		
@@ -1706,7 +1723,9 @@ function(AC,Popup,ControlGroup){
 	Tips.extend({
 		//初始配置
 //		text            : '',
+//		type            : 'miniLoading',            类型，‘loading’表示居中加载中提示，‘topTips’表示顶部简单提示，‘miniLoading’表示顶部无背景loading小提示
 		cls             : 'tips',
+		tType           : 'big',
 		theme           : 'black',
 		timeout         : 1000,
 		radius          : 'normal',
@@ -1716,7 +1735,7 @@ function(AC,Popup,ControlGroup){
 				'<%=this.findHtml(">*")%>',
 				'<%if(this.text){%><span class="hui-tips-txt"><%=this.text%></span><%}%>',
 			'</div>'
-		],
+		].join(''),
 		doConfig        : fDoConfig     //初始化配置
 		
 	});
@@ -1727,17 +1746,39 @@ function(AC,Popup,ControlGroup){
 	 */
 	function fDoConfig(oSettings){
 		var me=this;
-		//顶部提示默认配置
-		if(oSettings.showPos=='top'){
+		//普通居中loading提示
+		if(oSettings.type=='loading'){
 			$H.extend(me,{
-				isMini:true
-			},{noCover:true});
-			if(oSettings.icon=='loading-mini'){
-				$H.extend(me,{
-					shadowOverlay:null,
-					theme:null
-				},{noCover:true});
-			}
+				text:'正在加载中...',
+				timeout:null,
+				noMask:true,
+				icon:'loading'
+			});
+		}else if(oSettings.type=='miniLoading'){
+			//顶部小loading
+			$H.extend(me,{
+				showPos:'top',
+				clickHide:false,
+				destroyWhenHide:false,
+				timeout:null,
+				delayShow:false,
+				shadowOverlay:null,
+				theme:null,
+				noMask:true,
+				tType:'mini',
+				items:{
+					xtype:'Icon',
+					name:'loading-mini',
+					noBg:true
+				}
+			});
+		}else if(oSettings.type=='topTips'){
+			//顶部提示默认配置
+			$H.extend(me,{
+				showPos:'top',
+				noMask:true,
+				tType:'mini'
+			});
 		}
 		me.callSuper();
 	}
@@ -1804,7 +1845,7 @@ function(AC,Popup){
 					'<%}%>',
 				'</div>',
 			'</div>'
-		],
+		].join(''),
 		doConfig         : fDoConfig        //处理配置
 	});
 	
@@ -1970,7 +2011,7 @@ function(AC,Popup,ControlGroup){
 					'<%}%>',
 				'</ul>',
 			'</div>'
-		],
+		].join(''),
 		
 		selectItem      : fSelectItem         //选中/取消选中
 	});
@@ -2043,7 +2084,7 @@ function(AC){
 					'</a>',
 				'<%}%>',
 			'</div>'
-		],
+		].join(''),
 		doConfig       : fDoconfig    //初始化配置
 	});
 	/**
@@ -2092,7 +2133,7 @@ function(AC){
 					'<%=this.findHtml(">[xrole=action]")%>',
 				'</div>',
 			'</div>'
-		],
+		].join(''),
 		doConfig        : fDoConfig          //初始化配置
 		
 	});
@@ -2120,6 +2161,7 @@ function(AC){
 	
 });/**
  * 模型列表
+ * ps:使用下拉刷新需要引入iScroll4
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
@@ -2147,7 +2189,7 @@ function(AC){
 						'<div class="hui-list-pulldown hui-pd-pull c-h-middle-container">',
 							'<div class="c-h-middle">',
 								'<span class="hui-icon hui-alt-icon hui-icon-arrow-d hui-light"></span>',
-								'<span class="hui-icon hui-alt-icon hui-icon-loading-white"></span>',
+								'<span class="hui-icon hui-alt-icon hui-icon-loading-mini"></span>',
 								'<div class="hui-pd-txt">',
 									'<%if(this.pdText){%><div class="js-txt"><%=this.pdText%></div><%}%>',
 									'<%if(this.pdComment){%><div class="js-comment hui-pd-comment"><span class="js-pdComment"><%=this.pdComment%></span><span class="js-pdTime"><%=this.pdTime%></span></div><%}%>',
@@ -2165,10 +2207,11 @@ function(AC){
 					'<%}%>',
 				'</div>',
 			'</div>'
-		],
+		].join(''),
 		init                : fInit,               //初始化
 		addListItem         : fAddListItem,        //添加列表项
 		removeListItem      : fRemoveListItem,     //删除列表项
+		refreshScroller     : fRefreshScroller,    //刷新iScroll
 		destroy             : fDestroy             //销毁
 	});
 	/**
@@ -2194,9 +2237,10 @@ function(AC){
 				me.removeListItem('emptyAll');
 			}
 		});
-		
+		//下拉刷新
+		me.hasPullRefresh=me.hasPullRefresh&&window.iScroll;
 		if(me.hasPullRefresh){
-			me.listeners=me.listeners.concat([{
+			me.listen({
 				name : 'afterRender',
 				handler : function(){
 					var me=this;
@@ -2205,53 +2249,60 @@ function(AC){
 					var oPdEl=oWrapper.find('.hui-list-pulldown');
 					var oPdTxt=oPdEl.find('.js-txt');
 					var nStartY=50;
+					var sRefreshCls='hui-pd-refresh';
+					var sReleaseCls='hui-pd-release';
 					me.scroller= new window.iScroll(oWrapper[0], {
 						useTransition: true,
 						topOffset: nStartY,
 						onRefresh: function () {
-							if(oPdEl.hasClass('hui-pd-refresh')){
-				                oPdEl.removeClass('hui-pd-refresh hui-pd-release');  
+							if(oPdEl.hasClass(sRefreshCls)){
+				                oPdEl.removeClass(sRefreshCls+' '+sReleaseCls);  
 				                oPdTxt.html('下拉可刷新');  
 							}
 						},
 						onScrollMove: function () {
-							if (this.y > 5 && !oPdEl.hasClass('hui-pd-release')) {  
-				                oPdEl.addClass('hui-pd-release');  
+							if (this.y > 5 && !oPdEl.hasClass(sReleaseCls)) {  
+				                oPdEl.addClass(sReleaseCls);  
 				                oPdTxt.html('松开可刷新');  
 								this.minScrollY = 0;
-				            } else if (this.y < 5 && oPdEl.hasClass('hui-pd-release')) {  
-				                oPdEl.removeClass('hui-pd-release');;  
+				            } else if (this.y < 5 && oPdEl.hasClass(sReleaseCls)) {  
+				                oPdEl.removeClass(sReleaseCls);;  
 				                oPdTxt.html('下拉可刷新'); 
 								this.minScrollY = -nStartY;
 				            } 
 						},
 						onScrollEnd: function () {
-							if (oPdEl.hasClass('hui-pd-release')) {  
-				                oPdEl.addClass('hui-pd-refresh');  
+							if (oPdEl.hasClass(sReleaseCls)) {  
+				                oPdEl.addClass(sRefreshCls);  
 				                oPdTxt.html('正在刷新'); 
 				                me.refresh();
 				            }
 						}
 					});
 					
-					//同步数据后需要刷新
-					me.listenTo(me.model,'sync',function(){
-						setTimeout(function(){
-							//仅在页面显示时才刷新，否则scroller会不可用
-							if(oWrapper[0].clientHeight){
-						    	me.scroller.refresh();
-							}
-						},0);
-					});
 				}
-			},{
+			});
+			//同步数据后需要刷新
+			me.listenTo(me.model,'sync',function(){
+				me.findEl('.js-pdTime').html($H.formatDate($H.now(),'HH:mm'));
+				setTimeout(function(){
+					me.refreshScroller();
+				},0);
+			});
+			me.listen({
+				name:'afterShow',
+				handler:function(){
+					me.refreshScroller();
+				}
+			});
+			me.listen({
 				name    : 'click',
 				method : 'delegate',
 				selector : '.hui-list-more',
 				handler : function(){
 					me.getMore();
 				}
-			}]);
+			});
 		}
 	}
 	/**
@@ -2285,7 +2336,19 @@ function(AC){
 			me.findEl(".js-empty").show();
 		}
 	}
-	
+	/**
+	 * 刷新iScroll
+	 */
+	function fRefreshScroller(){
+		var me=this;
+			//仅在页面显示时才刷新，否则scroller会不可用
+		if(me.scroller&&me.getEl()[0].clientHeight){
+	    	me.scroller.refresh();
+		}
+	}
+	/**
+	 * 销毁
+	 */
 	function fDestroy(){
 		var me=this;
 		if(me.scroller){
