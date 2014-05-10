@@ -74,11 +74,11 @@
 
 		    <path path="js/component/ComponentManager.js" />
 			<path path="js/component/AbstractComponent.js" />
+			<path path="js/component/Icon.js" />
+			<path path="js/component/Button.js" />
 			<path path="js/component/Panel.js" />
 			<path path="js/component/Popup.js" />
 			<path path="js/component/ControlGroup.js" />
-			<path path="js/component/Icon.js" />
-			<path path="js/component/Button.js" />
 			<path path="js/component/Radio.js" />
 			<path path="js/component/Checkbox.js" />
 			<path path="js/component/Select.js" />

@@ -15,7 +15,9 @@ function(AC,Popup,ControlGroup){
 	Tips.extend({
 		//初始配置
 //		text            : '',
+//		type            : 'miniLoading',            类型，‘loading’表示居中加载中提示，‘topTips’表示顶部简单提示，‘miniLoading’表示顶部无背景loading小提示
 		cls             : 'tips',
+		tType           : 'big',
 		theme           : 'black',
 		timeout         : 1000,
 		radius          : 'normal',
@@ -25,7 +27,7 @@ function(AC,Popup,ControlGroup){
 				'<%=this.findHtml(">*")%>',
 				'<%if(this.text){%><span class="hui-tips-txt"><%=this.text%></span><%}%>',
 			'</div>'
-		],
+		].join(''),
 		doConfig        : fDoConfig     //初始化配置
 		
 	});
@@ -36,17 +38,39 @@ function(AC,Popup,ControlGroup){
 	 */
 	function fDoConfig(oSettings){
 		var me=this;
-		//顶部提示默认配置
-		if(oSettings.showPos=='top'){
+		//普通居中loading提示
+		if(oSettings.type=='loading'){
 			$H.extend(me,{
-				isMini:true
-			},{noCover:true});
-			if(oSettings.icon=='loading-mini'){
-				$H.extend(me,{
-					shadowOverlay:null,
-					theme:null
-				},{noCover:true});
-			}
+				text:'正在加载中...',
+				timeout:null,
+				noMask:true,
+				icon:'loading'
+			});
+		}else if(oSettings.type=='miniLoading'){
+			//顶部小loading
+			$H.extend(me,{
+				showPos:'top',
+				clickHide:false,
+				destroyWhenHide:false,
+				timeout:null,
+				delayShow:false,
+				shadowOverlay:null,
+				theme:null,
+				noMask:true,
+				tType:'mini',
+				items:{
+					xtype:'Icon',
+					name:'loading-mini',
+					noBg:true
+				}
+			});
+		}else if(oSettings.type=='topTips'){
+			//顶部提示默认配置
+			$H.extend(me,{
+				showPos:'top',
+				noMask:true,
+				tType:'mini'
+			});
 		}
 		me.callSuper();
 	}

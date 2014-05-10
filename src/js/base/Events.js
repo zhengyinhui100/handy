@@ -148,7 +148,8 @@ handy.add('Events',function($H){
 	 function fOnce(name,fHandler,context){
 	 	var me=this;
 	 	var aArgs=$H.toArray(arguments);
-	 	me.on.apply(me,aArgs.push(1));
+	 	aArgs.push(1);
+	 	me.on.apply(me,aArgs);
 	 }
 	/**
 	 * 移除事件

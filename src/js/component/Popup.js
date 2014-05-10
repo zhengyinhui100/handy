@@ -24,9 +24,7 @@ function(AC){
 		//组件共有配置
 		shadowOverlay   : true,
 		
-		tmpl            : [
-			'<div><%=this.findHtml(">*")%></div>'
-		],
+		tmpl            : '<div><%=this.findHtml(">*")%></div>',
 		
 		doConfig         : fDoConfig,        //初始化配置
 		afterShow        : fAfterShow,       //显示
@@ -140,7 +138,7 @@ function(AC){
 		var me=this;
 		var oEl=me.getEl();
 		oEl.css({
-			left: "100px",
+			left: "80px",
 			top:"8px",
 			position:'fixed'
 		});
@@ -153,8 +151,8 @@ function(AC){
 		// 设置定位坐标
 		var me=this;
 		var oEl=me.getEl();
-		var width=me.width||oEl.width();
-		var height=me.height||oEl.height();
+		var width=me.width||oEl.outerWidth();
+		var height=me.height||oEl.outerHeight();
 		var oDoc=document;
 		var x = ((oDoc.documentElement.offsetWidth || oDoc.body.offsetWidth) - width)/2;
 		var y = ((oDoc.documentElement.clientHeight || oDoc.body.clientHeight) - height)/2 + (oDoc.documentElement.scrollTop||oDoc.body.scrollTop);

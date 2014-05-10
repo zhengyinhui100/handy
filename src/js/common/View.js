@@ -26,6 +26,8 @@ function(ViewManager,AbstractEvents,Template){
 		_placeholder        : '<script id="" type="text/x-placeholder"></script>',        //占位符标签
 		
 		//配置
+//		cid                 : '',                //客户定义id，必须保持唯一性，不能重复
+//		cClass              : '',                //客户定义class，无特殊限制，方便查找，类似于css的class
 //		renderTo            : null,              //渲染节点或选择器，可以是函数，调用上下文为本视图对象，如果选择器字符以">"开头，表示在父视图内查找节点
 //		defItem             : null,              //默认子视图配置
 //		hidden              : false,             //是否隐藏
@@ -299,7 +301,8 @@ function(ViewManager,AbstractEvents,Template){
 			if($H.isFunc(renderTo)){
 				renderTo=renderTo.call(me);
 			}else if($H.isStr(renderTo)&&renderTo.indexOf('>')==0){
-				renderTo=me.parent.findEl(renderTo.substring(1));
+				var oParent=me.parent;
+				renderTo=oParent.inited&&oParent.findEl(renderTo.substring(1));
 			}else{
 				renderTo=$(renderTo);
 			}
@@ -411,7 +414,6 @@ function(ViewManager,AbstractEvents,Template){
 		if(me.beforeRender()==false){
 			return false;
 		}
-		me.trigger('render');
 		var sHtml=me.getHtml();
 		me.renderTo[me.renderBy](sHtml);
 		me.afterRender();
@@ -426,6 +428,7 @@ function(ViewManager,AbstractEvents,Template){
 		if(me.rendered){
 			return false;
 		}
+		me.trigger('render');
 		me.callChild();
 		//缓存容器
 		me._container=$("#"+me.getId());
@@ -492,7 +495,11 @@ function(ViewManager,AbstractEvents,Template){
 	 * @method afterShow
 	 */
 	function fAfterShow(){
-		this.trigger('afterShow');
+		var me=this;
+		//等浏览器渲染后才触发事件
+		setTimeout(function(){
+			me.trigger('afterShow');
+		},0);
 	}
 	/**
 	 * 隐藏前工作
@@ -612,11 +619,7 @@ function(ViewManager,AbstractEvents,Template){
 		if(me._parseListenEvents('listen',oEvent)){
 			return;
 		}
-		//没有初始化事件，直接放入队列中
-		if(!me.listened){
-			me.listeners.push(oEvent);
-			return;
-		}
+		
 		var sName=oEvent.name,
 			context=oEvent.context,
 			nTimes=oEvent.times,
@@ -631,6 +634,11 @@ function(ViewManager,AbstractEvents,Template){
 			var aArgs=$H.removeUndefined([oTarget,sName,fHandler,context,nTimes]);
 			me[oTarget?'listenTo':'on'].apply(me,aArgs);
 		}else{
+			//没有初始化事件，直接放入队列中
+			if(!me.listened){
+				me.listeners.push(oEvent);
+				return;
+			}
 			//element事件
 			var aListeners=me._listeners,
 				oEl=oEvent.el,
@@ -818,6 +826,8 @@ function(ViewManager,AbstractEvents,Template){
 		var o=oObj||this,m,prop,op,value;
 		//#btn => [cid=tbn]
 		sSel=sSel.replace(/#([^\s,\[]+)/,'[cid=$1]');
+		//.btn => [cClass=tbn]
+		sSel=sSel.replace(/\.([^\s,\[]+)/,'[cClass=$1]');
 		//'Button[attr=value]'=>'[xtype=Button][attr=value]'
 		sSel=sSel.replace(/^([^\[]+)/,'[xtype=$1]');
 		//循环检查
@@ -997,7 +1007,12 @@ function(ViewManager,AbstractEvents,Template){
 			me.parseItem(item);
 			var Item=me.manager.getClass(item.xtype);
 			if(Item){
-				if(!item.renderTo){
+				var renderTo=item.renderTo;
+				//父组件未初始化，不能通过>选择器render
+				if(!me.inited&&$H.isStr(renderTo)&&renderTo.indexOf('>')==0){
+					renderTo=null;
+				}
+				if(!renderTo){
 					//初始化过后，默认添加到容器节点里
 					if(me.inited){
 						item.renderTo=me.getEl();

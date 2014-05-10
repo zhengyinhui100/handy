@@ -58,7 +58,7 @@ function(AC,Popup){
 					'<%}%>',
 				'</div>',
 			'</div>'
-		],
+		].join(''),
 		doConfig         : fDoConfig        //处理配置
 	});
 	

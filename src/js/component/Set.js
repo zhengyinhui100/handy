@@ -21,7 +21,7 @@ function(AC){
 					'<%=this.findHtml(">*")%>',
 				'</div>',
 			'</div>'
-		]
+		].join('')
 		
 	});
 	

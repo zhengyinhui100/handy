@@ -29,7 +29,7 @@ function(AC){
 					'<%=this.findHtml(">[xrole=action]")%>',
 				'</div>',
 			'</div>'
-		],
+		].join(''),
 		doConfig        : fDoConfig          //初始化配置
 		
 	});

@@ -36,7 +36,7 @@ function(AC){
 							'if(this.hasIcon&&this.text){%> hui-btn-icon-<%=this.iconPos%><%}%>">',
 							'<span class="hui-btn-txt"><%=this.text%></span>',
 							'<%=this.findHtml(">*")%>',
-							'</a>'],
+							'</a>'].join(''),
 							
 		parseItem       : fParseItem           //分析处理子组件
 	});

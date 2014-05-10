@@ -32,7 +32,7 @@ function(AC,Popup,ControlGroup){
 					'<%}%>',
 				'</ul>',
 			'</div>'
-		],
+		].join(''),
 		
 		selectItem      : fSelectItem         //选中/取消选中
 	});

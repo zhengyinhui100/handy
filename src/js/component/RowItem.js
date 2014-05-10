@@ -24,7 +24,7 @@ function(AC){
 					'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情"><span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span></a>',
 				'<%}%>',
 			'</div>'
-		],
+		].join(''),
 		doConfig       : fDoconfig    //初始化配置
 	});
 	/**

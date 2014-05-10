@@ -31,7 +31,7 @@ function(AC,Panel){
 		//属性
 //		titleCmp        : null,         //标题组件
 //		content         : null,         //内容组件
-		tmpl            : ['<div><%=this.findHtml(">[xrole=title]")%></div>'],
+		tmpl            : '<div><%=this.findHtml(">[xrole=title]")%></div>',
 		initialize      : fInitialize,  //初始化
 		doConfig        : fDoConfig,    //初始化配置
 		parseItem       : fParseItem,   //分析处理子组件

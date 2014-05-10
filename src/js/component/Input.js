@@ -43,7 +43,7 @@ function(AC){
 			'<%}else{%>',
 				' value="<%=this.value%>"/>',
 			'<%}%> ',
-		'</div>'],
+		'</div>'].join(''),
 		listeners       : [
 			{
 				name : 'focus',

@@ -32,7 +32,7 @@ function(AC){
 			'<div class="<%if(this.direction=="h"){%> hui-ctrlgp-h<%}else{%> hui-ctrlgp-v<%}%>">',
 			'<%=this.findHtml(">*")%>',
 			'</div>'
-		],
+		].join(''),
 		
 		listeners       : [
 			{

@@ -42,7 +42,7 @@ function(AC){
 					'</a>',
 				'<%}%>',
 			'</div>'
-		],
+		].join(''),
 		doConfig       : fDoconfig    //初始化配置
 	});
 	/**

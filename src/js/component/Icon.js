@@ -24,7 +24,7 @@ function(AC){
 			' hui-icon-<%=this.name%>',
 			'<%if(!this.noBg){%>',
 			' hui-icon-bg',
-			'<%}%>"></span>'],
+			'<%}%>"></span>'].join(''),
 		doConfig        : fDoConfig          //初始化配置
 		
 	});

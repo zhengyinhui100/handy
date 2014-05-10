@@ -42,7 +42,7 @@ function(AC,TabItem,ControlGroup){
 				'</ul>',
 				'<%=this.findHtml(">TabItem>[xrole=content]")%>',
 			'</div>'
-		],
+		].join(''),
 		
 		doConfig        : fDoConfig,           //初始化配置
 		layout          : fLayout,             //布局

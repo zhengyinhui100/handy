@@ -22,7 +22,8 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		////通用样式
 //		width               : null,              //宽度(默认单位是px)
 //		height              : null,              //高度(默认单位是px)
-//		theme               : null,              //组件主题
+//		tType               : null,              //组件主题类型
+//		theme               : null,              //组件主题样式
 //		radius              : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 //		shadow              : false,        	 //外阴影
 //		shadowInset         : false,        	 //内阴影
@@ -132,6 +133,9 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		var aCls=['js-component','hui-'+me.cls];
 		if(me.extCls){
 			aCls.push(me.extCls);
+		}
+		if(me.tType){
+			aCls.push('hui-'+me.cls+'-'+me.tType);
 		}
 		if(me.theme){
 			aCls.push('hui-'+me.cls+'-'+me.theme);

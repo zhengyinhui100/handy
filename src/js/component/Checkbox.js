@@ -27,7 +27,7 @@ function(AC){
 				'<%if(this.value){%> value="<%=this.value%>"<%}%>/>',
 				'<span class="hui-chkbox-txt"><%=this.text%></span>',
 			'</div>'
-		],
+		].join(''),
 		
 		select          : fSelect,          //选中
 		val             : fVal                  //获取/设置输入框的值

@@ -31,7 +31,7 @@ function(AC){
 					'<%=this.findHtml(">[xrole=content]")%>',
 				'</div>',
 			'</div>'
-		],
+		].join(''),
 		doConfig       : fDoconfig    //初始化配置
 	});
 	/**

@@ -19,7 +19,7 @@ function(AC){
 				'<%if(this.color){%> hui-label-<%=this.color%><%}%><%if(this.textAlign){%> c-txt-<%=this.textAlign%><%}%>" for="<%=this.forName%>">',
 				'<%=this.text%>',
 			'</label>'
-		]
+		].join('')
 		
 	});
 	

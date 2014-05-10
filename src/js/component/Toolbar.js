@@ -25,7 +25,7 @@ function(AC){
 				'<%=this.findHtml(">*")%>',
 				'<%if(this.title){%><h1 class="hui-tbar-title js-tbar-txt"><%=this.title%></h1><%}%>',
 			'</div>'
-		],
+		].join(''),
 		
 		parseItem        : fParseItem           //处理子组件配置
 		

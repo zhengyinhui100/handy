@@ -32,7 +32,7 @@ function(AC){
 				'<input value="<%=this.value%>" name="<%=this.name%>"/>',
 				'<span class="hui-btn-txt js-select-txt"><%=this.text%></span>',
 			'</div>'
-		],
+		].join(''),
 		
 		listeners       : [
 			{
