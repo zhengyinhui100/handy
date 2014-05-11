@@ -150,8 +150,13 @@ function(Debug,Object,Function,$H){
     	eCssNode.rel="stylesheet";
     	eCssNode.href=sUrl;
     	_fAddOnload(eCssNode,fCallback);
-    	//插入到皮肤css之前
-    	_eHead.insertBefore(eCssNode,Loader.skinNode);
+    	if(Loader.skinNode){
+	    	//插入到皮肤css之前
+	    	_eHead.insertBefore(eCssNode,Loader.skinNode);
+    	}else{
+    		//没有皮肤css，直接加到最后
+    		_eHead.appendChild(eCssNode);
+    	}
 	}
 	/**
 	 * 为css/script资源添加onload事件，包含超时处理

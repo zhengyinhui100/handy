@@ -835,7 +835,7 @@
 }
 .hui-rowitem {
   position: relative;
-  padding: .8em 0;
+  padding: .8em 0.4em;
 }
 .hui-rowitem.hui-rowitem-txt {
   word-wrap: break-word;
@@ -1188,7 +1188,7 @@
 }
 .hui-list .hui-list-more {
   text-align: center;
-  padding-bottom: 1.5em;
+  padding-bottom: 20px;
 }
 .hui-list .hui-list-more .hui-btn {
   margin-bottom: 0;

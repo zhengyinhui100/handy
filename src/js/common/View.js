@@ -825,9 +825,9 @@ function(ViewManager,AbstractEvents,Template){
 		}
 		var o=oObj||this,m,prop,op,value;
 		//#btn => [cid=tbn]
-		sSel=sSel.replace(/#([^\s,\[]+)/,'[cid=$1]');
+		sSel=sSel.replace(/^#([^\s,\[]+)/,'[cid=$1]');
 		//.btn => [cClass=tbn]
-		sSel=sSel.replace(/\.([^\s,\[]+)/,'[cClass=$1]');
+		sSel=sSel.replace(/^\.([^\s,\[]+)/,'[cClass=$1]');
 		//'Button[attr=value]'=>'[xtype=Button][attr=value]'
 		sSel=sSel.replace(/^([^\[]+)/,'[xtype=$1]');
 		//循环检查
