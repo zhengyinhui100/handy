@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-05-09 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-05-11 | zhengyinhui100@gmail.com */
 /**
  * 抽象事件类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -478,6 +478,8 @@ function(ViewManager,AbstractEvents,Template){
 		_placeholder        : '<script id="" type="text/x-placeholder"></script>',        //占位符标签
 		
 		//配置
+//		cid                 : '',                //客户定义id，必须保持唯一性，不能重复
+//		cClass              : '',                //客户定义class，无特殊限制，方便查找，类似于css的class
 //		renderTo            : null,              //渲染节点或选择器，可以是函数，调用上下文为本视图对象，如果选择器字符以">"开头，表示在父视图内查找节点
 //		defItem             : null,              //默认子视图配置
 //		hidden              : false,             //是否隐藏
@@ -1275,7 +1277,9 @@ function(ViewManager,AbstractEvents,Template){
 		}
 		var o=oObj||this,m,prop,op,value;
 		//#btn => [cid=tbn]
-		sSel=sSel.replace(/#([^\s,\[]+)/,'[cid=$1]');
+		sSel=sSel.replace(/^#([^\s,\[]+)/,'[cid=$1]');
+		//.btn => [cClass=tbn]
+		sSel=sSel.replace(/^\.([^\s,\[]+)/,'[cClass=$1]');
 		//'Button[attr=value]'=>'[xtype=Button][attr=value]'
 		sSel=sSel.replace(/^([^\[]+)/,'[xtype=$1]');
 		//循环检查

@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-05-09 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-05-11 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -1631,8 +1631,13 @@ function(Debug,Object,Function,$H){
     	eCssNode.rel="stylesheet";
     	eCssNode.href=sUrl;
     	_fAddOnload(eCssNode,fCallback);
-    	//插入到皮肤css之前
-    	_eHead.insertBefore(eCssNode,Loader.skinNode);
+    	if(Loader.skinNode){
+	    	//插入到皮肤css之前
+	    	_eHead.insertBefore(eCssNode,Loader.skinNode);
+    	}else{
+    		//没有皮肤css，直接加到最后
+    		_eHead.appendChild(eCssNode);
+    	}
 	}
 	/**
 	 * 为css/script资源添加onload事件，包含超时处理
@@ -4468,6 +4473,8 @@ function(ViewManager,AbstractEvents,Template){
 		_placeholder        : '<script id="" type="text/x-placeholder"></script>',        //占位符标签
 		
 		//配置
+//		cid                 : '',                //客户定义id，必须保持唯一性，不能重复
+//		cClass              : '',                //客户定义class，无特殊限制，方便查找，类似于css的class
 //		renderTo            : null,              //渲染节点或选择器，可以是函数，调用上下文为本视图对象，如果选择器字符以">"开头，表示在父视图内查找节点
 //		defItem             : null,              //默认子视图配置
 //		hidden              : false,             //是否隐藏
@@ -5265,7 +5272,9 @@ function(ViewManager,AbstractEvents,Template){
 		}
 		var o=oObj||this,m,prop,op,value;
 		//#btn => [cid=tbn]
-		sSel=sSel.replace(/#([^\s,\[]+)/,'[cid=$1]');
+		sSel=sSel.replace(/^#([^\s,\[]+)/,'[cid=$1]');
+		//.btn => [cClass=tbn]
+		sSel=sSel.replace(/^\.([^\s,\[]+)/,'[cClass=$1]');
 		//'Button[attr=value]'=>'[xtype=Button][attr=value]'
 		sSel=sSel.replace(/^([^\[]+)/,'[xtype=$1]');
 		//循环检查
@@ -9090,7 +9099,7 @@ function(AC){
 //		getMore     : null,              //获取更多接口
 		
 		tmpl        : [
-			'<div class="hui-list s-scroll">',
+			'<div class="hui-list">',
 				'<div class="hui-list-inner">',
 					'<div<%if(this.children.length>0){%> style="display:none"<%}%> class="hui-list-empty js-empty"><%=this.emptyTips%></div>',
 					'<%if(this.hasPullRefresh){%>',
@@ -9148,12 +9157,12 @@ function(AC){
 		//下拉刷新
 		me.hasPullRefresh=me.hasPullRefresh&&window.iScroll;
 		if(me.hasPullRefresh){
+			//如果在afterShow里初始化iScroll，会看见下拉刷新的元素，所以这里先初始化，afterShow时再调用refresh
 			me.listen({
 				name : 'afterRender',
 				handler : function(){
 					var me=this;
 					var oWrapper=me.getEl();
-					oWrapper.css({height:document.body.clientHeight-40});
 					var oPdEl=oWrapper.find('.hui-list-pulldown');
 					var oPdTxt=oPdEl.find('.js-txt');
 					var nStartY=50;
@@ -9197,6 +9206,7 @@ function(AC){
 					me.refreshScroller();
 				},0);
 			});
+			//show后需要refresh下，否则无法滚动，iscroll需要浏览器渲染后才能正常初始化
 			me.listen({
 				name:'afterShow',
 				handler:function(){
