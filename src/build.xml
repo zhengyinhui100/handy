@@ -57,6 +57,7 @@
 			<path path="js/common/View.js" />
 			<path path="js/common/Model.js" />
 			<path path="js/common/Collection.js" />
+			<path path="js/common/ModelView.js" />
 
 		</concat>
 		<concat destfile="${tmp.dir}/${project.name}-pkg.js" encoding="${charset}"
