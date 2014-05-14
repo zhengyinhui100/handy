@@ -141,6 +141,14 @@
 
 	<target name="package-js" depends="base,common,component,module">
 	</target>
+	
+	<target name="package-js-one" depends="base,common,component,module">
+	    <delete>
+	        <fileset dir="${tmp.dir}">
+				<exclude name="${project.name}-pkg.js"/>
+			</fileset>
+	    </delete>
+	</target>
 
 	<target name="copy-img">
 		<copy todir="${tmp.dir}/img">
@@ -158,8 +166,11 @@
 
 	<target name="build-fast" depends="clean,package-js,package-css,common-build">
 	</target>
+	
+	<target name="build-dev" depends="clean,package-js-one,common-build">
+	</target>
 
-	<target name="build" depends="build-fast">
+	<target name="build" depends="build-dev">
 	</target>
 
 </project>
