@@ -46,6 +46,7 @@ gEnv='dev';
 	src="../../src/js/base/Validator.js"></script>
 <script type="text/javascript"
 	src="../../src/js/base/adapt.js"></script>
+<script type="text/javascript" src="../../../lib/handlebars-v1.3.0.js"></script>
 </head>
 <body>
 <script id="entry-template" type="text/x-handlebars-template">
@@ -53,11 +54,20 @@ gEnv='dev';
   <h1>{{title}}</h1>
   <div class="body">
 	{{#if body}}
-    {{body}}
+    	{{#each body}}
+			{{name}}
+		{{/each}}
+	{{else}}
+	empty
 	{{/if}}
+	{{#unless tt}}
+		unless
+	{{/unless}}
 	<div class="items">
 	{{#each items}}
+		{{#if name}}
 		<div class="item">{{name}}</div>
+		{{/if}}
 	{{/each}}
 	</div>
   </div>
@@ -70,21 +80,42 @@ $H.Loader.rootPath={
 
 function test(){
 	var sTmpl   = document.getElementById("entry-template").innerHTML;
+	var aItems=[];
+	for(var i=0;i<100;i++){
+		aItems.push({
+			name:'name'+i
+		});
+	}
 	var oData = {
 			title: "My New Post", 
 			body: "This is my first post!",
-			items:[{
-				name:'name1'
-			},{
-				name:'name2'
-			}]
+			items:aItems
 	   	}
+
+	/* var nTimes=20000;
+	var fn=$H.tmpl(sTmpl);
+	$D.log(fn);
+	$(document.body).append(fn(oData));
+	$D.time();
+	for(var i=0;i<nTimes;i++){
+		fn(oData);
+	}
+	$D.time(true);
+	var fn = Handlebars.compile(sTmpl);
+	$D.time();
+	for(var i=0;i<nTimes;i++){
+		fn(oData);
+	}
+	$D.time(true);
+	return; */
+	
 	$Require('CM.ModelView',function(ModelView){
 		var oView=new ModelView({tmpl:sTmpl,data:oData});
 		console.log(oView.html)
 		$(document.body).append(oView.html);
 	})
 }
+
 
 test();
 
