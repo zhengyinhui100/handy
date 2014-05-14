@@ -6,7 +6,7 @@
  * 	   test:''
  * });
  * @author 郑银辉(zhengyinhui100@gmail.com)
- * @created 2013-02-17
+ * @created 2014-02-17
  */
 //"handy.common.View"
 $Define('CM.View',
