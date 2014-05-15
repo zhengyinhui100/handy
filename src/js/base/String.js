@@ -35,6 +35,9 @@ handy.add("String",function(){
 	 * @return  {string} 编码后的html代码
 	 */
 	function fEscapeHTML(sStr){
+		if(!sStr){
+			return sStr;
+		}
 		var oDiv = document.createElement('div');
 		var oText = document.createTextNode(sStr);
 		oDiv.appendChild(oText);

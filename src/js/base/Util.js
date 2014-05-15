@@ -29,7 +29,7 @@ handy.add('Util','B.Object',function(Object,$H){
 	 * @return  {number}  返回uuid
 	 */
 	function fGetUuid(){
-		return _nUuid++;
+		return ++_nUuid;
 	}
 	/**
 	 * 获取hash，不包括“？”开头的query部分
