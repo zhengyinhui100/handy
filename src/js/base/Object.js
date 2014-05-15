@@ -4,7 +4,7 @@
  */
 handy.add('Object',function($H){
 	
-	var Obj={
+	var Object={
 		_alias              : {                 //存储别名，公共库建议大写，以便更好地与普通名称区别开，具体项目的别名建议小写
 			'B'             : 'handy.base',
 			'C'             : 'handy.component',
@@ -13,7 +13,8 @@ handy.add('Object',function($H){
 		},               
 		ns                  : fNamespace,       //创建或读取命名空间，可以传入用以初始化该命名空间的对象
 		alias               : fAlias,           //创建别名/读取实名
-		extend              : fExtend,          //对象的属性扩展
+		extend              : fExtend,          //对象的属性扩展，可以自定义选项
+		extendIf            : fExtendIf,        //对象的属性扩展，不覆盖原有属性
 		mix                 : fMix,             //自定义的继承方式，可以继承object和prototype，prototype方式继承时，非原型链方式继承。
 		isNum               : fIsNum,           //是否是数字
 		isStr               : fIsStr,           //是否是字符串
@@ -36,6 +37,9 @@ handy.add('Object',function($H){
 		fromArray           : fFromArray,       //将元素形如{name:n,value:v}的数组转换为对象
 		generateMethod      : fGenerateMethod   //归纳生成类方法
 	}
+	
+	var wObject=window.Object;
+	
 	/**
     * 创建或读取命名空间
     * @method ns (sPath,obj=)
@@ -46,7 +50,7 @@ handy.add('Object',function($H){
 	function fNamespace(sPath,obj){
 		var oObject=null, j, aPath, root,bIsCreate,len; 
 		//尝试转换别名
-		sPath=Obj.alias(sPath);
+		sPath=Object.alias(sPath);
         aPath=sPath.split(".");  
         root = aPath[0]; 
         bIsCreate=arguments.length==2;
@@ -74,11 +78,11 @@ handy.add('Object',function($H){
 	 * 创建别名/读取实名，别名没有对应的存储空间，需要先转换为原始名字才能获取对应的存储空间，
 	 * Loader自动会优先尝试转换别名，因此，别名不能与现有的命名空间重叠
 	 * @method alias
-	 * @param {string=}sAlias 别名，如'B.Obj'，为空时表示读取所有存储的别名
-	 * @param {string=}sOrig 原名，如'handy.base.Obj'，为空时表示读取实名
+	 * @param {string=}sAlias 别名，如'B.Object'，为空时表示读取所有存储的别名
+	 * @param {string=}sOrig 原名，如'handy.base.Object'，为空时表示读取实名
 	 */
 	function fAlias(sAlias,sOrig){
-		var oAlias=Obj._alias;
+		var oAlias=Object._alias;
 		//创建别名
 		if(sOrig){
 			if(oAlias[sAlias]){
@@ -103,21 +107,21 @@ handy.add('Object',function($H){
 		}
 	}
 	/**
-    * 对象的属性扩展
+    * 对象的属性扩展，可以自定义选项
     * @method extend(oDestination, oSource , oOptions=)
-    * @param {Obj} oDestination 目标对象
-    * @param {Obj} oSource 源对象
-    * @param {Obj=} oOptions(可选){
+    * @param {Object} oDestination 目标对象
+    * @param {Object} oSource 源对象
+    * @param {Object=} oOptions(可选){
     * 				{array=}cover 仅覆盖此参数中的属性
     * 				{boolean=|array=|function(sprop)=}notCover 不覆盖原有属性/方法，当此参数为true时不覆盖原有属性；当此参数为数组时，
     * 					仅不覆盖数组中的原有属性；当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
     * 				{boolean=}isClone 克隆，仅当此参数为true时克隆
     * 					源对象的修改会导致目标对象也修改
     * }
-    * @return {Obj} 扩展后的对象
+    * @return {Object} 扩展后的对象
     */
     function fExtend(oDestination, oSource, oOptions) {
-    	if(!oSource||Obj.isStr(oSource)||Obj.isNum(oSource)){
+    	if(!oSource||Object.isStr(oSource)||Object.isNum(oSource)){
     		return oDestination;
     	}
     	var notCover=oOptions?oOptions.notCover:false;
@@ -131,22 +135,22 @@ handy.add('Object',function($H){
         for (var sProperty in oSource) {
         	value=oSource[sProperty];
         	//仅覆盖oOptions.cover中的属性
-        	if(!aCover||Obj.contains(aCover,sProperty)){
+        	if(!aCover||Object.contains(aCover,sProperty)){
 	        	//不复制深层prototype
 	        	if(oSource.hasOwnProperty(sProperty)){
 		        	var bHas=oDestination.hasOwnProperty(sProperty);
 		        	var bNotCover=notCover===true?bHas:false;
 		        	//当此参数为数组时，仅不覆盖数组中的原有属性
-		        	if(Obj.isArr(notCover)){
-		        		bNotCover=Obj.contains(notCover,sProperty)&&bHas;
-		        	}else if(Obj.isFunc(notCover)){
+		        	if(Object.isArr(notCover)){
+		        		bNotCover=Object.contains(notCover,sProperty)&&bHas;
+		        	}else if(Object.isFunc(notCover)){
 		        		//当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
 		        		bNotCover=notCover(sProperty,value);
 		        	}
 		            if (!bNotCover) {
-		            	var value=bIsClone?Obj.clone(value):value;
+		            	var value=bIsClone?Object.clone(value):value;
 		            	//为方法添加元数据：方法名和声明此方法的类
-						if(bAddMeta&&Obj.isFunc(value)){
+						if(bAddMeta&&Object.isFunc(value)){
 							value.$name=sProperty;
 							value.$owner=oConstructor;
 						}
@@ -158,14 +162,22 @@ handy.add('Object',function($H){
         return oDestination;
     };
     /**
+     * 对象的属性扩展，不覆盖原有属性
+     * @param {Object} oDestination 目标对象
+     * @param {Object} oSource 源对象
+     */
+    function fExtendIf(oDestination,oSource){
+    	return Object.extend(oDestination,oSource,{notCover:true});
+    }
+    /**
     * 自定义的继承方式，可以继承object和prototype，prototype方式继承时，非原型链方式继承。
 	* 如需原型链方式继承使用Object.inherit。
 	* 此继承方式的继承的对象可以是对普通对象或者是prototype对象，并且可以实现多重继承
-    * @param {Obj} oChild 子对象
-    * @param {Obj} oParent 父对象
-    * @param {Obj} oExtend 扩展的属性方法
-    * @param {Obj} oPrototypeExtend 扩展的prototype属性方法
-    * @return {Obj} 扩展后的类
+    * @param {Object} oChild 子对象
+    * @param {Object} oParent 父对象
+    * @param {Object} oExtend 扩展的属性方法
+    * @param {Object} oPrototypeExtend 扩展的prototype属性方法
+    * @return {Object} 扩展后的类
     */
     //TODO 重写
     function fMix(oChild, oParent, oExtend, oPrototypeExtend) {
@@ -173,7 +185,7 @@ handy.add('Object',function($H){
             oChild.superProto = {};
         }
         for (var sProperty in oParent) {
-            if(Obj.isFunc(oParent[sProperty])){// 如果是方法
+            if(Object.isFunc(oParent[sProperty])){// 如果是方法
                 if(!oChild.superProto[sProperty]){// superProto里面没有对应的方法，直接指向父类方法
                     oChild.superProto[sProperty] = oParent[sProperty];
                 }else{// superProto里有对应方法，需要新建一个function依次调用
@@ -193,7 +205,7 @@ handy.add('Object',function($H){
             }
         }
         if (oExtend) {
-            Obj.extend(oChild, oExtend);
+            Object.extend(oChild, oExtend);
         }
         // toString 单独处理
         if (oParent.toString != oParent.constructor.prototype.toString) {
@@ -202,7 +214,7 @@ handy.add('Object',function($H){
             };
         }
         if (oPrototypeExtend && oChild.prototype && oParent.prototype) {
-            //Obj.inherit(oChild, oParent,null, oPrototypeExtend);
+            //Object.inherit(oChild, oParent,null, oPrototypeExtend);
         }
         return oChild;
     };
@@ -236,7 +248,7 @@ handy.add('Object',function($H){
      * @return {boolean} true表示是基本类型
      */
     function fIsSimple(obj){
-    	return Obj.isStr(obj)||Obj.isNum(obj)||Obj.isBool(obj);
+    	return Object.isStr(obj)||Object.isNum(obj)||Object.isBool(obj);
     }
     /**
      * 是否未定义
@@ -249,20 +261,20 @@ handy.add('Object',function($H){
     /**
     * 对象是否是函数类型
     * @method isFunc
-    * @param {Obj} obj 对象
+    * @param {Object} obj 对象
     * @return {boolean} 返回判断结果
     */
     function fIsFunc(obj) {
-        return Object.prototype.toString.call(obj) === "[object Function]";
+        return wObject.prototype.toString.call(obj) === "[object Function]";
     }
     /**
     * 对象是否是数组类型
     * method isArr
-    * @param {Obj} obj 对象
+    * @param {Object} obj 对象
     * @return {boolean} 返回判断结果
     */
     function fIsArr(obj) {
-        return Object.prototype.toString.call(obj) === "[object Array]";
+        return wObject.prototype.toString.call(obj) === "[object Array]";
     }
     /**
      * 是否是对象
@@ -270,7 +282,7 @@ handy.add('Object',function($H){
      * @return {boolean} true表示是对象类型
      */
     function fIsObj(obj){
-    	return typeof obj=='object'&&!Obj.isArr(obj);
+    	return typeof obj=='object'&&!Object.isArr(obj);
     }
     /**
      * 判断对象是否是类
@@ -278,13 +290,13 @@ handy.add('Object',function($H){
      * @return {boolean} true表示参数对象是类
      */
     function fIsClass(obj){
-    	return Obj.isFunc(obj)&&obj.$isClass===true;
+    	return Object.isFunc(obj)&&obj.$isClass===true;
     }
     /**
     * 对比对象值是否相同
     * @method equals
-    * @param {Obj} o1 对象1
-    * @param {Obj} o2 对象2
+    * @param {Object} o1 对象1
+    * @param {Object} o2 对象2
     * @return {boolean} 返回判断结果
     */
     function fEquals(o1, o2) {
@@ -302,28 +314,28 @@ handy.add('Object',function($H){
                     //两个对象引用不同，循环判断他们的值是否相同
                 } else {
                     //数组判断
-                    if (Obj.isArr(o1) && Obj.isArr(o2)) {
+                    if (Object.isArr(o1) && Object.isArr(o2)) {
                         //数组长度不相等，不相等
                         if (o1.length != o2.length) {
                             return false;
                         }
                         for (var i = 0, m = o1.length; i < m; i++) {
-                            if (!Obj.equals(o1[i], o2[i])) {
+                            if (!Object.equals(o1[i], o2[i])) {
                                 return false;
                             }
                         }
                         return true;
                         //对象判断
-                    } else if (!Obj.isArr(o1) && !Obj.isArr(o2)) {
+                    } else if (!Object.isArr(o1) && !Object.isArr(o2)) {
                     	//对象属性项不一样
-                    	if(Obj.count(o1)!=Obj.count(o2)){
+                    	if(Object.count(o1)!=Object.count(o2)){
                     		return false;
                     	}
                         for (var sKey in o1) {
                             if (o2[sKey] == undefined) {
                                 return false;
                             }
-                            if (!Obj.equals(o1[sKey], o2[sKey])) {
+                            if (!Object.equals(o1[sKey], o2[sKey])) {
                                 return false;
                             }
                         }
@@ -342,15 +354,15 @@ handy.add('Object',function($H){
 	/**
     * clone一个对象
     * @method clone
-    * @param {Obj} oFrom 需要clone的对象
-    * @return {Obj} 返回克隆的对象，如果对象属性不支持克隆，将原来的对象返回
+    * @param {Object} oFrom 需要clone的对象
+    * @return {Object} 返回克隆的对象，如果对象属性不支持克隆，将原来的对象返回
     */
 	function fClone(oFrom){
 		if(oFrom == null || typeof(oFrom) != 'object'){
 			return oFrom;
 		}else{
 			var Constructor = oFrom.constructor;
-			if (Constructor != Object && Constructor != window.Array){
+			if (Constructor != wObject && Constructor != window.Array){
 				return oFrom;
 			}else{
 
@@ -362,7 +374,7 @@ handy.add('Object',function($H){
 						var oTo = new Constructor(); // changed
 
 						for(var key in oFrom){
-							oTo[key] = Obj.clone(oFrom[key]);
+							oTo[key] = Object.clone(oFrom[key]);
 						}
 						return oTo;
 					}catch(exp){
@@ -375,11 +387,11 @@ handy.add('Object',function($H){
     /**
     * 对象是否是空
     * @method isEmpty
-    * @param {Obj}object 参数对象
+    * @param {Object}object 参数对象
     * @return {boolean} 返回判断结果
     */
     function fIsEmpty(object) {
-        if (Obj.isArr(object)) {
+        if (Object.isArr(object)) {
             return object.length == 0;
         } else {
             for (var k in object) {
@@ -401,7 +413,7 @@ handy.add('Object',function($H){
     	}
     	var sName, i = 0,
 			nLength = object.length,len,
-			bIsObj = nLength === undefined || Obj.isFunc( object );
+			bIsObj = nLength === undefined || Object.isFunc( object );
 		if ( args ) {
 			if ( bIsObj ) {
 				for ( sName in object ) {
@@ -460,8 +472,8 @@ handy.add('Object',function($H){
     		return false;
     	}
     	var bIsContain=false;
-    	Obj.each(obj,function(i,p){
-    		if(Obj.equals(p,prop)){
+    	Object.each(obj,function(i,p){
+    		if(Object.equals(p,prop)){
     			bIsContain=true;
     			return false;
     		}
@@ -471,14 +483,14 @@ handy.add('Object',function($H){
     /**
      * 是否大于另一个对象|数组（包含另一个对象的所有属性或包含另一个数组的所有元素）
      * @method largeThan
-     * @param {Obj|Array}o1 要比较的对象
-     * @param {Obj|Array}o2 比较的对象
+     * @param {Object|Array}o1 要比较的对象
+     * @param {Object|Array}o2 比较的对象
      */
     function fLargeThan(o1,o2){
     	if(typeof o1=='object'&&typeof o2=='object'){
     		var bResult=true;
-    		Obj.each(o2,function(p,v){
-    			if(!Obj.equals(o2[p],o1[p])){
+    		Object.each(o2,function(p,v){
+    			if(!Object.equals(o2[p],o1[p])){
     				return bResult=false;
     			}
     		});
@@ -488,11 +500,11 @@ handy.add('Object',function($H){
     /**
     * 计算对象长度
     * @method count
-    * @param {Obj}oParam 参数对象
+    * @param {Object}oParam 参数对象
     * @return {number} 返回对象长度
     */
     function fCount(oParam) {
-        if (Obj.isArr(oParam)) {
+        if (Object.isArr(oParam)) {
             return oParam.length;
         } else {
 	        var nCount = 0;
@@ -504,30 +516,30 @@ handy.add('Object',function($H){
     }
     /**
      * 移除undefined的元素或属性
-     * @param {Obj|Array}obj 参数对象
+     * @param {Object|Array}obj 参数对象
      * @param {boolean=}bNew 是否新建结果对象，不影响原对象
-     * @param {Obj|Array} 返回结果
+     * @param {Object|Array} 返回结果
      */
     function fRemoveUndefined(obj,bNew){
-    	var bIsArray=Obj.isArr(obj);
+    	var bIsArray=Object.isArr(obj);
     	if(bNew){
     		if(bIsArray){
     			var aResult=[];
-    			Obj.each(obj,function(k,value){
+    			Object.each(obj,function(k,value){
 		    		if(value!==undefined){
 		    			aResult.push(value);
 		    		}
 	    		});
 	    		return aResult;
     		}else{
-	    		return Obj.extend({},obj,{
+	    		return Object.extend({},obj,{
 	    			isClone:true,
 	    			notCover:function(k,value){
 	    				return value===undefined;
 	    		}});
     		}
     	}else{
-	    	Obj.each(obj,function(k,value){
+	    	Object.each(obj,function(k,value){
 	    		if(value===undefined){
 	    			if(bIsArray){
 	    				obj.splice(k,1);
@@ -542,7 +554,7 @@ handy.add('Object',function($H){
     /**
     * 将类数组对象转换为数组，比如arguments, nodelist
     * @method toArray(oParam,nStart=,nEnd=)
-    * @param {Obj}oParam 参数对象
+    * @param {Object}oParam 参数对象
     * @param {number=}nStart 起始位置
     * @param {number=}nEnd   结束位置
     * @return {Array} 返回转换后的数组
@@ -581,19 +593,19 @@ handy.add('Object',function($H){
     /**
     * 归纳生成类方法
     * @method generateMethod
-    * @param {Obj}oTarget 需要生成方法的对象
+    * @param {Object}oTarget 需要生成方法的对象
     * @param {string|Array.<string>}method 需要生成的方法列表，如果是字符串，用","作为分隔符
     * @param {function()}fDefined 方法定义函数，该函数执行后返回方法定义
     * @return {Array} 返回转换后的数组
     */
     function fGenerateMethod(oTarget,method,fDefined){
-    	var aMethod=Obj.isArr(method)?method:method.split(",");
+    	var aMethod=Object.isArr(method)?method:method.split(",");
     	for ( var i = 0; i < aMethod.length; i++ ){
 			var sMethod = aMethod[i];
 			oTarget[sMethod] = fDefined(sMethod);
     	}
     }
 	
-	return Obj;
+	return Object;
 	
 });
