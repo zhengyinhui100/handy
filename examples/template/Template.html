@@ -49,25 +49,23 @@ gEnv='dev';
 <script type="text/javascript" src="../../../lib/handlebars-v1.3.0.js"></script>
 </head>
 <body>
+<input value="按钮" type="button" id="button"/>
 <script id="entry-template" type="text/x-handlebars-template">
 <div class="entry">
   <h1>{{title}}</h1>
   <div class="body">
 	{{#if body}}
-    	{{#each body}}
-			{{name}}
-		{{/each}}
+    	<div>if body:{{body}}</div>
 	{{else}}
-	empty
+	<div>else body</div>
 	{{/if}}
 	{{#unless tt}}
-		unless
+		<div>unless</div>
 	{{/unless}}
+	<input type="text" {{bindAttr value=value}}/>
 	<div class="items">
 	{{#each items}}
-		{{#if name}}
 		<div class="item">{{name}}</div>
-		{{/if}}
 	{{/each}}
 	</div>
   </div>
@@ -81,13 +79,14 @@ $H.Loader.rootPath={
 function test(){
 	var sTmpl   = document.getElementById("entry-template").innerHTML;
 	var aItems=[];
-	for(var i=0;i<100;i++){
+	for(var i=0;i<5;i++){
 		aItems.push({
 			name:'name'+i
 		});
 	}
 	var oData = {
 			title: "My New Post", 
+			value:"my value",
 			body: "This is my first post!",
 			items:aItems
 	   	}
@@ -113,58 +112,18 @@ function test(){
 		var oView=new ModelView({tmpl:sTmpl,data:oData});
 		console.log(oView.html)
 		$(document.body).append(oView.html);
+		var i=0,value;
+		$("#button").click(function(){
+			oView.update({title:'title'+i});
+			value=value?'':'body content';
+			oView.update({body:value,value:value});
+			i++;
+		});
 	})
 }
 
-
 test();
 
-function test1(){
-	var tmpl = 
-	'<% for(var i = 0; i < this.posts.length; i++) {' +　
-	'var post = this.posts[i]; %>' +
-		'<% if(!post.expert){ %>' +
-		    '<span>post is null</span>' +
-		'<% } else { %>' +
-		    '<a href="#"><%=post.expert %> at <%=post.time %></a>' +
-		'<% } %>' +
-	'<% } %>';
-	var data = {
-		    "posts": [{
-		        "expert": "content 1",
-		        "time": "yesterday"
-		    },{
-		        "expert": "content 2",
-		        "time": "today"
-		    },{
-		        "expert": "content 3",
-		        "time": "tomorrow"
-		    },{
-		        "expert": "",
-		        "time": "eee"
-		    }]
-		};
-	$D.log($H.Template.tmpl(tmpl,data));
-}
-function test2(){
-	
-	var source =
-		  '<ul>'
-		+    '<% var e=1,list=this.list;for (var i = 0; i <list.length; i ++) { %>'
-		+        '<li>索引 <%= i + 1 %> ：<%= list[i] %><%= this.ee %><%= e %></li>'
-		+    '<% } %>'
-		+ '</ul>';
-	
-		var data = {
-			ee:'',
-		    list: ['文艺', '博客', '摄影', '电影', '民谣', '旅行', '吉他']
-		};
-	
-	    var render = template.compile(source);
-		console.log(render)
-		var html = render(data);
-		console.log(html)
-}
 </script>
 
 </body>
