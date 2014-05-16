@@ -59,8 +59,8 @@ function(Template,AbstractEvents,Model,Collection){
 		if((condition&&!oOptions.inverse)||(!condition&&oOptions.inverse)){
 			sHtml=oOptions.fn(oData);
 		}
-		if(!me.inited){
-			me.listenTo(me._model,'change:'+sExp,function(sName,oModel,sValue){
+		if(!me.inited&&oData instanceof Model){
+			me.listenTo(oData,'change:'+sExp,function(sName,oModel,sValue){
 				var sHtml;
 				if((sValue&&!oOptions.inverse)||(!sValue&&oOptions.inverse)){
 					var data={};
@@ -153,8 +153,8 @@ function(Template,AbstractEvents,Model,Collection){
 		var nNum=$H.uuid();
 		var bIsEscape=Template.isEscape;
 		var oHelpers=oOptions.helpers;
-		if(!me.inited){
-			me.listenTo(me._model,'change:'+sExp,function(sName,oModel,sValue){
+		if(!me.inited&&oData instanceof Model){
+			me.listenTo(oData,'change:'+sExp,function(sName,oModel,sValue){
 				if(bIsEscape){
 					sValue=oHelpers.escape(sValue);
 				}
@@ -194,8 +194,8 @@ function(Template,AbstractEvents,Model,Collection){
 			}else{
 				//表达式赋值
 				result.push(attr+'="'+(oData.get?oData.get(exp):oData[exp])+'"');
-				if(!me.inited){
-					me.listenTo(me._model,"change:"+exp,function(sName,oModel,sValue){
+				if(!me.inited&&oData instanceof Model){
+					me.listenTo(oData,"change:"+exp,function(sName,oModel,sValue){
 						$('#'+sId).attr(attr,sValue||'');
 					});
 				}
