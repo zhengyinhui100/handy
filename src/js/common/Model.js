@@ -28,7 +28,9 @@ function(AbstractDao,AbstractEvents){
 ////    belongsTo             : null,                //保留属性，描述一对一关系，
 ////    hasMany               : null,                //保留属性，描述一对多关系
 //		cid                   : 0,                   //客户id
+//		id                    : 0,                   //模型id
         idAttribute           : 'id',                //id默认属性名
+//      uuid                  : 0,                   //uuid，初始化时系统分配，具有全局唯一性
 //      defaults              : {},                  //默认属性
 //		dao                   : null,                //数据访问对象，默认为common.AbstractDao
 		
@@ -36,8 +38,8 @@ function(AbstractDao,AbstractEvents){
 //		_changing             : false,               //是否正在改变，但未保存
 		_pending              : false,               //
 //		_previousAttributes   : {},                  //较早的值
-//		_attributes           : {},                 //属性对象
-//    	_changed              : {},                 //改变了的值
+//		_attributes           : {},                  //属性对象
+//    	_changed              : {},                  //改变了的值
 //	    validationError       : {},                  //校验错误的值
         
         
@@ -55,6 +57,7 @@ function(AbstractDao,AbstractEvents){
    		set                   : fSet,                //设置值
    		unset                 : fUnset,              //移除指定属性
    		clear                 : fClear,              //清除所有属性
+   		each                  : fEach,               //遍历字段
    		hasChanged            : fHasChanged,         //判断自上次change事件后有没有修改，可以指定属性
    		changedAttrbutes      : fChangedAttributes,  //返回改变过的属性，可以指定需要判断的属性
    		previous              : fPrevious,           //返回修改前的值，如果没有修改过，则返回null
@@ -170,12 +173,13 @@ function(AbstractDao,AbstractEvents){
 	 */
 	function fInitialize(oAttributes, oOptions) {
 		var me=this;
+		me.uuid=$H.uuid();
 		//配置dao对象
 		me.dao=me.dao||$H.getSingleton(AbstractDao);
 		me._initDepFields();
 		var oAttrs = oAttributes || {};
 		oOptions || (oOptions = {});
-		me.cid = $H.Util.getUuid();
+		me.cid = $H.Util.uuid();
 		me._attributes = {};
 		if (oOptions.collection){
 			me.collection = oOptions.collection;
@@ -344,6 +348,14 @@ function(AbstractDao,AbstractEvents){
         oOptions=oOptions||{};
     	oOptions.unset=true;
         return me.set(oAttrs,oOptions);
+    }
+    /**
+     * 遍历字段
+     * @param {function}fCall({string}attr,{*}value) 回调函数
+     */
+    function fEach(fCall){
+    	var oAttrs=this._attributes;
+    	$H.each(oAttrs,fCall);
     }
 	/**
 	 * 判断自上次change事件后有没有修改，可以指定属性

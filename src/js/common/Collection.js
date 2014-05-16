@@ -14,7 +14,7 @@ function(AbstractDao,AbstractEvents,Model){
 	var Collection=AbstractEvents.derive({
 		//可扩展属性
 //		url                    : '',                  //集合url
-//		model                  : Model,               //子对象模型类
+		model                  : Model,               //子对象模型类
 //		dao                    : null,                //数据访问对象，默认为common.AbstractDao
 		
 		//内部属性
@@ -102,10 +102,13 @@ function(AbstractDao,AbstractEvents,Model){
         oOptions = oOptions ? $H.clone(oOptions) : {};
         oOptions.collection = me;
         //如果数据仓库里已经存在，直接使用
-        var oModel=$S.get(me.model.$ns,{id:oOptions.id});
-        if(oModel=oModel&&oModel[0]){
-        	oModel.set(oAttrs,oOptions);
-        	return oModel;
+        var oModel;
+        if(oOptions.id){
+	        oModel=$S.get(me.model.$ns,{id:oOptions.id});
+	        if(oModel=oModel&&oModel[0]){
+	        	oModel.set(oAttrs,oOptions);
+	        	return oModel;
+	        }
         }
         
         oModel = new me.model(oAttrs, oOptions);

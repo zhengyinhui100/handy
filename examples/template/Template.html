@@ -37,13 +37,19 @@ gEnv='dev';
 <script type="text/javascript"
 	src="../../src/js/base/Util.js"></script>
 <script type="text/javascript"
-	src="../../src/js/base/Support.js"></script>
+	src="../../src/js/base/Array.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Geo.js"></script>
 <script type="text/javascript"
 	src="../../src/js/base/Template.js"></script>
 <script type="text/javascript"
 	src="../../src/js/base/HashChange.js"></script>
 <script type="text/javascript"
+	src="../../src/js/base/Support.js"></script>
+<script type="text/javascript"
 	src="../../src/js/base/Validator.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/LocalStorage.js"></script>
 <script type="text/javascript"
 	src="../../src/js/base/adapt.js"></script>
 <script type="text/javascript" src="../../../lib/handlebars-v1.3.0.js"></script>
@@ -62,7 +68,7 @@ gEnv='dev';
 	{{#unless tt}}
 		<div>unless</div>
 	{{/unless}}
-	<input type="text" {{bindAttr value=value}}/>
+	<input type="text" {{bindAttr id="input133" name="name" value=value}}/>
 	<div class="items">
 	{{#each items}}
 		<div class="item">{{name}}</div>
@@ -108,17 +114,31 @@ function test(){
 	$D.time(true);
 	return; */
 	
-	$Require('CM.ModelView',function(ModelView){
-		var oView=new ModelView({tmpl:sTmpl,data:oData});
-		console.log(oView.html)
+	$Require(['CM.ModelView','CM.Model','CM.Collection'],function(ModelView,Model,Collection){
+		
+		var CusModel=Model.derive({
+			fields:{
+				items:Collection
+			}
+		});
+		var oModel=new CusModel(oData);
+		console.log(oModel);
+		var oView=new ModelView(sTmpl,oModel);
 		$(document.body).append(oView.html);
 		var i=0,value;
 		$("#button").click(function(){
-			oView.update({title:'title'+i});
+			oView.updateModel({title:'title'+i});
 			value=value?'':'body content';
-			oView.update({body:value,value:value});
+			var oItems=oModel.get('items');
+			if(value){
+				oItems.add({name:'new name'+i},{at:4});
+			}else{
+				oItems.remove(oItems.at(2));
+			}
+			oView.updateModel({body:value,value:value});
 			i++;
 		});
+		
 	})
 }
 

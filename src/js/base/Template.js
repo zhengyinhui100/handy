@@ -11,6 +11,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		isTrim          : true,            //是否过滤标签间空白和换行
 		isEscape        : true,            //是否开启js变量输出转义
 		
+		getIfPlusJoin   : fGetIfPlusJoin,  //获取是否使用+连接字符串 
 		registerHelper  : fRegisterHelper, //添加辅助函数
 		tmpl            : fTmpl            //编译/渲染模板
 	};
@@ -19,7 +20,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 	var _cache={},                //缓存
 		_aCode,                   //存储用于生成模板函数的代码字符串
 		_valPreReg=/^=/,          //简单替换正则
-		_isNewEngine = ''.trim,   // '__proto__' in {}
+		_isNewEngine=''.trim,     //''.trim同'__proto__' in {}，测试浏览器是否是新引擎，一般新引擎+会快些，旧式引擎使用数组join形式
 		//字符拼接的声明及收尾
 		_aJoinDefine=[           
 			'var $r='+(_isNewEngine?'""':'[]')+',$tmp,helper;',
@@ -27,19 +28,25 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		],
 		//辅助函数
 		_helpers={
-			'if':_fIf,
-			'unless':_fUnless,
-			'each':_isNewEngine?_fEach:_fEachOld,
-			escape:String.escapeHTML,
-			trim:String.trim
+			'default':{
+				'if':_fIf,
+				'unless':_fUnless,
+				'each':_isNewEngine?_fEach:_fEachOld,
+				escape:String.escapeHTML,
+				trim:String.trim
+			}
 		};
 		
 	/**
 	 * if辅助函数
 	 * @param {string|function}condition 条件语句
 	 * @param {object}oOptions 选项{
-	 * 		{boolean=}inverse:true时表示条件反转
-	 * 		{function}fn:回调函数
+	 * 		{boolean=}inverse:true时表示条件反转,
+	 * 		{function}fn:回调函数,
+	 * 		{string}exp:表达式,
+	 * 		{object}context:模板函数执行上下文对象,
+	 * 		{number}num:逻辑编号,
+	 * 		{object}helpers:辅助函数表
 	 * }
 	 * @return {string=} 返回生成的html
 	 */
@@ -53,18 +60,16 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 	}
 	/**
 	 * unless辅助函数
-	 * 同if辅助函数
+	 * 参数说明同if辅助函数
 	 */
 	function _fUnless(condition, oOptions,data){
 		oOptions.inverse=true;
-		return _helpers['if'].call(this, condition, oOptions,data);
+		return oOptions.helpers['if'].call(this, condition, oOptions,data);
 	}
 	/**
 	 * each辅助函数，新式浏览器里使用，chrome下性能大约提升一倍
 	 * @param {array|object}data 可遍历数据对象
-	 * @param {object}oOptions 选项{
-	 * 		{function}fn:回调函数
-	 * }
+	 * @param {object}oOptions 选项，参数说明同if辅助函数
 	 * @return {string=} 返回生成的html
 	 */
 	function _fEach(data,oOptions){
@@ -139,17 +144,18 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 	 */
 	function _fParseScript(oScript,oOptions){
 		var oOptions=oOptions||{};
-		var sExp=oScript.exp;
+		var sExp=oScript.exp.replace(/"/g,'\'');
 		var sBlockName=oScript.blockName;
 		var aChildren=oScript.children;
 		var nNumber=oScript.num;
 		var sCode;
+		var sGetter='$data && ($data.get?$data.get("'+sExp+'"):$data.'+sExp+')';
 		var sAdd='\nif($tmp||$tmp===0){'+_fAddLine('$tmp')+'}';
+		var sParams=(oScript.inverse?'inverse:true,':'')+'num:'+nNumber+',context:me,exp:"'+sExp+'",helpers:$helpers},$data';
 		//辅助函数
 		if(sBlockName){
 			var sProgramName='$program'+nNumber;
-			sCode='$tmp = $helpers.'+sBlockName+'.call(me,($data && $data.'+sExp+'), {fn:'+sProgramName
-					+(oScript.inverse?',inverse:true':'')+',num:'+nNumber+',context:me,exp:"'+sExp+'"},$data);'+sAdd;
+			sCode='$tmp = $helpers.'+sBlockName+'.call(me,'+sGetter+', {fn:'+sProgramName+','+sParams+');'+sAdd;
 			if(aChildren){
 				var aCode=_fCompileAST(aChildren,oOptions);
 				var sCodeInner=_aJoinDefine[0]+'\n'+aCode.join('\n')+'\n'+_aJoinDefine[1];
@@ -161,13 +167,14 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 			var m;
 			if(m=sExp.match(/([^\s]+)\s([^\n]+)/)){
 				sExp=m[1];
-				sCode='if (helper = $helpers.'+sExp+') {\n$tmp = helper.call(me,"'+m[2]+'",{num:'+nNumber+',context:me},$data); \n}else{$tmp="";}';
+				sCode='if (helper = $helpers.'+sExp+') {\n$tmp = helper.call(me,"'+m[2]+'",{'+sParams+'); \n}else{$tmp="";}';
 			}else{
 				//直接表达式
-				sCode='if (helper = $helpers.'+sExp+') {\n$tmp = helper.call(me,$data); \n}'+
-				  		'else{\nhelper = ($data && $data.'+sExp+'); $tmp = typeof helper === functionType ? helper.call(me,$data) : helper;\n}'+
-				  		(T.isEscape?'\n$tmp=escape($tmp);':'')+
-				  		(oOptions.parseHelper?'\n$tmp=$helpers.'+oOptions.parseHelper+'.call(me,$tmp,{num:'+nNumber+',context:me,exp:"'+sExp+'"},$data);':'');
+				sCode='if (helper = $helpers.'+sExp+') {\n$tmp = helper.call(me,$data,{'+sParams+'); \n}'+
+						'else if($helpers.getValue){'+'\n$tmp=$helpers.getValue'+'.call(me,$data,{'+sParams+');}'
+				  		'else{\nhelper = '+sGetter+'; $tmp = typeof helper === functionType ? helper.call(me,$data,{'+sParams+') : helper;\n}'+
+				  		(oOptions.helpers.getValue?''
+				  		:(T.isEscape?'\n$tmp=escape($tmp);':''));
 			}
 			sCode+=sAdd;
 		}
@@ -233,60 +240,54 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 				//['if']
 				if(aName){
 					var sName=aName[0];
-					if(_helpers[sName]){
-						
-						nIndex=sTmpl.indexOf(sCloseTag);
-						//'title'
-						var sExp=sTmpl.substring(sName.length+1,nIndex);
-						//'<div>{{title}}</div>{{else}}<div>empty</div>{{/if}}</div>'
-						sTmpl=sTmpl.substring(nIndex+sCloseTag.length);
-						var oCurrent={
-							num:++nNumber,
-							blockName:sName,
-							//'item in list'
-							exp:sExp
-						}
-						aAst.push(oCurrent);
-						
-						//'{{/if}}'
-						var sEndTag=sOpenTag+'/'+sName+sCloseTag;
-						//查找块结束位置
-						nIndex=_fSearchEnd(sName,sEndTag,sTmpl);
-						var sContent;
-						if(nIndex==-1){
-							Debug.error('未找到块结束位置:'+sEndTag);
-							return;
-						}else{
-							//'<div>{{title}}</div>{{else}}<div>empty</div>'
-							sContent=sTmpl.substring(0,nIndex);
-							//'</div>'
-							sTmpl=sTmpl.substring(nIndex+sEndTag.length);
-						}
-						
-						//分析子内容
-						_fParseTmpl(sContent,oCurrent,++nNumber);
-						
-						//检出else
-						if(sName=='if'){
-							var aChildNodes=oCurrent.children;
-							for(var i=0,l=aChildNodes.length;i<l;i++){
-								var oChd=aChildNodes[i];
-								if(oChd.exp=='else'){
-									//把else块提出到if块后面
-									oChd.exp=oCurrent.exp;
-									oChd.blockName='if';
-									//nNumber在分析子内容时已加1
-									oChd.num=nNumber;
-									oChd.inverse=true;
-									oChd.children=aChildNodes.slice(i+1);
-									aAst.push(oChd);
-									oCurrent.children=aChildNodes.slice(0,i);
-								}
+					nIndex=sTmpl.indexOf(sCloseTag);
+					//'title'
+					var sExp=sTmpl.substring(sName.length+1,nIndex);
+					//'<div>{{title}}</div>{{else}}<div>empty</div>{{/if}}</div>'
+					sTmpl=sTmpl.substring(nIndex+sCloseTag.length);
+					var oCurrent={
+						num:++nNumber,
+						blockName:sName,
+						//'item in list'
+						exp:sExp
+					}
+					aAst.push(oCurrent);
+					
+					//'{{/if}}'
+					var sEndTag=sOpenTag+'/'+sName+sCloseTag;
+					//查找块结束位置
+					nIndex=_fSearchEnd(sName,sEndTag,sTmpl);
+					var sContent;
+					if(nIndex==-1){
+						Debug.error('未找到块结束位置:'+sEndTag);
+						return;
+					}else{
+						//'<div>{{title}}</div>{{else}}<div>empty</div>'
+						sContent=sTmpl.substring(0,nIndex);
+						//'</div>'
+						sTmpl=sTmpl.substring(nIndex+sEndTag.length);
+					}
+					
+					//分析子内容
+					_fParseTmpl(sContent,oCurrent,++nNumber);
+					
+					//检出else
+					if(sName=='if'){
+						var aChildNodes=oCurrent.children;
+						for(var i=0,l=aChildNodes.length;i<l;i++){
+							var oChd=aChildNodes[i];
+							if(oChd.exp=='else'){
+								//把else块提出到if块后面
+								oChd.exp=oCurrent.exp;
+								oChd.blockName='if';
+								//nNumber在分析子内容时已加1
+								oChd.num=nNumber;
+								oChd.inverse=true;
+								oChd.children=aChildNodes.slice(i+1);
+								aAst.push(oChd);
+								oCurrent.children=aChildNodes.slice(0,i);
 							}
 						}
-					}else{
-						Debug.error('辅助函数‘'+sName+'’未定义');
-						return;
 					}
 				}else{
 					Debug.error('找不到辅助函数:'+sTmpl);
@@ -313,7 +314,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 	/**
 	 * 编译AST
 	 * @param  {array}aAST 表达式列表
-	 * @param {object=}oOptions 选项
+	 * @param {object}oOptions 选项
 	 * @return {array}     返回编译好的代码数组
 	 */
 	function _fCompileAST(aAST,oOptions){
@@ -354,6 +355,20 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		//旧浏览器使用数组方式拼接字符串
 		_aCode=[_aJoinDefine[0]];
 		_aCode.push('var escape=$helpers.escape,functionType="function",me=this;');
+		
+		//处理设置
+		var sNameSpace=oOptions&&oOptions.ns;
+		var oHelpers;
+		//有自定义辅助函数，覆盖默认函数
+		if(sNameSpace){
+			oHelpers=Object.extend({},_helpers['default']);
+			oHelpers=Object.extend(oHelpers,_helpers[sNameSpace]);
+		}else{
+			oHelpers=_helpers['default'];
+		}
+		oOptions.helpers=oHelpers;
+		var oContext=oOptions.context;
+		
 		var oAst=_fParseTmpl(sTmpl);
 		var aCode=_fCompileAST(oAst.children,oOptions);
 		_aCode=_aCode.concat(aCode);
@@ -365,14 +380,6 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 			//TODO
 			Debug.log(fRender);
 			Debug.log('\n\n\n\n\n\n\n\n\n\n');
-			var oHelpers=oOptions&&oOptions.helpers;
-			//有自定义辅助函数，继承全局函数
-			if(oHelpers){
-				Object.extendIf(oHelpers,_helpers);
-			}else{
-				oHelpers=_helpers;
-			}
-			var oContext=oOptions.context;
 			return function($data){
 				return fRender.call(oContext,T,oHelpers,$data);
 			}
@@ -382,12 +389,27 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		}
 	}
 	/**
+	 * 获取是否使用+连接字符串
+	 * @return {boolean} true表示使用+，false表示使用数组join形式
+	 */
+	function fGetIfPlusJoin(){
+		return _isNewEngine;
+	}
+	/**
 	 * 添加辅助函数
-	 * @param {string|Object}sName 辅助函数名
+	 * @param {string}sNameSpace 命名空间
+	 * @param {string|Object}sName 辅助函数名，也可以传入hash形式的参数{sName:fHelper}
 	 * @param {Function}fHelper 辅助函数
 	 */
-	function fRegisterHelper(sName,fHelper){
-		_helpers[sName]=fHelper;
+	function fRegisterHelper(sNameSpace,sName,fHelper){
+		if(Object.isObj(sName)){
+			if(!_helpers[sNameSpace]){
+				_helpers[sNameSpace]={};
+			}
+			Object.extend(_helpers[sNameSpace],sName);
+		}else{
+			_helpers[sNameSpace][sName]=fHelper;
+		}
 	}
 	/**
 	 * 执行模板

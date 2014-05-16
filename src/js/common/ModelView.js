@@ -5,139 +5,232 @@
  */
 //"handy.common.ModelView"
 $Define('CM.ModelView',
-['CM.AbstractEvents',
+[
+'B.Template',
+'CM.AbstractEvents',
 'CM.Model',
-'B.Template'],
-function(AbstractEvents,Model,Template){
+'CM.Collection'
+],
+function(Template,AbstractEvents,Model,Collection){
 	
 	var _oTagReg=/^(<[a-zA-Z]+)/;
 	
 	var ModelView=AbstractEvents.derive({
-		initialize     : fInitialize,         //初始化
-		updateContent  : fUpdateContent,      //更新内容
-		wrapHtml       : fWrapHtml,           //包装结果html
-		update         : fUpdate              //更新
+		modelClass       : Model,               //模型类
+		initialize       : fInitialize,         //初始化
+		updateMetaMorph  : fUpdateMetaMorph,    //更新内容
+		wrapMetaMorph    : fWrapMetaMorph,      //包装结果html
+		updateModel      : fUpdateModel,        //更新数据
+		getModel         : fGetModel            //获取配置对象
 	});
 	
-	var _oHelpers={
-		/**
-		 * 
-		 */
-		'if':function(condition,oOptions,oData){
-			var me=oOptions.context;
-			var sExp=oOptions.exp;
-			var nNum=oOptions.num;
-			if ($H.isFunc(condition)) { 
-				condition = condition.call(oData); 
-			}
-			var sHtml;
-			if((condition&&!oOptions.inverse)||(!condition&&oOptions.inverse)){
-				sHtml=oOptions.fn(oData);
-			}
-			if(!me.inited){
-				me.listenTo(me._config,'change:'+sExp,function(sName,oConfig,sValue){
-					var sHtml;
-					if((sValue&&!oOptions.inverse)||(!sValue&&oOptions.inverse)){
-						var data={};
-						data[sExp]=sValue;
-						sHtml=oOptions.fn(data);
-					}
-					me.updateContent(nNum,sHtml);
-				});
-			}
-			return me.wrapHtml(sHtml,oOptions.num);
-		},
-		/**
-		 * 
-		 */
-		'unless':function (condition, oOptions,oData){
-			oOptions.inverse=true;
-			return _oHelpers['if'].call(this, condition, oOptions,oData);
-		},
-		/**
-		 * 遍历
-		 */
-		'each':function(data,oOptions){
-			var me=oOptions.context;
-			var fn=oOptions.fn,r='';
-			if(!data){
-				return;
-			}
-			var nNum=oOptions.num;
-			var sInner=nNum+'-';
-			if(data.length!=undefined){
-				for(var i=0,l=data.length;i<l;i++){
-					r+=me.wrapHtml(fn(data[i]),sInner+i);
-				}
-			}else{
-				for(var i in data){
-					r+=me.wrapHtml(fn(data[i]),sInner+i);
-				}
-			}
-			return me.wrapHtml(r,nNum);
-		},
-		/**
-		 * 获取值
-		 *
-		 */
-		getValue:function(sHtml,oOptions){
-			var me=oOptions.context;
-			var sExp=oOptions.exp;
-			var nNum=oOptions.num;
-			if(!me.inited){
-				me.listenTo(me._config,'change:'+sExp,function(sName,oConfig,sValue){
-					me.updateContent(nNum,sValue);
-				});
-			}
-			return me.wrapHtml(sHtml,nNum);
-		},
-		/**
-		 * 绑定属性
-		 * @param {string}sExp 表达式
-		 * @param {object}oOptions 选项
-		 * @param {object}oData 数据
-		 */
-		bindAttr:function(sExp,oOptions,oData){
-			var me=oOptions.context;
-			var nNum=oOptions.num;
-			var r=/([^=\s]+)=([^=\s]+)/g;
-			var m,exp,result=[];
-			while(m=r.exec(sExp)){
-				var attr=m[1];
-				exp=m[2];
-				result.push(attr+'="'+oData[exp]+'"');
-				if(!me.inited){
-					me.listenTo(me._config,"change:"+exp,function(sName,oConfig,sValue){
-						$('#bindAttr'+nNum).attr(attr,sValue||'');
-					})
-				}
-			}
-			result.push('id="'+'bindAttr'+nNum+'"');
-			return ' '+result.join('')+' ';
+	//注册自定义辅助函数
+	Template.registerHelper('ModelView',{
+		'if'     : fIf,
+		'unless' : fUnless,
+		'each'   : fEach,
+		getValue : fGetValue,
+		bindAttr : fBindAttr
+	});
+	
+	var _bIfPlusJoin=Template.getIfPlusJoin();
+	
+	/**
+	 * if辅助函数
+	 * @param {string|function}condition 条件语句
+	 * @param {object}oOptions 选项{
+	 * 		{boolean=}inverse:true时表示条件反转,
+	 * 		{function}fn:回调函数,
+	 * 		{string}exp:表达式,
+	 * 		{object}context:模板函数执行上下文对象,
+	 * 		{number}num:逻辑编号,
+	 * 		{object}helpers:辅助函数表
+	 * }
+	 * @return {string=} 返回生成的html
+	 */
+	function fIf(condition,oOptions,oData){
+		var me=oOptions.context;
+		var sExp=oOptions.exp;
+		var nNum=$H.uuid();
+		if ($H.isFunc(condition)) { 
+			condition = condition.call(oData); 
 		}
-	};
+		var sHtml;
+		if((condition&&!oOptions.inverse)||(!condition&&oOptions.inverse)){
+			sHtml=oOptions.fn(oData);
+		}
+		if(!me.inited){
+			me.listenTo(me._model,'change:'+sExp,function(sName,oModel,sValue){
+				var sHtml;
+				if((sValue&&!oOptions.inverse)||(!sValue&&oOptions.inverse)){
+					var data={};
+					data[sExp]=sValue;
+					sHtml=oOptions.fn(data);
+				}
+				me.updateMetaMorph(nNum,sHtml);
+			});
+		}
+		return me.wrapMetaMorph(sHtml,nNum);
+	}
+	/**
+	 * unless辅助函数
+	 * 参数说明同if辅助函数
+	 */
+	function fUnless(condition, oOptions,oData){
+		oOptions.inverse=true;
+		return oOptions.helpers['if'].call(this, condition, oOptions,oData);
+	}
+	/**
+	 * each辅助函数，新式浏览器里使用，chrome下性能大约提升一倍
+	 * @param {array|object}data 可遍历数据对象
+	 * @param {object}oOptions 选项，参数说明同if辅助函数
+	 * @return {string=} 返回生成的html
+	 */
+	function fEach(data,oOptions){
+		var me=oOptions.context;
+		var fn=oOptions.fn,r=_bIfPlusJoin?'':[];
+		if(!data){
+			return;
+		}
+		var nNum=$H.uuid();
+		var sTmp;
+		//集合类型数据
+		if(data instanceof Collection){
+			data.each(function(i,item){
+				sTmp=me.wrapMetaMorph(fn(item),item.uuid);
+				if(_bIfPlusJoin){
+					r+=sTmp;
+				}else{
+					r.push(sTmp);
+				}
+			});
+			if(!me.inited){
+				me.listenTo(data,'add',function(sEvt,oModel,oCollection,oOptions){
+					var sHtml=me.wrapMetaMorph(fn(oModel),oModel.uuid);
+					var at=oOptions.at;
+					if(at){
+						var oPre=oCollection.at(at-1);
+						var n=oPre.uuid;
+						$('#metamorph-'+n+'-end').after(sHtml);
+					}else{
+						$('#metamorph-'+nNum+'-end').before(sHtml);
+					}
+				});
+				me.listenTo(data,'remove',function(sEvt,oModel,oCollection,oOptions){
+					var n=oModel.uuid;
+					me.updateMetaMorph(n,'',true);
+				});
+			}
+		}else if(data.length!=undefined){
+			for(var i=0,l=data.length;i<l;i++){
+				sTmp=me.wrapMetaMorph(fn(data[i]),i);
+				if(_bIfPlusJoin){
+					r+=sTmp;
+				}else{
+					r.push(sTmp);
+				}
+			}
+		}else{
+			for(var i in data){
+				sTmp=me.wrapMetaMorph(fn(data[i]),i);
+				if(_bIfPlusJoin){
+					r+=sTmp;
+				}else{
+					r.push(sTmp);
+				}
+			}
+		}
+		return me.wrapMetaMorph(_bIfPlusJoin?r:r.join(''),nNum);
+	}
+	/**
+	 * 获取值
+	 * @param {object}oData 数据对象
+	 * @param {object}oOptions 选项，参数说明同if辅助函数
+	 */
+	function fGetValue(oData,oOptions){
+		var me=oOptions.context;
+		var sExp=oOptions.exp;
+		var nNum=$H.uuid();
+		var bIsEscape=Template.isEscape;
+		var oHelpers=oOptions.helpers;
+		if(!me.inited){
+			me.listenTo(me._model,'change:'+sExp,function(sName,oModel,sValue){
+				if(bIsEscape){
+					sValue=oHelpers.escape(sValue);
+				}
+				me.updateMetaMorph(nNum,sValue);
+			});
+		}
+		var sValue=oData.get?oData.get(sExp):oData[sExp];
+		if(bIsEscape){
+			sValue=oHelpers.escape(sValue);
+		}
+		return me.wrapMetaMorph(sValue,nNum);
+	}
+	/**
+	 * 绑定属性
+	 * @param {string}sExp 表达式
+	 * @param {object}oOptions 选项，参数说明同if辅助函数
+	 * @param {object}oData 数据
+	 */
+	function fBindAttr(sExp,oOptions,oData){
+		var me=oOptions.context,
+		nNum=$H.uuid(),
+		r=/([^=\s]+)=([^=\s]+)/g,
+		m,exp,
+		sId='bindAttr'+nNum,
+		result=[],
+		rStr=/^['"][^'"]+['"]$/;
+		//循环执行表达式
+		while(m=r.exec(sExp)){
+			var attr=m[1];
+			exp=m[2];
+			//字符串值表示常量
+			if(rStr.test(exp)){
+				if(attr=='id'){
+					sId=exp.substring(1,exp.length-1);
+				}
+				result.push(attr+'='+exp);
+			}else{
+				//表达式赋值
+				result.push(attr+'="'+(oData.get?oData.get(exp):oData[exp])+'"');
+				if(!me.inited){
+					me.listenTo(me._model,"change:"+exp,function(sName,oModel,sValue){
+						$('#'+sId).attr(attr,sValue||'');
+					});
+				}
+			}
+		}
+		result.push('id="'+sId+'"');
+		return ' '+result.join('')+' ';
+	}
+	
 	/**
 	 * 初始化
 	 * @param {object}oSettings 设置
 	 */
-	function fInitialize(oSettings){
+	function fInitialize(sTmpl,data){
 		var me=this;
-		var oConfig=me._config=new Model(oSettings.data);
-		var oTmpl={
-			tmpl:oSettings.tmpl,
-			parseHelper:'getValue',
-			context:me,
-			helpers:_oHelpers
+		if(data instanceof Model||data instanceof Collection){
+			me._model=data;
+		}else{
+			me._model=new me.modelClass(data);
 		}
-		me.html=Template.tmpl(oTmpl,oSettings.data);
+		var oTmpl={
+			tmpl:sTmpl,
+			context:me,
+			ns:'ModelView'
+		}
+		me.html=Template.tmpl(oTmpl,data);
 		me.inited=true;
 	}
 	/**
 	 * 更新内容
 	 * @param {number}nNum 逻辑节点编号
-	 * @param {string=}sHtml 替换逻辑节点内容的html
+	 * @param {string=}sHtml 替换逻辑节点内容的html，不传表示清空内容
+	 * @param {boolean=}bRemove 仅当true时移除首尾逻辑节点
 	 */
-	function fUpdateContent(nNum,sHtml){
+	function fUpdateMetaMorph(nNum,sHtml,bRemove){
 		var jStart=$('#metamorph-'+nNum+'-start');
 		//找不到开始节点，是外部逻辑块已移除，直接忽略即可
 		if(jStart.length==0){
@@ -156,6 +249,10 @@ function(AbstractEvents,Model,Template){
 			}
 		}
 		sHtml&&jStart.after(sHtml);
+		if(bRemove){
+			jStart.remove();
+			$(eNext).remove();
+		}
 	}
 	/**
 	 * 包装结果html
@@ -163,7 +260,7 @@ function(AbstractEvents,Model,Template){
 	 * @param {number}nNum 编号
 	 * @return {string} 返回包装好的html
 	 */
-	function fWrapHtml(sHtml,nNum){
+	function fWrapMetaMorph(sHtml,nNum){
 		var sStart='<script id="metamorph-';
 		var sEnd='" type="text/x-placeholder"></script>';
 		return sStart+nNum+'-start'+sEnd+(sHtml||'')+sStart+nNum+'-end'+sEnd;
@@ -171,8 +268,13 @@ function(AbstractEvents,Model,Template){
 	/**
 	 * 更新数据
 	 */
-	function fUpdate(oSettings){
-		this._config.set(oSettings);
+	function fUpdateModel(oSettings){
+		this._model.set(oSettings);
+	}
+	/**
+	 * 获取配置对象
+	 */
+	function fGetModel(){
 	}
 	
 	return ModelView;

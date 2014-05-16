@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-05-15 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-05-16 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -2737,7 +2737,7 @@ handy.add('Util','B.Object',function(Object,$H){
 	
 	var Util={
 		isWindow         : fIsWindow,  //检查是否是window对象
-		getUuid          : fGetUuid,   //获取handy内部uuid
+		uuid             : fUuid,      //获取handy内部uuid
 		getHash          : fGetHash,   //获取hash，不包括“？”开头的query部分
 		setHash          : fSetHash,   //设置hash，不改变“？”开头的query部分
 		result           : fResult     //如果对象中的指定属性是函数, 则调用它, 否则, 返回它
@@ -2756,10 +2756,10 @@ handy.add('Util','B.Object',function(Object,$H){
 	}
 	/**
 	 * 获取handy内部uuid
-	 * @method  getUuid
+	 * @method  uuid
 	 * @return  {number}  返回uuid
 	 */
-	function fGetUuid(){
+	function fUuid(){
 		return ++_nUuid;
 	}
 	/**
@@ -3249,6 +3249,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		isTrim          : true,            //是否过滤标签间空白和换行
 		isEscape        : true,            //是否开启js变量输出转义
 		
+		getIfPlusJoin   : fGetIfPlusJoin,  //获取是否使用+连接字符串 
 		registerHelper  : fRegisterHelper, //添加辅助函数
 		tmpl            : fTmpl            //编译/渲染模板
 	};
@@ -3257,7 +3258,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 	var _cache={},                //缓存
 		_aCode,                   //存储用于生成模板函数的代码字符串
 		_valPreReg=/^=/,          //简单替换正则
-		_isNewEngine = ''.trim,   // '__proto__' in {}
+		_isNewEngine=''.trim,     //''.trim同'__proto__' in {}，测试浏览器是否是新引擎，一般新引擎+会快些，旧式引擎使用数组join形式
 		//字符拼接的声明及收尾
 		_aJoinDefine=[           
 			'var $r='+(_isNewEngine?'""':'[]')+',$tmp,helper;',
@@ -3265,19 +3266,25 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		],
 		//辅助函数
 		_helpers={
-			'if':_fIf,
-			'unless':_fUnless,
-			'each':_isNewEngine?_fEach:_fEachOld,
-			escape:String.escapeHTML,
-			trim:String.trim
+			'default':{
+				'if':_fIf,
+				'unless':_fUnless,
+				'each':_isNewEngine?_fEach:_fEachOld,
+				escape:String.escapeHTML,
+				trim:String.trim
+			}
 		};
 		
 	/**
 	 * if辅助函数
 	 * @param {string|function}condition 条件语句
 	 * @param {object}oOptions 选项{
-	 * 		{boolean=}inverse:true时表示条件反转
-	 * 		{function}fn:回调函数
+	 * 		{boolean=}inverse:true时表示条件反转,
+	 * 		{function}fn:回调函数,
+	 * 		{string}exp:表达式,
+	 * 		{object}context:模板函数执行上下文对象,
+	 * 		{number}num:逻辑编号,
+	 * 		{object}helpers:辅助函数表
 	 * }
 	 * @return {string=} 返回生成的html
 	 */
@@ -3291,18 +3298,16 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 	}
 	/**
 	 * unless辅助函数
-	 * 同if辅助函数
+	 * 参数说明同if辅助函数
 	 */
 	function _fUnless(condition, oOptions,data){
 		oOptions.inverse=true;
-		return _helpers['if'].call(this, condition, oOptions,data);
+		return oOptions.helpers['if'].call(this, condition, oOptions,data);
 	}
 	/**
 	 * each辅助函数，新式浏览器里使用，chrome下性能大约提升一倍
 	 * @param {array|object}data 可遍历数据对象
-	 * @param {object}oOptions 选项{
-	 * 		{function}fn:回调函数
-	 * }
+	 * @param {object}oOptions 选项，参数说明同if辅助函数
 	 * @return {string=} 返回生成的html
 	 */
 	function _fEach(data,oOptions){
@@ -3377,17 +3382,18 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 	 */
 	function _fParseScript(oScript,oOptions){
 		var oOptions=oOptions||{};
-		var sExp=oScript.exp;
+		var sExp=oScript.exp.replace(/"/g,'\'');
 		var sBlockName=oScript.blockName;
 		var aChildren=oScript.children;
 		var nNumber=oScript.num;
 		var sCode;
+		var sGetter='$data && ($data.get?$data.get("'+sExp+'"):$data.'+sExp+')';
 		var sAdd='\nif($tmp||$tmp===0){'+_fAddLine('$tmp')+'}';
+		var sParams=(oScript.inverse?'inverse:true,':'')+'num:'+nNumber+',context:me,exp:"'+sExp+'",helpers:$helpers},$data';
 		//辅助函数
 		if(sBlockName){
 			var sProgramName='$program'+nNumber;
-			sCode='$tmp = $helpers.'+sBlockName+'.call(me,($data && $data.'+sExp+'), {fn:'+sProgramName
-					+(oScript.inverse?',inverse:true':'')+',num:'+nNumber+',context:me,exp:"'+sExp+'"},$data);'+sAdd;
+			sCode='$tmp = $helpers.'+sBlockName+'.call(me,'+sGetter+', {fn:'+sProgramName+','+sParams+');'+sAdd;
 			if(aChildren){
 				var aCode=_fCompileAST(aChildren,oOptions);
 				var sCodeInner=_aJoinDefine[0]+'\n'+aCode.join('\n')+'\n'+_aJoinDefine[1];
@@ -3399,13 +3405,14 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 			var m;
 			if(m=sExp.match(/([^\s]+)\s([^\n]+)/)){
 				sExp=m[1];
-				sCode='if (helper = $helpers.'+sExp+') {\n$tmp = helper.call(me,"'+m[2]+'",{num:'+nNumber+',context:me},$data); \n}else{$tmp="";}';
+				sCode='if (helper = $helpers.'+sExp+') {\n$tmp = helper.call(me,"'+m[2]+'",{'+sParams+'); \n}else{$tmp="";}';
 			}else{
 				//直接表达式
-				sCode='if (helper = $helpers.'+sExp+') {\n$tmp = helper.call(me,$data); \n}'+
-				  		'else{\nhelper = ($data && $data.'+sExp+'); $tmp = typeof helper === functionType ? helper.call(me,$data) : helper;\n}'+
-				  		(T.isEscape?'\n$tmp=escape($tmp);':'')+
-				  		(oOptions.parseHelper?'\n$tmp=$helpers.'+oOptions.parseHelper+'.call(me,$tmp,{num:'+nNumber+',context:me,exp:"'+sExp+'"},$data);':'');
+				sCode='if (helper = $helpers.'+sExp+') {\n$tmp = helper.call(me,$data,{'+sParams+'); \n}'+
+						'else if($helpers.getValue){'+'\n$tmp=$helpers.getValue'+'.call(me,$data,{'+sParams+');}'
+				  		'else{\nhelper = '+sGetter+'; $tmp = typeof helper === functionType ? helper.call(me,$data,{'+sParams+') : helper;\n}'+
+				  		(oOptions.helpers.getValue?''
+				  		:(T.isEscape?'\n$tmp=escape($tmp);':''));
 			}
 			sCode+=sAdd;
 		}
@@ -3471,60 +3478,54 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 				//['if']
 				if(aName){
 					var sName=aName[0];
-					if(_helpers[sName]){
-						
-						nIndex=sTmpl.indexOf(sCloseTag);
-						//'title'
-						var sExp=sTmpl.substring(sName.length+1,nIndex);
-						//'<div>{{title}}</div>{{else}}<div>empty</div>{{/if}}</div>'
-						sTmpl=sTmpl.substring(nIndex+sCloseTag.length);
-						var oCurrent={
-							num:++nNumber,
-							blockName:sName,
-							//'item in list'
-							exp:sExp
-						}
-						aAst.push(oCurrent);
-						
-						//'{{/if}}'
-						var sEndTag=sOpenTag+'/'+sName+sCloseTag;
-						//查找块结束位置
-						nIndex=_fSearchEnd(sName,sEndTag,sTmpl);
-						var sContent;
-						if(nIndex==-1){
-							Debug.error('未找到块结束位置:'+sEndTag);
-							return;
-						}else{
-							//'<div>{{title}}</div>{{else}}<div>empty</div>'
-							sContent=sTmpl.substring(0,nIndex);
-							//'</div>'
-							sTmpl=sTmpl.substring(nIndex+sEndTag.length);
-						}
-						
-						//分析子内容
-						_fParseTmpl(sContent,oCurrent,++nNumber);
-						
-						//检出else
-						if(sName=='if'){
-							var aChildNodes=oCurrent.children;
-							for(var i=0,l=aChildNodes.length;i<l;i++){
-								var oChd=aChildNodes[i];
-								if(oChd.exp=='else'){
-									//把else块提出到if块后面
-									oChd.exp=oCurrent.exp;
-									oChd.blockName='if';
-									//nNumber在分析子内容时已加1
-									oChd.num=nNumber;
-									oChd.inverse=true;
-									oChd.children=aChildNodes.slice(i+1);
-									aAst.push(oChd);
-									oCurrent.children=aChildNodes.slice(0,i);
-								}
+					nIndex=sTmpl.indexOf(sCloseTag);
+					//'title'
+					var sExp=sTmpl.substring(sName.length+1,nIndex);
+					//'<div>{{title}}</div>{{else}}<div>empty</div>{{/if}}</div>'
+					sTmpl=sTmpl.substring(nIndex+sCloseTag.length);
+					var oCurrent={
+						num:++nNumber,
+						blockName:sName,
+						//'item in list'
+						exp:sExp
+					}
+					aAst.push(oCurrent);
+					
+					//'{{/if}}'
+					var sEndTag=sOpenTag+'/'+sName+sCloseTag;
+					//查找块结束位置
+					nIndex=_fSearchEnd(sName,sEndTag,sTmpl);
+					var sContent;
+					if(nIndex==-1){
+						Debug.error('未找到块结束位置:'+sEndTag);
+						return;
+					}else{
+						//'<div>{{title}}</div>{{else}}<div>empty</div>'
+						sContent=sTmpl.substring(0,nIndex);
+						//'</div>'
+						sTmpl=sTmpl.substring(nIndex+sEndTag.length);
+					}
+					
+					//分析子内容
+					_fParseTmpl(sContent,oCurrent,++nNumber);
+					
+					//检出else
+					if(sName=='if'){
+						var aChildNodes=oCurrent.children;
+						for(var i=0,l=aChildNodes.length;i<l;i++){
+							var oChd=aChildNodes[i];
+							if(oChd.exp=='else'){
+								//把else块提出到if块后面
+								oChd.exp=oCurrent.exp;
+								oChd.blockName='if';
+								//nNumber在分析子内容时已加1
+								oChd.num=nNumber;
+								oChd.inverse=true;
+								oChd.children=aChildNodes.slice(i+1);
+								aAst.push(oChd);
+								oCurrent.children=aChildNodes.slice(0,i);
 							}
 						}
-					}else{
-						Debug.error('辅助函数‘'+sName+'’未定义');
-						return;
 					}
 				}else{
 					Debug.error('找不到辅助函数:'+sTmpl);
@@ -3551,7 +3552,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 	/**
 	 * 编译AST
 	 * @param  {array}aAST 表达式列表
-	 * @param {object=}oOptions 选项
+	 * @param {object}oOptions 选项
 	 * @return {array}     返回编译好的代码数组
 	 */
 	function _fCompileAST(aAST,oOptions){
@@ -3592,6 +3593,20 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		//旧浏览器使用数组方式拼接字符串
 		_aCode=[_aJoinDefine[0]];
 		_aCode.push('var escape=$helpers.escape,functionType="function",me=this;');
+		
+		//处理设置
+		var sNameSpace=oOptions&&oOptions.ns;
+		var oHelpers;
+		//有自定义辅助函数，覆盖默认函数
+		if(sNameSpace){
+			oHelpers=Object.extend({},_helpers['default']);
+			oHelpers=Object.extend(oHelpers,_helpers[sNameSpace]);
+		}else{
+			oHelpers=_helpers['default'];
+		}
+		oOptions.helpers=oHelpers;
+		var oContext=oOptions.context;
+		
 		var oAst=_fParseTmpl(sTmpl);
 		var aCode=_fCompileAST(oAst.children,oOptions);
 		_aCode=_aCode.concat(aCode);
@@ -3603,14 +3618,6 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 			//TODO
 			Debug.log(fRender);
 			Debug.log('\n\n\n\n\n\n\n\n\n\n');
-			var oHelpers=oOptions&&oOptions.helpers;
-			//有自定义辅助函数，继承全局函数
-			if(oHelpers){
-				Object.extendIf(oHelpers,_helpers);
-			}else{
-				oHelpers=_helpers;
-			}
-			var oContext=oOptions.context;
 			return function($data){
 				return fRender.call(oContext,T,oHelpers,$data);
 			}
@@ -3620,12 +3627,27 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		}
 	}
 	/**
+	 * 获取是否使用+连接字符串
+	 * @return {boolean} true表示使用+，false表示使用数组join形式
+	 */
+	function fGetIfPlusJoin(){
+		return _isNewEngine;
+	}
+	/**
 	 * 添加辅助函数
-	 * @param {string|Object}sName 辅助函数名
+	 * @param {string}sNameSpace 命名空间
+	 * @param {string|Object}sName 辅助函数名，也可以传入hash形式的参数{sName:fHelper}
 	 * @param {Function}fHelper 辅助函数
 	 */
-	function fRegisterHelper(sName,fHelper){
-		_helpers[sName]=fHelper;
+	function fRegisterHelper(sNameSpace,sName,fHelper){
+		if(Object.isObj(sName)){
+			if(!_helpers[sNameSpace]){
+				_helpers[sNameSpace]={};
+			}
+			Object.extend(_helpers[sNameSpace],sName);
+		}else{
+			_helpers[sNameSpace][sName]=fHelper;
+		}
 	}
 	/**
 	 * 执行模板
@@ -4650,7 +4672,7 @@ $Define("CM.AbstractManager", function() {
 	 */
 	function fGenerateId(sCid,bNotChk){
 		var me=this;
-		var sId=$H.expando+"_"+me.type+"_"+(sCid||$H.Util.getUuid());
+		var sId=$H.expando+"_"+me.type+"_"+(sCid||$H.uuid());
 		if(bNotChk!=true&&me._all[sId]){
 			$D.error('id重复:'+sId);
 		}else{
@@ -5984,7 +6006,9 @@ function(AbstractDao,AbstractEvents){
 ////    belongsTo             : null,                //保留属性，描述一对一关系，
 ////    hasMany               : null,                //保留属性，描述一对多关系
 //		cid                   : 0,                   //客户id
+//		id                    : 0,                   //模型id
         idAttribute           : 'id',                //id默认属性名
+//      uuid                  : 0,                   //uuid，初始化时系统分配，具有全局唯一性
 //      defaults              : {},                  //默认属性
 //		dao                   : null,                //数据访问对象，默认为common.AbstractDao
 		
@@ -5992,8 +6016,8 @@ function(AbstractDao,AbstractEvents){
 //		_changing             : false,               //是否正在改变，但未保存
 		_pending              : false,               //
 //		_previousAttributes   : {},                  //较早的值
-//		_attributes           : {},                 //属性对象
-//    	_changed              : {},                 //改变了的值
+//		_attributes           : {},                  //属性对象
+//    	_changed              : {},                  //改变了的值
 //	    validationError       : {},                  //校验错误的值
         
         
@@ -6011,6 +6035,7 @@ function(AbstractDao,AbstractEvents){
    		set                   : fSet,                //设置值
    		unset                 : fUnset,              //移除指定属性
    		clear                 : fClear,              //清除所有属性
+   		each                  : fEach,               //遍历字段
    		hasChanged            : fHasChanged,         //判断自上次change事件后有没有修改，可以指定属性
    		changedAttrbutes      : fChangedAttributes,  //返回改变过的属性，可以指定需要判断的属性
    		previous              : fPrevious,           //返回修改前的值，如果没有修改过，则返回null
@@ -6126,12 +6151,13 @@ function(AbstractDao,AbstractEvents){
 	 */
 	function fInitialize(oAttributes, oOptions) {
 		var me=this;
+		me.uuid=$H.uuid();
 		//配置dao对象
 		me.dao=me.dao||$H.getSingleton(AbstractDao);
 		me._initDepFields();
 		var oAttrs = oAttributes || {};
 		oOptions || (oOptions = {});
-		me.cid = $H.Util.getUuid();
+		me.cid = $H.Util.uuid();
 		me._attributes = {};
 		if (oOptions.collection){
 			me.collection = oOptions.collection;
@@ -6300,6 +6326,14 @@ function(AbstractDao,AbstractEvents){
         oOptions=oOptions||{};
     	oOptions.unset=true;
         return me.set(oAttrs,oOptions);
+    }
+    /**
+     * 遍历字段
+     * @param {function}fCall({string}attr,{*}value) 回调函数
+     */
+    function fEach(fCall){
+    	var oAttrs=this._attributes;
+    	$H.each(oAttrs,fCall);
     }
 	/**
 	 * 判断自上次change事件后有没有修改，可以指定属性
@@ -6565,7 +6599,7 @@ function(AbstractDao,AbstractEvents,Model){
 	var Collection=AbstractEvents.derive({
 		//可扩展属性
 //		url                    : '',                  //集合url
-//		model                  : Model,               //子对象模型类
+		model                  : Model,               //子对象模型类
 //		dao                    : null,                //数据访问对象，默认为common.AbstractDao
 		
 		//内部属性
@@ -6653,10 +6687,13 @@ function(AbstractDao,AbstractEvents,Model){
         oOptions = oOptions ? $H.clone(oOptions) : {};
         oOptions.collection = me;
         //如果数据仓库里已经存在，直接使用
-        var oModel=$S.get(me.model.$ns,{id:oOptions.id});
-        if(oModel=oModel&&oModel[0]){
-        	oModel.set(oAttrs,oOptions);
-        	return oModel;
+        var oModel;
+        if(oOptions.id){
+	        oModel=$S.get(me.model.$ns,{id:oOptions.id});
+	        if(oModel=oModel&&oModel[0]){
+	        	oModel.set(oAttrs,oOptions);
+	        	return oModel;
+	        }
         }
         
         oModel = new me.model(oAttrs, oOptions);
@@ -7208,139 +7245,232 @@ function(AbstractDao,AbstractEvents,Model){
  */
 //"handy.common.ModelView"
 $Define('CM.ModelView',
-['CM.AbstractEvents',
+[
+'B.Template',
+'CM.AbstractEvents',
 'CM.Model',
-'B.Template'],
-function(AbstractEvents,Model,Template){
+'CM.Collection'
+],
+function(Template,AbstractEvents,Model,Collection){
 	
 	var _oTagReg=/^(<[a-zA-Z]+)/;
 	
 	var ModelView=AbstractEvents.derive({
-		initialize     : fInitialize,         //初始化
-		updateContent  : fUpdateContent,      //更新内容
-		wrapHtml       : fWrapHtml,           //包装结果html
-		update         : fUpdate              //更新
+		modelClass       : Model,               //模型类
+		initialize       : fInitialize,         //初始化
+		updateMetaMorph  : fUpdateMetaMorph,    //更新内容
+		wrapMetaMorph    : fWrapMetaMorph,      //包装结果html
+		updateModel      : fUpdateModel,        //更新数据
+		getModel         : fGetModel            //获取配置对象
 	});
 	
-	var _oHelpers={
-		/**
-		 * 
-		 */
-		'if':function(condition,oOptions,oData){
-			var me=oOptions.context;
-			var sExp=oOptions.exp;
-			var nNum=oOptions.num;
-			if ($H.isFunc(condition)) { 
-				condition = condition.call(oData); 
-			}
-			var sHtml;
-			if((condition&&!oOptions.inverse)||(!condition&&oOptions.inverse)){
-				sHtml=oOptions.fn(oData);
-			}
-			if(!me.inited){
-				me.listenTo(me._config,'change:'+sExp,function(sName,oConfig,sValue){
-					var sHtml;
-					if((sValue&&!oOptions.inverse)||(!sValue&&oOptions.inverse)){
-						var data={};
-						data[sExp]=sValue;
-						sHtml=oOptions.fn(data);
-					}
-					me.updateContent(nNum,sHtml);
-				});
-			}
-			return me.wrapHtml(sHtml,oOptions.num);
-		},
-		/**
-		 * 
-		 */
-		'unless':function (condition, oOptions,oData){
-			oOptions.inverse=true;
-			return _oHelpers['if'].call(this, condition, oOptions,oData);
-		},
-		/**
-		 * 遍历
-		 */
-		'each':function(data,oOptions){
-			var me=oOptions.context;
-			var fn=oOptions.fn,r='';
-			if(!data){
-				return;
-			}
-			var nNum=oOptions.num;
-			var sInner=nNum+'-';
-			if(data.length!=undefined){
-				for(var i=0,l=data.length;i<l;i++){
-					r+=me.wrapHtml(fn(data[i]),sInner+i);
-				}
-			}else{
-				for(var i in data){
-					r+=me.wrapHtml(fn(data[i]),sInner+i);
-				}
-			}
-			return me.wrapHtml(r,nNum);
-		},
-		/**
-		 * 获取值
-		 *
-		 */
-		getValue:function(sHtml,oOptions){
-			var me=oOptions.context;
-			var sExp=oOptions.exp;
-			var nNum=oOptions.num;
-			if(!me.inited){
-				me.listenTo(me._config,'change:'+sExp,function(sName,oConfig,sValue){
-					me.updateContent(nNum,sValue);
-				});
-			}
-			return me.wrapHtml(sHtml,nNum);
-		},
-		/**
-		 * 绑定属性
-		 * @param {string}sExp 表达式
-		 * @param {object}oOptions 选项
-		 * @param {object}oData 数据
-		 */
-		bindAttr:function(sExp,oOptions,oData){
-			var me=oOptions.context;
-			var nNum=oOptions.num;
-			var r=/([^=\s]+)=([^=\s]+)/g;
-			var m,exp,result=[];
-			while(m=r.exec(sExp)){
-				var attr=m[1];
-				exp=m[2];
-				result.push(attr+'="'+oData[exp]+'"');
-				if(!me.inited){
-					me.listenTo(me._config,"change:"+exp,function(sName,oConfig,sValue){
-						$('#bindAttr'+nNum).attr(attr,sValue||'');
-					})
-				}
-			}
-			result.push('id="'+'bindAttr'+nNum+'"');
-			return ' '+result.join('')+' ';
+	//注册自定义辅助函数
+	Template.registerHelper('ModelView',{
+		'if'     : fIf,
+		'unless' : fUnless,
+		'each'   : fEach,
+		getValue : fGetValue,
+		bindAttr : fBindAttr
+	});
+	
+	var _bIfPlusJoin=Template.getIfPlusJoin();
+	
+	/**
+	 * if辅助函数
+	 * @param {string|function}condition 条件语句
+	 * @param {object}oOptions 选项{
+	 * 		{boolean=}inverse:true时表示条件反转,
+	 * 		{function}fn:回调函数,
+	 * 		{string}exp:表达式,
+	 * 		{object}context:模板函数执行上下文对象,
+	 * 		{number}num:逻辑编号,
+	 * 		{object}helpers:辅助函数表
+	 * }
+	 * @return {string=} 返回生成的html
+	 */
+	function fIf(condition,oOptions,oData){
+		var me=oOptions.context;
+		var sExp=oOptions.exp;
+		var nNum=$H.uuid();
+		if ($H.isFunc(condition)) { 
+			condition = condition.call(oData); 
 		}
-	};
+		var sHtml;
+		if((condition&&!oOptions.inverse)||(!condition&&oOptions.inverse)){
+			sHtml=oOptions.fn(oData);
+		}
+		if(!me.inited){
+			me.listenTo(me._model,'change:'+sExp,function(sName,oModel,sValue){
+				var sHtml;
+				if((sValue&&!oOptions.inverse)||(!sValue&&oOptions.inverse)){
+					var data={};
+					data[sExp]=sValue;
+					sHtml=oOptions.fn(data);
+				}
+				me.updateMetaMorph(nNum,sHtml);
+			});
+		}
+		return me.wrapMetaMorph(sHtml,nNum);
+	}
+	/**
+	 * unless辅助函数
+	 * 参数说明同if辅助函数
+	 */
+	function fUnless(condition, oOptions,oData){
+		oOptions.inverse=true;
+		return oOptions.helpers['if'].call(this, condition, oOptions,oData);
+	}
+	/**
+	 * each辅助函数，新式浏览器里使用，chrome下性能大约提升一倍
+	 * @param {array|object}data 可遍历数据对象
+	 * @param {object}oOptions 选项，参数说明同if辅助函数
+	 * @return {string=} 返回生成的html
+	 */
+	function fEach(data,oOptions){
+		var me=oOptions.context;
+		var fn=oOptions.fn,r=_bIfPlusJoin?'':[];
+		if(!data){
+			return;
+		}
+		var nNum=$H.uuid();
+		var sTmp;
+		//集合类型数据
+		if(data instanceof Collection){
+			data.each(function(i,item){
+				sTmp=me.wrapMetaMorph(fn(item),item.uuid);
+				if(_bIfPlusJoin){
+					r+=sTmp;
+				}else{
+					r.push(sTmp);
+				}
+			});
+			if(!me.inited){
+				me.listenTo(data,'add',function(sEvt,oModel,oCollection,oOptions){
+					var sHtml=me.wrapMetaMorph(fn(oModel),oModel.uuid);
+					var at=oOptions.at;
+					if(at){
+						var oPre=oCollection.at(at-1);
+						var n=oPre.uuid;
+						$('#metamorph-'+n+'-end').after(sHtml);
+					}else{
+						$('#metamorph-'+nNum+'-end').before(sHtml);
+					}
+				});
+				me.listenTo(data,'remove',function(sEvt,oModel,oCollection,oOptions){
+					var n=oModel.uuid;
+					me.updateMetaMorph(n,'',true);
+				});
+			}
+		}else if(data.length!=undefined){
+			for(var i=0,l=data.length;i<l;i++){
+				sTmp=me.wrapMetaMorph(fn(data[i]),i);
+				if(_bIfPlusJoin){
+					r+=sTmp;
+				}else{
+					r.push(sTmp);
+				}
+			}
+		}else{
+			for(var i in data){
+				sTmp=me.wrapMetaMorph(fn(data[i]),i);
+				if(_bIfPlusJoin){
+					r+=sTmp;
+				}else{
+					r.push(sTmp);
+				}
+			}
+		}
+		return me.wrapMetaMorph(_bIfPlusJoin?r:r.join(''),nNum);
+	}
+	/**
+	 * 获取值
+	 * @param {object}oData 数据对象
+	 * @param {object}oOptions 选项，参数说明同if辅助函数
+	 */
+	function fGetValue(oData,oOptions){
+		var me=oOptions.context;
+		var sExp=oOptions.exp;
+		var nNum=$H.uuid();
+		var bIsEscape=Template.isEscape;
+		var oHelpers=oOptions.helpers;
+		if(!me.inited){
+			me.listenTo(me._model,'change:'+sExp,function(sName,oModel,sValue){
+				if(bIsEscape){
+					sValue=oHelpers.escape(sValue);
+				}
+				me.updateMetaMorph(nNum,sValue);
+			});
+		}
+		var sValue=oData.get?oData.get(sExp):oData[sExp];
+		if(bIsEscape){
+			sValue=oHelpers.escape(sValue);
+		}
+		return me.wrapMetaMorph(sValue,nNum);
+	}
+	/**
+	 * 绑定属性
+	 * @param {string}sExp 表达式
+	 * @param {object}oOptions 选项，参数说明同if辅助函数
+	 * @param {object}oData 数据
+	 */
+	function fBindAttr(sExp,oOptions,oData){
+		var me=oOptions.context,
+		nNum=$H.uuid(),
+		r=/([^=\s]+)=([^=\s]+)/g,
+		m,exp,
+		sId='bindAttr'+nNum,
+		result=[],
+		rStr=/^['"][^'"]+['"]$/;
+		//循环执行表达式
+		while(m=r.exec(sExp)){
+			var attr=m[1];
+			exp=m[2];
+			//字符串值表示常量
+			if(rStr.test(exp)){
+				if(attr=='id'){
+					sId=exp.substring(1,exp.length-1);
+				}
+				result.push(attr+'='+exp);
+			}else{
+				//表达式赋值
+				result.push(attr+'="'+(oData.get?oData.get(exp):oData[exp])+'"');
+				if(!me.inited){
+					me.listenTo(me._model,"change:"+exp,function(sName,oModel,sValue){
+						$('#'+sId).attr(attr,sValue||'');
+					});
+				}
+			}
+		}
+		result.push('id="'+sId+'"');
+		return ' '+result.join('')+' ';
+	}
+	
 	/**
 	 * 初始化
 	 * @param {object}oSettings 设置
 	 */
-	function fInitialize(oSettings){
+	function fInitialize(sTmpl,data){
 		var me=this;
-		var oConfig=me._config=new Model(oSettings.data);
-		var oTmpl={
-			tmpl:oSettings.tmpl,
-			parseHelper:'getValue',
-			context:me,
-			helpers:_oHelpers
+		if(data instanceof Model||data instanceof Collection){
+			me._model=data;
+		}else{
+			me._model=new me.modelClass(data);
 		}
-		me.html=Template.tmpl(oTmpl,oSettings.data);
+		var oTmpl={
+			tmpl:sTmpl,
+			context:me,
+			ns:'ModelView'
+		}
+		me.html=Template.tmpl(oTmpl,data);
 		me.inited=true;
 	}
 	/**
 	 * 更新内容
 	 * @param {number}nNum 逻辑节点编号
-	 * @param {string=}sHtml 替换逻辑节点内容的html
+	 * @param {string=}sHtml 替换逻辑节点内容的html，不传表示清空内容
+	 * @param {boolean=}bRemove 仅当true时移除首尾逻辑节点
 	 */
-	function fUpdateContent(nNum,sHtml){
+	function fUpdateMetaMorph(nNum,sHtml,bRemove){
 		var jStart=$('#metamorph-'+nNum+'-start');
 		//找不到开始节点，是外部逻辑块已移除，直接忽略即可
 		if(jStart.length==0){
@@ -7359,6 +7489,10 @@ function(AbstractEvents,Model,Template){
 			}
 		}
 		sHtml&&jStart.after(sHtml);
+		if(bRemove){
+			jStart.remove();
+			$(eNext).remove();
+		}
 	}
 	/**
 	 * 包装结果html
@@ -7366,7 +7500,7 @@ function(AbstractEvents,Model,Template){
 	 * @param {number}nNum 编号
 	 * @return {string} 返回包装好的html
 	 */
-	function fWrapHtml(sHtml,nNum){
+	function fWrapMetaMorph(sHtml,nNum){
 		var sStart='<script id="metamorph-';
 		var sEnd='" type="text/x-placeholder"></script>';
 		return sStart+nNum+'-start'+sEnd+(sHtml||'')+sStart+nNum+'-end'+sEnd;
@@ -7374,8 +7508,13 @@ function(AbstractEvents,Model,Template){
 	/**
 	 * 更新数据
 	 */
-	function fUpdate(oSettings){
-		this._config.set(oSettings);
+	function fUpdateModel(oSettings){
+		this._model.set(oSettings);
+	}
+	/**
+	 * 获取配置对象
+	 */
+	function fGetModel(){
 	}
 	
 	return ModelView;

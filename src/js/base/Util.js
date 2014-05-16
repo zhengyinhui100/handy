@@ -6,7 +6,7 @@ handy.add('Util','B.Object',function(Object,$H){
 	
 	var Util={
 		isWindow         : fIsWindow,  //检查是否是window对象
-		getUuid          : fGetUuid,   //获取handy内部uuid
+		uuid             : fUuid,      //获取handy内部uuid
 		getHash          : fGetHash,   //获取hash，不包括“？”开头的query部分
 		setHash          : fSetHash,   //设置hash，不改变“？”开头的query部分
 		result           : fResult     //如果对象中的指定属性是函数, 则调用它, 否则, 返回它
@@ -25,10 +25,10 @@ handy.add('Util','B.Object',function(Object,$H){
 	}
 	/**
 	 * 获取handy内部uuid
-	 * @method  getUuid
+	 * @method  uuid
 	 * @return  {number}  返回uuid
 	 */
-	function fGetUuid(){
+	function fUuid(){
 		return ++_nUuid;
 	}
 	/**
