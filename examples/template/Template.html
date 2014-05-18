@@ -59,6 +59,7 @@ gEnv='dev';
 <script id="entry-template" type="text/x-handlebars-template">
 <div class="entry">
   <h1>{{title}}</h1>
+	输入框的值:{{value}}
   <div class="body">
 	{{#if body}}
     	<div>if body:{{body}}
@@ -103,7 +104,7 @@ function test(){
 	var oData = {
 		title: "My New Post", 
 		name:'email',
-		disabled:'disabled',
+		disabled:false,
 		value:"my value",
 		isRed:true,
 		isChk:false,

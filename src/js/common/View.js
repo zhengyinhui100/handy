@@ -35,14 +35,12 @@ function(ViewManager,AbstractView,Template){
 //		disabled            : false,             //是否禁用
 //		extCls              : '',                //附加class
 //		notListen           : false,             //不自动初始化监听器
-		listeners           : [],                //事件配置列表，初始参数可以是对象也可以是对象数组
 		items               : [],                //子视图配置，初始参数可以是对象也可以是对象数组
 ////	lazy                : false,             //保留属性：懒加载，初始化时只设置占位标签，只在调用show方法时进行实际初始化
 		
 		
 		//属性
 //		startParseItems     : false,             //是否已开始初始化子视图
-//      listened            : false,             //是否已初始化事件
 //		isSuspend           : false,             //是否挂起事件
 //		destroyed           : false,             //是否已销毁
 		tmpl                : '<div><%=this.findHtml(">*")%></div>',    //模板，字符串或数组字符串，ps:模板容器节点上不能带有id属性
@@ -66,10 +64,8 @@ function(ViewManager,AbstractView,Template){
 			'focus','focusin','focusout',
 			'contextmenu','change','submit'
 		],
-//		_listeners          : {},                   //实例事件池
 		
 		_applyArray         : _fApplyArray,         //在数组上依次执行方法
-		_parseListenEvents  : _fParseListenEvents,  //处理对象类型或者空格相隔的多事件
 		
 		//初始化相关
 		initialize          : fInitialize,       //初始化
@@ -97,14 +93,9 @@ function(ViewManager,AbstractView,Template){
 		setContent          : fSetContent,       //设置内容
 		
 		//事件相关
-		listen              : fListen,           //绑定事件
-		unlisten            : fUnlisten,         //解除事件
-		initListeners       : fInitListeners,    //初始化所有事件
-		clearListeners      : fClearListeners,   //清除所有事件
 		suspend             : fSuspend,          //挂起事件
 		resume              : fResume,           //恢复事件
 		
-		findEl              : fFindEl,           //查找视图内节点
 		parentsEl           : fParentsEl,        //查找视图的祖先节点
 		
 		//视图管理相关
@@ -187,23 +178,6 @@ function(ViewManager,AbstractView,Template){
 			return true;
 		}
 		return false;
-	}
-	/**
-	 * 处理对象类型或者空格相隔的多事件
-	 * @param {string}sMethod 调用的方法名
-	 * @param {Object}oEvent 参数同this.listen
-	 * @return {boolean} true表示已成功处理事件，false表示未处理
-	 */
-	function _fParseListenEvents(sMethod,oEvent){
-		var me=this;
-		var name=oEvent.name;
-		return me._parseEvents(name,function(aParams){
-			oEvent.name=aParams[0];
-			if(aParams.length==2){
-				oEvent.handler=aParams[1];
-			}
-			me[sMethod].call(me,oEvent);
-		});
 	}
 	/**
 	 * 初始化
@@ -570,149 +544,6 @@ function(ViewManager,AbstractView,Template){
 		}
 	}
 	/**
-	 * 绑定事件
-	 * @method listen
-	 * @param {object}事件对象{
-	 * 			{string}name      : 事件名
-	 * 			{function(Object[,fireParam..])}handler : 监听函数，第一个参数为事件对象oListener，其后的参数为fire时传入的参数
-	 * 			{any=}data        : 数据
-	 * 			{jQuery|Function(this:this)=}el       : 绑定事件的节点，不传表示容器节点，传入函数(this是本视图对象)则使用函数返回值
-	 * 			{CM.AbstractEvents|Function=}target : 监听对象(listenTo方法)，继承自AbstractEvents的实例对象，传入函数(this是本视图对象)则使用函数返回值
-	 * 			{boolean=}custom  : 为true时是自定义事件
-	 * 			{number=}times    : 执行次数
-	 * 			{string=}selector : 选择器
-	 * 			{any=}context     : 监听函数执行的上下文对象，默认是对象
-	 * 			{string=}method   : 绑定方式，默认为"bind"
-	 * }
-	 */
-	function fListen(oEvent){
-		var me=this;
-		if(me._parseListenEvents('listen',oEvent)){
-			return;
-		}
-		
-		var sName=oEvent.name,
-			context=oEvent.context,
-			nTimes=oEvent.times,
-			oTarget=oEvent.target,
-			bIsCustom=oEvent.custom||oTarget||$H.contains(me._customEvents,sName),
-			fHandler=oEvent.handler;
-		if($H.isFunc(oTarget)){
-			oTarget=oTarget.call(me);
-		}
-		//自定义事件
-		if(bIsCustom){
-			var aArgs=$H.removeUndefined([oTarget,sName,fHandler,context,nTimes]);
-			me[oTarget?'listenTo':'on'].apply(me,aArgs);
-		}else{
-			//没有初始化事件，直接放入队列中
-			if(!me.listened){
-				me.listeners.push(oEvent);
-				return;
-			}
-			//element事件
-			var aListeners=me._listeners,
-				oEl=oEvent.el,
-				sMethod=oEvent.method||"bind",
-				sSel=oEvent.selector,
-				oData=oEvent.data,
-				fFunc=oEvent.delegation=me._delegateHandler(fHandler,context);
-			if($H.isFunc(oEl)){
-				oEl=oEl.call(me);
-			}
-			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
-			if(sSel){
-				if(oData){
-					oEl[sMethod](sSel,sName,oData,fFunc);
-				}else{
-					oEl[sMethod](sSel,sName,fFunc);
-				}
-			}else{
-				if(oData){
-					oEl[sMethod](sName,oData,fFunc);
-				}else{
-					oEl[sMethod](sName,fFunc);
-				}
-			}
-			aListeners.push(oEvent);
-		}
-	}
-	/**
-	 * 解除事件
-	 * @method unlisten
-	 * @param {object}事件对象{
-	 * 			{string}name      : 事件名
-	 * 			{function}handler : 监听函数
-	 * 			{jQuery=}el       : 绑定事件的节点，不传表示容器节点
-	 * 			{boolean=}custom    : 为true时是自定义事件
-	 * 			{string=}selector : 选择器
-	 * 			{string=}method   : 绑定方式，默认为"bind"
-	 * }
-	 */
-	function fUnlisten(oEvent){
-		var me=this;
-		if(me._parseListenEvents('unlisten',oEvent)){
-			return;
-		}
-		var sName=oEvent.name,
-			fHandler=oEvent.handler;
-		if(oEvent.custom){
-			me.off(sName,fHandler);
-		}else{
-			var oEl=oEvent.el,
-				sMethod=oEvent.method=="delegate"?"undelegate":"unbind",
-				sSel=oEvent.selector,
-				fDelegation;
-			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
-			for(var i=me._listeners.length-1;i>=0;i--){
-				var oListener=me._listeners[i]
-				if(oListener.handler==fHandler){
-					fDelegation=oListener.delegation;
-					me._listeners.splice(i,1);
-					break;
-				}
-			}
-			if(sSel){
-				oEl[sMethod](sSel,sName,fDelegation);
-			}else{
-				oEl[sMethod](sName,fDelegation);
-			}
-		}
-	}
-	/**
-	 * 初始化所有事件
-	 * @method initListeners
-	 * @return {boolean=}如果已经初始化了，则直接返回false
-	 */
-	function fInitListeners(){
-		var me=this;
-		//已经初始化，直接退回
-		if(me.listened){
-			return false;
-		}
-		me.listened=true;
-		var aListeners=me.listeners;
-		me._listeners=[];
-		for(var i=aListeners.length-1;i>=0;i--){
-			me.listen(aListeners[i]);
-		}
-		me.callChild();
-	}
-	/**
-	 * 清除所有事件
-	 * @method clearListeners
-	 */
-	function fClearListeners(){
-		var me=this;
-		var aListeners=me._listeners;
-		for(var i=aListeners.length-1;i>=0;i--){
-			me.unlisten(aListeners[i]);
-		}
-		me.off('all');
-		me.unlistenTo('all');
-		me.callChild();
-	}
-	/**
 	 * 挂起事件
 	 * @method suspend
 	 */
@@ -737,14 +568,6 @@ function(ViewManager,AbstractView,Template){
 		}
 		me.isSuspend=false;
 		me.callChild();
-	}
-	/**
-	 * 查找视图内节点
-	 * @param {string}sSel jQuery选择器
-	 * @return {jQuery} 返回结果
-	 */
-	function fFindEl(sSel){
-		return this.getEl().find(sSel);
 	}
 	/**
 	 * 查找视图的祖先节点

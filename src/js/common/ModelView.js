@@ -267,6 +267,7 @@ function(Template,AbstractView,Model,Collection){
 	 */
 	function fParseAttrExp(oContext,sId,sAttr,sExp,bListen,oData){
 		var me=oContext,val,
+		sId='#'+sId,
 		nMark1=sExp.indexOf('?'),
 		nMark2=sExp.indexOf(':');
 		//三目运算exp1?exp2:exp3、exp1?exp2、exp1:esExp
@@ -277,7 +278,7 @@ function(Template,AbstractView,Model,Collection){
 			val=_fGetVal(exp1,oData);
 			if(bListen&&exp1.indexOf('#')!=0){
 				me.listenTo(oData,"change:"+exp1,function(sName,oModel,sValue){
-					var jEl=$('#'+sId);
+					var jEl=$(sId);
 					if(!sAttr){
 						//没有属性值，如：isChk?checked或者isDisabled?disabled
 						if(sValue){
@@ -295,6 +296,7 @@ function(Template,AbstractView,Model,Collection){
 						}
 					}else{
 						jEl.attr(sAttr,sValue?exp2:exp3);
+						
 					}
 				});
 			}
@@ -303,7 +305,7 @@ function(Template,AbstractView,Model,Collection){
 			val=_fGetVal(sExp,oData);
 			if(bListen&&sExp.indexOf('#')!=0){
 				me.listenTo(oData,"change:"+sExp,function(sName,oModel,sValue){
-					var jEl=$('#'+sId);
+					var jEl=$(sId);
 					if(sAttr=='class'){
 						jEl.removeClass(val);
 						jEl.addClass(sValue);
@@ -313,6 +315,15 @@ function(Template,AbstractView,Model,Collection){
 						jEl.attr(sAttr,sValue||'');
 					}
 				});
+				if(sAttr=='value'){
+					me.listen({
+						name:'input propertychange',
+						el:sId,
+						handler:function(evt){
+							oData.set(sExp,evt.target.value);
+						}
+					});
+				}
 			}
 			return val;
 		}
