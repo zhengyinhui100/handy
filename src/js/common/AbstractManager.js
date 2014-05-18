@@ -49,8 +49,11 @@ $Define("CM.AbstractManager", function() {
 	 * @method register
 	 * @param {object}oView 视图对象
 	 */
-	function fRegister(oView){
-		this._all[oView.getId()]=oView;
+	function fRegister(oView,oParams){
+		var me=this;
+		var sCid=oView.cid=oParams.cid||$H.uuid();
+		var sId=oView._id=me.generateId(sCid);
+		me._all[sId]=oView;
 	}
 	/**
 	 * 注销视图

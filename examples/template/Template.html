@@ -61,17 +61,26 @@ gEnv='dev';
   <h1>{{title}}</h1>
   <div class="body">
 	{{#if body}}
-    	<div>if body:{{body}}</div>
+    	<div>if body:{{body}}
+		{{#if value}}
+			<div>if value:{{value}}</div>
+		{{/if}}
+		</div>
 	{{else}}
 	<div>else body</div>
 	{{/if}}
 	{{#unless tt}}
 		<div>unless</div>
 	{{/unless}}
-	<input type="text" {{bindAttr id="input133" name="name" value=value}}/>
+	<input type="text" {{bindAttr id="#input133" disabled?disabled value="value" class="isRed?red:green extCls #static-cls"}}/>
+	<input type="checkbox" name="name" value="1" {{bindAttr isChk?checked}}/>
 	<div class="items">
 	{{#each items}}
-		<div class="item">{{name}}</div>
+		<span class="item">{{name}}</span>||
+		{{#if value}}
+			<span>value:{{value}}</span>
+		{{/if}}
+		<br/>
 	{{/each}}
 	</div>
   </div>
@@ -87,15 +96,21 @@ function test(){
 	var aItems=[];
 	for(var i=0;i<5;i++){
 		aItems.push({
-			name:'name'+i
+			name:'name'+i,
+			value:'value'+i
 		});
 	}
 	var oData = {
-			title: "My New Post", 
-			value:"my value",
-			body: "This is my first post!",
-			items:aItems
-	   	}
+		title: "My New Post", 
+		name:'email',
+		disabled:'disabled',
+		value:"my value",
+		isRed:true,
+		isChk:false,
+		extCls:'ext-cls',
+		body: "This is my first post!",
+		items:aItems
+   	}
 
 	/* var nTimes=20000;
 	var fn=$H.tmpl(sTmpl);
@@ -122,21 +137,34 @@ function test(){
 			}
 		});
 		var oModel=new CusModel(oData);
+		var oView=new ModelView({
+			tmpl:sTmpl,
+			model:oModel
+		});
 		console.log(oModel);
-		var oView=new ModelView(sTmpl,oModel);
-		$(document.body).append(oView.html);
+		console.log(oModel.get('items'));
 		var i=0,value;
 		$("#button").click(function(){
-			oView.updateModel({title:'title'+i});
-			value=value?'':'body content';
-			var oItems=oModel.get('items');
-			if(value){
-				oItems.add({name:'new name'+i},{at:4});
-			}else{
-				oItems.remove(oItems.at(2));
-			}
-			oView.updateModel({body:value,value:value});
 			i++;
+			oView.updateModel({title:'title'+i});
+			value=value?'':'content';
+			var oItems=oModel.get('items');
+			oItems.at(2).set({name:'change name'+i,value:value});
+			if(value){
+				oItems.add({name:'new name'+i,value:'new value'},{at:4});
+			}else{
+				oItems.remove(oItems.at(0));
+			}
+			oView.updateModel({
+				body:value,
+				value:value,
+				name:(value?'email':'pwd'),
+				value:value,
+				disabled:(value?true:false),
+				isRed:(value?true:false),
+				isChk:(value?true:false),
+				extCls:(value?'ext-cls':'cls')
+		   	});
 		});
 		
 	})

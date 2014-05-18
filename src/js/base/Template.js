@@ -21,6 +21,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		_aCode,                   //存储用于生成模板函数的代码字符串
 		_valPreReg=/^=/,          //简单替换正则
 		_isNewEngine=''.trim,     //''.trim同'__proto__' in {}，测试浏览器是否是新引擎，一般新引擎+会快些，旧式引擎使用数组join形式
+		_nLogicNum=0,             //逻辑编号，生成抽象语法树时使用
 		//字符拼接的声明及收尾
 		_aJoinDefine=[           
 			'var $r='+(_isNewEngine?'""':'[]')+',$tmp,helper;',
@@ -184,16 +185,14 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 	 * 分析模板，生成基本语法树
 	 * @param {string}sTmpl 模板字符串
 	 * @param {Object=}oParent 父节点，主要用于递归调用
-	 * @param {number=}nNumber 当前节点编号，主要用于递归调用
 	 * @return {Object} 返回生成的语法树
 	 */
-	function _fParseTmpl(sTmpl,oParent,nNumber){
+	function _fParseTmpl(sTmpl,oParent){
 		if(!sTmpl){
 			return;
 		}
 		
 		var oRoot=oParent||{},
-		nNumber=nNumber||0,
 		sOpenTag=T.openTag,
 		sCloseTag=T.closeTag,
 		nIndex,
@@ -207,7 +206,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		//查找块结束位置
 		function _fSearchEnd(sName,sEndTag,sTmpl){
 			//查找匹配的结束标签{{/if}}
-			var oMacther,oReg=new RegExp(sOpenTag+'[#\/]'+sName+sCloseTag,'ig'),num=0;
+			var oMacther,oReg=new RegExp(sOpenTag+'[#\/]'+sName+'((?!'+sCloseTag+').)*'+sCloseTag,'ig'),num=0;
 			while(oMacther=oReg.exec(sTmpl)){
 				if(oMacther[0]==sEndTag){
 					if(num==0){
@@ -246,7 +245,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 					//'<div>{{title}}</div>{{else}}<div>empty</div>{{/if}}</div>'
 					sTmpl=sTmpl.substring(nIndex+sCloseTag.length);
 					var oCurrent={
-						num:++nNumber,
+						num:++_nLogicNum,
 						blockName:sName,
 						//'item in list'
 						exp:sExp
@@ -269,7 +268,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 					}
 					
 					//分析子内容
-					_fParseTmpl(sContent,oCurrent,++nNumber);
+					_fParseTmpl(sContent,oCurrent);
 					
 					//检出else
 					if(sName=='if'){
@@ -280,8 +279,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 								//把else块提出到if块后面
 								oChd.exp=oCurrent.exp;
 								oChd.blockName='if';
-								//nNumber在分析子内容时已加1
-								oChd.num=nNumber;
+								oChd.num=++_nLogicNum;
 								oChd.inverse=true;
 								oChd.children=aChildNodes.slice(i+1);
 								aAst.push(oChd);
@@ -297,13 +295,13 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 				//逻辑语句
 				nIndex=sTmpl.indexOf(sCloseTag);
 				aAst.push({
-					num:++nNumber,
+					num:++_nLogicNum,
 					exp:sTmpl.substring(0,nIndex)
 				});
 				sTmpl=sTmpl.substring(nIndex+sCloseTag.length);
 			}
 			//继续处理后续模板
-			_fParseTmpl(sTmpl,oRoot,++nNumber);
+			_fParseTmpl(sTmpl,oRoot);
 		}else if(sTmpl){
 			aAst.push({
 				html:sTmpl
@@ -370,6 +368,8 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		var oContext=oOptions.context;
 		
 		var oAst=_fParseTmpl(sTmpl);
+		//分析完重置为0
+		_nLogicNum=0;
 		var aCode=_fCompileAST(oAst.children,oOptions);
 		_aCode=_aCode.concat(aCode);
 		_aCode.push(_aJoinDefine[1]);
@@ -379,9 +379,8 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 			var fRender=window.Function.apply(null,aParams);
 			//TODO
 			Debug.log(fRender);
-			Debug.log('\n\n\n\n\n\n\n\n\n\n');
 			return function($data){
-				return fRender.call(oContext,T,oHelpers,$data);
+				return fRender.call(oContext||$data,T,oHelpers,$data);
 			}
 		}catch(e){
 			Debug.log(sCode);

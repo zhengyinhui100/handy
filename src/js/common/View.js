@@ -1,5 +1,5 @@
 /**
- * 抽象视图类
+ * 视图类
  * PS：注意，扩展视图类方法必须用本类的extend方法，扩展类的静态方法则可以使用$H.Object.extend方法，例如
  * var ExampleCmp=AbstractComponent.define('ExampleCmp');
  * ExampleCmp.extend({
@@ -11,22 +11,21 @@
 //"handy.common.View"
 $Define('CM.View',
 ['CM.ViewManager',
-'CM.AbstractEvents',
+'CM.AbstractView',
 'B.Template'],
-function(ViewManager,AbstractEvents,Template){
+function(ViewManager,AbstractView,Template){
 	
 	var _oTagReg=/^(<[a-zA-Z]+)/;
 	var _oHasClsReg=/^[^>]+class=/;
 	var _oClsReg=/(class=")/;
 	
 	//自定义事件
-	var View=AbstractEvents.derive({
+	var View=AbstractView.derive({
 		
 		xtype               : 'View',            //类型
 		_placeholder        : '<script id="" type="text/x-placeholder"></script>',        //占位符标签
 		
 		//配置
-//		cid                 : '',                //客户定义id，必须保持唯一性，不能重复
 //		cClass              : '',                //客户定义class，无特殊限制，方便查找，类似于css的class
 //		renderTo            : null,              //渲染节点或选择器，可以是函数，调用上下文为本视图对象，如果选择器字符以">"开头，表示在父视图内查找节点
 //		defItem             : null,              //默认子视图配置
@@ -34,8 +33,6 @@ function(ViewManager,AbstractEvents,Template){
 //		delayShow           : false,             //是否延迟显示，主要用于弹出层
 //		hideMode            : 'display',         //隐藏方式,'display'|'visibility'
 //		disabled            : false,             //是否禁用
-		autoRender          : true,              //是否默认就进行渲染
-		renderBy            : 'append',          //默认渲染方式
 //		extCls              : '',                //附加class
 //		notListen           : false,             //不自动初始化监听器
 		listeners           : [],                //事件配置列表，初始参数可以是对象也可以是对象数组
@@ -44,17 +41,11 @@ function(ViewManager,AbstractEvents,Template){
 		
 		
 		//属性
-//		inited              : false,             //是否已经初始化
 //		startParseItems     : false,             //是否已开始初始化子视图
-//		manager             : null,              //视图管理对象
-//		initParam           : null,              //保存初始化时传入的参数
-//		_container          : null,              //试图对象容器节点
 //      listened            : false,             //是否已初始化事件
 //		isSuspend           : false,             //是否挂起事件
 //		destroyed           : false,             //是否已销毁
-//		_id                 : null,              //id
 		tmpl                : '<div><%=this.findHtml(">*")%></div>',    //模板，字符串或数组字符串，ps:模板容器节点上不能带有id属性
-//		rendered            : false,             //是否已渲染
 //      showed              : false,             //是否已显示
 		children            : [],                //子视图列表
 		_customEvents       : [                  //自定义事件,可以通过参数属性的方式直接进行添加
@@ -85,8 +76,6 @@ function(ViewManager,AbstractEvents,Template){
 ////	init                : fInit,             //子类初始方法，doConfig后调用
 ////	lazyInit            : fLazyInit,         //保留方法：懒加载，初始化时只设置占位标签，以后再进行真正的初始化
 		doConfig            : fDoConfig,         //初始化配置
-		getEl               : fGetEl,            //获取容器节点
-		getId               : fGetId,            //获取id
 		initHtml            : fInitHtml,         //初始化html
 		getHtml             : fGetHtml,          //获取html
 		findHtml            : fFindHtml,         //获取子视图html
@@ -228,12 +217,6 @@ function(ViewManager,AbstractEvents,Template){
 		}
 		me.manager=me.constructor.manager||$H.getSingleton(ViewManager);
 		
-		//编译模板，一个类只需执行一次
-		var tmpl=me.tmpl;
-		if(!$H.isFunc(tmpl)){
-			me.tmpl=me.constructor.prototype.tmpl=$H.tmpl(tmpl);
-		}
-		
 		//初始化配置
 		me.doConfig(oParams);
 		//子类自定义配置
@@ -312,29 +295,17 @@ function(ViewManager,AbstractEvents,Template){
 		}
 	}
 	/**
-	 * 获取容器节点
-	 * @method getEl
-	 * @return {jQuery} 返回容器节点
-	 */
-	function fGetEl(){
-		return this._container;
-	}
-	/**
-	 * 获取id
-	 * @method getId
-	 * @return {string}返回id
-	 */
-	function fGetId(){
-		var me=this;
-		return me._id||(me._id=me.manager.generateId(me.cid));
-	}
-	/**
 	 * 初始化html
 	 * @method initHtml
 	 * @return {string} 返回html
 	 */
 	function fInitHtml(){
 		var me=this;
+		//编译模板，一个类只需执行一次
+		var tmpl=me.tmpl;
+		if(!$H.isFunc(tmpl)){
+			me.tmpl=me.constructor.prototype.tmpl=$H.tmpl(tmpl);
+		}
 		//由模板生成html
 		var sHtml=me.tmpl(me);
 		return sHtml;
