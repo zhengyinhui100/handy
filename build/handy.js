@@ -6037,6 +6037,7 @@ function(ViewManager,AbstractEvents){
 		renderBy            : 'append',          //默认渲染方式
 		autoRender          : true,              //是否默认就进行渲染
 //		manager             : null,              //视图管理对象
+		listeners           : [],                //事件配置列表，初始参数可以是对象也可以是对象数组
 		//属性
 //		_config             : null,              //配置模型对象
 //		_id                 : null,              //id
@@ -6044,7 +6045,11 @@ function(ViewManager,AbstractEvents){
 //		initParam           : null,              //保存初始化时传入的参数
 //		_container          : null,              //试图对象容器节点
 //		rendered            : false,             //是否已渲染
+//      listened            : false,             //是否已初始化事件
+		_listeners          : [],                //实例事件池
 		
+		_parseListenEvents  : _fParseListenEvents,  //处理对象类型或者空格相隔的多事件
+				
 		initialize          : fInitialize,       //初始化
 		init                : $H.noop,           //初始化，一般留给具体项目，方便开发
 		doConfig            : fDoConfig,         //初始化配置
@@ -6053,14 +6058,39 @@ function(ViewManager,AbstractEvents){
 		getEl               : fGetEl,            //获取容器节点
 		initHtml            : fInitHtml,         //初始化html
 		getHtml             : fGetHtml,          //获取html
-		parseItems          : $H.noop,           //分析子视图
 		render              : fRender,           //渲染
+		findEl              : fFindEl,           //查找视图内节点
+		parseItems          : $H.noop,           //分析子视图
+		callChild           : $H.noop,           //调用子视图方法
+		listen              : fListen,           //绑定事件
+		unlisten            : fUnlisten,         //解除事件
+		initListeners       : fInitListeners,    //初始化所有事件
+		clearListeners      : fClearListeners,   //清除所有事件
 		destroy             : fDestroy           //销毁
 	});
 	
 	var _oTagReg=/^(<[a-zA-Z]+)/;
 	var _oHasClsReg=/^[^>]+class=/;
 	var _oClsReg=/(class=")/;
+	
+	/**
+	 * 处理对象类型或者空格相隔的多事件
+	 * @param {string}sMethod 调用的方法名
+	 * @param {Object}oEvent 参数同this.listen
+	 * @return {boolean} true表示已成功处理事件，false表示未处理
+	 */
+	function _fParseListenEvents(sMethod,oEvent){
+		var me=this;
+		var name=oEvent.name;
+		return me._parseEvents(name,function(aParams){
+			var oEvt=$H.extend({},oEvent);
+			oEvt.name=aParams[0];
+			if(aParams.length==2){
+				oEvt.handler=aParams[1];
+			}
+			me[sMethod].call(me,oEvt);
+		});
+	}
 	
 	/**
 	 * 初始化
@@ -6176,6 +6206,157 @@ function(ViewManager,AbstractEvents){
 		me.renderTo[me.renderBy](sHtml);
 		//缓存容器
 		me._container=$("#"+me.getId());
+		me.initListeners();
+	}
+	/**
+	 * 查找视图内节点
+	 * @param {string}sSel jQuery选择器
+	 * @return {jQuery} 返回结果
+	 */
+	function fFindEl(sSel){
+		return this.getEl().find(sSel);
+	}
+	/**
+	 * 绑定事件
+	 * @method listen
+	 * @param {object}事件对象{
+	 * 			{string}name      : 事件名
+	 * 			{function(Object[,fireParam..])}handler : 监听函数，第一个参数为事件对象oListener，其后的参数为fire时传入的参数
+	 * 			{any=}data        : 数据
+	 * 			{jQuery|Function(this:this)=}el       : 绑定事件的节点，不传表示容器节点，传入函数(this是本视图对象)则使用函数返回值
+	 * 			{CM.AbstractEvents|Function=}target : 监听对象(listenTo方法)，继承自AbstractEvents的实例对象，传入函数(this是本视图对象)则使用函数返回值
+	 * 			{boolean=}custom  : 为true时是自定义事件
+	 * 			{number=}times    : 执行次数
+	 * 			{string=}selector : 选择器
+	 * 			{any=}context     : 监听函数执行的上下文对象，默认是对象
+	 * 			{string=}method   : 绑定方式，默认为"bind"
+	 * }
+	 */
+	function fListen(oEvent){
+		var me=this;
+		if(me._parseListenEvents('listen',oEvent)){
+			return;
+		}
+		
+		var sName=oEvent.name,
+			context=oEvent.context,
+			nTimes=oEvent.times,
+			oTarget=oEvent.target,
+			bIsCustom=oEvent.custom||oTarget||$H.contains(me._customEvents,sName),
+			fHandler=oEvent.handler;
+		if($H.isFunc(oTarget)){
+			oTarget=oTarget.call(me);
+		}
+		//自定义事件
+		if(bIsCustom){
+			var aArgs=$H.removeUndefined([oTarget,sName,fHandler,context,nTimes]);
+			me[oTarget?'listenTo':'on'].apply(me,aArgs);
+		}else{
+			//没有初始化事件，直接放入队列中
+			if(!me.listened){
+				me.listeners.push(oEvent);
+				return;
+			}
+			//element事件
+			var aListeners=me._listeners,
+				oEl=oEvent.el,
+				sMethod=oEvent.method||"bind",
+				sSel=oEvent.selector,
+				oData=oEvent.data,
+				fFunc=oEvent.delegation=me._delegateHandler(fHandler,context);
+			if($H.isFunc(oEl)){
+				oEl=oEl.call(me);
+			}
+			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
+			if(sSel){
+				if(oData){
+					oEl[sMethod](sSel,sName,oData,fFunc);
+				}else{
+					oEl[sMethod](sSel,sName,fFunc);
+				}
+			}else{
+				if(oData){
+					oEl[sMethod](sName,oData,fFunc);
+				}else{
+					oEl[sMethod](sName,fFunc);
+				}
+			}
+			aListeners.push(oEvent);
+		}
+	}
+	/**
+	 * 解除事件
+	 * @method unlisten
+	 * @param {object}事件对象{
+	 * 			{string}name      : 事件名
+	 * 			{function}handler : 监听函数
+	 * 			{jQuery=}el       : 绑定事件的节点，不传表示容器节点
+	 * 			{boolean=}custom    : 为true时是自定义事件
+	 * 			{string=}selector : 选择器
+	 * 			{string=}method   : 绑定方式，默认为"bind"
+	 * }
+	 */
+	function fUnlisten(oEvent){
+		var me=this;
+		if(me._parseListenEvents('unlisten',oEvent)){
+			return;
+		}
+		var sName=oEvent.name,
+			fHandler=oEvent.handler;
+		if(oEvent.custom){
+			me.off(sName,fHandler);
+		}else{
+			var oEl=oEvent.el,
+				sMethod=oEvent.method=="delegate"?"undelegate":"unbind",
+				sSel=oEvent.selector,
+				fDelegation;
+			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
+			for(var i=me._listeners.length-1;i>=0;i--){
+				var oListener=me._listeners[i]
+				if(oListener.handler==fHandler){
+					fDelegation=oListener.delegation;
+					me._listeners.splice(i,1);
+					break;
+				}
+			}
+			if(sSel){
+				oEl[sMethod](sSel,sName,fDelegation);
+			}else{
+				oEl[sMethod](sName,fDelegation);
+			}
+		}
+	}
+	/**
+	 * 初始化所有事件
+	 * @method initListeners
+	 * @return {boolean=}如果已经初始化了，则直接返回false
+	 */
+	function fInitListeners(){
+		var me=this;
+		//已经初始化，直接退回
+		if(me.listened){
+			return false;
+		}
+		me.listened=true;
+		var aListeners=me.listeners;
+		for(var i=aListeners.length-1;i>=0;i--){
+			me.listen(aListeners[i]);
+		}
+		me.callChild();
+	}
+	/**
+	 * 清除所有事件
+	 * @method clearListeners
+	 */
+	function fClearListeners(){
+		var me=this;
+		var aListeners=me._listeners;
+		for(var i=aListeners.length-1;i>=0;i--){
+			me.unlisten(aListeners[i]);
+		}
+		me.off('all');
+		me.unlistenTo('all');
+		me.callChild();
 	}
 	/**
 	 * 销毁
@@ -6188,6 +6369,7 @@ function(ViewManager,AbstractEvents){
 			return;
 		}
 		me.clearListeners();
+		me.unlistenTo('all');
 		me.getEl().remove();
 		me.destroyed=true;
 		
@@ -6218,15 +6400,15 @@ function(Template,AbstractView,Model,Collection){
 	var _oTagReg=/^(<[a-zA-Z]+)/;
 	
 	var ModelView=AbstractView.derive({
-//		bindType            : '',                  //绑定类型，‘el’表示绑定节点，‘model’表示绑定模型，‘both’表示双向绑定
+		bindType            : 'both',              //绑定类型，‘el’表示绑定节点，‘model’表示绑定模型，‘both’表示双向绑定
 //		model               : null,                //模型对象
 		modelClass          : Model,               //模型类
-		_metaMorphs         : {},                  //保存逻辑块对应编号是否已添加过事件
+		_bindModelNums      : {},				   //保存逻辑块对应编号是否已绑定模型
+		_bindElNums         : {},                  //保存逻辑块对应编号是否已绑定节点
 		
 		doConfig            : fDoConfig,           //初始化配置
 		initHtml            : fInitHtml,           //初始化html
-		ifBindModel         : fIfBindModel,        //是否需要绑定模型对象
-		ifBindEl            : fIfBindEl,           //是否需要绑定节点
+		ifBind              : fIfBind,             //查询指定逻辑单元是否需要绑定模型对象或节点，检查后设为已绑定，确保每个逻辑单元只绑定一次事件
 		updateMetaMorph     : fUpdateMetaMorph,    //更新内容
 		wrapMetaMorph       : fWrapMetaMorph,      //包装结果html
 		updateModel         : fUpdateModel,        //更新数据
@@ -6267,11 +6449,9 @@ function(Template,AbstractView,Model,Collection){
 		if((condition&&!oOptions.inverse)||(!condition&&oOptions.inverse)){
 			sHtml=oOptions.fn(oData);
 		}
-		var oMetaMorphs=me._metaMorphs;
 		var nNum=oOptions.num;
 		var sMetaId=me.getCid()+'-'+nNum;
-		if(!oMetaMorphs[nNum]&&oData instanceof Model){
-			oMetaMorphs[nNum]=1;
+		if(me.ifBind(nNum,oData)){
 			me.listenTo(oData,'change:'+sExp,function(sName,oModel,sValue){
 				var sHtml;
 				if((sValue&&!oOptions.inverse)||(!sValue&&oOptions.inverse)){
@@ -6310,16 +6490,14 @@ function(Template,AbstractView,Model,Collection){
 		//集合类型数据
 		if(data instanceof Collection){
 			data.each(function(i,item){
-				sTmp=me.wrapMetaMorph(fn(item),nNum+'-'+item.uuid);
+				sTmp=me.wrapMetaMorph(fn(item),sMetaId+'-'+item.uuid);
 				if(_bIfPlusJoin){
 					r+=sTmp;
 				}else{
 					r.push(sTmp);
 				}
 			});
-			var oMetaMorphs=me._metaMorphs;
-			if(!oMetaMorphs[nNum]){
-				oMetaMorphs[nNum]=1;
+			if(me.ifBind(nNum,data)){
 				me.listenTo(data,'add',function(sEvt,oModel,oCollection,oOptions){
 					var sHtml=me.wrapMetaMorph(fn(oModel),sMetaId+'-'+oModel.uuid);
 					var at=oOptions.at;
@@ -6367,11 +6545,9 @@ function(Template,AbstractView,Model,Collection){
 		var sExp=oOptions.exp;
 		var bIsEscape=Template.isEscape;
 		var oHelpers=oOptions.helpers;
-		var oMetaMorphs=me._metaMorphs;
 		var nNum=oOptions.num;
 		var sMetaId=me.getCid()+'-'+nNum;
-		if(!oMetaMorphs[nNum]&&oData instanceof Model){
-			oMetaMorphs[nNum]=1;
+		if(me.ifBind(nNum,oData)){
 			me.listenTo(oData,'change:'+sExp,function(sName,oModel,sValue){
 				if(bIsEscape){
 					sValue=oHelpers.escape(sValue);
@@ -6399,9 +6575,9 @@ function(Template,AbstractView,Model,Collection){
 		sId='bindAttr-'+sMetaId,
 		m,
 		result=[],
-		oMetaMorphs=me._metaMorphs,
 		aMatches=[],
-		bListen=!oMetaMorphs[nNum]&&oData instanceof Model;
+		bBindModel=me.ifBind(nNum,oData),
+		bBindEl=me.ifBind(nNum,oData,true);
 		
 		//循环分析表达式，先找出id属性
 		while(m=r.exec(sExp)){
@@ -6424,7 +6600,7 @@ function(Template,AbstractView,Model,Collection){
 			aValues=[];
 			//多个表达式用空格分开
 			for(var j=0;j<aExps.length;j++){
-				ret=fParseAttrExp(me,sId,sAttr,aExps[j],bListen,oData);
+				ret=fParseAttrExp(me,sId,sAttr,aExps[j],bBindModel,bBindEl,oData);
 				aValues.push(ret);
 			}
 			var sVal=aValues.join(' ');
@@ -6437,7 +6613,6 @@ function(Template,AbstractView,Model,Collection){
 			sVal&&result.push(sVal);
 		}
 		
-		oMetaMorphs[nNum]=1;
 		return ' '+result.join(' ')+' ';
 	}
 	/**
@@ -6467,8 +6642,9 @@ function(Template,AbstractView,Model,Collection){
 	 * @param {object}oData 当前数据对象
 	 * @return {string} 返回属性值
 	 */
-	function fParseAttrExp(oContext,sId,sAttr,sExp,bListen,oData){
+	function fParseAttrExp(oContext,sId,sAttr,sExp,bBindModel,bBindEl,oData){
 		var me=oContext,val,
+		sId='#'+sId,
 		nMark1=sExp.indexOf('?'),
 		nMark2=sExp.indexOf(':');
 		//三目运算exp1?exp2:exp3、exp1?exp2、exp1:esExp
@@ -6477,9 +6653,9 @@ function(Template,AbstractView,Model,Collection){
 			var exp2=nMark1<0?'':sExp.substring(nMark1+1,nMark2>0?nMark2:sExp.length);
 			var exp3=nMark2<0?'':sExp.substring(nMark2+1,sExp.length);
 			val=_fGetVal(exp1,oData);
-			if(bListen&&exp1.indexOf('#')!=0){
+			if(bBindModel&&exp1.indexOf('#')!=0){
 				me.listenTo(oData,"change:"+exp1,function(sName,oModel,sValue){
-					var jEl=$('#'+sId);
+					var jEl=$(sId);
 					if(!sAttr){
 						//没有属性值，如：isChk?checked或者isDisabled?disabled
 						if(sValue){
@@ -6497,15 +6673,16 @@ function(Template,AbstractView,Model,Collection){
 						}
 					}else{
 						jEl.attr(sAttr,sValue?exp2:exp3);
+						
 					}
 				});
 			}
 			return val?exp2:exp3;
 		}else{
 			val=_fGetVal(sExp,oData);
-			if(bListen&&sExp.indexOf('#')!=0){
-				me.listenTo(oData,"change:"+sExp,function(sName,oModel,sValue){
-					var jEl=$('#'+sId);
+			if(sExp.indexOf('#')!=0){
+				bBindModel&&me.listenTo(oData,"change:"+sExp,function(sName,oModel,sValue){
+					var jEl=$(sId);
 					if(sAttr=='class'){
 						jEl.removeClass(val);
 						jEl.addClass(sValue);
@@ -6515,6 +6692,15 @@ function(Template,AbstractView,Model,Collection){
 						jEl.attr(sAttr,sValue||'');
 					}
 				});
+				if(sAttr=='value'&&bBindEl){
+					me.listen({
+						name:'input propertychange',
+						el:sId,
+						handler:function(evt){
+							oData.set(sExp,evt.target.value);
+						}
+					});
+				}
 			}
 			return val;
 		}
@@ -6553,16 +6739,21 @@ function(Template,AbstractView,Model,Collection){
 		return sHtml;
 	}
 	/**
-	 * 是否需要绑定模型对象
+	 * 查询指定逻辑单元是否需要绑定模型对象或节点，检查后设为已绑定，确保每个逻辑单元只绑定一次事件
+	 * @param {string}nNum 查询的逻辑单元编号
+	 * @param {object}oData 数据对象，只有此参数是可观察对象(集合或者模型)时才执行绑定
+	 * @param {boolean=}bIsEl 仅当为true时表示查询节点
+	 * @return true表示需要绑定
 	 */
-	function fIfBindModel(){
-		
-	}
-	/**
-	 * 是否需要绑定节点
-	 */
-	function fIfBindEl(){
-		
+	function fIfBind(nNum,oData,bIsEl){
+		var me=this;
+		if((!bIsEl&&me.bindType=='el')||(bIsEl&&me.bindType=='model')){
+			return false;
+		}
+		var oNums=bIsEl?me._bindElNums:me._bindModelNums;
+		var bIfBind=!oNums[nNum]&&(oData instanceof Model||oData instanceof Collection);
+		oNums[nNum]=1;
+		return bIfBind;
 	}
 	/**
 	 * 更新内容
@@ -6656,14 +6847,12 @@ function(ViewManager,AbstractView,Template){
 //		disabled            : false,             //是否禁用
 //		extCls              : '',                //附加class
 //		notListen           : false,             //不自动初始化监听器
-		listeners           : [],                //事件配置列表，初始参数可以是对象也可以是对象数组
 		items               : [],                //子视图配置，初始参数可以是对象也可以是对象数组
 ////	lazy                : false,             //保留属性：懒加载，初始化时只设置占位标签，只在调用show方法时进行实际初始化
 		
 		
 		//属性
 //		startParseItems     : false,             //是否已开始初始化子视图
-//      listened            : false,             //是否已初始化事件
 //		isSuspend           : false,             //是否挂起事件
 //		destroyed           : false,             //是否已销毁
 		tmpl                : '<div><%=this.findHtml(">*")%></div>',    //模板，字符串或数组字符串，ps:模板容器节点上不能带有id属性
@@ -6687,10 +6876,8 @@ function(ViewManager,AbstractView,Template){
 			'focus','focusin','focusout',
 			'contextmenu','change','submit'
 		],
-//		_listeners          : {},                   //实例事件池
 		
 		_applyArray         : _fApplyArray,         //在数组上依次执行方法
-		_parseListenEvents  : _fParseListenEvents,  //处理对象类型或者空格相隔的多事件
 		
 		//初始化相关
 		initialize          : fInitialize,       //初始化
@@ -6718,14 +6905,9 @@ function(ViewManager,AbstractView,Template){
 		setContent          : fSetContent,       //设置内容
 		
 		//事件相关
-		listen              : fListen,           //绑定事件
-		unlisten            : fUnlisten,         //解除事件
-		initListeners       : fInitListeners,    //初始化所有事件
-		clearListeners      : fClearListeners,   //清除所有事件
 		suspend             : fSuspend,          //挂起事件
 		resume              : fResume,           //恢复事件
 		
-		findEl              : fFindEl,           //查找视图内节点
 		parentsEl           : fParentsEl,        //查找视图的祖先节点
 		
 		//视图管理相关
@@ -6808,23 +6990,6 @@ function(ViewManager,AbstractView,Template){
 			return true;
 		}
 		return false;
-	}
-	/**
-	 * 处理对象类型或者空格相隔的多事件
-	 * @param {string}sMethod 调用的方法名
-	 * @param {Object}oEvent 参数同this.listen
-	 * @return {boolean} true表示已成功处理事件，false表示未处理
-	 */
-	function _fParseListenEvents(sMethod,oEvent){
-		var me=this;
-		var name=oEvent.name;
-		return me._parseEvents(name,function(aParams){
-			oEvent.name=aParams[0];
-			if(aParams.length==2){
-				oEvent.handler=aParams[1];
-			}
-			me[sMethod].call(me,oEvent);
-		});
 	}
 	/**
 	 * 初始化
@@ -7191,149 +7356,6 @@ function(ViewManager,AbstractView,Template){
 		}
 	}
 	/**
-	 * 绑定事件
-	 * @method listen
-	 * @param {object}事件对象{
-	 * 			{string}name      : 事件名
-	 * 			{function(Object[,fireParam..])}handler : 监听函数，第一个参数为事件对象oListener，其后的参数为fire时传入的参数
-	 * 			{any=}data        : 数据
-	 * 			{jQuery|Function(this:this)=}el       : 绑定事件的节点，不传表示容器节点，传入函数(this是本视图对象)则使用函数返回值
-	 * 			{CM.AbstractEvents|Function=}target : 监听对象(listenTo方法)，继承自AbstractEvents的实例对象，传入函数(this是本视图对象)则使用函数返回值
-	 * 			{boolean=}custom  : 为true时是自定义事件
-	 * 			{number=}times    : 执行次数
-	 * 			{string=}selector : 选择器
-	 * 			{any=}context     : 监听函数执行的上下文对象，默认是对象
-	 * 			{string=}method   : 绑定方式，默认为"bind"
-	 * }
-	 */
-	function fListen(oEvent){
-		var me=this;
-		if(me._parseListenEvents('listen',oEvent)){
-			return;
-		}
-		
-		var sName=oEvent.name,
-			context=oEvent.context,
-			nTimes=oEvent.times,
-			oTarget=oEvent.target,
-			bIsCustom=oEvent.custom||oTarget||$H.contains(me._customEvents,sName),
-			fHandler=oEvent.handler;
-		if($H.isFunc(oTarget)){
-			oTarget=oTarget.call(me);
-		}
-		//自定义事件
-		if(bIsCustom){
-			var aArgs=$H.removeUndefined([oTarget,sName,fHandler,context,nTimes]);
-			me[oTarget?'listenTo':'on'].apply(me,aArgs);
-		}else{
-			//没有初始化事件，直接放入队列中
-			if(!me.listened){
-				me.listeners.push(oEvent);
-				return;
-			}
-			//element事件
-			var aListeners=me._listeners,
-				oEl=oEvent.el,
-				sMethod=oEvent.method||"bind",
-				sSel=oEvent.selector,
-				oData=oEvent.data,
-				fFunc=oEvent.delegation=me._delegateHandler(fHandler,context);
-			if($H.isFunc(oEl)){
-				oEl=oEl.call(me);
-			}
-			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
-			if(sSel){
-				if(oData){
-					oEl[sMethod](sSel,sName,oData,fFunc);
-				}else{
-					oEl[sMethod](sSel,sName,fFunc);
-				}
-			}else{
-				if(oData){
-					oEl[sMethod](sName,oData,fFunc);
-				}else{
-					oEl[sMethod](sName,fFunc);
-				}
-			}
-			aListeners.push(oEvent);
-		}
-	}
-	/**
-	 * 解除事件
-	 * @method unlisten
-	 * @param {object}事件对象{
-	 * 			{string}name      : 事件名
-	 * 			{function}handler : 监听函数
-	 * 			{jQuery=}el       : 绑定事件的节点，不传表示容器节点
-	 * 			{boolean=}custom    : 为true时是自定义事件
-	 * 			{string=}selector : 选择器
-	 * 			{string=}method   : 绑定方式，默认为"bind"
-	 * }
-	 */
-	function fUnlisten(oEvent){
-		var me=this;
-		if(me._parseListenEvents('unlisten',oEvent)){
-			return;
-		}
-		var sName=oEvent.name,
-			fHandler=oEvent.handler;
-		if(oEvent.custom){
-			me.off(sName,fHandler);
-		}else{
-			var oEl=oEvent.el,
-				sMethod=oEvent.method=="delegate"?"undelegate":"unbind",
-				sSel=oEvent.selector,
-				fDelegation;
-			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
-			for(var i=me._listeners.length-1;i>=0;i--){
-				var oListener=me._listeners[i]
-				if(oListener.handler==fHandler){
-					fDelegation=oListener.delegation;
-					me._listeners.splice(i,1);
-					break;
-				}
-			}
-			if(sSel){
-				oEl[sMethod](sSel,sName,fDelegation);
-			}else{
-				oEl[sMethod](sName,fDelegation);
-			}
-		}
-	}
-	/**
-	 * 初始化所有事件
-	 * @method initListeners
-	 * @return {boolean=}如果已经初始化了，则直接返回false
-	 */
-	function fInitListeners(){
-		var me=this;
-		//已经初始化，直接退回
-		if(me.listened){
-			return false;
-		}
-		me.listened=true;
-		var aListeners=me.listeners;
-		me._listeners=[];
-		for(var i=aListeners.length-1;i>=0;i--){
-			me.listen(aListeners[i]);
-		}
-		me.callChild();
-	}
-	/**
-	 * 清除所有事件
-	 * @method clearListeners
-	 */
-	function fClearListeners(){
-		var me=this;
-		var aListeners=me._listeners;
-		for(var i=aListeners.length-1;i>=0;i--){
-			me.unlisten(aListeners[i]);
-		}
-		me.off('all');
-		me.unlistenTo('all');
-		me.callChild();
-	}
-	/**
 	 * 挂起事件
 	 * @method suspend
 	 */
@@ -7358,14 +7380,6 @@ function(ViewManager,AbstractView,Template){
 		}
 		me.isSuspend=false;
 		me.callChild();
-	}
-	/**
-	 * 查找视图内节点
-	 * @param {string}sSel jQuery选择器
-	 * @return {jQuery} 返回结果
-	 */
-	function fFindEl(sSel){
-		return this.getEl().find(sSel);
 	}
 	/**
 	 * 查找视图的祖先节点
