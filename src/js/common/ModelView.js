@@ -16,15 +16,15 @@ function(Template,AbstractView,Model,Collection){
 	var _oTagReg=/^(<[a-zA-Z]+)/;
 	
 	var ModelView=AbstractView.derive({
-//		bindType            : '',                  //绑定类型，‘el’表示绑定节点，‘model’表示绑定模型，‘both’表示双向绑定
+		bindType            : 'both',              //绑定类型，‘el’表示绑定节点，‘model’表示绑定模型，‘both’表示双向绑定
 //		model               : null,                //模型对象
 		modelClass          : Model,               //模型类
-		_metaMorphs         : {},                  //保存逻辑块对应编号是否已添加过事件
+		_bindModelNums      : {},				   //保存逻辑块对应编号是否已绑定模型
+		_bindElNums         : {},                  //保存逻辑块对应编号是否已绑定节点
 		
 		doConfig            : fDoConfig,           //初始化配置
 		initHtml            : fInitHtml,           //初始化html
-		ifBindModel         : fIfBindModel,        //是否需要绑定模型对象
-		ifBindEl            : fIfBindEl,           //是否需要绑定节点
+		ifBind              : fIfBind,             //查询指定逻辑单元是否需要绑定模型对象或节点，检查后设为已绑定，确保每个逻辑单元只绑定一次事件
 		updateMetaMorph     : fUpdateMetaMorph,    //更新内容
 		wrapMetaMorph       : fWrapMetaMorph,      //包装结果html
 		updateModel         : fUpdateModel,        //更新数据
@@ -65,11 +65,9 @@ function(Template,AbstractView,Model,Collection){
 		if((condition&&!oOptions.inverse)||(!condition&&oOptions.inverse)){
 			sHtml=oOptions.fn(oData);
 		}
-		var oMetaMorphs=me._metaMorphs;
 		var nNum=oOptions.num;
 		var sMetaId=me.getCid()+'-'+nNum;
-		if(!oMetaMorphs[nNum]&&oData instanceof Model){
-			oMetaMorphs[nNum]=1;
+		if(me.ifBind(nNum,oData)){
 			me.listenTo(oData,'change:'+sExp,function(sName,oModel,sValue){
 				var sHtml;
 				if((sValue&&!oOptions.inverse)||(!sValue&&oOptions.inverse)){
@@ -115,9 +113,7 @@ function(Template,AbstractView,Model,Collection){
 					r.push(sTmp);
 				}
 			});
-			var oMetaMorphs=me._metaMorphs;
-			if(!oMetaMorphs[nNum]){
-				oMetaMorphs[nNum]=1;
+			if(me.ifBind(nNum,data)){
 				me.listenTo(data,'add',function(sEvt,oModel,oCollection,oOptions){
 					var sHtml=me.wrapMetaMorph(fn(oModel),sMetaId+'-'+oModel.uuid);
 					var at=oOptions.at;
@@ -165,11 +161,9 @@ function(Template,AbstractView,Model,Collection){
 		var sExp=oOptions.exp;
 		var bIsEscape=Template.isEscape;
 		var oHelpers=oOptions.helpers;
-		var oMetaMorphs=me._metaMorphs;
 		var nNum=oOptions.num;
 		var sMetaId=me.getCid()+'-'+nNum;
-		if(!oMetaMorphs[nNum]&&oData instanceof Model){
-			oMetaMorphs[nNum]=1;
+		if(me.ifBind(nNum,oData)){
 			me.listenTo(oData,'change:'+sExp,function(sName,oModel,sValue){
 				if(bIsEscape){
 					sValue=oHelpers.escape(sValue);
@@ -197,9 +191,9 @@ function(Template,AbstractView,Model,Collection){
 		sId='bindAttr-'+sMetaId,
 		m,
 		result=[],
-		oMetaMorphs=me._metaMorphs,
 		aMatches=[],
-		bListen=!oMetaMorphs[nNum]&&oData instanceof Model;
+		bBindModel=me.ifBind(nNum,oData),
+		bBindEl=me.ifBind(nNum,oData,true);
 		
 		//循环分析表达式，先找出id属性
 		while(m=r.exec(sExp)){
@@ -222,7 +216,7 @@ function(Template,AbstractView,Model,Collection){
 			aValues=[];
 			//多个表达式用空格分开
 			for(var j=0;j<aExps.length;j++){
-				ret=fParseAttrExp(me,sId,sAttr,aExps[j],bListen,oData);
+				ret=fParseAttrExp(me,sId,sAttr,aExps[j],bBindModel,bBindEl,oData);
 				aValues.push(ret);
 			}
 			var sVal=aValues.join(' ');
@@ -235,7 +229,6 @@ function(Template,AbstractView,Model,Collection){
 			sVal&&result.push(sVal);
 		}
 		
-		oMetaMorphs[nNum]=1;
 		return ' '+result.join(' ')+' ';
 	}
 	/**
@@ -265,7 +258,7 @@ function(Template,AbstractView,Model,Collection){
 	 * @param {object}oData 当前数据对象
 	 * @return {string} 返回属性值
 	 */
-	function fParseAttrExp(oContext,sId,sAttr,sExp,bListen,oData){
+	function fParseAttrExp(oContext,sId,sAttr,sExp,bBindModel,bBindEl,oData){
 		var me=oContext,val,
 		sId='#'+sId,
 		nMark1=sExp.indexOf('?'),
@@ -276,7 +269,7 @@ function(Template,AbstractView,Model,Collection){
 			var exp2=nMark1<0?'':sExp.substring(nMark1+1,nMark2>0?nMark2:sExp.length);
 			var exp3=nMark2<0?'':sExp.substring(nMark2+1,sExp.length);
 			val=_fGetVal(exp1,oData);
-			if(bListen&&exp1.indexOf('#')!=0){
+			if(bBindModel&&exp1.indexOf('#')!=0){
 				me.listenTo(oData,"change:"+exp1,function(sName,oModel,sValue){
 					var jEl=$(sId);
 					if(!sAttr){
@@ -303,8 +296,8 @@ function(Template,AbstractView,Model,Collection){
 			return val?exp2:exp3;
 		}else{
 			val=_fGetVal(sExp,oData);
-			if(bListen&&sExp.indexOf('#')!=0){
-				me.listenTo(oData,"change:"+sExp,function(sName,oModel,sValue){
+			if(sExp.indexOf('#')!=0){
+				bBindModel&&me.listenTo(oData,"change:"+sExp,function(sName,oModel,sValue){
 					var jEl=$(sId);
 					if(sAttr=='class'){
 						jEl.removeClass(val);
@@ -315,7 +308,7 @@ function(Template,AbstractView,Model,Collection){
 						jEl.attr(sAttr,sValue||'');
 					}
 				});
-				if(sAttr=='value'){
+				if(sAttr=='value'&&bBindEl){
 					me.listen({
 						name:'input propertychange',
 						el:sId,
@@ -362,16 +355,21 @@ function(Template,AbstractView,Model,Collection){
 		return sHtml;
 	}
 	/**
-	 * 是否需要绑定模型对象
+	 * 查询指定逻辑单元是否需要绑定模型对象或节点，检查后设为已绑定，确保每个逻辑单元只绑定一次事件
+	 * @param {string}nNum 查询的逻辑单元编号
+	 * @param {object}oData 数据对象，只有此参数是可观察对象(集合或者模型)时才执行绑定
+	 * @param {boolean=}bIsEl 仅当为true时表示查询节点
+	 * @return true表示需要绑定
 	 */
-	function fIfBindModel(){
-		
-	}
-	/**
-	 * 是否需要绑定节点
-	 */
-	function fIfBindEl(){
-		
+	function fIfBind(nNum,oData,bIsEl){
+		var me=this;
+		if((!bIsEl&&me.bindType=='el')||(bIsEl&&me.bindType=='model')){
+			return false;
+		}
+		var oNums=bIsEl?me._bindElNums:me._bindModelNums;
+		var bIfBind=!oNums[nNum]&&(oData instanceof Model||oData instanceof Collection);
+		oNums[nNum]=1;
+		return bIfBind;
 	}
 	/**
 	 * 更新内容
