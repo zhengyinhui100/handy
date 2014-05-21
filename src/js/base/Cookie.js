@@ -50,17 +50,17 @@ handy.add('Cookie',function(){
 	 */
 	function fSetCookie(sName, sValue, oOptions) {
 		var aParam = [];
-		if(sName!=undefined&&sValue!=undefined){
+		if(sName!==undefined&&sValue!==undefined){
 			aParam.push(sName + "=" + escape(sValue));
 		}
 		if(oOptions){
-			if(oOptions.path!=undefined){
+			if(oOptions.path!==undefined){
 				aParam.push("path=" + oOptions.path);
 			}
-			if(oOptions.domain!=undefined){
+			if(oOptions.domain!==undefined){
 				aParam.push("domain=" + oOptions.domain);
 			}
-			if(oOptions.expires!=undefined){
+			if(oOptions.expires!==undefined){
 				aParam.push("expires=" + oOptions.expires);
 			}
 			if(oOptions.secure){
