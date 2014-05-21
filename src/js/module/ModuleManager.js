@@ -57,7 +57,6 @@ function(History,AbstractManager){
 				renderTo:me.container,
 				name:sModName,
 				xtype:sModName,
-				_id:me.generateId(),
 				extCls:'js-module m-module m-'+sModName.replace(/\./g,'-'),
 				hidden:true
 			};
@@ -112,6 +111,7 @@ function(History,AbstractManager){
 	 */
 	function fInitialize(oConf){
 		var me=this;
+		me.callSuper();
 		if(oConf){
 			me.conf=oConf;
 			$H.extend(me,oConf);

@@ -116,7 +116,7 @@ handy.add('Object',function($H){
     * 				{boolean=|array=|function(sprop)=}notCover 不覆盖原有属性/方法，当此参数为true时不覆盖原有属性；当此参数为数组时，
     * 					仅不覆盖数组中的原有属性；当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
     * 				{boolean=}isClone 克隆，仅当此参数为true时克隆
-    * 					源对象的修改会导致目标对象也修改
+    * 					源对象的修改不会导致目标对象也修改
     * }
     * @return {Object} 扩展后的对象
     */
@@ -332,7 +332,7 @@ handy.add('Object',function($H){
                     		return false;
                     	}
                         for (var sKey in o1) {
-                            if (o2[sKey] == undefined) {
+                            if (o2[sKey] === undefined) {
                                 return false;
                             }
                             if (!Object.equals(o1[sKey], o2[sKey])) {

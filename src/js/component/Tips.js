@@ -61,7 +61,7 @@ function(AC,Popup,ControlGroup){
 				items:{
 					xtype:'Icon',
 					name:'loading-mini',
-					noBg:true
+					hasBg:false
 				}
 			});
 		}else if(oSettings.type=='topTips'){

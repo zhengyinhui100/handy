@@ -56,7 +56,7 @@ function(AC){
 		//内容
 		var content=me.content;
 		//默认有空白字符
-		if(content==undefined&&!oSettings.items){
+		if(content===undefined&&!oSettings.items){
 			content='';
 		}
 		//包装文字内容

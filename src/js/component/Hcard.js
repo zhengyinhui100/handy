@@ -53,7 +53,7 @@ function(AC){
 		var me=this;
 		me.callSuper();
 		//有点击函数时默认有右箭头
-		if(oSettings.click&&me.hasArrow==undefined){
+		if(oSettings.click&&me.hasArrow===undefined){
 			me.hasArrow=true;
 		}
 	}

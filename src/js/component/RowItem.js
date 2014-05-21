@@ -39,11 +39,11 @@ function(AC){
 			me.text="&nbsp;";
 		}
 		//默认文字域有下划线
-		if(me.text&&me.underline==undefined){
+		if(me.text&&me.underline===undefined){
 			me.underline=true;
 		}
 		//有点击函数时默认有右箭头
-		if(oSettings.click&&me.hasArrow==undefined){
+		if(oSettings.click&&me.hasArrow===undefined){
 			me.hasArrow=true;
 		}
 	}
