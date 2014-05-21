@@ -11,19 +11,19 @@
 //"handy.common.View"
 $Define('CM.View',
 ['CM.ViewManager',
-'CM.AbstractView',
+'CM.ModelView',
+'CM.Model',
 'B.Template'],
-function(ViewManager,AbstractView,Template){
+function(ViewManager,ModelView,Model,Template){
 	
 	var _oTagReg=/^(<[a-zA-Z]+)/;
 	var _oHasClsReg=/^[^>]+class=/;
 	var _oClsReg=/(class=")/;
 	
 	//自定义事件
-	var View=AbstractView.derive({
+	var View=ModelView.derive({
 		
 		xtype               : 'View',            //类型
-		_placeholder        : '<script id="" type="text/x-placeholder"></script>',        //占位符标签
 		
 		//配置
 //		cClass              : '',                //客户定义class，无特殊限制，方便查找，类似于css的class
@@ -35,17 +35,17 @@ function(ViewManager,AbstractView,Template){
 //		disabled            : false,             //是否禁用
 //		extCls              : '',                //附加class
 //		notListen           : false,             //不自动初始化监听器
-		items               : [],                //子视图配置，初始参数可以是对象也可以是对象数组
+//		items               : [],                //子视图配置，初始参数可以是对象也可以是对象数组
 ////	lazy                : false,             //保留属性：懒加载，初始化时只设置占位标签，只在调用show方法时进行实际初始化
-		
+		xConfig             : {},                //视图模型xmodel的字段配置
 		
 		//属性
 //		startParseItems     : false,             //是否已开始初始化子视图
 //		isSuspend           : false,             //是否挂起事件
 //		destroyed           : false,             //是否已销毁
-		tmpl                : '<div><%=this.findHtml(">*")%></div>',    //模板，字符串或数组字符串，ps:模板容器节点上不能带有id属性
+		tmpl                : '<div>{{placeItem}}</div>',    //模板，字符串或数组字符串，ps:模板容器节点上不能带有id属性
 //      showed              : false,             //是否已显示
-		children            : [],                //子视图列表
+//		children            : [],                //子视图列表
 		_customEvents       : [                  //自定义事件,可以通过参数属性的方式直接进行添加
 			'beforeRender','render','afterRender',
 			'beforeShow','show','afterShow',
@@ -69,10 +69,8 @@ function(ViewManager,AbstractView,Template){
 		
 		//初始化相关
 		initialize          : fInitialize,       //初始化
-////	init                : fInit,             //子类初始方法，doConfig后调用
 ////	lazyInit            : fLazyInit,         //保留方法：懒加载，初始化时只设置占位标签，以后再进行真正的初始化
 		doConfig            : fDoConfig,         //初始化配置
-		initHtml            : fInitHtml,         //初始化html
 		getHtml             : fGetHtml,          //获取html
 		findHtml            : fFindHtml,         //获取子视图html
 		initStyle           : fInitStyle,        //初始化样式
@@ -99,8 +97,8 @@ function(ViewManager,AbstractView,Template){
 		parentsEl           : fParentsEl,        //查找视图的祖先节点
 		
 		//视图管理相关
-////	get                 : fGet,              //保留接口
-////	set                 : fSet,              //保留接口
+    	get                 : fGet,              //获取配置属性
+    	set                 : fSet,              //设置配置属性
 		each                : fEach,             //遍历子视图
 		match               : fMatch,            //匹配选择器
 		find                : fFind,             //查找视图
@@ -124,6 +122,34 @@ function(ViewManager,AbstractView,Template){
 		extend              : fExtend,           //扩展原型定义
 		html                : fHtml              //静态初始化视图并生成html
 	});
+	
+	//注册自定义辅助函数
+	Template.registerHelper('ModelView',{
+		placeItem : fPlaceItem
+	});
+	/**
+	 * 输出子视图
+	 * @param {string}sExp 表达式
+	 * @param {object}oOptions 选项，参数说明同if辅助函数
+	 * @param {object}oData 数据
+	 * @return {string} 返回生成的html
+	 */
+	function fPlaceItem(sExp,oOptions){
+		var me=oOptions.context,
+		nNum=oOptions.num,
+		sMetaId=me.getCid()+'-'+nNum;
+		var sHtml=me.findHtml(sExp);
+		//TODO
+		if(0&&!me.inited){
+			me.on('add',function(sEvt,oItem){
+				if(oItem.match(sExp)){
+					me.updateMetaMorph(sMetaId,oItem.getHtml(),'append');
+				}
+			});
+		}
+		return me.wrapMetaMorph(sMetaId,sHtml)
+	}
+	
 	/**
 	 * 扩展原型定义
 	 * @method extend
@@ -133,10 +159,15 @@ function(ViewManager,AbstractView,Template){
 		var oProt=this.prototype;
 		$H.extend(oProt, oExtend,{notCover:function(p){
 			//继承父类的事件
-			if($H.contains(['_customEvents','listeners'],p)){
+			if(p=='_customEvents'||p=='listeners'){
+				//拼接数组
 				oProt[p]=(oExtend[p]||[]).concat(oProt[p]||[]);
 				return true;
 			}else if(p=='xtype'||p=='constructor'){
+				return true;
+			}else if(p=='xConfig'){
+				//继承父类配置
+				oProt[p]=$H.extendIf(oExtend[p],oProt[p]);
 				return true;
 			}
 		}});
@@ -186,24 +217,9 @@ function(ViewManager,AbstractView,Template){
 	 */
 	function fInitialize(oParams){
 		var me=this;
-		if(me.inited){
-			return;
-		}
-		me.manager=me.constructor.manager||$H.getSingleton(ViewManager);
-		
-		//初始化配置
-		me.doConfig(oParams);
-		//子类自定义配置
-		if(me.init){
-			me.init(oParams);
-		}
-		me.parseItems();
-		if(me.autoRender!=false){
-			me.render();
-		}
-		//注册视图，各继承类自行实现
-		me.manager.register(me);
-		me.inited=true;
+		me.items=[];
+		me.children=[];
+		me.callSuper();
 	}
 	/**
 	 * 初始化配置
@@ -267,23 +283,31 @@ function(ViewManager,AbstractView,Template){
 		}else{
 			me.renderTo=$(document.body);
 		}
-	}
-	/**
-	 * 初始化html
-	 * @method initHtml
-	 * @return {string} 返回html
-	 */
-	function fInitHtml(){
-		var me=this;
-		//编译模板，一个类只需执行一次
-		var tmpl=me.tmpl;
-		if(!$H.isFunc(tmpl)){
-			me.tmpl=me.constructor.prototype.tmpl=$H.tmpl(tmpl);
+		var oFields=me.xConfig;
+		//生成modelclass
+		if(!me.modelClass){
+			var clazz
+			if(oFields){
+				clazz=Model.derive({
+					fields:oFields
+				})
+			}else{
+				clazz=Model;
+			}
+			me.constructor.prototype.modelClass=clazz;
 		}
-		//由模板生成html
-		var sHtml=me.tmpl(me);
-		return sHtml;
+		//初始化xmodel
+		var oAttrs={};
+		$H.each(oFields,function(k,v){
+			var value=me[k];
+			if(value!==undefined){
+				oAttrs[k]=value;
+			}
+		});
+		me.xmodel=new me.modelClass(oAttrs);
 	}
+	
+	var _oTagReg=/[^<]*(<[a-zA-Z]+)/;
 	/**
 	 * 获取html
 	 * @method getHtml
@@ -298,16 +322,13 @@ function(ViewManager,AbstractView,Template){
  		}else{
 			sStyle='display:none;';
  		}
- 		var sHtml=me.initHtml();
-		var bHasCls=_oHasClsReg.test(sHtml);
-		var sExtCls='js-'+me.manager.type+" "+'js-'+me.xtype+" "+me.extCls+" ";
-		if(bHasCls){
-			//添加class
-			sHtml=sHtml.replace(_oClsReg,'$1'+sExtCls);
-		}
+ 		var sHtml=me.callSuper();
 		//添加id和style
-		sHtml=sHtml.replace(_oTagReg,'$1 id="'+sId+'" style="'+sStyle+'"'+(bHasCls?'':' class="'+sExtCls+'"'));
-		return sHtml;
+		sHtml=sHtml.replace(_oTagReg,'$1 style="'+sStyle+'"');
+		if(me.extCls){
+			sHtml=sHtml.replace(/(class=['"])/,'$1'+me.extCls+' ');
+		}
+		return me.html=sHtml;
 	}
 	/**
 	 * 获取子视图html
@@ -333,10 +354,10 @@ function(ViewManager,AbstractView,Template){
 		var oEl=this.getEl();
 		//添加style
 		var oStyle=me.style||{};
-		if(me.width!=undefined){
+		if(me.width!==undefined){
 			oStyle.width=me.width;
 		}
-		if(me.height!=undefined){
+		if(me.height!==undefined){
 			oStyle.height=me.height;
 		}
 		oEl.css(oStyle);
@@ -578,6 +599,24 @@ function(ViewManager,AbstractView,Template){
 		return this.getEl().parents(sSel);
 	}
 	/**
+	 * 读取配置属性
+	 * @param {string}sKey 属性名称
+	 * @return {?} 返回属性值
+	 */
+	function fGet(sKey){
+		var me=this;
+		return me.xmodel.get(sKey);
+	}
+	/**
+	 * 设置配置属性
+	 * @param {string}sKey 属性名称
+	 * @param {*}value 属性值
+	 */
+	function fSet(sKey,value){
+		var me=this;
+		return me.xmodel.get(sKey);
+	}
+	/**
 	 * 遍历子视图
 	 * @method each
      * @param {function}fCallback 回调函数:fCallback(i,oChild)|fCallback(args)this=oChild,返回false时退出遍历
@@ -643,7 +682,7 @@ function(ViewManager,AbstractView,Template){
 	/**
 	 * 查找子元素或子视图
 	 * @method find
-	 * @param {number|string|Function(View)|Class}sel 数字表示子组件索引，
+	 * @param {number|string=|Function(View)|Class}sel 不传表示获取子视图数组，数字表示子组件索引，
 	 * 				如果是字符串：多个选择器间用","隔开('sel1,sel2,...')，语法类似jQuery，
 	 * 				如：'xtype[attr=value]'、'ancestor descendant'、'parent>child'，
 	 * 				'#'表示cid，如'#btn'，表示cid为btn的视图
@@ -655,7 +694,9 @@ function(ViewManager,AbstractView,Template){
 	 */
 	function fFind(sel,aResult){
 		var me=this,aResult=aResult||[];
-		if($H.isNum(sel)){
+		if(!sel){
+			aResult=aResult.concat(me.children);
+		}else if($H.isNum(sel)){
 			var oItem=me.children[sel];
 			aResult.push(oItem);
 		}else if($H.isStr(sel)){
@@ -780,7 +821,7 @@ function(ViewManager,AbstractView,Template){
 		if(me._applyArray()){
 			return;
 		}
-		var bNoIndex=nIndex==undefined;
+		var bNoIndex=nIndex===undefined;
 		//还没初始化子视图配置，直接添加到配置队列里
 		if(!me.startParseItems){
 			var aItems=me.items;
@@ -869,7 +910,7 @@ function(ViewManager,AbstractView,Template){
 				return item.parent.remove(item);
 			}
 		}
-		if(nIndex!=undefined&&item.destroy(true)!=false){
+		if(nIndex!==undefined&&item.destroy(true)!=false){
 			aChildren.splice(nIndex,1);
 			bResult=true;
 		}
@@ -908,44 +949,58 @@ function(ViewManager,AbstractView,Template){
 	 */
 	function fUpdate(oOptions,bNewConfig){
 		var me=this;
-		if(me.beforeUpdate()==false){
+		if(!oOptions||me.beforeUpdate()==false){
 			return false;
 		}
-		oOptions=oOptions||{};
-		var oParent=me.parent;
-		var oPlaceholder=$('<span></span>').insertBefore(me.getEl());
-		
-		if(!bNewConfig){
-			//由于子组件的初始配置都是autoRender=false，这里需要特殊处理下
-			if(oOptions.autoRender==undefined){
-				oOptions.autoRender=true;
+		var oConfigs=me.xConfig;
+		var bContain=true;
+		//检查选项是否都是xmodel的字段，如果是，则只需要更新xmodel即可，ui自动更新
+		$H.each(oOptions,function(p,v){
+			if(typeof oConfigs[p]=='undefined'){
+				bContain=false;
+				return false;
 			}
-			oOptions=$H.extend(oOptions,me.initParam,{notCover:true});
-		}
-		//cid不同
-		oOptions=$H.extend(oOptions,{
-			xtype:me.xtype,
-			renderBy:'replaceWith',
-			renderTo:oPlaceholder
-		},{notCover:['xtype']});
-		//不需要改变id/cid
-		if(!oOptions.cid||oOptions.cid==me.cid){
-			oOptions._id=me._id;
-		}
+		})
 		var oNew;
-		if(oParent){
-			var nIndex=me.index();
-			if(oParent.remove(me)==false){
-				oPlaceholder.remove();
-				return false;
-			}
-			oNew=oParent.add(oOptions,nIndex);
+		if(bContain){
+			me.xmodel.set(oOptions);
+			oNew=me;
 		}else{
-			if(me.destroy()==false){
-				oPlaceholder.remove();
-				return false;
+			//有不是xmodel的属性，执行完全更新
+			var oParent=me.parent;
+			var oPlaceholder=$('<span></span>').insertBefore(me.getEl());
+			
+			if(!bNewConfig){
+				//由于子组件的初始配置都是autoRender=false，这里需要特殊处理下
+				if(oOptions.autoRender===undefined){
+					oOptions.autoRender=true;
+				}
+				oOptions=$H.extend(oOptions,me.initParam,{notCover:true});
 			}
-			oNew=new me.constructor(oOptions);
+			//cid不同
+			oOptions=$H.extend(oOptions,{
+				xtype:me.xtype,
+				renderBy:'replaceWith',
+				renderTo:oPlaceholder
+			},{notCover:['xtype']});
+			//不需要改变id/cid
+			if(!oOptions.cid||oOptions.cid==me.cid){
+				oOptions._id=me._id;
+			}
+			if(oParent){
+				var nIndex=me.index();
+				if(oParent.remove(me)==false){
+					oPlaceholder.remove();
+					return false;
+				}
+				oNew=oParent.add(oOptions,nIndex);
+			}else{
+				if(me.destroy()==false){
+					oPlaceholder.remove();
+					return false;
+				}
+				oNew=new me.constructor(oOptions);
+			}
 		}
 		me.trigger('update',oNew);
 		me.afterUpdate(oNew);
@@ -1003,6 +1058,8 @@ function(ViewManager,AbstractView,Template){
 		delete me._container;
 		delete me.renderTo;
 		delete me._listeners;
+		delete me.html;
+		delete me.xmodel;
 		delete me.children;
 		me.afterDestroy();
 		return true;

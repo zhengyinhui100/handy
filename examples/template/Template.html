@@ -57,7 +57,7 @@ gEnv='dev';
 <body>
 <input value="按钮" type="button" id="button"/>
 <script id="entry-template" type="text/x-handlebars-template">
-<div class="entry">
+<div {{bindAttr class="#entry #dddd"}}>
   <h1>{{title}}</h1>
 	输入框的值:{{value}}
   <div class="body">
@@ -134,7 +134,7 @@ function test(){
 		
 		var CusModel=Model.derive({
 			fields:{
-				items:Collection
+				items:{type:Collection}
 			}
 		});
 		var oModel=new CusModel(oData);
@@ -147,7 +147,6 @@ function test(){
 		var i=0,value;
 		$("#button").click(function(){
 			i++;
-			oView.updateModel({title:'title'+i});
 			value=value?'':'content';
 			var oItems=oModel.get('items');
 			oItems.at(2).set({name:'change name'+i,value:value});
@@ -156,7 +155,8 @@ function test(){
 			}else{
 				oItems.remove(oItems.at(0));
 			}
-			oView.updateModel({
+			oView.updateXmodel({
+				title:'title'+i,
 				body:value,
 				value:value,
 				name:(value?'email':'pwd'),

@@ -13,34 +13,38 @@ $Define('CM.ModelView',
 ],
 function(Template,AbstractView,Model,Collection){
 	
-	var _oTagReg=/^(<[a-zA-Z]+)/;
-	
 	var ModelView=AbstractView.derive({
 		bindType            : 'both',              //绑定类型，‘el’表示绑定节点，‘model’表示绑定模型，‘both’表示双向绑定
 //		model               : null,                //模型对象
-		modelClass          : Model,               //模型类
-		_bindModelNums      : {},				   //保存逻辑块对应编号是否已绑定模型
-		_bindElNums         : {},                  //保存逻辑块对应编号是否已绑定节点
+//		xmodel              : null,                //执行模板时使用的模型对象，本类中与model属性相同
+//		modelClass          : null,                //模型类
+//		_bindModelNums      : {},				   //保存逻辑块对应编号是否已绑定模型
+//		_bindElNums         : {},                  //保存逻辑块对应编号是否已绑定节点
 		
+		initialize          : fInitialize,         //初始化
 		doConfig            : fDoConfig,           //初始化配置
-		initHtml            : fInitHtml,           //初始化html
+		preTmpl             : fPreTmpl,            //预处理模板
+		getTmplFn           : fGetTmplFn,          //初始化模板函数
+		getHtml             : fGetHtml,            //初始化html
 		ifBind              : fIfBind,             //查询指定逻辑单元是否需要绑定模型对象或节点，检查后设为已绑定，确保每个逻辑单元只绑定一次事件
 		updateMetaMorph     : fUpdateMetaMorph,    //更新内容
 		wrapMetaMorph       : fWrapMetaMorph,      //包装结果html
-		updateModel         : fUpdateModel,        //更新数据
-		getModel            : fGetModel            //获取配置对象
+		updateXmodel        : fUpdateXmodel,       //更新数据
+		getXmodel           : fGetXmodel           //获取配置对象
 	});
 	
 	//注册自定义辅助函数
 	Template.registerHelper('ModelView',{
-		'if'     : fIf,
-		'unless' : fUnless,
-		'each'   : fEach,
-		getValue : fGetValue,
-		bindAttr : fBindAttr
+		'if'       : fIf,
+		'unless'   : fUnless,
+		'each'     : fEach,
+		getValue   : fGetValue,
+		parseValue : fParseValue,
+		bindAttr   : fBindAttr
 	});
 	
 	var _bIfPlusJoin=Template.getIfPlusJoin();
+	var _oExecAttrs=/((\w+)=['"]?)?([#\w][\s\w\.\?:#-]*)(['"]?)(?!\w*=)/g;
 	
 	/**
 	 * if辅助函数
@@ -50,13 +54,15 @@ function(Template,AbstractView,Model,Collection){
 	 * 		{function}fn:回调函数,
 	 * 		{string}exp:表达式,
 	 * 		{object}context:模板函数执行上下文对象,
+	 * 		{*}data:当前数据对象,
 	 * 		{number}num:逻辑编号,
 	 * 		{object}helpers:辅助函数表
 	 * }
-	 * @return {string=} 返回生成的html
+	 * @return {string} 返回生成的html
 	 */
-	function fIf(condition,oOptions,oData){
+	function fIf(condition,oOptions){
 		var me=oOptions.context;
+		var oData=oOptions.data;
 		var sExp=oOptions.exp;
 		if ($H.isFunc(condition)) { 
 			condition = condition.call(oData); 
@@ -78,21 +84,21 @@ function(Template,AbstractView,Model,Collection){
 				me.updateMetaMorph(sMetaId,sHtml);
 			});
 		}
-		return me.wrapMetaMorph(sHtml,sMetaId);
+		return me.wrapMetaMorph(sMetaId,sHtml);
 	}
 	/**
 	 * unless辅助函数
 	 * 参数说明同if辅助函数
 	 */
-	function fUnless(condition, oOptions,oData){
+	function fUnless(condition, oOptions){
 		oOptions.inverse=true;
-		return oOptions.helpers['if'].call(this, condition, oOptions,oData);
+		return oOptions.helpers['if'].call(this, condition, oOptions);
 	}
 	/**
 	 * each辅助函数，新式浏览器里使用，chrome下性能大约提升一倍
 	 * @param {array|object}data 可遍历数据对象
 	 * @param {object}oOptions 选项，参数说明同if辅助函数
-	 * @return {string=} 返回生成的html
+	 * @return {string} 返回生成的html
 	 */
 	function fEach(data,oOptions){
 		var me=oOptions.context;
@@ -106,7 +112,7 @@ function(Template,AbstractView,Model,Collection){
 		//集合类型数据
 		if(data instanceof Collection){
 			data.each(function(i,item){
-				sTmp=me.wrapMetaMorph(fn(item),sMetaId+'-'+item.uuid);
+				sTmp=me.wrapMetaMorph(sMetaId+'-'+item.uuid,fn(item));
 				if(_bIfPlusJoin){
 					r+=sTmp;
 				}else{
@@ -115,7 +121,7 @@ function(Template,AbstractView,Model,Collection){
 			});
 			if(me.ifBind(nNum,data)){
 				me.listenTo(data,'add',function(sEvt,oModel,oCollection,oOptions){
-					var sHtml=me.wrapMetaMorph(fn(oModel),sMetaId+'-'+oModel.uuid);
+					var sHtml=me.wrapMetaMorph(sMetaId+'-'+oModel.uuid,fn(oModel));
 					var at=oOptions.at;
 					if(at){
 						var oPre=oCollection.at(at-1);
@@ -127,12 +133,12 @@ function(Template,AbstractView,Model,Collection){
 				});
 				me.listenTo(data,'remove',function(sEvt,oModel,oCollection,oOptions){
 					var n=sMetaId+'-'+oModel.uuid;
-					me.updateMetaMorph(n,'',true);
+					me.updateMetaMorph(n,'','remove');
 				});
 			}
-		}else if(data.length!=undefined){
+		}else if(data.length!==undefined){
 			for(var i=0,l=data.length;i<l;i++){
-				sTmp=me.wrapMetaMorph(fn(data[i]),sMetaId+'-'+i);
+				sTmp=me.wrapMetaMorph(sMetaId+'-'+i,fn(data[i]));
 				if(_bIfPlusJoin){
 					r+=sTmp;
 				}else{
@@ -141,7 +147,7 @@ function(Template,AbstractView,Model,Collection){
 			}
 		}else{
 			for(var i in data){
-				sTmp=me.wrapMetaMorph(fn(data[i]),sMetaId+'-'+i);
+				sTmp=me.wrapMetaMorph(sMetaId+'-'+i,fn(data[i]));
 				if(_bIfPlusJoin){
 					r+=sTmp;
 				}else{
@@ -149,15 +155,27 @@ function(Template,AbstractView,Model,Collection){
 				}
 			}
 		}
-		return me.wrapMetaMorph(_bIfPlusJoin?r:r.join(''),sMetaId);
+		return me.wrapMetaMorph(sMetaId,_bIfPlusJoin?r:r.join(''));
 	}
 	/**
 	 * 获取值
+	 * @param {string}sExp 表达式
 	 * @param {object}oData 数据对象
-	 * @param {object}oOptions 选项，参数说明同if辅助函数
+	 * @return {string} 返回值
 	 */
-	function fGetValue(oData,oOptions){
+	function fGetValue(sExp,oData){
+		var sValue=oData.get?oData.get(sExp):oData[sExp];
+		return sValue;
+	}
+	/**
+	 * 分析处理值
+	 * @param {string}sValue 当前要处理的值
+	 * @param {object}oOptions 选项，参数说明同if辅助函数
+	 * @return {string} 返回生成的html
+	 */
+	function fParseValue(sValue,oOptions){
 		var me=oOptions.context;
+		var oData=oOptions.data;
 		var sExp=oOptions.exp;
 		var bIsEscape=Template.isEscape;
 		var oHelpers=oOptions.helpers;
@@ -171,23 +189,26 @@ function(Template,AbstractView,Model,Collection){
 				me.updateMetaMorph(sMetaId,sValue);
 			});
 		}
-		var sValue=oData.get?oData.get(sExp):oData[sExp];
 		if(bIsEscape){
 			sValue=oHelpers.escape(sValue);
 		}
-		return me.wrapMetaMorph(sValue,sMetaId);
+		return me.wrapMetaMorph(sMetaId,sValue);
 	}
 	/**
-	 * 绑定属性
+	 * 绑定属性，使用形式如：<input type="text" {{bindAttr id="#input2" disabled?disabled value="value" class="isRed?red:green extCls #static-cls"}}/>
+	 * id="#input2"，#开头表示常量，直接输出id=input2;
+	 * dis?disabled，当dis字段为真(即：if(dis))时输出，disabled="disabled"，否则输出空字符；
+	 * value="value"，如果value的值为my value，输出value="my value"；
+	 * isRed?red:green，如果isRed为真，输出red，否则输出green
 	 * @param {string}sExp 表达式
 	 * @param {object}oOptions 选项，参数说明同if辅助函数
-	 * @param {object}oData 数据
+	 * @return {string} 返回生成的html
 	 */
-	function fBindAttr(sExp,oOptions,oData){
+	function fBindAttr(sExp,oOptions){
 		var me=oOptions.context,
+		oData=oOptions.data,
 		nNum=oOptions.num,
 		sMetaId=me.getCid()+'-'+nNum,
-		r=/((\w+)=['"]?)?([#\w][\s\w\?:#-]*)(['"]?)(?!\w*=)/g,
 		sId='bindAttr-'+sMetaId,
 		m,
 		result=[],
@@ -196,9 +217,13 @@ function(Template,AbstractView,Model,Collection){
 		bBindEl=me.ifBind(nNum,oData,true);
 		
 		//循环分析表达式，先找出id属性
-		while(m=r.exec(sExp)){
+		while(m=_oExecAttrs.exec(sExp)){
 			if(m[2]=='id'){
-				sId=_fGetVal(m[3],oData);
+				if(m[3].indexOf('this.')==0){
+					sId= me[m[3].substring(5)];
+				}else{
+					sId=_fGetVal(m[3],oData);
+				}
 			}else{
 				aMatches.push(m);
 			}
@@ -217,7 +242,9 @@ function(Template,AbstractView,Model,Collection){
 			//多个表达式用空格分开
 			for(var j=0;j<aExps.length;j++){
 				ret=fParseAttrExp(me,sId,sAttr,aExps[j],bBindModel,bBindEl,oData);
-				aValues.push(ret);
+				if(ret||ret===0){
+					aValues.push(ret);
+				}
 			}
 			var sVal=aValues.join(' ');
 			if(sAttr){
@@ -245,7 +272,7 @@ function(Template,AbstractView,Model,Collection){
 		if(sExp.indexOf('#')==0){
 			return sExp.substring(1);
 		}else{
-			return oData.get?oData.get(sExp):oData[sExp];
+			return fGetValue(sExp,oData);
 		}
 	}
 	/**
@@ -264,7 +291,9 @@ function(Template,AbstractView,Model,Collection){
 		nMark1=sExp.indexOf('?'),
 		nMark2=sExp.indexOf(':');
 		//三目运算exp1?exp2:exp3、exp1?exp2、exp1:esExp
-		if(nMark1>0||nMark2>0){
+		if(sExp.indexOf('this.')==0){
+			return me[sExp.substring(5)];
+		}else if(nMark1>0||nMark2>0){
 			var exp1=sExp.substring(0,nMark1>0?nMark1:nMark2);
 			var exp2=nMark1<0?'':sExp.substring(nMark1+1,nMark2>0?nMark2:sExp.length);
 			var exp3=nMark2<0?'':sExp.substring(nMark2+1,sExp.length);
@@ -322,6 +351,17 @@ function(Template,AbstractView,Model,Collection){
 		}
 	}
 	/**
+	 * 初始化
+	 * @method initialize
+	 * @param {Object}oParams 初始化参数
+	 */
+	function fInitialize(oParams){
+		var me=this;
+		me._bindModelNums={};
+		me._bindElNums={};
+		me.callSuper();
+	}
+	/**
 	 * 初始化配置
 	 * @method doConfig
 	 * @param {Object}oSettings 初始化参数
@@ -329,29 +369,80 @@ function(Template,AbstractView,Model,Collection){
 	function fDoConfig(oSettings){
 		var me=this;
 		me.callSuper();
+		var cModel=me.modelClass||Model;
 		if(!me.model){
-			me.model=new me.modelClass(me.data);
+			me.model=new cModel(me.data);
 		}
-		me._config=me.model;
+		me.xmodel=me.model;
+	}
+	
+	var _oTagReg=/[^<]*(<[a-zA-Z]+)/;
+	var _oHasClsReg=/^[^>]+class=/;
+	var _oClsReg=/class=['"]?([#\w][\s\w\.\?:#-]*)(['"]?)(?!\w*=)/;
+	var _oHasBindAttrReg=/^[^>]+{{bindAttr/;
+	var _oBindClass=/^[^>]+{{bindAttr((?!}}).)class=/;
+	var _oBindAttrReg=/({{bindAttr)/;
+	/**
+	 * 预处理模板
+	 */
+	function fPreTmpl(){
+		var me=this;
+		var tmpl=me.tmpl;
+		if($H.isArr(tmpl)){
+			tmpl=tmpl.join('');
+		}
+		//添加视图固定的绑定属性
+		var bHasCls=_oHasClsReg.test(tmpl);
+		var sExtCls='#js-'+me.manager.type+" "+'#js-'+me.xtype;
+		//检出模板现有的class
+		if(bHasCls){
+			var cls=tmpl.match(_oClsReg)[1];
+			//class不在bind属性里，需要添加常量标志#
+			if(cls){
+				if(!_oBindClass.test(tmpl)){
+					cls=cls.replace(/([^\s]+)/g,'#$1');
+				}
+				sExtCls+=' '+cls;
+			}
+			tmpl=tmpl.replace(_oClsReg,'');
+		}
+		//添加id
+		var sBindAttr=' id=this._id'+' class="'+sExtCls+'"';
+		if(_oHasBindAttrReg.test(tmpl)){
+			tmpl=tmpl.replace(_oBindAttrReg,'$1'+sBindAttr);
+		}else{
+			tmpl=tmpl.replace(_oTagReg,'$1 {{bindAttr'+sBindAttr+'}}');
+		}
+		me.tmpl=tmpl;
 	}
 	/**
-	 * 初始化html
-	 * @method initHtml
-	 * @return {string} 返回html
+	 * 获取模板函数
+	 * @return {function} 返回编译后的模板函数
 	 */
-	function fInitHtml(){
+	function fGetTmplFn(){
 		var me=this;
-		//编译模板，一个类只需执行一次
-		var tmpl=me.tmpl;
-		if(!$H.isFunc(tmpl)){
+		//编译模板，固定模板的类只需执行一次
+		if(!$H.isFunc(me.tmpl)){
+			me.preTmpl();
 			me.tmpl=me.constructor.prototype.tmpl=$H.tmpl({
-				tmpl:tmpl,
-				context:me,
+				tmpl:me.tmpl,
 				ns:'ModelView'
 			});
 		}
+		return me.tmpl;
+	}
+	/**
+	 * 初始化html
+	 * @return {string} 返回html
+	 */
+	function fGetHtml(){
+		var me=this;
+		if(me.html){
+			return me.html;
+		}
+		var fTmpl=me.getTmplFn();
 		//由模板生成html
-		var sHtml=me.tmpl(me.model);
+		var sHtml=me.html=fTmpl(me.xmodel,me);
 		return sHtml;
 	}
 	/**
@@ -376,8 +467,13 @@ function(Template,AbstractView,Model,Collection){
 	 * @param {number}nId 逻辑节点id
 	 * @param {string=}sHtml 替换逻辑节点内容的html，不传表示清空内容
 	 * @param {boolean=}bRemove 仅当true时移除首尾逻辑节点
+	 * @param {string=}sType 默认是更新内容，'append'表示追加内容，'remove'表示移除内容(包括元标签)
 	 */
-	function fUpdateMetaMorph(nId,sHtml,bRemove){
+	function fUpdateMetaMorph(nId,sHtml,sType){
+		if(sType=='append'){
+			$('#metamorph-'+nId+'-end').before(sHtml);
+			return;
+		}
 		var jStart=$('#metamorph-'+nId+'-start');
 		//找不到开始节点，是外部逻辑块已移除，直接忽略即可
 		if(jStart.length==0){
@@ -396,18 +492,18 @@ function(Template,AbstractView,Model,Collection){
 			}
 		}
 		sHtml&&jStart.after(sHtml);
-		if(bRemove){
+		if(sType=='remove'){
 			jStart.remove();
 			$(eNext).remove();
 		}
 	}
 	/**
 	 * 包装结果html
-	 * @param {string}sHtml 参数html
 	 * @param {number}nId 逻辑节点id
+	 * @param {string}sHtml 参数html
 	 * @return {string} 返回包装好的html
 	 */
-	function fWrapMetaMorph(sHtml,nId){
+	function fWrapMetaMorph(nId,sHtml){
 		var sStart='<script id="metamorph-';
 		var sEnd='" type="text/x-placeholder"></script>';
 		return sStart+nId+'-start'+sEnd+(sHtml||'')+sStart+nId+'-end'+sEnd;
@@ -415,14 +511,14 @@ function(Template,AbstractView,Model,Collection){
 	/**
 	 * 更新数据
 	 */
-	function fUpdateModel(oSettings){
-		this.model.set(oSettings);
+	function fUpdateXmodel(oSettings){
+		this.xmodel.set(oSettings);
 	}
 	/**
 	 * 获取配置对象
 	 */
-	function fGetModel(){
-		return this.model;
+	function fGetXmodel(){
+		return this.xmodel;
 	}
 	
 	return ModelView;

@@ -199,11 +199,13 @@ function(CM,Icon,Button,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Sel
 			           }
 			]
 		}));
-		/* 这里因为性能测试循环注释掉 
-		var icon=CM.get('icon');
+		
+		/* 这里因为性能测试循环注释掉
+		var icon=$V.get('icon');
 		icon.afterRender();
 		console.log(icon); 
-		*/
+		 */
+		
 		
 		var aIcons=["action","arrow-d-l","arrow-d-r","arrow-d","arrow-l","arrow-r","arrow-u-l","arrow-u-r",
 		            "arrow-u","audio","calendar","camera","carat-d","carat-l","carat-r","carat-u","check",
@@ -226,13 +228,14 @@ function(CM,Icon,Button,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Sel
 			theme:'blue',
 			radius:'normal',
 			click:function(){
-		  		  $D.log(1);
-		  	  }
+	  		    $D.log(1);
+	  	    }
 		})
 		
 		new Button({
 			renderTo:'#buttonDv',
 			text:'图标按钮',
+			iconPos:'left',
 			items:{
 				xtype:"Icon",
 				name:"carat-l"
@@ -256,6 +259,7 @@ function(CM,Icon,Button,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Sel
 		var oControl=new ControlGroup({
 			renderTo:'#controlGroupDv',
 			direction:'h',
+			radius:'normal',
 			items:[{
 				xtype:'Button',
 				text:'按钮一'
@@ -275,7 +279,7 @@ function(CM,Icon,Button,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Sel
 			text:'更新第二个按钮',
 			click:function(){
 				var oBtn=oControl.children[1];
-				var oNew=oBtn.update({cid:'newBtn123',text:'新按钮'});
+				var oNew=oBtn.update({text:'新按钮'});
 			}
 		});
 		
@@ -352,6 +356,7 @@ function(CM,Icon,Button,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Sel
 			}
 		})
 		
+		return;
 		//菜单
 		new Button({
 			renderTo:"#menuDv",

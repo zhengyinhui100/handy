@@ -9,8 +9,9 @@ $Define("CM.AbstractManager", function() {
 	var AbstractManager = $H.createClass();
 	
 	$H.extend(AbstractManager.prototype, {
-	    _types        : {},               //存储类
-	    _all          : {},               //存储所有实例
+//	    _types        : {},               //存储类
+//	    _all          : {},               //存储所有实例
+	    initialize    : fInitialize,      //初始化
 		type          : 'manager',        //被管理对象的类型，也用于生成标记被管理对象的class
 		registerType  : fRegisterType,    //注册视图类
 		getClass      : fGetClass,        //根据xtype获取视图类
@@ -20,7 +21,14 @@ $Define("CM.AbstractManager", function() {
 		generateId    : fGenerateId,      //生成视图的id
 		get           : fGet              //根据id或cid查找视图
 	});
-	
+	/**
+	 * 初始化
+	 */
+	function fInitialize(){
+		var me=this;
+		me._types={};
+		me._all={};
+	}
 	/**
 	 * 注册视图类型
 	 * @method registerType

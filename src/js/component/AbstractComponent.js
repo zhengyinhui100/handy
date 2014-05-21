@@ -16,24 +16,61 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		xtype               : 'AbstractComponent',       //组件类型
 		
 		//默认配置
-		activeCls           : 'hui-active',      //激活样式
 //		icon                : null,              //图标
 		
 		////通用样式
 //		width               : null,              //宽度(默认单位是px)
 //		height              : null,              //高度(默认单位是px)
-//		tType               : null,              //组件主题类型
-//		theme               : null,              //组件主题样式
-//		radius              : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
-//		shadow              : false,        	 //外阴影
-//		shadowInset         : false,        	 //内阴影
-//		shadowSurround      : false,             //外围亮阴影，主要用于黑色工具栏内的按钮
-//		shadowOverlay       : false,             //遮罩层里组件的阴影效果，主要用于弹出层
-//		isMini              : false,       	     //小号
-//		isActive            : false,             //是否激活
-//		isFocus             : false,        	 //聚焦
-//		isInline            : false,             //是否内联(宽度自适应)
 //		style               : {},                //其它样式，如:{top:10,left:10}
+		xConfig             : {
+			extCls          : '',                //附加样式名
+			tType           : '',                //主题类型
+			theme           : '',                //主题
+			cls             : '',                //组件css命名前缀
+			radius          : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
+			shadow          : false,        	 //外阴影
+			shadowInset     : false,        	 //内阴影
+			shadowSurround  : false,             //外围亮阴影，主要用于黑色工具栏内的按钮
+			shadowOverlay   : false,             //遮罩层里组件的阴影效果，主要用于弹出层
+			isMini          : false,       	     //小号
+			isActive        : false,             //是否激活
+			isFocus         : false,        	 //聚焦
+			isInline        : false,             //是否内联(宽度自适应)
+			activeCls       : 'hui-active',      //激活样式
+			cmpCls          : {
+				depends : ['cls'],
+				parse :function(){
+					return 'hui-'+this.get("cls");
+				}
+			},
+			tTypeCls        : {
+				depends : ['tType'],
+				parse :function(){
+					var tType=this.get("tType");
+					return tType?'hui-'+this.get("cls")+'-'+tType:'';
+				}
+			},
+			themeCls        : {
+				depends : ['theme'],
+				parse :function(){
+					var sTheme=this.get("theme");
+					return sTheme?'hui-'+this.get("cls")+'-'+this.get("theme"):'';
+				}
+			},
+			activeClass     : {
+				depends : ['isActive','activeCls'],
+				parse :function(){
+					return this.get('isActive')?this.get('activeCls'):'';
+				}
+			},
+			radiusCls       : {
+				depends : ['radius'],
+				parse :function(){
+					var sRadius=this.get('radius');
+					return sRadius?'hui-radius-'+sRadius:'';
+				}
+			}
+		},
 		
 		//属性
 //		cls                 : '',                //组件样式名，空则使用xtype的小写，如Dialog，cls为"dialog"，因此样式前缀是“hui-dialog-”
@@ -42,7 +79,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		//组件初始化相关
 		hasConfig           : fHasConfig,        //检查是否已存在指定配置
 		doConfig            : fDoConfig,         //初始化配置
-		getExtCls           : fGetExtCls,        //生成通用样式
+		preTmpl             : fPreTmpl,          //预处理模板
 		//组件公用功能
 		active              : fActive,           //激活
 		unactive            : fUnactive,         //不激活
@@ -105,11 +142,6 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		var me=this;
 		me.callSuper();
 		
-		//样式名
-		if(!me.cls){
-			me.cls=me.xtype.toLowerCase();
-		}
-		me.extCls=me.getExtCls();
 		//图标组件快捷添加
 		if(me.icon){
 			me.add({
@@ -123,67 +155,27 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		}
 	}
 	/**
-	 * 生成通用样式
-	 * @method getExtCls
-	 * @return {string} 返回通用样式
+	 * 预处理模板，添加组件样式
 	 */
-	function fGetExtCls(){
+	function fPreTmpl(){
 		var me=this;
-		//组件标志class
-		var aCls=['js-component','hui-'+me.cls];
-		if(me.extCls){
-			aCls.push(me.extCls);
-		}
-		if(me.tType){
-			aCls.push('hui-'+me.cls+'-'+me.tType);
-		}
-		if(me.theme){
-			aCls.push('hui-'+me.cls+'-'+me.theme);
-		}
-		if(me.radius){
-			aCls.push('hui-radius-'+me.radius);
-		}
-		if(me.isMini){
-			aCls.push('hui-mini');
-		}
-		if(me.shadow){
-			aCls.push('hui-shadow');
-		}
-		if(me.shadowSurround){
-			aCls.push('hui-shadow-surround');
-		}
-		if(me.shadowOverlay){
-			aCls.push('hui-shadow-overlay');
-		}
-		if(me.shadowInset){
-			aCls.push('hui-shadow-inset');
-		}
-		if(me.isActive){
-			aCls.push(me.activeCls);
-		}
-		if(me.isFocus){
-			aCls.push('hui-focus');
-		}
-		if(me.isInline){
-			aCls.push('hui-inline');
-		}
-		return aCls.length>0?aCls.join(' '):'';
+		me.callSuper();
+		me.tmpl=me.tmpl.replace(/(class=['"])/,'$1#js-component cmpCls tTypeCls themeCls radiusCls isMini?hui-mini shadow?hui-shadow shadowSurround?hui-shadow-surround '+
+		'shadowOverlay?hui-shadow-overlay shadowInset?hui-shadow-inset activeClass isFocus?hui-focus isInline?hui-inline ');
 	}
 	/**
 	 * 激活
 	 * @method active
 	 */
 	function fActive(){
-		var me=this;
-		me.getEl().addClass(me.activeCls);
+		this.update({isActive:true});
 	}
 	/**
 	 * 不激活
 	 * @method unactive
 	 */
 	function fUnactive(){
-		var me=this;
-		me.getEl().removeClass(me.activeCls);
+		this.update({isActive:false});
 	}
 	/**
 	 * 设置/读取文字
@@ -193,16 +185,10 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 	 */
 	function fTxt(sTxt){
 		var me=this;
-		//先寻找js私有的class
-		var oTxtEl=me.findEl('.js-'+me.cls+'-txt');
-		//如果找不到，再通过css的class查找
-		if(oTxtEl.length==0){
-			oTxtEl=me.findEl('.hui-'+me.cls+'-txt')
-		}
-		if(sTxt!=undefined){
-			oTxtEl.text(sTxt);
+		if(sTxt!==undefined){
+			return me.set('text',sTxt);
 		}else{
-			return oTxtEl.text();
+			return me.get('text');
 		}
 	}
 	/**

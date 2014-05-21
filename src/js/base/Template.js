@@ -9,13 +9,12 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		openTag         : '{{',            //模板语法开始标签
 		closeTag        : '}}',            //模板语法结束标签
 		isTrim          : true,            //是否过滤标签间空白和换行
-		isEscape        : true,            //是否开启js变量输出转义
+		isEscape        : false,           //是否开启js变量输出转义
 		
 		getIfPlusJoin   : fGetIfPlusJoin,  //获取是否使用+连接字符串 
 		registerHelper  : fRegisterHelper, //添加辅助函数
 		tmpl            : fTmpl            //编译/渲染模板
 	};
-	
 	
 	var _cache={},                //缓存
 		_aCode,                   //存储用于生成模板函数的代码字符串
@@ -27,17 +26,41 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 			'var $r='+(_isNewEngine?'""':'[]')+',$tmp,helper;',
 			'return '+(_isNewEngine?'$r;':'$r.join("");')
 		],
+		
 		//辅助函数
 		_helpers={
 			'default':{
 				'if':_fIf,
 				'unless':_fUnless,
 				'each':_isNewEngine?_fEach:_fEachOld,
-				escape:String.escapeHTML,
+				escape:_fEscapeHTML,
 				trim:String.trim
 			}
 		};
-		
+	/**
+	 * 转化为字符串，除字符串、数字外都转为空字符，如：undefined、null转化为''
+	 * @param {*}value 参数值
+	 * @return 返回字符串
+	 */
+	function _fToString(value) {
+		var sType=typeof value;
+        if (sType!== 'string') {
+            if (sType === 'number') {
+                value += '';
+            } else {
+                value = '';
+            }
+        }
+        return value;
+    }
+	/**
+	 * html编码
+	 * @param {*}content 待编码参数
+	 * @return {string} 返回编码后的html
+	 */
+    function _fEscapeHTML(content) {
+        return String.encodeHTML(_fToString(content));
+    }	
 	/**
 	 * if辅助函数
 	 * @param {string|function}condition 条件语句
@@ -51,7 +74,8 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 	 * }
 	 * @return {string=} 返回生成的html
 	 */
-	function _fIf(condition,oOptions,data){
+	function _fIf(condition,oOptions){
+		var data=oOptions.data;
 		if (Object.isFunc(condition)) { 
 			condition = condition.call(data); 
 		}
@@ -63,9 +87,9 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 	 * unless辅助函数
 	 * 参数说明同if辅助函数
 	 */
-	function _fUnless(condition, oOptions,data){
+	function _fUnless(condition, oOptions){
 		oOptions.inverse=true;
-		return oOptions.helpers['if'].call(this, condition, oOptions,data);
+		return oOptions.helpers['if'].call(this, condition, oOptions);
 	}
 	/**
 	 * each辅助函数，新式浏览器里使用，chrome下性能大约提升一倍
@@ -79,7 +103,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		if(!data){
 			return;
 		}
-		if(data.length!=undefined){
+		if(data.length!==undefined){
 			for(var i=0,l=data.length;i<l;i++){
 				r+=fn(data[i]);
 			}
@@ -100,7 +124,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		if(!data){
 			return;
 		}
-		if(data.length!=undefined){
+		if(data.length!==undefined){
 			for(var i=0,l=data.length;i<l;i++){
 				aResult.push(fn(data[i]));
 			}
@@ -146,17 +170,21 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 	function _fParseScript(oScript,oOptions){
 		var oOptions=oOptions||{};
 		var sExp=oScript.exp.replace(/"/g,'\'');
+		sExp=String.trim(sExp).replace(/\s{2,}/g,' ');
+		var oHelpers=oOptions.helpers;
+		var fGetValue=oHelpers&&oHelpers.getValue;
+		var fParseValue=oHelpers&&oHelpers.parseValue;
 		var sBlockName=oScript.blockName;
 		var aChildren=oScript.children;
 		var nNumber=oScript.num;
 		var sCode;
-		var sGetter='$data && ($data.get?$data.get("'+sExp+'"):$data.'+sExp+')';
 		var sAdd='\nif($tmp||$tmp===0){'+_fAddLine('$tmp')+'}';
-		var sParams=(oScript.inverse?'inverse:true,':'')+'num:'+nNumber+',context:me,exp:"'+sExp+'",helpers:$helpers},$data';
+		var sParams=(oScript.inverse?'inverse:true,':'')+'num:'+nNumber+',context:$me,exp:"'+sExp+'",helpers:$helpers,data:$data}';
+		var sGetter=fGetValue?'$helpers.getValue.call($me,"'+sExp+'",$data,{'+sParams+')':'($data&&$data.'+sExp+')';
 		//辅助函数
 		if(sBlockName){
 			var sProgramName='$program'+nNumber;
-			sCode='$tmp = $helpers.'+sBlockName+'.call(me,'+sGetter+', {fn:'+sProgramName+','+sParams+');'+sAdd;
+			sCode='$tmp = $helpers["'+sBlockName+'"].call($me,'+sGetter+', {fn:'+sProgramName+','+sParams+');'+sAdd;
 			if(aChildren){
 				var aCode=_fCompileAST(aChildren,oOptions);
 				var sCodeInner=_aJoinDefine[0]+'\n'+aCode.join('\n')+'\n'+_aJoinDefine[1];
@@ -166,15 +194,18 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		}else{
 			//辅助函数
 			var m;
+			//if isChk
 			if(m=sExp.match(/([^\s]+)\s([^\n]+)/)){
+				//if
 				sExp=m[1];
-				sCode='if (helper = $helpers.'+sExp+') {\n$tmp = helper.call(me,"'+m[2]+'",{'+sParams+'); \n}else{$tmp="";}';
+				//m[2]:isChk
+				sCode='if (helper = $helpers.'+sExp+') {\n$tmp = helper.call($me,"'+m[2]+'",{'+sParams+'); \n}else{$tmp="";}';
 			}else{
 				//直接表达式
-				sCode='if (helper = $helpers.'+sExp+') {\n$tmp = helper.call(me,$data,{'+sParams+'); \n}'+
-						'else if($helpers.getValue){'+'\n$tmp=$helpers.getValue'+'.call(me,$data,{'+sParams+');}'
-				  		'else{\nhelper = '+sGetter+'; $tmp = typeof helper === functionType ? helper.call(me,$data,{'+sParams+') : helper;\n}'+
-				  		(oOptions.helpers.getValue?''
+				sCode='if (helper = $helpers.'+sExp+') {\n$tmp = helper.call($me,"",{'+sParams+'); \n}'+
+				  		'else{\nhelper = '+sGetter+'; $tmp = typeof helper === functionType ? helper.call($me,{'+sParams+') : helper;\n}'+
+				  		(fParseValue?
+				  		'\n$tmp=$helpers.parseValue'+'.call($me,$tmp,{'+sParams+');'
 				  		:(T.isEscape?'\n$tmp=escape($tmp);':''));
 			}
 			sCode+=sAdd;
@@ -352,7 +383,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		}
 		//旧浏览器使用数组方式拼接字符串
 		_aCode=[_aJoinDefine[0]];
-		_aCode.push('var escape=$helpers.escape,functionType="function",me=this;');
+		_aCode.push('var escape=$helpers.escape,functionType="function",$me=this;');
 		
 		//处理设置
 		var sNameSpace=oOptions&&oOptions.ns;
@@ -365,7 +396,6 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 			oHelpers=_helpers['default'];
 		}
 		oOptions.helpers=oHelpers;
-		var oContext=oOptions.context;
 		
 		var oAst=_fParseTmpl(sTmpl);
 		//分析完重置为0
@@ -377,9 +407,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		try{
 			var aParams = ["$T", "$helpers", "$data",sCode];
 			var fRender=window.Function.apply(null,aParams);
-			//TODO
-			Debug.log(fRender);
-			return function($data){
+			return function($data,oContext){
 				return fRender.call(oContext||$data,T,oHelpers,$data);
 			}
 		}catch(e){
@@ -420,13 +448,14 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 	 * 		{Object=}helpers : 自定义辅助列表（参照_fCompile方法说明）
 	 * }
 	 * @param {object}oData 数据
+	 * @param {object=}oContext 模板函数执行的上下文对象
 	 * @return {function|string} 当oData为空时返回编译后的模板函数，不为空时返回渲染后的字符串
 	 */
-	function fTmpl(tmpl,oData){
+	function fTmpl(tmpl,oData,oContext){
 		var sTmpl,fTmpl,sId;
 		if(typeof tmpl=='string'){
 			sTmpl=tmpl;
-		}else if(tmpl.length!=undefined){
+		}else if(tmpl.length!==undefined){
 			sTmpl=tmpl.join('');
 		}else{
 			sTmpl=tmpl.tmpl;
@@ -444,7 +473,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		}
 		if(!fTmpl){
 			if(!sTmpl){
-				$H.Debug.error('模板未定义');
+				Debug.error('模板未定义');
 				return;
 			}
 			fTmpl=_fCompile(sTmpl,tmpl);
@@ -456,7 +485,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		//渲染数据
 		if(oData){
 			try{
-				return fTmpl(oData);
+				return fTmpl(oData,oContext);
 			}catch(e){
 				Debug.log(fTmpl.toString());
 				Debug.error(e);

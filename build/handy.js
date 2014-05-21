@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-05-18 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-05-21 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -433,7 +433,7 @@ handy.add('Object',function($H){
     * 				{boolean=|array=|function(sprop)=}notCover 不覆盖原有属性/方法，当此参数为true时不覆盖原有属性；当此参数为数组时，
     * 					仅不覆盖数组中的原有属性；当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
     * 				{boolean=}isClone 克隆，仅当此参数为true时克隆
-    * 					源对象的修改会导致目标对象也修改
+    * 					源对象的修改不会导致目标对象也修改
     * }
     * @return {Object} 扩展后的对象
     */
@@ -649,7 +649,7 @@ handy.add('Object',function($H){
                     		return false;
                     	}
                         for (var sKey in o1) {
-                            if (o2[sKey] == undefined) {
+                            if (o2[sKey] === undefined) {
                                 return false;
                             }
                             if (!Object.equals(o1[sKey], o2[sKey])) {
@@ -1379,11 +1379,11 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
             if (fInitialize) {
             	//所有对象类型包括数组类型的属性都重新clone，避免在实例方法中修改到类属性
             	//根据组件example页面118-11800个不同组件的测试，手机上大概会影响5-10%的性能，pc上不是很明显
-            	for(var p in me){
-            		if(typeof me[p]=="object"){
-            			me[p]=Object.clone(me[p]);
-            		}
-            	}
+//            	for(var p in me){
+//            		if(typeof me[p]=="object"){
+//            			me[p]=Object.clone(me[p]);
+//            		}
+//            	}
                 // 返回当前class派生出来对象可以被定义
             	return fInitialize.apply(me, oArgs);
             }
@@ -1409,7 +1409,7 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
          */
         Class.prototype.callSuper=function(oSuper,aArgs){
         	var me=this;
-        	if(oSuper&&!oSuper.$isClass&&oSuper.length!=undefined){
+        	if(oSuper&&!oSuper.$isClass&&oSuper.length!==undefined){
         		aArgs=oSuper;
         		oSuper=null;
         	}
@@ -1939,7 +1939,7 @@ function(Debug,Object,Function,$H){
     	//没有需要加载的资源，直接执行回调或返回资源
     	if(aRequestIds.length==0){
     		fCallback&&fCallback.apply(null,aExisteds);
-    		return aExisteds.length==0?aExisteds[0]:aExisteds;
+    		return aExisteds.length==1?aExisteds[0]:aExisteds;
     	}else{
     		//请求资源
     		_fRequest(aRequestIds);
@@ -2697,17 +2697,17 @@ handy.add('Cookie',function(){
 	 */
 	function fSetCookie(sName, sValue, oOptions) {
 		var aParam = [];
-		if(sName!=undefined&&sValue!=undefined){
+		if(sName!==undefined&&sValue!==undefined){
 			aParam.push(sName + "=" + escape(sValue));
 		}
 		if(oOptions){
-			if(oOptions.path!=undefined){
+			if(oOptions.path!==undefined){
 				aParam.push("path=" + oOptions.path);
 			}
-			if(oOptions.domain!=undefined){
+			if(oOptions.domain!==undefined){
 				aParam.push("domain=" + oOptions.domain);
 			}
-			if(oOptions.expires!=undefined){
+			if(oOptions.expires!==undefined){
 				aParam.push("expires=" + oOptions.expires);
 			}
 			if(oOptions.secure){
@@ -3247,13 +3247,12 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		openTag         : '{{',            //模板语法开始标签
 		closeTag        : '}}',            //模板语法结束标签
 		isTrim          : true,            //是否过滤标签间空白和换行
-		isEscape        : true,            //是否开启js变量输出转义
+		isEscape        : false,           //是否开启js变量输出转义
 		
 		getIfPlusJoin   : fGetIfPlusJoin,  //获取是否使用+连接字符串 
 		registerHelper  : fRegisterHelper, //添加辅助函数
 		tmpl            : fTmpl            //编译/渲染模板
 	};
-	
 	
 	var _cache={},                //缓存
 		_aCode,                   //存储用于生成模板函数的代码字符串
@@ -3265,17 +3264,41 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 			'var $r='+(_isNewEngine?'""':'[]')+',$tmp,helper;',
 			'return '+(_isNewEngine?'$r;':'$r.join("");')
 		],
+		
 		//辅助函数
 		_helpers={
 			'default':{
 				'if':_fIf,
 				'unless':_fUnless,
 				'each':_isNewEngine?_fEach:_fEachOld,
-				escape:String.escapeHTML,
+				escape:_fEscapeHTML,
 				trim:String.trim
 			}
 		};
-		
+	/**
+	 * 转化为字符串，除字符串、数字外都转为空字符，如：undefined、null转化为''
+	 * @param {*}value 参数值
+	 * @return 返回字符串
+	 */
+	function _fToString(value) {
+		var sType=typeof value;
+        if (sType!== 'string') {
+            if (sType === 'number') {
+                value += '';
+            } else {
+                value = '';
+            }
+        }
+        return value;
+    }
+	/**
+	 * html编码
+	 * @param {*}content 待编码参数
+	 * @return {string} 返回编码后的html
+	 */
+    function _fEscapeHTML(content) {
+        return String.encodeHTML(_fToString(content));
+    }	
 	/**
 	 * if辅助函数
 	 * @param {string|function}condition 条件语句
@@ -3289,7 +3312,8 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 	 * }
 	 * @return {string=} 返回生成的html
 	 */
-	function _fIf(condition,oOptions,data){
+	function _fIf(condition,oOptions){
+		var data=oOptions.data;
 		if (Object.isFunc(condition)) { 
 			condition = condition.call(data); 
 		}
@@ -3301,9 +3325,9 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 	 * unless辅助函数
 	 * 参数说明同if辅助函数
 	 */
-	function _fUnless(condition, oOptions,data){
+	function _fUnless(condition, oOptions){
 		oOptions.inverse=true;
-		return oOptions.helpers['if'].call(this, condition, oOptions,data);
+		return oOptions.helpers['if'].call(this, condition, oOptions);
 	}
 	/**
 	 * each辅助函数，新式浏览器里使用，chrome下性能大约提升一倍
@@ -3317,7 +3341,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		if(!data){
 			return;
 		}
-		if(data.length!=undefined){
+		if(data.length!==undefined){
 			for(var i=0,l=data.length;i<l;i++){
 				r+=fn(data[i]);
 			}
@@ -3338,7 +3362,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		if(!data){
 			return;
 		}
-		if(data.length!=undefined){
+		if(data.length!==undefined){
 			for(var i=0,l=data.length;i<l;i++){
 				aResult.push(fn(data[i]));
 			}
@@ -3384,17 +3408,21 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 	function _fParseScript(oScript,oOptions){
 		var oOptions=oOptions||{};
 		var sExp=oScript.exp.replace(/"/g,'\'');
+		sExp=String.trim(sExp).replace(/\s{2,}/g,' ');
+		var oHelpers=oOptions.helpers;
+		var fGetValue=oHelpers&&oHelpers.getValue;
+		var fParseValue=oHelpers&&oHelpers.parseValue;
 		var sBlockName=oScript.blockName;
 		var aChildren=oScript.children;
 		var nNumber=oScript.num;
 		var sCode;
-		var sGetter='$data && ($data.get?$data.get("'+sExp+'"):$data.'+sExp+')';
 		var sAdd='\nif($tmp||$tmp===0){'+_fAddLine('$tmp')+'}';
-		var sParams=(oScript.inverse?'inverse:true,':'')+'num:'+nNumber+',context:me,exp:"'+sExp+'",helpers:$helpers},$data';
+		var sParams=(oScript.inverse?'inverse:true,':'')+'num:'+nNumber+',context:$me,exp:"'+sExp+'",helpers:$helpers,data:$data}';
+		var sGetter=fGetValue?'$helpers.getValue.call($me,"'+sExp+'",$data,{'+sParams+')':'($data&&$data.'+sExp+')';
 		//辅助函数
 		if(sBlockName){
 			var sProgramName='$program'+nNumber;
-			sCode='$tmp = $helpers.'+sBlockName+'.call(me,'+sGetter+', {fn:'+sProgramName+','+sParams+');'+sAdd;
+			sCode='$tmp = $helpers["'+sBlockName+'"].call($me,'+sGetter+', {fn:'+sProgramName+','+sParams+');'+sAdd;
 			if(aChildren){
 				var aCode=_fCompileAST(aChildren,oOptions);
 				var sCodeInner=_aJoinDefine[0]+'\n'+aCode.join('\n')+'\n'+_aJoinDefine[1];
@@ -3404,15 +3432,18 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		}else{
 			//辅助函数
 			var m;
+			//if isChk
 			if(m=sExp.match(/([^\s]+)\s([^\n]+)/)){
+				//if
 				sExp=m[1];
-				sCode='if (helper = $helpers.'+sExp+') {\n$tmp = helper.call(me,"'+m[2]+'",{'+sParams+'); \n}else{$tmp="";}';
+				//m[2]:isChk
+				sCode='if (helper = $helpers.'+sExp+') {\n$tmp = helper.call($me,"'+m[2]+'",{'+sParams+'); \n}else{$tmp="";}';
 			}else{
 				//直接表达式
-				sCode='if (helper = $helpers.'+sExp+') {\n$tmp = helper.call(me,$data,{'+sParams+'); \n}'+
-						'else if($helpers.getValue){'+'\n$tmp=$helpers.getValue'+'.call(me,$data,{'+sParams+');}'
-				  		'else{\nhelper = '+sGetter+'; $tmp = typeof helper === functionType ? helper.call(me,$data,{'+sParams+') : helper;\n}'+
-				  		(oOptions.helpers.getValue?''
+				sCode='if (helper = $helpers.'+sExp+') {\n$tmp = helper.call($me,"",{'+sParams+'); \n}'+
+				  		'else{\nhelper = '+sGetter+'; $tmp = typeof helper === functionType ? helper.call($me,{'+sParams+') : helper;\n}'+
+				  		(fParseValue?
+				  		'\n$tmp=$helpers.parseValue'+'.call($me,$tmp,{'+sParams+');'
 				  		:(T.isEscape?'\n$tmp=escape($tmp);':''));
 			}
 			sCode+=sAdd;
@@ -3590,7 +3621,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		}
 		//旧浏览器使用数组方式拼接字符串
 		_aCode=[_aJoinDefine[0]];
-		_aCode.push('var escape=$helpers.escape,functionType="function",me=this;');
+		_aCode.push('var escape=$helpers.escape,functionType="function",$me=this;');
 		
 		//处理设置
 		var sNameSpace=oOptions&&oOptions.ns;
@@ -3603,7 +3634,6 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 			oHelpers=_helpers['default'];
 		}
 		oOptions.helpers=oHelpers;
-		var oContext=oOptions.context;
 		
 		var oAst=_fParseTmpl(sTmpl);
 		//分析完重置为0
@@ -3615,9 +3645,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		try{
 			var aParams = ["$T", "$helpers", "$data",sCode];
 			var fRender=window.Function.apply(null,aParams);
-			//TODO
-			Debug.log(fRender);
-			return function($data){
+			return function($data,oContext){
 				return fRender.call(oContext||$data,T,oHelpers,$data);
 			}
 		}catch(e){
@@ -3658,13 +3686,14 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 	 * 		{Object=}helpers : 自定义辅助列表（参照_fCompile方法说明）
 	 * }
 	 * @param {object}oData 数据
+	 * @param {object=}oContext 模板函数执行的上下文对象
 	 * @return {function|string} 当oData为空时返回编译后的模板函数，不为空时返回渲染后的字符串
 	 */
-	function fTmpl(tmpl,oData){
+	function fTmpl(tmpl,oData,oContext){
 		var sTmpl,fTmpl,sId;
 		if(typeof tmpl=='string'){
 			sTmpl=tmpl;
-		}else if(tmpl.length!=undefined){
+		}else if(tmpl.length!==undefined){
 			sTmpl=tmpl.join('');
 		}else{
 			sTmpl=tmpl.tmpl;
@@ -3682,7 +3711,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		}
 		if(!fTmpl){
 			if(!sTmpl){
-				$H.Debug.error('模板未定义');
+				Debug.error('模板未定义');
 				return;
 			}
 			fTmpl=_fCompile(sTmpl,tmpl);
@@ -3694,7 +3723,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		//渲染数据
 		if(oData){
 			try{
-				return fTmpl(oData);
+				return fTmpl(oData,oContext);
 			}catch(e){
 				Debug.log(fTmpl.toString());
 				Debug.error(e);
@@ -4314,12 +4343,21 @@ function(){
 	$H.extend(AbstractEvents.prototype,$H.Events);
 	
 	$H.extend(AbstractEvents.prototype,{
-		_eventCache          : {},                     //自定义事件池
-		_listenTo            : [],                     //存储对其它对象的监听
-		_parseListenToEvents : _fParseListenToEvents,  //
+//		_eventCache          : {},                     //自定义事件池
+//		_listenTo            : [],                     //存储对其它对象的监听
+		initialize           : fInitialize,            //初始化
+		_parseListenToEvents : _fParseListenToEvents,  //处理对象类型或者空格相隔的多事件
 		listenTo             : fListenTo,              //监听指定对象的事件
 		unlistenTo           : fUnlistenTo             //移除对其它对象的监听
 	});
+	/**
+	 * 初始化
+	 */
+	function fInitialize(){
+		var me=this;
+		me._eventCache={};
+		me._listenTo=[];
+	}
 	/**
 	 * 处理对象类型或者空格相隔的多事件
 	 * @method _parseListenToEvents(sMethod,name[,param,..])
@@ -4596,11 +4634,12 @@ function(AbstractDao,AbstractEvents){
 	     *	普通形式：
 	     *	{string}name:{
 		 *	    {string|Class=}type:类型，可以是字符串(string/number/Date/Model/Collection),也可以是类
+		 *		{*=}def:默认值
 		 *   	{Function=}parse:设置该属性时自定义解析操作,
 		 *   	{Array=}depends:依赖的属性，计算属性需要此配置检查和计算
 	     *	}
 	     *	简便形式:
-	     *	{name:type}
+	     *	{name:default}
 	     *}
 	     */
 ////    belongsTo             : null,                //保留属性，描述一对一关系，
@@ -4609,7 +4648,6 @@ function(AbstractDao,AbstractEvents){
 //		id                    : 0,                   //模型id
         idAttribute           : 'id',                //id默认属性名
 //      uuid                  : 0,                   //uuid，初始化时系统分配，具有全局唯一性
-//      defaults              : {},                  //默认属性
 //		dao                   : null,                //数据访问对象，默认为common.AbstractDao
 		
         //内部属性
@@ -4627,6 +4665,7 @@ function(AbstractDao,AbstractEvents){
    		_onAttrEvent          : _fOnAttrEvent,       //处理属性模型和集合事件
 		
 		initialize            : fInitialize,         //初始化
+		getDefaults           : fGetDefaults,        //获取默认值
 		toJSON                : fToJSON,             //返回对象数据副本
 		sync                  : fSync,               //同步数据，可以通过重写进行自定义
    		get                   : fGet,                //获取指定属性值
@@ -4677,7 +4716,7 @@ function(AbstractDao,AbstractEvents){
 	    var oFields=me.fields,oField,aDeps;
 	    for(var key in oFields){
 	    	var oField=oFields[key];
-			if(aDeps=oField.depends){
+			if(oField&&(aDeps=oField.depends)){
 				for(var i=0;i<aDeps.length;i++){
 			    	//当依赖属性变化时，设置计算属性
 					me.on('change:'+aDeps[i],$H.bind(me.set,me,key,null,null));
@@ -4701,7 +4740,7 @@ function(AbstractDao,AbstractEvents){
 		for(var key in oAttrs){
 			val=oAttrs[key];
 			if(oField=oFields[key]){
-				type=$H.isObj(oField)?oField.type:oField;
+				type=oField.type;
 				//自定义解析
 				if(fParse=oField.parse){
 					val=fParse.apply(me,[val,oAttrs]);
@@ -4751,9 +4790,11 @@ function(AbstractDao,AbstractEvents){
 	 */
 	function fInitialize(oAttributes, oOptions) {
 		var me=this;
+		me.callSuper();
 		me.uuid=$H.uuid();
 		//配置dao对象
 		me.dao=me.dao||$H.getSingleton(AbstractDao);
+		//初始化计算属性
 		me._initDepFields();
 		var oAttrs = oAttributes || {};
 		oOptions || (oOptions = {});
@@ -4765,11 +4806,26 @@ function(AbstractDao,AbstractEvents){
 		if (oOptions.parse){
 			oAttrs = me.parse(oAttrs, oOptions) || {};
 		}
-		oAttrs = $H.extend(oAttrs, $H.Util.result(me, 'defaults'),{notCover:true});
+		oAttrs = $H.extendIf(oAttrs, me.getDefaults());
 		me.set(oAttrs, oOptions);
 		me._changed = {};
 		//放入数据仓库
 		$S.push(me);
+	}
+	/**
+	 * 获取默认值
+	 * @return 返回默认值
+	 */
+	function fGetDefaults(){
+		var me=this;
+		var oDefaults={},oFields;
+		if(oFields=me.fields){
+			for(var k in oFields){
+				var field=oFields[k];
+				oDefaults[k]=(field&&$H.isObj(field))?field.def:field;
+			}
+		}
+		return oDefaults;
 	}
 	/**
 	 * 返回对象数据副本
@@ -4811,7 +4867,7 @@ function(AbstractDao,AbstractEvents){
 	 */
     function fHas(sAttr) {
     	var value=this.get(sAttr);
-    	return  value!= null&&value!=undefined;
+    	return  value!== null&&value!==undefined;
     }
 	/**
 	 * 设置值，并触发change事件(如果发生了变化)
@@ -5171,7 +5227,7 @@ function(AbstractDao,AbstractEvents){
 	 */
     function fIsNew() {
     	var me=this;
-        return me.id==undefined;
+        return me.id===undefined;
     }
 	/**
 	 * 校验当前是否是合法的状态
@@ -5363,6 +5419,7 @@ function(AbstractDao,AbstractEvents,Model){
 	 */
 	function fInitialize(aModels, oOptions) {
 		var me=this;
+		me.callSuper();
 		me.dao=me.dao||$H.getSingleton(AbstractDao);
 	    oOptions || (oOptions = {});
 	    if (oOptions.model) {
@@ -5849,8 +5906,9 @@ $Define("CM.AbstractManager", function() {
 	var AbstractManager = $H.createClass();
 	
 	$H.extend(AbstractManager.prototype, {
-	    _types        : {},               //存储类
-	    _all          : {},               //存储所有实例
+//	    _types        : {},               //存储类
+//	    _all          : {},               //存储所有实例
+	    initialize    : fInitialize,      //初始化
 		type          : 'manager',        //被管理对象的类型，也用于生成标记被管理对象的class
 		registerType  : fRegisterType,    //注册视图类
 		getClass      : fGetClass,        //根据xtype获取视图类
@@ -5860,7 +5918,14 @@ $Define("CM.AbstractManager", function() {
 		generateId    : fGenerateId,      //生成视图的id
 		get           : fGet              //根据id或cid查找视图
 	});
-	
+	/**
+	 * 初始化
+	 */
+	function fInitialize(){
+		var me=this;
+		me._types={};
+		me._all={};
+	}
 	/**
 	 * 注册视图类型
 	 * @method registerType
@@ -5982,6 +6047,7 @@ $Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
 	 */
 	function fInitialize(){
 		var me=this;
+		me.callSuper();
 		//监听afterRender自定义事件，调用相关视图的afterRender方法
 		$H.on("afterRender",function(sEvt,oEl){
 			//调用包含的视图的afterRender方法
@@ -6046,17 +6112,16 @@ function(ViewManager,AbstractEvents){
 //		_container          : null,              //试图对象容器节点
 //		rendered            : false,             //是否已渲染
 //      listened            : false,             //是否已初始化事件
-		_listeners          : [],                //实例事件池
+//		_listeners          : [],                //实例事件池
 		
 		_parseListenEvents  : _fParseListenEvents,  //处理对象类型或者空格相隔的多事件
 				
 		initialize          : fInitialize,       //初始化
-		init                : $H.noop,           //初始化，一般留给具体项目，方便开发
+		init                : $H.noop,           //初始化，doConfig后调用，一般留给具体项目使用，方便开发
 		doConfig            : fDoConfig,         //初始化配置
 		getId               : fGetId,            //获取id
 		getCid              : fGetCid,           //获取cid
 		getEl               : fGetEl,            //获取容器节点
-		initHtml            : fInitHtml,         //初始化html
 		getHtml             : fGetHtml,          //获取html
 		render              : fRender,           //渲染
 		findEl              : fFindEl,           //查找视图内节点
@@ -6068,10 +6133,6 @@ function(ViewManager,AbstractEvents){
 		clearListeners      : fClearListeners,   //清除所有事件
 		destroy             : fDestroy           //销毁
 	});
-	
-	var _oTagReg=/^(<[a-zA-Z]+)/;
-	var _oHasClsReg=/^[^>]+class=/;
-	var _oClsReg=/(class=")/;
 	
 	/**
 	 * 处理对象类型或者空格相隔的多事件
@@ -6099,9 +6160,9 @@ function(ViewManager,AbstractEvents){
 	 */
 	function fInitialize(oParams){
 		var me=this;
-		if(me.inited){
-			return;
-		}
+		me.callSuper();
+		me._listeners=[];
+		me.listeners=$H.clone(me.listeners);
 		//注册视图管理
 		me.manager=me.constructor.manager||$H.getSingleton(ViewManager);
 		//注册视图，各继承类自行实现
@@ -6162,38 +6223,11 @@ function(ViewManager,AbstractEvents){
 		return this._container;
 	}
 	/**
-	 * 初始化html
-	 * @method initHtml
-	 * @return {string} 返回html
-	 */
-	function fInitHtml(){
-		var me=this;
-		//编译模板，一个类只需执行一次
-		var tmpl=me.tmpl;
-		if(!$H.isFunc(tmpl)){
-			me.tmpl=me.constructor.prototype.tmpl=$H.tmpl(tmpl);
-		}
-		//由模板生成html
-		var sHtml=me.tmpl(me._config);
-		return sHtml;
-	}
-	/**
 	 * 获取html
 	 * @method getHtml
 	 */
 	function fGetHtml(){
-		var me=this;
-		var sId=me.getId();
- 		var sHtml=me.initHtml();
-		var bHasCls=_oHasClsReg.test(sHtml);
-		var sExtCls='js-'+me.manager.type+" "+'js-'+me.xtype+" "+me.extCls+" ";
-		if(bHasCls){
-			//添加class
-			sHtml=sHtml.replace(_oClsReg,'$1'+sExtCls);
-		}
-		//添加id和style
-		sHtml=sHtml.replace(_oTagReg,'$1 id="'+sId+'"'+(bHasCls?'':' class="'+sExtCls+'"'));
-		return sHtml;
+		return this.html;
 	}
 	/**
 	 * 渲染
@@ -6377,6 +6411,7 @@ function(ViewManager,AbstractEvents){
 		me.manager.unregister(me);
 		delete me._container;
 		delete me.renderTo;
+		delete me.html;
 		return true;
 	}
 	
@@ -6397,34 +6432,38 @@ $Define('CM.ModelView',
 ],
 function(Template,AbstractView,Model,Collection){
 	
-	var _oTagReg=/^(<[a-zA-Z]+)/;
-	
 	var ModelView=AbstractView.derive({
 		bindType            : 'both',              //绑定类型，‘el’表示绑定节点，‘model’表示绑定模型，‘both’表示双向绑定
 //		model               : null,                //模型对象
-		modelClass          : Model,               //模型类
-		_bindModelNums      : {},				   //保存逻辑块对应编号是否已绑定模型
-		_bindElNums         : {},                  //保存逻辑块对应编号是否已绑定节点
+//		xmodel              : null,                //执行模板时使用的模型对象，本类中与model属性相同
+//		modelClass          : null,                //模型类
+//		_bindModelNums      : {},				   //保存逻辑块对应编号是否已绑定模型
+//		_bindElNums         : {},                  //保存逻辑块对应编号是否已绑定节点
 		
+		initialize          : fInitialize,         //初始化
 		doConfig            : fDoConfig,           //初始化配置
-		initHtml            : fInitHtml,           //初始化html
+		preTmpl             : fPreTmpl,            //预处理模板
+		getTmplFn           : fGetTmplFn,          //初始化模板函数
+		getHtml             : fGetHtml,            //初始化html
 		ifBind              : fIfBind,             //查询指定逻辑单元是否需要绑定模型对象或节点，检查后设为已绑定，确保每个逻辑单元只绑定一次事件
 		updateMetaMorph     : fUpdateMetaMorph,    //更新内容
 		wrapMetaMorph       : fWrapMetaMorph,      //包装结果html
-		updateModel         : fUpdateModel,        //更新数据
-		getModel            : fGetModel            //获取配置对象
+		updateXmodel        : fUpdateXmodel,       //更新数据
+		getXmodel           : fGetXmodel           //获取配置对象
 	});
 	
 	//注册自定义辅助函数
 	Template.registerHelper('ModelView',{
-		'if'     : fIf,
-		'unless' : fUnless,
-		'each'   : fEach,
-		getValue : fGetValue,
-		bindAttr : fBindAttr
+		'if'       : fIf,
+		'unless'   : fUnless,
+		'each'     : fEach,
+		getValue   : fGetValue,
+		parseValue : fParseValue,
+		bindAttr   : fBindAttr
 	});
 	
 	var _bIfPlusJoin=Template.getIfPlusJoin();
+	var _oExecAttrs=/((\w+)=['"]?)?([#\w][\s\w\.\?:#-]*)(['"]?)(?!\w*=)/g;
 	
 	/**
 	 * if辅助函数
@@ -6434,13 +6473,15 @@ function(Template,AbstractView,Model,Collection){
 	 * 		{function}fn:回调函数,
 	 * 		{string}exp:表达式,
 	 * 		{object}context:模板函数执行上下文对象,
+	 * 		{*}data:当前数据对象,
 	 * 		{number}num:逻辑编号,
 	 * 		{object}helpers:辅助函数表
 	 * }
-	 * @return {string=} 返回生成的html
+	 * @return {string} 返回生成的html
 	 */
-	function fIf(condition,oOptions,oData){
+	function fIf(condition,oOptions){
 		var me=oOptions.context;
+		var oData=oOptions.data;
 		var sExp=oOptions.exp;
 		if ($H.isFunc(condition)) { 
 			condition = condition.call(oData); 
@@ -6462,21 +6503,21 @@ function(Template,AbstractView,Model,Collection){
 				me.updateMetaMorph(sMetaId,sHtml);
 			});
 		}
-		return me.wrapMetaMorph(sHtml,sMetaId);
+		return me.wrapMetaMorph(sMetaId,sHtml);
 	}
 	/**
 	 * unless辅助函数
 	 * 参数说明同if辅助函数
 	 */
-	function fUnless(condition, oOptions,oData){
+	function fUnless(condition, oOptions){
 		oOptions.inverse=true;
-		return oOptions.helpers['if'].call(this, condition, oOptions,oData);
+		return oOptions.helpers['if'].call(this, condition, oOptions);
 	}
 	/**
 	 * each辅助函数，新式浏览器里使用，chrome下性能大约提升一倍
 	 * @param {array|object}data 可遍历数据对象
 	 * @param {object}oOptions 选项，参数说明同if辅助函数
-	 * @return {string=} 返回生成的html
+	 * @return {string} 返回生成的html
 	 */
 	function fEach(data,oOptions){
 		var me=oOptions.context;
@@ -6490,7 +6531,7 @@ function(Template,AbstractView,Model,Collection){
 		//集合类型数据
 		if(data instanceof Collection){
 			data.each(function(i,item){
-				sTmp=me.wrapMetaMorph(fn(item),sMetaId+'-'+item.uuid);
+				sTmp=me.wrapMetaMorph(sMetaId+'-'+item.uuid,fn(item));
 				if(_bIfPlusJoin){
 					r+=sTmp;
 				}else{
@@ -6499,7 +6540,7 @@ function(Template,AbstractView,Model,Collection){
 			});
 			if(me.ifBind(nNum,data)){
 				me.listenTo(data,'add',function(sEvt,oModel,oCollection,oOptions){
-					var sHtml=me.wrapMetaMorph(fn(oModel),sMetaId+'-'+oModel.uuid);
+					var sHtml=me.wrapMetaMorph(sMetaId+'-'+oModel.uuid,fn(oModel));
 					var at=oOptions.at;
 					if(at){
 						var oPre=oCollection.at(at-1);
@@ -6511,12 +6552,12 @@ function(Template,AbstractView,Model,Collection){
 				});
 				me.listenTo(data,'remove',function(sEvt,oModel,oCollection,oOptions){
 					var n=sMetaId+'-'+oModel.uuid;
-					me.updateMetaMorph(n,'',true);
+					me.updateMetaMorph(n,'','remove');
 				});
 			}
-		}else if(data.length!=undefined){
+		}else if(data.length!==undefined){
 			for(var i=0,l=data.length;i<l;i++){
-				sTmp=me.wrapMetaMorph(fn(data[i]),sMetaId+'-'+i);
+				sTmp=me.wrapMetaMorph(sMetaId+'-'+i,fn(data[i]));
 				if(_bIfPlusJoin){
 					r+=sTmp;
 				}else{
@@ -6525,7 +6566,7 @@ function(Template,AbstractView,Model,Collection){
 			}
 		}else{
 			for(var i in data){
-				sTmp=me.wrapMetaMorph(fn(data[i]),sMetaId+'-'+i);
+				sTmp=me.wrapMetaMorph(sMetaId+'-'+i,fn(data[i]));
 				if(_bIfPlusJoin){
 					r+=sTmp;
 				}else{
@@ -6533,15 +6574,27 @@ function(Template,AbstractView,Model,Collection){
 				}
 			}
 		}
-		return me.wrapMetaMorph(_bIfPlusJoin?r:r.join(''),sMetaId);
+		return me.wrapMetaMorph(sMetaId,_bIfPlusJoin?r:r.join(''));
 	}
 	/**
 	 * 获取值
+	 * @param {string}sExp 表达式
 	 * @param {object}oData 数据对象
-	 * @param {object}oOptions 选项，参数说明同if辅助函数
+	 * @return {string} 返回值
 	 */
-	function fGetValue(oData,oOptions){
+	function fGetValue(sExp,oData){
+		var sValue=oData.get?oData.get(sExp):oData[sExp];
+		return sValue;
+	}
+	/**
+	 * 分析处理值
+	 * @param {string}sValue 当前要处理的值
+	 * @param {object}oOptions 选项，参数说明同if辅助函数
+	 * @return {string} 返回生成的html
+	 */
+	function fParseValue(sValue,oOptions){
 		var me=oOptions.context;
+		var oData=oOptions.data;
 		var sExp=oOptions.exp;
 		var bIsEscape=Template.isEscape;
 		var oHelpers=oOptions.helpers;
@@ -6555,23 +6608,26 @@ function(Template,AbstractView,Model,Collection){
 				me.updateMetaMorph(sMetaId,sValue);
 			});
 		}
-		var sValue=oData.get?oData.get(sExp):oData[sExp];
 		if(bIsEscape){
 			sValue=oHelpers.escape(sValue);
 		}
-		return me.wrapMetaMorph(sValue,sMetaId);
+		return me.wrapMetaMorph(sMetaId,sValue);
 	}
 	/**
-	 * 绑定属性
+	 * 绑定属性，使用形式如：<input type="text" {{bindAttr id="#input2" disabled?disabled value="value" class="isRed?red:green extCls #static-cls"}}/>
+	 * id="#input2"，#开头表示常量，直接输出id=input2;
+	 * dis?disabled，当dis字段为真(即：if(dis))时输出，disabled="disabled"，否则输出空字符；
+	 * value="value"，如果value的值为my value，输出value="my value"；
+	 * isRed?red:green，如果isRed为真，输出red，否则输出green
 	 * @param {string}sExp 表达式
 	 * @param {object}oOptions 选项，参数说明同if辅助函数
-	 * @param {object}oData 数据
+	 * @return {string} 返回生成的html
 	 */
-	function fBindAttr(sExp,oOptions,oData){
+	function fBindAttr(sExp,oOptions){
 		var me=oOptions.context,
+		oData=oOptions.data,
 		nNum=oOptions.num,
 		sMetaId=me.getCid()+'-'+nNum,
-		r=/((\w+)=['"]?)?([#\w][\s\w\?:#-]*)(['"]?)(?!\w*=)/g,
 		sId='bindAttr-'+sMetaId,
 		m,
 		result=[],
@@ -6580,9 +6636,13 @@ function(Template,AbstractView,Model,Collection){
 		bBindEl=me.ifBind(nNum,oData,true);
 		
 		//循环分析表达式，先找出id属性
-		while(m=r.exec(sExp)){
+		while(m=_oExecAttrs.exec(sExp)){
 			if(m[2]=='id'){
-				sId=_fGetVal(m[3],oData);
+				if(m[3].indexOf('this.')==0){
+					sId= me[m[3].substring(5)];
+				}else{
+					sId=_fGetVal(m[3],oData);
+				}
 			}else{
 				aMatches.push(m);
 			}
@@ -6601,7 +6661,9 @@ function(Template,AbstractView,Model,Collection){
 			//多个表达式用空格分开
 			for(var j=0;j<aExps.length;j++){
 				ret=fParseAttrExp(me,sId,sAttr,aExps[j],bBindModel,bBindEl,oData);
-				aValues.push(ret);
+				if(ret||ret===0){
+					aValues.push(ret);
+				}
 			}
 			var sVal=aValues.join(' ');
 			if(sAttr){
@@ -6629,7 +6691,7 @@ function(Template,AbstractView,Model,Collection){
 		if(sExp.indexOf('#')==0){
 			return sExp.substring(1);
 		}else{
-			return oData.get?oData.get(sExp):oData[sExp];
+			return fGetValue(sExp,oData);
 		}
 	}
 	/**
@@ -6648,7 +6710,9 @@ function(Template,AbstractView,Model,Collection){
 		nMark1=sExp.indexOf('?'),
 		nMark2=sExp.indexOf(':');
 		//三目运算exp1?exp2:exp3、exp1?exp2、exp1:esExp
-		if(nMark1>0||nMark2>0){
+		if(sExp.indexOf('this.')==0){
+			return me[sExp.substring(5)];
+		}else if(nMark1>0||nMark2>0){
 			var exp1=sExp.substring(0,nMark1>0?nMark1:nMark2);
 			var exp2=nMark1<0?'':sExp.substring(nMark1+1,nMark2>0?nMark2:sExp.length);
 			var exp3=nMark2<0?'':sExp.substring(nMark2+1,sExp.length);
@@ -6706,6 +6770,17 @@ function(Template,AbstractView,Model,Collection){
 		}
 	}
 	/**
+	 * 初始化
+	 * @method initialize
+	 * @param {Object}oParams 初始化参数
+	 */
+	function fInitialize(oParams){
+		var me=this;
+		me._bindModelNums={};
+		me._bindElNums={};
+		me.callSuper();
+	}
+	/**
 	 * 初始化配置
 	 * @method doConfig
 	 * @param {Object}oSettings 初始化参数
@@ -6713,29 +6788,80 @@ function(Template,AbstractView,Model,Collection){
 	function fDoConfig(oSettings){
 		var me=this;
 		me.callSuper();
+		var cModel=me.modelClass||Model;
 		if(!me.model){
-			me.model=new me.modelClass(me.data);
+			me.model=new cModel(me.data);
 		}
-		me._config=me.model;
+		me.xmodel=me.model;
+	}
+	
+	var _oTagReg=/[^<]*(<[a-zA-Z]+)/;
+	var _oHasClsReg=/^[^>]+class=/;
+	var _oClsReg=/class=['"]?([#\w][\s\w\.\?:#-]*)(['"]?)(?!\w*=)/;
+	var _oHasBindAttrReg=/^[^>]+{{bindAttr/;
+	var _oBindClass=/^[^>]+{{bindAttr((?!}}).)class=/;
+	var _oBindAttrReg=/({{bindAttr)/;
+	/**
+	 * 预处理模板
+	 */
+	function fPreTmpl(){
+		var me=this;
+		var tmpl=me.tmpl;
+		if($H.isArr(tmpl)){
+			tmpl=tmpl.join('');
+		}
+		//添加视图固定的绑定属性
+		var bHasCls=_oHasClsReg.test(tmpl);
+		var sExtCls='#js-'+me.manager.type+" "+'#js-'+me.xtype;
+		//检出模板现有的class
+		if(bHasCls){
+			var cls=tmpl.match(_oClsReg)[1];
+			//class不在bind属性里，需要添加常量标志#
+			if(cls){
+				if(!_oBindClass.test(tmpl)){
+					cls=cls.replace(/([^\s]+)/g,'#$1');
+				}
+				sExtCls+=' '+cls;
+			}
+			tmpl=tmpl.replace(_oClsReg,'');
+		}
+		//添加id
+		var sBindAttr=' id=this._id'+' class="'+sExtCls+'"';
+		if(_oHasBindAttrReg.test(tmpl)){
+			tmpl=tmpl.replace(_oBindAttrReg,'$1'+sBindAttr);
+		}else{
+			tmpl=tmpl.replace(_oTagReg,'$1 {{bindAttr'+sBindAttr+'}}');
+		}
+		me.tmpl=tmpl;
 	}
 	/**
-	 * 初始化html
-	 * @method initHtml
-	 * @return {string} 返回html
+	 * 获取模板函数
+	 * @return {function} 返回编译后的模板函数
 	 */
-	function fInitHtml(){
+	function fGetTmplFn(){
 		var me=this;
-		//编译模板，一个类只需执行一次
-		var tmpl=me.tmpl;
-		if(!$H.isFunc(tmpl)){
+		//编译模板，固定模板的类只需执行一次
+		if(!$H.isFunc(me.tmpl)){
+			me.preTmpl();
 			me.tmpl=me.constructor.prototype.tmpl=$H.tmpl({
-				tmpl:tmpl,
-				context:me,
+				tmpl:me.tmpl,
 				ns:'ModelView'
 			});
 		}
+		return me.tmpl;
+	}
+	/**
+	 * 初始化html
+	 * @return {string} 返回html
+	 */
+	function fGetHtml(){
+		var me=this;
+		if(me.html){
+			return me.html;
+		}
+		var fTmpl=me.getTmplFn();
 		//由模板生成html
-		var sHtml=me.tmpl(me.model);
+		var sHtml=me.html=fTmpl(me.xmodel,me);
 		return sHtml;
 	}
 	/**
@@ -6760,8 +6886,13 @@ function(Template,AbstractView,Model,Collection){
 	 * @param {number}nId 逻辑节点id
 	 * @param {string=}sHtml 替换逻辑节点内容的html，不传表示清空内容
 	 * @param {boolean=}bRemove 仅当true时移除首尾逻辑节点
+	 * @param {string=}sType 默认是更新内容，'append'表示追加内容，'remove'表示移除内容(包括元标签)
 	 */
-	function fUpdateMetaMorph(nId,sHtml,bRemove){
+	function fUpdateMetaMorph(nId,sHtml,sType){
+		if(sType=='append'){
+			$('#metamorph-'+nId+'-end').before(sHtml);
+			return;
+		}
 		var jStart=$('#metamorph-'+nId+'-start');
 		//找不到开始节点，是外部逻辑块已移除，直接忽略即可
 		if(jStart.length==0){
@@ -6780,18 +6911,18 @@ function(Template,AbstractView,Model,Collection){
 			}
 		}
 		sHtml&&jStart.after(sHtml);
-		if(bRemove){
+		if(sType=='remove'){
 			jStart.remove();
 			$(eNext).remove();
 		}
 	}
 	/**
 	 * 包装结果html
-	 * @param {string}sHtml 参数html
 	 * @param {number}nId 逻辑节点id
+	 * @param {string}sHtml 参数html
 	 * @return {string} 返回包装好的html
 	 */
-	function fWrapMetaMorph(sHtml,nId){
+	function fWrapMetaMorph(nId,sHtml){
 		var sStart='<script id="metamorph-';
 		var sEnd='" type="text/x-placeholder"></script>';
 		return sStart+nId+'-start'+sEnd+(sHtml||'')+sStart+nId+'-end'+sEnd;
@@ -6799,14 +6930,14 @@ function(Template,AbstractView,Model,Collection){
 	/**
 	 * 更新数据
 	 */
-	function fUpdateModel(oSettings){
-		this.model.set(oSettings);
+	function fUpdateXmodel(oSettings){
+		this.xmodel.set(oSettings);
 	}
 	/**
 	 * 获取配置对象
 	 */
-	function fGetModel(){
-		return this.model;
+	function fGetXmodel(){
+		return this.xmodel;
 	}
 	
 	return ModelView;
@@ -6823,19 +6954,19 @@ function(Template,AbstractView,Model,Collection){
 //"handy.common.View"
 $Define('CM.View',
 ['CM.ViewManager',
-'CM.AbstractView',
+'CM.ModelView',
+'CM.Model',
 'B.Template'],
-function(ViewManager,AbstractView,Template){
+function(ViewManager,ModelView,Model,Template){
 	
 	var _oTagReg=/^(<[a-zA-Z]+)/;
 	var _oHasClsReg=/^[^>]+class=/;
 	var _oClsReg=/(class=")/;
 	
 	//自定义事件
-	var View=AbstractView.derive({
+	var View=ModelView.derive({
 		
 		xtype               : 'View',            //类型
-		_placeholder        : '<script id="" type="text/x-placeholder"></script>',        //占位符标签
 		
 		//配置
 //		cClass              : '',                //客户定义class，无特殊限制，方便查找，类似于css的class
@@ -6847,17 +6978,17 @@ function(ViewManager,AbstractView,Template){
 //		disabled            : false,             //是否禁用
 //		extCls              : '',                //附加class
 //		notListen           : false,             //不自动初始化监听器
-		items               : [],                //子视图配置，初始参数可以是对象也可以是对象数组
+//		items               : [],                //子视图配置，初始参数可以是对象也可以是对象数组
 ////	lazy                : false,             //保留属性：懒加载，初始化时只设置占位标签，只在调用show方法时进行实际初始化
-		
+		xConfig             : {},                //视图模型xmodel的字段配置
 		
 		//属性
 //		startParseItems     : false,             //是否已开始初始化子视图
 //		isSuspend           : false,             //是否挂起事件
 //		destroyed           : false,             //是否已销毁
-		tmpl                : '<div><%=this.findHtml(">*")%></div>',    //模板，字符串或数组字符串，ps:模板容器节点上不能带有id属性
+		tmpl                : '<div>{{placeItem}}</div>',    //模板，字符串或数组字符串，ps:模板容器节点上不能带有id属性
 //      showed              : false,             //是否已显示
-		children            : [],                //子视图列表
+//		children            : [],                //子视图列表
 		_customEvents       : [                  //自定义事件,可以通过参数属性的方式直接进行添加
 			'beforeRender','render','afterRender',
 			'beforeShow','show','afterShow',
@@ -6881,10 +7012,8 @@ function(ViewManager,AbstractView,Template){
 		
 		//初始化相关
 		initialize          : fInitialize,       //初始化
-////	init                : fInit,             //子类初始方法，doConfig后调用
 ////	lazyInit            : fLazyInit,         //保留方法：懒加载，初始化时只设置占位标签，以后再进行真正的初始化
 		doConfig            : fDoConfig,         //初始化配置
-		initHtml            : fInitHtml,         //初始化html
 		getHtml             : fGetHtml,          //获取html
 		findHtml            : fFindHtml,         //获取子视图html
 		initStyle           : fInitStyle,        //初始化样式
@@ -6911,8 +7040,8 @@ function(ViewManager,AbstractView,Template){
 		parentsEl           : fParentsEl,        //查找视图的祖先节点
 		
 		//视图管理相关
-////	get                 : fGet,              //保留接口
-////	set                 : fSet,              //保留接口
+    	get                 : fGet,              //获取配置属性
+    	set                 : fSet,              //设置配置属性
 		each                : fEach,             //遍历子视图
 		match               : fMatch,            //匹配选择器
 		find                : fFind,             //查找视图
@@ -6936,6 +7065,34 @@ function(ViewManager,AbstractView,Template){
 		extend              : fExtend,           //扩展原型定义
 		html                : fHtml              //静态初始化视图并生成html
 	});
+	
+	//注册自定义辅助函数
+	Template.registerHelper('ModelView',{
+		placeItem : fPlaceItem
+	});
+	/**
+	 * 输出子视图
+	 * @param {string}sExp 表达式
+	 * @param {object}oOptions 选项，参数说明同if辅助函数
+	 * @param {object}oData 数据
+	 * @return {string} 返回生成的html
+	 */
+	function fPlaceItem(sExp,oOptions){
+		var me=oOptions.context,
+		nNum=oOptions.num,
+		sMetaId=me.getCid()+'-'+nNum;
+		var sHtml=me.findHtml(sExp);
+		//TODO
+		if(0&&!me.inited){
+			me.on('add',function(sEvt,oItem){
+				if(oItem.match(sExp)){
+					me.updateMetaMorph(sMetaId,oItem.getHtml(),'append');
+				}
+			});
+		}
+		return me.wrapMetaMorph(sMetaId,sHtml)
+	}
+	
 	/**
 	 * 扩展原型定义
 	 * @method extend
@@ -6945,10 +7102,15 @@ function(ViewManager,AbstractView,Template){
 		var oProt=this.prototype;
 		$H.extend(oProt, oExtend,{notCover:function(p){
 			//继承父类的事件
-			if($H.contains(['_customEvents','listeners'],p)){
+			if(p=='_customEvents'||p=='listeners'){
+				//拼接数组
 				oProt[p]=(oExtend[p]||[]).concat(oProt[p]||[]);
 				return true;
 			}else if(p=='xtype'||p=='constructor'){
+				return true;
+			}else if(p=='xConfig'){
+				//继承父类配置
+				oProt[p]=$H.extendIf(oExtend[p],oProt[p]);
 				return true;
 			}
 		}});
@@ -6998,24 +7160,9 @@ function(ViewManager,AbstractView,Template){
 	 */
 	function fInitialize(oParams){
 		var me=this;
-		if(me.inited){
-			return;
-		}
-		me.manager=me.constructor.manager||$H.getSingleton(ViewManager);
-		
-		//初始化配置
-		me.doConfig(oParams);
-		//子类自定义配置
-		if(me.init){
-			me.init(oParams);
-		}
-		me.parseItems();
-		if(me.autoRender!=false){
-			me.render();
-		}
-		//注册视图，各继承类自行实现
-		me.manager.register(me);
-		me.inited=true;
+		me.items=[];
+		me.children=[];
+		me.callSuper();
 	}
 	/**
 	 * 初始化配置
@@ -7079,23 +7226,31 @@ function(ViewManager,AbstractView,Template){
 		}else{
 			me.renderTo=$(document.body);
 		}
-	}
-	/**
-	 * 初始化html
-	 * @method initHtml
-	 * @return {string} 返回html
-	 */
-	function fInitHtml(){
-		var me=this;
-		//编译模板，一个类只需执行一次
-		var tmpl=me.tmpl;
-		if(!$H.isFunc(tmpl)){
-			me.tmpl=me.constructor.prototype.tmpl=$H.tmpl(tmpl);
+		var oFields=me.xConfig;
+		//生成modelclass
+		if(!me.modelClass){
+			var clazz
+			if(oFields){
+				clazz=Model.derive({
+					fields:oFields
+				})
+			}else{
+				clazz=Model;
+			}
+			me.constructor.prototype.modelClass=clazz;
 		}
-		//由模板生成html
-		var sHtml=me.tmpl(me);
-		return sHtml;
+		//初始化xmodel
+		var oAttrs={};
+		$H.each(oFields,function(k,v){
+			var value=me[k];
+			if(value!==undefined){
+				oAttrs[k]=value;
+			}
+		});
+		me.xmodel=new me.modelClass(oAttrs);
 	}
+	
+	var _oTagReg=/[^<]*(<[a-zA-Z]+)/;
 	/**
 	 * 获取html
 	 * @method getHtml
@@ -7110,16 +7265,13 @@ function(ViewManager,AbstractView,Template){
  		}else{
 			sStyle='display:none;';
  		}
- 		var sHtml=me.initHtml();
-		var bHasCls=_oHasClsReg.test(sHtml);
-		var sExtCls='js-'+me.manager.type+" "+'js-'+me.xtype+" "+me.extCls+" ";
-		if(bHasCls){
-			//添加class
-			sHtml=sHtml.replace(_oClsReg,'$1'+sExtCls);
-		}
+ 		var sHtml=me.callSuper();
 		//添加id和style
-		sHtml=sHtml.replace(_oTagReg,'$1 id="'+sId+'" style="'+sStyle+'"'+(bHasCls?'':' class="'+sExtCls+'"'));
-		return sHtml;
+		sHtml=sHtml.replace(_oTagReg,'$1 style="'+sStyle+'"');
+		if(me.extCls){
+			sHtml=sHtml.replace(/(class=['"])/,'$1'+me.extCls+' ');
+		}
+		return me.html=sHtml;
 	}
 	/**
 	 * 获取子视图html
@@ -7145,10 +7297,10 @@ function(ViewManager,AbstractView,Template){
 		var oEl=this.getEl();
 		//添加style
 		var oStyle=me.style||{};
-		if(me.width!=undefined){
+		if(me.width!==undefined){
 			oStyle.width=me.width;
 		}
-		if(me.height!=undefined){
+		if(me.height!==undefined){
 			oStyle.height=me.height;
 		}
 		oEl.css(oStyle);
@@ -7390,6 +7542,24 @@ function(ViewManager,AbstractView,Template){
 		return this.getEl().parents(sSel);
 	}
 	/**
+	 * 读取配置属性
+	 * @param {string}sKey 属性名称
+	 * @return {?} 返回属性值
+	 */
+	function fGet(sKey){
+		var me=this;
+		return me.xmodel.get(sKey);
+	}
+	/**
+	 * 设置配置属性
+	 * @param {string}sKey 属性名称
+	 * @param {*}value 属性值
+	 */
+	function fSet(sKey,value){
+		var me=this;
+		return me.xmodel.get(sKey);
+	}
+	/**
 	 * 遍历子视图
 	 * @method each
      * @param {function}fCallback 回调函数:fCallback(i,oChild)|fCallback(args)this=oChild,返回false时退出遍历
@@ -7455,7 +7625,7 @@ function(ViewManager,AbstractView,Template){
 	/**
 	 * 查找子元素或子视图
 	 * @method find
-	 * @param {number|string|Function(View)|Class}sel 数字表示子组件索引，
+	 * @param {number|string=|Function(View)|Class}sel 不传表示获取子视图数组，数字表示子组件索引，
 	 * 				如果是字符串：多个选择器间用","隔开('sel1,sel2,...')，语法类似jQuery，
 	 * 				如：'xtype[attr=value]'、'ancestor descendant'、'parent>child'，
 	 * 				'#'表示cid，如'#btn'，表示cid为btn的视图
@@ -7467,7 +7637,9 @@ function(ViewManager,AbstractView,Template){
 	 */
 	function fFind(sel,aResult){
 		var me=this,aResult=aResult||[];
-		if($H.isNum(sel)){
+		if(!sel){
+			aResult=aResult.concat(me.children);
+		}else if($H.isNum(sel)){
 			var oItem=me.children[sel];
 			aResult.push(oItem);
 		}else if($H.isStr(sel)){
@@ -7592,7 +7764,7 @@ function(ViewManager,AbstractView,Template){
 		if(me._applyArray()){
 			return;
 		}
-		var bNoIndex=nIndex==undefined;
+		var bNoIndex=nIndex===undefined;
 		//还没初始化子视图配置，直接添加到配置队列里
 		if(!me.startParseItems){
 			var aItems=me.items;
@@ -7681,7 +7853,7 @@ function(ViewManager,AbstractView,Template){
 				return item.parent.remove(item);
 			}
 		}
-		if(nIndex!=undefined&&item.destroy(true)!=false){
+		if(nIndex!==undefined&&item.destroy(true)!=false){
 			aChildren.splice(nIndex,1);
 			bResult=true;
 		}
@@ -7720,44 +7892,58 @@ function(ViewManager,AbstractView,Template){
 	 */
 	function fUpdate(oOptions,bNewConfig){
 		var me=this;
-		if(me.beforeUpdate()==false){
+		if(!oOptions||me.beforeUpdate()==false){
 			return false;
 		}
-		oOptions=oOptions||{};
-		var oParent=me.parent;
-		var oPlaceholder=$('<span></span>').insertBefore(me.getEl());
-		
-		if(!bNewConfig){
-			//由于子组件的初始配置都是autoRender=false，这里需要特殊处理下
-			if(oOptions.autoRender==undefined){
-				oOptions.autoRender=true;
+		var oConfigs=me.xConfig;
+		var bContain=true;
+		//检查选项是否都是xmodel的字段，如果是，则只需要更新xmodel即可，ui自动更新
+		$H.each(oOptions,function(p,v){
+			if(typeof oConfigs[p]=='undefined'){
+				bContain=false;
+				return false;
 			}
-			oOptions=$H.extend(oOptions,me.initParam,{notCover:true});
-		}
-		//cid不同
-		oOptions=$H.extend(oOptions,{
-			xtype:me.xtype,
-			renderBy:'replaceWith',
-			renderTo:oPlaceholder
-		},{notCover:['xtype']});
-		//不需要改变id/cid
-		if(!oOptions.cid||oOptions.cid==me.cid){
-			oOptions._id=me._id;
-		}
+		})
 		var oNew;
-		if(oParent){
-			var nIndex=me.index();
-			if(oParent.remove(me)==false){
-				oPlaceholder.remove();
-				return false;
-			}
-			oNew=oParent.add(oOptions,nIndex);
+		if(bContain){
+			me.xmodel.set(oOptions);
+			oNew=me;
 		}else{
-			if(me.destroy()==false){
-				oPlaceholder.remove();
-				return false;
+			//有不是xmodel的属性，执行完全更新
+			var oParent=me.parent;
+			var oPlaceholder=$('<span></span>').insertBefore(me.getEl());
+			
+			if(!bNewConfig){
+				//由于子组件的初始配置都是autoRender=false，这里需要特殊处理下
+				if(oOptions.autoRender===undefined){
+					oOptions.autoRender=true;
+				}
+				oOptions=$H.extend(oOptions,me.initParam,{notCover:true});
 			}
-			oNew=new me.constructor(oOptions);
+			//cid不同
+			oOptions=$H.extend(oOptions,{
+				xtype:me.xtype,
+				renderBy:'replaceWith',
+				renderTo:oPlaceholder
+			},{notCover:['xtype']});
+			//不需要改变id/cid
+			if(!oOptions.cid||oOptions.cid==me.cid){
+				oOptions._id=me._id;
+			}
+			if(oParent){
+				var nIndex=me.index();
+				if(oParent.remove(me)==false){
+					oPlaceholder.remove();
+					return false;
+				}
+				oNew=oParent.add(oOptions,nIndex);
+			}else{
+				if(me.destroy()==false){
+					oPlaceholder.remove();
+					return false;
+				}
+				oNew=new me.constructor(oOptions);
+			}
 		}
 		me.trigger('update',oNew);
 		me.afterUpdate(oNew);
@@ -7815,6 +8001,8 @@ function(ViewManager,AbstractView,Template){
 		delete me._container;
 		delete me.renderTo;
 		delete me._listeners;
+		delete me.html;
+		delete me.xmodel;
 		delete me.children;
 		me.afterDestroy();
 		return true;
@@ -7876,24 +8064,61 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		xtype               : 'AbstractComponent',       //组件类型
 		
 		//默认配置
-		activeCls           : 'hui-active',      //激活样式
 //		icon                : null,              //图标
 		
 		////通用样式
 //		width               : null,              //宽度(默认单位是px)
 //		height              : null,              //高度(默认单位是px)
-//		tType               : null,              //组件主题类型
-//		theme               : null,              //组件主题样式
-//		radius              : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
-//		shadow              : false,        	 //外阴影
-//		shadowInset         : false,        	 //内阴影
-//		shadowSurround      : false,             //外围亮阴影，主要用于黑色工具栏内的按钮
-//		shadowOverlay       : false,             //遮罩层里组件的阴影效果，主要用于弹出层
-//		isMini              : false,       	     //小号
-//		isActive            : false,             //是否激活
-//		isFocus             : false,        	 //聚焦
-//		isInline            : false,             //是否内联(宽度自适应)
 //		style               : {},                //其它样式，如:{top:10,left:10}
+		xConfig             : {
+			extCls          : '',                //附加样式名
+			tType           : '',                //主题类型
+			theme           : '',                //主题
+			cls             : '',                //组件css命名前缀
+			radius          : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
+			shadow          : false,        	 //外阴影
+			shadowInset     : false,        	 //内阴影
+			shadowSurround  : false,             //外围亮阴影，主要用于黑色工具栏内的按钮
+			shadowOverlay   : false,             //遮罩层里组件的阴影效果，主要用于弹出层
+			isMini          : false,       	     //小号
+			isActive        : false,             //是否激活
+			isFocus         : false,        	 //聚焦
+			isInline        : false,             //是否内联(宽度自适应)
+			activeCls       : 'hui-active',      //激活样式
+			cmpCls          : {
+				depends : ['cls'],
+				parse :function(){
+					return 'hui-'+this.get("cls");
+				}
+			},
+			tTypeCls        : {
+				depends : ['tType'],
+				parse :function(){
+					var tType=this.get("tType");
+					return tType?'hui-'+this.get("cls")+'-'+tType:'';
+				}
+			},
+			themeCls        : {
+				depends : ['theme'],
+				parse :function(){
+					var sTheme=this.get("theme");
+					return sTheme?'hui-'+this.get("cls")+'-'+this.get("theme"):'';
+				}
+			},
+			activeClass     : {
+				depends : ['isActive','activeCls'],
+				parse :function(){
+					return this.get('isActive')?this.get('activeCls'):'';
+				}
+			},
+			radiusCls       : {
+				depends : ['radius'],
+				parse :function(){
+					var sRadius=this.get('radius');
+					return sRadius?'hui-radius-'+sRadius:'';
+				}
+			}
+		},
 		
 		//属性
 //		cls                 : '',                //组件样式名，空则使用xtype的小写，如Dialog，cls为"dialog"，因此样式前缀是“hui-dialog-”
@@ -7902,7 +8127,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		//组件初始化相关
 		hasConfig           : fHasConfig,        //检查是否已存在指定配置
 		doConfig            : fDoConfig,         //初始化配置
-		getExtCls           : fGetExtCls,        //生成通用样式
+		preTmpl             : fPreTmpl,          //预处理模板
 		//组件公用功能
 		active              : fActive,           //激活
 		unactive            : fUnactive,         //不激活
@@ -7965,11 +8190,6 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		var me=this;
 		me.callSuper();
 		
-		//样式名
-		if(!me.cls){
-			me.cls=me.xtype.toLowerCase();
-		}
-		me.extCls=me.getExtCls();
 		//图标组件快捷添加
 		if(me.icon){
 			me.add({
@@ -7983,67 +8203,27 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		}
 	}
 	/**
-	 * 生成通用样式
-	 * @method getExtCls
-	 * @return {string} 返回通用样式
+	 * 预处理模板，添加组件样式
 	 */
-	function fGetExtCls(){
+	function fPreTmpl(){
 		var me=this;
-		//组件标志class
-		var aCls=['js-component','hui-'+me.cls];
-		if(me.extCls){
-			aCls.push(me.extCls);
-		}
-		if(me.tType){
-			aCls.push('hui-'+me.cls+'-'+me.tType);
-		}
-		if(me.theme){
-			aCls.push('hui-'+me.cls+'-'+me.theme);
-		}
-		if(me.radius){
-			aCls.push('hui-radius-'+me.radius);
-		}
-		if(me.isMini){
-			aCls.push('hui-mini');
-		}
-		if(me.shadow){
-			aCls.push('hui-shadow');
-		}
-		if(me.shadowSurround){
-			aCls.push('hui-shadow-surround');
-		}
-		if(me.shadowOverlay){
-			aCls.push('hui-shadow-overlay');
-		}
-		if(me.shadowInset){
-			aCls.push('hui-shadow-inset');
-		}
-		if(me.isActive){
-			aCls.push(me.activeCls);
-		}
-		if(me.isFocus){
-			aCls.push('hui-focus');
-		}
-		if(me.isInline){
-			aCls.push('hui-inline');
-		}
-		return aCls.length>0?aCls.join(' '):'';
+		me.callSuper();
+		me.tmpl=me.tmpl.replace(/(class=['"])/,'$1#js-component cmpCls tTypeCls themeCls radiusCls isMini?hui-mini shadow?hui-shadow shadowSurround?hui-shadow-surround '+
+		'shadowOverlay?hui-shadow-overlay shadowInset?hui-shadow-inset activeClass isFocus?hui-focus isInline?hui-inline ');
 	}
 	/**
 	 * 激活
 	 * @method active
 	 */
 	function fActive(){
-		var me=this;
-		me.getEl().addClass(me.activeCls);
+		this.update({isActive:true});
 	}
 	/**
 	 * 不激活
 	 * @method unactive
 	 */
 	function fUnactive(){
-		var me=this;
-		me.getEl().removeClass(me.activeCls);
+		this.update({isActive:false});
 	}
 	/**
 	 * 设置/读取文字
@@ -8053,16 +8233,10 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 	 */
 	function fTxt(sTxt){
 		var me=this;
-		//先寻找js私有的class
-		var oTxtEl=me.findEl('.js-'+me.cls+'-txt');
-		//如果找不到，再通过css的class查找
-		if(oTxtEl.length==0){
-			oTxtEl=me.findEl('.hui-'+me.cls+'-txt')
-		}
-		if(sTxt!=undefined){
-			oTxtEl.text(sTxt);
+		if(sTxt!==undefined){
+			return me.set('text',sTxt);
 		}else{
-			return oTxtEl.text();
+			return me.get('text');
 		}
 	}
 	/**
@@ -8114,19 +8288,21 @@ function(AC){
 	
 	Icon.extend({
 		//初始配置
-//		noBg            : false,              //是否取消背景
-//		isAlt           : false,              //是否使用深色图标
-//		name            : '',                 //图标名称
+		xConfig         : {
+			cls         : 'icon',
+			hasBg       : true,               //是否有背景
+			isAlt       : false,              //是否使用深色图标
+			name        : '',                 //图标名称
+			iconName    : {
+				depends : ['name'],
+				parse :function(){
+					return 'hui-icon-'+this.get('name');
+				}
+			}
+		},
 		
-		tmpl            : [
-			'<span class="',
-			'<%if(this.isAlt){%>',
-				' hui-alt-icon',
-			'<%}%>',
-			' hui-icon-<%=this.name%>',
-			'<%if(!this.noBg){%>',
-			' hui-icon-bg',
-			'<%}%>"></span>'].join(''),
+		tmpl            : 
+			'<span {{bindAttr class="isAlt?hui-alt-icon iconName hasBg?hui-icon-bg"}}></span>',
 		doConfig        : fDoConfig          //初始化配置
 		
 	});
@@ -8159,44 +8335,36 @@ function(AC){
 	
 	Button.extend({
 		//初始配置
-//		text            : '',                  //按钮文字
-//		isActive        : false,               //是否是激活状态
+		xConfig             : {
+			cls             : 'btn',
+			text            : '',                  //按钮文字
+			theme           : 'gray',
+			iconPos         : '',                  //图标位置，"left"|"top"
+			activeCls       : 'hui-btn-active',    //激活样式
+			isBack          : false,               //是否是后退按钮
+			radius          : 'little',            //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
+			shadow          : true,        	       //外阴影
+			isInline        : true,                //宽度自适应
+			iconPosCls      : {
+				depends : ['iconPos'],
+				parse :function(){
+					var sPos=this.get('iconPos');
+					return sPos?'hui-btn-icon-'+sPos:'';
+				}
+			}
+		},
 //		icon            : null,                //图标名称
-		iconPos         : 'left',              //图标位置，"left"|"top"
-		theme           : 'gray',
-		activeCls       : 'hui-btn-active',    //激活样式
 		cls             : 'btn',               //组件样式名
-//		isBack          : false,               //是否是后退按钮
 		
 		defItem         : {
 			xtype       : 'Icon'
 		},
 		
-		////通用效果
-		radius          : 'normal',            //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
-		shadow          : true,        	       //外阴影
-		isInline        : true,                //宽度自适应
-		
-		tmpl            : ['<a href="javascript:;" hidefocus="true" class="',
-							'<%if(!this.text){%> hui-btn-icon-notxt<%}',
-							'if(this.isBack){%> hui-btn-back<%}',
-							'if(this.hasIcon&&this.text){%> hui-btn-icon-<%=this.iconPos%><%}%>">',
-							'<span class="hui-btn-txt"><%=this.text%></span>',
-							'<%=this.findHtml(">*")%>',
-							'</a>'].join(''),
-							
-		parseItem       : fParseItem           //分析处理子组件
+		tmpl            : ['<a href="javascript:;" hidefocus="true" {{bindAttr class="text:hui-btn-icon-notxt isBack?hui-btn-back iconPosCls"}}>',
+								'<span class="hui-btn-txt">{{text}}</span>',
+								'{{placeItem}}',
+							'</a>'].join('')
 	});
-	/**
-	 * 分析处理子组件
-	 * @method parseItem
-	 */
-	function fParseItem(oItem){
-		var me=this;
-		if(oItem.xtype=="Icon"){
-			me.hasIcon=true;
-		}
-	}
 	
 	return Button;
 	
@@ -8214,25 +8382,28 @@ function(AC){
 	
 	Panel.extend({
 		//初始配置
-//		content         : '',               //内容
-		isLoading       : false,            //是否显示正在加载中
-		loadingTxt      : '正在加载中...',   //正在加载中的提示文字
-		
+		xConfig             : {
+			cls             : 'panel',
+			content         : '',               //内容
+			isLoading       : false,            //是否显示正在加载中
+			loadingTxt      : '正在加载中...'    //正在加载中的提示文字
+		},
 		
 		tmpl            : [
 			'<div>',
-				'<%if(this.isLoading){%>',
+				'{{#if isLoading}}',
 					'<div class="hui-panel-loading">',
 						'<div class="hui-mask"></div>',
 						'<div class="hui-loading-container">',
 							'<div class="hui-tips hui-tips-big hui-tips-black hui-radius-little">',
 								'<span class="hui-icon hui-icon-loading"></span>',
-								'<span class="hui-tips-txt"><%=this.loadingTxt%></span>',
+								'<span class="hui-tips-txt">{{loadingTxt}}</span>',
 							'</div>',
 						'</div>',
 					'</div>',
-				'<%}%>',
-				'<%=this.content||this.findHtml(">*")%>',
+				'{{/if}}',
+				'{{content}}',
+				'{{placeItem}}',
 			'</div>'
 		].join('')
 	});
@@ -8459,27 +8630,30 @@ function(AC){
 	
 	ControlGroup.extend({
 		//初始配置
-//		direction            : 'v',                  //排列方向，'v'表示垂直方向，'h'表示水平方向
+		xConfig:{
+			cls              : 'ctrlgp',
+			direction        : 'v',                  //排列方向，'v'表示垂直方向，'h'表示水平方向
+			directionCls     : {
+				depends:['direction'],
+				parse:function(){
+					return 'hui-ctrlgp-'+this.get('direction');
+				}
+			}
+		},
 		multi                : false,                //是否多选
 //		notSelect            : false,                //点击不需要选中
 //		itemClick            : function(oCmp,nIndex){},         //子项点击事件函数，函数参数为子组件对象及索引
 		
-		cls                  : 'ctrlgp',
 		//默认子组件配置
 		defItem              : {
 			xtype            : 'Button',
-			extCls           : 'js-item',
 			radius           : null,
 			shadow           : false,
 //			selected         : false,             //是否选中
 			isInline         : false
 		},
 		
-		tmpl                 : [
-			'<div class="<%if(this.direction=="h"){%> hui-ctrlgp-h<%}else{%> hui-ctrlgp-v<%}%>">',
-			'<%=this.findHtml(">*")%>',
-			'</div>'
-		].join(''),
+		tmpl                 : '<div {{bindAttr class="directionCls"}}>{{placeItem}}</div>',
 		
 		listeners       : [
 			{
@@ -8499,6 +8673,7 @@ function(AC){
 			}
 		],
 		
+		parseItem            : fParseItem,           //分析子组件配置
 		select               : fSelect,              //选中指定项
 		getSelected          : fGetSelected,         //获取选中项/索引
 		selectItem           : fSelectItem,          //选中/取消选中
@@ -8506,6 +8681,13 @@ function(AC){
 		onItemClick          : fOnItemClick          //子项点击事件处理
 	});
 	
+	/**
+	 * 分析子组件配置
+	 * @param {object}oItem 子组件配置项
+	 */
+	function fParseItem(oItem){
+		oItem.extCls=(oItem.extCls||"")+'js-item';
+	}
 	/**
 	 * 选中指定项
 	 * @method select
@@ -8532,7 +8714,7 @@ function(AC){
 				}
 				me.selectItem(oItem);
 			}else{
-				me.selectItem(oItem,!oItem.selected);
+				me.selectItem(oItem,!oItem.get('selected'));
 			}
 		}
 	}
@@ -8546,7 +8728,7 @@ function(AC){
 	function fGetSelected(bIsIndex){
 		var me=this,aItem=[];
 		me.each(function(i,item){
-			if(item.selected){
+			if(item.get('selected')){
 				aItem.push(bIsIndex?i:item);
 			}
 		});
@@ -8561,7 +8743,6 @@ function(AC){
 	function fSelectItem(oItem,bSelect){
 		bSelect=bSelect!=false;
 		if(bSelect){
-			oItem.selected=bSelect;
 			//优先使用子组件定义的接口
 			if(oItem.select){
 				oItem.select();
@@ -8569,7 +8750,6 @@ function(AC){
 				oItem.active();
 			}
 		}else{
-			oItem.selected=bSelect;
 			//优先使用子组件定义的接口
 			if(oItem.select){
 				oItem.select(bSelect);
@@ -8592,10 +8772,11 @@ function(AC){
 				oCmp.select($H.contains(aValues,oCmp.value));
 			});
 		}else{
-			var aCmp=me.find('>[selected=true]');
 			var aValues=[];
-			$H.each(aCmp,function(i,oCmp){
-				aValues.push(oCmp.value);
+			me.each(function(i,oCmp){
+				if(oCmp.get('selected')){
+					aValues.push(oCmp.value);
+				}
 			})
 			return aValues.join(',');
 		}
@@ -8632,18 +8813,19 @@ function(AC){
 	
 	Radio.extend({
 		//初始配置
-//		name            : '',                  //选项名
-//		text            : '',                  //文字
-//		value           : '',                  //选项值
-//		selected        : false,               //是否选中
+		xConfig         : {
+			cls             : 'radio',
+			name            : '',                  //选项名
+			text            : '',                  //文字
+			value           : '',                  //选项值
+			selected        : false                //是否选中
+		},
 		
 		tmpl            : [
-			'<div class="hui-btn hui-btn-gray<%if(this.selected){%> hui-radio-on<%}%>">',
+			'<div {{bindAttr class="#hui-btn #hui-btn-gray selected?hui-radio-on"}}>',
 				'<span class="hui-icon hui-icon-radio"></span>',
-				'<input type="radio"<%if(this.selected){%> checked=true<%}%>',
-				'<%if(this.name){%> name="<%=this.name%>"<%}%>',
-				'<%if(this.value){%> value="<%=this.value%>"<%}%>/>',
-				'<span class="hui-radio-txt"><%=this.text%></span>',
+				'<input type="radio" {{bindAttr selected?checked name="name" value="value"}}/>',
+				'<span class="hui-radio-txt">{{text}}</span>',
 			'</div>'
 		].join(''),
 		
@@ -8658,17 +8840,7 @@ function(AC){
 	 */
 	function fSelect(bSelect){
 		var me=this;
-		bSelect=!(bSelect==false);
-		me.selected=bSelect;
-		var oInput=me.findEl('input');
-		var oEl=me.getEl();
-		if(bSelect){
-			oInput.attr("checked",true);
-			oEl.addClass('hui-radio-on');
-		}else{
-			oInput.removeAttr("checked");
-			oEl.removeClass('hui-radio-on');
-		}
+		me.update({selected:!(bSelect==false)});
 	}
 	/**
 	 * 获取/设置输入框的值
@@ -8679,10 +8851,9 @@ function(AC){
 	function fVal(sValue){
 		var me=this;
 		if(sValue){
-			me.value=sValue;
-			me.findEl('input').val(sValue);
+			me.set("value",sValue);
 		}else{
-			return me.value;
+			return me.get("value");
 		}
 	}
 	
@@ -9092,11 +9263,11 @@ function(AC){
 			me.text="&nbsp;";
 		}
 		//默认文字域有下划线
-		if(me.text&&me.underline==undefined){
+		if(me.text&&me.underline===undefined){
 			me.underline=true;
 		}
 		//有点击函数时默认有右箭头
-		if(oSettings.click&&me.hasArrow==undefined){
+		if(oSettings.click&&me.hasArrow===undefined){
 			me.hasArrow=true;
 		}
 	}
@@ -9190,7 +9361,7 @@ function(AC){
 		//内容
 		var content=me.content;
 		//默认有空白字符
-		if(content==undefined&&!oSettings.items){
+		if(content===undefined&&!oSettings.items){
 			content='';
 		}
 		//包装文字内容
@@ -9598,7 +9769,7 @@ function(AC,Popup,ControlGroup){
 				items:{
 					xtype:'Icon',
 					name:'loading-mini',
-					noBg:true
+					hasBg:false
 				}
 			});
 		}else if(oSettings.type=='topTips'){
@@ -9924,7 +10095,7 @@ function(AC){
 		var me=this;
 		me.callSuper();
 		//有点击函数时默认有右箭头
-		if(oSettings.click&&me.hasArrow==undefined){
+		if(oSettings.click&&me.hasArrow===undefined){
 			me.hasArrow=true;
 		}
 	}
@@ -10481,7 +10652,6 @@ function(History,AbstractManager){
 				renderTo:me.container,
 				name:sModName,
 				xtype:sModName,
-				_id:me.generateId(),
 				extCls:'js-module m-module m-'+sModName.replace(/\./g,'-'),
 				hidden:true
 			};
@@ -10536,6 +10706,7 @@ function(History,AbstractManager){
 	 */
 	function fInitialize(oConf){
 		var me=this;
+		me.callSuper();
 		if(oConf){
 			me.conf=oConf;
 			$H.extend(me,oConf);

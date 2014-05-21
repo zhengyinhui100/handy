@@ -18,11 +18,12 @@ function(AbstractDao,AbstractEvents){
 	     *	普通形式：
 	     *	{string}name:{
 		 *	    {string|Class=}type:类型，可以是字符串(string/number/Date/Model/Collection),也可以是类
+		 *		{*=}def:默认值
 		 *   	{Function=}parse:设置该属性时自定义解析操作,
 		 *   	{Array=}depends:依赖的属性，计算属性需要此配置检查和计算
 	     *	}
 	     *	简便形式:
-	     *	{name:type}
+	     *	{name:default}
 	     *}
 	     */
 ////    belongsTo             : null,                //保留属性，描述一对一关系，
@@ -31,7 +32,6 @@ function(AbstractDao,AbstractEvents){
 //		id                    : 0,                   //模型id
         idAttribute           : 'id',                //id默认属性名
 //      uuid                  : 0,                   //uuid，初始化时系统分配，具有全局唯一性
-//      defaults              : {},                  //默认属性
 //		dao                   : null,                //数据访问对象，默认为common.AbstractDao
 		
         //内部属性
@@ -49,6 +49,7 @@ function(AbstractDao,AbstractEvents){
    		_onAttrEvent          : _fOnAttrEvent,       //处理属性模型和集合事件
 		
 		initialize            : fInitialize,         //初始化
+		getDefaults           : fGetDefaults,        //获取默认值
 		toJSON                : fToJSON,             //返回对象数据副本
 		sync                  : fSync,               //同步数据，可以通过重写进行自定义
    		get                   : fGet,                //获取指定属性值
@@ -99,7 +100,7 @@ function(AbstractDao,AbstractEvents){
 	    var oFields=me.fields,oField,aDeps;
 	    for(var key in oFields){
 	    	var oField=oFields[key];
-			if(aDeps=oField.depends){
+			if(oField&&(aDeps=oField.depends)){
 				for(var i=0;i<aDeps.length;i++){
 			    	//当依赖属性变化时，设置计算属性
 					me.on('change:'+aDeps[i],$H.bind(me.set,me,key,null,null));
@@ -123,7 +124,7 @@ function(AbstractDao,AbstractEvents){
 		for(var key in oAttrs){
 			val=oAttrs[key];
 			if(oField=oFields[key]){
-				type=$H.isObj(oField)?oField.type:oField;
+				type=oField.type;
 				//自定义解析
 				if(fParse=oField.parse){
 					val=fParse.apply(me,[val,oAttrs]);
@@ -173,9 +174,11 @@ function(AbstractDao,AbstractEvents){
 	 */
 	function fInitialize(oAttributes, oOptions) {
 		var me=this;
+		me.callSuper();
 		me.uuid=$H.uuid();
 		//配置dao对象
 		me.dao=me.dao||$H.getSingleton(AbstractDao);
+		//初始化计算属性
 		me._initDepFields();
 		var oAttrs = oAttributes || {};
 		oOptions || (oOptions = {});
@@ -187,11 +190,26 @@ function(AbstractDao,AbstractEvents){
 		if (oOptions.parse){
 			oAttrs = me.parse(oAttrs, oOptions) || {};
 		}
-		oAttrs = $H.extend(oAttrs, $H.Util.result(me, 'defaults'),{notCover:true});
+		oAttrs = $H.extendIf(oAttrs, me.getDefaults());
 		me.set(oAttrs, oOptions);
 		me._changed = {};
 		//放入数据仓库
 		$S.push(me);
+	}
+	/**
+	 * 获取默认值
+	 * @return 返回默认值
+	 */
+	function fGetDefaults(){
+		var me=this;
+		var oDefaults={},oFields;
+		if(oFields=me.fields){
+			for(var k in oFields){
+				var field=oFields[k];
+				oDefaults[k]=(field&&$H.isObj(field))?field.def:field;
+			}
+		}
+		return oDefaults;
 	}
 	/**
 	 * 返回对象数据副本
@@ -233,7 +251,7 @@ function(AbstractDao,AbstractEvents){
 	 */
     function fHas(sAttr) {
     	var value=this.get(sAttr);
-    	return  value!= null&&value!=undefined;
+    	return  value!== null&&value!==undefined;
     }
 	/**
 	 * 设置值，并触发change事件(如果发生了变化)
@@ -593,7 +611,7 @@ function(AbstractDao,AbstractEvents){
 	 */
     function fIsNew() {
     	var me=this;
-        return me.id==undefined;
+        return me.id===undefined;
     }
 	/**
 	 * 校验当前是否是合法的状态

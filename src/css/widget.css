@@ -592,14 +592,14 @@
   zoom: 1;
   *display: inline;
 }
-.hui-ctrlgp-h .hui-btn {
+.hui-ctrlgp-h > .hui-btn {
   float: left;
   margin: 0;
   border-right: 0;
   border-top: 0;
   border-bottom: 0;
 }
-.hui-ctrlgp-h .hui-btn:first-child {
+.hui-ctrlgp-h > .hui-btn:nth-of-type(1) {
   border-left: 0;
   -moz-border-radius-topleft: inherit;
   -webkit-border-top-left-radius: inherit;
@@ -608,7 +608,7 @@
   -webkit-border-bottom-left-radius: inherit;
   border-bottom-left-radius: inherit;
 }
-.hui-ctrlgp-h .hui-btn:last-child {
+.hui-ctrlgp-h > .hui-btn:nth-last-of-type(1) {
   -moz-border-radius-topright: inherit;
   -webkit-border-top-right-radius: inherit;
   border-top-right-radius: inherit;
@@ -622,7 +622,7 @@
   border-left: 0;
   border-right: 0;
 }
-.hui-ctrlgp-v .hui-btn:first-child {
+.hui-ctrlgp-v .hui-btn:nth-of-type(1) {
   border-top: 0;
   -moz-border-radius-topleft: inherit;
   -webkit-border-top-left-radius: inherit;
@@ -631,7 +631,7 @@
   -webkit-border-top-right-radius: inherit;
   border-top-right-radius: inherit;
 }
-.hui-ctrlgp-v .hui-btn:last-child {
+.hui-ctrlgp-v .hui-btn:nth-last-of-type(1) {
   -moz-border-radius-bottomleft: inherit;
   -webkit-border-bottom-left-radius: inherit;
   border-bottom-left-radius: inherit;
@@ -682,8 +682,8 @@
 .hui-menu .hui-menu-item {
   position: relative;
 }
-.hui-menu .hui-menu-item:first-child,
-.hui-menu .hui-menu-item:first-child .hui-btn {
+.hui-menu .hui-menu-item:nth-of-type(1),
+.hui-menu .hui-menu-item:nth-of-type(1) .hui-btn {
   border-top: 0;
   -moz-border-radius-topleft: inherit;
   -webkit-border-top-left-radius: inherit;
@@ -692,8 +692,8 @@
   -webkit-border-top-right-radius: inherit;
   border-top-right-radius: inherit;
 }
-.hui-menu .hui-menu-item:last-child,
-.hui-menu .hui-menu-item:last-child .hui-btn {
+.hui-menu .hui-menu-item:nth-last-of-type(1),
+.hui-menu .hui-menu-item:nth-last-of-type(1) .hui-btn {
   -moz-border-radius-bottomleft: inherit;
   -webkit-border-bottom-left-radius: inherit;
   border-bottom-left-radius: inherit;
@@ -1019,7 +1019,7 @@
   padding: 0.8em 1.5em;
 }
 .hui-tips.hui-tips-big .hui-icon-loading {
-  display: block;
+  display: none;
   width: 2.75em;
   height: 2.75em;
   margin: 0 auto .625em;

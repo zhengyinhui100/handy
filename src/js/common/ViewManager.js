@@ -24,6 +24,7 @@ $Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
 	 */
 	function fInitialize(){
 		var me=this;
+		me.callSuper();
 		//监听afterRender自定义事件，调用相关视图的afterRender方法
 		$H.on("afterRender",function(sEvt,oEl){
 			//调用包含的视图的afterRender方法

@@ -344,17 +344,17 @@
 }
 .hui-ctrlgp-h{
 	.fn_inline_block();
-	.hui-btn{
+	> .hui-btn{
 		float:left;
 		margin:0;
 		border-right:0;
 		border-top:0;
 		border-bottom:0;
-		&:first-child{
+		&:nth-of-type(1){
 			border-left:0;
 			.fn_border_radius_left(inherit);
 		}
-		&:last-child{
+		&:nth-last-of-type(1){
 			.fn_border_radius_right(inherit);
 		}
 	}
@@ -365,11 +365,11 @@
 		border-bottom:0;
 		border-left:0;
 		border-right:0;
-		&:first-child{
+		&:nth-of-type(1){
 			border-top:0;
 			.fn_border_radius_top(inherit);
 		}
-		&:last-child{
+		&:nth-last-of-type(1){
 			.fn_border_radius_bottom(inherit);
 		}
 	}
@@ -419,13 +419,13 @@
 	}
 	.hui-menu-item{
 		position:relative;
-		&:first-child{
+		&:nth-of-type(1){
 			&, .hui-btn{
 				border-top:0;
 				.fn_border_radius_top(inherit);
 			}
 		}
-		&:last-child{
+		&:nth-last-of-type(1){
 			&, .hui-btn{
 				.fn_border_radius_bottom(inherit);
 			}
@@ -723,7 +723,7 @@
 	&.hui-tips-big{
 		padding:0.8em 1.5em;
 		.hui-icon-loading{
-			display:block;
+			display:none;
 			width:2.75em;
 			height:2.75em;
 			margin:0 auto .625em;

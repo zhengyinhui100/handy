@@ -12,19 +12,21 @@ function(AC){
 	
 	Icon.extend({
 		//初始配置
-//		noBg            : false,              //是否取消背景
-//		isAlt           : false,              //是否使用深色图标
-//		name            : '',                 //图标名称
+		xConfig         : {
+			cls         : 'icon',
+			hasBg       : true,               //是否有背景
+			isAlt       : false,              //是否使用深色图标
+			name        : '',                 //图标名称
+			iconName    : {
+				depends : ['name'],
+				parse :function(){
+					return 'hui-icon-'+this.get('name');
+				}
+			}
+		},
 		
-		tmpl            : [
-			'<span class="',
-			'<%if(this.isAlt){%>',
-				' hui-alt-icon',
-			'<%}%>',
-			' hui-icon-<%=this.name%>',
-			'<%if(!this.noBg){%>',
-			' hui-icon-bg',
-			'<%}%>"></span>'].join(''),
+		tmpl            : 
+			'<span {{bindAttr class="isAlt?hui-alt-icon iconName hasBg?hui-icon-bg"}}></span>',
 		doConfig        : fDoConfig          //初始化配置
 		
 	});

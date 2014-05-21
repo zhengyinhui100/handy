@@ -12,27 +12,30 @@ function(AC){
 	
 	ControlGroup.extend({
 		//初始配置
-//		direction            : 'v',                  //排列方向，'v'表示垂直方向，'h'表示水平方向
+		xConfig:{
+			cls              : 'ctrlgp',
+			direction        : 'v',                  //排列方向，'v'表示垂直方向，'h'表示水平方向
+			directionCls     : {
+				depends:['direction'],
+				parse:function(){
+					return 'hui-ctrlgp-'+this.get('direction');
+				}
+			}
+		},
 		multi                : false,                //是否多选
 //		notSelect            : false,                //点击不需要选中
 //		itemClick            : function(oCmp,nIndex){},         //子项点击事件函数，函数参数为子组件对象及索引
 		
-		cls                  : 'ctrlgp',
 		//默认子组件配置
 		defItem              : {
 			xtype            : 'Button',
-			extCls           : 'js-item',
 			radius           : null,
 			shadow           : false,
 //			selected         : false,             //是否选中
 			isInline         : false
 		},
 		
-		tmpl                 : [
-			'<div class="<%if(this.direction=="h"){%> hui-ctrlgp-h<%}else{%> hui-ctrlgp-v<%}%>">',
-			'<%=this.findHtml(">*")%>',
-			'</div>'
-		].join(''),
+		tmpl                 : '<div {{bindAttr class="directionCls"}}>{{placeItem}}</div>',
 		
 		listeners       : [
 			{
@@ -52,6 +55,7 @@ function(AC){
 			}
 		],
 		
+		parseItem            : fParseItem,           //分析子组件配置
 		select               : fSelect,              //选中指定项
 		getSelected          : fGetSelected,         //获取选中项/索引
 		selectItem           : fSelectItem,          //选中/取消选中
@@ -59,6 +63,13 @@ function(AC){
 		onItemClick          : fOnItemClick          //子项点击事件处理
 	});
 	
+	/**
+	 * 分析子组件配置
+	 * @param {object}oItem 子组件配置项
+	 */
+	function fParseItem(oItem){
+		oItem.extCls=(oItem.extCls||"")+'js-item';
+	}
 	/**
 	 * 选中指定项
 	 * @method select
@@ -85,7 +96,7 @@ function(AC){
 				}
 				me.selectItem(oItem);
 			}else{
-				me.selectItem(oItem,!oItem.selected);
+				me.selectItem(oItem,!oItem.get('selected'));
 			}
 		}
 	}
@@ -99,7 +110,7 @@ function(AC){
 	function fGetSelected(bIsIndex){
 		var me=this,aItem=[];
 		me.each(function(i,item){
-			if(item.selected){
+			if(item.get('selected')){
 				aItem.push(bIsIndex?i:item);
 			}
 		});
@@ -114,7 +125,6 @@ function(AC){
 	function fSelectItem(oItem,bSelect){
 		bSelect=bSelect!=false;
 		if(bSelect){
-			oItem.selected=bSelect;
 			//优先使用子组件定义的接口
 			if(oItem.select){
 				oItem.select();
@@ -122,7 +132,6 @@ function(AC){
 				oItem.active();
 			}
 		}else{
-			oItem.selected=bSelect;
 			//优先使用子组件定义的接口
 			if(oItem.select){
 				oItem.select(bSelect);
@@ -145,10 +154,11 @@ function(AC){
 				oCmp.select($H.contains(aValues,oCmp.value));
 			});
 		}else{
-			var aCmp=me.find('>[selected=true]');
 			var aValues=[];
-			$H.each(aCmp,function(i,oCmp){
-				aValues.push(oCmp.value);
+			me.each(function(i,oCmp){
+				if(oCmp.get('selected')){
+					aValues.push(oCmp.value);
+				}
 			})
 			return aValues.join(',');
 		}

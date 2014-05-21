@@ -178,6 +178,7 @@ function(AbstractDao,AbstractEvents,Model){
 	 */
 	function fInitialize(aModels, oOptions) {
 		var me=this;
+		me.callSuper();
 		me.dao=me.dao||$H.getSingleton(AbstractDao);
 	    oOptions || (oOptions = {});
 	    if (oOptions.model) {

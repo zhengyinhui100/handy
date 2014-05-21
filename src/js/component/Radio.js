@@ -12,18 +12,19 @@ function(AC){
 	
 	Radio.extend({
 		//初始配置
-//		name            : '',                  //选项名
-//		text            : '',                  //文字
-//		value           : '',                  //选项值
-//		selected        : false,               //是否选中
+		xConfig         : {
+			cls             : 'radio',
+			name            : '',                  //选项名
+			text            : '',                  //文字
+			value           : '',                  //选项值
+			selected        : false                //是否选中
+		},
 		
 		tmpl            : [
-			'<div class="hui-btn hui-btn-gray<%if(this.selected){%> hui-radio-on<%}%>">',
+			'<div {{bindAttr class="#hui-btn #hui-btn-gray selected?hui-radio-on"}}>',
 				'<span class="hui-icon hui-icon-radio"></span>',
-				'<input type="radio"<%if(this.selected){%> checked=true<%}%>',
-				'<%if(this.name){%> name="<%=this.name%>"<%}%>',
-				'<%if(this.value){%> value="<%=this.value%>"<%}%>/>',
-				'<span class="hui-radio-txt"><%=this.text%></span>',
+				'<input type="radio" {{bindAttr selected?checked name="name" value="value"}}/>',
+				'<span class="hui-radio-txt">{{text}}</span>',
 			'</div>'
 		].join(''),
 		
@@ -38,17 +39,7 @@ function(AC){
 	 */
 	function fSelect(bSelect){
 		var me=this;
-		bSelect=!(bSelect==false);
-		me.selected=bSelect;
-		var oInput=me.findEl('input');
-		var oEl=me.getEl();
-		if(bSelect){
-			oInput.attr("checked",true);
-			oEl.addClass('hui-radio-on');
-		}else{
-			oInput.removeAttr("checked");
-			oEl.removeClass('hui-radio-on');
-		}
+		me.update({selected:!(bSelect==false)});
 	}
 	/**
 	 * 获取/设置输入框的值
@@ -59,10 +50,9 @@ function(AC){
 	function fVal(sValue){
 		var me=this;
 		if(sValue){
-			me.value=sValue;
-			me.findEl('input').val(sValue);
+			me.set("value",sValue);
 		}else{
-			return me.value;
+			return me.get("value");
 		}
 	}
 	
