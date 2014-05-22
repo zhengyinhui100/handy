@@ -60,8 +60,9 @@ $Define("CM.AbstractManager", function() {
 	function fRegister(oView,oParams){
 		var me=this;
 		var sCid=oView.cid=oParams.cid||$H.uuid();
-		var sId=oView._id=me.generateId(sCid);
+		var sId=oView._id=me.generateId(sCid,oView.xtype);
 		me._all[sId]=oView;
+		me._all[sCid]=oView;
 	}
 	/**
 	 * 注销视图
@@ -71,9 +72,13 @@ $Define("CM.AbstractManager", function() {
 	function fUnRegister(oView){
 		var oAll=this._all;
 		var sId=oView.getId();
+		var sCid=oView.getCid();
 		//执行update时，如果id没有改变，这里不需要删除，因为已经新对象被覆盖了
 		if(oAll[sId]==oView){
 			delete oAll[sId];
+		}
+		if(oAll[sCid]==oView){
+			delete oAll[sCid];
 		}
 	}
 	/**
@@ -100,12 +105,12 @@ $Define("CM.AbstractManager", function() {
 	 * 生成视图的id
 	 * @method generateId
 	 * @param {string=}sCid cid
-	 * @param {boolean=}bNotChk 仅当为true时不检查id是否重复
+	 * @param {string}sType 视图xtype
 	 */
-	function fGenerateId(sCid,bNotChk){
+	function fGenerateId(sCid,sType){
 		var me=this;
-		var sId=$H.expando+"-"+me.type+"-"+(sCid||$H.uuid());
-		if(bNotChk!=true&&me._all[sId]){
+		var sId=$H.expando+"-"+me.type+"-"+sType+'-'+(sCid||$H.uuid());
+		if(me._all[sId]){
 			$D.error('id重复:'+sId);
 		}else{
 			return sId;
@@ -119,7 +124,7 @@ $Define("CM.AbstractManager", function() {
 	function fGet(sId){
 		var me=this;
 		var all=me._all;
-		return all[sId]||all[me.generateId(sId,true)];
+		return all[sId];
 	}
 
 	return AbstractManager;
