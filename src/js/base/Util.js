@@ -9,6 +9,7 @@ handy.add('Util','B.Object',function(Object,$H){
 		uuid             : fUuid,      //获取handy内部uuid
 		getHash          : fGetHash,   //获取hash，不包括“？”开头的query部分
 		setHash          : fSetHash,   //设置hash，不改变“？”开头的query部分
+		position         : fPosition,  //获取节点位置
 		result           : fResult     //如果对象中的指定属性是函数, 则调用它, 否则, 返回它
 	}
 	
@@ -51,6 +52,24 @@ handy.add('Util','B.Object',function(Object,$H){
 			sHash=sOrgHash.replace(/#[^\?]*/,sHash);
 		}
 		top.location.hash=sHash;
+	}
+	/**
+	 * 获取节点位置
+	 * @param {element}el
+	 * @return {object} {
+	 * 		{number}left:左边偏移量,
+	 * 		{number}top:顶部偏移量
+	 * }
+	 */
+	function fPosition(el){
+		var nLeft=0;
+		var nTop=0;
+　　　　 while(el){
+			nLeft += el.offsetLeft;
+			nTop+=el.offsetTop;
+			el = el.offsetParent;
+　　　　 }
+　　　　 return {top:nTop,left:nLeft};
 	}
 	/**
 	 * 如果对象中的指定属性是函数, 则调用它, 否则, 返回它
