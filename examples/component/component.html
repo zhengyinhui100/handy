@@ -157,6 +157,8 @@ $H.Loader.rootPath={
 	'handy'        : '../../src/js'
 }
 $Require([
+"CM.Model",
+"CM.Collection",
 "C.ComponentManager",
 "C.Icon",
 "C.Button",
@@ -178,7 +180,7 @@ $Require([
 "C.Dialog",
 "C.Hcard",
 "C.Vcard"],
-function(CM,Icon,Button,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Select,Input,
+function(Model,Collection,CM,Icon,Button,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Select,Input,
 		Set,Field,Form,Tab,Toolbar,Tips,Dialog,Hcard,Vcard){
 	
 	function example(){
@@ -491,8 +493,15 @@ function(CM,Icon,Button,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Sel
 		});
 		
 		//表单
+		var oModel=new Model({username:'zzzuser',email:'zzz@163.com'});
+		$('#formDv').append('<div>引用模型的值：<span id="refModel">zzz@163.com</span></div>');
+		oModel.on('change:email',function(sEvt,o,value){
+			$D.log('refModel '+sEvt+',value:'+value);
+			$('#refModel').html(value);
+		});
 		var form=new Form({
 			renderTo:'#formDv',
+			refModel:oModel,
 			width:400,
 			items:[{
 				xtype:'Set',
@@ -501,7 +510,7 @@ function(CM,Icon,Button,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Sel
 					xtype:'Field',
 					title:'用户名：',
 					content:{
-						text:'xiaoxiao',
+						text:'{{username}}',
 						click:function(){
 							alert('详情')
 						}
@@ -529,6 +538,8 @@ function(CM,Icon,Button,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Sel
 					items:{
 						xtype:'Input',
 						name:'email',
+						value:'{{email}}',
+						bindRefType:'both',
 						validator:{
 							name:'邮箱',
 							rules:{
@@ -576,6 +587,13 @@ function(CM,Icon,Button,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Sel
 				}]
 			}]
 		});
+		new Button({
+			renderTo:'#formDv',
+			text:'更新引用模型',
+			click:function(){
+				oModel.set({username:'newUser',email:'newEmail'});
+			}
+		})
 		new Button({
 			renderTo:'#formDv',
 			text:'校验表单',

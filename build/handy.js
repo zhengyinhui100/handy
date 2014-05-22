@@ -5987,8 +5987,9 @@ $Define("CM.AbstractManager", function() {
 	function fRegister(oView,oParams){
 		var me=this;
 		var sCid=oView.cid=oParams.cid||$H.uuid();
-		var sId=oView._id=me.generateId(sCid);
+		var sId=oView._id=me.generateId(sCid,oView.xtype);
 		me._all[sId]=oView;
+		me._all[sCid]=oView;
 	}
 	/**
 	 * 注销视图
@@ -5998,9 +5999,13 @@ $Define("CM.AbstractManager", function() {
 	function fUnRegister(oView){
 		var oAll=this._all;
 		var sId=oView.getId();
+		var sCid=oView.getCid();
 		//执行update时，如果id没有改变，这里不需要删除，因为已经新对象被覆盖了
 		if(oAll[sId]==oView){
 			delete oAll[sId];
+		}
+		if(oAll[sCid]==oView){
+			delete oAll[sCid];
 		}
 	}
 	/**
@@ -6027,12 +6032,12 @@ $Define("CM.AbstractManager", function() {
 	 * 生成视图的id
 	 * @method generateId
 	 * @param {string=}sCid cid
-	 * @param {boolean=}bNotChk 仅当为true时不检查id是否重复
+	 * @param {string}sType 视图xtype
 	 */
-	function fGenerateId(sCid,bNotChk){
+	function fGenerateId(sCid,sType){
 		var me=this;
-		var sId=$H.expando+"-"+me.type+"-"+(sCid||$H.uuid());
-		if(bNotChk!=true&&me._all[sId]){
+		var sId=$H.expando+"-"+me.type+"-"+sType+'-'+(sCid||$H.uuid());
+		if(me._all[sId]){
 			$D.error('id重复:'+sId);
 		}else{
 			return sId;
@@ -6046,7 +6051,7 @@ $Define("CM.AbstractManager", function() {
 	function fGet(sId){
 		var me=this;
 		var all=me._all;
-		return all[sId]||all[me.generateId(sId,true)];
+		return all[sId];
 	}
 
 	return AbstractManager;
@@ -6478,7 +6483,9 @@ function(Template,AbstractView,Model,Collection){
 		ifBind              : fIfBind,             //查询指定逻辑单元是否需要绑定模型对象或节点，检查后设为已绑定，确保每个逻辑单元只绑定一次事件
 		updateMetaMorph     : fUpdateMetaMorph,    //更新内容
 		wrapMetaMorph       : fWrapMetaMorph,      //包装结果html
-		updateXmodel        : fUpdateXmodel,       //更新数据
+		get                 : fGet,                //获取配置属性
+    	set                 : fSet,                //设置配置属性
+		update              : fUpdate,             //更新数据
 		getXmodel           : fGetXmodel           //获取配置对象
 	});
 	
@@ -6988,9 +6995,25 @@ function(Template,AbstractView,Model,Collection){
 		return sStart+nId+'-start'+sEnd+(sHtml||'')+sStart+nId+'-end'+sEnd;
 	}
 	/**
+	 * 读取配置属性
+	 * @param {string}sKey 属性名称
+	 * @return {?} 返回属性值
+	 */
+	function fGet(sKey){
+		return this.xmodel.get(sKey);
+	}
+	/**
+	 * 设置配置属性
+	 * @param {string}sKey 属性名称
+	 * @param {*}value 属性值
+	 */
+	function fSet(sKey,value){
+		this.xmodel.set(sKey,value);
+	}
+	/**
 	 * 更新数据
 	 */
-	function fUpdateXmodel(oSettings){
+	function fUpdate(oSettings){
 		this.xmodel.set(oSettings);
 	}
 	/**
@@ -7049,6 +7072,8 @@ function(ViewManager,ModelView,Model,Template){
 //		destroyed           : false,             //是否已销毁
 		tmpl                : '<div>{{placeItem}}</div>',    //模板，字符串或数组字符串，ps:模板容器节点上不能带有id属性
 //      showed              : false,             //是否已显示
+		bindRefType         : 'bindRef',         //绑定引用模型的方式：both(双向绑定)、bindRef{绑定引用模型}、bindXmodel(绑定xmodel)、null或空(不绑定)
+//		refModelAttrs       : {},                //引用模型属性列表
 //		children            : [],                //子视图列表
 		_customEvents       : [                  //自定义事件,可以通过参数属性的方式直接进行添加
 			'beforeRender','render','afterRender',
@@ -7103,6 +7128,8 @@ function(ViewManager,ModelView,Model,Template){
 		//视图管理相关
     	get                 : fGet,              //获取配置属性
     	set                 : fSet,              //设置配置属性
+    	getRefModel         : fGetRefModel,      //获取引用模型
+    	bindRefModel        : fBindRefModel,     //绑定引用模型
 		each                : fEach,             //遍历子视图
 		match               : fMatch,            //匹配选择器
 		find                : fFind,             //查找视图
@@ -7240,6 +7267,12 @@ function(ViewManager,ModelView,Model,Template){
 		var oParams=oSettings||{};
 		
 		$H.extend(me,oParams,{notCover:function(p,val){
+			//检测引用模型属性
+			var refAttr;
+			if(refAttr=/^{{(((?!}}).)+)}}$/.exec(val)){
+				refAttr=refAttr[1];
+				(me.refModelAttrs||(me.refModelAttrs={}))[refAttr]=p;
+			}
 			var value=me[p];
 			//默认事件，可通过参数属性直接添加
 			var bIsCustEvt=$H.contains(me._customEvents,p);
@@ -7287,8 +7320,18 @@ function(ViewManager,ModelView,Model,Template){
 		}else{
 			me.renderTo=$(document.body);
 		}
-		var oFields=me.xConfig,cModel=me.modelClass;
+		
+		//获取绑定属性
+		var oRefModel=me.getRefModel();
+		if(oRefModel){
+			var aAttrs=me.refModelAttrs;
+			for(var attr in aAttrs){
+				me[aAttrs[attr]]=oRefModel.get(attr);
+			}
+		}
+		
 		//生成modelclass
+		var oFields=me.xConfig,cModel=me.modelClass;
 		if(!cModel&&!(cModel=me.constructor.modelClass)){
 			var clazz
 			if(oFields){
@@ -7309,6 +7352,8 @@ function(ViewManager,ModelView,Model,Template){
 			}
 		});
 		me.xmodel=new cModel(oAttrs);
+		//绑定引用模型
+		me.bindRefModel();
 	}
 	
 	var _oTagReg=/[^<]*(<[a-zA-Z]+)/;
@@ -7637,6 +7682,59 @@ function(ViewManager,ModelView,Model,Template){
 			me[sKey]=value;
 		}else{
 			me.xmodel.set(sKey,value);
+		}
+	}
+	/**
+	 * 获取引用模型，优先获取当前视图的引用模型，如果当前视图的引用模型没有设置，
+	 * 则寻找父视图的引用模型，直到找到最近的引用模型为止，返回找到的引用模型，
+	 * 如果直到最顶级的视图都没有引用模型，则返回顶级视图的模型(.model)
+	 * @return {Model} 返回引用模型
+	 */
+	function fGetRefModel(){
+		var me=this;
+		if(me.refModel){
+			return me.refModel;
+		}
+		var oParent=me.parent;
+		while(oParent){
+			if(oParent.refModel){
+				return me.refModel=oParent.refModel;
+			}
+			if(oParent.parent){
+				oParent=oParent.parent;
+			}else{
+				return oParent.model;
+			}
+		}
+	}
+	/**
+	 * 绑定引用模型
+	 */
+	function fBindRefModel(){
+		var me=this;
+		var sType=me.bindRefType;
+		var oAttrs=me.refModelAttrs;
+		if(!sType||!oAttrs){
+			return;
+		}
+		var oRefModel=me.getRefModel();
+		var oXmodel=me.xmodel;
+		function _fBind(sRefAttr,sXmodelAttr){
+			//绑定引用模型
+			if(sType=='both'||sType=='bindRef'){
+				me.listenTo(oRefModel,'change:'+sRefAttr,function(sEvt,oModel,value){
+					me.set(sXmodelAttr,value);
+				});
+			}
+			//绑定xmodel
+			if(sType=='both'||sType=='bindXmodel'){
+				me.listenTo(oXmodel,'change:'+sXmodelAttr,function(sEvt,oModel,value){
+					oRefModel.set(sRefAttr,value);
+				});
+			}
+		}
+		for(var sAttr in oAttrs){
+			_fBind(sAttr,oAttrs[sAttr]);
 		}
 	}
 	/**

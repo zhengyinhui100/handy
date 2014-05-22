@@ -46,6 +46,8 @@ function(ViewManager,ModelView,Model,Template){
 //		destroyed           : false,             //是否已销毁
 		tmpl                : '<div>{{placeItem}}</div>',    //模板，字符串或数组字符串，ps:模板容器节点上不能带有id属性
 //      showed              : false,             //是否已显示
+		bindRefType         : 'bindRef',         //绑定引用模型的方式：both(双向绑定)、bindRef{绑定引用模型}、bindXmodel(绑定xmodel)、null或空(不绑定)
+//		refModelAttrs       : {},                //引用模型属性列表
 //		children            : [],                //子视图列表
 		_customEvents       : [                  //自定义事件,可以通过参数属性的方式直接进行添加
 			'beforeRender','render','afterRender',
@@ -100,6 +102,8 @@ function(ViewManager,ModelView,Model,Template){
 		//视图管理相关
     	get                 : fGet,              //获取配置属性
     	set                 : fSet,              //设置配置属性
+    	getRefModel         : fGetRefModel,      //获取引用模型
+    	bindRefModel        : fBindRefModel,     //绑定引用模型
 		each                : fEach,             //遍历子视图
 		match               : fMatch,            //匹配选择器
 		find                : fFind,             //查找视图
@@ -237,6 +241,12 @@ function(ViewManager,ModelView,Model,Template){
 		var oParams=oSettings||{};
 		
 		$H.extend(me,oParams,{notCover:function(p,val){
+			//检测引用模型属性
+			var refAttr;
+			if(refAttr=/^{{(((?!}}).)+)}}$/.exec(val)){
+				refAttr=refAttr[1];
+				(me.refModelAttrs||(me.refModelAttrs={}))[refAttr]=p;
+			}
 			var value=me[p];
 			//默认事件，可通过参数属性直接添加
 			var bIsCustEvt=$H.contains(me._customEvents,p);
@@ -284,8 +294,18 @@ function(ViewManager,ModelView,Model,Template){
 		}else{
 			me.renderTo=$(document.body);
 		}
-		var oFields=me.xConfig,cModel=me.modelClass;
+		
+		//获取绑定属性
+		var oRefModel=me.getRefModel();
+		if(oRefModel){
+			var aAttrs=me.refModelAttrs;
+			for(var attr in aAttrs){
+				me[aAttrs[attr]]=oRefModel.get(attr);
+			}
+		}
+		
 		//生成modelclass
+		var oFields=me.xConfig,cModel=me.modelClass;
 		if(!cModel&&!(cModel=me.constructor.modelClass)){
 			var clazz
 			if(oFields){
@@ -306,6 +326,8 @@ function(ViewManager,ModelView,Model,Template){
 			}
 		});
 		me.xmodel=new cModel(oAttrs);
+		//绑定引用模型
+		me.bindRefModel();
 	}
 	
 	var _oTagReg=/[^<]*(<[a-zA-Z]+)/;
@@ -634,6 +656,59 @@ function(ViewManager,ModelView,Model,Template){
 			me[sKey]=value;
 		}else{
 			me.xmodel.set(sKey,value);
+		}
+	}
+	/**
+	 * 获取引用模型，优先获取当前视图的引用模型，如果当前视图的引用模型没有设置，
+	 * 则寻找父视图的引用模型，直到找到最近的引用模型为止，返回找到的引用模型，
+	 * 如果直到最顶级的视图都没有引用模型，则返回顶级视图的模型(.model)
+	 * @return {Model} 返回引用模型
+	 */
+	function fGetRefModel(){
+		var me=this;
+		if(me.refModel){
+			return me.refModel;
+		}
+		var oParent=me.parent;
+		while(oParent){
+			if(oParent.refModel){
+				return me.refModel=oParent.refModel;
+			}
+			if(oParent.parent){
+				oParent=oParent.parent;
+			}else{
+				return oParent.model;
+			}
+		}
+	}
+	/**
+	 * 绑定引用模型
+	 */
+	function fBindRefModel(){
+		var me=this;
+		var sType=me.bindRefType;
+		var oAttrs=me.refModelAttrs;
+		if(!sType||!oAttrs){
+			return;
+		}
+		var oRefModel=me.getRefModel();
+		var oXmodel=me.xmodel;
+		function _fBind(sRefAttr,sXmodelAttr){
+			//绑定引用模型
+			if(sType=='both'||sType=='bindRef'){
+				me.listenTo(oRefModel,'change:'+sRefAttr,function(sEvt,oModel,value){
+					me.set(sXmodelAttr,value);
+				});
+			}
+			//绑定xmodel
+			if(sType=='both'||sType=='bindXmodel'){
+				me.listenTo(oXmodel,'change:'+sXmodelAttr,function(sEvt,oModel,value){
+					oRefModel.set(sRefAttr,value);
+				});
+			}
+		}
+		for(var sAttr in oAttrs){
+			_fBind(sAttr,oAttrs[sAttr]);
 		}
 	}
 	/**
