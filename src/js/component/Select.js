@@ -1,5 +1,5 @@
 /**
- * 图标类
+ * 下拉选择框类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-02-01
  */
@@ -12,16 +12,20 @@ function(AC){
 	
 	Select.extend({
 		//初始配置
-//		name            : '',                  //选项名
-		text            : '请选择...',          //为选择时的文字
-		value           : '',                  //默认值
-		radius          : 'little',
+		xConfig         : {
+			cls             : 'select',
+			name            : '',                  //选项名
+			text            : '请选择...',          //为选择时的文字
+			value           : '',                  //默认值
+			radius          : 'little'
+		},
 //		options         : [{text:"文字",value:"值"}],    //选项
 		optionClick     : function(){},
 		defItem         : {
 			xtype       : 'Menu',
 			hidden      : true,
-			markType    : 'dot',
+			markType    : 'hook',
+			showPos     : 'followEl',
 			renderTo    : "body"              //子组件须设置renderTo才会自动render
 		},
 		
@@ -29,8 +33,8 @@ function(AC){
 		tmpl            : [
 			'<div class="hui-btn hui-btn-gray hui-btn-icon-right">',
 				'<span class="hui-icon hui-alt-icon hui-icon-carat-d hui-light"></span>',
-				'<input value="<%=this.value%>" name="<%=this.name%>"/>',
-				'<span class="hui-btn-txt js-select-txt"><%=this.text%></span>',
+				'<input {{bindAttr value="value" name="name"}}/>',
+				'<span class="hui-btn-txt js-select-txt">{{text}}</span>',
 			'</div>'
 		].join(''),
 		
@@ -63,7 +67,7 @@ function(AC){
 		for(var i=0,len=oOptions.length;i<len;i++){
 			var oOption=oOptions[i];
 			if(oOption.value==oParams.value){
-				me.text=oOption.text;
+				me.set('text',oOption.text);
 				oOption.selected=true;
 				bHasVal=true;
 				break;
@@ -74,7 +78,7 @@ function(AC){
 		}
 		me.add({
 			itemClick:function(oButton,nIndex){
-				var sValue=oButton.value;
+				var sValue=oButton.get('value');
 				me.val(sValue);
 			},
 			width:me.width,
@@ -99,22 +103,20 @@ function(AC){
 	function fVal(sValue){
 		var me=this;
 		if(sValue){
-			if(me.value!=sValue){
+			if(me.get('value')!=sValue){
 				var oMenu=me.children[0];
 				var oItem=oMenu.find('>[value='+sValue+']');
 				if(oItem.length>0){
 					me.trigger("change");
 					oItem=oItem[0];
-					me.value=sValue;
-					var oSel=me.findEl('input');
-					oSel.attr('value',sValue);
-					me.txt(oItem.text);
+					me.set('value',sValue);
+					me.txt(oItem.get('text'));
 					//更新菜单选中状态
 					oMenu.select(oItem);
 				}
 			}
 		}else{
-			return me.value;
+			return me.get('value');
 		}
 	}
 	

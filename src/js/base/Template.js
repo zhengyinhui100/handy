@@ -374,10 +374,12 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 	 * @return {string}      返回结果字符串
 	 */
 	function _fCompile(sTmpl,oOptions){
+		var sOpenTag=T.openTag,
+		sCloseTag=T.closeTag;
+		//过滤掉注释
+		sTmpl=sTmpl.replace(new RegExp(sOpenTag+'!'+'((?!'+sCloseTag+').)*'+sCloseTag,'ig'),'');
 		//过滤无用的空白和换行
 		if(T.isTrim){
-			var sOpenTag=T.openTag,
-			sCloseTag=T.closeTag;
 			sTmpl=sTmpl.replace(/^[\s\n]+/,'').replace(/[\s\n]+$/,'').replace(new RegExp('('+sCloseTag+'|\\>)(\\s|\\n)+(?=('+sOpenTag+'|<))','ig'),'$1').
 			replace(new RegExp(sCloseTag+'[\\s\\n]+([^\\n]+)[\\s\\n]+(?=('+sOpenTag+'|<))','ig'),sCloseTag+'$1');
 		}

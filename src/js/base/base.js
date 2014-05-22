@@ -14,7 +14,7 @@
 	
 	handy.version    = '1.0.0';    //版本号
 	handy.isDebug    = typeof gEnv=='undefined'?false:gEnv=='dev';     //是否是调试状态
-	handy.expando    = "handy" + ( handy.version + Math.random() ).replace( /\D/g, "" );    //自定义属性名
+	handy.expando    = ("handy-" +  handy.version).replace(/\./g,'_');    //自定义属性名
 	handy.add        = fAdd;            //添加子模块
 	handy.noConflict = fNoConflict;     //处理命名冲突
 	handy.noop       = function(){};    //空函数

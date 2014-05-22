@@ -14,18 +14,20 @@ function(AC,Popup,ControlGroup){
 	
 	Tips.extend({
 		//初始配置
-//		text            : '',
+		xConfig         : {
+			cls             : 'tips',
+			text            : '',
+			radius          : 'normal',
+			tType           : 'big',
+			theme           : 'black'
+		},
 //		type            : 'miniLoading',            类型，‘loading’表示居中加载中提示，‘topTips’表示顶部简单提示，‘miniLoading’表示顶部无背景loading小提示
-		cls             : 'tips',
-		tType           : 'big',
-		theme           : 'black',
 		timeout         : 1000,
-		radius          : 'normal',
 		
 		tmpl            : [
-			'<div class="<%if(!this.text){%> hui-tips-notxt<%}%>">',
-				'<%=this.findHtml(">*")%>',
-				'<%if(this.text){%><span class="hui-tips-txt"><%=this.text%></span><%}%>',
+			'<div {{bindAttr class="text:hui-tips-notxt"}}>',
+				'{{placeItem}}',
+				'{{#if text}}<span class="hui-tips-txt">{{text}}</span>{{/if}}',
 			'</div>'
 		].join(''),
 		doConfig        : fDoConfig     //初始化配置

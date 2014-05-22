@@ -405,47 +405,13 @@
 //菜单
 .hui-menu{
 	.hui-popup();
-	border: 1px solid #ccc;
 	//考虑二级菜单，暂不使用overflow
 	//overflow:hidden;
-	.hui-btn{
-		margin:0;
-		border-bottom:0;
-		border-left:0;
-		border-right:0;
+	.hui-icon-check{
+		display:none;
 	}
-	ul{
-		.fn_border_radius(inherit);
-	}
-	.hui-menu-item{
-		position:relative;
-		&:nth-of-type(1){
-			&, .hui-btn{
-				border-top:0;
-				.fn_border_radius_top(inherit);
-			}
-		}
-		&:nth-last-of-type(1){
-			&, .hui-btn{
-				.fn_border_radius_bottom(inherit);
-			}
-		}
-	}
-	&.hui-menu-mark{
-		.hui-icon-mark{
-			position:absolute;
-			display:none;
-			background:#222;
-			left:10px;
-			top:50%;
-			margin-top:-3px;
-			width:6px;
-			height:6px;
-			.fn_border_radius(3px);
-		}
-		.hui-item-mark .hui-icon-mark{
-			display:block;
-		}
+	.hui-item-select .hui-icon-check{
+		.fn_inline_block();
 	}
 }
 
@@ -949,6 +915,9 @@
 
 //公用效果
 //内联样式（自适应宽度）
+.hui-hidden{
+	display:none;
+}
 .hui-inline{
 	.fn_inline_block();
 }

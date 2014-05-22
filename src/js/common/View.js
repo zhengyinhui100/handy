@@ -34,6 +34,7 @@ function(ViewManager,ModelView,Model,Template){
 //		hideMode            : 'display',         //隐藏方式,'display'|'visibility'
 //		disabled            : false,             //是否禁用
 //		extCls              : '',                //附加class
+//		wrapHtml            : ['<div>','</div>'],//外面包裹的html
 //		notListen           : false,             //不自动初始化监听器
 //		items               : [],                //子视图配置，初始参数可以是对象也可以是对象数组
 ////	lazy                : false,             //保留属性：懒加载，初始化时只设置占位标签，只在调用show方法时进行实际初始化
@@ -283,9 +284,9 @@ function(ViewManager,ModelView,Model,Template){
 		}else{
 			me.renderTo=$(document.body);
 		}
-		var oFields=me.xConfig;
+		var oFields=me.xConfig,cModel=me.modelClass;
 		//生成modelclass
-		if(!me.modelClass){
+		if(!cModel&&!(cModel=me.constructor.modelClass)){
 			var clazz
 			if(oFields){
 				clazz=Model.derive({
@@ -294,7 +295,7 @@ function(ViewManager,ModelView,Model,Template){
 			}else{
 				clazz=Model;
 			}
-			me.constructor.prototype.modelClass=clazz;
+			cModel=me.constructor.modelClass=clazz;
 		}
 		//初始化xmodel
 		var oAttrs={};
@@ -304,7 +305,7 @@ function(ViewManager,ModelView,Model,Template){
 				oAttrs[k]=value;
 			}
 		});
-		me.xmodel=new me.modelClass(oAttrs);
+		me.xmodel=new cModel(oAttrs);
 	}
 	
 	var _oTagReg=/[^<]*(<[a-zA-Z]+)/;
@@ -316,17 +317,23 @@ function(ViewManager,ModelView,Model,Template){
 		var me=this;
 		var sId=me.getId();
 		//添加隐藏style，调用show方法时才显示
-		var sStyle;
+		var sStyle,sCls=me.extCls||'';
  		if(me.displayMode=='visibility'){
 			sStyle='visibility:hidden;';
  		}else{
-			sStyle='display:none;';
+			sCls+=' hui-hidden';
  		}
  		var sHtml=me.callSuper();
 		//添加id和style
-		sHtml=sHtml.replace(_oTagReg,'$1 style="'+sStyle+'"');
-		if(me.extCls){
-			sHtml=sHtml.replace(/(class=['"])/,'$1'+me.extCls+' ');
+ 		if(sStyle){
+			sHtml=sHtml.replace(_oTagReg,'$1 style="'+sStyle+'"');
+ 		}
+		if(sCls){
+			sHtml=sHtml.replace(/(class=['"])/,'$1'+sCls+' ');
+		}
+		var aWrapHtml;
+		if(aWrapHtml=me.wrapHtml){
+			sHtml=aWrapHtml[0]+sHtml+aWrapHtml[1];
 		}
 		return me.html=sHtml;
 	}
@@ -451,7 +458,8 @@ function(ViewManager,ModelView,Model,Template){
 		if(me.displayMode=='visibility'){
 			oEl.css({visibility:"visible"})
 		}else{
-			oEl.show();
+			//测试组件数目：77，使用show和hide时，组件初始化时间是500ms左右，而使用添加\移除’hui-hidden’的方式时间是170ms左右
+			oEl.removeClass('hui-hidden');
 		}
 		me.callChild([null,true]);
 		me.afterShow();
@@ -491,7 +499,7 @@ function(ViewManager,ModelView,Model,Template){
 		if(me.displayMode=='visibility'){
 			oEl.css({visibility:"hidden"})
 		}else{
-			oEl.hide();
+			oEl.addClass('hui-hidden');;
 		}
 		me.trigger('hide');
 		me.afterHide();
@@ -605,7 +613,14 @@ function(ViewManager,ModelView,Model,Template){
 	 */
 	function fGet(sKey){
 		var me=this;
-		return me.xmodel.get(sKey);
+		var oConfig=me.xConfig;
+		var value;
+		if(oConfig[sKey]===undefined){
+			value=me[sKey];
+		}else{
+			value=me.xmodel.get(sKey);
+		}
+		return value;
 	}
 	/**
 	 * 设置配置属性
@@ -614,7 +629,12 @@ function(ViewManager,ModelView,Model,Template){
 	 */
 	function fSet(sKey,value){
 		var me=this;
-		return me.xmodel.get(sKey);
+		var oConfig=me.xConfig;
+		if(oConfig[sKey]===undefined){
+			me[sKey]=value;
+		}else{
+			me.xmodel.set(sKey,value);
+		}
 	}
 	/**
 	 * 遍历子视图
@@ -656,7 +676,8 @@ function(ViewManager,ModelView,Model,Template){
 		if(sSel=="*"){
 			return true;
 		}
-		var o=oObj||this,m,prop,op,value;
+		oObj=oObj||this;
+		var m,prop,op,value,viewVal;
 		//#btn => [cid=tbn]
 		sSel=sSel.replace(/^#([^\s,\[]+)/,'[cid=$1]');
 		//.btn => [cClass=tbn]
@@ -673,7 +694,8 @@ function(ViewManager,ModelView,Model,Template){
 			if(value=='false'||value=='true'){
 				value=eval(value);
 			}
-			if(op==="="?o[prop]!=value:o[prop]==value){
+			viewVal=oObj.get?oObj.get(prop):oObj[prop];
+			if(op==="="?viewVal!=value:viewVal==value){
 				return false;
 			}
 		}

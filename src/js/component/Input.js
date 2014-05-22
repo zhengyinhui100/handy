@@ -12,37 +12,40 @@ function(AC){
 	
 	Input.extend({
 		//初始配置
-//		type            : '',                  //输入框类型，默认为普通输入框，'search':搜索框，'textarea':textarea输入框
-//		value           : '',                  //默认值
-//		placeholder     : '',                  //placeholder
-//		withClear       : false,               //带有清除按钮
-		radius          : 'little',            //普通圆角
-		iconPos         : 'left',              //图标位置
-		btnPos          : 'right',             //按钮位置
+		xConfig         : {
+			cls             : 'input',
+			isTextarea      : false,               //是否是textarea
+			value           : '',                  //默认值
+			placeholder     : '',                  //placeholder
+			radius          : 'little',            //普通圆角
+			iconPos         : '',                  //图标位置，'left'或'right'
+			btnPos          : '',                  //按钮位置，'left'或'right'
+			iconPosCls      : {
+				depends : ['iconPos'],
+				parse :function(){
+					var sIconPos=this.get('iconPos');
+					return sIconPos?'hui-input-icon-'+sIconPos:'';
+				}
+			},
+			btnPosCls       : {
+				depends : ['btnPos'],
+				parse :function(){
+					var sBtnPos=this.get('btnPos');
+					return sBtnPos?'hui-input-btn-'+sBtnPos:'';
+				}
+			}
+		},
+		type            : '',                  //输入框类型，默认为普通输入框，'search':搜索框
+		withClear       : false,               //带有清除按钮
 		
 		tmpl            : [
-		'<div class="',
-			'<%if(this.hasIcon){%>',
-				' hui-input-icon-<%=this.iconPos%>',
-			'<%}%>',
-			'<%if(this.hasBtn){%>',
-				' hui-input-btn-<%=this.btnPos%>',
-			'<%}%>">',
-			'<%=this.findHtml(">*")%>',
-			'<%if(this.type=="textarea"){%>',
-				'<textarea class="js-input"',
-			'<%}else{%>',
-				'<input type="text" class="js-input hui-input-txt"',
-			'<%}%> ',
-			' name="<%=this.name%>"',
-			'<%if(this.placeholder){%>',
-				' placeholder="<%=this.placeholder%>"',
-			'<%}%>',
-			'<%if(this.type=="textarea"){%>',
-				'><%=this.value%></textarea>',
-			'<%}else{%>',
-				' value="<%=this.value%>"/>',
-			'<%}%> ',
+		'<div {{bindAttr class="iconPosCls btnPosCls"}}>',
+			'{{placeItem}}',
+			'{{#if isTextarea}}',
+				'{{textarea class="#js-input" name="name" placeholder="placeholder" value=value}}',
+			'{{else}}',
+				'{{input type="#text" class="#js-input #hui-input-txt" name="name" placeholder="placeholder" value="value"}}',
+			'{{/if}}',
 		'</div>'].join(''),
 		listeners       : [
 			{
@@ -77,7 +80,7 @@ function(AC){
 			me.icon='search';
 		}
 		me.callSuper();
-		if(me.type=="textarea"){
+		if(oSettings.isTextarea){
 			//textarea高度自适应，IE6、7、8支持propertychange事件，input被其他浏览器所支持
 			me.listeners.push({
 				name:'input propertychange',
@@ -110,10 +113,15 @@ function(AC){
 	 */
 	function fParseItem(oItem){
 		var me=this;
+		//设置图标/按钮默认位置
 		if(oItem.xtype=="Icon"){
-			me.hasIcon=true;
+			if(!me.get('iconPos')){
+				me.set('iconPos','left');
+			}
 		}else if(oItem.xtype=="Button"){
-			me.hasBtn=true;
+			if(!me.get('btnPos')){
+				me.set('btnPos','right');
+			}
 		}
 	}
 	/**

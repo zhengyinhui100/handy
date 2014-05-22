@@ -11,13 +11,31 @@ function(AC){
 	
 	Label.extend({
 		//初始配置
-//		color           : '',      //label字体颜色
-//		textAlign       : '',      //label文字对齐，默认左对齐
+		xConfig         : {
+			cls         : 'label',
+			text        : '',      //label文字
+			color       : '',      //label字体颜色
+			textAlign   : '',      //label文字对齐，默认左对齐
+			forName     : '',      //label的for属性
+			colorCls    : {
+				depends:['color'],
+				parse:function(){
+					var s=this.get('color');
+					return s?'hui-label-'+s:'';
+				}
+			},
+			textAlignCls    : {
+				depends:['textAlign'],
+				parse:function(){
+					var s=this.get('textAlign');
+					return s?'c-txt-'+s:'';
+				}
+			}
+		},
 		
 		tmpl            : [
-			'<label class="',
-				'<%if(this.color){%> hui-label-<%=this.color%><%}%><%if(this.textAlign){%> c-txt-<%=this.textAlign%><%}%>" for="<%=this.forName%>">',
-				'<%=this.text%>',
+			'<label {{bindAttr class="colorCls textAlignCls" for="forName"}}>',
+				'{{text}}',
 			'</label>'
 		].join('')
 		

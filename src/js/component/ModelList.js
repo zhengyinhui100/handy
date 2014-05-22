@@ -11,11 +11,15 @@ function(AC){
 	var ModelList=AC.define('ModelList');
 	
 	ModelList.extend({
-		emptyTips   : '暂无结果',         //空列表提示
-		pdText      : '下拉可刷新',       //下拉刷新提示文字
-		pdComment   : '上次刷新时间：',    //下拉刷新附加说明
-//		pdTime      : '',                //上次刷新时间
-//		hasPullRefresh : false,          //是否有下拉刷新
+		xConfig     : {
+			cls         : 'mlist',
+			isEmpty     : false,             //列表是否为空
+			emptyTips   : '暂无结果',         //空列表提示
+			pdText      : '下拉可刷新',       //下拉刷新提示文字
+			pdComment   : '上次刷新时间：',    //下拉刷新附加说明
+			pdTime      : '',                //上次刷新时间
+			hasPullRefresh : false           //是否有下拉刷新
+		},
 //		itemXtype   : '',                //子组件默认xtype
 //		refresh     : null,              //刷新接口
 //		getMore     : null,              //获取更多接口
@@ -23,27 +27,34 @@ function(AC){
 		tmpl        : [
 			'<div class="hui-list">',
 				'<div class="hui-list-inner">',
-					'<div<%if(this.children.length>0){%> style="display:none"<%}%> class="hui-list-empty js-empty"><%=this.emptyTips%></div>',
-					'<%if(this.hasPullRefresh){%>',
+					'{{#if isEmpty}}',
+						'<div class="hui-list-empty js-empty">{{emptyTips}}/div>',
+					'{{/if}}',
+					'{{#if hasPullRefresh}}',
 						'<div class="hui-list-pulldown hui-pd-pull c-h-middle-container">',
 							'<div class="c-h-middle">',
 								'<span class="hui-icon hui-alt-icon hui-icon-arrow-d hui-light"></span>',
 								'<span class="hui-icon hui-alt-icon hui-icon-loading-mini"></span>',
 								'<div class="hui-pd-txt">',
-									'<%if(this.pdText){%><div class="js-txt"><%=this.pdText%></div><%}%>',
-									'<%if(this.pdComment){%><div class="js-comment hui-pd-comment"><span class="js-pdComment"><%=this.pdComment%></span><span class="js-pdTime"><%=this.pdTime%></span></div><%}%>',
+									'{{#if pdText}}<div class="js-txt">{{pdText}}</div>{{/if}}',
+									'{{#if pdComment}}',
+										'<div class="js-comment hui-pd-comment">',
+										'<span class="js-pdComment">{{pdComment}}</span>',
+										'<span class="js-pdTime">{{pdTime}}</span>',
+										'</div>',
+									'{{/if}}',
 								'</div>',
 							'</div>',
 						'</div>',
-					'<%}%>',
-					'<div class="js-item-container"><%=this.findHtml(">*")%></div>',
-					'<%if(this.hasPullRefresh){%>',
+					'{{/if}}',
+					'<div class="js-item-container">{{placeItem}}</div>',
+					'{{#if hasPullRefresh}}',
 						'<div class="hui-list-more">',
 							'<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-shadow hui-inline hui-radius-normal">',
 								'<span class="hui-btn-txt">查看更多</span>',
 							'</a>',
 						'</div>',
-					'<%}%>',
+					'{{/if}}',
 				'</div>',
 			'</div>'
 		].join(''),
@@ -86,7 +97,6 @@ function(AC){
 					var me=this;
 					var oWrapper=me.getEl();
 					var oPdEl=oWrapper.find('.hui-list-pulldown');
-					var oPdTxt=oPdEl.find('.js-txt');
 					var nStartY=50;
 					var sRefreshCls='hui-pd-refresh';
 					var sReleaseCls='hui-pd-release';
@@ -96,24 +106,24 @@ function(AC){
 						onRefresh: function () {
 							if(oPdEl.hasClass(sRefreshCls)){
 				                oPdEl.removeClass(sRefreshCls+' '+sReleaseCls);  
-				                oPdTxt.html('下拉可刷新');  
+				                me.set('pdText','下拉可刷新');  
 							}
 						},
 						onScrollMove: function () {
 							if (this.y > 5 && !oPdEl.hasClass(sReleaseCls)) {  
 				                oPdEl.addClass(sReleaseCls);  
-				                oPdTxt.html('松开可刷新');  
+				                me.set('pdText','松开可刷新');  
 								this.minScrollY = 0;
 				            } else if (this.y < 5 && oPdEl.hasClass(sReleaseCls)) {  
 				                oPdEl.removeClass(sReleaseCls);;  
-				                oPdTxt.html('下拉可刷新'); 
+				                me.set('pdText','下拉可刷新'); 
 								this.minScrollY = -nStartY;
 				            } 
 						},
 						onScrollEnd: function () {
 							if (oPdEl.hasClass(sReleaseCls)) {  
 				                oPdEl.addClass(sRefreshCls);  
-				                oPdTxt.html('正在刷新'); 
+				                me.set('pdText','正在刷新'); 
 				                me.refresh();
 				            }
 						}
@@ -151,12 +161,9 @@ function(AC){
 	 */
 	function fAddListItem(oListItem){
 		var me=this;
-		if(me.inited){
-			me.findEl(".js-empty").hide();
-		}
+		me.set('isEmpty',false);
 		me.add({
-			model:oListItem,
-			renderTo:'>.js-item-container'
+			model:oListItem
 		});
 	}
 	/**
@@ -173,7 +180,7 @@ function(AC){
 			});
 		}
 		if(me.children.length==0){
-			me.findEl(".js-empty").show();
+			me.set('isEmpty',true);;
 		}
 	}
 	/**

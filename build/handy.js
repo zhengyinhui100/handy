@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-05-21 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-05-22 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -15,7 +15,7 @@
 	
 	handy.version    = '1.0.0';    //版本号
 	handy.isDebug    = typeof gEnv=='undefined'?false:gEnv=='dev';     //是否是调试状态
-	handy.expando    = "handy" + ( handy.version + Math.random() ).replace( /\D/g, "" );    //自定义属性名
+	handy.expando    = ("handy-" +  handy.version).replace(/\./g,'_');    //自定义属性名
 	handy.add        = fAdd;            //添加子模块
 	handy.noConflict = fNoConflict;     //处理命名冲突
 	handy.noop       = function(){};    //空函数
@@ -2740,6 +2740,7 @@ handy.add('Util','B.Object',function(Object,$H){
 		uuid             : fUuid,      //获取handy内部uuid
 		getHash          : fGetHash,   //获取hash，不包括“？”开头的query部分
 		setHash          : fSetHash,   //设置hash，不改变“？”开头的query部分
+		position         : fPosition,  //获取节点位置
 		result           : fResult     //如果对象中的指定属性是函数, 则调用它, 否则, 返回它
 	}
 	
@@ -2782,6 +2783,24 @@ handy.add('Util','B.Object',function(Object,$H){
 			sHash=sOrgHash.replace(/#[^\?]*/,sHash);
 		}
 		top.location.hash=sHash;
+	}
+	/**
+	 * 获取节点位置
+	 * @param {element}el
+	 * @return {object} {
+	 * 		{number}left:左边偏移量,
+	 * 		{number}top:顶部偏移量
+	 * }
+	 */
+	function fPosition(el){
+		var nLeft=0;
+		var nTop=0;
+　　　　 while(el){
+			nLeft += el.offsetLeft;
+			nTop+=el.offsetTop;
+			el = el.offsetParent;
+　　　　 }
+　　　　 return {top:nTop,left:nLeft};
 	}
 	/**
 	 * 如果对象中的指定属性是函数, 则调用它, 否则, 返回它
@@ -3612,10 +3631,12 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 	 * @return {string}      返回结果字符串
 	 */
 	function _fCompile(sTmpl,oOptions){
+		var sOpenTag=T.openTag,
+		sCloseTag=T.closeTag;
+		//过滤掉注释
+		sTmpl=sTmpl.replace(new RegExp(sOpenTag+'!'+'((?!'+sCloseTag+').)*'+sCloseTag,'ig'),'');
 		//过滤无用的空白和换行
 		if(T.isTrim){
-			var sOpenTag=T.openTag,
-			sCloseTag=T.closeTag;
 			sTmpl=sTmpl.replace(/^[\s\n]+/,'').replace(/[\s\n]+$/,'').replace(new RegExp('('+sCloseTag+'|\\>)(\\s|\\n)+(?=('+sOpenTag+'|<))','ig'),'$1').
 			replace(new RegExp(sCloseTag+'[\\s\\n]+([^\\n]+)[\\s\\n]+(?=('+sOpenTag+'|<))','ig'),sCloseTag+'$1');
 		}
@@ -4660,7 +4681,7 @@ function(AbstractDao,AbstractEvents){
         
         
    		_validate             : _fValidate,          //执行校验，如果通过校验返回true，否则，触发"invalid"事件
-   		_initDepFields        : _fInitDepFields,     //初始化计算/依赖属性
+   		_doDepends            : _fDoDepends,         //处理计算/依赖属性
    		_parseFields          : _fParseFields,       //属性预处理
    		_onAttrEvent          : _fOnAttrEvent,       //处理属性模型和集合事件
 		
@@ -4708,21 +4729,27 @@ function(AbstractDao,AbstractEvents){
         return false;
     }
     /**
-     * 初始化计算/依赖属性
+     * 处理计算/依赖属性
+     * @param {object}oChanges 当前操作改变的属性
+     * @param {boolean}bSilent 是否不触发事件
      */
-    function _fInitDepFields(){
+    function _fDoDepends(oChanges,bSilent){
     	var me=this;
     	//处理计算属性
-	    var oFields=me.fields,oField,aDeps;
+	    var oFields=me.fields,oField,aDeps,oSets={};
 	    for(var key in oFields){
 	    	var oField=oFields[key];
 			if(oField&&(aDeps=oField.depends)){
 				for(var i=0;i<aDeps.length;i++){
 			    	//当依赖属性变化时，设置计算属性
-					me.on('change:'+aDeps[i],$H.bind(me.set,me,key,null,null));
+					if(oChanges.hasOwnProperty(aDeps[i])){
+						oSets[key]=0;
+						break;
+					}
 				}
 			}
 	    }
+	    me.set(oSets,null,{silent:bSilent});
     }
     /**
      * 属性预处理
@@ -4794,8 +4821,6 @@ function(AbstractDao,AbstractEvents){
 		me.uuid=$H.uuid();
 		//配置dao对象
 		me.dao=me.dao||$H.getSingleton(AbstractDao);
-		//初始化计算属性
-		me._initDepFields();
 		var oAttrs = oAttributes || {};
 		oOptions || (oOptions = {});
 		me.cid = $H.Util.uuid();
@@ -4897,7 +4922,7 @@ function(AbstractDao,AbstractEvents){
 	
 	    var bUnset= oOptions.unset;
 	    var bSilent= oOptions.silent;
-	    var aChanges= [];
+	    var oChanges={};
 	    var bChanging= me._changing;
 	    me._changing  = true;
 	
@@ -4919,7 +4944,7 @@ function(AbstractDao,AbstractEvents){
 	   	    val = oAttrs[sAttr];
 	   	    //与当前值不相等，放入改变列表中
 	    	if (!$H.equals(oCurrent[sAttr], val)){
-	    		aChanges.push(sAttr);
+	    		oChanges[sAttr]=val;
 	    	}
 	    	//与初始值不相等，放入已经改变的hash对象中
 	    	if (!$H.equals(oPrev[sAttr], val)) {
@@ -4932,14 +4957,14 @@ function(AbstractDao,AbstractEvents){
 	    	bUnset ? delete oCurrent[sAttr] : oCurrent[sAttr] = val;
 	    }
 	    
-	
+		var bHasChange=!$H.isEmpty(oChanges);
 	    //触发对应属性change事件
 	    if (!bSilent) {
-	        if (aChanges.length){
+	        if (bHasChange){
 	        	me._pending = oOptions;
 	        }
-	        for (var i = 0, l = aChanges.length; i < l; i++) {
-	      	    me.trigger('change:' + aChanges[i], me, oCurrent[aChanges[i]], oOptions);
+	        for (var k in oChanges) {
+	      	    me.trigger('change:' + k, me, oCurrent[k], oOptions);
 	        }
 	    }
 	
@@ -4956,6 +4981,11 @@ function(AbstractDao,AbstractEvents){
 	    }
 	    me._pending = false;
 	    me._changing = false;
+	    //处理依赖属性
+	    if(bHasChange){
+		    me._doDepends(oChanges,bSilent);
+	    }
+	    
 	    return me;
     }
     /**
@@ -6001,7 +6031,7 @@ $Define("CM.AbstractManager", function() {
 	 */
 	function fGenerateId(sCid,bNotChk){
 		var me=this;
-		var sId=$H.expando+"_"+me.type+"_"+(sCid||$H.uuid());
+		var sId=$H.expando+"-"+me.type+"-"+(sCid||$H.uuid());
 		if(bNotChk!=true&&me._all[sId]){
 			$D.error('id重复:'+sId);
 		}else{
@@ -6459,7 +6489,9 @@ function(Template,AbstractView,Model,Collection){
 		'each'     : fEach,
 		getValue   : fGetValue,
 		parseValue : fParseValue,
-		bindAttr   : fBindAttr
+		bindAttr   : fBindAttr,
+		input      : fInput,
+		textarea   : fTextarea
 	});
 	
 	var _bIfPlusJoin=Template.getIfPlusJoin();
@@ -6620,20 +6652,21 @@ function(Template,AbstractView,Model,Collection){
 	 * value="value"，如果value的值为my value，输出value="my value"；
 	 * isRed?red:green，如果isRed为真，输出red，否则输出green
 	 * @param {string}sExp 表达式
-	 * @param {object}oOptions 选项，参数说明同if辅助函数
+	 * @param {object}oOptions 选项，参数说明同if辅助函数，特殊：type表示输入框类型input或textarea
 	 * @return {string} 返回生成的html
 	 */
 	function fBindAttr(sExp,oOptions){
 		var me=oOptions.context,
 		oData=oOptions.data,
 		nNum=oOptions.num,
+		sType=oOptions.type,
 		sMetaId=me.getCid()+'-'+nNum,
 		sId='bindAttr-'+sMetaId,
 		m,
 		result=[],
 		aMatches=[],
 		bBindModel=me.ifBind(nNum,oData),
-		bBindEl=me.ifBind(nNum,oData,true);
+		bBindEl=sType&&me.ifBind(nNum,oData,true);
 		
 		//循环分析表达式，先找出id属性
 		while(m=_oExecAttrs.exec(sExp)){
@@ -6666,7 +6699,12 @@ function(Template,AbstractView,Model,Collection){
 				}
 			}
 			var sVal=aValues.join(' ');
+			//有属性名的绑定
 			if(sAttr){
+				//传递结果值给输入框辅助函数
+				if(sType&&sAttr=='value'){
+					oOptions.value=sVal;
+				}
 				sVal=(m[1]||'')+sVal+m[4];
 			}else if(sVal){
 				//无属性，如：isChk?checked
@@ -6770,6 +6808,27 @@ function(Template,AbstractView,Model,Collection){
 		}
 	}
 	/**
+	 * input框辅助函数，用于生产input
+	 * @param {string}sExp 表达式
+	 * @param {object}oOptions 选项，参数说明同if辅助函数
+	 */
+	function fInput(sExp,oOptions){
+		oOptions.type='input';
+		var sHtml=fBindAttr(sExp,oOptions);
+		return '<input '+sHtml+'/>';
+	}
+	/**
+	 * textarea框辅助函数，用于生产textarea
+	 * @param {string}sExp 表达式
+	 * @param {object}oOptions 选项，参数说明同if辅助函数
+	 */
+	function fTextarea(sExp,oOptions){
+		oOptions.type='textarea';
+		var sHtml=fBindAttr(sExp,oOptions);
+		return '<textarea '+sHtml+'>'+oOptions.value+'</textarea>';
+	}
+	
+	/**
 	 * 初始化
 	 * @method initialize
 	 * @param {Object}oParams 初始化参数
@@ -6841,14 +6900,15 @@ function(Template,AbstractView,Model,Collection){
 	function fGetTmplFn(){
 		var me=this;
 		//编译模板，固定模板的类只需执行一次
-		if(!$H.isFunc(me.tmpl)){
+		var tmpl=me.tmpl,oConstructor=me.constructor;
+		if(!$H.isFunc(tmpl)&&!$H.isFunc(tmpl=oConstructor.tmpl)){
 			me.preTmpl();
-			me.tmpl=me.constructor.prototype.tmpl=$H.tmpl({
+			tmpl=oConstructor.tmpl=$H.tmpl({
 				tmpl:me.tmpl,
 				ns:'ModelView'
 			});
 		}
-		return me.tmpl;
+		return me.tmpl=tmpl;
 	}
 	/**
 	 * 初始化html
@@ -6977,6 +7037,7 @@ function(ViewManager,ModelView,Model,Template){
 //		hideMode            : 'display',         //隐藏方式,'display'|'visibility'
 //		disabled            : false,             //是否禁用
 //		extCls              : '',                //附加class
+//		wrapHtml            : ['<div>','</div>'],//外面包裹的html
 //		notListen           : false,             //不自动初始化监听器
 //		items               : [],                //子视图配置，初始参数可以是对象也可以是对象数组
 ////	lazy                : false,             //保留属性：懒加载，初始化时只设置占位标签，只在调用show方法时进行实际初始化
@@ -7226,9 +7287,9 @@ function(ViewManager,ModelView,Model,Template){
 		}else{
 			me.renderTo=$(document.body);
 		}
-		var oFields=me.xConfig;
+		var oFields=me.xConfig,cModel=me.modelClass;
 		//生成modelclass
-		if(!me.modelClass){
+		if(!cModel&&!(cModel=me.constructor.modelClass)){
 			var clazz
 			if(oFields){
 				clazz=Model.derive({
@@ -7237,7 +7298,7 @@ function(ViewManager,ModelView,Model,Template){
 			}else{
 				clazz=Model;
 			}
-			me.constructor.prototype.modelClass=clazz;
+			cModel=me.constructor.modelClass=clazz;
 		}
 		//初始化xmodel
 		var oAttrs={};
@@ -7247,7 +7308,7 @@ function(ViewManager,ModelView,Model,Template){
 				oAttrs[k]=value;
 			}
 		});
-		me.xmodel=new me.modelClass(oAttrs);
+		me.xmodel=new cModel(oAttrs);
 	}
 	
 	var _oTagReg=/[^<]*(<[a-zA-Z]+)/;
@@ -7259,17 +7320,23 @@ function(ViewManager,ModelView,Model,Template){
 		var me=this;
 		var sId=me.getId();
 		//添加隐藏style，调用show方法时才显示
-		var sStyle;
+		var sStyle,sCls=me.extCls||'';
  		if(me.displayMode=='visibility'){
 			sStyle='visibility:hidden;';
  		}else{
-			sStyle='display:none;';
+			sCls+=' hui-hidden';
  		}
  		var sHtml=me.callSuper();
 		//添加id和style
-		sHtml=sHtml.replace(_oTagReg,'$1 style="'+sStyle+'"');
-		if(me.extCls){
-			sHtml=sHtml.replace(/(class=['"])/,'$1'+me.extCls+' ');
+ 		if(sStyle){
+			sHtml=sHtml.replace(_oTagReg,'$1 style="'+sStyle+'"');
+ 		}
+		if(sCls){
+			sHtml=sHtml.replace(/(class=['"])/,'$1'+sCls+' ');
+		}
+		var aWrapHtml;
+		if(aWrapHtml=me.wrapHtml){
+			sHtml=aWrapHtml[0]+sHtml+aWrapHtml[1];
 		}
 		return me.html=sHtml;
 	}
@@ -7394,7 +7461,8 @@ function(ViewManager,ModelView,Model,Template){
 		if(me.displayMode=='visibility'){
 			oEl.css({visibility:"visible"})
 		}else{
-			oEl.show();
+			//测试组件数目：77，使用show和hide时，组件初始化时间是500ms左右，而使用添加\移除’hui-hidden’的方式时间是170ms左右
+			oEl.removeClass('hui-hidden');
 		}
 		me.callChild([null,true]);
 		me.afterShow();
@@ -7434,7 +7502,7 @@ function(ViewManager,ModelView,Model,Template){
 		if(me.displayMode=='visibility'){
 			oEl.css({visibility:"hidden"})
 		}else{
-			oEl.hide();
+			oEl.addClass('hui-hidden');;
 		}
 		me.trigger('hide');
 		me.afterHide();
@@ -7548,7 +7616,14 @@ function(ViewManager,ModelView,Model,Template){
 	 */
 	function fGet(sKey){
 		var me=this;
-		return me.xmodel.get(sKey);
+		var oConfig=me.xConfig;
+		var value;
+		if(oConfig[sKey]===undefined){
+			value=me[sKey];
+		}else{
+			value=me.xmodel.get(sKey);
+		}
+		return value;
 	}
 	/**
 	 * 设置配置属性
@@ -7557,7 +7632,12 @@ function(ViewManager,ModelView,Model,Template){
 	 */
 	function fSet(sKey,value){
 		var me=this;
-		return me.xmodel.get(sKey);
+		var oConfig=me.xConfig;
+		if(oConfig[sKey]===undefined){
+			me[sKey]=value;
+		}else{
+			me.xmodel.set(sKey,value);
+		}
 	}
 	/**
 	 * 遍历子视图
@@ -7599,7 +7679,8 @@ function(ViewManager,ModelView,Model,Template){
 		if(sSel=="*"){
 			return true;
 		}
-		var o=oObj||this,m,prop,op,value;
+		oObj=oObj||this;
+		var m,prop,op,value,viewVal;
 		//#btn => [cid=tbn]
 		sSel=sSel.replace(/^#([^\s,\[]+)/,'[cid=$1]');
 		//.btn => [cClass=tbn]
@@ -7616,7 +7697,8 @@ function(ViewManager,ModelView,Model,Template){
 			if(value=='false'||value=='true'){
 				value=eval(value);
 			}
-			if(op==="="?o[prop]!=value:o[prop]==value){
+			viewVal=oObj.get?oObj.get(prop):oObj[prop];
+			if(op==="="?viewVal!=value:viewVal==value){
 				return false;
 			}
 		}
@@ -8429,14 +8511,14 @@ function(AC){
 		delayShow       : true,            //延迟显示
 		clickHide       : true,            //是否点击就隐藏
 //		timeout         : null,            //自动隐藏的时间(毫秒)，不指定此值则不自动隐藏
-		showPos         : 'center',        //定位方法名，或者传入自定义定位函数
+		showPos         : 'center',        //定位方法名:center(居中)、followEl(跟随指定元素)、top(顶部)，或者传入自定义定位函数
 		destroyWhenHide : true,            //隐藏时保留对象，不自动销毁，默认弹出层会自动销毁
 //		noMask          : false,           //仅当true时没有遮罩层
 		
 		//组件共有配置
 		shadowOverlay   : true,
 		
-		tmpl            : '<div><%=this.findHtml(">*")%></div>',
+		tmpl            : '<div>{{placeItem}}</div>',
 		
 		doConfig         : fDoConfig,        //初始化配置
 		afterShow        : fAfterShow,       //显示
@@ -8582,7 +8664,7 @@ function(AC){
 	function fFollowEl(oEl){
 		var me=this;
 		var el=oEl||me.parent.getEl();
-		var oPos=el.position();
+		var oPos=$H.position(el[0]);
 		me.getEl().css(oPos);
 	}
 	/**
@@ -8728,7 +8810,7 @@ function(AC){
 	function fGetSelected(bIsIndex){
 		var me=this,aItem=[];
 		me.each(function(i,item){
-			if(item.get('selected')){
+			if(item.get(item.select?'selected':'isActive')){
 				aItem.push(bIsIndex?i:item);
 			}
 		});
@@ -8839,8 +8921,7 @@ function(AC){
 	 * @param {boolean}bSelect 仅当为false时取消选中
 	 */
 	function fSelect(bSelect){
-		var me=this;
-		me.update({selected:!(bSelect==false)});
+		this.update({selected:!(bSelect==false)});
 	}
 	/**
 	 * 获取/设置输入框的值
@@ -8873,20 +8954,20 @@ function(AC){
 	
 	Checkbox.extend({
 		//初始配置
-//		name            : '',                  //选项名
-		text            : '',                  //文字
-		value           : '',                  //选项值
-		selected        : false,               //是否选中
+		xConfig         : {
+			cls             : 'chkbox',            //组件样式名
+			name            : '',                  //选项名
+			text            : '',                  //文字
+			value           : '',                  //选项值
+			selected        : false                //是否选中
+		},
 		multi           : true,                //多选
 		
-		cls             : 'chkbox',            //组件样式名
 		tmpl            : [
-			'<div class="hui-btn hui-btn-gray<%if(this.selected){%> hui-chkbox-on<%}%>">',
+			'<div {{bindAttr class="#hui-btn #hui-btn-gray selected?hui-chkbox-on"}}>',
 				'<span class="hui-icon hui-icon-chkbox"></span>',
-				'<input type="checkbox"<%if(this.selected){%> checked=true<%}%>',
-				'<%if(this.name){%> name="<%=this.name%>"<%}%>',
-				'<%if(this.value){%> value="<%=this.value%>"<%}%>/>',
-				'<span class="hui-chkbox-txt"><%=this.text%></span>',
+				'<input type="checkbox" {{bindAttr selected?checked name="name" value="value"}}/>',
+				'<span class="hui-chkbox-txt">{{text}}</span>',
 			'</div>'
 		].join(''),
 		
@@ -8897,21 +8978,10 @@ function(AC){
 	/**
 	 * 选中
 	 * @method select
-	 * @param {boolean}bSelected 仅当为false时取消选中
+	 * @param {boolean}bSelect 仅当为false时取消选中
 	 */
-	function fSelect(bSelected){
-		var me=this;
-		bSelected=!(bSelected==false);
-		me.selected=bSelected;
-		var oInput=me.findEl('input');
-		var oEl=me.getEl();
-		if(bSelected){
-			oInput.attr("checked",true);
-			oEl.addClass('hui-chkbox-on');
-		}else{
-			oInput.removeAttr("checked");
-			oEl.removeClass('hui-chkbox-on');
-		}
+	function fSelect(bSelect){
+		this.update({selected:!(bSelect==false)});
 	}
 	/**
 	 * 获取/设置输入框的值
@@ -8922,17 +8992,16 @@ function(AC){
 	function fVal(sValue){
 		var me=this;
 		if(sValue){
-			me.value=sValue;
-			me.findEl('input').val(sValue);
+			me.set('value',sValue);
 		}else{
-			return me.value;
+			return me.get('value');
 		}
 	}
 	
 	return Checkbox;
 	
 });/**
- * 图标类
+ * 下拉选择框类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-02-01
  */
@@ -8945,16 +9014,20 @@ function(AC){
 	
 	Select.extend({
 		//初始配置
-//		name            : '',                  //选项名
-		text            : '请选择...',          //为选择时的文字
-		value           : '',                  //默认值
-		radius          : 'little',
+		xConfig         : {
+			cls             : 'select',
+			name            : '',                  //选项名
+			text            : '请选择...',          //为选择时的文字
+			value           : '',                  //默认值
+			radius          : 'little'
+		},
 //		options         : [{text:"文字",value:"值"}],    //选项
 		optionClick     : function(){},
 		defItem         : {
 			xtype       : 'Menu',
 			hidden      : true,
-			markType    : 'dot',
+			markType    : 'hook',
+			showPos     : 'followEl',
 			renderTo    : "body"              //子组件须设置renderTo才会自动render
 		},
 		
@@ -8962,8 +9035,8 @@ function(AC){
 		tmpl            : [
 			'<div class="hui-btn hui-btn-gray hui-btn-icon-right">',
 				'<span class="hui-icon hui-alt-icon hui-icon-carat-d hui-light"></span>',
-				'<input value="<%=this.value%>" name="<%=this.name%>"/>',
-				'<span class="hui-btn-txt js-select-txt"><%=this.text%></span>',
+				'<input {{bindAttr value="value" name="name"}}/>',
+				'<span class="hui-btn-txt js-select-txt">{{text}}</span>',
 			'</div>'
 		].join(''),
 		
@@ -8996,7 +9069,7 @@ function(AC){
 		for(var i=0,len=oOptions.length;i<len;i++){
 			var oOption=oOptions[i];
 			if(oOption.value==oParams.value){
-				me.text=oOption.text;
+				me.set('text',oOption.text);
 				oOption.selected=true;
 				bHasVal=true;
 				break;
@@ -9007,7 +9080,7 @@ function(AC){
 		}
 		me.add({
 			itemClick:function(oButton,nIndex){
-				var sValue=oButton.value;
+				var sValue=oButton.get('value');
 				me.val(sValue);
 			},
 			width:me.width,
@@ -9032,22 +9105,20 @@ function(AC){
 	function fVal(sValue){
 		var me=this;
 		if(sValue){
-			if(me.value!=sValue){
+			if(me.get('value')!=sValue){
 				var oMenu=me.children[0];
 				var oItem=oMenu.find('>[value='+sValue+']');
 				if(oItem.length>0){
 					me.trigger("change");
 					oItem=oItem[0];
-					me.value=sValue;
-					var oSel=me.findEl('input');
-					oSel.attr('value',sValue);
-					me.txt(oItem.text);
+					me.set('value',sValue);
+					me.txt(oItem.get('text'));
 					//更新菜单选中状态
 					oMenu.select(oItem);
 				}
 			}
 		}else{
-			return me.value;
+			return me.get('value');
 		}
 	}
 	
@@ -9067,37 +9138,40 @@ function(AC){
 	
 	Input.extend({
 		//初始配置
-//		type            : '',                  //输入框类型，默认为普通输入框，'search':搜索框，'textarea':textarea输入框
-//		value           : '',                  //默认值
-//		placeholder     : '',                  //placeholder
-//		withClear       : false,               //带有清除按钮
-		radius          : 'little',            //普通圆角
-		iconPos         : 'left',              //图标位置
-		btnPos          : 'right',             //按钮位置
+		xConfig         : {
+			cls             : 'input',
+			isTextarea      : false,               //是否是textarea
+			value           : '',                  //默认值
+			placeholder     : '',                  //placeholder
+			radius          : 'little',            //普通圆角
+			iconPos         : '',                  //图标位置，'left'或'right'
+			btnPos          : '',                  //按钮位置，'left'或'right'
+			iconPosCls      : {
+				depends : ['iconPos'],
+				parse :function(){
+					var sIconPos=this.get('iconPos');
+					return sIconPos?'hui-input-icon-'+sIconPos:'';
+				}
+			},
+			btnPosCls       : {
+				depends : ['btnPos'],
+				parse :function(){
+					var sBtnPos=this.get('btnPos');
+					return sBtnPos?'hui-input-btn-'+sBtnPos:'';
+				}
+			}
+		},
+		type            : '',                  //输入框类型，默认为普通输入框，'search':搜索框
+		withClear       : false,               //带有清除按钮
 		
 		tmpl            : [
-		'<div class="',
-			'<%if(this.hasIcon){%>',
-				' hui-input-icon-<%=this.iconPos%>',
-			'<%}%>',
-			'<%if(this.hasBtn){%>',
-				' hui-input-btn-<%=this.btnPos%>',
-			'<%}%>">',
-			'<%=this.findHtml(">*")%>',
-			'<%if(this.type=="textarea"){%>',
-				'<textarea class="js-input"',
-			'<%}else{%>',
-				'<input type="text" class="js-input hui-input-txt"',
-			'<%}%> ',
-			' name="<%=this.name%>"',
-			'<%if(this.placeholder){%>',
-				' placeholder="<%=this.placeholder%>"',
-			'<%}%>',
-			'<%if(this.type=="textarea"){%>',
-				'><%=this.value%></textarea>',
-			'<%}else{%>',
-				' value="<%=this.value%>"/>',
-			'<%}%> ',
+		'<div {{bindAttr class="iconPosCls btnPosCls"}}>',
+			'{{placeItem}}',
+			'{{#if isTextarea}}',
+				'{{textarea class="#js-input" name="name" placeholder="placeholder" value=value}}',
+			'{{else}}',
+				'{{input type="#text" class="#js-input #hui-input-txt" name="name" placeholder="placeholder" value="value"}}',
+			'{{/if}}',
 		'</div>'].join(''),
 		listeners       : [
 			{
@@ -9132,7 +9206,7 @@ function(AC){
 			me.icon='search';
 		}
 		me.callSuper();
-		if(me.type=="textarea"){
+		if(oSettings.isTextarea){
 			//textarea高度自适应，IE6、7、8支持propertychange事件，input被其他浏览器所支持
 			me.listeners.push({
 				name:'input propertychange',
@@ -9165,10 +9239,15 @@ function(AC){
 	 */
 	function fParseItem(oItem){
 		var me=this;
+		//设置图标/按钮默认位置
 		if(oItem.xtype=="Icon"){
-			me.hasIcon=true;
+			if(!me.get('iconPos')){
+				me.set('iconPos','left');
+			}
 		}else if(oItem.xtype=="Button"){
-			me.hasBtn=true;
+			if(!me.get('btnPos')){
+				me.set('btnPos','right');
+			}
 		}
 	}
 	/**
@@ -9208,13 +9287,31 @@ function(AC){
 	
 	Label.extend({
 		//初始配置
-//		color           : '',      //label字体颜色
-//		textAlign       : '',      //label文字对齐，默认左对齐
+		xConfig         : {
+			cls         : 'label',
+			text        : '',      //label文字
+			color       : '',      //label字体颜色
+			textAlign   : '',      //label文字对齐，默认左对齐
+			forName     : '',      //label的for属性
+			colorCls    : {
+				depends:['color'],
+				parse:function(){
+					var s=this.get('color');
+					return s?'hui-label-'+s:'';
+				}
+			},
+			textAlignCls    : {
+				depends:['textAlign'],
+				parse:function(){
+					var s=this.get('textAlign');
+					return s?'c-txt-'+s:'';
+				}
+			}
+		},
 		
 		tmpl            : [
-			'<label class="',
-				'<%if(this.color){%> hui-label-<%=this.color%><%}%><%if(this.textAlign){%> c-txt-<%=this.textAlign%><%}%>" for="<%=this.forName%>">',
-				'<%=this.text%>',
+			'<label {{bindAttr class="colorCls textAlignCls" for="forName"}}>',
+				'{{text}}',
 			'</label>'
 		].join('')
 		
@@ -9235,18 +9332,20 @@ function(AC){
 	
 	RowItem.extend({
 		//初始配置
-//		text            :'',             //文字
-//		underline       : false,         //右边下划线，文字域默认有下划线
-//		hasArrow        : false,         //右边箭头，有click事件时默认有箭头
-		cls             : 'rowitem',
+		xConfig         : {
+			cls             : 'rowitem',
+			text            :'',             //文字
+			underline       : false,         //右边下划线，文字域默认有下划线
+			hasArrow        : false          //右边箭头，有click事件时默认有箭头
+		},
 		
 		tmpl            : [
-			'<div class="<%if(this.text){%> hui-rowitem-txt<%}%><%if(this.underline){%> hui-rowitem-underline<%}%>">',
-				'<%=this.text%>',
-				'<%=this.findHtml(">*")%>',
-				'<%if(this.hasArrow){%>',
+			'<div {{bindAttr class="text?hui-rowitem-txt underline?hui-rowitem-underline"}}>',
+				'{{text}}',
+				'{{placeItem}}',
+				'{{#if hasArrow}}',
 					'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情"><span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span></a>',
-				'<%}%>',
+				'{{/if}}',
 			'</div>'
 		].join(''),
 		doConfig       : fDoconfig    //初始化配置
@@ -9259,16 +9358,16 @@ function(AC){
 		var me=this;
 		me.callSuper();
 		//空格占位符
-		if(!me.text){
-			me.text="&nbsp;";
+		if(!me.get('text')){
+			me.set('text',"&nbsp;");
 		}
 		//默认文字域有下划线
 		if(me.text&&me.underline===undefined){
-			me.underline=true;
+			me.set('underline',true);
 		}
 		//有点击函数时默认有右箭头
 		if(oSettings.click&&me.hasArrow===undefined){
-			me.hasArrow=true;
+			me.set('hasArrow',true);
 		}
 	}
 	
@@ -9287,14 +9386,16 @@ function(AC){
 	var Set=AC.define('Set');
 	
 	Set.extend({
-		
-//		title           : '',      //标题
+		xConfig         : {
+			cls         : 'set',
+			title       : ''      //标题
+		},
 		
 		tmpl            : [
 			'<div>',
-				'<h1 class="hui-set-title"><%=this.title%></h1>',
+				'<h1 class="hui-set-title">{{title}}</h1>',
 				'<div class="hui-set-content">',
-					'<%=this.findHtml(">*")%>',
+					'{{placeItem}}',
 				'</div>',
 			'</div>'
 		].join('')
@@ -9317,10 +9418,13 @@ function(AC){
 	
 	Field.extend({
 		//初始配置
+		xConfig         : {
+			cls           : 'field',
+			noPadding     : false     //true表示没有上下间隙
+		},
 //		forName         : '',      //label标签for名字
 //		title           : '',      //label文字字符串，或者Label或其它组件的配置项
 //		content         : '',      //右边文字，或组件配置
-//		noPadding       : false,   //true表示没有上下间隙
 		
 		defItem         : {
 			xtype       : 'RowItem',
@@ -9328,12 +9432,12 @@ function(AC){
 		},
 		
 		tmpl            : [
-			'<div class="<%if(this.noPadding){%> hui-field-nopadding<%}%>">',
+			'<div {{bindAttr class="noPadding?hui-field-nopadding"}}>',
 				'<div class="hui-field-left">',
-					'<%=this.findHtml(">[xrole=title]")%>',
+					'{{placeItem >[xrole=title]}}',
 				'</div>',
 				'<div class="hui-field-right">',
-					'<%=this.findHtml(">[xrole=content]")%>',
+					'{{placeItem >[xrole=content]}}',
 				'</div>',
 			'</div>'
 		].join(''),
@@ -9394,12 +9498,15 @@ function(AC){
 	
 	Form.extend({
 		//初始配置
+		xConfig         : {
+			cls         : 'form'
+		},
 		
 		tmpl            : [
 			'<div>',
 				'<form action="">',
 				'<div class="hui-form-tips c-txt-error"></div>',
-					'<%=this.findHtml(">*")%>',
+					'{{placeItem}}',
 				'</form>',
 			'</div>'
 		].join('')
@@ -9425,23 +9532,27 @@ function(AC,Panel){
 	
 	TabItem.extend({
 		//初始配置
+		xConfig         : {
+			cls             : 'tabitem',
+			extCls          : 'js-item'
+		},
+//		selected        : false,
 //		title           : ''|{},        //顶部按钮，可以字符串，也可以是Button的配置项
 //		content         : null,         //标签内容，可以是html字符串，也可以是组件配置项
 //		activeType      : '',           //激活样式类型，
+		wrapHtml    : ['<li class="hui-tab-item">','</li>'],
 		defItem         : {             //默认子组件是Button
 			xtype       : 'Button',
 			xrole       : 'title',
 			radius      : null,
 			isInline    : false,
-			iconPos     : 'top',
 			shadow      : false
 		},
-		extCls          : 'js-item',
 		
 		//属性
 //		titleCmp        : null,         //标题组件
-//		content         : null,         //内容组件
-		tmpl            : '<div><%=this.findHtml(">[xrole=title]")%></div>',
+//		contentCmp      : null,         //内容组件
+		tmpl            : '<div>{{placeItem >[xrole=title]}}</div>',
 		initialize      : fInitialize,  //初始化
 		doConfig        : fDoConfig,    //初始化配置
 		parseItem       : fParseItem,   //分析处理子组件
@@ -9488,19 +9599,22 @@ function(AC,Panel){
 			});
 			me.add(content);
 		}
-		//默认选中样式
-		if(me.activeType){
-			me.defItem.activeCls='hui-btn-active-'+me.activeType;
-		}
 	}
 	/**
 	 * 分析处理子组件
-	 * @method parseItem
+	 * @param {object}oItem 子组件配置
 	 */
 	function fParseItem(oItem){
 		var me=this;
 		if(me.selected&&oItem.xrole=="title"){
 			oItem.isActive=true;
+		}
+		if(oItem.icon&&oItem.iconPos===undefined){
+			oItem.iconPos='top';
+		}
+		//默认选中样式
+		if(me.activeType){
+			oItem.activeCls='hui-btn-active-'+me.activeType;
 		}
 	}
 	/**
@@ -9514,9 +9628,11 @@ function(AC,Panel){
 		if(bSelect==false){
 			oTitle.unactive();
 			oContent&&oContent.hide();
+			me.set('selected',false);
 		}else{
 			oTitle.active();
 			oContent&&oContent.show();
+			me.set('selected',true);
 		}
 	}
 	/**
@@ -9563,9 +9679,12 @@ function(AC,TabItem,ControlGroup){
 	
 	Tab.extend({
 		//初始配置
+		xConfig         : {
+			cls             : 'tab'
+//			theme           : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
+			
+		},
 //		activeType      : '',           //激活样式类型，
-//		theme           : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
-		cls             : 'tab',
 		defItem         : {             //默认子组件是TabItem
 //			content     : '',           //tab内容
 			xtype       : 'TabItem'
@@ -9582,33 +9701,28 @@ function(AC,TabItem,ControlGroup){
 		tmpl            : [
 			'<div>',
 				'<ul class="js-tab-btns c-clear">',
-					'<%var aBtns=this.find(">TabItem");',
-					'for(var i=0,len=aBtns.length;i<len;i++){%>',
-						'<li class="hui-tab-item">',
-						'<%=aBtns[i].getHtml()%>',
-						'</li>',
-					'<%}%>',
+					'{{placeItem >TabItem}}',
 				'</ul>',
-				'<%=this.findHtml(">TabItem>[xrole=content]")%>',
+				'{{placeItem >TabItem>[xrole=content]}}',
 			'</div>'
 		].join(''),
 		
-		doConfig        : fDoConfig,           //初始化配置
+		parseItem       : fParseItem,          //分析处理子组件 
 		layout          : fLayout,             //布局
-//		add             : fAdd,                //添加子组件
 		setTabContent   : fSetTabContent       //设置标签页内容
 	});
 	/**
-	 * 初始化配置
-	 * @param {Object}oSettings
+	 * 分析处理子组件
+	 * @method parseItem
+	 * @param {object}oItem 子组件配置
 	 */
-	function fDoConfig(oSettings){
+	function fParseItem(oItem){
 		var me=this;
-		me.callSuper();
 		//默认选中样式
 		if(me.activeType){
-			me.defItem.activeType=me.activeType;
+			oItem.activeType=me.activeType;
 		}
+		me.callSuper();
 	}
 	/**
 	 * 布局
@@ -9624,24 +9738,6 @@ function(AC,TabItem,ControlGroup){
 				el.style.width=(100-width*(nLen-1))+'%';
 			}
 		});
-	}
-	/**
-	 * 添加标签项
-	 * @param {object|Array}item 标签项对象或标签项配置或数组
-	 * @param {number=}nIndex 指定添加的索引，默认添加到最后
-	 * @return {?Component} 添加的标签项只有一个时返回标签项对象，参数是数组时返回空
-	 */
-	function fAdd(item,nIndex){
-		var me=this;
-		if(me._applyArray()){
-			return;
-		}
-		if(me.inited){
-			var oUl=me.findEl('.js-tab-btns');
-			var oRenderTo=$('<li class="hui-tab-item"></li>').appendTo(oUl);
-			item.renderTo=oRenderTo;
-		}
-		me.callSuper();
 	}
 	/**
 	 * 设置标签页内容
@@ -9670,18 +9766,21 @@ function(AC){
 	
 	Toolbar.extend({
 		//初始配置
-//		title            : '',                  //标题
-		cls              : 'tbar',
-//		type             : null,                //null|'header'|'footer'
+		xConfig          : {
+			cls              : 'tbar',
+			title            : '',                  //标题
+			isHeader         : false,
+			isFooter         : false           
+		},
 		defItem          : {
 			xtype        : 'Button',
 			theme        : 'black'
 		},
 		
 		tmpl             : [
-			'<div class="<%if(this.type=="header"){%> hui-header<%}else if(this.type=="footer"){%> hui-footer<%}%>">',
-				'<%=this.findHtml(">*")%>',
-				'<%if(this.title){%><h1 class="hui-tbar-title js-tbar-txt"><%=this.title%></h1><%}%>',
+			'<div {{bindAttr class="isHeader?hui-header isFooter?hui-footer"}}>',
+				'{{placeItem}}',
+				'{{#if title}}<h1 class="hui-tbar-title js-tbar-txt">{{title}}</h1>{{/if}}',
 			'</div>'
 		].join(''),
 		
@@ -9722,18 +9821,20 @@ function(AC,Popup,ControlGroup){
 	
 	Tips.extend({
 		//初始配置
-//		text            : '',
+		xConfig         : {
+			cls             : 'tips',
+			text            : '',
+			radius          : 'normal',
+			tType           : 'big',
+			theme           : 'black'
+		},
 //		type            : 'miniLoading',            类型，‘loading’表示居中加载中提示，‘topTips’表示顶部简单提示，‘miniLoading’表示顶部无背景loading小提示
-		cls             : 'tips',
-		tType           : 'big',
-		theme           : 'black',
 		timeout         : 1000,
-		radius          : 'normal',
 		
 		tmpl            : [
-			'<div class="<%if(!this.text){%> hui-tips-notxt<%}%>">',
-				'<%=this.findHtml(">*")%>',
-				'<%if(this.text){%><span class="hui-tips-txt"><%=this.text%></span><%}%>',
+			'<div {{bindAttr class="text:hui-tips-notxt"}}>',
+				'{{placeItem}}',
+				'{{#if text}}<span class="hui-tips-txt">{{text}}</span>{{/if}}',
 			'</div>'
 		].join(''),
 		doConfig        : fDoConfig     //初始化配置
@@ -9808,41 +9909,44 @@ function(AC,Popup){
 	Dialog.extend({
 		
 		//对话框初始配置
+		xConfig         : {
+			cls             : 'dialog',
+			radius          : 'little',
+			content         : '',         //html内容，传入此值时将忽略contentTitle和contentMsg
+			contentTitle    : '',         //内容框的标题
+			contentMsg      : ''          //内容框的描述
+		},
 //		title           : '',             //标题
 //		noClose         : false,          //true时没有close图标
-//		content         : '',             //html内容，传入此值时将忽略contentTitle和contentMsg
-//		contentTitle    : '',             //内容框的标题
-//		contentMsg      : '',             //内容框的描述
 //		noAction        : false,          //true时没有底部按钮
 //		noOk            : false,          //true时没有确定按钮
 //		noCancel        : false,          //true时没有取消按钮
-		okTxt           : '确定',          //确定按钮文字
-		cancelTxt       : '取消',          //取消按钮文字
-//		activeBtn       : null,           //为按钮添加激活样式，1表示左边，2表示右边
-//		okCall          : function(){},   //确定按钮事件函数
-//		cancelCall      : function(){},   //取消按钮事件函数
+		okTxt           : '确定',         //确定按钮文字
+		cancelTxt       : '取消',         //取消按钮文字
+//		activeBtn       : null,          //为按钮添加激活样式，1表示左边，2表示右边
+//		okCall          : function(){},  //确定按钮事件函数
+//		cancelCall      : function(){},  //取消按钮事件函数
 		
 		clickHide       : false,          //点击不隐藏
 		
-		//组件共有配置
-		radius          : 'little',
-		
 		tmpl            : [
 			'<div>',
-				'<%=this.findHtml(">[xrole=dialog-header]")%>',
+				'{{placeItem >[xrole=dialog-header]}}',
 				'<div class="hui-dialog-body">',
-					'<%if(this.content){%><%=this.content%><%}else{%>',
+					'{{#if content}}',
+						'{{content}}',
+					'{{else}}',
 						'<div class="hui-body-content">',
-							'<h1 class="hui-content-title"><%=this.contentTitle%></h1>',
-							'<div class="hui-content-msg"><%=this.contentMsg%></div>',
-							'<%=this.findHtml(">[xrole=dialog-content]")%>',
+							'<h1 class="hui-content-title">{{contentTitle}}</h1>',
+							'<div class="hui-content-msg">{{contentMsg}}</div>',
+							'{{placeItem >[xrole=dialog-content]}}',
 						'</div>',
-					'<%}%>',
-					'<%if(!this.noAction){%>',
+					'{{/if}}',
+					'{{#unless noAction}}',
 						'<div class="hui-body-action">',
-						'<%=this.findHtml(">[xrole=dialog-action]")%>',
+						'{{placeItem >[xrole=dialog-action]}}',
 						'</div>',
-					'<%}%>',
+					'{{/unless}}',
 				'</div>',
 			'</div>'
 		].join(''),
@@ -9995,47 +10099,43 @@ function(AC,Popup,ControlGroup){
 	Menu.extend(ControlGroup.prototype);
 	
 	Menu.extend({
-		//初始配置
-//		markType        : null,         //选中的标记类型，默认不带选中效果，'active'是组件active效果，'dot'是点选效果
-		notDestroy      : true,
-		cls             : 'menu',
-		
-		tmpl            : [
-			'<div class="<%if(this.markType=="dot"){%> hui-menu-mark<%}%>">',
-				'<ul>',
-					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
-						'<li class="hui-menu-item<%if(this.children[i].selected){%> hui-item-mark<%}%>">',
-							'<%=this.children[i].getHtml()%>',
-							'<%if(this.markType=="dot"){%><span class="hui-icon-mark"></span><%}%>',
-						'</li>',
-					'<%}%>',
-				'</ul>',
-			'</div>'
-		].join(''),
-		
-		selectItem      : fSelectItem         //选中/取消选中
+		xConfig         : {
+			cls              : 'menu'
+		},
+		markType         : null,         //选中的标记类型，默认不带选中效果，'active'是组件active效果，'hook'是勾选效果
+		destroyWhenHide  : false,
+		//默认子组件配置
+		defItem          : {
+			xtype            : 'Button',
+			radius           : null,
+			shadow           : false,
+//			selected         : false,             //是否选中
+			isInline         : false
+		},
+		tmpl            : '<div {{bindAttr class="directionCls"}}>{{placeItem}}</div>',
+		parseItem       : fParseItem         //分析子组件配置
 	});
 	
 	/**
-	 * 选中/取消选中
-	 * @method selectItem
-	 * @param {Component}oItem 要操作的组件
-	 * @param {boolean=}bSelect 仅当为false时表示移除选中效果
+	 * 分析子组件配置
+	 * @param {object}oItem 子组件配置
 	 */
-	function fSelectItem(oItem,bSelect){
+	function fParseItem(oItem){
 		var me=this;
-		bSelect=bSelect!=false;
-		//优先使用配置的效果
-		if(me.markType=="dot"){
-			oItem.selected=bSelect;
-			var oLi=oItem.getEl().parent();
-			oLi[bSelect==false?"removeClass":"addClass"]('hui-item-mark');
-		}else if(me.markType=='active'){
-			ControlGroup.prototype.selectItem.call(me,oItem,bSelect);
-		}else{
-			//无选中效果
-			oItem.selected=bSelect;
+		ControlGroup.prototype.parseItem.call(me,oItem);
+		var sType=me.markType;
+		if(!sType){
+			me.notSelect=true;
+		}else if(sType=='hook'){
+			oItem.items={
+				name:'check',
+				isAlt:true,
+				hasBg:false
+			};
+			oItem.iconPos='left';
+			oItem.activeCls='hui-item-select';
 		}
+		oItem.isActive=oItem.selected;
 	}
 	
 	return Menu;
@@ -10046,43 +10146,67 @@ function(AC,Popup,ControlGroup){
  */
 
 $Define('C.Hcard',
-'C.AbstractComponent',
-function(AC){
+['C.AbstractComponent',
+'CM.Model',
+'CM.Collection'],
+function(AC,Model,Collection){
 	
 	var Hcard=AC.define('Hcard');
 	
 	Hcard.extend({
 		//初始配置
-//		image    : '',    //图片
-//		title    : '',    //标题
-//		desc     : [],    //描述，可以是单个配置也可以是配置数组{icon:图标,text:文字}
-//		hasArrow : false, //是否有右边箭头，有点击函数时默认有右箭头
+		xConfig  : {
+			cls      : 'hcard',
+			image    : '',    //图片
+			title    : '',    //标题
+			hasArrow : false, //是否有右边箭头，有点击函数时默认有右箭头
+			desc     : null,    //描述，可以是单个配置也可以是配置数组{icon:图标,text:文字}
+			descs    : {
+				depends:['desc'],
+				type : Collection.derive({
+					model : Model.derive({
+						fields:{
+							iconCls : {
+								depends:['icon'],
+								parse:function(){
+									var sIcon=this.get('icon');
+									return sIcon?'hui-icon-'+sIcon:'';
+								}
+							}
+						}
+					})
+				}),
+				parse  : function(){
+					var desc=this.get('desc');
+					return desc?$H.isArr(desc)?desc:[desc]:desc;
+				}
+			}
+		},
 		
 		tmpl     : [
-			'<div class="hui-hcard',
-				'<%if(this.image){%> hui-hcard-hasimg">',
+			'<div {{bindAttr class="image?hui-hcard-hasimg"}}>',
+				'{{#if image}}',
 					'<div class="hui-hcard-img">',
-						'<img src="<%=this.image%>">',
+						'<img {{bindAttr src="image"}}>',
 					'</div>',
-				'<%}else{%>',
-				'"><%}%>',
+				'{{/if}}',
 				'<div class="hui-hcard-content">',
-					'<div class="hui-content-title"><%=this.title%></div>',
-					'<%var aDesc=this.desc;aDesc=$H.isArr(aDesc)?aDesc:[aDesc];for(var i=0;i<aDesc.length;i++){%>',
+					'<div class="hui-content-title">{{title}}</div>',
+					'{{#each descs}}',
 						'<div class="hui-content-desc">',
-							'<%var icon;if(icon=aDesc[i].icon){%>',
-							'<span class="hui-icon hui-mini hui-alt-icon hui-icon-<%=icon%> hui-light"></span>',
-							'<%}%>',
-							'<%=aDesc[i].text%>',
+							'{{#if icon}}',
+								'<span {{bindAttr class="#hui-icon #hui-mini #hui-alt-icon iconCls #hui-light"}}></span>',
+							'{{/if}}',
+							'{{text}}',
 						'</div>',
-					'<%}%>',
+					'{{/each}}',
 				'</div>',
-				'<%=this.findHtml(">*")%>',
-				'<%if(this.hasArrow){%>',
+				'{{placeItem}}',
+				'{{#if hasArrow}}',
 					'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情">',
 						'<span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span>',
 					'</a>',
-				'<%}%>',
+				'{{/if}}',
 			'</div>'
 		].join(''),
 		doConfig       : fDoconfig    //初始化配置
@@ -10115,22 +10239,25 @@ function(AC){
 	
 	Vcard.extend({
 		//初始配置
-//		image        : '',    //图片
-//		title        : '',    //标题
-//		extraTitle   : '',    //标题右边文字
+		xConfig      : {
+			cls          : 'vcard',
+			image        : '',    //图片
+			title        : '',    //标题
+			extraTitle   : ''     //标题右边文字
+		},
 		
 		tmpl         : [
-			'<div class="hui-vcard">',
+			'<div>',
 				'<div class="hui-vcard-title hui-title-hasimg c-clear">',
 					'<div class="hui-title-img">',
-						'<img alt="" src="<%=this.image%>">',
+						'<img {{bindAttr src="image"}}>',
 					'</div>',
-					'<div class="hui-title-txt"><%=this.title%></div>',
-					'<div class="hui-title-extra"><%=this.extraTitle%></div>',
+					'<div class="hui-title-txt">{{title}}</div>',
+					'<div class="hui-title-extra">{{extraTitle}}</div>',
 				'</div>',
-				'<%=this.findHtml(">[xrole!=action]")%>',
+				'{{placeItem >[xrole!=action]}}',
 				'<div class="hui-vcard-action">',
-					'<%=this.findHtml(">[xrole=action]")%>',
+					'{{placeItem >[xrole=action]}}',
 				'</div>',
 			'</div>'
 		].join(''),
@@ -10172,11 +10299,15 @@ function(AC){
 	var ModelList=AC.define('ModelList');
 	
 	ModelList.extend({
-		emptyTips   : '暂无结果',         //空列表提示
-		pdText      : '下拉可刷新',       //下拉刷新提示文字
-		pdComment   : '上次刷新时间：',    //下拉刷新附加说明
-//		pdTime      : '',                //上次刷新时间
-//		hasPullRefresh : false,          //是否有下拉刷新
+		xConfig     : {
+			cls         : 'mlist',
+			isEmpty     : false,             //列表是否为空
+			emptyTips   : '暂无结果',         //空列表提示
+			pdText      : '下拉可刷新',       //下拉刷新提示文字
+			pdComment   : '上次刷新时间：',    //下拉刷新附加说明
+			pdTime      : '',                //上次刷新时间
+			hasPullRefresh : false           //是否有下拉刷新
+		},
 //		itemXtype   : '',                //子组件默认xtype
 //		refresh     : null,              //刷新接口
 //		getMore     : null,              //获取更多接口
@@ -10184,27 +10315,34 @@ function(AC){
 		tmpl        : [
 			'<div class="hui-list">',
 				'<div class="hui-list-inner">',
-					'<div<%if(this.children.length>0){%> style="display:none"<%}%> class="hui-list-empty js-empty"><%=this.emptyTips%></div>',
-					'<%if(this.hasPullRefresh){%>',
+					'{{#if isEmpty}}',
+						'<div class="hui-list-empty js-empty">{{emptyTips}}/div>',
+					'{{/if}}',
+					'{{#if hasPullRefresh}}',
 						'<div class="hui-list-pulldown hui-pd-pull c-h-middle-container">',
 							'<div class="c-h-middle">',
 								'<span class="hui-icon hui-alt-icon hui-icon-arrow-d hui-light"></span>',
 								'<span class="hui-icon hui-alt-icon hui-icon-loading-mini"></span>',
 								'<div class="hui-pd-txt">',
-									'<%if(this.pdText){%><div class="js-txt"><%=this.pdText%></div><%}%>',
-									'<%if(this.pdComment){%><div class="js-comment hui-pd-comment"><span class="js-pdComment"><%=this.pdComment%></span><span class="js-pdTime"><%=this.pdTime%></span></div><%}%>',
+									'{{#if pdText}}<div class="js-txt">{{pdText}}</div>{{/if}}',
+									'{{#if pdComment}}',
+										'<div class="js-comment hui-pd-comment">',
+										'<span class="js-pdComment">{{pdComment}}</span>',
+										'<span class="js-pdTime">{{pdTime}}</span>',
+										'</div>',
+									'{{/if}}',
 								'</div>',
 							'</div>',
 						'</div>',
-					'<%}%>',
-					'<div class="js-item-container"><%=this.findHtml(">*")%></div>',
-					'<%if(this.hasPullRefresh){%>',
+					'{{/if}}',
+					'<div class="js-item-container">{{placeItem}}</div>',
+					'{{#if hasPullRefresh}}',
 						'<div class="hui-list-more">',
 							'<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-shadow hui-inline hui-radius-normal">',
 								'<span class="hui-btn-txt">查看更多</span>',
 							'</a>',
 						'</div>',
-					'<%}%>',
+					'{{/if}}',
 				'</div>',
 			'</div>'
 		].join(''),
@@ -10247,7 +10385,6 @@ function(AC){
 					var me=this;
 					var oWrapper=me.getEl();
 					var oPdEl=oWrapper.find('.hui-list-pulldown');
-					var oPdTxt=oPdEl.find('.js-txt');
 					var nStartY=50;
 					var sRefreshCls='hui-pd-refresh';
 					var sReleaseCls='hui-pd-release';
@@ -10257,24 +10394,24 @@ function(AC){
 						onRefresh: function () {
 							if(oPdEl.hasClass(sRefreshCls)){
 				                oPdEl.removeClass(sRefreshCls+' '+sReleaseCls);  
-				                oPdTxt.html('下拉可刷新');  
+				                me.set('pdText','下拉可刷新');  
 							}
 						},
 						onScrollMove: function () {
 							if (this.y > 5 && !oPdEl.hasClass(sReleaseCls)) {  
 				                oPdEl.addClass(sReleaseCls);  
-				                oPdTxt.html('松开可刷新');  
+				                me.set('pdText','松开可刷新');  
 								this.minScrollY = 0;
 				            } else if (this.y < 5 && oPdEl.hasClass(sReleaseCls)) {  
 				                oPdEl.removeClass(sReleaseCls);;  
-				                oPdTxt.html('下拉可刷新'); 
+				                me.set('pdText','下拉可刷新'); 
 								this.minScrollY = -nStartY;
 				            } 
 						},
 						onScrollEnd: function () {
 							if (oPdEl.hasClass(sReleaseCls)) {  
 				                oPdEl.addClass(sRefreshCls);  
-				                oPdTxt.html('正在刷新'); 
+				                me.set('pdText','正在刷新'); 
 				                me.refresh();
 				            }
 						}
@@ -10312,12 +10449,9 @@ function(AC){
 	 */
 	function fAddListItem(oListItem){
 		var me=this;
-		if(me.inited){
-			me.findEl(".js-empty").hide();
-		}
+		me.set('isEmpty',false);
 		me.add({
-			model:oListItem,
-			renderTo:'>.js-item-container'
+			model:oListItem
 		});
 	}
 	/**
@@ -10334,7 +10468,7 @@ function(AC){
 			});
 		}
 		if(me.children.length==0){
-			me.findEl(".js-empty").show();
+			me.set('isEmpty',true);;
 		}
 	}
 	/**

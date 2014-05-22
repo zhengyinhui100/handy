@@ -11,18 +11,20 @@ function(AC){
 	
 	RowItem.extend({
 		//初始配置
-//		text            :'',             //文字
-//		underline       : false,         //右边下划线，文字域默认有下划线
-//		hasArrow        : false,         //右边箭头，有click事件时默认有箭头
-		cls             : 'rowitem',
+		xConfig         : {
+			cls             : 'rowitem',
+			text            :'',             //文字
+			underline       : false,         //右边下划线，文字域默认有下划线
+			hasArrow        : false          //右边箭头，有click事件时默认有箭头
+		},
 		
 		tmpl            : [
-			'<div class="<%if(this.text){%> hui-rowitem-txt<%}%><%if(this.underline){%> hui-rowitem-underline<%}%>">',
-				'<%=this.text%>',
-				'<%=this.findHtml(">*")%>',
-				'<%if(this.hasArrow){%>',
+			'<div {{bindAttr class="text?hui-rowitem-txt underline?hui-rowitem-underline"}}>',
+				'{{text}}',
+				'{{placeItem}}',
+				'{{#if hasArrow}}',
 					'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情"><span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span></a>',
-				'<%}%>',
+				'{{/if}}',
 			'</div>'
 		].join(''),
 		doConfig       : fDoconfig    //初始化配置
@@ -35,16 +37,16 @@ function(AC){
 		var me=this;
 		me.callSuper();
 		//空格占位符
-		if(!me.text){
-			me.text="&nbsp;";
+		if(!me.get('text')){
+			me.set('text',"&nbsp;");
 		}
 		//默认文字域有下划线
 		if(me.text&&me.underline===undefined){
-			me.underline=true;
+			me.set('underline',true);
 		}
 		//有点击函数时默认有右箭头
 		if(oSettings.click&&me.hasArrow===undefined){
-			me.hasArrow=true;
+			me.set('hasArrow',true);
 		}
 	}
 	

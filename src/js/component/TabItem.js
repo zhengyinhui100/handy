@@ -15,23 +15,27 @@ function(AC,Panel){
 	
 	TabItem.extend({
 		//初始配置
+		xConfig         : {
+			cls             : 'tabitem',
+			extCls          : 'js-item'
+		},
+//		selected        : false,
 //		title           : ''|{},        //顶部按钮，可以字符串，也可以是Button的配置项
 //		content         : null,         //标签内容，可以是html字符串，也可以是组件配置项
 //		activeType      : '',           //激活样式类型，
+		wrapHtml    : ['<li class="hui-tab-item">','</li>'],
 		defItem         : {             //默认子组件是Button
 			xtype       : 'Button',
 			xrole       : 'title',
 			radius      : null,
 			isInline    : false,
-			iconPos     : 'top',
 			shadow      : false
 		},
-		extCls          : 'js-item',
 		
 		//属性
 //		titleCmp        : null,         //标题组件
-//		content         : null,         //内容组件
-		tmpl            : '<div><%=this.findHtml(">[xrole=title]")%></div>',
+//		contentCmp      : null,         //内容组件
+		tmpl            : '<div>{{placeItem >[xrole=title]}}</div>',
 		initialize      : fInitialize,  //初始化
 		doConfig        : fDoConfig,    //初始化配置
 		parseItem       : fParseItem,   //分析处理子组件
@@ -78,19 +82,22 @@ function(AC,Panel){
 			});
 			me.add(content);
 		}
-		//默认选中样式
-		if(me.activeType){
-			me.defItem.activeCls='hui-btn-active-'+me.activeType;
-		}
 	}
 	/**
 	 * 分析处理子组件
-	 * @method parseItem
+	 * @param {object}oItem 子组件配置
 	 */
 	function fParseItem(oItem){
 		var me=this;
 		if(me.selected&&oItem.xrole=="title"){
 			oItem.isActive=true;
+		}
+		if(oItem.icon&&oItem.iconPos===undefined){
+			oItem.iconPos='top';
+		}
+		//默认选中样式
+		if(me.activeType){
+			oItem.activeCls='hui-btn-active-'+me.activeType;
 		}
 	}
 	/**
@@ -104,9 +111,11 @@ function(AC,Panel){
 		if(bSelect==false){
 			oTitle.unactive();
 			oContent&&oContent.hide();
+			me.set('selected',false);
 		}else{
 			oTitle.active();
 			oContent&&oContent.show();
+			me.set('selected',true);
 		}
 	}
 	/**

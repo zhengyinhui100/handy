@@ -38,8 +38,7 @@ function(AC){
 	 * @param {boolean}bSelect 仅当为false时取消选中
 	 */
 	function fSelect(bSelect){
-		var me=this;
-		me.update({selected:!(bSelect==false)});
+		this.update({selected:!(bSelect==false)});
 	}
 	/**
 	 * 获取/设置输入框的值

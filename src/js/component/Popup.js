@@ -17,14 +17,14 @@ function(AC){
 		delayShow       : true,            //延迟显示
 		clickHide       : true,            //是否点击就隐藏
 //		timeout         : null,            //自动隐藏的时间(毫秒)，不指定此值则不自动隐藏
-		showPos         : 'center',        //定位方法名，或者传入自定义定位函数
+		showPos         : 'center',        //定位方法名:center(居中)、followEl(跟随指定元素)、top(顶部)，或者传入自定义定位函数
 		destroyWhenHide : true,            //隐藏时保留对象，不自动销毁，默认弹出层会自动销毁
 //		noMask          : false,           //仅当true时没有遮罩层
 		
 		//组件共有配置
 		shadowOverlay   : true,
 		
-		tmpl            : '<div><%=this.findHtml(">*")%></div>',
+		tmpl            : '<div>{{placeItem}}</div>',
 		
 		doConfig         : fDoConfig,        //初始化配置
 		afterShow        : fAfterShow,       //显示
@@ -170,7 +170,7 @@ function(AC){
 	function fFollowEl(oEl){
 		var me=this;
 		var el=oEl||me.parent.getEl();
-		var oPos=el.position();
+		var oPos=$H.position(el[0]);
 		me.getEl().css(oPos);
 	}
 	/**

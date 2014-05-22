@@ -16,47 +16,43 @@ function(AC,Popup,ControlGroup){
 	Menu.extend(ControlGroup.prototype);
 	
 	Menu.extend({
-		//初始配置
-//		markType        : null,         //选中的标记类型，默认不带选中效果，'active'是组件active效果，'dot'是点选效果
-		notDestroy      : true,
-		cls             : 'menu',
-		
-		tmpl            : [
-			'<div class="<%if(this.markType=="dot"){%> hui-menu-mark<%}%>">',
-				'<ul>',
-					'<%for(var i=0,len=this.children.length;i<len;i++){%>',
-						'<li class="hui-menu-item<%if(this.children[i].selected){%> hui-item-mark<%}%>">',
-							'<%=this.children[i].getHtml()%>',
-							'<%if(this.markType=="dot"){%><span class="hui-icon-mark"></span><%}%>',
-						'</li>',
-					'<%}%>',
-				'</ul>',
-			'</div>'
-		].join(''),
-		
-		selectItem      : fSelectItem         //选中/取消选中
+		xConfig         : {
+			cls              : 'menu'
+		},
+		markType         : null,         //选中的标记类型，默认不带选中效果，'active'是组件active效果，'hook'是勾选效果
+		destroyWhenHide  : false,
+		//默认子组件配置
+		defItem          : {
+			xtype            : 'Button',
+			radius           : null,
+			shadow           : false,
+//			selected         : false,             //是否选中
+			isInline         : false
+		},
+		tmpl            : '<div {{bindAttr class="directionCls"}}>{{placeItem}}</div>',
+		parseItem       : fParseItem         //分析子组件配置
 	});
 	
 	/**
-	 * 选中/取消选中
-	 * @method selectItem
-	 * @param {Component}oItem 要操作的组件
-	 * @param {boolean=}bSelect 仅当为false时表示移除选中效果
+	 * 分析子组件配置
+	 * @param {object}oItem 子组件配置
 	 */
-	function fSelectItem(oItem,bSelect){
+	function fParseItem(oItem){
 		var me=this;
-		bSelect=bSelect!=false;
-		//优先使用配置的效果
-		if(me.markType=="dot"){
-			oItem.selected=bSelect;
-			var oLi=oItem.getEl().parent();
-			oLi[bSelect==false?"removeClass":"addClass"]('hui-item-mark');
-		}else if(me.markType=='active'){
-			ControlGroup.prototype.selectItem.call(me,oItem,bSelect);
-		}else{
-			//无选中效果
-			oItem.selected=bSelect;
+		ControlGroup.prototype.parseItem.call(me,oItem);
+		var sType=me.markType;
+		if(!sType){
+			me.notSelect=true;
+		}else if(sType=='hook'){
+			oItem.items={
+				name:'check',
+				isAlt:true,
+				hasBg:false
+			};
+			oItem.iconPos='left';
+			oItem.activeCls='hui-item-select';
 		}
+		oItem.isActive=oItem.selected;
 	}
 	
 	return Menu;

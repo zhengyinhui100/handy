@@ -12,12 +12,15 @@ function(AC){
 	
 	Form.extend({
 		//初始配置
+		xConfig         : {
+			cls         : 'form'
+		},
 		
 		tmpl            : [
 			'<div>',
 				'<form action="">',
 				'<div class="hui-form-tips c-txt-error"></div>',
-					'<%=this.findHtml(">*")%>',
+					'{{placeItem}}',
 				'</form>',
 			'</div>'
 		].join('')

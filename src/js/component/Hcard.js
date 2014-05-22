@@ -4,43 +4,67 @@
  */
 
 $Define('C.Hcard',
-'C.AbstractComponent',
-function(AC){
+['C.AbstractComponent',
+'CM.Model',
+'CM.Collection'],
+function(AC,Model,Collection){
 	
 	var Hcard=AC.define('Hcard');
 	
 	Hcard.extend({
 		//初始配置
-//		image    : '',    //图片
-//		title    : '',    //标题
-//		desc     : [],    //描述，可以是单个配置也可以是配置数组{icon:图标,text:文字}
-//		hasArrow : false, //是否有右边箭头，有点击函数时默认有右箭头
+		xConfig  : {
+			cls      : 'hcard',
+			image    : '',    //图片
+			title    : '',    //标题
+			hasArrow : false, //是否有右边箭头，有点击函数时默认有右箭头
+			desc     : null,    //描述，可以是单个配置也可以是配置数组{icon:图标,text:文字}
+			descs    : {
+				depends:['desc'],
+				type : Collection.derive({
+					model : Model.derive({
+						fields:{
+							iconCls : {
+								depends:['icon'],
+								parse:function(){
+									var sIcon=this.get('icon');
+									return sIcon?'hui-icon-'+sIcon:'';
+								}
+							}
+						}
+					})
+				}),
+				parse  : function(){
+					var desc=this.get('desc');
+					return desc?$H.isArr(desc)?desc:[desc]:desc;
+				}
+			}
+		},
 		
 		tmpl     : [
-			'<div class="hui-hcard',
-				'<%if(this.image){%> hui-hcard-hasimg">',
+			'<div {{bindAttr class="image?hui-hcard-hasimg"}}>',
+				'{{#if image}}',
 					'<div class="hui-hcard-img">',
-						'<img src="<%=this.image%>">',
+						'<img {{bindAttr src="image"}}>',
 					'</div>',
-				'<%}else{%>',
-				'"><%}%>',
+				'{{/if}}',
 				'<div class="hui-hcard-content">',
-					'<div class="hui-content-title"><%=this.title%></div>',
-					'<%var aDesc=this.desc;aDesc=$H.isArr(aDesc)?aDesc:[aDesc];for(var i=0;i<aDesc.length;i++){%>',
+					'<div class="hui-content-title">{{title}}</div>',
+					'{{#each descs}}',
 						'<div class="hui-content-desc">',
-							'<%var icon;if(icon=aDesc[i].icon){%>',
-							'<span class="hui-icon hui-mini hui-alt-icon hui-icon-<%=icon%> hui-light"></span>',
-							'<%}%>',
-							'<%=aDesc[i].text%>',
+							'{{#if icon}}',
+								'<span {{bindAttr class="#hui-icon #hui-mini #hui-alt-icon iconCls #hui-light"}}></span>',
+							'{{/if}}',
+							'{{text}}',
 						'</div>',
-					'<%}%>',
+					'{{/each}}',
 				'</div>',
-				'<%=this.findHtml(">*")%>',
-				'<%if(this.hasArrow){%>',
+				'{{placeItem}}',
+				'{{#if hasArrow}}',
 					'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情">',
 						'<span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span>',
 					'</a>',
-				'<%}%>',
+				'{{/if}}',
 			'</div>'
 		].join(''),
 		doConfig       : fDoconfig    //初始化配置

@@ -12,20 +12,20 @@ function(AC){
 	
 	Checkbox.extend({
 		//初始配置
-//		name            : '',                  //选项名
-		text            : '',                  //文字
-		value           : '',                  //选项值
-		selected        : false,               //是否选中
+		xConfig         : {
+			cls             : 'chkbox',            //组件样式名
+			name            : '',                  //选项名
+			text            : '',                  //文字
+			value           : '',                  //选项值
+			selected        : false                //是否选中
+		},
 		multi           : true,                //多选
 		
-		cls             : 'chkbox',            //组件样式名
 		tmpl            : [
-			'<div class="hui-btn hui-btn-gray<%if(this.selected){%> hui-chkbox-on<%}%>">',
+			'<div {{bindAttr class="#hui-btn #hui-btn-gray selected?hui-chkbox-on"}}>',
 				'<span class="hui-icon hui-icon-chkbox"></span>',
-				'<input type="checkbox"<%if(this.selected){%> checked=true<%}%>',
-				'<%if(this.name){%> name="<%=this.name%>"<%}%>',
-				'<%if(this.value){%> value="<%=this.value%>"<%}%>/>',
-				'<span class="hui-chkbox-txt"><%=this.text%></span>',
+				'<input type="checkbox" {{bindAttr selected?checked name="name" value="value"}}/>',
+				'<span class="hui-chkbox-txt">{{text}}</span>',
 			'</div>'
 		].join(''),
 		
@@ -36,21 +36,10 @@ function(AC){
 	/**
 	 * 选中
 	 * @method select
-	 * @param {boolean}bSelected 仅当为false时取消选中
+	 * @param {boolean}bSelect 仅当为false时取消选中
 	 */
-	function fSelect(bSelected){
-		var me=this;
-		bSelected=!(bSelected==false);
-		me.selected=bSelected;
-		var oInput=me.findEl('input');
-		var oEl=me.getEl();
-		if(bSelected){
-			oInput.attr("checked",true);
-			oEl.addClass('hui-chkbox-on');
-		}else{
-			oInput.removeAttr("checked");
-			oEl.removeClass('hui-chkbox-on');
-		}
+	function fSelect(bSelect){
+		this.update({selected:!(bSelect==false)});
 	}
 	/**
 	 * 获取/设置输入框的值
@@ -61,10 +50,9 @@ function(AC){
 	function fVal(sValue){
 		var me=this;
 		if(sValue){
-			me.value=sValue;
-			me.findEl('input').val(sValue);
+			me.set('value',sValue);
 		}else{
-			return me.value;
+			return me.get('value');
 		}
 	}
 	

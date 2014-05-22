@@ -11,14 +11,16 @@ function(AC){
 	var Set=AC.define('Set');
 	
 	Set.extend({
-		
-//		title           : '',      //标题
+		xConfig         : {
+			cls         : 'set',
+			title       : ''      //标题
+		},
 		
 		tmpl            : [
 			'<div>',
-				'<h1 class="hui-set-title"><%=this.title%></h1>',
+				'<h1 class="hui-set-title">{{title}}</h1>',
 				'<div class="hui-set-content">',
-					'<%=this.findHtml(">*")%>',
+					'{{placeItem}}',
 				'</div>',
 			'</div>'
 		].join('')

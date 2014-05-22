@@ -29,7 +29,9 @@ function(Template,AbstractView,Model,Collection){
 		ifBind              : fIfBind,             //查询指定逻辑单元是否需要绑定模型对象或节点，检查后设为已绑定，确保每个逻辑单元只绑定一次事件
 		updateMetaMorph     : fUpdateMetaMorph,    //更新内容
 		wrapMetaMorph       : fWrapMetaMorph,      //包装结果html
-		updateXmodel        : fUpdateXmodel,       //更新数据
+		get                 : fGet,                //获取配置属性
+    	set                 : fSet,                //设置配置属性
+		update              : fUpdate,             //更新数据
 		getXmodel           : fGetXmodel           //获取配置对象
 	});
 	
@@ -40,7 +42,9 @@ function(Template,AbstractView,Model,Collection){
 		'each'     : fEach,
 		getValue   : fGetValue,
 		parseValue : fParseValue,
-		bindAttr   : fBindAttr
+		bindAttr   : fBindAttr,
+		input      : fInput,
+		textarea   : fTextarea
 	});
 	
 	var _bIfPlusJoin=Template.getIfPlusJoin();
@@ -201,20 +205,21 @@ function(Template,AbstractView,Model,Collection){
 	 * value="value"，如果value的值为my value，输出value="my value"；
 	 * isRed?red:green，如果isRed为真，输出red，否则输出green
 	 * @param {string}sExp 表达式
-	 * @param {object}oOptions 选项，参数说明同if辅助函数
+	 * @param {object}oOptions 选项，参数说明同if辅助函数，特殊：type表示输入框类型input或textarea
 	 * @return {string} 返回生成的html
 	 */
 	function fBindAttr(sExp,oOptions){
 		var me=oOptions.context,
 		oData=oOptions.data,
 		nNum=oOptions.num,
+		sType=oOptions.type,
 		sMetaId=me.getCid()+'-'+nNum,
 		sId='bindAttr-'+sMetaId,
 		m,
 		result=[],
 		aMatches=[],
 		bBindModel=me.ifBind(nNum,oData),
-		bBindEl=me.ifBind(nNum,oData,true);
+		bBindEl=sType&&me.ifBind(nNum,oData,true);
 		
 		//循环分析表达式，先找出id属性
 		while(m=_oExecAttrs.exec(sExp)){
@@ -247,7 +252,12 @@ function(Template,AbstractView,Model,Collection){
 				}
 			}
 			var sVal=aValues.join(' ');
+			//有属性名的绑定
 			if(sAttr){
+				//传递结果值给输入框辅助函数
+				if(sType&&sAttr=='value'){
+					oOptions.value=sVal;
+				}
 				sVal=(m[1]||'')+sVal+m[4];
 			}else if(sVal){
 				//无属性，如：isChk?checked
@@ -351,6 +361,27 @@ function(Template,AbstractView,Model,Collection){
 		}
 	}
 	/**
+	 * input框辅助函数，用于生产input
+	 * @param {string}sExp 表达式
+	 * @param {object}oOptions 选项，参数说明同if辅助函数
+	 */
+	function fInput(sExp,oOptions){
+		oOptions.type='input';
+		var sHtml=fBindAttr(sExp,oOptions);
+		return '<input '+sHtml+'/>';
+	}
+	/**
+	 * textarea框辅助函数，用于生产textarea
+	 * @param {string}sExp 表达式
+	 * @param {object}oOptions 选项，参数说明同if辅助函数
+	 */
+	function fTextarea(sExp,oOptions){
+		oOptions.type='textarea';
+		var sHtml=fBindAttr(sExp,oOptions);
+		return '<textarea '+sHtml+'>'+oOptions.value+'</textarea>';
+	}
+	
+	/**
 	 * 初始化
 	 * @method initialize
 	 * @param {Object}oParams 初始化参数
@@ -422,14 +453,15 @@ function(Template,AbstractView,Model,Collection){
 	function fGetTmplFn(){
 		var me=this;
 		//编译模板，固定模板的类只需执行一次
-		if(!$H.isFunc(me.tmpl)){
+		var tmpl=me.tmpl,oConstructor=me.constructor;
+		if(!$H.isFunc(tmpl)&&!$H.isFunc(tmpl=oConstructor.tmpl)){
 			me.preTmpl();
-			me.tmpl=me.constructor.prototype.tmpl=$H.tmpl({
+			tmpl=oConstructor.tmpl=$H.tmpl({
 				tmpl:me.tmpl,
 				ns:'ModelView'
 			});
 		}
-		return me.tmpl;
+		return me.tmpl=tmpl;
 	}
 	/**
 	 * 初始化html
@@ -509,9 +541,25 @@ function(Template,AbstractView,Model,Collection){
 		return sStart+nId+'-start'+sEnd+(sHtml||'')+sStart+nId+'-end'+sEnd;
 	}
 	/**
+	 * 读取配置属性
+	 * @param {string}sKey 属性名称
+	 * @return {?} 返回属性值
+	 */
+	function fGet(sKey){
+		return this.xmodel.get(sKey);
+	}
+	/**
+	 * 设置配置属性
+	 * @param {string}sKey 属性名称
+	 * @param {*}value 属性值
+	 */
+	function fSet(sKey,value){
+		this.xmodel.set(sKey,value);
+	}
+	/**
 	 * 更新数据
 	 */
-	function fUpdateXmodel(oSettings){
+	function fUpdate(oSettings){
 		this.xmodel.set(oSettings);
 	}
 	/**

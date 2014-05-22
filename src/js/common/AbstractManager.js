@@ -104,7 +104,7 @@ $Define("CM.AbstractManager", function() {
 	 */
 	function fGenerateId(sCid,bNotChk){
 		var me=this;
-		var sId=$H.expando+"_"+me.type+"_"+(sCid||$H.uuid());
+		var sId=$H.expando+"-"+me.type+"-"+(sCid||$H.uuid());
 		if(bNotChk!=true&&me._all[sId]){
 			$D.error('id重复:'+sId);
 		}else{

@@ -12,10 +12,13 @@ function(AC){
 	
 	Field.extend({
 		//初始配置
+		xConfig         : {
+			cls           : 'field',
+			noPadding     : false     //true表示没有上下间隙
+		},
 //		forName         : '',      //label标签for名字
 //		title           : '',      //label文字字符串，或者Label或其它组件的配置项
 //		content         : '',      //右边文字，或组件配置
-//		noPadding       : false,   //true表示没有上下间隙
 		
 		defItem         : {
 			xtype       : 'RowItem',
@@ -23,12 +26,12 @@ function(AC){
 		},
 		
 		tmpl            : [
-			'<div class="<%if(this.noPadding){%> hui-field-nopadding<%}%>">',
+			'<div {{bindAttr class="noPadding?hui-field-nopadding"}}>',
 				'<div class="hui-field-left">',
-					'<%=this.findHtml(">[xrole=title]")%>',
+					'{{placeItem >[xrole=title]}}',
 				'</div>',
 				'<div class="hui-field-right">',
-					'<%=this.findHtml(">[xrole=content]")%>',
+					'{{placeItem >[xrole=content]}}',
 				'</div>',
 			'</div>'
 		].join(''),

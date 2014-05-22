@@ -21,41 +21,44 @@ function(AC,Popup){
 	Dialog.extend({
 		
 		//对话框初始配置
+		xConfig         : {
+			cls             : 'dialog',
+			radius          : 'little',
+			content         : '',         //html内容，传入此值时将忽略contentTitle和contentMsg
+			contentTitle    : '',         //内容框的标题
+			contentMsg      : ''          //内容框的描述
+		},
 //		title           : '',             //标题
 //		noClose         : false,          //true时没有close图标
-//		content         : '',             //html内容，传入此值时将忽略contentTitle和contentMsg
-//		contentTitle    : '',             //内容框的标题
-//		contentMsg      : '',             //内容框的描述
 //		noAction        : false,          //true时没有底部按钮
 //		noOk            : false,          //true时没有确定按钮
 //		noCancel        : false,          //true时没有取消按钮
-		okTxt           : '确定',          //确定按钮文字
-		cancelTxt       : '取消',          //取消按钮文字
-//		activeBtn       : null,           //为按钮添加激活样式，1表示左边，2表示右边
-//		okCall          : function(){},   //确定按钮事件函数
-//		cancelCall      : function(){},   //取消按钮事件函数
+		okTxt           : '确定',         //确定按钮文字
+		cancelTxt       : '取消',         //取消按钮文字
+//		activeBtn       : null,          //为按钮添加激活样式，1表示左边，2表示右边
+//		okCall          : function(){},  //确定按钮事件函数
+//		cancelCall      : function(){},  //取消按钮事件函数
 		
 		clickHide       : false,          //点击不隐藏
 		
-		//组件共有配置
-		radius          : 'little',
-		
 		tmpl            : [
 			'<div>',
-				'<%=this.findHtml(">[xrole=dialog-header]")%>',
+				'{{placeItem >[xrole=dialog-header]}}',
 				'<div class="hui-dialog-body">',
-					'<%if(this.content){%><%=this.content%><%}else{%>',
+					'{{#if content}}',
+						'{{content}}',
+					'{{else}}',
 						'<div class="hui-body-content">',
-							'<h1 class="hui-content-title"><%=this.contentTitle%></h1>',
-							'<div class="hui-content-msg"><%=this.contentMsg%></div>',
-							'<%=this.findHtml(">[xrole=dialog-content]")%>',
+							'<h1 class="hui-content-title">{{contentTitle}}</h1>',
+							'<div class="hui-content-msg">{{contentMsg}}</div>',
+							'{{placeItem >[xrole=dialog-content]}}',
 						'</div>',
-					'<%}%>',
-					'<%if(!this.noAction){%>',
+					'{{/if}}',
+					'{{#unless noAction}}',
 						'<div class="hui-body-action">',
-						'<%=this.findHtml(">[xrole=dialog-action]")%>',
+						'{{placeItem >[xrole=dialog-action]}}',
 						'</div>',
-					'<%}%>',
+					'{{/unless}}',
 				'</div>',
 			'</div>'
 		].join(''),

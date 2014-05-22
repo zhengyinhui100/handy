@@ -12,18 +12,21 @@ function(AC){
 	
 	Toolbar.extend({
 		//初始配置
-//		title            : '',                  //标题
-		cls              : 'tbar',
-//		type             : null,                //null|'header'|'footer'
+		xConfig          : {
+			cls              : 'tbar',
+			title            : '',                  //标题
+			isHeader         : false,
+			isFooter         : false           
+		},
 		defItem          : {
 			xtype        : 'Button',
 			theme        : 'black'
 		},
 		
 		tmpl             : [
-			'<div class="<%if(this.type=="header"){%> hui-header<%}else if(this.type=="footer"){%> hui-footer<%}%>">',
-				'<%=this.findHtml(">*")%>',
-				'<%if(this.title){%><h1 class="hui-tbar-title js-tbar-txt"><%=this.title%></h1><%}%>',
+			'<div {{bindAttr class="isHeader?hui-header isFooter?hui-footer"}}>',
+				'{{placeItem}}',
+				'{{#if title}}<h1 class="hui-tbar-title js-tbar-txt">{{title}}</h1>{{/if}}',
 			'</div>'
 		].join(''),
 		

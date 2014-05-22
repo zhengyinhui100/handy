@@ -61,7 +61,7 @@ gEnv='dev';
   <h1>{{title}}</h1>
 	输入框的值:{{value}}
   <div class="body">
-	{{#if body}}
+	{{#if body=='body'}}
     	<div>if body:{{body}}
 		{{#if value}}
 			<div>if value:{{value}}</div>
@@ -73,8 +73,9 @@ gEnv='dev';
 	{{#unless tt}}
 		<div>unless</div>
 	{{/unless}}
-	<input type="text" {{bindAttr id="#input133" disabled?disabled value="value" class="isRed?red:green extCls #static-cls"}}/>
-	<input type="checkbox" name="name" value="1" {{bindAttr isChk?checked}}/>
+	{{!只有使用input或者textarea辅助函数才会对value进行双向绑定，如：以下checkbox中使用bindAttr，则只会单向绑定}}
+	{{input type="#text" id="#input133" disabled?disabled value="value" class="isRed?red:green extCls #static-cls"}}
+	<input type="checkbox" name="name" {{bindAttr isChk?checked value="value"}}/>
 	<div class="items">
 	{{#each items}}
 		<span class="item">{{name}}</span>||
@@ -109,7 +110,7 @@ function test(){
 		isRed:true,
 		isChk:false,
 		extCls:'ext-cls',
-		body: "这是测试",
+		body: "body",
 		items:aItems
    	}
 
@@ -155,7 +156,7 @@ function test(){
 			}else{
 				oItems.remove(oItems.at(0));
 			}
-			oView.updateXmodel({
+			oView.update({
 				title:'title'+i,
 				body:value,
 				value:value,

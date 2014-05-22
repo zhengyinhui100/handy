@@ -11,22 +11,25 @@ function(AC){
 	
 	Vcard.extend({
 		//初始配置
-//		image        : '',    //图片
-//		title        : '',    //标题
-//		extraTitle   : '',    //标题右边文字
+		xConfig      : {
+			cls          : 'vcard',
+			image        : '',    //图片
+			title        : '',    //标题
+			extraTitle   : ''     //标题右边文字
+		},
 		
 		tmpl         : [
-			'<div class="hui-vcard">',
+			'<div>',
 				'<div class="hui-vcard-title hui-title-hasimg c-clear">',
 					'<div class="hui-title-img">',
-						'<img alt="" src="<%=this.image%>">',
+						'<img {{bindAttr src="image"}}>',
 					'</div>',
-					'<div class="hui-title-txt"><%=this.title%></div>',
-					'<div class="hui-title-extra"><%=this.extraTitle%></div>',
+					'<div class="hui-title-txt">{{title}}</div>',
+					'<div class="hui-title-extra">{{extraTitle}}</div>',
 				'</div>',
-				'<%=this.findHtml(">[xrole!=action]")%>',
+				'{{placeItem >[xrole!=action]}}',
 				'<div class="hui-vcard-action">',
-					'<%=this.findHtml(">[xrole=action]")%>',
+					'{{placeItem >[xrole=action]}}',
 				'</div>',
 			'</div>'
 		].join(''),

@@ -110,7 +110,7 @@ function(AC){
 	function fGetSelected(bIsIndex){
 		var me=this,aItem=[];
 		me.each(function(i,item){
-			if(item.get('selected')){
+			if(item.get(item.select?'selected':'isActive')){
 				aItem.push(bIsIndex?i:item);
 			}
 		});

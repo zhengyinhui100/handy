@@ -356,11 +356,10 @@ function(CM,Icon,Button,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Sel
 			}
 		})
 		
-		return;
 		//菜单
 		new Button({
 			renderTo:"#menuDv",
-			text:"普通菜单",
+			text:"普通菜单(没选中效果)",
 			click:function(){
 				if(this.menu){
 					this.menu.show();
@@ -392,6 +391,7 @@ function(CM,Icon,Button,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Sel
 						markType:'active',
 						items:[{
 							text:"菜单一",
+							selected:true,
 							value:"1"
 						},{
 							text:"菜单二",
@@ -404,18 +404,20 @@ function(CM,Icon,Button,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Sel
 		
 		new Button({
 			renderTo:"#menuDv",
-			text:"点选效果菜单",
+			text:"勾选效果菜单",
 			click:function(){
 				if(this.menu){
 					this.menu.show();
 				}else{
 					this.menu=new Menu({
-						markType:'dot',
+						markType:'hook',
+						radius:'little',
 						items:[{
 							text:"菜单一",
 							value:"1"
 						},{
 							text:"菜单二",
+							selected:true,
 							value:"2"
 						}]
 					})
@@ -429,9 +431,6 @@ function(CM,Icon,Button,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Sel
 			name:'select',
 			value:'1',
 			width:150,
-			defItem:{
-				showPos:'followEl'
-			},
 			options:[{
 				text:"选项一",
 				value:"1"
@@ -481,11 +480,14 @@ function(CM,Icon,Button,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Sel
 				}
 			}
 		});
-		$('#inputDv').append('<br/>');
+		$('#inputDv').append('<br/><div>输入框的值是：<span id="textareaVal"></span></div><br/>');
 		var input=new Input({
-			type:'textarea',
-			placeholder:'textarea自适应高度',
+			isTextarea:true,
+			placeholder:'textarea自适应高度，在此输入的值会自动更新到上面',
 			renderTo:'#inputDv'
+		});
+		input.getXmodel().on('change:value',function(sEvt,oModel,value){
+			$("#textareaVal").html(value);
 		});
 		
 		//表单
@@ -620,11 +622,35 @@ function(CM,Icon,Button,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Sel
 			]
 		});
 		
+		new Tab({
+			renderTo:'#tabDv',
+			hasContent:true,
+			activeType:'b',
+			items:[
+				{
+					title:{
+						text:'一'
+					},
+					selected:true,
+					content:'内容1'
+				},
+				{
+					title:{
+						text:'二'
+					},
+					content:'内容2',
+					click:function(){
+						$D.log(this.index());
+					}
+				}
+			]
+		});
+		
 		//工具栏
 		new Toolbar({
 			renderTo:'#toolbarDv',
 			title:'header标题',
-			type:'header',
+			isHeader:true,
 			items:[{
 				xtype:'Button',
 				isBack:true,
@@ -646,7 +672,7 @@ function(CM,Icon,Button,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Sel
 		
 		new Toolbar({
 			renderTo:'#toolbarDv',
-			type:'footer',
+			isFooter:true,
 			height:'2.5em',
 			items:[{
 				xtype:'Button',
@@ -667,7 +693,7 @@ function(CM,Icon,Button,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Sel
 			renderTo:'#toolbarDv',
 			items:[{
 				xtype:'Tab',
-				activeType:'b',
+				activeType:'c',
 				items:[
 						{
 							selected:true,
@@ -884,9 +910,8 @@ function(CM,Icon,Button,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Sel
 				});
 			}
 		});
-		
 		//横向卡片
-		new Hcard({
+		hcard=new Hcard({
 			renderTo:'#hcardDv',
 			image:'../../html/img.jpg',
 			title:'标题',
@@ -902,6 +927,8 @@ function(CM,Icon,Button,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Sel
 			}
 		});
 		
+		console.log(hcard.getXmodel())
+		
 		//纵向卡片
 		new Vcard({
 			renderTo:'#vcardDv',
@@ -916,7 +943,7 @@ function(CM,Icon,Button,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Sel
 			},
 			items:{
 				xtype:'Panel',
-				content:'内容'
+				content:'内容<br>内容<br>'
 			}
 		});
 	

@@ -14,9 +14,12 @@ function(AC,TabItem,ControlGroup){
 	
 	Tab.extend({
 		//初始配置
+		xConfig         : {
+			cls             : 'tab'
+//			theme           : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
+			
+		},
 //		activeType      : '',           //激活样式类型，
-//		theme           : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
-		cls             : 'tab',
 		defItem         : {             //默认子组件是TabItem
 //			content     : '',           //tab内容
 			xtype       : 'TabItem'
@@ -33,33 +36,28 @@ function(AC,TabItem,ControlGroup){
 		tmpl            : [
 			'<div>',
 				'<ul class="js-tab-btns c-clear">',
-					'<%var aBtns=this.find(">TabItem");',
-					'for(var i=0,len=aBtns.length;i<len;i++){%>',
-						'<li class="hui-tab-item">',
-						'<%=aBtns[i].getHtml()%>',
-						'</li>',
-					'<%}%>',
+					'{{placeItem >TabItem}}',
 				'</ul>',
-				'<%=this.findHtml(">TabItem>[xrole=content]")%>',
+				'{{placeItem >TabItem>[xrole=content]}}',
 			'</div>'
 		].join(''),
 		
-		doConfig        : fDoConfig,           //初始化配置
+		parseItem       : fParseItem,          //分析处理子组件 
 		layout          : fLayout,             //布局
-//		add             : fAdd,                //添加子组件
 		setTabContent   : fSetTabContent       //设置标签页内容
 	});
 	/**
-	 * 初始化配置
-	 * @param {Object}oSettings
+	 * 分析处理子组件
+	 * @method parseItem
+	 * @param {object}oItem 子组件配置
 	 */
-	function fDoConfig(oSettings){
+	function fParseItem(oItem){
 		var me=this;
-		me.callSuper();
 		//默认选中样式
 		if(me.activeType){
-			me.defItem.activeType=me.activeType;
+			oItem.activeType=me.activeType;
 		}
+		me.callSuper();
 	}
 	/**
 	 * 布局
@@ -75,24 +73,6 @@ function(AC,TabItem,ControlGroup){
 				el.style.width=(100-width*(nLen-1))+'%';
 			}
 		});
-	}
-	/**
-	 * 添加标签项
-	 * @param {object|Array}item 标签项对象或标签项配置或数组
-	 * @param {number=}nIndex 指定添加的索引，默认添加到最后
-	 * @return {?Component} 添加的标签项只有一个时返回标签项对象，参数是数组时返回空
-	 */
-	function fAdd(item,nIndex){
-		var me=this;
-		if(me._applyArray()){
-			return;
-		}
-		if(me.inited){
-			var oUl=me.findEl('.js-tab-btns');
-			var oRenderTo=$('<li class="hui-tab-item"></li>').appendTo(oUl);
-			item.renderTo=oRenderTo;
-		}
-		me.callSuper();
 	}
 	/**
 	 * 设置标签页内容

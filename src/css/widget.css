@@ -666,56 +666,15 @@
   position: absolute;
   z-index: 1000;
   -webkit-transform: translateZ(0);
-  border: 1px solid #ccc;
 }
-.hui-menu .hui-btn {
-  margin: 0;
-  border-bottom: 0;
-  border-left: 0;
-  border-right: 0;
-}
-.hui-menu ul {
-  -webkit-border-radius: inherit;
-  -moz-border-radius: inherit;
-  border-radius: inherit;
-}
-.hui-menu .hui-menu-item {
-  position: relative;
-}
-.hui-menu .hui-menu-item:nth-of-type(1),
-.hui-menu .hui-menu-item:nth-of-type(1) .hui-btn {
-  border-top: 0;
-  -moz-border-radius-topleft: inherit;
-  -webkit-border-top-left-radius: inherit;
-  border-top-left-radius: inherit;
-  -moz-border-radius-topright: inherit;
-  -webkit-border-top-right-radius: inherit;
-  border-top-right-radius: inherit;
-}
-.hui-menu .hui-menu-item:nth-last-of-type(1),
-.hui-menu .hui-menu-item:nth-last-of-type(1) .hui-btn {
-  -moz-border-radius-bottomleft: inherit;
-  -webkit-border-bottom-left-radius: inherit;
-  border-bottom-left-radius: inherit;
-  -moz-border-radius-bottomright: inherit;
-  -webkit-border-bottom-right-radius: inherit;
-  border-bottom-right-radius: inherit;
-}
-.hui-menu.hui-menu-mark .hui-icon-mark {
-  position: absolute;
+.hui-menu .hui-icon-check {
   display: none;
-  background: #222;
-  left: 10px;
-  top: 50%;
-  margin-top: -3px;
-  width: 6px;
-  height: 6px;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
 }
-.hui-menu.hui-menu-mark .hui-item-mark .hui-icon-mark {
-  display: block;
+.hui-menu .hui-item-select .hui-icon-check {
+  display: -moz-inline-stack;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
 }
 .hui-select input {
   display: none;
@@ -1285,6 +1244,9 @@
   background: black;
   filter: alpha(opacity= 20 );
   opacity: 0.2;
+}
+.hui-hidden {
+  display: none;
 }
 .hui-inline {
   display: -moz-inline-stack;
