@@ -44,7 +44,7 @@ function(AbstractDao,AbstractEvents){
         
         
    		_validate             : _fValidate,          //执行校验，如果通过校验返回true，否则，触发"invalid"事件
-   		_initDepFields        : _fInitDepFields,     //初始化计算/依赖属性
+   		_doDepends            : _fDoDepends,         //处理计算/依赖属性
    		_parseFields          : _fParseFields,       //属性预处理
    		_onAttrEvent          : _fOnAttrEvent,       //处理属性模型和集合事件
 		
@@ -92,21 +92,27 @@ function(AbstractDao,AbstractEvents){
         return false;
     }
     /**
-     * 初始化计算/依赖属性
+     * 处理计算/依赖属性
+     * @param {object}oChanges 当前操作改变的属性
+     * @param {boolean}bSilent 是否不触发事件
      */
-    function _fInitDepFields(){
+    function _fDoDepends(oChanges,bSilent){
     	var me=this;
     	//处理计算属性
-	    var oFields=me.fields,oField,aDeps;
+	    var oFields=me.fields,oField,aDeps,oSets={};
 	    for(var key in oFields){
 	    	var oField=oFields[key];
 			if(oField&&(aDeps=oField.depends)){
 				for(var i=0;i<aDeps.length;i++){
 			    	//当依赖属性变化时，设置计算属性
-					me.on('change:'+aDeps[i],$H.bind(me.set,me,key,null,null));
+					if(oChanges.hasOwnProperty(aDeps[i])){
+						oSets[key]=0;
+						break;
+					}
 				}
 			}
 	    }
+	    me.set(oSets,null,{silent:bSilent});
     }
     /**
      * 属性预处理
@@ -178,8 +184,6 @@ function(AbstractDao,AbstractEvents){
 		me.uuid=$H.uuid();
 		//配置dao对象
 		me.dao=me.dao||$H.getSingleton(AbstractDao);
-		//初始化计算属性
-		me._initDepFields();
 		var oAttrs = oAttributes || {};
 		oOptions || (oOptions = {});
 		me.cid = $H.Util.uuid();
@@ -281,7 +285,7 @@ function(AbstractDao,AbstractEvents){
 	
 	    var bUnset= oOptions.unset;
 	    var bSilent= oOptions.silent;
-	    var aChanges= [];
+	    var oChanges={};
 	    var bChanging= me._changing;
 	    me._changing  = true;
 	
@@ -303,7 +307,7 @@ function(AbstractDao,AbstractEvents){
 	   	    val = oAttrs[sAttr];
 	   	    //与当前值不相等，放入改变列表中
 	    	if (!$H.equals(oCurrent[sAttr], val)){
-	    		aChanges.push(sAttr);
+	    		oChanges[sAttr]=val;
 	    	}
 	    	//与初始值不相等，放入已经改变的hash对象中
 	    	if (!$H.equals(oPrev[sAttr], val)) {
@@ -316,14 +320,14 @@ function(AbstractDao,AbstractEvents){
 	    	bUnset ? delete oCurrent[sAttr] : oCurrent[sAttr] = val;
 	    }
 	    
-	
+		var bHasChange=!$H.isEmpty(oChanges);
 	    //触发对应属性change事件
 	    if (!bSilent) {
-	        if (aChanges.length){
+	        if (bHasChange){
 	        	me._pending = oOptions;
 	        }
-	        for (var i = 0, l = aChanges.length; i < l; i++) {
-	      	    me.trigger('change:' + aChanges[i], me, oCurrent[aChanges[i]], oOptions);
+	        for (var k in oChanges) {
+	      	    me.trigger('change:' + k, me, oCurrent[k], oOptions);
 	        }
 	    }
 	
@@ -340,6 +344,11 @@ function(AbstractDao,AbstractEvents){
 	    }
 	    me._pending = false;
 	    me._changing = false;
+	    //处理依赖属性
+	    if(bHasChange){
+		    me._doDepends(oChanges,bSilent);
+	    }
+	    
 	    return me;
     }
     /**
