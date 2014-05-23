@@ -144,11 +144,11 @@ function(ViewManager,ModelView,Model,Template){
 		nNum=oOptions.num,
 		sMetaId=me.getCid()+'-'+nNum;
 		var sHtml=me.findHtml(sExp);
-		//TODO
-		if(0&&!me.inited){
+		if(me.ifBind(nNum)){
 			me.on('add',function(sEvt,oItem){
 				if(oItem.match(sExp)){
 					me.updateMetaMorph(sMetaId,oItem.getHtml(),'append');
+					oItem.afterRender();
 				}
 			});
 		}
@@ -586,11 +586,13 @@ function(ViewManager,ModelView,Model,Template){
 			}
 			return obj.setContent(content);
 		}
-		var oEl=me.getEl();
-		oEl.contents().remove();
 		if(typeof content=='string'){
-			oEl.html(content);
+			me.set('content',content);
+			//移除子组件
+			me.remove();
 		}else{
+			//移除html内容
+			me.set('content','');
 			return me.add(content);
 		}
 	}
@@ -945,13 +947,8 @@ function(ViewManager,ModelView,Model,Template){
 					renderTo=null;
 				}
 				if(!renderTo){
-					//初始化过后，默认添加到容器节点里
-					if(me.inited){
-						item.renderTo=me.getEl();
-					}else{
-						//没有初始化时，设置子组件不进行自动render，而是由组件本身进行render
-						item.autoRender=false;
-					}
+					//设置子组件不进行自动render，而是由placeItem辅助函数render或组件本身进行render
+					item.autoRender=false;
 				}
 				item.parent=me;
 				item=new Item(item);

@@ -14,7 +14,7 @@ function(AC){
 		xConfig     : {
 			cls         : 'mlist',
 			isEmpty     : false,             //列表是否为空
-			emptyTips   : '暂无结果',         //空列表提示
+			emptyTips   : '暂无',            //空列表提示
 			pdText      : '下拉可刷新',       //下拉刷新提示文字
 			pdComment   : '上次刷新时间：',    //下拉刷新附加说明
 			pdTime      : '',                //上次刷新时间
@@ -27,9 +27,6 @@ function(AC){
 		tmpl        : [
 			'<div class="hui-list">',
 				'<div class="hui-list-inner">',
-					'{{#if isEmpty}}',
-						'<div class="hui-list-empty js-empty">{{emptyTips}}/div>',
-					'{{/if}}',
 					'{{#if hasPullRefresh}}',
 						'<div class="hui-list-pulldown hui-pd-pull c-h-middle-container">',
 							'<div class="c-h-middle">',
@@ -47,9 +44,12 @@ function(AC){
 							'</div>',
 						'</div>',
 					'{{/if}}',
+					'{{#if isEmpty}}',
+						'<div class="hui-list-empty js-empty">{{emptyTips}}</div>',
+					'{{/if}}',
 					'<div class="js-item-container">{{placeItem}}</div>',
 					'{{#if hasPullRefresh}}',
-						'<div class="hui-list-more">',
+						'<div {{bindAttr class="hui-list-more isEmpty?hui-hidden"}}>',
 							'<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-shadow hui-inline hui-radius-normal">',
 								'<span class="hui-btn-txt">查看更多</span>',
 							'</a>',
@@ -73,9 +73,14 @@ function(AC){
 			(me.defItem||(me.defItem={})).xtype=me.itemXtype;
 		}
 		var oListItems=me.model;
+		var bHas=false;
 		oListItems.each(function(i,item){
 			me.addListItem(item);
+			bHas=true;
 		});
+		if(!bHas){
+			me.set('isEmpty',true);
+		}
 		me.listenTo(oListItems,{
 			'add':function(sEvt,oListItem){
 				me.addListItem(oListItem);
@@ -133,7 +138,7 @@ function(AC){
 			});
 			//同步数据后需要刷新
 			me.listenTo(me.model,'sync',function(){
-				me.findEl('.js-pdTime').html($H.formatDate($H.now(),'HH:mm'));
+				me.set('pdTime',$H.formatDate($H.now(),'HH:mm'));
 				setTimeout(function(){
 					me.refreshScroller();
 				},0);

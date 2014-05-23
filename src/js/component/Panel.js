@@ -32,8 +32,11 @@ function(AC){
 						'</div>',
 					'</div>',
 				'{{/if}}',
-				'{{content}}',
-				'{{placeItem}}',
+				'{{#if content}}',
+					'{{content}}',
+				'{{else}}',
+					'{{placeItem}}',
+				'{{/if}}',
 			'</div>'
 		].join('')
 	});

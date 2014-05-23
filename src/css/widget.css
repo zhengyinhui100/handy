@@ -946,7 +946,13 @@
   padding-left: 0;
   padding-right: 0;
 }
-.hui-tab .hui-tab-item:last-child .hui-btn {
+.hui-tab .hui-tab-item .hui-btn-gray {
+  border-left-color: #eee;
+}
+.hui-tab .hui-tab-item:nth-of-type(1) .hui-btn-gray {
+  border-left-color: #ccc;
+}
+.hui-tab .hui-tab-item:nth-last-of-type(1) .hui-btn {
   border-right-width: 1px;
 }
 .hui-tab .hui-tab-item .hui-btn {

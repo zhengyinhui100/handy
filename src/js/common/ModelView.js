@@ -490,7 +490,7 @@ function(Template,AbstractView,Model,Collection){
 			return false;
 		}
 		var oNums=bIsEl?me._bindElNums:me._bindModelNums;
-		var bIfBind=!oNums[nNum]&&(oData instanceof Model||oData instanceof Collection);
+		var bIfBind=!oNums[nNum]&&((oData&&(oData instanceof Model||oData instanceof Collection))||!oData);
 		oNums[nNum]=1;
 		return bIfBind;
 	}
