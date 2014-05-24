@@ -78,6 +78,7 @@
 			<path path="js/component/AbstractComponent.js" />
 			<path path="js/component/Icon.js" />
 			<path path="js/component/Button.js" />
+			<path path="js/component/Desc.js" />
 			<path path="js/component/Panel.js" />
 			<path path="js/component/Popup.js" />
 			<path path="js/component/ControlGroup.js" />

@@ -35,16 +35,15 @@ function(AC){
 				'</div>',
 			'</div>'
 		].join(''),
-		doConfig       : fDoconfig    //初始化配置
+		doConfig       : fDoConfig    //初始化配置
 	});
 	/**
 	 * 初始化配置
 	 * @param {Object}oSettings
 	 */
-	function fDoconfig(oSettings){
+	function fDoConfig(oSettings){
 		var me=this;
-		me.callSuper();
-		var title=me.title;
+		var title=oSettings.title;
 		if($H.isSimple(title)){
 			title={
 				text:title
@@ -57,7 +56,7 @@ function(AC){
 		me.add(title);
 		
 		//内容
-		var content=me.content;
+		var content=oSettings.content;
 		//默认有空白字符
 		if(content===undefined&&!oSettings.items){
 			content='';
@@ -74,6 +73,10 @@ function(AC){
 			me.noPadding=true;
 			me.add(content);
 		}
+		var oSet=$.extend({},oSettings);
+		delete oSet.title;
+		delete oSet.content;
+		me.callSuper([oSet]);
 	}
 	
 	return Field;

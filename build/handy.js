@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-05-22 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-05-24 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -6944,7 +6944,7 @@ function(Template,AbstractView,Model,Collection){
 			return false;
 		}
 		var oNums=bIsEl?me._bindElNums:me._bindModelNums;
-		var bIfBind=!oNums[nNum]&&(oData instanceof Model||oData instanceof Collection);
+		var bIfBind=!oNums[nNum]&&((oData&&(oData instanceof Model||oData instanceof Collection))||!oData);
 		oNums[nNum]=1;
 		return bIfBind;
 	}
@@ -7170,11 +7170,11 @@ function(ViewManager,ModelView,Model,Template){
 		nNum=oOptions.num,
 		sMetaId=me.getCid()+'-'+nNum;
 		var sHtml=me.findHtml(sExp);
-		//TODO
-		if(0&&!me.inited){
+		if(me.ifBind(nNum)){
 			me.on('add',function(sEvt,oItem){
 				if(oItem.match(sExp)){
 					me.updateMetaMorph(sMetaId,oItem.getHtml(),'append');
+					oItem.afterRender();
 				}
 			});
 		}
@@ -7612,11 +7612,13 @@ function(ViewManager,ModelView,Model,Template){
 			}
 			return obj.setContent(content);
 		}
-		var oEl=me.getEl();
-		oEl.contents().remove();
 		if(typeof content=='string'){
-			oEl.html(content);
+			me.set('content',content);
+			//移除子组件
+			me.remove();
 		}else{
+			//移除html内容
+			me.set('content','');
 			return me.add(content);
 		}
 	}
@@ -7691,14 +7693,14 @@ function(ViewManager,ModelView,Model,Template){
 	 * @return {Model} 返回引用模型
 	 */
 	function fGetRefModel(){
-		var me=this;
-		if(me.refModel){
-			return me.refModel;
+		var me=this,oModel;
+		if(oModel=me.refModel||me.model){
+			return oModel;
 		}
 		var oParent=me.parent;
 		while(oParent){
-			if(oParent.refModel){
-				return me.refModel=oParent.refModel;
+			if(oModel=oParent.refModel||oParent.model){
+				return me.refModel=oModel;
 			}
 			if(oParent.parent){
 				oParent=oParent.parent;
@@ -7971,13 +7973,8 @@ function(ViewManager,ModelView,Model,Template){
 					renderTo=null;
 				}
 				if(!renderTo){
-					//初始化过后，默认添加到容器节点里
-					if(me.inited){
-						item.renderTo=me.getEl();
-					}else{
-						//没有初始化时，设置子组件不进行自动render，而是由组件本身进行render
-						item.autoRender=false;
-					}
+					//设置子组件不进行自动render，而是由placeItem辅助函数render或组件本身进行render
+					item.autoRender=false;
 				}
 				item.parent=me;
 				item=new Item(item);
@@ -8067,7 +8064,7 @@ function(ViewManager,ModelView,Model,Template){
 	/**
 	 * 更新
 	 * @param {Object}oOptions
-	 * @param {boolean=}bNewConfig 仅当为true时，表示全新的配置，否则，从当前组件初始配置里扩展配置
+	 * @param {boolean=}bNewConfig 仅当为true时，表示从初始化的参数的配置里继承，否则，从当前组件初始配置里扩展配置
 	 * @return {boolean|Object} 更新失败返回false，成功则返回更新后的视图对象
 	 */
 	function fUpdate(oOptions,bNewConfig){
@@ -8549,6 +8546,46 @@ function(AC){
 	return Button;
 	
 });/**
+ * 描述类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+
+$Define('C.Desc',
+['C.AbstractComponent',
+'CM.Model',
+'CM.Collection'],
+function(AC,Model,Collection){
+	
+	var Desc=AC.define('Desc');
+	
+	Desc.extend({
+		//初始配置
+		xConfig  : {
+			cls      : 'desc',
+			icon     : '',
+			text     : '',
+			iconCls : {
+				depends:['icon'],
+				parse:function(){
+					var sIcon=this.get('icon');
+					return sIcon?'hui-icon-'+sIcon:'';
+				}
+			}
+		},
+		
+		tmpl     : [
+			'<div class="hui-content-desc">',
+				'{{#if icon}}',
+					'<span {{bindAttr class="#hui-icon #hui-mini #hui-alt-icon iconCls #hui-light"}}></span>',
+				'{{/if}}',
+				'{{text}}',
+			'</div>'
+		].join('')
+	});
+		
+	return Desc;
+	
+});/**
  * 面板类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-01
@@ -8582,8 +8619,11 @@ function(AC){
 						'</div>',
 					'</div>',
 				'{{/if}}',
-				'{{content}}',
-				'{{placeItem}}',
+				'{{#if content}}',
+					'{{content}}',
+				'{{else}}',
+					'{{placeItem}}',
+				'{{/if}}',
 			'</div>'
 		].join('')
 	});
@@ -9239,6 +9279,7 @@ function(AC){
 		xConfig         : {
 			cls             : 'input',
 			isTextarea      : false,               //是否是textarea
+			name            : '',
 			value           : '',                  //默认值
 			placeholder     : '',                  //placeholder
 			radius          : 'little',            //普通圆角
@@ -9539,16 +9580,15 @@ function(AC){
 				'</div>',
 			'</div>'
 		].join(''),
-		doConfig       : fDoconfig    //初始化配置
+		doConfig       : fDoConfig    //初始化配置
 	});
 	/**
 	 * 初始化配置
 	 * @param {Object}oSettings
 	 */
-	function fDoconfig(oSettings){
+	function fDoConfig(oSettings){
 		var me=this;
-		me.callSuper();
-		var title=me.title;
+		var title=oSettings.title;
 		if($H.isSimple(title)){
 			title={
 				text:title
@@ -9561,7 +9601,7 @@ function(AC){
 		me.add(title);
 		
 		//内容
-		var content=me.content;
+		var content=oSettings.content;
 		//默认有空白字符
 		if(content===undefined&&!oSettings.items){
 			content='';
@@ -9578,6 +9618,10 @@ function(AC){
 			me.noPadding=true;
 			me.add(content);
 		}
+		var oSet=$.extend({},oSettings);
+		delete oSet.title;
+		delete oSet.content;
+		me.callSuper([oSet]);
 	}
 	
 	return Field;
@@ -10244,10 +10288,8 @@ function(AC,Popup,ControlGroup){
  */
 
 $Define('C.Hcard',
-['C.AbstractComponent',
-'CM.Model',
-'CM.Collection'],
-function(AC,Model,Collection){
+'C.AbstractComponent',
+function(AC){
 	
 	var Hcard=AC.define('Hcard');
 	
@@ -10257,28 +10299,11 @@ function(AC,Model,Collection){
 			cls      : 'hcard',
 			image    : '',    //图片
 			title    : '',    //标题
-			hasArrow : false, //是否有右边箭头，有点击函数时默认有右箭头
-			desc     : null,    //描述，可以是单个配置也可以是配置数组{icon:图标,text:文字}
-			descs    : {
-				depends:['desc'],
-				type : Collection.derive({
-					model : Model.derive({
-						fields:{
-							iconCls : {
-								depends:['icon'],
-								parse:function(){
-									var sIcon=this.get('icon');
-									return sIcon?'hui-icon-'+sIcon:'';
-								}
-							}
-						}
-					})
-				}),
-				parse  : function(){
-					var desc=this.get('desc');
-					return desc?$H.isArr(desc)?desc:[desc]:desc;
-				}
-			}
+			hasArrow : false  //是否有右边箭头，有点击函数时默认有右箭头
+		},
+		defItem  : {
+			xtype : 'Desc',
+			xrole : 'desc'
 		},
 		
 		tmpl     : [
@@ -10290,16 +10315,9 @@ function(AC,Model,Collection){
 				'{{/if}}',
 				'<div class="hui-hcard-content">',
 					'<div class="hui-content-title">{{title}}</div>',
-					'{{#each descs}}',
-						'<div class="hui-content-desc">',
-							'{{#if icon}}',
-								'<span {{bindAttr class="#hui-icon #hui-mini #hui-alt-icon iconCls #hui-light"}}></span>',
-							'{{/if}}',
-							'{{text}}',
-						'</div>',
-					'{{/each}}',
+					'{{placeItem >[xrole=desc]}}',
 				'</div>',
-				'{{placeItem}}',
+				'{{placeItem >[xrole!=desc]}}',
 				'{{#if hasArrow}}',
 					'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情">',
 						'<span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span>',
@@ -10318,7 +10336,12 @@ function(AC,Model,Collection){
 		me.callSuper();
 		//有点击函数时默认有右箭头
 		if(oSettings.click&&me.hasArrow===undefined){
-			me.hasArrow=true;
+			me.set('hasArrow',true);
+		}
+		//描述类
+		var aDesc=me.desc;
+		if(aDesc){
+			me.add(aDesc);
 		}
 	}
 		
@@ -10400,7 +10423,7 @@ function(AC){
 		xConfig     : {
 			cls         : 'mlist',
 			isEmpty     : false,             //列表是否为空
-			emptyTips   : '暂无结果',         //空列表提示
+			emptyTips   : '暂无',            //空列表提示
 			pdText      : '下拉可刷新',       //下拉刷新提示文字
 			pdComment   : '上次刷新时间：',    //下拉刷新附加说明
 			pdTime      : '',                //上次刷新时间
@@ -10413,9 +10436,6 @@ function(AC){
 		tmpl        : [
 			'<div class="hui-list">',
 				'<div class="hui-list-inner">',
-					'{{#if isEmpty}}',
-						'<div class="hui-list-empty js-empty">{{emptyTips}}/div>',
-					'{{/if}}',
 					'{{#if hasPullRefresh}}',
 						'<div class="hui-list-pulldown hui-pd-pull c-h-middle-container">',
 							'<div class="c-h-middle">',
@@ -10433,9 +10453,12 @@ function(AC){
 							'</div>',
 						'</div>',
 					'{{/if}}',
+					'{{#if isEmpty}}',
+						'<div class="hui-list-empty js-empty">{{emptyTips}}</div>',
+					'{{/if}}',
 					'<div class="js-item-container">{{placeItem}}</div>',
 					'{{#if hasPullRefresh}}',
-						'<div class="hui-list-more">',
+						'<div {{bindAttr class="hui-list-more isEmpty?hui-hidden"}}>',
 							'<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-shadow hui-inline hui-radius-normal">',
 								'<span class="hui-btn-txt">查看更多</span>',
 							'</a>',
@@ -10459,9 +10482,14 @@ function(AC){
 			(me.defItem||(me.defItem={})).xtype=me.itemXtype;
 		}
 		var oListItems=me.model;
+		var bHas=false;
 		oListItems.each(function(i,item){
 			me.addListItem(item);
+			bHas=true;
 		});
+		if(!bHas){
+			me.set('isEmpty',true);
+		}
 		me.listenTo(oListItems,{
 			'add':function(sEvt,oListItem){
 				me.addListItem(oListItem);
@@ -10519,7 +10547,7 @@ function(AC){
 			});
 			//同步数据后需要刷新
 			me.listenTo(me.model,'sync',function(){
-				me.findEl('.js-pdTime').html($H.formatDate($H.now(),'HH:mm'));
+				me.set('pdTime',$H.formatDate($H.now(),'HH:mm'));
 				setTimeout(function(){
 					me.refreshScroller();
 				},0);

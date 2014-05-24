@@ -15,6 +15,7 @@ function(AC){
 		xConfig         : {
 			cls             : 'input',
 			isTextarea      : false,               //是否是textarea
+			name            : '',
 			value           : '',                  //默认值
 			placeholder     : '',                  //placeholder
 			radius          : 'little',            //普通圆角
