@@ -49,7 +49,7 @@ function(AC){
 					'{{/if}}',
 					'<div class="js-item-container">{{placeItem}}</div>',
 					'{{#if hasPullRefresh}}',
-						'<div {{bindAttr class="hui-list-more isEmpty?hui-hidden"}}>',
+						'<div {{bindAttr class="#hui-list-more isEmpty?hui-hidden"}}>',
 							'<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-shadow hui-inline hui-radius-normal">',
 								'<span class="hui-btn-txt">查看更多</span>',
 							'</a>',

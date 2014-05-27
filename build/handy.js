@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-05-24 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-05-27 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -7143,6 +7143,7 @@ function(ViewManager,ModelView,Model,Template){
 		
 		//更新、销毁
 		beforeUpdate        : fBeforeUpdate,     //更新前工作
+		fastUpdate          : fFastUpdate,       //快速更新
 		update              : fUpdate,           //更新
 		replace             : fReplace,          //替换视图
 		afterUpdate         : fAfterUpdate,      //更新后工作
@@ -8062,8 +8063,36 @@ function(ViewManager,ModelView,Model,Template){
 		return this.trigger('beforeUpdate');
 	}
 	/**
+	 * 快速更新
+	 * @param {Object}oOptions 配置
+	 * @return {boolean} true表示快速更新成功
+	 */
+	function fFastUpdate(oOptions){
+		var me=this;
+		var oConfigs=me.xConfig;
+		var bContain=true;
+		var oXconf={},oOther={};
+		//检查选项是否都是xmodel的字段，如果是，则只需要更新xmodel即可，ui自动更新
+		$H.each(oOptions,function(p,v){
+			//xConfig里没有的配置
+			if(typeof oConfigs[p]=='undefined'){
+				oOther[p]=v;
+				bContain=false;
+			}else{
+				oXconf[p]=v;
+			}
+		})
+		if(bContain){
+			me.xmodel.set(oOptions);
+			return true;
+		}else{
+			
+		}
+		return false;
+	}
+	/**
 	 * 更新
-	 * @param {Object}oOptions
+	 * @param {Object}oOptions 配置
 	 * @param {boolean=}bNewConfig 仅当为true时，表示从初始化的参数的配置里继承，否则，从当前组件初始配置里扩展配置
 	 * @return {boolean|Object} 更新失败返回false，成功则返回更新后的视图对象
 	 */
@@ -8072,21 +8101,12 @@ function(ViewManager,ModelView,Model,Template){
 		if(!oOptions||me.beforeUpdate()==false){
 			return false;
 		}
-		var oConfigs=me.xConfig;
-		var bContain=true;
-		//检查选项是否都是xmodel的字段，如果是，则只需要更新xmodel即可，ui自动更新
-		$H.each(oOptions,function(p,v){
-			if(typeof oConfigs[p]=='undefined'){
-				bContain=false;
-				return false;
-			}
-		})
 		var oNew;
-		if(bContain){
-			me.xmodel.set(oOptions);
+		//先尝试快速更新
+		if(me.fastUpdate(oOptions)===true){
 			oNew=me;
 		}else{
-			//有不是xmodel的属性，执行完全更新
+			//执行完全更新
 			var oParent=me.parent;
 			var oPlaceholder=$('<span></span>').insertBefore(me.getEl());
 			
@@ -10458,7 +10478,7 @@ function(AC){
 					'{{/if}}',
 					'<div class="js-item-container">{{placeItem}}</div>',
 					'{{#if hasPullRefresh}}',
-						'<div {{bindAttr class="hui-list-more isEmpty?hui-hidden"}}>',
+						'<div {{bindAttr class="#hui-list-more isEmpty?hui-hidden"}}>',
 							'<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-shadow hui-inline hui-radius-normal">',
 								'<span class="hui-btn-txt">查看更多</span>',
 							'</a>',
