@@ -35,6 +35,7 @@ function(AbstractDao,AbstractEvents){
 //		dao                   : null,                //数据访问对象，默认为common.AbstractDao
 		
         //内部属性
+//      fetching              : false,               //是否正在抓取数据
 //		_changing             : false,               //是否正在改变，但未保存
 		_pending              : false,               //
 //		_previousAttributes   : {},                  //较早的值
@@ -440,6 +441,7 @@ function(AbstractDao,AbstractEvents){
 	 */
     function fFetch(oOptions) {
     	var me=this;
+    	me.fetching=true;
         oOptions = oOptions ? $H.clone(oOptions) : {};
         if (oOptions.parse === void 0) {
         	oOptions.parse = true;
@@ -447,6 +449,7 @@ function(AbstractDao,AbstractEvents){
         var fSuccess = oOptions.success;
         var fBeforeSet = oOptions.beforeSet;
         oOptions.success = function(resp) {
+        	me.fetching=false;
         	if (fBeforeSet){
         		if(fBeforeSet(me, resp, oOptions)==false){
         			return;

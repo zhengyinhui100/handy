@@ -105,7 +105,7 @@ function(LS){
 	function fSync(sMethod, oModel, oOptions){
 		var me=this;
 		oOptions=oOptions||{};
-		var sToreType=oOptions.storeType||'remote';
+		var sStoreType=oOptions.storeType||'remote';
 		//ajax请求参数
 		var oParam={type: 'POST'||me._ajaxMethodMap[sMethod], dataType: 'json'};
 		if(!oOptions.url){
@@ -116,7 +116,7 @@ function(LS){
 	        oParam.data = oOptions.attrs || oModel.toJSON(oOptions);
 	    }
 	    
-		if(sToreType=='remote'){
+		if(sStoreType=='remote'){
 			//服务端存储
 			oParam.url+='/'+sMethod+'.do';
 			$H.extend(oParam,oOptions);

@@ -37,11 +37,12 @@ function(AC){
 		var me=this;
 		me.callSuper();
 		//空格占位符
-		if(!me.get('text')){
+		var sText=me.get('text');
+		if(!sText&&sText!==0){
 			me.set('text',"&nbsp;");
 		}
 		//默认文字域有下划线
-		if(me.text&&me.underline===undefined){
+		if(me.text!==undefined&&me.underline===undefined){
 			me.set('underline',true);
 		}
 		//有点击函数时默认有右箭头

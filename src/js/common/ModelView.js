@@ -523,7 +523,7 @@ function(Template,AbstractView,Model,Collection){
 				jTmp.remove();
 			}
 		}
-		sHtml&&jStart.after(sHtml);
+		sHtml!==undefined&&jStart.after(sHtml);
 		if(sType=='remove'){
 			jStart.remove();
 			$(eNext).remove();
@@ -538,7 +538,8 @@ function(Template,AbstractView,Model,Collection){
 	function fWrapMetaMorph(nId,sHtml){
 		var sStart='<script id="metamorph-';
 		var sEnd='" type="text/x-placeholder"></script>';
-		return sStart+nId+'-start'+sEnd+(sHtml||'')+sStart+nId+'-end'+sEnd;
+		sHtml=sHtml===undefined?'':sHtml;
+		return sStart+nId+'-start'+sEnd+sHtml+sStart+nId+'-end'+sEnd;
 	}
 	/**
 	 * 读取配置属性
