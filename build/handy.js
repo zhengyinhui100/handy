@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-05-30 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-05-31 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -2316,6 +2316,9 @@ handy.add('Date',function(){
 	 * @return {string} 返回字符串日期
 	 */
 	function fFormatDate(oDate, sFormator) {
+		if(typeof oDate!='object'){
+			return oDate;
+		}
 		var sFormator=sFormator||'yyyy-MM-dd HH:mm:ss';
 		var nHours=oDate.getHours();
 		var nQuarter=Math.floor((oDate.getMonth() + 3) / 3)
@@ -4020,10 +4023,17 @@ handy.add('Validator',['B.String','B.Object'],function(String,Object,$H){
 	}
 	/**
 	 * 校验
-	 * @method valid
-	 * @param {Object}oRule{
-	 * 		{boolean|Array|Function}rules : 校验规则，可以有多条，可以是此Validator类里的规则，也可以传入自定义的校验函数
-	 * 		{string}messages : 自定义提示文字
+	 * @param {?}value 需要校验的值
+	 * @param {Object}oValidator{
+	 * 		{Object}rules : 校验规则，可以有多条，可以是此Validator类里的规则，也可以传入自定义的校验函数
+	 * 		{
+	 * 			{string}name:{*}valid 如果传入的是函数，表示自定义验证规则(valid(value)返回false则为校验不通过)，
+	 * 				如果要使用本类中的校验方法，则传入相应规则要求的参数，如：{required:true,maxlength:50}
+	 * 		}
+	 * 		{object=}messages : 自定义提示文字，这里定义优先级高于默认的提示
+	 * 		{
+	 * 			{string}name:msg name对应的时校验规则名，msg则是相应的提示文字
+	 * 		}
 	 * 		{Function}error : 自定义提示方法
 	 * }
 	 * @return {boolean} true表示验证成功，false表示失败
@@ -10028,7 +10038,7 @@ function(AC,Popup,ControlGroup){
 			theme           : 'black'
 		},
 //		type            : 'miniLoading',            类型，‘loading’表示居中加载中提示，‘topTips’表示顶部简单提示，‘miniLoading’表示顶部无背景loading小提示
-		timeout         : 1000,
+		timeout         : 2000,
 		
 		tmpl            : [
 			'<div {{bindAttr class="text:hui-tips-notxt"}}>',
@@ -10382,6 +10392,7 @@ function(AC,Dialog){
 		if(oPicker=oInstance[sFormator]){
 			//宿主对象不同，需重新绑定事件
 			if(oPicker.host!=oParams.host){
+				oPicker.host=oParams.host
 				oPicker.off('change confirm');
 				oParams.change&&oPicker.on('change',oParams.change);
 				oParams.confirm&&oPicker.on('confirm',oParams.confirm);
@@ -10448,7 +10459,8 @@ function(AC,Dialog){
 		};
 		for(var i=nMin;i<=nMax;i++){
 			oItem.options.push({
-				text:i,
+				//分钟数补零
+				text:sName=='minute'&&i<10?'0'+i:i,
 				value:i,
 				hidden:nMaxDay&&i>nMaxDay
 			});
@@ -10498,14 +10510,14 @@ function(AC,Dialog){
 			contentTitle:sTime+' 星期'+$H.getWeek(oDate),
 			items:aItems,
 			okCall:function(){
-				me.trigger('confirm');
+				return me.trigger('confirm');
 			}
 		});
 		me.callSuper([oSettings]);
 	}
 	/**
 	 * 获取/设置值
-	 * @param {string=|Date=|boolean} 字符串或者日期值，表示设置操作，如果为空则表示读取操作，true表示读取Date类型时间
+	 * @param {string=|Date=|boolean}value 字符串或者日期值，表示设置操作，如果为空则表示读取操作，true表示读取Date类型时间
 	 * @return {string=} 读取操作时返回当前时间
 	 */
 	function fVal(value){
@@ -10586,9 +10598,9 @@ function(AC,DatePicker){
 				}
 			}
 		},
-//		date            : null,               //初始时间，Date对象，默认是当前($H.now())
+//		date            : null,               //初始时间，Date对象，默认是当前($H.now()，默认分钟数清零)
 //		formator        : 'yyyy-MM-dd HH:mm', //格式因子
-		_customEvents   : ['change'],
+		_customEvents   : ['change','confirm'],
 		
 		tmpl            : [
 			'<div {{bindAttr class="#hui-btn #hui-btn-gray iconPosCls"}}>',
@@ -10619,8 +10631,14 @@ function(AC,DatePicker){
 	 */
 	function fDoConfig(oParams){
 		var me=this;
-		var oTime=me.date=oParams.date||$H.now();
-		var sTime=$H.formatDate(oTime,oParams.formator);
+		var oTime=oParams.date;
+		if(!oTime){
+			oTime=$H.now();
+			//不传时间默认分钟数清零
+			oTime.setMinutes(0);
+		}
+		me.date=oTime;
+		var sTime=$H.formatDate(oTime,oParams.formator||(oParams.formator='yyyy-MM-dd HH:mm'));
 		me.set('value',sTime);
 		me.callSuper();
 	}
@@ -10636,24 +10654,27 @@ function(AC,DatePicker){
 			confirm:function(){
 				me.set('value',this.val());
 				me.trigger('change');
+				return me.trigger('confirm');
 			}
 		});
 	}
 	/**
 	 * 获取/设置输入框的值
 	 * @method val
-	 * @param {string=}sValue 要设置的值，不传表示读取值
+	 * @param {string=|Date=|boolean}value 字符串或者日期值，表示设置操作，如果为空则表示读取操作，true表示读取Date类型时间
 	 * @return {string=} 如果是读取操作，返回当前值
 	 */
-	function fVal(sValue){
+	function fVal(value){
 		var me=this;
-		if(sValue){
-			if(me.get('value')!=sValue){
-				me.set('value',sValue);
+		if(!value||$H.isBool(value)){
+			var sTime=me.get('value');
+			return value?$H.parseDate(sTime):sTime;
+		}else{
+			value=$H.formatDate(value,me.formator);
+			if(me.get('value')!=value){
+				me.set('value',value);
 				me.trigger("change");
 			}
-		}else{
-			return me.get('value');
 		}
 	}
 	
