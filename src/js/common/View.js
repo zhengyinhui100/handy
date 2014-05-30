@@ -477,6 +477,7 @@ function(ViewManager,ModelView,Model,Template){
 		}
 		me.trigger('show');
 		me.showed=true;
+		me.hidden=false;
 		var oEl=me.getEl();
 		if(me.displayMode=='visibility'){
 			oEl.css({visibility:"visible"})
@@ -508,9 +509,10 @@ function(ViewManager,ModelView,Model,Template){
 	/**
 	 * 隐藏
 	 * @method hide
+	 * @param {boolean=}bSetHidden true时设置hidden属性，避免来自父视图的show调用导致显示
 	 * @return {boolean=} 仅当没有成功隐藏时返回false
 	 */
-	function fHide(){
+	function fHide(bSetHidden){
 		var me=this;
 		if(me.beforeHide()==false
 			//已经隐藏，直接退回
@@ -523,6 +525,9 @@ function(ViewManager,ModelView,Model,Template){
 			oEl.css({visibility:"hidden"})
 		}else{
 			oEl.addClass('hui-hidden');;
+		}
+		if(bSetHidden){
+			me.hidden=true;
 		}
 		me.trigger('hide');
 		me.afterHide();
@@ -784,9 +789,10 @@ function(ViewManager,ModelView,Model,Template){
 	 * @method find
 	 * @param {number|string=|Function(View)|Class}sel 不传表示获取子视图数组，数字表示子组件索引，
 	 * 				如果是字符串：多个选择器间用","隔开('sel1,sel2,...')，语法类似jQuery，
-	 * 				如：'xtype[attr=value]'、'ancestor descendant'、'parent>child'，
-	 * 				'#'表示cid，如'#btn'，表示cid为btn的视图
-	 * 				'>Button'表示仅查找当前子节点中的按钮，'Button'表示查找所有后代节点中的按钮，
+	 * 				如：'xtype[attr=value]'、'ancestor descendant'、'parent > child'，
+	 * 				'#'表示cid，如'#btn'，表示cid为btn的视图，
+	 * 				'.'表示cClass，如'.btn'，表示cClass为btn的视图，
+	 * 				'> Button'表示仅查找当前子节点中的按钮，'Button'表示查找所有后代节点中的按钮，
 	 * 				如果是函数(参数是当前匹配的视图对象)，则将返回true的结果加入结果集，
 	 * 				如果是类，查找该类的实例
 	 * @param {Array=}aResult 用于存储结果集的数组
@@ -811,10 +817,10 @@ function(ViewManager,ModelView,Model,Template){
 			var bOnlyChildren=sel.indexOf('>')==0;
 			var sCurSel=sel.replace(/^>?\s?/,'');
 			//分割当前选择器及后代选择器
-			var nIndex=sCurSel.search(/\s|>/);
+			var nIndex=sCurSel.search(/\s/);
 			var sCurSel,sExtSel;
 			if(nIndex>0){
-				sExtSel=sCurSel.substring(nIndex);
+				sExtSel=sCurSel.substring(nIndex+1);
 				sCurSel=sCurSel.substring(0,nIndex);
 			}
 			//匹配子视图

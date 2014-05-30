@@ -48,7 +48,7 @@ function(AC,Popup){
 					'{{#if content}}',
 						'{{content}}',
 					'{{else}}',
-						'<div class="hui-body-content">',
+						'<div class="hui-body-content c-clear">',
 							'<h1 class="hui-content-title">{{contentTitle}}</h1>',
 							'<div class="hui-content-msg">{{contentMsg}}</div>',
 							'{{placeItem >[xrole=dialog-content]}}',

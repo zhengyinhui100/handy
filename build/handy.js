@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-05-27 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-05-30 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -2317,8 +2317,6 @@ handy.add('Date',function(){
 	 */
 	function fFormatDate(oDate, sFormator) {
 		var sFormator=sFormator||'yyyy-MM-dd HH:mm:ss';
-		var oDate=oDate;
-
 		var nHours=oDate.getHours();
 		var nQuarter=Math.floor((oDate.getMonth() + 3) / 3)
 		var oData = {
@@ -2367,6 +2365,8 @@ handy.add('Date',function(){
 		if(!aNumMatches){
 			return;
 		}
+		//如果设置月份时，日期大于要设置的月份的最大天数，会使月份数增加一月，所以这里先设置为1
+		oDate.setDate(1);
 		for(var i=0;i<aNumMatches.length;i++){
 			var sFormatorMatch=aFormatorMatches[i];
 			var nNum=parseInt(aNumMatches[i]);
@@ -2378,6 +2378,11 @@ handy.add('Date',function(){
 					oDate.setMonth(nNum-1);
 					break;
 				case 'dd':
+					//如果要设置的日期数大于该月最大天数，设置为该月最后一天
+					var nDay=Date.getDaysInMonth(oDate);
+					if(nNum>nDay){
+						nNum=nDay;
+					}
 					oDate.setDate(nNum);
 					break;
 				case 'HH':
@@ -4610,7 +4615,7 @@ function(LS){
 	function fSync(sMethod, oModel, oOptions){
 		var me=this;
 		oOptions=oOptions||{};
-		var sToreType=oOptions.storeType||'remote';
+		var sStoreType=oOptions.storeType||'remote';
 		//ajax请求参数
 		var oParam={type: 'POST'||me._ajaxMethodMap[sMethod], dataType: 'json'};
 		if(!oOptions.url){
@@ -4621,7 +4626,7 @@ function(LS){
 	        oParam.data = oOptions.attrs || oModel.toJSON(oOptions);
 	    }
 	    
-		if(sToreType=='remote'){
+		if(sStoreType=='remote'){
 			//服务端存储
 			oParam.url+='/'+sMethod+'.do';
 			$H.extend(oParam,oOptions);
@@ -4672,6 +4677,7 @@ function(AbstractDao,AbstractEvents){
 //		dao                   : null,                //数据访问对象，默认为common.AbstractDao
 		
         //内部属性
+//      fetching              : false,               //是否正在抓取数据
 //		_changing             : false,               //是否正在改变，但未保存
 		_pending              : false,               //
 //		_previousAttributes   : {},                  //较早的值
@@ -5077,6 +5083,7 @@ function(AbstractDao,AbstractEvents){
 	 */
     function fFetch(oOptions) {
     	var me=this;
+    	me.fetching=true;
         oOptions = oOptions ? $H.clone(oOptions) : {};
         if (oOptions.parse === void 0) {
         	oOptions.parse = true;
@@ -5084,6 +5091,7 @@ function(AbstractDao,AbstractEvents){
         var fSuccess = oOptions.success;
         var fBeforeSet = oOptions.beforeSet;
         oOptions.success = function(resp) {
+        	me.fetching=false;
         	if (fBeforeSet){
         		if(fBeforeSet(me, resp, oOptions)==false){
         			return;
@@ -6195,6 +6203,7 @@ function(ViewManager,AbstractEvents){
 	 */
 	function fInitialize(oParams){
 		var me=this;
+		oParams=oParams||{};
 		me.callSuper();
 		me._listeners=[];
 		me.listeners=$H.clone(me.listeners);
@@ -6977,7 +6986,7 @@ function(Template,AbstractView,Model,Collection){
 				jTmp.remove();
 			}
 		}
-		sHtml&&jStart.after(sHtml);
+		sHtml!==undefined&&jStart.after(sHtml);
 		if(sType=='remove'){
 			jStart.remove();
 			$(eNext).remove();
@@ -6992,7 +7001,8 @@ function(Template,AbstractView,Model,Collection){
 	function fWrapMetaMorph(nId,sHtml){
 		var sStart='<script id="metamorph-';
 		var sEnd='" type="text/x-placeholder"></script>';
-		return sStart+nId+'-start'+sEnd+(sHtml||'')+sStart+nId+'-end'+sEnd;
+		sHtml=sHtml===undefined?'':sHtml;
+		return sStart+nId+'-start'+sEnd+sHtml+sStart+nId+'-end'+sEnd;
 	}
 	/**
 	 * 读取配置属性
@@ -7503,6 +7513,7 @@ function(ViewManager,ModelView,Model,Template){
 		}
 		me.trigger('show');
 		me.showed=true;
+		me.hidden=false;
 		var oEl=me.getEl();
 		if(me.displayMode=='visibility'){
 			oEl.css({visibility:"visible"})
@@ -7534,9 +7545,10 @@ function(ViewManager,ModelView,Model,Template){
 	/**
 	 * 隐藏
 	 * @method hide
+	 * @param {boolean=}bSetHidden true时设置hidden属性，避免来自父视图的show调用导致显示
 	 * @return {boolean=} 仅当没有成功隐藏时返回false
 	 */
-	function fHide(){
+	function fHide(bSetHidden){
 		var me=this;
 		if(me.beforeHide()==false
 			//已经隐藏，直接退回
@@ -7549,6 +7561,9 @@ function(ViewManager,ModelView,Model,Template){
 			oEl.css({visibility:"hidden"})
 		}else{
 			oEl.addClass('hui-hidden');;
+		}
+		if(bSetHidden){
+			me.hidden=true;
 		}
 		me.trigger('hide');
 		me.afterHide();
@@ -7810,9 +7825,10 @@ function(ViewManager,ModelView,Model,Template){
 	 * @method find
 	 * @param {number|string=|Function(View)|Class}sel 不传表示获取子视图数组，数字表示子组件索引，
 	 * 				如果是字符串：多个选择器间用","隔开('sel1,sel2,...')，语法类似jQuery，
-	 * 				如：'xtype[attr=value]'、'ancestor descendant'、'parent>child'，
-	 * 				'#'表示cid，如'#btn'，表示cid为btn的视图
-	 * 				'>Button'表示仅查找当前子节点中的按钮，'Button'表示查找所有后代节点中的按钮，
+	 * 				如：'xtype[attr=value]'、'ancestor descendant'、'parent > child'，
+	 * 				'#'表示cid，如'#btn'，表示cid为btn的视图，
+	 * 				'.'表示cClass，如'.btn'，表示cClass为btn的视图，
+	 * 				'> Button'表示仅查找当前子节点中的按钮，'Button'表示查找所有后代节点中的按钮，
 	 * 				如果是函数(参数是当前匹配的视图对象)，则将返回true的结果加入结果集，
 	 * 				如果是类，查找该类的实例
 	 * @param {Array=}aResult 用于存储结果集的数组
@@ -7837,10 +7853,10 @@ function(ViewManager,ModelView,Model,Template){
 			var bOnlyChildren=sel.indexOf('>')==0;
 			var sCurSel=sel.replace(/^>?\s?/,'');
 			//分割当前选择器及后代选择器
-			var nIndex=sCurSel.search(/\s|>/);
+			var nIndex=sCurSel.search(/\s/);
 			var sCurSel,sExtSel;
 			if(nIndex>0){
-				sExtSel=sCurSel.substring(nIndex);
+				sExtSel=sCurSel.substring(nIndex+1);
 				sCurSel=sCurSel.substring(0,nIndex);
 			}
 			//匹配子视图
@@ -8536,12 +8552,19 @@ function(AC){
 			cls             : 'btn',
 			text            : '',                  //按钮文字
 			theme           : 'gray',
-			iconPos         : '',                  //图标位置，"left"|"top"
+			iconPos         : '',                  //图标位置，"left"|"right"|"top"|"bottom"
 			activeCls       : 'hui-btn-active',    //激活样式
 			isBack          : false,               //是否是后退按钮
 			radius          : 'little',            //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 			shadow          : true,        	       //外阴影
 			isInline        : true,                //宽度自适应
+			hasText         : {
+				depends : ['text'],
+				parse : function(){
+					var sTxt=this.get('text');
+					return sTxt||sTxt===0;
+				}
+			},
 			iconPosCls      : {
 				depends : ['iconPos'],
 				parse :function(){
@@ -8557,7 +8580,7 @@ function(AC){
 			xtype       : 'Icon'
 		},
 		
-		tmpl            : ['<a href="javascript:;" hidefocus="true" {{bindAttr class="text:hui-btn-icon-notxt isBack?hui-btn-back iconPosCls"}}>',
+		tmpl            : ['<a href="javascript:;" hidefocus="true" {{bindAttr class="hasText:hui-btn-icon-notxt isBack?hui-btn-back iconPosCls"}}>',
 								'<span class="hui-btn-txt">{{text}}</span>',
 								'{{placeItem}}',
 							'</a>'].join('')
@@ -9007,9 +9030,13 @@ function(AC){
 	function fVal(sValue){
 		var me=this;
 		if(sValue){
-			var aValues=sValue.split(','),aSel=[];
+			var aValues=(''+sValue).split(',');
 			me.each(function(i,oCmp){
-				oCmp.select($H.contains(aValues,oCmp.value));
+				if($H.contains(aValues,oCmp.get('value'))){
+					me.selectItem(oCmp,true);
+				}else{
+					me.selectItem(oCmp,false);
+				}
 			});
 		}else{
 			var aValues=[];
@@ -9176,10 +9203,19 @@ function(AC){
 			cls             : 'select',
 			name            : '',                  //选项名
 			text            : '请选择...',          //为选择时的文字
-			value           : '',                  //默认值
-			radius          : 'little'
+			value           : 'right',             //默认值
+			radius          : 'little',
+			iconPos         : 'right',             //图标位置，"left"|"right"|"top"|"bottom"
+			iconPosCls      : {
+				depends : ['iconPos'],
+				parse :function(){
+					var sPos=this.get('iconPos');
+					return sPos?'hui-btn-icon-'+sPos:'';
+				}
+			}
 		},
 //		options         : [{text:"文字",value:"值"}],    //选项
+//		optionWidth     : 0,                            //选项菜单宽度
 		optionClick     : function(){},
 		defItem         : {
 			xtype       : 'Menu',
@@ -9191,7 +9227,7 @@ function(AC){
 		
 		_customEvents   : ['change'],
 		tmpl            : [
-			'<div class="hui-btn hui-btn-gray hui-btn-icon-right">',
+			'<div {{bindAttr class="#hui-btn #hui-btn-gray iconPosCls"}}>',
 				'<span class="hui-icon hui-alt-icon hui-icon-carat-d hui-light"></span>',
 				'<input {{bindAttr value="value" name="name"}}/>',
 				'<span class="hui-btn-txt js-select-txt">{{text}}</span>',
@@ -9241,7 +9277,7 @@ function(AC){
 				var sValue=oButton.get('value');
 				me.val(sValue);
 			},
-			width:me.width,
+			width:me.optionWidth||me.width,
 			items:oOptions
 		})
 	}
@@ -9267,12 +9303,12 @@ function(AC){
 				var oMenu=me.children[0];
 				var oItem=oMenu.find('>[value='+sValue+']');
 				if(oItem.length>0){
-					me.trigger("change");
 					oItem=oItem[0];
 					me.set('value',sValue);
 					me.txt(oItem.get('text'));
 					//更新菜单选中状态
 					oMenu.select(oItem);
+					me.trigger("change");
 				}
 			}
 		}else{
@@ -9517,11 +9553,12 @@ function(AC){
 		var me=this;
 		me.callSuper();
 		//空格占位符
-		if(!me.get('text')){
+		var sText=me.get('text');
+		if(!sText&&sText!==0){
 			me.set('text',"&nbsp;");
 		}
 		//默认文字域有下划线
-		if(me.text&&me.underline===undefined){
+		if(me.text!==undefined&&me.underline===undefined){
 			me.set('underline',true);
 		}
 		//有点击函数时默认有右箭头
@@ -10098,7 +10135,7 @@ function(AC,Popup){
 					'{{#if content}}',
 						'{{content}}',
 					'{{else}}',
-						'<div class="hui-body-content">',
+						'<div class="hui-body-content c-clear">',
 							'<h1 class="hui-content-title">{{contentTitle}}</h1>',
 							'<div class="hui-content-msg">{{contentMsg}}</div>',
 							'{{placeItem >[xrole=dialog-content]}}',
@@ -10271,6 +10308,7 @@ function(AC,Popup,ControlGroup){
 			xtype            : 'Button',
 			radius           : null,
 			shadow           : false,
+			theme            : null,
 //			selected         : false,             //是否选中
 			isInline         : false
 		},
@@ -10301,6 +10339,173 @@ function(AC,Popup,ControlGroup){
 	}
 	
 	return Menu;
+	
+});/**
+ * 时间选择器类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+
+$Define('C.DatePicker',
+['C.AbstractComponent',
+'C.Dialog'],
+function(AC,Dialog){
+	
+	var DatePicker=AC.define('DatePicker',Dialog);
+	
+	DatePicker.extend({
+		//初始配置
+		xConfig         : {
+			cls         : 'dp'
+		},
+//		date            : null,               //初始时间，Date对象，默认是当前($H.now())
+//		formator        : 'yyyy-MM-dd HH:mm', //格式因子
+		extCls          : 'hui-dialog',
+		_customEvents   : ['change'],
+		doConfig        : fDoConfig,          //初始化配置
+		val             : fVal                //设置/读取值
+	});
+	
+	/**
+	 * 获取选择框配置对象
+	 * @param {string}sValue 选中值
+	 * @param {number}nMin 最小值
+	 * @param {number}nMax 最大值
+	 * @param {string}sName 选择框名称
+	 * @param {number=}nMaxDay 当前月份最大天数
+	 * @return {object} 返回选择框配置
+	 */
+	function _fGetSelect(sValue,nMin,nMax,sName,nMaxDay){
+		var oItem={
+			xtype:'Select',
+			xrole:'dialog-content',
+			name:'dialogSelect',
+			value:sValue,
+			width:50,
+			cClass:sName,
+			optionWidth:100,
+			iconPos:'bottom',
+			extCls:'hui-dp-'+sName,
+			options:[],
+			defItem:{
+				showPos:'center'
+			},
+			change:function(){
+				var me=this;
+				var oDp=me.parent;
+				var oTime=oDp.val(true);
+				//月份发生变化，要更新当月份的天数
+				if(me.cClass=='month'){
+					var nDay=$H.getDaysInMonth(oTime);
+					var oDateMenu=oDp.find('.date > Menu')[0];
+					var aMenuItems= oDateMenu.find();
+					if(oDateMenu.val()>nDay){
+						oDateMenu.val(nDay);
+					}
+					for(var i=28;i<31;i++){
+						var oItem=aMenuItems[i];
+						if(i<nDay){
+							oItem.show();
+						}else{
+							oItem.hide(true);
+						}
+					}
+				}
+				var sTime=oDp.val();
+				oDp.val(sTime);
+				oDp.trigger('change');
+			}
+		};
+		for(var i=nMin;i<=nMax;i++){
+			oItem.options.push({
+				text:i,
+				value:i,
+				hidden:nMaxDay&&i>nMaxDay
+			});
+		}
+		return oItem;
+	}
+	/**
+	 * 初始化配置
+	 * @param {Object}oSettings 参数配置
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		oSettings=oSettings||{};
+		var oDate=oSettings.date||$H.now();
+		var sFormator=oSettings.formator||(oSettings.formator='yyyy-MM-dd HH:mm');
+		var sTime=$H.formatDate(oDate,sFormator);
+		var aItems=[];
+		var nMaxDay=$H.getDaysInMonth(oDate);
+		var aFormatorMatches=sFormator.match(/[a-zA-Z]+/g);
+		var aNumMatches=sTime.match(/\d+/g);
+		for(var i=0;i<aFormatorMatches.length;i++){
+			var sFormatorMatch=aFormatorMatches[i];
+			var nNum=parseInt(aNumMatches[i]);
+			switch (sFormatorMatch){
+				case 'yyyy':
+					aItems.push(_fGetSelect(nNum,nNum,nNum+10,'year'));
+					break;
+				case 'MM':
+					aItems.push(_fGetSelect(nNum,1,12,'month'));
+					break;
+				case 'dd':
+					aItems.push(_fGetSelect(nNum,1,31,'date',nMaxDay));
+					break;
+				case 'HH':
+					aItems.push(_fGetSelect(nNum,0,24,'hour'));
+					break;
+				case 'mm':
+					aItems.push(_fGetSelect(nNum,0,60,'minute'));
+					break;
+			}
+		}
+		$H.extend(oSettings,{
+			contentTitle:sTime+' 星期'+$H.getWeek(oDate),
+			items:aItems
+		});
+		me.callSuper([oSettings]);
+	}
+	/**
+	 * 获取/设置值
+	 * @param {string=|Date=|boolean} 字符串或者日期值，表示设置操作，如果为空则表示读取操作，true表示读取Date类型时间
+	 * @return {string=} 读取操作时返回当前时间
+	 */
+	function fVal(value){
+		var me=this;
+		var aSel=me.find('Select');
+		var sFormator=me.formator;
+		//读取
+		if(!value||$H.isBool(value)){
+			var sTime='';
+			for(var i=0;i<aSel.length;i++){
+				if(i==1||i==2){
+					sTime+='-';
+				}else if(i==3){
+					sTime+=' ';
+				}else if(i==4){
+					sTime+=':';
+				}
+				sTime+=aSel[i].val();
+			}
+			var oDate=$H.parseDate(sTime);
+			return value?oDate:$H.formatDate(oDate,sFormator);
+		}else{
+			//设置
+			var sTime=value,oTime=value;
+			if($H.isStr(value)){
+				oTime=$H.parseDate(value,sFormator);
+			}else{
+				sTime=$H.formatDate(value,sFormator);
+			}
+			var aValues=sTime.match(/\d+/g);
+			for(var i=0;i<aSel.length;i++){
+				aSel[i].val(aValues[i]);
+			}
+			me.set('contentTitle',sTime+' 星期'+$H.getWeek(oTime));
+		}
+	}
+	
+	return DatePicker;
 	
 });/**
  * 横向卡片类
@@ -10447,6 +10652,7 @@ function(AC){
 			pdText      : '下拉可刷新',       //下拉刷新提示文字
 			pdComment   : '上次刷新时间：',    //下拉刷新附加说明
 			pdTime      : '',                //上次刷新时间
+			hasMoreBtn  : true,              //是否有获取更多按钮
 			hasPullRefresh : false           //是否有下拉刷新
 		},
 //		itemXtype   : '',                //子组件默认xtype
@@ -10477,7 +10683,7 @@ function(AC){
 						'<div class="hui-list-empty js-empty">{{emptyTips}}</div>',
 					'{{/if}}',
 					'<div class="js-item-container">{{placeItem}}</div>',
-					'{{#if hasPullRefresh}}',
+					'{{#if hasMoreBtn}}',
 						'<div {{bindAttr class="#hui-list-more isEmpty?hui-hidden"}}>',
 							'<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-shadow hui-inline hui-radius-normal">',
 								'<span class="hui-btn-txt">查看更多</span>',
@@ -10599,6 +10805,7 @@ function(AC){
 		me.add({
 			model:oListItem
 		});
+		me.refreshScroller();
 	}
 	/**
 	 * 删除列表项
@@ -10616,13 +10823,14 @@ function(AC){
 		if(me.children.length==0){
 			me.set('isEmpty',true);;
 		}
+		me.refreshScroller();
 	}
 	/**
 	 * 刷新iScroll
 	 */
 	function fRefreshScroller(){
 		var me=this;
-			//仅在页面显示时才刷新，否则scroller会不可用
+		//仅在页面显示时才刷新，否则scroller会不可用
 		if(me.scroller&&me.getEl()[0].clientHeight){
 	    	me.scroller.refresh();
 		}

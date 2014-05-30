@@ -16,10 +16,19 @@ function(AC){
 			cls             : 'select',
 			name            : '',                  //选项名
 			text            : '请选择...',          //为选择时的文字
-			value           : '',                  //默认值
-			radius          : 'little'
+			value           : 'right',             //默认值
+			radius          : 'little',
+			iconPos         : 'right',             //图标位置，"left"|"right"|"top"|"bottom"
+			iconPosCls      : {
+				depends : ['iconPos'],
+				parse :function(){
+					var sPos=this.get('iconPos');
+					return sPos?'hui-btn-icon-'+sPos:'';
+				}
+			}
 		},
 //		options         : [{text:"文字",value:"值"}],    //选项
+//		optionWidth     : 0,                            //选项菜单宽度
 		optionClick     : function(){},
 		defItem         : {
 			xtype       : 'Menu',
@@ -31,7 +40,7 @@ function(AC){
 		
 		_customEvents   : ['change'],
 		tmpl            : [
-			'<div class="hui-btn hui-btn-gray hui-btn-icon-right">',
+			'<div {{bindAttr class="#hui-btn #hui-btn-gray iconPosCls"}}>',
 				'<span class="hui-icon hui-alt-icon hui-icon-carat-d hui-light"></span>',
 				'<input {{bindAttr value="value" name="name"}}/>',
 				'<span class="hui-btn-txt js-select-txt">{{text}}</span>',
@@ -81,7 +90,7 @@ function(AC){
 				var sValue=oButton.get('value');
 				me.val(sValue);
 			},
-			width:me.width,
+			width:me.optionWidth||me.width,
 			items:oOptions
 		})
 	}
@@ -107,12 +116,12 @@ function(AC){
 				var oMenu=me.children[0];
 				var oItem=oMenu.find('>[value='+sValue+']');
 				if(oItem.length>0){
-					me.trigger("change");
 					oItem=oItem[0];
 					me.set('value',sValue);
 					me.txt(oItem.get('text'));
 					//更新菜单选中状态
 					oMenu.select(oItem);
+					me.trigger("change");
 				}
 			}
 		}else{

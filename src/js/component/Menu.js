@@ -26,6 +26,7 @@ function(AC,Popup,ControlGroup){
 			xtype            : 'Button',
 			radius           : null,
 			shadow           : false,
+			theme            : null,
 //			selected         : false,             //是否选中
 			isInline         : false
 		},

@@ -116,6 +116,9 @@
   min-width: .75em;
   text-overflow: ellipsis;
   white-space: nowrap;
+  background: #eee;
+  color: #222;
+  border: 1px solid #ccc;
   zoom: 1;
   font-weight: 700;
   -webkit-user-select: none;
@@ -666,6 +669,8 @@
   position: absolute;
   z-index: 1000;
   -webkit-transform: translateZ(0);
+  overflow: auto;
+  max-height: 200px;
 }
 .hui-menu .hui-icon-check {
   display: none;
@@ -795,6 +800,7 @@
 .hui-rowitem {
   position: relative;
   padding: .8em 0.4em;
+  min-height: 2.8em;
 }
 .hui-rowitem.hui-rowitem-txt {
   word-wrap: break-word;
@@ -872,7 +878,7 @@
   text-align: center;
   font-size: 1em;
   display: block;
-  padding: .6em 30% .8em;
+  padding: .6em 4em .8em;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
@@ -1109,6 +1115,24 @@
   word-wrap: break-word;
   overflow: hidden;
   word-break: break-all;
+}
+.hui-dp {
+  width: 250px;
+}
+.hui-dp .hui-content-title {
+  font-size: 1.1em;
+}
+.hui-dp .hui-select {
+  float: left;
+  margin-right: 10px;
+  padding-left: .2em;
+  padding-right: .2em;
+}
+.hui-dp .hui-dp-year {
+  margin-left: 26px;
+}
+.hui-dp .hui-dp-hour {
+  margin-left: 57px;
 }
 .hui-list .hui-list-empty {
   text-align: center;
