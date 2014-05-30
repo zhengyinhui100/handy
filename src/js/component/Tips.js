@@ -22,7 +22,7 @@ function(AC,Popup,ControlGroup){
 			theme           : 'black'
 		},
 //		type            : 'miniLoading',            类型，‘loading’表示居中加载中提示，‘topTips’表示顶部简单提示，‘miniLoading’表示顶部无背景loading小提示
-		timeout         : 1000,
+		timeout         : 2000,
 		
 		tmpl            : [
 			'<div {{bindAttr class="text:hui-tips-notxt"}}>',

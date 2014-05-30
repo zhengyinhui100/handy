@@ -41,7 +41,7 @@ function(AC,DatePicker){
 		},
 //		date            : null,               //初始时间，Date对象，默认是当前($H.now()，默认分钟数清零)
 //		formator        : 'yyyy-MM-dd HH:mm', //格式因子
-		_customEvents   : ['change'],
+		_customEvents   : ['change','confirm'],
 		
 		tmpl            : [
 			'<div {{bindAttr class="#hui-btn #hui-btn-gray iconPosCls"}}>',
@@ -95,24 +95,27 @@ function(AC,DatePicker){
 			confirm:function(){
 				me.set('value',this.val());
 				me.trigger('change');
+				return me.trigger('confirm');
 			}
 		});
 	}
 	/**
 	 * 获取/设置输入框的值
 	 * @method val
-	 * @param {string=}sValue 要设置的值，不传表示读取值
+	 * @param {string=|Date=|boolean}value 字符串或者日期值，表示设置操作，如果为空则表示读取操作，true表示读取Date类型时间
 	 * @return {string=} 如果是读取操作，返回当前值
 	 */
-	function fVal(sValue){
+	function fVal(value){
 		var me=this;
-		if(sValue){
-			if(me.get('value')!=sValue){
-				me.set('value',sValue);
+		if(!value||$H.isBool(value)){
+			var sTime=me.get('value');
+			return value?$H.parseDate(sTime):sTime;
+		}else{
+			value=$H.formatDate(value,me.formator);
+			if(me.get('value')!=value){
+				me.set('value',value);
 				me.trigger("change");
 			}
-		}else{
-			return me.get('value');
 		}
 	}
 	

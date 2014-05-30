@@ -158,14 +158,14 @@ function(AC,Dialog){
 			contentTitle:sTime+' 星期'+$H.getWeek(oDate),
 			items:aItems,
 			okCall:function(){
-				me.trigger('confirm');
+				return me.trigger('confirm');
 			}
 		});
 		me.callSuper([oSettings]);
 	}
 	/**
 	 * 获取/设置值
-	 * @param {string=|Date=|boolean} 字符串或者日期值，表示设置操作，如果为空则表示读取操作，true表示读取Date类型时间
+	 * @param {string=|Date=|boolean}value 字符串或者日期值，表示设置操作，如果为空则表示读取操作，true表示读取Date类型时间
 	 * @return {string=} 读取操作时返回当前时间
 	 */
 	function fVal(value){

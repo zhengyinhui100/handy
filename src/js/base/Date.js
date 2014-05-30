@@ -85,6 +85,9 @@ handy.add('Date',function(){
 	 * @return {string} 返回字符串日期
 	 */
 	function fFormatDate(oDate, sFormator) {
+		if(typeof oDate!='object'){
+			return oDate;
+		}
 		var sFormator=sFormator||'yyyy-MM-dd HH:mm:ss';
 		var nHours=oDate.getHours();
 		var nQuarter=Math.floor((oDate.getMonth() + 3) / 3)

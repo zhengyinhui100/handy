@@ -41,10 +41,17 @@ handy.add('Validator',['B.String','B.Object'],function(String,Object,$H){
 	}
 	/**
 	 * 校验
-	 * @method valid
-	 * @param {Object}oRule{
-	 * 		{boolean|Array|Function}rules : 校验规则，可以有多条，可以是此Validator类里的规则，也可以传入自定义的校验函数
-	 * 		{string}messages : 自定义提示文字
+	 * @param {?}value 需要校验的值
+	 * @param {Object}oValidator{
+	 * 		{Object}rules : 校验规则，可以有多条，可以是此Validator类里的规则，也可以传入自定义的校验函数
+	 * 		{
+	 * 			{string}name:{*}valid 如果传入的是函数，表示自定义验证规则(valid(value)返回false则为校验不通过)，
+	 * 				如果要使用本类中的校验方法，则传入相应规则要求的参数，如：{required:true,maxlength:50}
+	 * 		}
+	 * 		{object=}messages : 自定义提示文字，这里定义优先级高于默认的提示
+	 * 		{
+	 * 			{string}name:msg name对应的时校验规则名，msg则是相应的提示文字
+	 * 		}
 	 * 		{Function}error : 自定义提示方法
 	 * }
 	 * @return {boolean} true表示验证成功，false表示失败
