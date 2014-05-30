@@ -149,9 +149,13 @@ function(AC){
 	function fVal(sValue){
 		var me=this;
 		if(sValue){
-			var aValues=sValue.split(','),aSel=[];
+			var aValues=(''+sValue).split(',');
 			me.each(function(i,oCmp){
-				oCmp.select($H.contains(aValues,oCmp.value));
+				if($H.contains(aValues,oCmp.get('value'))){
+					me.selectItem(oCmp,true);
+				}else{
+					me.selectItem(oCmp,false);
+				}
 			});
 		}else{
 			var aValues=[];

@@ -86,8 +86,6 @@ handy.add('Date',function(){
 	 */
 	function fFormatDate(oDate, sFormator) {
 		var sFormator=sFormator||'yyyy-MM-dd HH:mm:ss';
-		var oDate=oDate;
-
 		var nHours=oDate.getHours();
 		var nQuarter=Math.floor((oDate.getMonth() + 3) / 3)
 		var oData = {
@@ -136,6 +134,8 @@ handy.add('Date',function(){
 		if(!aNumMatches){
 			return;
 		}
+		//如果设置月份时，日期大于要设置的月份的最大天数，会使月份数增加一月，所以这里先设置为1
+		oDate.setDate(1);
 		for(var i=0;i<aNumMatches.length;i++){
 			var sFormatorMatch=aFormatorMatches[i];
 			var nNum=parseInt(aNumMatches[i]);
@@ -147,6 +147,11 @@ handy.add('Date',function(){
 					oDate.setMonth(nNum-1);
 					break;
 				case 'dd':
+					//如果要设置的日期数大于该月最大天数，设置为该月最后一天
+					var nDay=Date.getDaysInMonth(oDate);
+					if(nNum>nDay){
+						nNum=nDay;
+					}
 					oDate.setDate(nNum);
 					break;
 				case 'HH':

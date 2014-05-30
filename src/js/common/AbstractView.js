@@ -76,6 +76,7 @@ function(ViewManager,AbstractEvents){
 	 */
 	function fInitialize(oParams){
 		var me=this;
+		oParams=oParams||{};
 		me.callSuper();
 		me._listeners=[];
 		me.listeners=$H.clone(me.listeners);

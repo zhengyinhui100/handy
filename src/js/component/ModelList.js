@@ -18,6 +18,7 @@ function(AC){
 			pdText      : '下拉可刷新',       //下拉刷新提示文字
 			pdComment   : '上次刷新时间：',    //下拉刷新附加说明
 			pdTime      : '',                //上次刷新时间
+			hasMoreBtn  : true,              //是否有获取更多按钮
 			hasPullRefresh : false           //是否有下拉刷新
 		},
 //		itemXtype   : '',                //子组件默认xtype
@@ -48,7 +49,7 @@ function(AC){
 						'<div class="hui-list-empty js-empty">{{emptyTips}}</div>',
 					'{{/if}}',
 					'<div class="js-item-container">{{placeItem}}</div>',
-					'{{#if hasPullRefresh}}',
+					'{{#if hasMoreBtn}}',
 						'<div {{bindAttr class="#hui-list-more isEmpty?hui-hidden"}}>',
 							'<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-shadow hui-inline hui-radius-normal">',
 								'<span class="hui-btn-txt">查看更多</span>',
@@ -170,6 +171,7 @@ function(AC){
 		me.add({
 			model:oListItem
 		});
+		me.refreshScroller();
 	}
 	/**
 	 * 删除列表项
@@ -187,13 +189,14 @@ function(AC){
 		if(me.children.length==0){
 			me.set('isEmpty',true);;
 		}
+		me.refreshScroller();
 	}
 	/**
 	 * 刷新iScroll
 	 */
 	function fRefreshScroller(){
 		var me=this;
-			//仅在页面显示时才刷新，否则scroller会不可用
+		//仅在页面显示时才刷新，否则scroller会不可用
 		if(me.scroller&&me.getEl()[0].clientHeight){
 	    	me.scroller.refresh();
 		}
