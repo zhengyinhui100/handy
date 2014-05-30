@@ -40,6 +40,7 @@ function(AC,Dialog){
 		if(oPicker=oInstance[sFormator]){
 			//宿主对象不同，需重新绑定事件
 			if(oPicker.host!=oParams.host){
+				oPicker.host=oParams.host
 				oPicker.off('change confirm');
 				oParams.change&&oPicker.on('change',oParams.change);
 				oParams.confirm&&oPicker.on('confirm',oParams.confirm);
@@ -106,7 +107,8 @@ function(AC,Dialog){
 		};
 		for(var i=nMin;i<=nMax;i++){
 			oItem.options.push({
-				text:i,
+				//分钟数补零
+				text:sName=='minute'&&i<10?'0'+i:i,
 				value:i,
 				hidden:nMaxDay&&i>nMaxDay
 			});

@@ -39,7 +39,7 @@ function(AC,DatePicker){
 				}
 			}
 		},
-//		date            : null,               //初始时间，Date对象，默认是当前($H.now())
+//		date            : null,               //初始时间，Date对象，默认是当前($H.now()，默认分钟数清零)
 //		formator        : 'yyyy-MM-dd HH:mm', //格式因子
 		_customEvents   : ['change'],
 		
@@ -72,8 +72,14 @@ function(AC,DatePicker){
 	 */
 	function fDoConfig(oParams){
 		var me=this;
-		var oTime=me.date=oParams.date||$H.now();
-		var sTime=$H.formatDate(oTime,oParams.formator);
+		var oTime=oParams.date;
+		if(!oTime){
+			oTime=$H.now();
+			//不传时间默认分钟数清零
+			oTime.setMinutes(0);
+		}
+		me.date=oTime;
+		var sTime=$H.formatDate(oTime,oParams.formator||(oParams.formator='yyyy-MM-dd HH:mm'));
 		me.set('value',sTime);
 		me.callSuper();
 	}
