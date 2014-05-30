@@ -43,7 +43,7 @@ function(AC){
 			'<div {{bindAttr class="#hui-btn #hui-btn-gray iconPosCls"}}>',
 				'<span class="hui-icon hui-alt-icon hui-icon-carat-d hui-light"></span>',
 				'<input {{bindAttr value="value" name="name"}}/>',
-				'<span class="hui-btn-txt js-select-txt">{{text}}</span>',
+				'<span class="hui-btn-txt">{{text}}</span>',
 			'</div>'
 		].join(''),
 		
@@ -96,8 +96,6 @@ function(AC){
 	}
 	/**
 	 * 显示选项菜单
-	 * @method setChecked
-	 * @param {boolean}bChecked 仅当为false时取消选中
 	 */
 	function fShowOptions(){
 		var me=this;

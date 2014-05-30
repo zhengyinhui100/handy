@@ -93,8 +93,12 @@ gEnv='dev';
 	<div id="dialogDv"></div>
 	<br/><br/><br/><br/>
 	
-	<h3>日期选择器：</h3>
+	<h3>日期选择弹窗：</h3>
 	<div id="datePickerDv"></div>
+	<br/><br/><br/><br/>
+	
+	<h3>日期选择框：</h3>
+	<div id="dateSelectDv"></div>
 	<br/><br/><br/><br/>
 	
 	<h3>横向卡片：</h3>
@@ -184,10 +188,11 @@ $Require([
 "C.Tips",
 "C.Dialog",
 "C.DatePicker",
+"C.DateSelect",
 "C.Hcard",
 "C.Vcard"],
 function(Model,Collection,CM,Icon,Button,Desc,Panel,ControlGroup,Radio,Checkbox,Label,RowItem,Menu,Select,Input,
-		Set,Field,Form,Tab,Toolbar,Tips,Dialog,DatePicker,Hcard,Vcard){
+		Set,Field,Form,Tab,Toolbar,Tips,Dialog,DatePicker,DateSelect,Hcard,Vcard){
 	
 	function example(){
 	
@@ -935,16 +940,24 @@ function(Model,Collection,CM,Icon,Button,Desc,Panel,ControlGroup,Radio,Checkbox,
 			}
 		});
 		
-		//日期选择器
+		//日期选择弹窗
 		new Button({
 			renderTo:'#datePickerDv',
 			text:'日期选择器',
 			click:function(){
 				new DatePicker({
-					okCall:function(){
+					confirm:function(){
 						alert(this.val());
 					}
 				});
+			}
+		});
+		
+		//日期选择框
+		new DateSelect({
+			renderTo:'#dateSelectDv',
+			change:function(){
+				$D.log(this.val());
 			}
 		});
 		

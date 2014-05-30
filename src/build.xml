@@ -98,6 +98,7 @@
 			<path path="js/component/Dialog.js" />
 			<path path="js/component/Menu.js" />
 			<path path="js/component/DatePicker.js"/>
+			<path path="js/component/DateSelect.js"/>
 			<path path="js/component/Hcard.js" />
 			<path path="js/component/Vcard.js" />
 			<path path="js/component/ModelList.js" />

@@ -645,10 +645,11 @@ function(ViewManager,ModelView,Model,Template){
 		var me=this;
 		var oConfig=me.xConfig;
 		var value;
-		if(oConfig[sKey]===undefined){
-			value=me[sKey];
+		var oModel=me.xmodel;
+		if(oModel&&oConfig[sKey]!==undefined){
+			value=oModel.get(sKey);
 		}else{
-			value=me.xmodel.get(sKey);
+			value=me[sKey];
 		}
 		return value;
 	}
@@ -660,10 +661,11 @@ function(ViewManager,ModelView,Model,Template){
 	function fSet(sKey,value){
 		var me=this;
 		var oConfig=me.xConfig;
-		if(oConfig[sKey]===undefined){
-			me[sKey]=value;
+		var oModel=me.xmodel;
+		if(oModel&&oConfig[sKey]!==undefined){
+			oModel.set(sKey,value);
 		}else{
-			me.xmodel.set(sKey,value);
+			me[sKey]=value;
 		}
 	}
 	/**

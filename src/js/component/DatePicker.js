@@ -1,5 +1,5 @@
 /**
- * 时间选择器类
+ * 时间选择弹窗类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
@@ -10,19 +10,50 @@ function(AC,Dialog){
 	
 	var DatePicker=AC.define('DatePicker',Dialog);
 	
+	DatePicker.getInstance=fGetInstance;      //静态获取实例方法，此方法会获取缓存中的实例对象(如果有的话)，避免多次创建同样的实例，提升性能
+	
 	DatePicker.extend({
 		//初始配置
 		xConfig         : {
 			cls         : 'dp'
 		},
-//		date            : null,               //初始时间，Date对象，默认是当前($H.now())
+//		date            : null,               //初始时间，Date对象或日期字符串，默认是当前($H.now())
 //		formator        : 'yyyy-MM-dd HH:mm', //格式因子
 		extCls          : 'hui-dialog',
-		_customEvents   : ['change'],
+		_customEvents   : [
+			'change',                         //用户操作导致值改变时触发
+			'confirm'                         //用户点击确认时触发
+		],
 		doConfig        : fDoConfig,          //初始化配置
 		val             : fVal                //设置/读取值
 	});
 	
+	/**
+	 * 静态获取实例方法，此方法会获取缓存中的实例对象(如果有的话)，避免多次创建同样的实例，提升性能
+	 * @param {object}oParams 初始化配置，同initialize方法
+	 * @return {DatePicker} 返回日期选择弹窗实例
+	 */
+	function fGetInstance(oParams){
+		var oPicker;
+		var sFormator=oParams.formator||'default';
+		var oInstance=DatePicker.instance||(DatePicker.instance={});
+		if(oPicker=oInstance[sFormator]){
+			//宿主对象不同，需重新绑定事件
+			if(oPicker.host!=oParams.host){
+				oPicker.off('change confirm');
+				oParams.change&&oPicker.on('change',oParams.change);
+				oParams.confirm&&oPicker.on('confirm',oParams.confirm);
+				if(oParams.date){
+					oPicker.val(oParams.date);
+				}
+			}
+			oPicker.show();
+		}else{
+			oPicker=oInstance[sFormator]=new DatePicker($H.extend(oParams,{destroyWhenHide:false}));
+		}
+		return oPicker;
+		
+	}
 	/**
 	 * 获取选择框配置对象
 	 * @param {string}sValue 选中值
@@ -89,7 +120,11 @@ function(AC,Dialog){
 	function fDoConfig(oSettings){
 		var me=this;
 		oSettings=oSettings||{};
-		var oDate=oSettings.date||$H.now();
+		var oDate=oSettings.date;
+		if($H.isStr(oDate)){
+			oDate=$H.parseDate(oDate);
+		}
+		var oDate=oDate||$H.now();
 		var sFormator=oSettings.formator||(oSettings.formator='yyyy-MM-dd HH:mm');
 		var sTime=$H.formatDate(oDate,sFormator);
 		var aItems=[];
@@ -119,7 +154,10 @@ function(AC,Dialog){
 		}
 		$H.extend(oSettings,{
 			contentTitle:sTime+' 星期'+$H.getWeek(oDate),
-			items:aItems
+			items:aItems,
+			okCall:function(){
+				me.trigger('confirm');
+			}
 		});
 		me.callSuper([oSettings]);
 	}

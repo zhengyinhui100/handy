@@ -7681,10 +7681,11 @@ function(ViewManager,ModelView,Model,Template){
 		var me=this;
 		var oConfig=me.xConfig;
 		var value;
-		if(oConfig[sKey]===undefined){
-			value=me[sKey];
+		var oModel=me.xmodel;
+		if(oModel&&oConfig[sKey]!==undefined){
+			value=oModel.get(sKey);
 		}else{
-			value=me.xmodel.get(sKey);
+			value=me[sKey];
 		}
 		return value;
 	}
@@ -7696,10 +7697,11 @@ function(ViewManager,ModelView,Model,Template){
 	function fSet(sKey,value){
 		var me=this;
 		var oConfig=me.xConfig;
-		if(oConfig[sKey]===undefined){
-			me[sKey]=value;
+		var oModel=me.xmodel;
+		if(oModel&&oConfig[sKey]!==undefined){
+			oModel.set(sKey,value);
 		}else{
-			me.xmodel.set(sKey,value);
+			me[sKey]=value;
 		}
 	}
 	/**
@@ -9230,7 +9232,7 @@ function(AC){
 			'<div {{bindAttr class="#hui-btn #hui-btn-gray iconPosCls"}}>',
 				'<span class="hui-icon hui-alt-icon hui-icon-carat-d hui-light"></span>',
 				'<input {{bindAttr value="value" name="name"}}/>',
-				'<span class="hui-btn-txt js-select-txt">{{text}}</span>',
+				'<span class="hui-btn-txt">{{text}}</span>',
 			'</div>'
 		].join(''),
 		
@@ -9283,8 +9285,6 @@ function(AC){
 	}
 	/**
 	 * 显示选项菜单
-	 * @method setChecked
-	 * @param {boolean}bChecked 仅当为false时取消选中
 	 */
 	function fShowOptions(){
 		var me=this;
@@ -10341,7 +10341,7 @@ function(AC,Popup,ControlGroup){
 	return Menu;
 	
 });/**
- * 时间选择器类
+ * 时间选择弹窗类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
@@ -10352,19 +10352,50 @@ function(AC,Dialog){
 	
 	var DatePicker=AC.define('DatePicker',Dialog);
 	
+	DatePicker.getInstance=fGetInstance;      //静态获取实例方法，此方法会获取缓存中的实例对象(如果有的话)，避免多次创建同样的实例，提升性能
+	
 	DatePicker.extend({
 		//初始配置
 		xConfig         : {
 			cls         : 'dp'
 		},
-//		date            : null,               //初始时间，Date对象，默认是当前($H.now())
+//		date            : null,               //初始时间，Date对象或日期字符串，默认是当前($H.now())
 //		formator        : 'yyyy-MM-dd HH:mm', //格式因子
 		extCls          : 'hui-dialog',
-		_customEvents   : ['change'],
+		_customEvents   : [
+			'change',                         //用户操作导致值改变时触发
+			'confirm'                         //用户点击确认时触发
+		],
 		doConfig        : fDoConfig,          //初始化配置
 		val             : fVal                //设置/读取值
 	});
 	
+	/**
+	 * 静态获取实例方法，此方法会获取缓存中的实例对象(如果有的话)，避免多次创建同样的实例，提升性能
+	 * @param {object}oParams 初始化配置，同initialize方法
+	 * @return {DatePicker} 返回日期选择弹窗实例
+	 */
+	function fGetInstance(oParams){
+		var oPicker;
+		var sFormator=oParams.formator||'default';
+		var oInstance=DatePicker.instance||(DatePicker.instance={});
+		if(oPicker=oInstance[sFormator]){
+			//宿主对象不同，需重新绑定事件
+			if(oPicker.host!=oParams.host){
+				oPicker.off('change confirm');
+				oParams.change&&oPicker.on('change',oParams.change);
+				oParams.confirm&&oPicker.on('confirm',oParams.confirm);
+				if(oParams.date){
+					oPicker.val(oParams.date);
+				}
+			}
+			oPicker.show();
+		}else{
+			oPicker=oInstance[sFormator]=new DatePicker($H.extend(oParams,{destroyWhenHide:false}));
+		}
+		return oPicker;
+		
+	}
 	/**
 	 * 获取选择框配置对象
 	 * @param {string}sValue 选中值
@@ -10431,7 +10462,11 @@ function(AC,Dialog){
 	function fDoConfig(oSettings){
 		var me=this;
 		oSettings=oSettings||{};
-		var oDate=oSettings.date||$H.now();
+		var oDate=oSettings.date;
+		if($H.isStr(oDate)){
+			oDate=$H.parseDate(oDate);
+		}
+		var oDate=oDate||$H.now();
 		var sFormator=oSettings.formator||(oSettings.formator='yyyy-MM-dd HH:mm');
 		var sTime=$H.formatDate(oDate,sFormator);
 		var aItems=[];
@@ -10461,7 +10496,10 @@ function(AC,Dialog){
 		}
 		$H.extend(oSettings,{
 			contentTitle:sTime+' 星期'+$H.getWeek(oDate),
-			items:aItems
+			items:aItems,
+			okCall:function(){
+				me.trigger('confirm');
+			}
 		});
 		me.callSuper([oSettings]);
 	}
@@ -10506,6 +10544,120 @@ function(AC,Dialog){
 	}
 	
 	return DatePicker;
+	
+});/**
+ * 日期选择框类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+
+$Define('C.DateSelect',
+[
+'C.AbstractComponent',
+'C.DatePicker'
+],
+function(AC,DatePicker){
+	
+	var DateSelect=AC.define('DateSelect');
+	
+	DateSelect.extend({
+		//初始配置
+		xConfig         : {
+			cls             : 'dsel',
+			name            : '',                  //选项名
+			value           : 'right',             //默认值
+			text            : {                    //选择框的文字
+				depends   : ['value'],
+				parse     : function(){
+					var sTxt=this.get('value');
+					if(sTxt){
+						return sTxt+' 星期'+$H.getWeek($H.parseDate(sTxt));
+					}else{
+						return '请选择...';
+					}
+				}
+			},         
+			radius          : 'little',
+			iconPos         : 'right',             //图标位置，"left"|"right"|"top"|"bottom"
+			iconPosCls      : {
+				depends : ['iconPos'],
+				parse :function(){
+					var sPos=this.get('iconPos');
+					return sPos?'hui-btn-icon-'+sPos:'';
+				}
+			}
+		},
+//		date            : null,               //初始时间，Date对象，默认是当前($H.now())
+//		formator        : 'yyyy-MM-dd HH:mm', //格式因子
+		_customEvents   : ['change'],
+		
+		tmpl            : [
+			'<div {{bindAttr class="#hui-btn #hui-btn-gray iconPosCls"}}>',
+				'<span class="hui-icon hui-alt-icon hui-icon-carat-d hui-light"></span>',
+				'<input {{bindAttr value="value" name="name"}}/>',
+				'<span class="hui-btn-txt">{{text}}</span>',
+			'</div>'
+		].join(''),
+		
+		listeners       : [
+			{
+				name:'click',
+				handler:function(){
+					this.showDialog();
+				}
+			}
+		],
+		
+		doConfig         : fDoConfig,             //初始化配置
+		showDialog       : fShowDialog,           //显示日期选择弹窗
+		val              : fVal                   //获取/设置值
+	});
+	
+	/**
+	 * 初始化配置
+	 * @method doConfig
+	 * @param {Object}oParams
+	 */
+	function fDoConfig(oParams){
+		var me=this;
+		var oTime=me.date=oParams.date||$H.now();
+		var sTime=$H.formatDate(oTime,oParams.formator);
+		me.set('value',sTime);
+		me.callSuper();
+	}
+	/**
+	 * 显示日期选择弹窗
+	 */
+	function fShowDialog(){
+		var me=this;
+		DatePicker.getInstance({
+			date:me.get('value'),
+			formator:me.formator,
+			host:me,
+			confirm:function(){
+				me.set('value',this.val());
+				me.trigger('change');
+			}
+		});
+	}
+	/**
+	 * 获取/设置输入框的值
+	 * @method val
+	 * @param {string=}sValue 要设置的值，不传表示读取值
+	 * @return {string=} 如果是读取操作，返回当前值
+	 */
+	function fVal(sValue){
+		var me=this;
+		if(sValue){
+			if(me.get('value')!=sValue){
+				me.set('value',sValue);
+				me.trigger("change");
+			}
+		}else{
+			return me.get('value');
+		}
+	}
+	
+	return DateSelect;
 	
 });/**
  * 横向卡片类

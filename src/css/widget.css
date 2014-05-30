@@ -681,7 +681,8 @@
   zoom: 1;
   *display: inline;
 }
-.hui-select input {
+.hui-select input,
+.hui-dsel input {
   display: none;
 }
 .hui-slidesel {
