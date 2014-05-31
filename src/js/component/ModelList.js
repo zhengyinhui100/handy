@@ -59,17 +59,18 @@ function(AC){
 				'</div>',
 			'</div>'
 		].join(''),
-		init                : fInit,               //初始化
+		doConfig            : fDoconfig,           //初始化配置
 		addListItem         : fAddListItem,        //添加列表项
 		removeListItem      : fRemoveListItem,     //删除列表项
 		refreshScroller     : fRefreshScroller,    //刷新iScroll
 		destroy             : fDestroy             //销毁
 	});
 	/**
-	 * 初始化
+	 * 初始化配置
 	 */
-	function fInit(){
+	function fDoconfig(oSettings){
 		var me=this;
+		me.callSuper();
 		if(me.itemXtype){
 			(me.defItem||(me.defItem={})).xtype=me.itemXtype;
 		}

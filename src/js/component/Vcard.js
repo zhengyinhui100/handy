@@ -27,9 +27,9 @@ function(AC){
 					'<div class="hui-title-txt">{{title}}</div>',
 					'<div class="hui-title-extra">{{extraTitle}}</div>',
 				'</div>',
-				'{{placeItem >[xrole!=action]}}',
+				'{{placeItem > [xrole!=action]}}',
 				'<div class="hui-vcard-action">',
-					'{{placeItem >[xrole=action]}}',
+					'{{placeItem > [xrole=action]}}',
 				'</div>',
 			'</div>'
 		].join(''),

@@ -28,10 +28,10 @@ function(AC){
 		tmpl            : [
 			'<div {{bindAttr class="noPadding?hui-field-nopadding"}}>',
 				'<div class="hui-field-left">',
-					'{{placeItem >[xrole=title]}}',
+					'{{placeItem > [xrole=title]}}',
 				'</div>',
 				'<div class="hui-field-right">',
-					'{{placeItem >[xrole=content]}}',
+					'{{placeItem > [xrole=content]}}',
 				'</div>',
 			'</div>'
 		].join(''),

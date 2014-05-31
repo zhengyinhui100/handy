@@ -43,7 +43,7 @@ function(AC,Popup){
 		
 		tmpl            : [
 			'<div>',
-				'{{placeItem >[xrole=dialog-header]}}',
+				'{{placeItem > [xrole=dialog-header]}}',
 				'<div class="hui-dialog-body">',
 					'{{#if content}}',
 						'{{content}}',
@@ -51,12 +51,12 @@ function(AC,Popup){
 						'<div class="hui-body-content c-clear">',
 							'<h1 class="hui-content-title">{{contentTitle}}</h1>',
 							'<div class="hui-content-msg">{{contentMsg}}</div>',
-							'{{placeItem >[xrole=dialog-content]}}',
+							'{{placeItem > [xrole=dialog-content]}}',
 						'</div>',
 					'{{/if}}',
 					'{{#unless noAction}}',
 						'<div class="hui-body-action">',
-						'{{placeItem >[xrole=dialog-action]}}',
+						'{{placeItem > [xrole=dialog-action]}}',
 						'</div>',
 					'{{/unless}}',
 				'</div>',

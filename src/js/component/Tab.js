@@ -36,9 +36,9 @@ function(AC,TabItem,ControlGroup){
 		tmpl            : [
 			'<div>',
 				'<ul class="js-tab-btns c-clear">',
-					'{{placeItem >TabItem}}',
+					'{{placeItem > TabItem}}',
 				'</ul>',
-				'{{placeItem >TabItem>[xrole=content]}}',
+				'{{placeItem > TabItem > [xrole=content]}}',
 			'</div>'
 		].join(''),
 		

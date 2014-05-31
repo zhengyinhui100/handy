@@ -112,7 +112,7 @@ function(AC){
 		if(sValue){
 			if(me.get('value')!=sValue){
 				var oMenu=me.children[0];
-				var oItem=oMenu.find('>[value='+sValue+']');
+				var oItem=oMenu.find('> [value='+sValue+']');
 				if(oItem.length>0){
 					oItem=oItem[0];
 					me.set('value',sValue);
