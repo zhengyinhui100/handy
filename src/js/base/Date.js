@@ -192,32 +192,33 @@ handy.add('Date',function(){
 	}
 	/**
 	 * 计算距离现在多久了
-	 * @param {Date}oTime 参数时间
+	 * @param {Date|String}time 参数时间
 	 * @param {boolean=}bFormat 仅当false时不进行格式化：小于60分钟的单位是分钟，
 	 * 					小于一天的单位是小时，小于30天的单位是天，大于30天返回"30天前"
 	 */
-	function fHowLong(oTime,bFormat){
-		if(!oTime){
+	function fHowLong(time,bFormat){
+		if(!time){
 			return;
 		}
+		time=Date.parseDate(time);
 		var oNow=Date.now();
-		var time=oNow.getTime()-oTime.getTime();
+		var nTime=oNow.getTime()-time.getTime();
 		if(bFormat!=false){
 			var sUnit;
-			if((time=time/(1000*60))<60){
+			if((nTime=nTime/(1000*60))<60){
 				sUnit='分钟'; 
-				time=time||1;
-			}else if((time=time/60)<24){
+				nTime=nTime||1;
+			}else if((nTime=nTime/60)<24){
 				sUnit='小时'; 
-			}else if((time=time/24)<30){
+			}else if((nTime=nTime/24)<30){
 				sUnit='天'; 
 			}else{
 				return '30天前'; 
 			}
 			//最少显示一分钟前
-			time=(Math.floor(time)||1)+sUnit+'前';
+			nTime=(Math.floor(nTime)||1)+sUnit+'前';
 		}
-		return time;
+		return nTime;
 	}
 	
 	return Date;
