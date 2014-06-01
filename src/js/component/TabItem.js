@@ -16,14 +16,12 @@ function(AC,Panel){
 	TabItem.extend({
 		//初始配置
 		xConfig         : {
-			cls             : 'tabitem',
-			extCls          : 'js-item'
+			cls             : 'tabitem'
 		},
 //		selected        : false,
 //		title           : ''|{},        //顶部按钮，可以字符串，也可以是Button的配置项
 //		content         : null,         //标签内容，可以是html字符串，也可以是组件配置项
 //		activeType      : '',           //激活样式类型，
-		wrapHtml    : ['<li class="hui-tab-item">','</li>'],
 		defItem         : {             //默认子组件是Button
 			xtype       : 'Button',
 			xrole       : 'title',

@@ -55,7 +55,9 @@ function(AC){
 			}
 		],
 		
+		doConfig             : fDoConfig,            //初始化配置
 		parseItem            : fParseItem,           //分析子组件配置
+		layout               : fLayout,              //布局
 		select               : fSelect,              //选中指定项
 		getSelected          : fGetSelected,         //获取选中项/索引
 		selectItem           : fSelectItem,          //选中/取消选中
@@ -64,11 +66,47 @@ function(AC){
 	});
 	
 	/**
+	 * 初始化配置
+	 * @param {object}oSettings 配置对象
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		me.callSuper();
+		//水平布局需要js计算
+		if(me.get('direction')=='h'){
+			me.listen({
+				name        : 'afterRender add remove',
+				custom      : true,
+				handler     : function(){
+					me.layout();
+				}
+				
+			});
+		}
+	}
+	/**
 	 * 分析子组件配置
 	 * @param {object}oItem 子组件配置项
 	 */
 	function fParseItem(oItem){
 		oItem.extCls=(oItem.extCls||"")+'js-item';
+	}
+	/**
+	 * 布局
+	 */
+	function fLayout(){
+		var me=this;
+		if(me.rendered){
+			var nLen=me.children.length;
+			var width=Math.floor(100/nLen);
+			me.findEl('> .js-item').each(function(i,el){
+				if(i<nLen-1){
+					el.style.width=width+'%';
+				}else{
+					el.style.width=(100-width*(nLen-1))+'%';
+				}
+			});
+		}
 	}
 	/**
 	 * 选中指定项

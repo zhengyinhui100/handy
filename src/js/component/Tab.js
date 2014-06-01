@@ -15,35 +15,24 @@ function(AC,TabItem,ControlGroup){
 	Tab.extend({
 		//初始配置
 		xConfig         : {
-			cls             : 'tab'
+			cls             : 'tab',
+			direction       : 'h'
 //			theme           : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
-			
 		},
 //		activeType      : '',           //激活样式类型，
 		defItem         : {             //默认子组件是TabItem
 //			content     : '',           //tab内容
 			xtype       : 'TabItem'
 		},
-		listeners       : [{
-			name        : 'afterRender add remove',
-			custom      : true,
-			handler     : function(){
-				this.layout();
-			}
-			
-		}],
 		
 		tmpl            : [
 			'<div>',
-				'<ul class="js-tab-btns c-clear">',
-					'{{placeItem > TabItem}}',
-				'</ul>',
+				'{{placeItem > TabItem}}',
 				'{{placeItem > TabItem > [xrole=content]}}',
 			'</div>'
 		].join(''),
 		
 		parseItem       : fParseItem,          //分析处理子组件 
-		layout          : fLayout,             //布局
 		setTabContent   : fSetTabContent       //设置标签页内容
 	});
 	/**
@@ -58,21 +47,6 @@ function(AC,TabItem,ControlGroup){
 			oItem.activeType=me.activeType;
 		}
 		me.callSuper();
-	}
-	/**
-	 * 布局
-	 */
-	function fLayout(){
-		var me=this;
-		var nLen=me.children.length;
-		var width=Math.floor(100/nLen);
-		me.findEl('.js-tab-btns>li').each(function(i,el){
-			if(i<nLen-1){
-				el.style.width=width+'%';
-			}else{
-				el.style.width=(100-width*(nLen-1))+'%';
-			}
-		});
 	}
 	/**
 	 * 设置标签页内容
