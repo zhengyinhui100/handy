@@ -16,6 +16,7 @@ function(AC){
 			cls             : 'btn',
 			text            : '',                  //按钮文字
 			theme           : 'gray',
+			markType        : '',                  //标记类型，默认无标记，'black'黑色圆点标记，'red'红色圆点标记
 			iconPos         : '',                  //图标位置，"left"|"right"|"top"|"bottom"
 			activeCls       : 'hui-btn-active',    //激活样式
 			isBack          : false,               //是否是后退按钮
@@ -35,6 +36,13 @@ function(AC){
 					var sPos=this.get('iconPos');
 					return sPos?'hui-btn-icon-'+sPos:'';
 				}
+			},
+			markCls      : {
+				depends : ['markType'],
+				parse :function(){
+					var markType=this.get('markType');
+					return markType?'hui-btn-mark-'+markType:'';
+				}
 			}
 		},
 //		icon            : null,                //图标名称
@@ -44,9 +52,10 @@ function(AC){
 			xtype       : 'Icon'
 		},
 		
-		tmpl            : ['<a href="javascript:;" hidefocus="true" {{bindAttr class="hasText:hui-btn-icon-notxt isBack?hui-btn-back iconPosCls"}}>',
+		tmpl            : ['<a href="javascript:;" hidefocus="true" {{bindAttr class="hasText:hui-btn-icon-notxt isBack?hui-btn-back markCls iconPosCls"}}>',
 								'<span class="hui-btn-txt">{{text}}</span>',
 								'{{placeItem}}',
+								'<span class="hui-btn-mark"></span>',
 							'</a>'].join('')
 	});
 	
