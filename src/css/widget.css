@@ -129,6 +129,26 @@
 .hui-btn:hover {
   font-weight: bold;
 }
+.hui-btn-mark {
+  display: none;
+  position: absolute;
+  height: 6px;
+  width: 6px;
+  left: 10px;
+  top: 50%;
+  margin-top: -3px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+.hui-btn-mark-black .hui-btn-mark {
+  display: block;
+  background-color: #000;
+}
+.hui-btn-mark-red .hui-btn-mark {
+  display: block;
+  background-color: red;
+}
 .hui-btn-gray {
   border: 1px solid #ccc;
   background: #eee;
@@ -781,7 +801,7 @@
 .hui-click-arrow {
   position: absolute;
   margin-top: -18px;
-  width: 36px;
+  width: 20px;
   height: 36px;
   top: 50%;
   right: 0;
@@ -945,36 +965,36 @@
 .hui-footer {
   bottom: 0;
 }
-.hui-tab .hui-tab-item {
+.hui-tab .hui-tabitem {
   float: left;
 }
-.hui-tab .hui-tab-item .hui-btn {
+.hui-tab .hui-tabitem .hui-btn {
   margin: 0;
   padding-left: 0;
   padding-right: 0;
 }
-.hui-tab .hui-tab-item .hui-btn-gray {
+.hui-tab .hui-tabitem .hui-btn-gray {
   border-left-color: #eee;
 }
-.hui-tab .hui-tab-item:nth-of-type(1) .hui-btn-gray {
+.hui-tab .hui-tabitem:nth-of-type(1) .hui-btn-gray {
   border-left-color: #ccc;
 }
-.hui-tab .hui-tab-item:nth-last-of-type(1) .hui-btn {
+.hui-tab .hui-tabitem:nth-last-of-type(1) .hui-btn {
   border-right-width: 1px;
 }
-.hui-tab .hui-tab-item .hui-btn {
+.hui-tab .hui-tabitem .hui-btn {
   border-right-width: 0;
 }
 .hui-tab-border-top .hui-btn,
 .hui-tab-noborder .hui-btn {
   border-bottom: 0;
 }
-.hui-tab-border-top .hui-tab-item:first-child .hui-btn,
-.hui-tab-noborder .hui-tab-item:first-child .hui-btn {
+.hui-tab-border-top .hui-tabitem:first-child .hui-btn,
+.hui-tab-noborder .hui-tabitem:first-child .hui-btn {
   border-left: 0;
 }
-.hui-tab-border-top .hui-tab-item:last-child .hui-btn,
-.hui-tab-noborder .hui-tab-item:last-child .hui-btn {
+.hui-tab-border-top .hui-tabitem:last-child .hui-btn,
+.hui-tab-noborder .hui-tabitem:last-child .hui-btn {
   border-right: 0;
 }
 .hui-tab-noborder .hui-btn {
@@ -1198,17 +1218,17 @@
   min-height: 4.5em;
 }
 .hui-hcard.hui-hcard-hasimg {
-  padding-left: 80px;
+  padding-left: 70px;
 }
 .hui-hcard .hui-hcard-img {
   position: absolute;
-  left: 10px;
+  left: 5px;
 }
 .hui-hcard .hui-hcard-img img {
   height: 60px;
 }
 .hui-hcard .hui-hcard-content {
-  padding-right: 40px;
+  padding-right: 10px;
 }
 .hui-hcard .hui-content-title {
   overflow: hidden;

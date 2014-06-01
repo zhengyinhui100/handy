@@ -263,6 +263,22 @@ function(Model,Collection,CM,Icon,Button,Desc,Panel,ControlGroup,Radio,Checkbox,
 			}
 		})
 		
+		new Button({
+			renderTo:'#buttonDv',
+			text:'黑色标记按钮',
+			iconPos:'left',
+			markType:'black',
+			isInline:false
+		})
+		
+		new Button({
+			renderTo:'#buttonDv',
+			text:'红色标记按钮',
+			iconPos:'left',
+			isInline:false,
+			markType:'red'
+		})
+		
 		new Panel({
 			height:200,
 			renderTo:'#panelDv',

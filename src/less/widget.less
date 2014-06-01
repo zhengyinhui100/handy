@@ -42,6 +42,29 @@
 		font-weight: bold;
 	}
 }
+//按钮标记
+.hui-btn-mark{
+	display:none;
+	position:absolute;
+	height:6px;
+	width:6px;
+	left:10px;
+	top:50%;
+	margin-top:-3px;
+	.fn_border_radius(3px);
+}
+.hui-btn-mark-black{
+	.hui-btn-mark{
+		display:block;
+		background-color:#000;
+	}
+}
+.hui-btn-mark-red{
+	.hui-btn-mark{
+		display:block;
+		background-color:red;
+	}
+}
 //灰色按钮
 .hui-btn-gray{
 	border: 1px solid #ccc;
@@ -506,7 +529,7 @@
 .hui-click-arrow{
 	position:absolute;
 	margin-top:-18px;
-	width:36px;
+	width:20px;
 	height:36px;
 	top:50%;
 	right:0;
@@ -653,7 +676,7 @@
 }
 //标签栏
 .hui-tab{
-	.hui-tab-item{
+	.hui-tabitem{
 		.hui-btn{
 			margin:0;
 			padding-left:0;
@@ -678,7 +701,7 @@
 	.hui-btn{
 		border-bottom:0;
 	}
-	.hui-tab-item{
+	.hui-tabitem{
 		&:first-child .hui-btn{
 			border-left:0;
 		}
@@ -869,17 +892,17 @@
 	padding:5px;
 	min-height:4.5em;
 	&.hui-hcard-hasimg{
-		padding-left:80px;
+		padding-left:70px;
 	}
 	.hui-hcard-img{
 		position:absolute;
-		left:10px;
+		left:5px;
 		img{
 			height:60px;
 		}
 	}
 	.hui-hcard-content{
-		padding-right:40px;
+		padding-right:10px;
 	}
 	.hui-content-title{
 		.fn_text_overflow();

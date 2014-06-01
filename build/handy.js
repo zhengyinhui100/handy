@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-05-31 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-06-01 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -1336,7 +1336,7 @@ handy.add('Function',function($H){
 				                   fExecFunc.apply(oExScope, args) :false;
 				   };
 		}
-		return fExecFunc;
+		return fExecFunc||fInterceptFunc;
 	}
 	
 	return Function;
@@ -2423,32 +2423,33 @@ handy.add('Date',function(){
 	}
 	/**
 	 * 计算距离现在多久了
-	 * @param {Date}oTime 参数时间
+	 * @param {Date|String}time 参数时间
 	 * @param {boolean=}bFormat 仅当false时不进行格式化：小于60分钟的单位是分钟，
 	 * 					小于一天的单位是小时，小于30天的单位是天，大于30天返回"30天前"
 	 */
-	function fHowLong(oTime,bFormat){
-		if(!oTime){
+	function fHowLong(time,bFormat){
+		if(!time){
 			return;
 		}
+		time=Date.parseDate(time);
 		var oNow=Date.now();
-		var time=oNow.getTime()-oTime.getTime();
+		var nTime=oNow.getTime()-time.getTime();
 		if(bFormat!=false){
 			var sUnit;
-			if((time=time/(1000*60))<60){
+			if((nTime=nTime/(1000*60))<60){
 				sUnit='分钟'; 
-				time=time||1;
-			}else if((time=time/60)<24){
+				nTime=nTime||1;
+			}else if((nTime=nTime/60)<24){
 				sUnit='小时'; 
-			}else if((time=time/24)<30){
+			}else if((nTime=nTime/24)<30){
 				sUnit='天'; 
 			}else{
 				return '30天前'; 
 			}
 			//最少显示一分钟前
-			time=(Math.floor(time)||1)+sUnit+'前';
+			nTime=(Math.floor(nTime)||1)+sUnit+'前';
 		}
-		return time;
+		return nTime;
 	}
 	
 	return Date;
@@ -8939,7 +8940,7 @@ function(AC){
 					var me=this;
 					var oCurrentEl=$(oEvt.currentTarget);
 					//可能后后代组件有'.js-item'，因此这里只寻找子组件
-					var oCurCmp=me.find('>[_id='+oCurrentEl.attr("id")+']');
+					var oCurCmp=me.find('> [_id='+oCurrentEl.attr("id")+']');
 					if(oCurCmp.length>0){
 						var nIndex=oCurCmp[0].index();
 						me.onItemClick(oEvt,nIndex);
@@ -9311,7 +9312,7 @@ function(AC){
 		if(sValue){
 			if(me.get('value')!=sValue){
 				var oMenu=me.children[0];
-				var oItem=oMenu.find('>[value='+sValue+']');
+				var oItem=oMenu.find('> [value='+sValue+']');
 				if(oItem.length>0){
 					oItem=oItem[0];
 					me.set('value',sValue);
@@ -9640,10 +9641,10 @@ function(AC){
 		tmpl            : [
 			'<div {{bindAttr class="noPadding?hui-field-nopadding"}}>',
 				'<div class="hui-field-left">',
-					'{{placeItem >[xrole=title]}}',
+					'{{placeItem > [xrole=title]}}',
 				'</div>',
 				'<div class="hui-field-right">',
-					'{{placeItem >[xrole=content]}}',
+					'{{placeItem > [xrole=content]}}',
 				'</div>',
 			'</div>'
 		].join(''),
@@ -9749,7 +9750,7 @@ function(AC,Panel){
 //		title           : ''|{},        //顶部按钮，可以字符串，也可以是Button的配置项
 //		content         : null,         //标签内容，可以是html字符串，也可以是组件配置项
 //		activeType      : '',           //激活样式类型，
-		wrapHtml    : ['<li class="hui-tab-item">','</li>'],
+		wrapHtml    : ['<li class="hui-tabitem">','</li>'],
 		defItem         : {             //默认子组件是Button
 			xtype       : 'Button',
 			xrole       : 'title',
@@ -9761,7 +9762,7 @@ function(AC,Panel){
 		//属性
 //		titleCmp        : null,         //标题组件
 //		contentCmp      : null,         //内容组件
-		tmpl            : '<div>{{placeItem >[xrole=title]}}</div>',
+		tmpl            : '<div>{{placeItem > [xrole=title]}}</div>',
 		initialize      : fInitialize,  //初始化
 		doConfig        : fDoConfig,    //初始化配置
 		parseItem       : fParseItem,   //分析处理子组件
@@ -9776,8 +9777,8 @@ function(AC,Panel){
 	function fInitialize(oSettings){
 		var me=this;
 		me.callSuper();
-		me.titleCmp=me.find('>[xrole=title]')[0];
-		me.contentCmp=me.find('>[xrole=content]')[0];
+		me.titleCmp=me.find('> [xrole=title]')[0];
+		me.contentCmp=me.find('> [xrole=content]')[0];
 	}
 	/**
 	 * 初始化配置
@@ -9910,9 +9911,9 @@ function(AC,TabItem,ControlGroup){
 		tmpl            : [
 			'<div>',
 				'<ul class="js-tab-btns c-clear">',
-					'{{placeItem >TabItem}}',
+					'{{placeItem > TabItem}}',
 				'</ul>',
-				'{{placeItem >TabItem>[xrole=content]}}',
+				'{{placeItem > TabItem > [xrole=content]}}',
 			'</div>'
 		].join(''),
 		
@@ -10140,7 +10141,7 @@ function(AC,Popup){
 		
 		tmpl            : [
 			'<div>',
-				'{{placeItem >[xrole=dialog-header]}}',
+				'{{placeItem > [xrole=dialog-header]}}',
 				'<div class="hui-dialog-body">',
 					'{{#if content}}',
 						'{{content}}',
@@ -10148,12 +10149,12 @@ function(AC,Popup){
 						'<div class="hui-body-content c-clear">',
 							'<h1 class="hui-content-title">{{contentTitle}}</h1>',
 							'<div class="hui-content-msg">{{contentMsg}}</div>',
-							'{{placeItem >[xrole=dialog-content]}}',
+							'{{placeItem > [xrole=dialog-content]}}',
 						'</div>',
 					'{{/if}}',
 					'{{#unless noAction}}',
 						'<div class="hui-body-action">',
-						'{{placeItem >[xrole=dialog-action]}}',
+						'{{placeItem > [xrole=dialog-action]}}',
 						'</div>',
 					'{{/unless}}',
 				'</div>',
@@ -10713,9 +10714,9 @@ function(AC){
 				'{{/if}}',
 				'<div class="hui-hcard-content">',
 					'<div class="hui-content-title">{{title}}</div>',
-					'{{placeItem >[xrole=desc]}}',
+					'{{placeItem > [xrole=desc]}}',
 				'</div>',
-				'{{placeItem >[xrole!=desc]}}',
+				'{{placeItem > [xrole!=desc]}}',
 				'{{#if hasArrow}}',
 					'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情">',
 						'<span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span>',
@@ -10774,9 +10775,9 @@ function(AC){
 					'<div class="hui-title-txt">{{title}}</div>',
 					'<div class="hui-title-extra">{{extraTitle}}</div>',
 				'</div>',
-				'{{placeItem >[xrole!=action]}}',
+				'{{placeItem > [xrole!=action]}}',
 				'<div class="hui-vcard-action">',
-					'{{placeItem >[xrole=action]}}',
+					'{{placeItem > [xrole=action]}}',
 				'</div>',
 			'</div>'
 		].join(''),
@@ -10866,17 +10867,18 @@ function(AC){
 				'</div>',
 			'</div>'
 		].join(''),
-		init                : fInit,               //初始化
+		doConfig            : fDoconfig,           //初始化配置
 		addListItem         : fAddListItem,        //添加列表项
 		removeListItem      : fRemoveListItem,     //删除列表项
 		refreshScroller     : fRefreshScroller,    //刷新iScroll
 		destroy             : fDestroy             //销毁
 	});
 	/**
-	 * 初始化
+	 * 初始化配置
 	 */
-	function fInit(){
+	function fDoconfig(oSettings){
 		var me=this;
+		me.callSuper();
 		if(me.itemXtype){
 			(me.defItem||(me.defItem={})).xtype=me.itemXtype;
 		}
