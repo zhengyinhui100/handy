@@ -49,7 +49,7 @@ handy.add('Function',function($H){
 				                   fExecFunc.apply(oExScope, args) :false;
 				   };
 		}
-		return fExecFunc;
+		return fExecFunc||fInterceptFunc;
 	}
 	
 	return Function;

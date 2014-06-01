@@ -150,7 +150,7 @@ handy.add('Object',function($H){
 		            if (!bNotCover) {
 		            	var value=bIsClone?Object.clone(value):value;
 		            	//为方法添加元数据：方法名和声明此方法的类
-						if(bAddMeta&&Object.isFunc(value)){
+						if(bAddMeta&&Object.isFunc(value)&&!value.$name){
 							value.$name=sProperty;
 							value.$owner=oConstructor;
 						}
