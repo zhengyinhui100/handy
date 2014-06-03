@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-06-01 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-06-03 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -342,6 +342,7 @@ handy.add('Object',function($H){
 		isArr				: fIsArr,    		//判断对象是否是数组
 		isObj               : fIsObj,           //是否是对象
 		isClass             : fIsClass,         //判断对象是否是类
+		isInstance          : fIsInstance,      //判断对象是否是类的实例
 		equals				: fEquals, 		    //对象对比，对比每一个值是否相等
 		clone				: fClone,			//对象复制
 		isEmpty				: fIsEmpty, 		//判断对象是否为空
@@ -467,7 +468,7 @@ handy.add('Object',function($H){
 		            if (!bNotCover) {
 		            	var value=bIsClone?Object.clone(value):value;
 		            	//为方法添加元数据：方法名和声明此方法的类
-						if(bAddMeta&&Object.isFunc(value)){
+						if(bAddMeta&&Object.isFunc(value)&&!value.$name){
 							value.$name=sProperty;
 							value.$owner=oConstructor;
 						}
@@ -608,6 +609,14 @@ handy.add('Object',function($H){
      */
     function fIsClass(obj){
     	return Object.isFunc(obj)&&obj.$isClass===true;
+    }
+    /**
+     * 判断对象是否是类的实例
+     * @param {*}obj 参数对象
+     * @return {boolean} true表示参数对象是类的实例
+     */
+    function fIsInstance(obj){
+    	return obj&&obj.constructor&&obj.constructor.$isClass===true;
     }
     /**
     * 对比对象值是否相同
@@ -3255,7 +3264,12 @@ handy.add('Geo',function($H){
 	    nDistance=nDistance.toFixed(2);
 	    if(bFormat!=false){
 	    	if(isNaN(nDistance)){
-	    		return '未知';
+			    //TODO 可能是计算精度的原因，相同坐标计算结果是NaN
+	    		if(nLat1==nLat2&&nLng1==nLng2&&$H.isNum(nLat1)&&$H.isNum(nLng1)){
+	    			nDistance=0;
+	    		}else{
+		    		return '未知';
+	    		}
 	    	}
 	    	nDistance+='km';
 	    }
@@ -5180,6 +5194,7 @@ function(AbstractDao,AbstractEvents){
 
 	    sMethod = me.isNew() ? 'create' : (oOptions.update ? 'update':'patch' );
     	//patch只提交所有改变的值
+	    var oSaveAttrs;
 	    if (sMethod === 'patch'){
 	    	var oChanged=me.changedAttrbutes(oAttrs);
 	    	//没有改变的属性，直接执行回调函数
@@ -5189,12 +5204,19 @@ function(AbstractDao,AbstractEvents){
 		        }
 		        return;
 	    	}
-	    	oOptions.attrs = oChanged;
+	    	oSaveAttrs = oChanged;
 	    }else{
 	    	//提交所有属性值
 	    	var oCurrent=$H.extend({},me._attributes);
-	    	oOptions.attrs = $H.extend(oCurrent,oAttrs);
+	    	oSaveAttrs = $H.extend(oCurrent,oAttrs);
 	    }
+	    //过滤掉嵌套集合和模型
+	    for(var key in oSaveAttrs){
+	    	if($H.isInstance(oSaveAttrs[key])){
+	    		delete oSaveAttrs[key];
+	    	}
+	    }
+	    oOptions.attrs=oSaveAttrs;
 	    me.sync(sMethod, me, oOptions);
     }
 	/**
@@ -7088,6 +7110,7 @@ function(ViewManager,ModelView,Model,Template){
 		xConfig             : {},                //视图模型xmodel的字段配置
 		
 		//属性
+//		configed            : false,             //是否已经调用了doConfig
 //		startParseItems     : false,             //是否已开始初始化子视图
 //		isSuspend           : false,             //是否挂起事件
 //		destroyed           : false,             //是否已销毁
@@ -7281,6 +7304,11 @@ function(ViewManager,ModelView,Model,Template){
 	 */
 	function fDoConfig(oSettings){
 		var me=this;
+		//这里主要是避免双继承下的多次调用
+		if(me.configed){
+			return;
+		}
+		me.configed=true;
 		//复制保存初始参数
 		me.initParam=oSettings;
 		if(typeof oSettings=='string'){
@@ -8565,6 +8593,7 @@ function(AC){
 			cls             : 'btn',
 			text            : '',                  //按钮文字
 			theme           : 'gray',
+			markType        : '',                  //标记类型，默认无标记，'black'黑色圆点标记，'red'红色圆点标记
 			iconPos         : '',                  //图标位置，"left"|"right"|"top"|"bottom"
 			activeCls       : 'hui-btn-active',    //激活样式
 			isBack          : false,               //是否是后退按钮
@@ -8584,6 +8613,13 @@ function(AC){
 					var sPos=this.get('iconPos');
 					return sPos?'hui-btn-icon-'+sPos:'';
 				}
+			},
+			markCls      : {
+				depends : ['markType'],
+				parse :function(){
+					var markType=this.get('markType');
+					return markType?'hui-btn-mark-'+markType:'';
+				}
 			}
 		},
 //		icon            : null,                //图标名称
@@ -8593,9 +8629,10 @@ function(AC){
 			xtype       : 'Icon'
 		},
 		
-		tmpl            : ['<a href="javascript:;" hidefocus="true" {{bindAttr class="hasText:hui-btn-icon-notxt isBack?hui-btn-back iconPosCls"}}>',
+		tmpl            : ['<a href="javascript:;" hidefocus="true" {{bindAttr class="hasText:hui-btn-icon-notxt isBack?hui-btn-back markCls iconPosCls"}}>',
 								'<span class="hui-btn-txt">{{text}}</span>',
 								'{{placeItem}}',
+								'<span class="hui-btn-mark"></span>',
 							'</a>'].join('')
 	});
 	
@@ -8949,7 +8986,9 @@ function(AC){
 			}
 		],
 		
+		doConfig             : fDoConfig,            //初始化配置
 		parseItem            : fParseItem,           //分析子组件配置
+		layout               : fLayout,              //布局
 		select               : fSelect,              //选中指定项
 		getSelected          : fGetSelected,         //获取选中项/索引
 		selectItem           : fSelectItem,          //选中/取消选中
@@ -8958,11 +8997,47 @@ function(AC){
 	});
 	
 	/**
+	 * 初始化配置
+	 * @param {object}oSettings 配置对象
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		me.callSuper();
+		//水平布局需要js计算
+		if(me.get('direction')=='h'){
+			me.listen({
+				name        : 'afterRender add remove',
+				custom      : true,
+				handler     : function(){
+					me.layout();
+				}
+				
+			});
+		}
+	}
+	/**
 	 * 分析子组件配置
 	 * @param {object}oItem 子组件配置项
 	 */
 	function fParseItem(oItem){
 		oItem.extCls=(oItem.extCls||"")+'js-item';
+	}
+	/**
+	 * 布局
+	 */
+	function fLayout(){
+		var me=this;
+		if(me.rendered){
+			var nLen=me.children.length;
+			var width=Math.floor(100/nLen);
+			me.findEl('> .js-item').each(function(i,el){
+				if(i<nLen-1){
+					el.style.width=width+'%';
+				}else{
+					el.style.width=(100-width*(nLen-1))+'%';
+				}
+			});
+		}
 	}
 	/**
 	 * 选中指定项
@@ -9546,8 +9621,8 @@ function(AC){
 		},
 		
 		tmpl            : [
-			'<div {{bindAttr class="text?hui-rowitem-txt underline?hui-rowitem-underline"}}>',
-				'{{text}}',
+			'<div {{bindAttr class="underline?hui-rowitem-underline"}}>',
+				'<div class="hui-towitem-txt">{{text}}</div>',
 				'{{placeItem}}',
 				'{{#if hasArrow}}',
 					'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情"><span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span></a>',
@@ -9743,14 +9818,12 @@ function(AC,Panel){
 	TabItem.extend({
 		//初始配置
 		xConfig         : {
-			cls             : 'tabitem',
-			extCls          : 'js-item'
+			cls             : 'tabitem'
 		},
 //		selected        : false,
 //		title           : ''|{},        //顶部按钮，可以字符串，也可以是Button的配置项
 //		content         : null,         //标签内容，可以是html字符串，也可以是组件配置项
 //		activeType      : '',           //激活样式类型，
-		wrapHtml    : ['<li class="hui-tabitem">','</li>'],
 		defItem         : {             //默认子组件是Button
 			xtype       : 'Button',
 			xrole       : 'title',
@@ -9890,35 +9963,25 @@ function(AC,TabItem,ControlGroup){
 	Tab.extend({
 		//初始配置
 		xConfig         : {
-			cls             : 'tab'
+			cls             : 'tab',
+			direction       : 'h'
 //			theme           : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
-			
 		},
 //		activeType      : '',           //激活样式类型，
 		defItem         : {             //默认子组件是TabItem
 //			content     : '',           //tab内容
 			xtype       : 'TabItem'
 		},
-		listeners       : [{
-			name        : 'afterRender add remove',
-			custom      : true,
-			handler     : function(){
-				this.layout();
-			}
-			
-		}],
 		
 		tmpl            : [
 			'<div>',
-				'<ul class="js-tab-btns c-clear">',
-					'{{placeItem > TabItem}}',
-				'</ul>',
+				'{{placeItem > TabItem}}',
+				'<div class="c-clear"></div>',
 				'{{placeItem > TabItem > [xrole=content]}}',
 			'</div>'
 		].join(''),
 		
 		parseItem       : fParseItem,          //分析处理子组件 
-		layout          : fLayout,             //布局
 		setTabContent   : fSetTabContent       //设置标签页内容
 	});
 	/**
@@ -9933,21 +9996,6 @@ function(AC,TabItem,ControlGroup){
 			oItem.activeType=me.activeType;
 		}
 		me.callSuper();
-	}
-	/**
-	 * 布局
-	 */
-	function fLayout(){
-		var me=this;
-		var nLen=me.children.length;
-		var width=Math.floor(100/nLen);
-		me.findEl('.js-tab-btns>li').each(function(i,el){
-			if(i<nLen-1){
-				el.style.width=width+'%';
-			}else{
-				el.style.width=(100-width*(nLen-1))+'%';
-			}
-		});
 	}
 	/**
 	 * 设置标签页内容
@@ -10323,10 +10371,21 @@ function(AC,Popup,ControlGroup){
 //			selected         : false,             //是否选中
 			isInline         : false
 		},
+		
 		tmpl            : '<div {{bindAttr class="directionCls"}}>{{placeItem}}</div>',
+		doConfig        : fDoConfig,         //初始化配置
 		parseItem       : fParseItem         //分析子组件配置
 	});
 	
+	/**
+	 * 初始化配置
+	 * @param {object}oSettings 配置对象
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		me.callSuper(ControlGroup);
+		me.callSuper();
+	}
 	/**
 	 * 分析子组件配置
 	 * @param {object}oItem 子组件配置
