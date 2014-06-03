@@ -28,6 +28,7 @@ function(AC,TabItem,ControlGroup){
 		tmpl            : [
 			'<div>',
 				'{{placeItem > TabItem}}',
+				'<div class="c-clear"></div>',
 				'{{placeItem > TabItem > [xrole=content]}}',
 			'</div>'
 		].join(''),

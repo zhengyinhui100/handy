@@ -527,6 +527,7 @@ function(AbstractDao,AbstractEvents){
 
 	    sMethod = me.isNew() ? 'create' : (oOptions.update ? 'update':'patch' );
     	//patch只提交所有改变的值
+	    var oSaveAttrs;
 	    if (sMethod === 'patch'){
 	    	var oChanged=me.changedAttrbutes(oAttrs);
 	    	//没有改变的属性，直接执行回调函数
@@ -536,12 +537,19 @@ function(AbstractDao,AbstractEvents){
 		        }
 		        return;
 	    	}
-	    	oOptions.attrs = oChanged;
+	    	oSaveAttrs = oChanged;
 	    }else{
 	    	//提交所有属性值
 	    	var oCurrent=$H.extend({},me._attributes);
-	    	oOptions.attrs = $H.extend(oCurrent,oAttrs);
+	    	oSaveAttrs = $H.extend(oCurrent,oAttrs);
 	    }
+	    //过滤掉嵌套集合和模型
+	    for(var key in oSaveAttrs){
+	    	if($H.isInstance(oSaveAttrs[key])){
+	    		delete oSaveAttrs[key];
+	    	}
+	    }
+	    oOptions.attrs=oSaveAttrs;
 	    me.sync(sMethod, me, oOptions);
     }
 	/**

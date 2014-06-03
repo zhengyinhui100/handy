@@ -25,6 +25,7 @@ handy.add('Object',function($H){
 		isArr				: fIsArr,    		//判断对象是否是数组
 		isObj               : fIsObj,           //是否是对象
 		isClass             : fIsClass,         //判断对象是否是类
+		isInstance          : fIsInstance,      //判断对象是否是类的实例
 		equals				: fEquals, 		    //对象对比，对比每一个值是否相等
 		clone				: fClone,			//对象复制
 		isEmpty				: fIsEmpty, 		//判断对象是否为空
@@ -291,6 +292,14 @@ handy.add('Object',function($H){
      */
     function fIsClass(obj){
     	return Object.isFunc(obj)&&obj.$isClass===true;
+    }
+    /**
+     * 判断对象是否是类的实例
+     * @param {*}obj 参数对象
+     * @return {boolean} true表示参数对象是类的实例
+     */
+    function fIsInstance(obj){
+    	return obj&&obj.constructor&&obj.constructor.$isClass===true;
     }
     /**
     * 对比对象值是否相同

@@ -19,8 +19,8 @@ function(AC){
 		},
 		
 		tmpl            : [
-			'<div {{bindAttr class="text?hui-rowitem-txt underline?hui-rowitem-underline"}}>',
-				'{{text}}',
+			'<div {{bindAttr class="underline?hui-rowitem-underline"}}>',
+				'<div class="hui-towitem-txt">{{text}}</div>',
 				'{{placeItem}}',
 				'{{#if hasArrow}}',
 					'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情"><span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span></a>',

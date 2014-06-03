@@ -41,6 +41,7 @@ function(ViewManager,ModelView,Model,Template){
 		xConfig             : {},                //视图模型xmodel的字段配置
 		
 		//属性
+//		configed            : false,             //是否已经调用了doConfig
 //		startParseItems     : false,             //是否已开始初始化子视图
 //		isSuspend           : false,             //是否挂起事件
 //		destroyed           : false,             //是否已销毁
@@ -234,6 +235,11 @@ function(ViewManager,ModelView,Model,Template){
 	 */
 	function fDoConfig(oSettings){
 		var me=this;
+		//这里主要是避免双继承下的多次调用
+		if(me.configed){
+			return;
+		}
+		me.configed=true;
 		//复制保存初始参数
 		me.initParam=oSettings;
 		if(typeof oSettings=='string'){

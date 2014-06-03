@@ -30,10 +30,21 @@ function(AC,Popup,ControlGroup){
 //			selected         : false,             //是否选中
 			isInline         : false
 		},
+		
 		tmpl            : '<div {{bindAttr class="directionCls"}}>{{placeItem}}</div>',
+		doConfig        : fDoConfig,         //初始化配置
 		parseItem       : fParseItem         //分析子组件配置
 	});
 	
+	/**
+	 * 初始化配置
+	 * @param {object}oSettings 配置对象
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		me.callSuper(ControlGroup);
+		me.callSuper();
+	}
 	/**
 	 * 分析子组件配置
 	 * @param {object}oItem 子组件配置

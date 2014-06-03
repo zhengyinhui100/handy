@@ -57,7 +57,12 @@ handy.add('Geo',function($H){
 	    nDistance=nDistance.toFixed(2);
 	    if(bFormat!=false){
 	    	if(isNaN(nDistance)){
-	    		return '未知';
+			    //TODO 可能是计算精度的原因，相同坐标计算结果是NaN
+	    		if(nLat1==nLat2&&nLng1==nLng2&&$H.isNum(nLat1)&&$H.isNum(nLng1)){
+	    			nDistance=0;
+	    		}else{
+		    		return '未知';
+	    		}
 	    	}
 	    	nDistance+='km';
 	    }
