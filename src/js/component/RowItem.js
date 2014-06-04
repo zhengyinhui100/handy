@@ -15,15 +15,27 @@ function(AC){
 			cls             : 'rowitem',
 			text            :'',             //文字
 			underline       : false,         //右边下划线，文字域默认有下划线
-			hasArrow        : false          //右边箭头，有click事件时默认有箭头
+			hasArrow        : false,         //右边箭头，有click事件时默认有箭头
+			newsNum         : 0,             //新消息提示数目，大于9自动显示成"9+"
+			newsNumTxt      : {
+				depends : ['newsNum'],
+				parse:function(){
+					var newsNum=this.get('newsNum');
+					return newsNum?newsNum>9?'9+':newsNum:0
+				}
+			}
 		},
 		
 		tmpl            : [
 			'<div {{bindAttr class="underline?hui-rowitem-underline"}}>',
 				'<div class="hui-towitem-txt">{{text}}</div>',
 				'{{placeItem}}',
-				'{{#if hasArrow}}',
-					'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情"><span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span></a>',
+				'{{#if newsNumTxt}}',
+					'<span class="hui-news-tips">{{newsNumTxt}}</span>',
+				'{{else}}',
+					'{{#if hasArrow}}',
+						'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情"><span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span></a>',
+					'{{/if}}',
 				'{{/if}}',
 			'</div>'
 		].join(''),
