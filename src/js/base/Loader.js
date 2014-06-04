@@ -375,6 +375,16 @@ function(Debug,Object,Function,$H){
 			factory=aDeps;
 			aDeps=[];
 		}
+		
+		//检出factory方法内声明的$Require依赖，如：var m=$Require('m');
+		if(Object.isFunc(factory)){
+			var m,sFactoryStr=factory.toString();
+			var r=/\$Require\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
+			while(m=r.exec(sFactoryStr)){
+				aDeps.push(m[1]);
+			}
+		}
+		
 		Loader.require(aDeps,function(){
 			var resource;
 			if(typeof factory=="function"){
@@ -401,7 +411,7 @@ function(Debug,Object,Function,$H){
 					resource.$ns=sId;
 				}
 			}else{
-				Debug.error(_LOADER_PRE+'factory no return:\n'+sId);
+				Debug.warn(_LOADER_PRE+'factory no return:\n'+sId);
 			}
 		});
 	}

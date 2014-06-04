@@ -1,12 +1,16 @@
 //模块测试
 
-$.Loader.define('module.module2',['module.module1'],function(aModules){
+$Define('module.Module2',function(){
+	
+	var module1=$Require ( 'module.Module1');
+	var module3=$Require('module.Module3');
 	
 	return {
-		name:"module2",
+		name:"Module2",
 		
 		init:function(){
-			aModules[0].action('module2');
+			module1.action('module2');
+			module3.action();
 		}
 	}
 });

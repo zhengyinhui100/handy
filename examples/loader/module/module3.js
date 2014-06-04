@@ -1,11 +1,11 @@
 //模块测试
 
-$.Loader.define('module.module3',function(){
+$Define('module.Module3',function(){
 	return {
-		name:"module3",
+		name:"Module3",
 		
 		action:function(){
-			$.Loader.require("module.module1").action('module3');
+			$Require("module.Module1").action('module3');
 		}
 	}
 });

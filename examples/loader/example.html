@@ -3,23 +3,25 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>test handy libraly</title>
-<script type="text/javascript" src="../../dist/handy.js"></script>
+<script type="text/javascript" src="../../lib/jquery.js"></script>
+<script type="text/javascript" src="../../build/handy.js"></script>
+<script type="text/javascript" src="../../src/js/base/Loader.js"></script>
+<script type="text/javascript" src="../../src/js/base/adapt.js"></script>
 </head>
 <body>
 <input type="button" id="button" value="异步获取模块"/>
 <div class="load">加载css成功后变绿</div>
 <script type="text/javascript">
 
-$.Loader.rootPath='../../examples/loader';
+$H.Loader.rootPath='./';
 
-$.Loader.require(['module.module2','style.css'],function(aModules){
-	var module2=$.Loader.require('module.module2');
-	//module2=aModules[0];
+$Require(['module.Module2','style.css'],function(){
+	var module2=$Require('module.Module2');
 	module2.init();
 })
 document.getElementById("button").onclick=function(){
-	$.Loader.require('module.module3',function(aModules){
-		aModules[0].action();
+	$Require('module.Module3',function(module3){
+		module3.action();
 	})
 }
 
