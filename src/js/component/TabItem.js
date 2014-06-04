@@ -29,6 +29,7 @@ function(AC,Panel){
 			isInline    : false,
 			shadow      : false
 		},
+		_customEvents   : ['selectchange'],
 		
 		//属性
 //		titleCmp        : null,         //标题组件
@@ -110,10 +111,12 @@ function(AC,Panel){
 			oTitle.unactive();
 			oContent&&oContent.hide();
 			me.set('selected',false);
+			me.trigger('selectchange',false);
 		}else{
 			oTitle.active();
 			oContent&&oContent.show();
 			me.set('selected',true);
+			me.trigger('selectchange',true);
 		}
 	}
 	/**
