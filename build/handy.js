@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-06-03 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-06-04 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -4667,6 +4667,8 @@ function(LS){
 	
 });/**
  * 模型类，负责数据封装，可监听事件：invalid、sync、destroy、change:attr、change
+ * PS：嵌套属性区别于普通属性，不可通过hasChanged、changedAttrbutes等方法获取改变，
+ * 只能通过相关委托事件(_onAttrEvent方法里)进行监测
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-03-06
  */
@@ -4811,7 +4813,7 @@ function(AbstractDao,AbstractEvents){
 						type=$H.ns(type);
 					}
 				}
-				if($H.isClass(type)&&!(val instanceof type)){
+				if($H.isClass(type)&&!(val instanceof type)&&!me.get(key)){
 					val=new type(val);
 					//监听所有事件
 					val.on('all',$H.bind(me._onAttrEvent,me,key));
@@ -4973,19 +4975,28 @@ function(AbstractDao,AbstractEvents){
 	    //循环进行设置、更新、删除
 	    for (var sAttr in oAttrs) {
 	   	    val = oAttrs[sAttr];
-	   	    //与当前值不相等，放入改变列表中
-	    	if (!$H.equals(oCurrent[sAttr], val)){
-	    		oChanges[sAttr]=val;
-	    	}
-	    	//与初始值不相等，放入已经改变的hash对象中
-	    	if (!$H.equals(oPrev[sAttr], val)) {
-	            me._changed[sAttr] = val;
-	    	} else {
-	    		//跟初始值相等，即没有变化
-	        	delete me._changed[sAttr];
-	    	}
+	    	var curVal=oCurrent[sAttr];
+	    	//是否是嵌套属性
+	   	    var bNested=curVal&&$H.isInstance(curVal);
 	    	//如果取消设置，删除对应属性
-	    	bUnset ? delete oCurrent[sAttr] : oCurrent[sAttr] = val;
+	    	if(bNested){
+	    		//PS:嵌套属性须调用该属性类的方法进行设置，也不需要在此触发相关事件，而是通过监听该属性上的事件触发事件
+	    		bUnset ? curVal.reset() : curVal.set(val);
+	    	}else{
+		   	    //与当前值不相等，放入本次改变列表中
+		    	if (!$H.equals(oCurrent[sAttr], val)){
+		    		oChanges[sAttr]=val;
+		    	}
+		    	//与初始值不相等，放入已经改变的hash对象中
+		    	if (!$H.equals(oPrev[sAttr], val)) {
+		            me._changed[sAttr] = val;
+		    	} else {
+		    		//跟初始值相等，即没有变化
+		        	delete me._changed[sAttr];
+		    	}
+		    	
+		    	bUnset ? delete oCurrent[sAttr] : oCurrent[sAttr] = val;
+	    	}
 	    }
 	    
 		var bHasChange=!$H.isEmpty(oChanges);
@@ -9617,15 +9628,27 @@ function(AC){
 			cls             : 'rowitem',
 			text            :'',             //文字
 			underline       : false,         //右边下划线，文字域默认有下划线
-			hasArrow        : false          //右边箭头，有click事件时默认有箭头
+			hasArrow        : false,         //右边箭头，有click事件时默认有箭头
+			newsNum         : 0,             //新消息提示数目，大于9自动显示成"9+"
+			newsNumTxt      : {
+				depends : ['newsNum'],
+				parse:function(){
+					var newsNum=this.get('newsNum');
+					return newsNum?newsNum>9?'9+':newsNum:0
+				}
+			}
 		},
 		
 		tmpl            : [
 			'<div {{bindAttr class="underline?hui-rowitem-underline"}}>',
 				'<div class="hui-towitem-txt">{{text}}</div>',
 				'{{placeItem}}',
-				'{{#if hasArrow}}',
-					'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情"><span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span></a>',
+				'{{#if newsNumTxt}}',
+					'<span class="hui-news-tips">{{newsNumTxt}}</span>',
+				'{{else}}',
+					'{{#if hasArrow}}',
+						'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情"><span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span></a>',
+					'{{/if}}',
 				'{{/if}}',
 			'</div>'
 		].join(''),
@@ -9831,6 +9854,7 @@ function(AC,Panel){
 			isInline    : false,
 			shadow      : false
 		},
+		_customEvents   : ['selectchange'],
 		
 		//属性
 //		titleCmp        : null,         //标题组件
@@ -9912,10 +9936,12 @@ function(AC,Panel){
 			oTitle.unactive();
 			oContent&&oContent.hide();
 			me.set('selected',false);
+			me.trigger('selectchange',false);
 		}else{
 			oTitle.active();
 			oContent&&oContent.show();
 			me.set('selected',true);
+			me.trigger('selectchange',true);
 		}
 	}
 	/**

@@ -132,14 +132,14 @@
 .hui-btn-mark {
   display: none;
   position: absolute;
-  height: 6px;
-  width: 6px;
+  height: 8px;
+  width: 8px;
   left: 10px;
   top: 50%;
-  margin-top: -3px;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
+  margin-top: -4px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
 }
 .hui-btn-mark-black .hui-btn-mark {
   display: block;
@@ -814,6 +814,22 @@
   left: 50%;
   margin-top: -11px;
   margin-left: -11px;
+}
+.hui-news-tips {
+  position: absolute;
+  top: 50%;
+  margin-top: -0.4em;
+  padding-left: .36em;
+  padding-right: .36em;
+  background-color: red;
+  text-align: center;
+  vertical-align: middle;
+  font-size: .5em;
+  color: #fff;
+  -webkit-border-radius: 2em;
+  -moz-border-radius: 2em;
+  border-radius: 2em;
+  right: 0;
 }
 .hui-label.hui-label-default {
   color: #222;

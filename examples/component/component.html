@@ -73,6 +73,12 @@ gEnv='dev';
 	<div id="inputDv"></div>
 	<br/><br/><br/><br/>
 	
+	
+	<h3>行控件：</h3>
+	<div id="rowItemDv"></div>
+	<br/><br/><br/><br/>
+	
+	
 	<h3>表单：</h3>
 	<div id="formDv"></div>
 	<br/><br/><br/><br/>
@@ -517,6 +523,30 @@ function(Model,Collection,CM,Icon,Button,Desc,Panel,ControlGroup,Radio,Checkbox,
 		});
 		input.getXmodel().on('change:value',function(sEvt,oModel,value){
 			$("#textareaVal").html(value);
+		});
+		
+		//行控件
+		new RowItem({
+			renderTo:'#rowItemDv',
+			text:'行行行'
+		});
+		
+		new RowItem({
+			renderTo:'#rowItemDv',
+			text:'行行行',
+			click:function(){
+				alert(1);
+			}
+		});
+		
+		new RowItem({
+			renderTo:'#rowItemDv',
+			text:'行行行',
+			newsNum:8,
+			click:function(){
+				newsNum=this.get("newsNum");
+				this.set('newsNum',++newsNum);
+			}
 		});
 		
 		//表单
