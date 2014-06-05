@@ -80,7 +80,7 @@
 		.fn_linear_gradient_top(#f6f6f6,#e0e0e0);
 	}
 }
-//黑色
+//黑色按钮
 .hui-btn-black{
 	border: 1px solid #111;
 	background: #333;
@@ -154,6 +154,13 @@
 			background-color: #73bf00;
 		}
 	}
+}
+.hui-btn-black.hui-btn-active-c{
+	background: #444;
+	font-weight: bold;
+	color: #fff;
+	text-shadow: 0 1px 0 #111;
+	.fn_linear_gradient_top(#555,#383838);
 }
 //后退箭头按钮
 .hui-btn.hui-btn-back{
@@ -376,11 +383,11 @@
 		border-right:0;
 		border-top:0;
 		border-bottom:0;
-		&:nth-of-type(1){
+		&.hui-item-first{
 			border-left:0;
 			.fn_border_radius_left(inherit);
 		}
-		&:nth-last-of-type(1){
+		&.hui-item-last{
 			.fn_border_radius_right(inherit);
 		}
 	}
@@ -532,7 +539,7 @@
 	width:20px;
 	height:36px;
 	top:50%;
-	right:0;
+	right:3px;
 	text-align:center;
 	vertical-align:middle;
 	.hui-icon{
@@ -546,16 +553,16 @@
 .hui-news-tips{
 	position:absolute;
 	top:50%;
-	margin-top:-0.4em;
-	padding-left:.36em;
-	padding-right:.36em;
+	margin-top:-5px;
+	padding-left:4px;
+	padding-right:4px;
 	background-color:red;
 	text-align:center;
 	vertical-align:middle;
-	font-size:.5em;
+	font-size:8px;
 	color:#fff;
-	.fn_border_radius(2em);
-	right:0;
+	.fn_border_radius(8px);
+	right:5px;
 }
 .hui-label{
 	&.hui-label-default{
@@ -588,7 +595,7 @@
 	}
 	.hui-field-right{
 		position:relative;
-		width:78%;
+		width:80%;
 		vertical-align:middle;
 		.fn_inline_block();
 	}
@@ -691,24 +698,31 @@
 //标签栏
 .hui-tab{
 	.hui-tabitem{
+		float:left;
 		.hui-btn{
 			margin:0;
 			padding-left:0;
 			padding-right:0;
 		}
-		.hui-btn-gray{
-			border-left-color:#eee;
+		.hui-btn{
+			border-left-width:0;
+			border-right-width:0;
 		}
+		&.hui-item-first .hui-btn{
+			border-left-color:1px;
+		}
+		&.hui-item-last .hui-btn{
+			border-right-width:1px;
+		}
+		/*
 		&:nth-of-type(1) .hui-btn-gray{
 			border-left-color:#ccc;
 		}
-		float:left;
+		这里使用class会使跟.hui-tabitem的标签同名的标签也纳入计算范围，如：div，因此这里使用js添加class方式
 		&:nth-last-of-type(1) .hui-btn{
 			border-right-width:1px;
 		}
-		.hui-btn{
-			border-right-width:0;
-		}
+		*/
 	}
 }
 .hui-tab-border-top,.hui-tab-noborder{
@@ -734,20 +748,19 @@
 	.hui-popup();
 	z-index:99999;
 	text-align:center;
-	&.hui-tips-big{
-		padding:0.8em 1.5em;
-		.hui-icon-loading{
-			display:none;
-			width:2.75em;
-			height:2.75em;
-			margin:0 auto .625em;
-			.fn_border_radius(2.25em);
-		}
-		.hui-tips-txt{
-			white-space:nowrap;
-		}
+	//大loading提示
+	padding:0.8em 1.5em;
+	.hui-icon-loading{
+		display:none;
+		width:2.75em;
+		height:2.75em;
+		margin:0 auto .625em;
+		.fn_border_radius(2.25em);
 	}
-	&.hui-tips-mini{
+	.hui-tips-txt{
+		white-space:nowrap;
+	}
+	&.hui-mini{
 		padding:.2em .5em;
 		.hui-tips-txt{
 			font-size:0.8em;
@@ -941,6 +954,7 @@
 	.hui-vcard-title{
 		position:relative;
 		background:#f1f1f1;
+		padding-left:.4em;
 		&.hui-title-hasimg{
 			padding-left:45px;
 		}
@@ -962,6 +976,8 @@
 		}
 	}
 	.hui-vcard-action{
+		//TODO 这里如果祖先元素有overflow:hidden属性(如：ModelList里)，会隐藏按钮右侧的边框，所以这里加上padding临时解决
+		padding-right:1px;
 		.hui-btn{
 			margin:0;
 		}

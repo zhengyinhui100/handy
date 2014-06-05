@@ -385,6 +385,28 @@
 .hui-btn.hui-btn-active-c:hover .hui-icon-bg {
   background-color: #73bf00;
 }
+.hui-btn-black.hui-btn-active-c {
+  background: #444;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 1px 0 #111;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#555555), to(#383838));
+  /* old webkit,Saf4+, Chrome */
+
+  background-image: -webkit-linear-gradient(#555555, #383838);
+  /* Chrome 10+, Saf5.1+ */
+
+  background-image: -moz-linear-gradient(#555555, #383838);
+  /* FF3.6 */
+
+  background-image: -ms-linear-gradient(#555555, #383838);
+  /* IE10 */
+
+  background-image: -o-linear-gradient(#555555, #383838);
+  /* Opera 11.10+ */
+
+  background-image: linear-gradient(#555555, #383838);
+}
 .hui-btn.hui-btn-back {
   overflow: visible;
   margin-left: 15px;
@@ -622,7 +644,7 @@
   border-top: 0;
   border-bottom: 0;
 }
-.hui-ctrlgp-h > .hui-btn:nth-of-type(1) {
+.hui-ctrlgp-h > .hui-btn.hui-item-first {
   border-left: 0;
   -moz-border-radius-topleft: inherit;
   -webkit-border-top-left-radius: inherit;
@@ -631,7 +653,7 @@
   -webkit-border-bottom-left-radius: inherit;
   border-bottom-left-radius: inherit;
 }
-.hui-ctrlgp-h > .hui-btn:nth-last-of-type(1) {
+.hui-ctrlgp-h > .hui-btn.hui-item-last {
   -moz-border-radius-topright: inherit;
   -webkit-border-top-right-radius: inherit;
   border-top-right-radius: inherit;
@@ -804,7 +826,7 @@
   width: 20px;
   height: 36px;
   top: 50%;
-  right: 0;
+  right: 3px;
   text-align: center;
   vertical-align: middle;
 }
@@ -818,18 +840,18 @@
 .hui-news-tips {
   position: absolute;
   top: 50%;
-  margin-top: -0.4em;
-  padding-left: .36em;
-  padding-right: .36em;
+  margin-top: -5px;
+  padding-left: 4px;
+  padding-right: 4px;
   background-color: red;
   text-align: center;
   vertical-align: middle;
-  font-size: .5em;
+  font-size: 8px;
   color: #fff;
-  -webkit-border-radius: 2em;
-  -moz-border-radius: 2em;
-  border-radius: 2em;
-  right: 0;
+  -webkit-border-radius: 8px;
+  -moz-border-radius: 8px;
+  border-radius: 8px;
+  right: 5px;
 }
 .hui-label.hui-label-default {
   color: #222;
@@ -868,7 +890,7 @@
 }
 .hui-field .hui-field-right {
   position: relative;
-  width: 78%;
+  width: 80%;
   vertical-align: middle;
   display: -moz-inline-stack;
   display: inline-block;
@@ -983,23 +1005,31 @@
 }
 .hui-tab .hui-tabitem {
   float: left;
+  /*
+		&:nth-of-type(1) .hui-btn-gray{
+			border-left-color:#ccc;
+		}
+		这里使用class会使跟.hui-tabitem的标签同名的标签也纳入计算范围，如：div，因此这里使用js添加class方式
+		&:nth-last-of-type(1) .hui-btn{
+			border-right-width:1px;
+		}
+		*/
+
 }
 .hui-tab .hui-tabitem .hui-btn {
   margin: 0;
   padding-left: 0;
   padding-right: 0;
 }
-.hui-tab .hui-tabitem .hui-btn-gray {
-  border-left-color: #eee;
-}
-.hui-tab .hui-tabitem:nth-of-type(1) .hui-btn-gray {
-  border-left-color: #ccc;
-}
-.hui-tab .hui-tabitem:nth-last-of-type(1) .hui-btn {
-  border-right-width: 1px;
-}
 .hui-tab .hui-tabitem .hui-btn {
+  border-left-width: 0;
   border-right-width: 0;
+}
+.hui-tab .hui-tabitem.hui-item-first .hui-btn {
+  border-left-color: 1px;
+}
+.hui-tab .hui-tabitem.hui-item-last .hui-btn {
+  border-right-width: 1px;
 }
 .hui-tab-border-top .hui-btn,
 .hui-tab-noborder .hui-btn {
@@ -1022,11 +1052,9 @@
   -webkit-transform: translateZ(0);
   z-index: 99999;
   text-align: center;
-}
-.hui-tips.hui-tips-big {
   padding: 0.8em 1.5em;
 }
-.hui-tips.hui-tips-big .hui-icon-loading {
+.hui-tips .hui-icon-loading {
   display: none;
   width: 2.75em;
   height: 2.75em;
@@ -1035,13 +1063,13 @@
   -moz-border-radius: 2.25em;
   border-radius: 2.25em;
 }
-.hui-tips.hui-tips-big .hui-tips-txt {
+.hui-tips .hui-tips-txt {
   white-space: nowrap;
 }
-.hui-tips.hui-tips-mini {
+.hui-tips.hui-mini {
   padding: .2em .5em;
 }
-.hui-tips.hui-tips-mini .hui-tips-txt {
+.hui-tips.hui-mini .hui-tips-txt {
   font-size: 0.8em;
 }
 .hui-tips-notxt {
@@ -1276,6 +1304,7 @@
 .hui-vcard .hui-vcard-title {
   position: relative;
   background: #f1f1f1;
+  padding-left: .4em;
 }
 .hui-vcard .hui-vcard-title.hui-title-hasimg {
   padding-left: 45px;
@@ -1295,6 +1324,9 @@
   top: 0;
   right: 10px;
   padding: 0.4em;
+}
+.hui-vcard .hui-vcard-action {
+  padding-right: 1px;
 }
 .hui-vcard .hui-vcard-action .hui-btn {
   margin: 0;

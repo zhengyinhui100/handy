@@ -171,6 +171,9 @@ function(AbstractDao,AbstractEvents){
         if (sEvent.indexOf('change:')!=0){
         	me.trigger('change:'+sAttr,me,oVal);
         	me.trigger('change',me);
+        	var oChange={};
+        	oChange[sAttr]=oVal;
+        	me._doDepends(oChange);
         }
     }
 	/**

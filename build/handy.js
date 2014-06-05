@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-06-04 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-06-05 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -4848,6 +4848,9 @@ function(AbstractDao,AbstractEvents){
         if (sEvent.indexOf('change:')!=0){
         	me.trigger('change:'+sAttr,me,oVal);
         	me.trigger('change',me);
+        	var oChange={};
+        	oChange[sAttr]=oVal;
+        	me._doDepends(oChange);
         }
     }
 	/**
@@ -9051,7 +9054,21 @@ function(AC){
 		if(me.rendered){
 			var nLen=me.children.length;
 			var width=Math.floor(100/nLen);
-			me.findEl('> .js-item').each(function(i,el){
+			var oItems=me.findEl('> .js-item');
+			var sFirstCls='hui-item-first';
+			var sLastCls='hui-item-last';
+			oItems.each(function(i,el){
+				var jEl=$(el);
+				if(i==0){
+					jEl.removeClass(sLastCls);
+					jEl.addClass(sFirstCls);
+				}else if(i==nLen-1){
+					jEl.removeClass(sFirstCls);
+					jEl.addClass(sLastCls);
+				}else{
+					jEl.removeClass(sFirstCls);
+					jEl.removeClass(sLastCls);
+				}
 				if(i<nLen-1){
 					el.style.width=width+'%';
 				}else{
@@ -10119,7 +10136,6 @@ function(AC,Popup,ControlGroup){
 			cls             : 'tips',
 			text            : '',
 			radius          : 'normal',
-			tType           : 'big',
 			theme           : 'black'
 		},
 //		type            : 'miniLoading',            类型，‘loading’表示居中加载中提示，‘topTips’表示顶部简单提示，‘miniLoading’表示顶部无背景loading小提示
@@ -10863,7 +10879,7 @@ function(AC){
 		
 		tmpl         : [
 			'<div>',
-				'<div class="hui-vcard-title hui-title-hasimg c-clear">',
+				'<div {{bindAttr class="#hui-vcard-title image?hui-title-hasimg #c-clear"}}>',
 					'<div class="hui-title-img">',
 						'<img {{bindAttr src="image"}}>',
 					'</div>',

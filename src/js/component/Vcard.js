@@ -20,7 +20,7 @@ function(AC){
 		
 		tmpl         : [
 			'<div>',
-				'<div class="hui-vcard-title hui-title-hasimg c-clear">',
+				'<div {{bindAttr class="#hui-vcard-title image?hui-title-hasimg #c-clear"}}>',
 					'<div class="hui-title-img">',
 						'<img {{bindAttr src="image"}}>',
 					'</div>',
