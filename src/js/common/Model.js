@@ -37,6 +37,7 @@ function(AbstractDao,AbstractEvents){
 //		dao                   : null,                //数据访问对象，默认为common.AbstractDao
 		
         //内部属性
+//      lastSyncTime          : null,                //上次同步时间
 //      fetching              : false,               //是否正在抓取数据
 //		_changing             : false,               //是否正在改变，但未保存
 		_pending              : false,               //
@@ -109,7 +110,7 @@ function(AbstractDao,AbstractEvents){
 				for(var i=0;i<aDeps.length;i++){
 			    	//当依赖属性变化时，设置计算属性
 					if(oChanges.hasOwnProperty(aDeps[i])){
-						oSets[key]=0;
+						oSets[key]=undefined;
 						break;
 					}
 				}
@@ -236,7 +237,9 @@ function(AbstractDao,AbstractEvents){
 	 * @return {*} 根据同步方法的结果
 	 */
     function fSync(sMethod,oModel,oOptions) {
-        return this.dao.sync(sMethod,oModel,oOptions);
+    	var me=this;
+    	me.lastSyncTime=$H.now();
+        return me.dao.sync(sMethod,oModel,oOptions);
     }
     /**
      * 获取指定属性值
