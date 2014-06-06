@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-06-05 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-06-06 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -3152,9 +3152,10 @@ handy.add('Array','B.Object',function(Object,$H){
 	 * @param {Function|string=}iterator 为空时返回获取本身的迭代函数，为字符串时返回获取该属性的迭代函数，
 	 * 							如果是函数则返回自身,有三个参数：当前元素，当前元素的索引和当前的集合对象
 	 * @param {*=}context 判断函数上下文对象
+	 * @param {boolean=}bDesc 是否是降序
 	 * @return {Array} 返回排序过后的集合
 	 */
-	function fSortBy(obj, iterator, context) {
+	function fSortBy(obj, iterator, context,bDesc) {
 		var me=this;
 	    iterator = _fGetIterator(iterator);
 	    return me.pluck(me.map(obj, function(value, index, list) {
@@ -3168,10 +3169,10 @@ handy.add('Array','B.Object',function(Object,$H){
 	        var b = right.criteria;
 	        if (a !== b) {
 	            if (a > b || a === void 0){
-	            	return 1;
+	            	return bDesc?-1:1;
 	            }
 	            if (a < b || b === void 0){
-	            	return -1;
+	            	return bDesc?1:-1;
 	            }
 	        }
 	        return left.index - right.index;
@@ -4714,6 +4715,7 @@ function(AbstractDao,AbstractEvents){
 //		dao                   : null,                //数据访问对象，默认为common.AbstractDao
 		
         //内部属性
+//      lastSyncTime          : null,                //上次同步时间
 //      fetching              : false,               //是否正在抓取数据
 //		_changing             : false,               //是否正在改变，但未保存
 		_pending              : false,               //
@@ -4786,7 +4788,7 @@ function(AbstractDao,AbstractEvents){
 				for(var i=0;i<aDeps.length;i++){
 			    	//当依赖属性变化时，设置计算属性
 					if(oChanges.hasOwnProperty(aDeps[i])){
-						oSets[key]=0;
+						oSets[key]=undefined;
 						break;
 					}
 				}
@@ -4913,7 +4915,9 @@ function(AbstractDao,AbstractEvents){
 	 * @return {*} 根据同步方法的结果
 	 */
     function fSync(sMethod,oModel,oOptions) {
-        return this.dao.sync(sMethod,oModel,oOptions);
+    	var me=this;
+    	me.lastSyncTime=$H.now();
+        return me.dao.sync(sMethod,oModel,oOptions);
     }
     /**
      * 获取指定属性值
@@ -5354,6 +5358,7 @@ function(AbstractDao,AbstractEvents,Model){
 //		dao                    : null,                //数据访问对象，默认为common.AbstractDao
 		
 		//内部属性
+//      lastSyncTime           : null,                //上次同步时间
 //		_models                : [],                  //模型列表
 //		_byId                  : {},                  //根据id和cid索引
 //		length                 : 0,                   //模型集合长度
@@ -5405,12 +5410,12 @@ function(AbstractDao,AbstractEvents,Model){
 	    };
 	});
 	
-	$H.each(['sortBy','groupBy','countBy'], function(sMethod) {
-	    Collection.prototype[sMethod] = function(value, context) {
+	$H.each(['sortBy','groupBy','countBy'], function(i,sMethod) {
+	    Collection.prototype[sMethod] = function(value, context,bDesc) {
 	        var iterator = $H.isFunc(value) ? value : function(oModel) {
 	            return oModel.get(value);
 	        };
-	        return HA[sMethod](this._models, iterator, context);
+	        return HA[sMethod](this._models, iterator, context,bDesc);
         };
     });
 	
@@ -5550,7 +5555,9 @@ function(AbstractDao,AbstractEvents,Model){
 	 * @return {*} 返回同步方法的结果
 	 */
     function fSync(sMethod,oCollection,oOptions) {
-        return this.dao.sync(sMethod,oCollection,oOptions);
+    	var me=this;
+    	me.lastSyncTime=$H.now();
+        return me.dao.sync(sMethod,oCollection,oOptions);
     }
 	/**
 	 * 添加模型
@@ -5622,7 +5629,7 @@ function(AbstractDao,AbstractEvents,Model){
         }
         var bSingular = !$H.isArr(models);
         var aModels = bSingular ? (models ? [models] : []) : $H.clone(models);
-        var i, l, id, oModel, oAttrs, oExisting, sort;
+        var i, l, id, oModel, oAttrs, oExisting, bSort;
         var at = oOptions.at;
         var cTargetModel = me.model;
         //是否可排序
@@ -5660,8 +5667,8 @@ function(AbstractDao,AbstractEvents,Model){
                 	}
             		oExisting.set(oAttrs, oOptions);
             		//
-            		if (bSortable && !sort && oExisting.hasChanged(sortAttr)){
-            			sort = true;
+            		if (bSortable && !bSort && oExisting.hasChanged(sortAttr)){
+            			bSort = true;
             		}
           		}
          		aModels[i] = oExisting;
@@ -5698,7 +5705,7 @@ function(AbstractDao,AbstractEvents,Model){
 
         if (aToAdd.length || (order && order.length)) {
         	if (bSortable){
-        		sort = true;
+        		bSort = true;
         	}
         	//更新长度
             me.length += aToAdd.length;
@@ -5719,8 +5726,8 @@ function(AbstractDao,AbstractEvents,Model){
         }
 
         //排序
-        if (sort){
-        	me.sort({silent: true});
+        if (bSort){
+        	me.sort({silent: true,desc:me.isDesc});
         }
 
         //触发相应事件
@@ -5728,7 +5735,7 @@ function(AbstractDao,AbstractEvents,Model){
         	for (i = 0, l = aToAdd.length; i < l; i++) {
             	(oModel = aToAdd[i]).trigger('add', oModel, me, oOptions);
         	}
-        	if (sort || (order && order.length)){
+        	if (bSort || (order && order.length)){
         		me.trigger('sort', me, oOptions);
         	}
         }
@@ -5885,7 +5892,7 @@ function(AbstractDao,AbstractEvents,Model){
         oOptions || (oOptions = {});
 
         if (typeof me.comparator=='string' || me.comparator.length === 1) {
-        	me._models = me.sortBy(me.comparator, me);
+        	me._models = me.sortBy(me.comparator, me,oOptions.desc);
         } else {
        		me._models.sort($H.Function.bind(me.comparator, me));
         }
@@ -5976,7 +5983,7 @@ function(AbstractDao,AbstractEvents,Model){
      * @param {Object}resp
      * @param {Object}oOptions
      */
-    function fParse(resp, oOptions) {
+    function fParse(resp, oOptions){
         return resp.data;
     }
 	/**
@@ -6547,6 +6554,7 @@ function(Template,AbstractView,Model,Collection){
 		getTmplFn           : fGetTmplFn,          //初始化模板函数
 		getHtml             : fGetHtml,            //初始化html
 		ifBind              : fIfBind,             //查询指定逻辑单元是否需要绑定模型对象或节点，检查后设为已绑定，确保每个逻辑单元只绑定一次事件
+		getMetaMorph        : fGetMetaMorph,       //根据id获取元标签
 		updateMetaMorph     : fUpdateMetaMorph,    //更新内容
 		wrapMetaMorph       : fWrapMetaMorph,      //包装结果html
 		get                 : fGet,                //获取配置属性
@@ -7015,6 +7023,15 @@ function(Template,AbstractView,Model,Collection){
 		return bIfBind;
 	}
 	/**
+	 * 根据id获取元标签
+	 * @param {number}nId 逻辑节点id
+	 * @param {boolean=}bIsEnd 仅当true时表示获取结束元素
+	 * @return {jquery} 返回对应jQuery元素
+	 */
+	function fGetMetaMorph(nId,bIsEnd){
+		return $('#metamorph-'+nId+(bIsEnd?'-end':'-start'));
+	}
+	/**
 	 * 更新内容
 	 * @param {number}nId 逻辑节点id
 	 * @param {string=}sHtml 替换逻辑节点内容的html，不传表示清空内容
@@ -7022,11 +7039,12 @@ function(Template,AbstractView,Model,Collection){
 	 * @param {string=}sType 默认是更新内容，'append'表示追加内容，'remove'表示移除内容(包括元标签)
 	 */
 	function fUpdateMetaMorph(nId,sHtml,sType){
+		var me=this;
 		if(sType=='append'){
-			$('#metamorph-'+nId+'-end').before(sHtml);
+			me.getMetaMorph(nId,true).before(sHtml);
 			return;
 		}
-		var jStart=$('#metamorph-'+nId+'-start');
+		var jStart=me.getMetaMorph(nId);
 		//找不到开始节点，是外部逻辑块已移除，直接忽略即可
 		if(jStart.length==0){
 			return;
@@ -7240,9 +7258,17 @@ function(ViewManager,ModelView,Model,Template){
 		sMetaId=me.getCid()+'-'+nNum;
 		var sHtml=me.findHtml(sExp);
 		if(me.ifBind(nNum)){
-			me.on('add',function(sEvt,oItem){
+			me.on('add',function(sEvt,oItem,nIndex){
 				if(oItem.match(sExp)){
-					me.updateMetaMorph(sMetaId,oItem.getHtml(),'append');
+					if(nIndex!==undefined){
+						var oEl=me.getMetaMorph(sMetaId);
+						for(var i=0;i<nIndex;i++){
+							oEl=oEl.next();
+						}
+						oEl.after(oItem.getHtml());
+					}else{
+						me.updateMetaMorph(sMetaId,oItem.getHtml(),'append');
+					}
 					oItem.afterRender();
 				}
 			});
@@ -8072,7 +8098,7 @@ function(ViewManager,ModelView,Model,Template){
 		}else{
 			aChildren.splice(nIndex,0,item);
 		}
-		me.trigger('add',item);
+		me.trigger('add',item,nIndex);
 		return item;
 	}
 	/**
@@ -9155,7 +9181,7 @@ function(AC){
 	 */
 	function fVal(sValue){
 		var me=this;
-		if(sValue){
+		if(sValue!==undefined){
 			var aValues=(''+sValue).split(',');
 			me.each(function(i,oCmp){
 				if($H.contains(aValues,oCmp.get('value'))){
@@ -9242,7 +9268,7 @@ function(AC){
 	 */
 	function fVal(sValue){
 		var me=this;
-		if(sValue){
+		if(sValue!==undefined){
 			me.set("value",sValue);
 		}else{
 			return me.get("value");
@@ -9302,7 +9328,7 @@ function(AC){
 	 */
 	function fVal(sValue){
 		var me=this;
-		if(sValue){
+		if(sValue!==undefined){
 			me.set('value',sValue);
 		}else{
 			return me.get('value');
@@ -9422,7 +9448,7 @@ function(AC){
 	 */
 	function fVal(sValue){
 		var me=this;
-		if(sValue){
+		if(sValue!==undefined){
 			if(me.get('value')!=sValue){
 				var oMenu=me.children[0];
 				var oItem=oMenu.find('> [value='+sValue+']');
@@ -9577,7 +9603,7 @@ function(AC){
 	 */
 	function fVal(sValue){
 		var oInput=this.findEl('input,textarea');
-		if(sValue){
+		if(sValue!==undefined){
 			oInput.val(sValue);
 		}else{
 			return oInput.val();
@@ -11090,7 +11116,7 @@ function(AC){
 		me.set('isEmpty',false);
 		me.add({
 			model:oListItem
-		});
+		},me.model.indexOf(oListItem));
 		me.refreshScroller();
 	}
 	/**
