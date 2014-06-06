@@ -9,7 +9,7 @@ function(){
 	
 	$H.extend(DataStore.prototype,{
 		get            : fGet,       //获取数据
-//		find           : fFind,
+		find           : fFind,
 		push           : fPush       //放入仓库
 	});
 	//缓存池
@@ -37,6 +37,12 @@ function(){
 		}
 	}
 	/**
+	 * 
+	 */
+	function fFind(){
+		
+	}
+	/**
 	 * 放入仓库
 	 * @param {string=}sCid 客户id
 	 * @param {*}data 数据
@@ -49,6 +55,7 @@ function(){
 		var sName=data.constructor.$ns;
 		var aCache=_cache[sName]||(_cache[sName]=[]);
 		aCache.push(data);
+		//快捷访问别名(客户id)
 		if(sCid){
 			if(!_cache[sCid]){
 				_cache[sCid]=data;

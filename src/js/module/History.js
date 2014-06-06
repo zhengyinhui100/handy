@@ -95,7 +95,7 @@ function(HashChange){
 		var oParam=oState.param;
 		me.saveHash({
 			hKey    : sHistoryKey,
-			module  : oParam&&oParam.modName
+			modName : oParam&&oParam.modName
 		});
 	}
 	/**

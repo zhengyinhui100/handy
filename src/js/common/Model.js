@@ -148,7 +148,14 @@ function(AbstractDao,AbstractEvents){
 					}
 				}
 				if($H.isClass(type)&&!(val instanceof type)&&!me.get(key)){
-					val=new type(val);
+					var oExistModel;
+					if(val&&val.id){
+				        oExistModel=$S.get(type.$ns,{id:val.id});
+				        if(oExistModel=oExistModel&&oExistModel[0]){
+				        	oExistModel.set(val);
+				        }
+			        }
+					val=oExistModel||new type(val);
 					//监听所有事件
 					val.on('all',$H.bind(me._onAttrEvent,me,key));
 				}
