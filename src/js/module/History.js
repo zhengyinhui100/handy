@@ -92,9 +92,10 @@ function(HashChange){
 		var sHistoryKey=me.currentKey=me.key+(++_nIndex);
 		me.states.push(sHistoryKey);
 		me.states[sHistoryKey]=oState;
+		var oParam=oState.param;
 		me.saveHash({
 			hKey    : sHistoryKey,
-			param   : oState.param
+			module  : oParam&&oParam.modName
 		});
 	}
 	/**
