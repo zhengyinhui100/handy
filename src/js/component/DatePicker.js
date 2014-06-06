@@ -94,9 +94,9 @@ function(AC,Dialog){
 					for(var i=28;i<31;i++){
 						var oItem=aMenuItems[i];
 						if(i<nDay){
-							oItem.show();
+							oItem.hidden=false;
 						}else{
-							oItem.hide(true);
+							oItem.hidden=true;
 						}
 					}
 				}

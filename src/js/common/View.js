@@ -523,10 +523,10 @@ function(ViewManager,ModelView,Model,Template){
 	/**
 	 * 隐藏
 	 * @method hide
-	 * @param {boolean=}bSetHidden true时设置hidden属性，避免来自父视图的show调用导致显示
+	 * @param {boolean=}bNotSetHidden 仅当true时不设置hidden属性，设置hidden属性可以避免来自父视图的show调用导致显示，所以一般外部调用都默认设置
 	 * @return {boolean=} 仅当没有成功隐藏时返回false
 	 */
-	function fHide(bSetHidden){
+	function fHide(bNotSetHidden){
 		var me=this;
 		if(me.beforeHide()==false
 			//已经隐藏，直接退回
@@ -540,10 +540,11 @@ function(ViewManager,ModelView,Model,Template){
 		}else{
 			oEl.addClass('hui-hidden');;
 		}
-		if(bSetHidden){
+		if(bNotSetHidden!=true){
 			me.hidden=true;
 		}
 		me.trigger('hide');
+		me.callChild([true]);
 		me.afterHide();
 	}
 	/**

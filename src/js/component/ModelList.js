@@ -95,8 +95,9 @@ function(AC){
 			}
 		});
 		//下拉刷新
-		me.hasPullRefresh=me.hasPullRefresh&&window.iScroll;
-		if(me.hasPullRefresh){
+		var bHasPd=me.hasPullRefresh&&window.iScroll&&!$H.ie();
+		me.set('hasPullRefresh',bHasPd);
+		if(bHasPd){
 			//如果在afterShow里初始化iScroll，会看见下拉刷新的元素，所以这里先初始化，afterShow时再调用refresh
 			me.listen({
 				name : 'afterRender',
