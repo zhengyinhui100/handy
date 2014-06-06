@@ -27,6 +27,7 @@ function(Template,AbstractView,Model,Collection){
 		getTmplFn           : fGetTmplFn,          //初始化模板函数
 		getHtml             : fGetHtml,            //初始化html
 		ifBind              : fIfBind,             //查询指定逻辑单元是否需要绑定模型对象或节点，检查后设为已绑定，确保每个逻辑单元只绑定一次事件
+		getMetaMorph        : fGetMetaMorph,       //根据id获取元标签
 		updateMetaMorph     : fUpdateMetaMorph,    //更新内容
 		wrapMetaMorph       : fWrapMetaMorph,      //包装结果html
 		get                 : fGet,                //获取配置属性
@@ -495,6 +496,15 @@ function(Template,AbstractView,Model,Collection){
 		return bIfBind;
 	}
 	/**
+	 * 根据id获取元标签
+	 * @param {number}nId 逻辑节点id
+	 * @param {boolean=}bIsEnd 仅当true时表示获取结束元素
+	 * @return {jquery} 返回对应jQuery元素
+	 */
+	function fGetMetaMorph(nId,bIsEnd){
+		return $('#metamorph-'+nId+(bIsEnd?'-end':'-start'));
+	}
+	/**
 	 * 更新内容
 	 * @param {number}nId 逻辑节点id
 	 * @param {string=}sHtml 替换逻辑节点内容的html，不传表示清空内容
@@ -502,11 +512,12 @@ function(Template,AbstractView,Model,Collection){
 	 * @param {string=}sType 默认是更新内容，'append'表示追加内容，'remove'表示移除内容(包括元标签)
 	 */
 	function fUpdateMetaMorph(nId,sHtml,sType){
+		var me=this;
 		if(sType=='append'){
-			$('#metamorph-'+nId+'-end').before(sHtml);
+			me.getMetaMorph(nId,true).before(sHtml);
 			return;
 		}
-		var jStart=$('#metamorph-'+nId+'-start');
+		var jStart=me.getMetaMorph(nId);
 		//找不到开始节点，是外部逻辑块已移除，直接忽略即可
 		if(jStart.length==0){
 			return;

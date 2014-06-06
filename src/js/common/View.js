@@ -147,9 +147,17 @@ function(ViewManager,ModelView,Model,Template){
 		sMetaId=me.getCid()+'-'+nNum;
 		var sHtml=me.findHtml(sExp);
 		if(me.ifBind(nNum)){
-			me.on('add',function(sEvt,oItem){
+			me.on('add',function(sEvt,oItem,nIndex){
 				if(oItem.match(sExp)){
-					me.updateMetaMorph(sMetaId,oItem.getHtml(),'append');
+					if(nIndex!==undefined){
+						var oEl=me.getMetaMorph(sMetaId);
+						for(var i=0;i<nIndex;i++){
+							oEl=oEl.next();
+						}
+						oEl.after(oItem.getHtml());
+					}else{
+						me.updateMetaMorph(sMetaId,oItem.getHtml(),'append');
+					}
 					oItem.afterRender();
 				}
 			});
@@ -979,7 +987,7 @@ function(ViewManager,ModelView,Model,Template){
 		}else{
 			aChildren.splice(nIndex,0,item);
 		}
-		me.trigger('add',item);
+		me.trigger('add',item,nIndex);
 		return item;
 	}
 	/**

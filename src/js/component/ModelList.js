@@ -171,7 +171,7 @@ function(AC){
 		me.set('isEmpty',false);
 		me.add({
 			model:oListItem
-		});
+		},me.model.indexOf(oListItem));
 		me.refreshScroller();
 	}
 	/**
