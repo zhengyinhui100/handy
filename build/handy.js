@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-06-06 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-06-07 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -4495,7 +4495,7 @@ function(){
 	
 	$H.extend(DataStore.prototype,{
 		get            : fGet,       //获取数据
-//		find           : fFind,
+		find           : fFind,
 		push           : fPush       //放入仓库
 	});
 	//缓存池
@@ -4523,6 +4523,12 @@ function(){
 		}
 	}
 	/**
+	 * 
+	 */
+	function fFind(){
+		
+	}
+	/**
 	 * 放入仓库
 	 * @param {string=}sCid 客户id
 	 * @param {*}data 数据
@@ -4535,6 +4541,7 @@ function(){
 		var sName=data.constructor.$ns;
 		var aCache=_cache[sName]||(_cache[sName]=[]);
 		aCache.push(data);
+		//快捷访问别名(客户id)
 		if(sCid){
 			if(!_cache[sCid]){
 				_cache[sCid]=data;
@@ -4826,9 +4833,17 @@ function(AbstractDao,AbstractEvents){
 					}
 				}
 				if($H.isClass(type)&&!(val instanceof type)&&!me.get(key)){
-					val=new type(val);
+					var oExistModel;
+					if(val&&val.id){
+				        oExistModel=$S.get(type.$ns,{id:val.id});
+				        if(oExistModel=oExistModel&&oExistModel[0]){
+				        	oExistModel.set(val);
+				        }
+			        }
+					val=oExistModel||new type(val);
 					//监听所有事件
 					val.on('all',$H.bind(me._onAttrEvent,me,key));
+					me._onAttrEvent(key,'change',val);
 				}
 			}
 			oResult[key]=val;
@@ -4847,13 +4862,11 @@ function(AbstractDao,AbstractEvents){
     	}
     	var me=this;
     	var oVal=me.get(sAttr);
-        if (sEvent.indexOf('change:')!=0){
-        	me.trigger('change:'+sAttr,me,oVal);
-        	me.trigger('change',me);
-        	var oChange={};
-        	oChange[sAttr]=oVal;
-        	me._doDepends(oChange);
-        }
+    	me.trigger('change:'+sAttr,me,oVal);
+    	me.trigger('change',me);
+    	var oChange={};
+    	oChange[sAttr]=oVal;
+    	me._doDepends(oChange);
     }
 	/**
 	 * 初始化
@@ -7634,10 +7647,10 @@ function(ViewManager,ModelView,Model,Template){
 	/**
 	 * 隐藏
 	 * @method hide
-	 * @param {boolean=}bSetHidden true时设置hidden属性，避免来自父视图的show调用导致显示
+	 * @param {boolean=}bNotSetHidden 仅当true时不设置hidden属性，设置hidden属性可以避免来自父视图的show调用导致显示，所以一般外部调用都默认设置
 	 * @return {boolean=} 仅当没有成功隐藏时返回false
 	 */
-	function fHide(bSetHidden){
+	function fHide(bNotSetHidden){
 		var me=this;
 		if(me.beforeHide()==false
 			//已经隐藏，直接退回
@@ -7651,10 +7664,11 @@ function(ViewManager,ModelView,Model,Template){
 		}else{
 			oEl.addClass('hui-hidden');;
 		}
-		if(bSetHidden){
+		if(bNotSetHidden!=true){
 			me.hidden=true;
 		}
 		me.trigger('hide');
+		me.callChild([true]);
 		me.afterHide();
 	}
 	/**
@@ -10584,9 +10598,9 @@ function(AC,Dialog){
 					for(var i=28;i<31;i++){
 						var oItem=aMenuItems[i];
 						if(i<nDay){
-							oItem.show();
+							oItem.hidden=false;
 						}else{
-							oItem.hide(true);
+							oItem.hidden=true;
 						}
 					}
 				}
@@ -11040,8 +11054,9 @@ function(AC){
 			}
 		});
 		//下拉刷新
-		me.hasPullRefresh=me.hasPullRefresh&&window.iScroll;
-		if(me.hasPullRefresh){
+		var bHasPd=me.hasPullRefresh&&window.iScroll&&!$H.ie();
+		me.set('hasPullRefresh',bHasPd);
+		if(bHasPd){
 			//如果在afterShow里初始化iScroll，会看见下拉刷新的元素，所以这里先初始化，afterShow时再调用refresh
 			me.listen({
 				name : 'afterRender',
@@ -11315,9 +11330,10 @@ function(HashChange){
 		var sHistoryKey=me.currentKey=me.key+(++_nIndex);
 		me.states.push(sHistoryKey);
 		me.states[sHistoryKey]=oState;
+		var oParam=oState.param;
 		me.saveHash({
 			hKey    : sHistoryKey,
-			param   : oState.param
+			modName : oParam&&oParam.modName
 		});
 	}
 	/**
