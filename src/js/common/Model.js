@@ -158,6 +158,7 @@ function(AbstractDao,AbstractEvents){
 					val=oExistModel||new type(val);
 					//监听所有事件
 					val.on('all',$H.bind(me._onAttrEvent,me,key));
+					me._onAttrEvent(key,'change',val);
 				}
 			}
 			oResult[key]=val;
@@ -176,13 +177,11 @@ function(AbstractDao,AbstractEvents){
     	}
     	var me=this;
     	var oVal=me.get(sAttr);
-        if (sEvent.indexOf('change:')!=0){
-        	me.trigger('change:'+sAttr,me,oVal);
-        	me.trigger('change',me);
-        	var oChange={};
-        	oChange[sAttr]=oVal;
-        	me._doDepends(oChange);
-        }
+    	me.trigger('change:'+sAttr,me,oVal);
+    	me.trigger('change',me);
+    	var oChange={};
+    	oChange[sAttr]=oVal;
+    	me._doDepends(oChange);
     }
 	/**
 	 * 初始化
