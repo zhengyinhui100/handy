@@ -302,9 +302,10 @@ handy.add('Array','B.Object',function(Object,$H){
 	 * @param {Function|string=}iterator 为空时返回获取本身的迭代函数，为字符串时返回获取该属性的迭代函数，
 	 * 							如果是函数则返回自身,有三个参数：当前元素，当前元素的索引和当前的集合对象
 	 * @param {*=}context 判断函数上下文对象
+	 * @param {boolean=}bDesc 是否是降序
 	 * @return {Array} 返回排序过后的集合
 	 */
-	function fSortBy(obj, iterator, context) {
+	function fSortBy(obj, iterator, context,bDesc) {
 		var me=this;
 	    iterator = _fGetIterator(iterator);
 	    return me.pluck(me.map(obj, function(value, index, list) {
@@ -318,10 +319,10 @@ handy.add('Array','B.Object',function(Object,$H){
 	        var b = right.criteria;
 	        if (a !== b) {
 	            if (a > b || a === void 0){
-	            	return 1;
+	            	return bDesc?-1:1;
 	            }
 	            if (a < b || b === void 0){
-	            	return -1;
+	            	return bDesc?1:-1;
 	            }
 	        }
 	        return left.index - right.index;

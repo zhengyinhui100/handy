@@ -18,6 +18,7 @@ function(AbstractDao,AbstractEvents,Model){
 //		dao                    : null,                //数据访问对象，默认为common.AbstractDao
 		
 		//内部属性
+//      lastSyncTime           : null,                //上次同步时间
 //		_models                : [],                  //模型列表
 //		_byId                  : {},                  //根据id和cid索引
 //		length                 : 0,                   //模型集合长度
@@ -69,12 +70,12 @@ function(AbstractDao,AbstractEvents,Model){
 	    };
 	});
 	
-	$H.each(['sortBy','groupBy','countBy'], function(sMethod) {
-	    Collection.prototype[sMethod] = function(value, context) {
+	$H.each(['sortBy','groupBy','countBy'], function(i,sMethod) {
+	    Collection.prototype[sMethod] = function(value, context,bDesc) {
 	        var iterator = $H.isFunc(value) ? value : function(oModel) {
 	            return oModel.get(value);
 	        };
-	        return HA[sMethod](this._models, iterator, context);
+	        return HA[sMethod](this._models, iterator, context,bDesc);
         };
     });
 	
@@ -214,7 +215,9 @@ function(AbstractDao,AbstractEvents,Model){
 	 * @return {*} 返回同步方法的结果
 	 */
     function fSync(sMethod,oCollection,oOptions) {
-        return this.dao.sync(sMethod,oCollection,oOptions);
+    	var me=this;
+    	me.lastSyncTime=$H.now();
+        return me.dao.sync(sMethod,oCollection,oOptions);
     }
 	/**
 	 * 添加模型
@@ -286,7 +289,7 @@ function(AbstractDao,AbstractEvents,Model){
         }
         var bSingular = !$H.isArr(models);
         var aModels = bSingular ? (models ? [models] : []) : $H.clone(models);
-        var i, l, id, oModel, oAttrs, oExisting, sort;
+        var i, l, id, oModel, oAttrs, oExisting, bSort;
         var at = oOptions.at;
         var cTargetModel = me.model;
         //是否可排序
@@ -324,8 +327,8 @@ function(AbstractDao,AbstractEvents,Model){
                 	}
             		oExisting.set(oAttrs, oOptions);
             		//
-            		if (bSortable && !sort && oExisting.hasChanged(sortAttr)){
-            			sort = true;
+            		if (bSortable && !bSort && oExisting.hasChanged(sortAttr)){
+            			bSort = true;
             		}
           		}
          		aModels[i] = oExisting;
@@ -362,7 +365,7 @@ function(AbstractDao,AbstractEvents,Model){
 
         if (aToAdd.length || (order && order.length)) {
         	if (bSortable){
-        		sort = true;
+        		bSort = true;
         	}
         	//更新长度
             me.length += aToAdd.length;
@@ -383,8 +386,8 @@ function(AbstractDao,AbstractEvents,Model){
         }
 
         //排序
-        if (sort){
-        	me.sort({silent: true});
+        if (bSort){
+        	me.sort({silent: true,desc:me.isDesc});
         }
 
         //触发相应事件
@@ -392,7 +395,7 @@ function(AbstractDao,AbstractEvents,Model){
         	for (i = 0, l = aToAdd.length; i < l; i++) {
             	(oModel = aToAdd[i]).trigger('add', oModel, me, oOptions);
         	}
-        	if (sort || (order && order.length)){
+        	if (bSort || (order && order.length)){
         		me.trigger('sort', me, oOptions);
         	}
         }
@@ -549,7 +552,7 @@ function(AbstractDao,AbstractEvents,Model){
         oOptions || (oOptions = {});
 
         if (typeof me.comparator=='string' || me.comparator.length === 1) {
-        	me._models = me.sortBy(me.comparator, me);
+        	me._models = me.sortBy(me.comparator, me,oOptions.desc);
         } else {
        		me._models.sort($H.Function.bind(me.comparator, me));
         }
@@ -640,7 +643,7 @@ function(AbstractDao,AbstractEvents,Model){
      * @param {Object}resp
      * @param {Object}oOptions
      */
-    function fParse(resp, oOptions) {
+    function fParse(resp, oOptions){
         return resp.data;
     }
 	/**
