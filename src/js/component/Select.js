@@ -109,7 +109,7 @@ function(AC){
 	 */
 	function fVal(sValue){
 		var me=this;
-		if(sValue){
+		if(sValue!==undefined){
 			if(me.get('value')!=sValue){
 				var oMenu=me.children[0];
 				var oItem=oMenu.find('> [value='+sValue+']');

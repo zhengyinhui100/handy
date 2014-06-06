@@ -49,7 +49,7 @@ function(AC){
 	 */
 	function fVal(sValue){
 		var me=this;
-		if(sValue){
+		if(sValue!==undefined){
 			me.set('value',sValue);
 		}else{
 			return me.get('value');

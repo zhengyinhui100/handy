@@ -133,7 +133,7 @@ function(AC){
 	 */
 	function fVal(sValue){
 		var oInput=this.findEl('input,textarea');
-		if(sValue){
+		if(sValue!==undefined){
 			oInput.val(sValue);
 		}else{
 			return oInput.val();

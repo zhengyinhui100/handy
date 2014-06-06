@@ -200,7 +200,7 @@ function(AC){
 	 */
 	function fVal(sValue){
 		var me=this;
-		if(sValue){
+		if(sValue!==undefined){
 			var aValues=(''+sValue).split(',');
 			me.each(function(i,oCmp){
 				if($H.contains(aValues,oCmp.get('value'))){
