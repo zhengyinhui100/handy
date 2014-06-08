@@ -473,18 +473,19 @@ function(AbstractDao,AbstractEvents){
         var fBeforeSet = oOptions.beforeSet;
         oOptions.success = function(resp) {
         	me.fetching=false;
+        	var oData=me.parse(resp, oOptions);
         	if (fBeforeSet){
-        		if(fBeforeSet(me, resp, oOptions)==false){
+        		if(fBeforeSet(me, oData, oOptions)==false){
         			return;
         		}
         	}
-        	if (!me.set(me.parse(resp, oOptions), oOptions)){
+        	if (!me.set(oData, oOptions)){
         		return false;
         	}
         	if (fSuccess){
-        		fSuccess(me, resp, oOptions);
+        		fSuccess(me, oData, oOptions);
         	}
-        	me.trigger('sync', me, resp, oOptions);
+        	me.trigger('sync', me, oData, oOptions);
         };
         me.sync('read', me, oOptions);
     }

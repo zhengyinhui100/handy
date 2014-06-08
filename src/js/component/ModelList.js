@@ -12,14 +12,22 @@ function(AC){
 	
 	ModelList.extend({
 		xConfig     : {
-			cls         : 'mlist',
-			isEmpty     : false,             //列表是否为空
-			emptyTips   : '暂无',            //空列表提示
-			pdText      : '下拉可刷新',       //下拉刷新提示文字
-			pdComment   : '上次刷新时间：',    //下拉刷新附加说明
-			pdTime      : '',                //上次刷新时间
-			hasMoreBtn  : true,              //是否有获取更多按钮
-			hasPullRefresh : false           //是否有下拉刷新
+			cls             : 'mlist',
+			isEmpty         : false,             //列表是否为空
+			emptyTips       : '暂无',            //空列表提示
+			pdText          : '下拉可刷新',       //下拉刷新提示文字
+			pdComment       : '上次刷新时间：',    //下拉刷新附加说明
+			pdTime          : '',                //上次刷新时间
+			hasMoreBtn      : true,              //是否有获取更多按钮
+			moreBtnTxt      : '查看更多',         //查看更多按钮的文字 
+			showBtnIfEmpty  :false,              //空列表时是否显示更多按钮，默认不显示
+			hasPullRefresh  : false,              //是否有下拉刷新
+			showMoreBtn     : {
+				depends : ['isEmpty','showBtnIfEmpty'],
+				parse   : function(){
+					return this.get('showBtnIfEmpty')||!this.get('isEmpty');
+				}
+			}
 		},
 //		itemXtype   : '',                //子组件默认xtype
 //		refresh     : null,              //刷新接口
@@ -50,9 +58,9 @@ function(AC){
 					'{{/if}}',
 					'<div class="js-item-container">{{placeItem}}</div>',
 					'{{#if hasMoreBtn}}',
-						'<div {{bindAttr class="#hui-list-more isEmpty?hui-hidden"}}>',
-							'<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-shadow hui-inline hui-radius-normal">',
-								'<span class="hui-btn-txt">查看更多</span>',
+						'<div {{bindAttr class="#hui-list-more showMoreBtn:hui-hidden"}}>',
+							'<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-shadow hui-inline hui-radius-little">',
+								'<span class="hui-btn-txt">{{moreBtnTxt}}</span>',
 							'</a>',
 						'</div>',
 					'{{/if}}',
