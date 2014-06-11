@@ -36,6 +36,7 @@ function(AC){
 				}
 			}
 		},
+//		inputHeight     : null,                //输入框高度 
 		type            : '',                  //输入框类型，默认为普通输入框，'search':搜索框
 		withClear       : false,               //带有清除按钮
 		
@@ -66,6 +67,7 @@ function(AC){
 		],
 		doConfig        : fDoConfig,         //初始化配置
 		parseItem       : fParseItem,        //分析处理子组件
+		fastUpdate      : fFastUpdate,       //快速更新
 		val             : fVal,              //获取/设置输入框的值
 		focus           : fFocus             //聚焦
 	});
@@ -87,6 +89,8 @@ function(AC){
 				name:'input propertychange',
 				el:'.js-input',
 				handler:function(){
+					var oIptDv=me.getEl();
+					oIptDv.height('auto');
 					var oTextarea=me.findEl(".js-input");
 					var nNewHeight=oTextarea[0].scrollHeight;
 					//TODO Firefox下scrollHeight不准确，会忽略padding
@@ -107,6 +111,11 @@ function(AC){
 				}
 			});
 		}
+		if(oSettings.inputHeight){
+			me.on('afterRender',function(){
+				me.findEl('input,textarea').css('height',oSettings.inputHeight);
+			});
+		}
 	}
 	/**
 	 * 分析处理子组件
@@ -124,6 +133,18 @@ function(AC){
 				me.set('btnPos','right');
 			}
 		}
+	}
+	/**
+	 * 快速更新
+	 * @param {object}oOptions 选项
+	 * @return {boolean} true表示更新成功
+	 */
+	function fFastUpdate(oOptions){
+		var me=this;
+		if(oOptions.inputHeight){
+			me.findEl('input,textarea').css('height',oOptions.inputHeight);
+		}
+		return me.callSuper();
 	}
 	/**
 	 * 获取/设置输入框的值

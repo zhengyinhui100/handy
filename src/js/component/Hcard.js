@@ -12,10 +12,11 @@ function(AC){
 	Hcard.extend({
 		//初始配置
 		xConfig  : {
-			cls      : 'hcard',
-			image    : '',    //图片
-			title    : '',    //标题
-			hasArrow : false  //是否有右边箭头，有点击函数时默认有右箭头
+			cls       : 'hcard',
+			image     : '',    //图片
+			title     : '',    //标题
+			titleDesc : '',    //标题说明
+			hasArrow  : false  //是否有右边箭头，有点击函数时默认有右箭头
 		},
 		defItem  : {
 			xtype : 'Desc',
@@ -30,7 +31,10 @@ function(AC){
 					'</div>',
 				'{{/if}}',
 				'<div class="hui-hcard-content">',
-					'<div class="hui-content-title">{{title}}</div>',
+					'<div class="hui-content-title">',
+						'{{title}}',
+						'<span class="hui-title-desc">{{titleDesc}}</span>',
+					'</div>',
 					'{{placeItem > [xrole=desc]}}',
 				'</div>',
 				'{{placeItem > [xrole!=desc]}}',

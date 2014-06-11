@@ -1072,11 +1072,11 @@ function(ViewManager,ModelView,Model,Template){
 		//检查选项是否都是xmodel的字段，如果是，则只需要更新xmodel即可，ui自动更新
 		$H.each(oOptions,function(p,v){
 			//xConfig里没有的配置
-			if(typeof oConfigs[p]=='undefined'){
+			if(oConfigs.hasOwnProperty(p)){
+				oXconf[p]=v;
+			}else{
 				oOther[p]=v;
 				bContain=false;
-			}else{
-				oXconf[p]=v;
 			}
 		})
 		if(bContain){

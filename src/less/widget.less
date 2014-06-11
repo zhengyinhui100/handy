@@ -932,10 +932,17 @@
 		padding-right:10px;
 	}
 	.hui-content-title{
+		position:relative;
 		.fn_text_overflow();
 		color:#222;
 		font-size:16px;
 		padding-bottom:5px;
+	}
+	.hui-title-desc{
+		position:absolute;
+		right:10px;
+		font-size:.8em;
+		color:#6a6a6a;
 	}
 	.hui-content-desc{
 		.fn_text_overflow();
@@ -980,6 +987,82 @@
 		padding-right:1px;
 		.hui-btn{
 			margin:0;
+		}
+	}
+}
+
+//会话
+.hui-conversation{
+	position:relative;
+	padding:15px 40px;
+	.hui-conver-time{
+		text-align:center;
+		font-size:.6em;
+		color:#888;
+		padding:.1em;
+	}
+	.hui-conver-img{
+		position:absolute;
+		width:38px;
+		img{
+			height:38px;
+		}
+	}
+	.hui-conver-content{
+		position:relative;
+		.fn_word_break();
+		color:#555;
+		border:1px solid #eee;
+		.hui-radius-little();
+		.fn_inline_block();
+		padding:.4em;
+	}
+	.hui-triangle{
+		position:absolute;
+		top:8px;
+		border:1px solid #eee;
+		border-width:4px;
+		border-top-color:transparent;
+		border-bottom-color:transparent;
+		.hui-triangle-inner{
+			top:-4px;
+			height:0;
+		}
+	}
+	&.hui-conversation-left{
+		.hui-conver-img{
+			left:0;
+		}
+		.hui-conver-content{
+			background:#ccccff;
+		}
+		.hui-triangle{
+			left:-7px;
+			border-right-width:7px;
+			border-left:0;
+			.hui-triangle-inner{
+				left:2px;
+				border-right-color:#ccccff;
+			}
+		}
+	}
+	&.hui-conversation-right{
+		.hui-conver-img{
+			right:0;
+			text-align:right;
+		}
+		.hui-conver-content{
+			float:right;
+			background-color:#99ccff;
+		}
+		.hui-triangle{
+			right:-7px;
+			border-left-width:7px;
+			border-right:0;
+			.hui-triangle-inner{
+				right:2px;
+				border-left-color:#99ccff;
+			}
 		}
 	}
 }

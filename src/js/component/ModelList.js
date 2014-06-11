@@ -15,7 +15,7 @@ function(AC){
 			cls             : 'mlist',
 			isEmpty         : false,             //列表是否为空
 			emptyTips       : '暂无',            //空列表提示
-			pdText          : '下拉可刷新',       //下拉刷新提示文字
+			pdTxt           : '',               //下拉刷新提示文字
 			pdComment       : '上次刷新时间：',    //下拉刷新附加说明
 			pdTime          : '',                //上次刷新时间
 			hasMoreBtn      : true,              //是否有获取更多按钮
@@ -29,6 +29,11 @@ function(AC){
 				}
 			}
 		},
+		
+		pullTxt     : '下拉可刷新',       //下拉过程提示文字
+		flipTxt     : '松开可刷新',       //到松开可以执行刷新操作时的提示
+		releaseTxt  : '正在刷新',         //松开时提示文字
+		scrollPos   : 'top',             //默认滚动到的位置，'top'顶部，'bottom'底部
 //		itemXtype   : '',                //子组件默认xtype
 //		refresh     : null,              //刷新接口
 //		getMore     : null,              //获取更多接口
@@ -42,7 +47,7 @@ function(AC){
 								'<span class="hui-icon hui-alt-icon hui-icon-arrow-d hui-light"></span>',
 								'<span class="hui-icon hui-alt-icon hui-icon-loading-mini"></span>',
 								'<div class="hui-pd-txt">',
-									'{{#if pdText}}<div class="js-txt">{{pdText}}</div>{{/if}}',
+									'{{#if pdTxt}}<div class="js-txt">{{pdTxt}}</div>{{/if}}',
 									'{{#if pdComment}}',
 										'<div class="js-comment hui-pd-comment">',
 										'<span class="js-pdComment">{{pdComment}}</span>',
@@ -71,6 +76,7 @@ function(AC){
 		addListItem         : fAddListItem,        //添加列表项
 		removeListItem      : fRemoveListItem,     //删除列表项
 		refreshScroller     : fRefreshScroller,    //刷新iScroll
+		scrollTo            : fScrollTo,           //滚动到指定位置
 		destroy             : fDestroy             //销毁
 	});
 	/**
@@ -79,6 +85,7 @@ function(AC){
 	function fDoconfig(oSettings){
 		var me=this;
 		me.callSuper();
+		me.set('pdTxt',me.pullTxt);
 		if(me.itemXtype){
 			(me.defItem||(me.defItem={})).xtype=me.itemXtype;
 		}
@@ -122,29 +129,28 @@ function(AC){
 						onRefresh: function () {
 							if(oPdEl.hasClass(sRefreshCls)){
 				                oPdEl.removeClass(sRefreshCls+' '+sReleaseCls);  
-				                me.set('pdText','下拉可刷新');  
+				                me.set('pdTxt',me.pullTxt);  
 							}
 						},
 						onScrollMove: function () {
 							if (this.y > 5 && !oPdEl.hasClass(sReleaseCls)) {  
 				                oPdEl.addClass(sReleaseCls);  
-				                me.set('pdText','松开可刷新');  
+				                me.set('pdTxt',me.flipTxt);  
 								this.minScrollY = 0;
 				            } else if (this.y < 5 && oPdEl.hasClass(sReleaseCls)) {  
 				                oPdEl.removeClass(sReleaseCls);;  
-				                me.set('pdText','下拉可刷新'); 
+				                me.set('pdTxt',me.pullTxt); 
 								this.minScrollY = -nStartY;
 				            } 
 						},
 						onScrollEnd: function () {
 							if (oPdEl.hasClass(sReleaseCls)) {  
 				                oPdEl.addClass(sRefreshCls);  
-				                me.set('pdText','正在刷新'); 
+				                me.set('pdTxt',me.releaseTxt); 
 				                me.refresh();
 				            }
 						}
 					});
-					
 				}
 			});
 			//同步数据后需要刷新
@@ -159,6 +165,9 @@ function(AC){
 				name:'afterShow',
 				handler:function(){
 					me.refreshScroller();
+					if(me.scrollPos=='bottom'){
+						me.scrollTo('bottom');
+					}
 				}
 			});
 			me.listen({
@@ -209,6 +218,25 @@ function(AC){
 		//仅在页面显示时才刷新，否则scroller会不可用
 		if(me.scroller&&me.getEl()[0].clientHeight){
 	    	me.scroller.refresh();
+		}
+	}
+	/**
+	 * 滚动到指定位置
+	 * @param {string|number}pos 位置，字符串参数：'top'表示顶部，'bottom'表示底部，数字参数表示横坐标
+	 * @param {number=}pageY 纵坐标
+	 */
+	function fScrollTo(pos,pageY){
+		var me=this;
+		var oScroller=me.scroller;
+		if($H.isStr(pos)){
+			if(pos=='top'){
+				oScroller.scrollTo(0,0);
+			}else if(pos=='bottom'){
+				var nHeight=me.findEl('.hui-list-inner')[0].clientHeight;
+				oScroller.scrollTo(0,-nHeight);
+			}
+		}else{
+			oScroller.scrollTo(pos,pageY);
 		}
 	}
 	/**

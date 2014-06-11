@@ -85,6 +85,9 @@ handy.add('Date',function(){
 	 * @return {string} 返回字符串日期
 	 */
 	function fFormatDate(oDate, sFormator) {
+		if(typeof oDate=='string'){
+			oDate=Date.parseDate(oDate);
+		}
 		if(typeof oDate!='object'){
 			return oDate;
 		}
@@ -175,18 +178,22 @@ handy.add('Date',function(){
 	}
 	/**
 	 * 设置/读取服务器时间
-	 * @param {number|string|Date=}time 不传表示读取
+	 * @param {number|string|Date=|boolean=}time 不传或布尔值表示读取，当为true时表示读取字符串类型时间，不为true时返回Date格式的时间
+	 * 										其他类型参数表示设置服务器时间
 	 * @param {Date} 返回当前服务器时间
 	 */
 	function fNow(time){
 		var oNow = new WDate();
-		if(time){
+		if(time&&time!==true){
 			if(typeof time!='number'){
 				time=Date.parseDate(time).getTime();
 			}
 			_timeDif=time-oNow.getTime();
 		}else{
 			oNow.setTime(oNow.getTime()+_timeDif);
+			if(time){
+				oNow=Date.formatDate(oNow);
+			}
 			return oNow;
 		}
 	}
@@ -216,6 +223,7 @@ handy.add('Date',function(){
 				return '30天前'; 
 			}
 			//最少显示一分钟前
+			nTime=nTime>0?nTime:1;
 			nTime=(Math.floor(nTime)||1)+sUnit+'前';
 		}
 		return nTime;

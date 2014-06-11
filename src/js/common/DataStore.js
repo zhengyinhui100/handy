@@ -28,6 +28,13 @@ function(){
 	 */
 	function fGet(sName,oOptions){
 		var aCache;
+		if($H.isClass(sName)){
+			sName=sName.$ns;
+		}else if($H.isInstance()){
+			sName=sName.constructor.$ns;
+		}else{
+			sName=$H.alias(sName);
+		}
 		if(aCache=_cache[sName]){
 			if(!oOptions){
 				return aCache;

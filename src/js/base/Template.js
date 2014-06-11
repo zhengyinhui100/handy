@@ -194,19 +194,19 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		}else{
 			//辅助函数
 			var m;
-			//if isChk
+			//func isChk
 			if(m=sExp.match(/([^\s]+)\s([^\n]+)/)){
-				//if
+				//func
 				sExp=m[1];
 				//m[2]:isChk
 				sCode='if (helper = $helpers.'+sExp+') {\n$tmp = helper.call($me,"'+m[2]+'",{'+sParams+'); \n}else{$tmp="";}';
 			}else{
 				//直接表达式
 				sCode='if (helper = $helpers.'+sExp+') {\n$tmp = helper.call($me,"",{'+sParams+'); \n}'+
-				  		'else{\nhelper = '+sGetter+'; $tmp = typeof helper === functionType ? helper.call($me,{'+sParams+') : helper;\n}'+
-				  		(fParseValue?
-				  		'\n$tmp=$helpers.parseValue'+'.call($me,$tmp,{'+sParams+');'
-				  		:(T.isEscape?'\n$tmp=escape($tmp);':''));
+				  		'else{\nhelper = '+sGetter+'; $tmp = typeof helper === functionType ? helper.call($me,{'+sParams+') : helper;\n'+
+				  			(fParseValue?'\n$tmp=$helpers.parseValue'+'.call($me,$tmp,{'+sParams+');':'')+
+				  		'}'
+				  		T.isEscape?'\n$tmp=escape($tmp);':'';
 			}
 			sCode+=sAdd;
 		}
