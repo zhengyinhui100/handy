@@ -548,7 +548,8 @@ $Define('test',function(){
 			newsNum:8,
 			click:function(){
 				newsNum=this.get("newsNum");
-				this.set('newsNum',++newsNum);
+				newsNum=newsNum?0:5;
+				this.set('newsNum',newsNum);
 			}
 		});
 		

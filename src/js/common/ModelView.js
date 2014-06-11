@@ -82,9 +82,7 @@ function(Template,AbstractView,Model,Collection){
 			me.listenTo(oData,'change:'+sExp,function(sName,oModel,sValue){
 				var sHtml;
 				if((sValue&&!oOptions.inverse)||(!sValue&&oOptions.inverse)){
-					var data={};
-					data[sExp]=sValue;
-					sHtml=oOptions.fn(data);
+					sHtml=oOptions.fn(oModel);
 				}
 				me.updateMetaMorph(sMetaId,sHtml);
 			});

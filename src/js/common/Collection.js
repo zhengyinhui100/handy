@@ -559,23 +559,21 @@ function(AbstractDao,AbstractEvents,Model){
     function fFetch(oOptions) {
     	var me=this;
         oOptions = oOptions ? $H.clone(oOptions) : {};
-        if (oOptions.parse === void 0){
-        	oOptions.parse = true;
-        }
         var fSuccess = oOptions.success;
         var fBeforeSet = oOptions.beforeSet;
         oOptions.success = function(resp) {
+        	var oData=me.parse(resp, oOptions);
         	if (fBeforeSet){
-        		if(fBeforeSet(me, resp, oOptions)==false){
+        		if(fBeforeSet(me, oData, oOptions)==false){
         			return;
         		}
         	}
         	var method = oOptions.reset ? 'reset' : oOptions.add?'add':'set';
-        	me[method](resp, oOptions);
+        	me[method](oData, oOptions);
         	if (fSuccess){
-        		fSuccess(me, resp, oOptions);
+        		fSuccess(me, oData, oOptions);
         	}
-        	me.trigger('sync', me, resp, oOptions);
+        	me.trigger('sync', me, oData, oOptions);
         };
         return me.sync('read', me, oOptions);
     }

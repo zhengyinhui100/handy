@@ -3,6 +3,28 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>handy tmpl</title>
+<link rel="stylesheet" type="text/css"
+	href="../../src/css/reset.css" />
+<link rel="stylesheet" type="text/css"
+	href="../../src/css/common.css" />
+<link rel="stylesheet" type="text/css"
+	href="../../src/css/icon.css" />
+<link rel="stylesheet" type="text/css"
+	href="../../src/css/widget.css" />
+<style type="text/css">
+	html,body{
+		overflow:auto;
+		height:auto;
+	}
+	body{
+		padding:60px 20px;
+	}
+	h3{
+		margin:20px 0;
+		padding:5px;
+		background:#ccc;
+	}
+</style>
 <script type="text/javascript">
 gEnv='dev';
 </script>
@@ -52,16 +74,33 @@ gEnv='dev';
 	src="../../src/js/base/LocalStorage.js"></script>
 <script type="text/javascript"
 	src="../../src/js/base/adapt.js"></script>
-<script type="text/javascript" src="../../../lib/handlebars-v1.3.0.js"></script>
 </head>
 <body>
-<input value="按钮" type="button" id="button"/>
-<script id="entry-template" type="text/x-handlebars-template">
+	<h3>条件语句：</h3>
+	<div id="ifDv"></div>
+	<script id="if-template" type="text/x-handlebars-template">
+	<div>
+	{{#if name}}
+    	<div>if name:{{name}}</div>
+		{{#if value}}
+			<div>if value:{{value}}</div>
+		{{/if}}
+	{{else}}
+		else
+	{{/if}}
+	</div>
+	</script>
+	<br/><br/><br/><br/>
+	
+	<h3>综合实例：</h3>
+	<div id="allDv"></div>
+	<input value="按钮" type="button" id="button"/>
+	<script id="entry-template" type="text/x-handlebars-template">
 <div {{bindAttr class="#entry #dddd"}}>
   <h1>{{title}}</h1>
 	输入框的值:{{value}}
   <div class="body">
-	{{#if body=='body'}}
+	{{#if body}}
     	<div>if body:{{body}}
 		{{#if value}}
 			<div>if value:{{value}}</div>
@@ -69,6 +108,9 @@ gEnv='dev';
 		</div>
 	{{else}}
 	<div>else body</div>
+		{{#if extCls}}
+			44444444444
+		{{/if}}
 	{{/if}}
 	{{#unless tt}}
 		<div>unless</div>
@@ -88,12 +130,49 @@ gEnv='dev';
   </div>
 </div>
 </script>
+<br/><br/><br/><br/>
 <script type="text/javascript">
 $H.Loader.rootPath={
 	'handy'        : '../../src/js'
 }
-
+$Define('test',function(){
+	var ModelView=$Require('CM.ModelView');
+	var Model=$Require('CM.Model');
+	var Collection=$Require('CM.Collection');
+	var Button=$Require('C.Button');
+	
 function test(){
+	
+	//条件语句
+	var sTmpl   = document.getElementById("if-template").innerHTML;
+	var oView=new ModelView({
+		renderTo:'#ifDv',
+		tmpl:sTmpl,
+		data:{
+			name:'nickname',
+			value:'andy'
+		}
+	});
+	var sValue='vvvv';
+	window.ifModel=oView.getXmodel();
+	var btn=new Button({
+		renderTo:'#ifDv',
+		text:'change',
+		click:function(){
+			oView.set('name','');
+			oView.set('value','');
+		}
+	})
+	
+	$D.log(btn)
+	
+	return;
+	
+	
+	
+	
+	
+	//综合实例
 	var sTmpl   = document.getElementById("entry-template").innerHTML;
 	var aItems=[];
 	for(var i=0;i<5;i++){
@@ -131,48 +210,46 @@ function test(){
 	$D.time(true);
 	return; */
 	
-	$Require(['CM.ModelView','CM.Model','CM.Collection'],function(ModelView,Model,Collection){
+	var CusModel=Model.derive({
+		fields:{
+			items:{type:Collection}
+		}
+	});
+	var oModel=new CusModel(oData);
+	var oView=new ModelView({
+		tmpl:sTmpl,
+		model:oModel
+	});
+	console.log(oModel);
+	console.log(oModel.get('items'));
+	var i=0,value;
+	$("#button").click(function(){
+		i++;
+		value=value?'':'content';
+		var oItems=oModel.get('items');
+		oItems.at(2).set({name:'change name'+i,value:value});
+		if(value){
+			oItems.add({name:'new name'+i,value:'new value'},{at:4});
+		}else{
+			oItems.remove(oItems.at(0));
+		}
+		oView.update({
+			title:'title'+i,
+			body:value,
+			value:value,
+			name:(value?'email':'pwd'),
+			value:value,
+			disabled:(value?true:false),
+			isRed:(value?true:false),
+			isChk:(value?true:false),
+			extCls:(value?'ext-cls':'cls')
+	   	});
+	});
 		
-		var CusModel=Model.derive({
-			fields:{
-				items:{type:Collection}
-			}
-		});
-		var oModel=new CusModel(oData);
-		var oView=new ModelView({
-			tmpl:sTmpl,
-			model:oModel
-		});
-		console.log(oModel);
-		console.log(oModel.get('items'));
-		var i=0,value;
-		$("#button").click(function(){
-			i++;
-			value=value?'':'content';
-			var oItems=oModel.get('items');
-			oItems.at(2).set({name:'change name'+i,value:value});
-			if(value){
-				oItems.add({name:'new name'+i,value:'new value'},{at:4});
-			}else{
-				oItems.remove(oItems.at(0));
-			}
-			oView.update({
-				title:'title'+i,
-				body:value,
-				value:value,
-				name:(value?'email':'pwd'),
-				value:value,
-				disabled:(value?true:false),
-				isRed:(value?true:false),
-				isChk:(value?true:false),
-				extCls:(value?'ext-cls':'cls')
-		   	});
-		});
-		
-	})
 }
 
 test();
+});
 
 </script>
 
