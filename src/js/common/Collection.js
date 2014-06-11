@@ -298,7 +298,7 @@ function(AbstractDao,AbstractEvents,Model){
     	}
     	oOptions = $H.extend({
     		add: true,
-    		remove: true,
+    		remove: false,
     		merge: true
     	},oOptions);
         if (oOptions.parse){
