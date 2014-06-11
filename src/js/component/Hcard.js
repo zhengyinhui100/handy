@@ -16,7 +16,15 @@ function(AC){
 			image     : '',    //图片
 			title     : '',    //标题
 			titleDesc : '',    //标题说明
-			hasArrow  : false  //是否有右边箭头，有点击函数时默认有右箭头
+			hasArrow  : false, //是否有右边箭头，有点击函数时默认有右箭头
+			newsNum   : 0,             //新消息提示数目，大于9自动显示成"9+"
+			newsNumTxt      : {
+				depends : ['newsNum'],
+				parse:function(){
+					var newsNum=this.get('newsNum');
+					return newsNum?newsNum>9?'9+':newsNum:0
+				}
+			}
 		},
 		defItem  : {
 			xtype : 'Desc',
@@ -38,10 +46,14 @@ function(AC){
 					'{{placeItem > [xrole=desc]}}',
 				'</div>',
 				'{{placeItem > [xrole!=desc]}}',
-				'{{#if hasArrow}}',
-					'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情">',
-						'<span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span>',
-					'</a>',
+				'{{#if newsNumTxt}}',
+					'<span class="hui-news-tips">{{newsNumTxt}}</span>',
+				'{{else}}',
+					'{{#if hasArrow}}',
+						'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情">',
+							'<span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span>',
+						'</a>',
+					'{{/if}}',
 				'{{/if}}',
 			'</div>'
 		].join(''),

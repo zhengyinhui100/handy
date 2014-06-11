@@ -544,7 +544,7 @@ $Define('test',function(){
 		
 		new RowItem({
 			renderTo:'#rowItemDv',
-			text:'行行行',
+			text:'点击改变未读数',
 			newsNum:8,
 			click:function(){
 				newsNum=this.get("newsNum");
@@ -1016,15 +1016,18 @@ $Define('test',function(){
 			renderTo:'#hcardDv',
 			image:'../../html/img.jpg',
 			title:'标题',
+			newsNum:8,
 			desc:[{
 				icon:'location',
 				text:'1.50km'
 			},{
 				icon:'edit',
-				text:'1.50km'
+				text:'点击改变未读数'
 			}],
 			click:function(){
-				alert(1);
+				newsNum=this.get('newsNum');
+				newsNum=newsNum>9?0:++newsNum
+				this.set('newsNum',newsNum);
 			}
 		});
 		
