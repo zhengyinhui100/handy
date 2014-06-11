@@ -119,6 +119,10 @@ gEnv='dev';
 	<div id="listDv"></div>
 	<br/><br/><br/><br/>
 	
+	<h3>会话：</h3>
+	<div id="conversationDv" style="width:400px;"></div>
+	<br/><br/><br/><br/>
+	
 </body>
 <script type="text/javascript"
 	src="../../lib/modernizr.js"></script>
@@ -197,6 +201,7 @@ $Define('test',function(){
 	DateSelect=$Require('C.DateSelect'),
 	Hcard=$Require('C.Hcard'),
 	Vcard=$Require('C.Vcard');
+	Conversation=$Require('C.Conversation');
 	
 	function example(){
 	
@@ -1041,6 +1046,22 @@ $Define('test',function(){
 				content:'内容<br>内容<br>'
 			}
 		});
+		
+		//会话
+		new Conversation({
+			renderTo:'#conversationDv',
+			time:'08-08 08:08',
+			image:'../../html/img.jpg',
+			content:'啊啊啊啊'
+		})
+		
+		new Conversation({
+			renderTo:'#conversationDv',
+			time:'08-08 08:18',
+			theme:'right',
+			image:'../../html/img.jpg',
+			content:'什么？'
+		})
 	
 	}
 	

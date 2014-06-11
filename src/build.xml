@@ -101,6 +101,7 @@
 			<path path="js/component/DateSelect.js"/>
 			<path path="js/component/Hcard.js" />
 			<path path="js/component/Vcard.js" />
+			<path path="js/component/Conversation.js" />
 			<path path="js/component/ModelList.js" />
 
 		</concat>
