@@ -149,7 +149,9 @@ function(AbstractDao,AbstractEvents){
 				}
 				if($H.isClass(type)&&!(val instanceof type)&&!me.get(key)){
 					var oExistModel;
-					if(val&&val.id){
+					var sIdName=type.prototype['idAttribute'];
+					var id;
+					if(val&&(id=val[sIdName])){
 				        oExistModel=$S.get(type.$ns,{id:val.id});
 				        if(oExistModel=oExistModel&&oExistModel[0]){
 				        	oExistModel.set(val);
