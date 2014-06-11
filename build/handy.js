@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-06-07 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-06-10 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -2425,18 +2425,22 @@ handy.add('Date',function(){
 	}
 	/**
 	 * 设置/读取服务器时间
-	 * @param {number|string|Date=}time 不传表示读取
+	 * @param {number|string|Date=|boolean=}time 不传或布尔值表示读取，当为true时表示读取字符串类型时间，不为true时返回Date格式的时间
+	 * 										其他类型参数表示设置服务器时间
 	 * @param {Date} 返回当前服务器时间
 	 */
 	function fNow(time){
 		var oNow = new WDate();
-		if(time){
+		if(time&&time!==true){
 			if(typeof time!='number'){
 				time=Date.parseDate(time).getTime();
 			}
 			_timeDif=time-oNow.getTime();
 		}else{
 			oNow.setTime(oNow.getTime()+_timeDif);
+			if(time){
+				oNow=Date.formatDate(oNow);
+			}
 			return oNow;
 		}
 	}
@@ -2466,6 +2470,7 @@ handy.add('Date',function(){
 				return '30天前'; 
 			}
 			//最少显示一分钟前
+			nTime=nTime>0?nTime:1;
 			nTime=(Math.floor(nTime)||1)+sUnit+'前';
 		}
 		return nTime;
@@ -3485,19 +3490,19 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		}else{
 			//辅助函数
 			var m;
-			//if isChk
+			//func isChk
 			if(m=sExp.match(/([^\s]+)\s([^\n]+)/)){
-				//if
+				//func
 				sExp=m[1];
 				//m[2]:isChk
 				sCode='if (helper = $helpers.'+sExp+') {\n$tmp = helper.call($me,"'+m[2]+'",{'+sParams+'); \n}else{$tmp="";}';
 			}else{
 				//直接表达式
 				sCode='if (helper = $helpers.'+sExp+') {\n$tmp = helper.call($me,"",{'+sParams+'); \n}'+
-				  		'else{\nhelper = '+sGetter+'; $tmp = typeof helper === functionType ? helper.call($me,{'+sParams+') : helper;\n}'+
-				  		(fParseValue?
-				  		'\n$tmp=$helpers.parseValue'+'.call($me,$tmp,{'+sParams+');'
-				  		:(T.isEscape?'\n$tmp=escape($tmp);':''));
+				  		'else{\nhelper = '+sGetter+'; $tmp = typeof helper === functionType ? helper.call($me,{'+sParams+') : helper;\n'+
+				  			(fParseValue?'\n$tmp=$helpers.parseValue'+'.call($me,$tmp,{'+sParams+');':'')+
+				  		'}'
+				  		T.isEscape?'\n$tmp=escape($tmp);':'';
 			}
 			sCode+=sAdd;
 		}
@@ -4514,6 +4519,13 @@ function(){
 	 */
 	function fGet(sName,oOptions){
 		var aCache;
+		if($H.isClass(sName)){
+			sName=sName.$ns;
+		}else if($H.isInstance()){
+			sName=sName.constructor.$ns;
+		}else{
+			sName=$H.alias(sName);
+		}
 		if(aCache=_cache[sName]){
 			if(!oOptions){
 				return aCache;
@@ -5158,18 +5170,19 @@ function(AbstractDao,AbstractEvents){
         var fBeforeSet = oOptions.beforeSet;
         oOptions.success = function(resp) {
         	me.fetching=false;
+        	var oData=me.parse(resp, oOptions);
         	if (fBeforeSet){
-        		if(fBeforeSet(me, resp, oOptions)==false){
+        		if(fBeforeSet(me, oData, oOptions)==false){
         			return;
         		}
         	}
-        	if (!me.set(me.parse(resp, oOptions), oOptions)){
+        	if (!me.set(oData, oOptions)){
         		return false;
         	}
         	if (fSuccess){
-        		fSuccess(me, resp, oOptions);
+        		fSuccess(me, oData, oOptions);
         	}
-        	me.trigger('sync', me, resp, oOptions);
+        	me.trigger('sync', me, oData, oOptions);
         };
         me.sync('read', me, oOptions);
     }
@@ -5376,6 +5389,7 @@ function(AbstractDao,AbstractEvents,Model){
 //		_byId                  : {},                  //根据id和cid索引
 //		length                 : 0,                   //模型集合长度
 		
+		_getIterator           : _fGetIterator,       //获取迭代函数
 		_reset                 : _fReset,             //重置集合
 		_prepareModel          : _fPrepareModel,      //初始化模型
 		_addReference          : _fAddReference,      //关联模型和集合
@@ -5423,15 +5437,31 @@ function(AbstractDao,AbstractEvents,Model){
 	    };
 	});
 	
+    Collection.prototype['sortedIndex'] = function(value, context) {
+        var iterator = this._getIterator(this.comparator);
+        return HA['sortedIndex'](this._models, value,iterator, context);
+    };
+	
 	$H.each(['sortBy','groupBy','countBy'], function(i,sMethod) {
 	    Collection.prototype[sMethod] = function(value, context,bDesc) {
-	        var iterator = $H.isFunc(value) ? value : function(oModel) {
-	            return oModel.get(value);
-	        };
+	        var iterator = this._getIterator(value);
 	        return HA[sMethod](this._models, iterator, context,bDesc);
         };
     });
 	
+    /**
+	 * 获取迭代函数
+	 * @param {Function|string=}value 为字符串时返回获取该属性的迭代函数，如果是函数则返回自身
+	 * @return {Function} 返回迭代函数
+	 */
+	function _fGetIterator(value) {
+	    if ($H.isFunc(value)){
+	    	return value;
+	    }
+	    return function(oModel) {
+		           return oModel.get(value);
+		       };
+	}
 	/**
 	 * 重置集合
 	 */
@@ -5642,20 +5672,18 @@ function(AbstractDao,AbstractEvents,Model){
         }
         var bSingular = !$H.isArr(models);
         var aModels = bSingular ? (models ? [models] : []) : $H.clone(models);
-        var i, l, id, oModel, oAttrs, oExisting, bSort;
+        var aCurModels=me._models;
+        var i, l, id, oModel, oAttrs, oExisting;
         var at = oOptions.at;
         var cTargetModel = me.model;
         //是否可排序
         var bSortable = me.comparator && (at == null) && oOptions.sort !== false;
-        var sortAttr = typeof me.comparator=="string" ? me.comparator : null;
-        var aToAdd = [], aToRemove = [], oModelMap = {};
         //是否添加
         var bAdd = oOptions.add, 
         //是否合并
         bMerge = oOptions.merge,
         //是否移除
         bRemove = oOptions.remove;
-        var order = !bSortable && bAdd && bRemove ? [] : false;
 
         //循环设置模型
         for (i = 0, l = aModels.length; i < l; i++) {
@@ -5670,7 +5698,7 @@ function(AbstractDao,AbstractEvents,Model){
         	if (oExisting = me.get(id)) {
         		//移除
             	if (bRemove){
-            		oModelMap[oExisting.cid] = true;
+            		me.remove(oExisting, oOptions);
             	}
             	//合并
           		if (bMerge) {
@@ -5679,10 +5707,6 @@ function(AbstractDao,AbstractEvents,Model){
                 		oAttrs = oExisting.parse(oAttrs, oOptions);
                 	}
             		oExisting.set(oAttrs, oOptions);
-            		//
-            		if (bSortable && !bSort && oExisting.hasChanged(sortAttr)){
-            			bSort = true;
-            		}
           		}
          		aModels[i] = oExisting;
 
@@ -5693,64 +5717,24 @@ function(AbstractDao,AbstractEvents,Model){
             	if (!oModel){
             		continue;
             	}
-            	aToAdd.push(oModel);
             	me._addReference(oModel, oOptions);
+            	me.length +=1;
+            	if(bSortable){
+	       			//获取排序位置
+	       			at=me.sortedIndex(oModel);
+	       		}
+            	//指定位置上添加
+	        	if (at != null) {
+	            	aCurModels.splice(at, 0, oModel);
+	       		}else{
+	       			aCurModels.push(oModel);
+	       		}
+	       		//触发相应事件
+       			if (!oOptions.silent) {
+            		oModel.trigger('add', oModel, me, oOptions,at);
+       			}
         	}
 
-        	oModel = oExisting || oModel;
-        	if (order && (oModel.isNew() || !oModelMap[oModel.id])){
-        		order.push(oModel);
-        	}
-        	oModelMap[oModel.id] = true;
-        }
-
-        //如果有需要的话，移除相应模型
-        if (bRemove) {
-        	for (i = 0, l = me.length; i < l; ++i) {
-           		if (!oModelMap[(oModel = me._models[i]).cid]){
-           			aToRemove.push(oModel);
-           		}
-        	}
-        	if (aToRemove.length){
-        		me.remove(aToRemove, oOptions);
-        	}
-        }
-
-        if (aToAdd.length || (order && order.length)) {
-        	if (bSortable){
-        		bSort = true;
-        	}
-        	//更新长度
-            me.length += aToAdd.length;
-            //指定位置上添加
-        	if (at != null) {
-            	for (i = 0, l = aToAdd.length; i < l; i++) {
-            		me._models.splice(at + i, 0, aToAdd[i]);
-          		}
-       		} else {
-          		if (order){
-          			me._models.length = 0;
-          		}
-          		var orderedModels = order || aToAdd;
-          		for (i = 0, l = orderedModels.length; i < l; i++) {
-            		me._models.push(orderedModels[i]);
-          		}
-        	}
-        }
-
-        //排序
-        if (bSort){
-        	me.sort({silent: true,desc:me.isDesc});
-        }
-
-        //触发相应事件
-        if (!oOptions.silent) {
-        	for (i = 0, l = aToAdd.length; i < l; i++) {
-            	(oModel = aToAdd[i]).trigger('add', oModel, me, oOptions);
-        	}
-        	if (bSort || (order && order.length)){
-        		me.trigger('sort', me, oOptions);
-        	}
         }
 
         //返回被设置的模型，如果是数组，返回第一个元素
@@ -8196,11 +8180,11 @@ function(ViewManager,ModelView,Model,Template){
 		//检查选项是否都是xmodel的字段，如果是，则只需要更新xmodel即可，ui自动更新
 		$H.each(oOptions,function(p,v){
 			//xConfig里没有的配置
-			if(typeof oConfigs[p]=='undefined'){
+			if(oConfigs.hasOwnProperty(p)){
+				oXconf[p]=v;
+			}else{
 				oOther[p]=v;
 				bContain=false;
-			}else{
-				oXconf[p]=v;
 			}
 		})
 		if(bContain){
@@ -9520,6 +9504,7 @@ function(AC){
 				}
 			}
 		},
+//		inputHeight     : null,                //输入框高度 
 		type            : '',                  //输入框类型，默认为普通输入框，'search':搜索框
 		withClear       : false,               //带有清除按钮
 		
@@ -9550,6 +9535,7 @@ function(AC){
 		],
 		doConfig        : fDoConfig,         //初始化配置
 		parseItem       : fParseItem,        //分析处理子组件
+		fastUpdate      : fFastUpdate,       //快速更新
 		val             : fVal,              //获取/设置输入框的值
 		focus           : fFocus             //聚焦
 	});
@@ -9571,6 +9557,8 @@ function(AC){
 				name:'input propertychange',
 				el:'.js-input',
 				handler:function(){
+					var oIptDv=me.getEl();
+					oIptDv.height('auto');
 					var oTextarea=me.findEl(".js-input");
 					var nNewHeight=oTextarea[0].scrollHeight;
 					//TODO Firefox下scrollHeight不准确，会忽略padding
@@ -9591,6 +9579,11 @@ function(AC){
 				}
 			});
 		}
+		if(oSettings.inputHeight){
+			me.on('afterRender',function(){
+				me.findEl('input,textarea').css('height',oSettings.inputHeight);
+			});
+		}
 	}
 	/**
 	 * 分析处理子组件
@@ -9608,6 +9601,18 @@ function(AC){
 				me.set('btnPos','right');
 			}
 		}
+	}
+	/**
+	 * 快速更新
+	 * @param {object}oOptions 选项
+	 * @return {boolean} true表示更新成功
+	 */
+	function fFastUpdate(oOptions){
+		var me=this;
+		if(oOptions.inputHeight){
+			me.findEl('input,textarea').css('height',oOptions.inputHeight);
+		}
+		return me.callSuper();
 	}
 	/**
 	 * 获取/设置输入框的值
@@ -10958,6 +10963,44 @@ function(AC){
 	return Vcard;
 	
 });/**
+ * 会话类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+
+$Define('C.Conversation',
+'C.AbstractComponent',
+function(AC){
+	
+	var Conversation=AC.define('Conversation');
+	
+	Conversation.extend({
+		//初始配置
+		xConfig         : {
+			cls         : 'conversation',
+			theme       : 'left',         //会话类型，"left"左边对齐，"right"右边对齐
+			time        : '',             //会话时间
+			image       : '',             //头像图标
+			content     : ''              //会话内容
+		},
+		
+		tmpl            : [
+			'<div class="c-clear">',
+				'<div class="hui-conver-time">{{time}}</div>',
+				'<div class="hui-conver-img">',
+					'<img {{bindAttr src="image"}}>',
+				'</div>',
+				'<div class="hui-conver-content">',
+					'{{content}}',
+					'<div class="hui-triangle">',
+						'<div class="hui-triangle hui-triangle-inner"></div>',
+					'</div>',
+				'</div>',
+			'</div>'].join('')
+	});
+	
+	return Conversation;
+	
+});/**
  * 模型列表
  * ps:使用下拉刷新需要引入iScroll4
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -10971,15 +11014,28 @@ function(AC){
 	
 	ModelList.extend({
 		xConfig     : {
-			cls         : 'mlist',
-			isEmpty     : false,             //列表是否为空
-			emptyTips   : '暂无',            //空列表提示
-			pdText      : '下拉可刷新',       //下拉刷新提示文字
-			pdComment   : '上次刷新时间：',    //下拉刷新附加说明
-			pdTime      : '',                //上次刷新时间
-			hasMoreBtn  : true,              //是否有获取更多按钮
-			hasPullRefresh : false           //是否有下拉刷新
+			cls             : 'mlist',
+			isEmpty         : false,             //列表是否为空
+			emptyTips       : '暂无',            //空列表提示
+			pdTxt           : '',               //下拉刷新提示文字
+			pdComment       : '上次刷新时间：',    //下拉刷新附加说明
+			pdTime          : '',                //上次刷新时间
+			hasMoreBtn      : true,              //是否有获取更多按钮
+			moreBtnTxt      : '查看更多',         //查看更多按钮的文字 
+			showBtnIfEmpty  :false,              //空列表时是否显示更多按钮，默认不显示
+			hasPullRefresh  : false,              //是否有下拉刷新
+			showMoreBtn     : {
+				depends : ['isEmpty','showBtnIfEmpty'],
+				parse   : function(){
+					return this.get('showBtnIfEmpty')||!this.get('isEmpty');
+				}
+			}
 		},
+		
+		pullTxt     : '下拉可刷新',       //下拉过程提示文字
+		flipTxt     : '松开可刷新',       //到松开可以执行刷新操作时的提示
+		releaseTxt  : '正在刷新',         //松开时提示文字
+		scrollPos   : 'top',             //默认滚动到的位置，'top'顶部，'bottom'底部
 //		itemXtype   : '',                //子组件默认xtype
 //		refresh     : null,              //刷新接口
 //		getMore     : null,              //获取更多接口
@@ -10993,7 +11049,7 @@ function(AC){
 								'<span class="hui-icon hui-alt-icon hui-icon-arrow-d hui-light"></span>',
 								'<span class="hui-icon hui-alt-icon hui-icon-loading-mini"></span>',
 								'<div class="hui-pd-txt">',
-									'{{#if pdText}}<div class="js-txt">{{pdText}}</div>{{/if}}',
+									'{{#if pdTxt}}<div class="js-txt">{{pdTxt}}</div>{{/if}}',
 									'{{#if pdComment}}',
 										'<div class="js-comment hui-pd-comment">',
 										'<span class="js-pdComment">{{pdComment}}</span>',
@@ -11009,9 +11065,9 @@ function(AC){
 					'{{/if}}',
 					'<div class="js-item-container">{{placeItem}}</div>',
 					'{{#if hasMoreBtn}}',
-						'<div {{bindAttr class="#hui-list-more isEmpty?hui-hidden"}}>',
-							'<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-shadow hui-inline hui-radius-normal">',
-								'<span class="hui-btn-txt">查看更多</span>',
+						'<div {{bindAttr class="#hui-list-more showMoreBtn:hui-hidden"}}>',
+							'<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-shadow hui-inline hui-radius-little">',
+								'<span class="hui-btn-txt">{{moreBtnTxt}}</span>',
 							'</a>',
 						'</div>',
 					'{{/if}}',
@@ -11022,6 +11078,7 @@ function(AC){
 		addListItem         : fAddListItem,        //添加列表项
 		removeListItem      : fRemoveListItem,     //删除列表项
 		refreshScroller     : fRefreshScroller,    //刷新iScroll
+		scrollTo            : fScrollTo,           //滚动到指定位置
 		destroy             : fDestroy             //销毁
 	});
 	/**
@@ -11030,6 +11087,7 @@ function(AC){
 	function fDoconfig(oSettings){
 		var me=this;
 		me.callSuper();
+		me.set('pdTxt',me.pullTxt);
 		if(me.itemXtype){
 			(me.defItem||(me.defItem={})).xtype=me.itemXtype;
 		}
@@ -11073,29 +11131,28 @@ function(AC){
 						onRefresh: function () {
 							if(oPdEl.hasClass(sRefreshCls)){
 				                oPdEl.removeClass(sRefreshCls+' '+sReleaseCls);  
-				                me.set('pdText','下拉可刷新');  
+				                me.set('pdTxt',me.pullTxt);  
 							}
 						},
 						onScrollMove: function () {
 							if (this.y > 5 && !oPdEl.hasClass(sReleaseCls)) {  
 				                oPdEl.addClass(sReleaseCls);  
-				                me.set('pdText','松开可刷新');  
+				                me.set('pdTxt',me.flipTxt);  
 								this.minScrollY = 0;
 				            } else if (this.y < 5 && oPdEl.hasClass(sReleaseCls)) {  
 				                oPdEl.removeClass(sReleaseCls);;  
-				                me.set('pdText','下拉可刷新'); 
+				                me.set('pdTxt',me.pullTxt); 
 								this.minScrollY = -nStartY;
 				            } 
 						},
 						onScrollEnd: function () {
 							if (oPdEl.hasClass(sReleaseCls)) {  
 				                oPdEl.addClass(sRefreshCls);  
-				                me.set('pdText','正在刷新'); 
+				                me.set('pdTxt',me.releaseTxt); 
 				                me.refresh();
 				            }
 						}
 					});
-					
 				}
 			});
 			//同步数据后需要刷新
@@ -11110,6 +11167,9 @@ function(AC){
 				name:'afterShow',
 				handler:function(){
 					me.refreshScroller();
+					if(me.scrollPos=='bottom'){
+						me.scrollTo('bottom');
+					}
 				}
 			});
 			me.listen({
@@ -11160,6 +11220,25 @@ function(AC){
 		//仅在页面显示时才刷新，否则scroller会不可用
 		if(me.scroller&&me.getEl()[0].clientHeight){
 	    	me.scroller.refresh();
+		}
+	}
+	/**
+	 * 滚动到指定位置
+	 * @param {string|number}pos 位置，字符串参数：'top'表示顶部，'bottom'表示底部，数字参数表示横坐标
+	 * @param {number=}pageY 纵坐标
+	 */
+	function fScrollTo(pos,pageY){
+		var me=this;
+		var oScroller=me.scroller;
+		if($H.isStr(pos)){
+			if(pos=='top'){
+				oScroller.scrollTo(0,0);
+			}else if(pos=='bottom'){
+				var nHeight=me.findEl('.hui-list-inner')[0].clientHeight;
+				oScroller.scrollTo(0,-nHeight);
+			}
+		}else{
+			oScroller.scrollTo(pos,pageY);
 		}
 	}
 	/**
