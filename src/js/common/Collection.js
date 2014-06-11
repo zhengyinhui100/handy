@@ -23,6 +23,7 @@ function(AbstractDao,AbstractEvents,Model){
 //		_byId                  : {},                  //根据id和cid索引
 //		length                 : 0,                   //模型集合长度
 		
+		_getIterator           : _fGetIterator,       //获取迭代函数
 		_reset                 : _fReset,             //重置集合
 		_prepareModel          : _fPrepareModel,      //初始化模型
 		_addReference          : _fAddReference,      //关联模型和集合
@@ -70,15 +71,31 @@ function(AbstractDao,AbstractEvents,Model){
 	    };
 	});
 	
+    Collection.prototype['sortedIndex'] = function(value, context) {
+        var iterator = this._getIterator(this.comparator);
+        return HA['sortedIndex'](this._models, value,iterator, context);
+    };
+	
 	$H.each(['sortBy','groupBy','countBy'], function(i,sMethod) {
 	    Collection.prototype[sMethod] = function(value, context,bDesc) {
-	        var iterator = $H.isFunc(value) ? value : function(oModel) {
-	            return oModel.get(value);
-	        };
+	        var iterator = this._getIterator(value);
 	        return HA[sMethod](this._models, iterator, context,bDesc);
         };
     });
 	
+    /**
+	 * 获取迭代函数
+	 * @param {Function|string=}value 为字符串时返回获取该属性的迭代函数，如果是函数则返回自身
+	 * @return {Function} 返回迭代函数
+	 */
+	function _fGetIterator(value) {
+	    if ($H.isFunc(value)){
+	    	return value;
+	    }
+	    return function(oModel) {
+		           return oModel.get(value);
+		       };
+	}
 	/**
 	 * 重置集合
 	 */
@@ -289,20 +306,18 @@ function(AbstractDao,AbstractEvents,Model){
         }
         var bSingular = !$H.isArr(models);
         var aModels = bSingular ? (models ? [models] : []) : $H.clone(models);
-        var i, l, id, oModel, oAttrs, oExisting, bSort;
+        var aCurModels=me._models;
+        var i, l, id, oModel, oAttrs, oExisting;
         var at = oOptions.at;
         var cTargetModel = me.model;
         //是否可排序
         var bSortable = me.comparator && (at == null) && oOptions.sort !== false;
-        var sortAttr = typeof me.comparator=="string" ? me.comparator : null;
-        var aToAdd = [], aToRemove = [], oModelMap = {};
         //是否添加
         var bAdd = oOptions.add, 
         //是否合并
         bMerge = oOptions.merge,
         //是否移除
         bRemove = oOptions.remove;
-        var order = !bSortable && bAdd && bRemove ? [] : false;
 
         //循环设置模型
         for (i = 0, l = aModels.length; i < l; i++) {
@@ -317,7 +332,7 @@ function(AbstractDao,AbstractEvents,Model){
         	if (oExisting = me.get(id)) {
         		//移除
             	if (bRemove){
-            		oModelMap[oExisting.cid] = true;
+            		me.remove(oExisting, oOptions);
             	}
             	//合并
           		if (bMerge) {
@@ -326,10 +341,6 @@ function(AbstractDao,AbstractEvents,Model){
                 		oAttrs = oExisting.parse(oAttrs, oOptions);
                 	}
             		oExisting.set(oAttrs, oOptions);
-            		//
-            		if (bSortable && !bSort && oExisting.hasChanged(sortAttr)){
-            			bSort = true;
-            		}
           		}
          		aModels[i] = oExisting;
 
@@ -340,64 +351,24 @@ function(AbstractDao,AbstractEvents,Model){
             	if (!oModel){
             		continue;
             	}
-            	aToAdd.push(oModel);
             	me._addReference(oModel, oOptions);
+            	me.length +=1;
+            	if(bSortable){
+	       			//获取排序位置
+	       			at=me.sortedIndex(oModel);
+	       		}
+            	//指定位置上添加
+	        	if (at != null) {
+	            	aCurModels.splice(at, 0, oModel);
+	       		}else{
+	       			aCurModels.push(oModel);
+	       		}
+	       		//触发相应事件
+       			if (!oOptions.silent) {
+            		oModel.trigger('add', oModel, me, oOptions,at);
+       			}
         	}
 
-        	oModel = oExisting || oModel;
-        	if (order && (oModel.isNew() || !oModelMap[oModel.id])){
-        		order.push(oModel);
-        	}
-        	oModelMap[oModel.id] = true;
-        }
-
-        //如果有需要的话，移除相应模型
-        if (bRemove) {
-        	for (i = 0, l = me.length; i < l; ++i) {
-           		if (!oModelMap[(oModel = me._models[i]).cid]){
-           			aToRemove.push(oModel);
-           		}
-        	}
-        	if (aToRemove.length){
-        		me.remove(aToRemove, oOptions);
-        	}
-        }
-
-        if (aToAdd.length || (order && order.length)) {
-        	if (bSortable){
-        		bSort = true;
-        	}
-        	//更新长度
-            me.length += aToAdd.length;
-            //指定位置上添加
-        	if (at != null) {
-            	for (i = 0, l = aToAdd.length; i < l; i++) {
-            		me._models.splice(at + i, 0, aToAdd[i]);
-          		}
-       		} else {
-          		if (order){
-          			me._models.length = 0;
-          		}
-          		var orderedModels = order || aToAdd;
-          		for (i = 0, l = orderedModels.length; i < l; i++) {
-            		me._models.push(orderedModels[i]);
-          		}
-        	}
-        }
-
-        //排序
-        if (bSort){
-        	me.sort({silent: true,desc:me.isDesc});
-        }
-
-        //触发相应事件
-        if (!oOptions.silent) {
-        	for (i = 0, l = aToAdd.length; i < l; i++) {
-            	(oModel = aToAdd[i]).trigger('add', oModel, me, oOptions);
-        	}
-        	if (bSort || (order && order.length)){
-        		me.trigger('sort', me, oOptions);
-        	}
         }
 
         //返回被设置的模型，如果是数组，返回第一个元素
