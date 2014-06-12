@@ -31,14 +31,17 @@ function(AC){
 			xrole : 'desc'
 		},
 		
+//		imgClick        : $H.noop,        //图片点击事件函数
+//		contentClick    : $H.noop,        //图片点击事件函数
+		
 		tmpl     : [
 			'<div {{bindAttr class="image?hui-hcard-hasimg"}}>',
 				'{{#if image}}',
-					'<div class="hui-hcard-img">',
+					'<div class="hui-hcard-img js-img">',
 						'<img {{bindAttr src="image"}}>',
 					'</div>',
 				'{{/if}}',
-				'<div class="hui-hcard-content">',
+				'<div class="hui-hcard-content js-content">',
 					'<div class="hui-content-title">',
 						'{{title}}',
 						'<span class="hui-title-desc">{{titleDesc}}</span>',
@@ -73,7 +76,30 @@ function(AC){
 		//描述类
 		var aDesc=me.desc;
 		if(aDesc){
+			if(aDesc.length==1){
+				me.set('theme','little');
+			}
 			me.add(aDesc);
+		}
+		if(me.imgClick){
+			me.listen({
+				name:'click',
+				selector:'.js-img',
+				method:'delegate',
+				handler:function(){
+					me.imgClick.call(me);
+				}
+			})
+		}
+		if(me.contentClick){
+			me.listen({
+				name:'click',
+				selector:'.js-content',
+				method:'delegate',
+				handler:function(){
+					me.contentClick.call(me);
+				}
+			})
 		}
 	}
 		

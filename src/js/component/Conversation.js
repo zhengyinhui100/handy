@@ -19,10 +19,12 @@ function(AC){
 			content     : ''              //会话内容
 		},
 		
+//		imgClick        : $H.noop,        //头像点击事件函数
+		
 		tmpl            : [
 			'<div class="c-clear">',
 				'<div class="hui-conver-time">{{time}}</div>',
-				'<div class="hui-conver-img">',
+				'<div class="hui-conver-img js-conver-img">',
 					'<img {{bindAttr src="image"}}>',
 				'</div>',
 				'<div class="hui-conver-content">',
@@ -31,8 +33,29 @@ function(AC){
 						'<div class="hui-triangle hui-triangle-inner"></div>',
 					'</div>',
 				'</div>',
-			'</div>'].join('')
+			'</div>'].join(''),
+		
+		doConfig        : fDoConfig
 	});
+	
+	/**
+	 * 初始化配置
+	 * @param {object}oSettings 配置项
+	 */
+	function fDoConfig(){
+		var me=this;
+		me.callSuper();
+		if(me.imgClick){
+			me.listen({
+				name:'click',
+				selector:'.js-conver-img',
+				method:'delegate',
+				handler:function(){
+					me.imgClick.call(me);
+				}
+			})
+		}
+	}
 	
 	return Conversation;
 	
