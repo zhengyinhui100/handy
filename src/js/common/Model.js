@@ -177,6 +177,10 @@ function(AbstractDao,AbstractEvents){
     	if(sEvent=='invalid'||sEvent=='sync'){
     		return;
     	}
+    	//模型被添加事件无需处理
+    	if(sEvent=='add'&&obj instanceof Model){
+    		return;
+    	}
     	var me=this;
     	var oVal=me.get(sAttr);
     	me.trigger('change:'+sAttr,me,oVal);
