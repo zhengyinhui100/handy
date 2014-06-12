@@ -1302,6 +1302,10 @@
 .hui-hcard .hui-content-desc .hui-icon {
   margin-right: 2px;
 }
+.hui-hcard.hui-hcard-little .hui-content-desc {
+  padding-top: 12px;
+  padding-bottom: 10px;
+}
 .hui-vcard {
   margin: 10px 0;
 }

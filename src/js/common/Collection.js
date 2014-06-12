@@ -352,7 +352,6 @@ function(AbstractDao,AbstractEvents,Model){
             		continue;
             	}
             	me._addReference(oModel, oOptions);
-            	me.length +=1;
             	if(bSortable){
 	       			//获取排序位置
 	       			at=me.sortedIndex(oModel);
@@ -363,6 +362,7 @@ function(AbstractDao,AbstractEvents,Model){
 	       		}else{
 	       			aCurModels.push(oModel);
 	       		}
+            	me.length +=1;
 	       		//触发相应事件
        			if (!oOptions.silent) {
             		oModel.trigger('add', oModel, me, oOptions,at);

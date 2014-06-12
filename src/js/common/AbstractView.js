@@ -180,7 +180,7 @@ function(ViewManager,AbstractEvents){
 	 * 			{number=}times    : 执行次数
 	 * 			{string=}selector : 选择器
 	 * 			{any=}context     : 监听函数执行的上下文对象，默认是对象
-	 * 			{string=}method   : 绑定方式，默认为"bind"
+	 * 			{string=}method   : 绑定方式，默认为"bind"，可以是"delegate","on"等jquery提供的事件方法
 	 * }
 	 */
 	function fListen(oEvent){
