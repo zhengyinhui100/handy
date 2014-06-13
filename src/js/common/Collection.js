@@ -1,5 +1,5 @@
 /**
- * 集合类，封装模型集合，可监听事件：invalid、add、remove、sync、sort、reset及模型的事件
+ * 集合类，封装模型集合，可监听事件：invalid、add、remove、sync、sort、sortItem、reset及模型的事件
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-03-06
  */
@@ -16,6 +16,8 @@ function(AbstractDao,AbstractEvents,Model){
 //		url                    : '',                  //集合url
 		model                  : Model,               //子对象模型类
 //		dao                    : null,                //数据访问对象，默认为common.AbstractDao
+//		comparator             : '',                  //比较属性名或比较函数
+//		desc                   : false,               //是否降序
 		
 		//内部属性
 //      lastSyncTime           : null,                //上次同步时间
@@ -49,6 +51,7 @@ function(AbstractDao,AbstractEvents,Model){
 		where                  : fWhere,              //返回包含指定 key-value 组合的模型的数组
 		findWhere              : fFindWhere,          //返回包含指定 key-value 组合的第一个模型
 		sort                   : fSort,               //排序
+		sortItem               : fSortItem,           //对指定模型进行排序
 		pluck                  : fPluck,              //提取集合里指定的属性值
 		getUrl                 : fGetUrl,             //获取集合url
 		fetch                  : fFetch,              //请求数据
@@ -71,14 +74,16 @@ function(AbstractDao,AbstractEvents,Model){
 	    };
 	});
 	
-    Collection.prototype['sortedIndex'] = function(value, context) {
+    Collection.prototype['sortedIndex'] = function(value, context,bDesc) {
         var iterator = this._getIterator(this.comparator);
-        return HA['sortedIndex'](this._models, value,iterator, context);
+        bDesc=this.desc||bDesc;
+        return HA['sortedIndex'](this._models, value,iterator, context,bDesc);
     };
 	
 	$H.each(['sortBy','groupBy','countBy'], function(i,sMethod) {
 	    Collection.prototype[sMethod] = function(value, context,bDesc) {
 	        var iterator = this._getIterator(value);
+	        bDesc=this.desc||bDesc;
 	        return HA[sMethod](this._models, iterator, context,bDesc);
         };
     });
@@ -119,17 +124,7 @@ function(AbstractDao,AbstractEvents,Model){
         }
         oOptions = oOptions ? $H.clone(oOptions) : {};
         oOptions.collection = me;
-        //如果数据仓库里已经存在，直接使用
-        var oModel;
-        if(oOptions.id){
-	        oModel=$S.get(me.model.$ns,{id:oOptions.id});
-	        if(oModel=oModel&&oModel[0]){
-	        	oModel.set(oAttrs,oOptions);
-	        	return oModel;
-	        }
-        }
-        
-        oModel = new me.model(oAttrs, oOptions);
+        var oModel = me.model.get(oAttrs, oOptions);
         if (!oModel.validationError){
         	return oModel;
         }
@@ -208,9 +203,19 @@ function(AbstractDao,AbstractEvents,Model){
 	    if (oOptions.comparator !== void 0) {
 	    	me.comparator = oOptions.comparator;
 	    }
+	    if (oOptions.desc !== void 0) {
+	    	me.desc = oOptions.desc;
+	    }
 	    me._reset();
 	    if (aModels){
 	    	me.reset(aModels, $H.extend({silent: true}, oOptions));
+	    }
+	    //如果比较器是属性名，监听相应的事件进行必要的排序
+	    var comparator=me.comparator;
+	    if($H.isStr(comparator)){
+    		me.on('change:'+comparator,function(sEvt,oModel,sTime){
+    			me.sortItem(oModel);
+    		});
 	    }
 	}
 	/**
@@ -247,7 +252,7 @@ function(AbstractDao,AbstractEvents,Model){
     		remove:false,
     		merge:false
     	},oOptions);
-        return this.set(models,oOptions);
+        return this.set(models,oOptions).result;
     }
     /**
      * 移除模型
@@ -289,18 +294,24 @@ function(AbstractDao,AbstractEvents,Model){
 	 * 		{number=}at : 指定添加位置
 	 * 		{boolean=}parse : 是否分析处理数据
 	 * }
-	 * @return {Model}返回被设置的模型，如果是数组，返回第一个元素
+	 * @return {object}{
+	 * 		{boolean}changed : true表示此次设置改变了模型，false表示未改变
+	 * 		{Collection}result: 集合自身
+	 * }
 	 */
     function fSet(models, oOptions) {
     	var me=this;
     	if(!models){
-    		return;
+    		return {result:me};
     	}
     	oOptions = $H.extend({
     		add: true,
     		remove: false,
     		merge: true
     	},oOptions);
+    	if(models instanceof Collection){
+    		models=models._models;
+    	}
         if (oOptions.parse){
         	models = me.parse(models, oOptions);
         }
@@ -317,7 +328,9 @@ function(AbstractDao,AbstractEvents,Model){
         //是否合并
         bMerge = oOptions.merge,
         //是否移除
-        bRemove = oOptions.remove;
+        bRemove = oOptions.remove,
+        //记录是否发生了改变
+        bHasChange=false;
 
         //循环设置模型
         for (i = 0, l = aModels.length; i < l; i++) {
@@ -333,6 +346,7 @@ function(AbstractDao,AbstractEvents,Model){
         		//移除
             	if (bRemove){
             		me.remove(oExisting, oOptions);
+            		bHasChange=true;
             	}
             	//合并
           		if (bMerge) {
@@ -340,7 +354,8 @@ function(AbstractDao,AbstractEvents,Model){
                 	if (oOptions.parse){
                 		oAttrs = oExisting.parse(oAttrs, oOptions);
                 	}
-            		oExisting.set(oAttrs, oOptions);
+		        	var _changed=oExisting.set(oAttrs, oOptions).changed;
+            		bHasChange=bHasChange||_changed;
           		}
          		aModels[i] = oExisting;
 
@@ -367,12 +382,15 @@ function(AbstractDao,AbstractEvents,Model){
        			if (!oOptions.silent) {
             		oModel.trigger('add', oModel, me, oOptions,at);
        			}
+       			bHasChange=true;
         	}
 
         }
 
-        //返回被设置的模型，如果是数组，返回第一个元素
-        return bSingular ? aModels[0] : aModels;
+        return {
+        	changed:bHasChange,
+        	result:me
+        };
     }
     /**
      * 遍历集合
@@ -395,7 +413,7 @@ function(AbstractDao,AbstractEvents,Model){
         oOptions.previousModels = me._models;
         me._reset();
         if(models){
-	        models = me.add(models, $H.extend({silent: true}, oOptions));
+	        models = me.add(models, $H.extend({silent: true}, oOptions)).result;
         }
         if (!oOptions.silent){
         	me.trigger('reset', me, oOptions);
@@ -409,7 +427,7 @@ function(AbstractDao,AbstractEvents,Model){
 	 */
     function fPush(oModel, oOptions) {
     	var me=this;
-        return me.add(oModel, $H.extend({at: me.length}, oOptions));
+        return me.add(oModel, $H.extend({at: me.length}, oOptions)).result;
     }
 	/**
 	 * 取出集合最后一个模型
@@ -428,7 +446,7 @@ function(AbstractDao,AbstractEvents,Model){
 	 * @return {Model} 返回添加的模型
 	 */
     function fUnshift(oModel, oOptions) {
-        return this.add(oModel, $H.extend({at: 0}, oOptions));
+        return this.add(oModel, $H.extend({at: 0}, oOptions)).result;
     }
 	/**
 	 * 取出集合第一个模型
@@ -532,6 +550,22 @@ function(AbstractDao,AbstractEvents,Model){
         	me.trigger('sort', me, oOptions);
         }
         return me;
+    }
+    /**
+     * 对指定模型进行排序
+     * @param {Model}oModel 参数模型
+     * @param {number=}nIndex 要排到的索引，如不传，则自动根据sortedIndex方法进行计算
+     */
+    function fSortItem(oModel,nIndex){
+    	var me=this;
+    	if(nIndex===undefined){
+    		nIndex=me.sortedIndex(oModel);
+    	}
+    	var nCurIndex=me.indexOf(oModel);
+    	var aModels=me._models;
+    	aModels.splice(nCurIndex,1);
+    	aModels.splice(nIndex,0,oModel);
+    	me.trigger('sortItem',oModel,nIndex,nCurIndex,me);
     }
     /**
      * 提取集合里指定的属性值

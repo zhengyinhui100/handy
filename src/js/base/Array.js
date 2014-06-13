@@ -286,13 +286,14 @@ handy.add('Array','B.Object',function(Object,$H){
 	 * @param {*=}context 迭代器执行上下文对象
 	 * 
 	 */
-    function fSortedIndex(array, obj, iterator, context) {
+    function fSortedIndex(array, obj, iterator, context,bDesc) {
 	    iterator = _fGetIterator(iterator);
 	    var value = iterator.call(context, obj);
 	    var low = 0, high = array.length;
 	    while (low < high) {
 	        var mid = (low + high) >>> 1;
-	        iterator.call(context, array[mid]) < value ? low = mid + 1 : high = mid;
+	        var val=iterator.call(context, array[mid]);
+	        (bDesc ? val>value:val< value )? low = mid + 1 : high = mid;
 	    }
 	    return low;
 	}

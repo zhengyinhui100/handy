@@ -105,6 +105,16 @@ function(AC){
 			'remove':function(sEvt,oListItem){
 				me.removeListItem(oListItem);
 			},
+			'sortItem':function(sEvt,oListItem,nNewIndex,nOldIndex){
+				var oView=me.find(function(oView){
+					return oView.model&&oView.model.id==oListItem.id;
+				});
+				oView=oView[0];
+				var oEl=oView.getEl();
+				var oParent=oEl.parent();
+				var oTmp=oParent.children('div').eq(nNewIndex);
+				oTmp.before(oEl);
+			},
 			'reset':function(){
 				me.removeListItem('emptyAll');
 			}
