@@ -1,7 +1,9 @@
 /**
  * 模型类，负责数据封装，可监听事件：invalid、sync、destroy、change:attr、change
- * PS：嵌套属性区别于普通属性，不可通过hasChanged、changedAttrbutes等方法获取改变，
- * 只能通过相关委托事件(_onAttrEvent方法里)进行监测
+ * PS：
+ * 1、为了保证模型的一致性，新建模型实例必须使用静态get方法，而不能用new方式；
+ * 2、嵌套属性区别于普通属性，不可通过hasChanged、changedAttrbutes等方法获取改变，
+ *    只能通过相关委托事件(_onAttrEvent方法里)进行监测
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-03-06
  */
@@ -19,8 +21,9 @@ function(AbstractDao,AbstractEvents){
 		 * 属性声明列表，一般是需要额外处理的定制属性，基本类型的属性不需要在此声明，{
 	     *	普通形式：
 	     *	{string}name:{
-		 *	    {string|Class=}type:类型，可以是字符串(string/number/Date/Model/Collection),也可以是类
-		 *		{*=}def:默认值
+		 *	    {string|Class=}type:类型，可以是字符串(string/number/Date/Model/Collection),也可以是类,
+		 *		{object=}options:新建模型/集合实例时的选项,
+		 *		{*=}def:默认值,
 		 *   	{Function=}parse:设置该属性时自定义解析操作,
 		 *   	{Array=}depends:依赖的属性，计算属性需要此配置检查和计算
 	     *	}
@@ -74,8 +77,51 @@ function(AbstractDao,AbstractEvents){
    		clone                 : fClone,              //克隆模型
    		isNew                 : fIsNew,              //判断是否是新模型(没有提交保存，并且缺少id属性)
    		isValid               : fIsValid             //校验当前是否是合法的状态
+	},{
+		get                   : fStaticGet           //静态get方法，为了保证模型的一致性，新建模型实例必须使用此方法，而不能用new方式
 	});
 	
+	/**
+	 * 静态get方法，为了保证模型的一致性，新建模型实例必须使用此方法，而不能用new方式
+	 * @method get
+	 * @param {object}oVal
+	 * @param {object=}oOptions new模型实例时的选项
+	 * @param {object=}oChange 如果传入object，返回时，oChange.changed表示此次操作改变了原模型的值或者新建了模型实例
+	 * @return {Model} 返回模型实例
+	 */
+	function fStaticGet(oVal,oOptions,oChange){
+		if(!oVal){
+			return;
+		}
+		var _Class=this;
+		var oModel;
+		var sIdName=_Class.prototype['idAttribute'];
+		var id;
+		//是否改变了原有模型，new操作也表示改变了
+		var bHasChange=false;
+		//如果有id，需要先查找是否有存在的模型，查询直接id效率高，所以先进行查询，查询不到id才通过new后，查询联合id
+		if(id=oVal[sIdName]){
+	        oModel=$S.get(_Class,id);
+        }
+        if(!oModel){
+	        //因为可能存在自定义联合主键，所以这里没有现存的模型而新建一个实例时，要把val传入，以便获取正确的主键
+	        var oModel=new _Class(oVal,oOptions),tmp;
+	        //放入数据仓库
+			if(!(tmp=$S.get(oModel,oModel.id))){
+				bHasChange=true;
+				$S.push(oModel);
+			}else{
+				//已存在的对应的模型，设置新值
+				bHasChange=tmp.set(oVal).changed;
+				oModel=tmp;
+			}
+        }else{
+        	//已存在的对应的模型，设置新值
+        	bHasChange=oModel.set(oVal).changed;
+        }
+        oChange&&(oChange.changed=bHasChange);
+        return oModel;
+	}
 	/**
 	 * 执行校验，如果通过校验返回true，否则，触发"invalid"事件
 	 * @param {Object=}oAttrs 参数属性，传入表示只校验参数属性
@@ -103,7 +149,7 @@ function(AbstractDao,AbstractEvents){
     function _fDoDepends(oChanges,bSilent){
     	var me=this;
     	//处理计算属性
-	    var oFields=me.fields,oField,aDeps,oSets={};
+	    var oFields=me.fields,oField,aDeps,oSets={},bNeed;
 	    for(var key in oFields){
 	    	var oField=oFields[key];
 			if(oField&&(aDeps=oField.depends)){
@@ -111,12 +157,13 @@ function(AbstractDao,AbstractEvents){
 			    	//当依赖属性变化时，设置计算属性
 					if(oChanges.hasOwnProperty(aDeps[i])){
 						oSets[key]=undefined;
+						bNeed=true;
 						break;
 					}
 				}
 			}
 	    }
-	    me.set(oSets,null,{silent:bSilent});
+	    bNeed&&me.set(oSets,null,{silent:bSilent});
     }
     /**
      * 属性预处理
@@ -129,12 +176,13 @@ function(AbstractDao,AbstractEvents){
     	if(!(oFields=me.fields)){
     		return oAttrs;
     	}
-    	var oField,fParse,val,aDeps,type;
+    	var oField,fParse,val,aDeps,type,oOptions;
     	var oResult={};
 		for(var key in oAttrs){
 			val=oAttrs[key];
 			if(oField=oFields[key]){
 				type=oField.type;
+				oOptions=oField.options;
 				//自定义解析
 				if(fParse=oField.parse){
 					val=fParse.apply(me,[val,oAttrs]);
@@ -147,20 +195,25 @@ function(AbstractDao,AbstractEvents){
 						type=$H.ns(type);
 					}
 				}
-				if($H.isClass(type)&&!(val instanceof type)&&!me.get(key)){
-					var oExistModel;
-					var sIdName=type.prototype['idAttribute'];
-					var id;
-					if(val&&(id=val[sIdName])){
-				        oExistModel=$S.get(type.$ns,{id:val.id});
-				        if(oExistModel=oExistModel&&oExistModel[0]){
-				        	oExistModel.set(val);
-				        }
-			        }
-					val=oExistModel||new type(val);
-					//监听所有事件
-					val.on('all',$H.bind(me._onAttrEvent,me,key));
-					me._onAttrEvent(key,'change',val);
+				if($H.isClass(type)&&!(val instanceof type)){
+					//模型
+					if(type.get){
+						var oChange={};
+				        val=type.get(val,oOptions,oChange);
+				        val&&(val._changedTmp=oChange.changed);
+					}else{
+						//集合
+						var oCurrent=me.get(key);
+						if(oCurrent){
+							var tmp=oCurrent.set(val);
+							val=oCurrent;
+							val._changedTmp=tmp.changed;
+							
+						}else{
+							val=new type(val,oOptions);
+							val._changedTmp=true;
+						}
+					}
 				}
 			}
 			oResult[key]=val;
@@ -174,7 +227,7 @@ function(AbstractDao,AbstractEvents){
 	 * @param {Model|Collection}obj 对象
 	 */
     function _fOnAttrEvent(sAttr,sEvent, obj) {
-    	if(sEvent=='invalid'||sEvent=='sync'){
+    	if(sEvent=='invalid'||sEvent=='sync'||sEvent.indexOf('change:')==0){
     		return;
     	}
     	//模型被添加事件无需处理
@@ -216,8 +269,6 @@ function(AbstractDao,AbstractEvents){
 		oAttrs = $H.extendIf(oAttrs, me.getDefaults());
 		me.set(oAttrs, oOptions);
 		me._changed = {};
-		//放入数据仓库
-		$S.push(me);
 	}
 	/**
 	 * 获取默认值
@@ -286,10 +337,16 @@ function(AbstractDao,AbstractEvents){
 	 * 		{boolean=}unset 是否清除设置
 	 * 		{boolean=}silent 是否不触发事件
 	 * }
+	 * @return {object}{
+	 * 		{boolean}changed : true表示此次设置改变了模型，false表示未改变
+	 * 		{boolean=}invalid : 仅当true时表示未通过校验
+	 * 		{Model}result:模型对象自身
+	 * } 
 	 */
     function fSet(sKey, val, oOptions) {
     	var me=this;
     	var oAttrs;
+    	var oResult={result:me};
 	    if (typeof sKey === 'object') {
 	    	oAttrs = sKey;
 	    	oOptions = val;
@@ -297,11 +354,15 @@ function(AbstractDao,AbstractEvents){
 	    	(oAttrs = {})[sKey] = val;
 	    }
 	    oOptions || (oOptions = {});
+	    if(oAttrs instanceof Model){
+	    	oAttrs=oAttrs._attributes;
+	    }
 	    //属性预处理
 	    oAttrs= me._parseFields(oAttrs);
 	    //先执行校验
 	    if (!me._validate(oAttrs, oOptions)){
-	    	return false;
+	    	oResult.invalid=true;
+	    	return oResult;
 	    }
 	
 	    var bUnset= oOptions.unset;
@@ -327,12 +388,33 @@ function(AbstractDao,AbstractEvents){
 	    for (var sAttr in oAttrs) {
 	   	    val = oAttrs[sAttr];
 	    	var curVal=oCurrent[sAttr];
-	    	//是否是嵌套属性
-	   	    var bNested=curVal&&$H.isInstance(curVal);
-	    	//如果取消设置，删除对应属性
-	    	if(bNested){
-	    		//PS:嵌套属性须调用该属性类的方法进行设置，也不需要在此触发相关事件，而是通过监听该属性上的事件触发事件
-	    		bUnset ? curVal.reset() : curVal.set(val);
+	    	//当前属性是否是嵌套属性
+	   	    var bCurNested=curVal&&$H.isInstance(curVal);
+	   	    //新值是否是嵌套属性
+	   	    var bNewNested=val&&$H.isInstance(val);
+	    	//嵌套属性设置，不需要在此触发相关事件，而是通过监听该属性上的事件触发事件，计算属性也是通过事件触发计算
+	    	if(bCurNested||bNewNested){
+	    		//删除旧值或更换嵌套属性，须移除原来在该属性上的事件
+	    		if(bUnset){
+	    			delete oCurrent[sAttr];
+	    			//如果有旧值，需要清除相关事件
+	    			curVal&&me.unlistenTo(curVal,'all');
+	    		}else{
+					oCurrent[sAttr] = val;
+					if(!curVal||curVal.id!=val.id){
+						//这里如果传入就是模型，_parseFields方法不进行处理，因此这里标记为已改变
+						val._changedTmp=true;
+						//如果有旧值，需要清除相关事件
+	    				curVal&&me.unlistenTo(curVal,'all');
+						//新模型需要监听事件
+	    				me.listenTo(val,'all',$H.bind(me._onAttrEvent,me,sAttr));
+					}
+	    		}
+	    		////与当前值不相等，放入本次改变列表中
+    			if(bUnset||val._changedTmp){
+    				oChanges[sAttr]=val;
+    			}
+				delete val._changedTmp;
 	    	}else{
 		   	    //与当前值不相等，放入本次改变列表中
 		    	if (!$H.equals(oCurrent[sAttr], val)){
@@ -362,7 +444,7 @@ function(AbstractDao,AbstractEvents){
 	    }
 	
 	    if (bChanging){
-	    	return me;
+	    	//return me;
 	    }
 	    //触发模型对象change事件
 	    if (!bSilent) {
@@ -378,8 +460,8 @@ function(AbstractDao,AbstractEvents){
 	    if(bHasChange){
 		    me._doDepends(oChanges,bSilent);
 	    }
-	    
-	    return me;
+	    oResult.changed=bHasChange;
+	    return oResult;
     }
     /**
      * 移除指定属性
@@ -485,7 +567,8 @@ function(AbstractDao,AbstractEvents){
         			return;
         		}
         	}
-        	if (!me.set(oData, oOptions)){
+        	var r=me.set(oData, oOptions);
+        	if (r.invalid){
         		return false;
         	}
         	if (fSuccess){
@@ -525,7 +608,7 @@ function(AbstractDao,AbstractEvents){
 
         //now==true，立刻设置数据
         if (oAttrs && oOptions.now) {
-       	    if (!me.set(oAttrs, oOptions)){
+       	    if (me.set(oAttrs, oOptions).invalid){
        	    	return false;
        	    }
         } else {
@@ -546,7 +629,7 @@ function(AbstractDao,AbstractEvents){
 	        	oServerAttrs = $H.extend(oAttrs || {}, oServerAttrs);
 	        }
 	        //服务器返回的值可能跟现在不一样，还要根据返回值修改
-	        if ($H.isObj(oServerAttrs) && !me.set(oServerAttrs, oOptions)) {
+	        if ($H.isObj(oServerAttrs) && me.set(oServerAttrs, oOptions).invalid) {
 	            return false;
 	        }
 	        if (fSuccess){

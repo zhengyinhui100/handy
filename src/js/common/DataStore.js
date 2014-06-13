@@ -27,19 +27,28 @@ function(){
 	 * @return {Model|Array} 如果通过cid或id获取，返回模型对象，否则返回匹配的模型数组
 	 */
 	function fGet(sName,oOptions){
-		var aCache;
+		var oCache;
 		if($H.isClass(sName)){
 			sName=sName.$ns;
-		}else if($H.isInstance()){
+		}else if($H.isInstance(sName)){
 			sName=sName.constructor.$ns;
 		}else{
 			sName=$H.alias(sName);
 		}
-		if(aCache=_cache[sName]){
+		if(oCache=_cache[sName]){
 			if(!oOptions){
-				return aCache;
+				return oCache;
+			}else if(!$H.isObj(oOptions)){
+				//根据id查找
+				return oCache[oOptions];
 			}else{
-				return $H.where(aCache,oOptions);
+				var aResult=[];
+				$H.each(oCache,function(k,obj){
+					if($H.largeThan(obj,oOptions)){
+						aResult.push(obj);
+					}
+				});
+				return aResult;
 			}
 		}
 	}
@@ -60,8 +69,8 @@ function(){
 			sCid=null;
 		}
 		var sName=data.constructor.$ns;
-		var aCache=_cache[sName]||(_cache[sName]=[]);
-		aCache.push(data);
+		var aCache=_cache[sName]||(_cache[sName]={});
+		aCache[data.id]=data;
 		//快捷访问别名(客户id)
 		if(sCid){
 			if(!_cache[sCid]){
