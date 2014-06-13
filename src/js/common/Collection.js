@@ -39,6 +39,7 @@ function(AbstractDao,AbstractEvents,Model){
 		remove                 : fRemove,             //移除模型
 		set                    : fSet,                //设置模型
 		each                   : fEach,               //遍历集合
+		eachDesc               : fEachDesc,           //降序遍历集合
 		reset                  : fReset,              //重置模型，此方法不会触发add、remove等事件，只会触发reset事件
 		push                   : fPush,               //添加到集合最后
 		pop                    : fPop,                //取出集合最后一个模型
@@ -398,6 +399,16 @@ function(AbstractDao,AbstractEvents,Model){
      */
     function fEach(fCall){
     	$H.each(this._models,fCall);
+    }
+    /**
+     * 降序遍历集合
+     * @param {function}fCall(nIndex,oModel) 回调函数
+     */
+    function fEachDesc(fCall){
+    	var aModels=this._models;
+    	for(var i=aModels.length-1;i>=0;i--){
+    		fCall(i,aModels[i]);
+    	}
     }
 	/**
 	 * 重置模型，此方法不会触发add、remove等事件，只会触发reset事件

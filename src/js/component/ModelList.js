@@ -30,13 +30,15 @@ function(AC){
 			}
 		},
 		
-		pullTxt     : '下拉可刷新',       //下拉过程提示文字
-		flipTxt     : '松开可刷新',       //到松开可以执行刷新操作时的提示
-		releaseTxt  : '正在刷新',         //松开时提示文字
-		scrollPos   : 'top',             //默认滚动到的位置，'top'顶部，'bottom'底部
-//		itemXtype   : '',                //子组件默认xtype
-//		refresh     : null,              //刷新接口
-//		getMore     : null,              //获取更多接口
+		pullTxt             : '下拉可刷新',       //下拉过程提示文字
+		flipTxt             : '松开可刷新',       //到松开可以执行刷新操作时的提示
+		releaseTxt          : '正在刷新',         //松开时提示文字
+		maxNumFromCache     : 20,                //使用缓存数据时单次最大加载数目    
+		scrollPos           : 'top',             //默认滚动到的位置，'top'顶部，'bottom'底部
+		pulldownIsRefresh   : true,              //true表示下拉式刷新，而按钮是获取更多，false表示相反
+//		itemXtype           : '',                //子组件默认xtype
+//		refresh             : null,              //刷新接口
+//		getMore             : null,              //获取更多接口
 		
 		tmpl        : [
 			'<div class="hui-list">',
@@ -77,6 +79,7 @@ function(AC){
 		removeListItem      : fRemoveListItem,     //删除列表项
 		refreshScroller     : fRefreshScroller,    //刷新iScroll
 		scrollTo            : fScrollTo,           //滚动到指定位置
+		loadMore            : fLoadMore,           //获取更多数据
 		destroy             : fDestroy             //销毁
 	});
 	/**
@@ -90,13 +93,10 @@ function(AC){
 			(me.defItem||(me.defItem={})).xtype=me.itemXtype;
 		}
 		var oListItems=me.model;
-		var bHas=false;
-		oListItems.each(function(i,item){
-			me.addListItem(item);
-			bHas=true;
-		});
-		if(!bHas){
+		if(oListItems.size()==0){
 			me.set('isEmpty',true);
+		}else{
+			me.loadMore();
 		}
 		me.listenTo(oListItems,{
 			'add':function(sEvt,oListItem){
@@ -157,7 +157,7 @@ function(AC){
 							if (oPdEl.hasClass(sReleaseCls)) {  
 				                oPdEl.addClass(sRefreshCls);  
 				                me.set('pdTxt',me.releaseTxt); 
-				                me.refresh();
+				                me.pulldownIsRefresh?me.refresh():me.loadMore();
 				            }
 						}
 					});
@@ -185,7 +185,7 @@ function(AC){
 				method : 'delegate',
 				selector : '.hui-list-more',
 				handler : function(){
-					me.getMore();
+					me.pulldownIsRefresh?me.loadMore():me.refresh();
 				}
 			});
 		}
@@ -193,13 +193,20 @@ function(AC){
 	/**
 	 * 添加列表项
 	 * @param {Object}oListItem 列表项模型
+	 * @param {number=}nIndex 指定添加位置
 	 */
-	function fAddListItem(oListItem){
+	function fAddListItem(oListItem,nIndex){
 		var me=this;
 		me.set('isEmpty',false);
+		if(nIndex===undefined){
+			nIndex=me.model.indexOf(oListItem);
+			//可能有缓存数据没有加载到视图中
+			var nCurLen=me.inited?me.children.length:me.items.length;
+			nIndex=nIndex>nCurLen?nCurLen:nIndex;
+		}
 		me.add({
 			model:oListItem
-		},me.model.indexOf(oListItem));
+		},nIndex);
 		me.refreshScroller();
 	}
 	/**
@@ -247,6 +254,37 @@ function(AC){
 			}
 		}else{
 			oScroller.scrollTo(pos,pageY);
+		}
+	}
+	/**
+	 * 获取更多数据
+	 */
+	function fLoadMore(){
+		var me=this;
+		var oListItems=me.model;
+		var nCurNum=me.children.length;
+		var nSize=oListItems.size();
+		if(nSize>nCurNum){
+			//先尝试从缓存中获取
+			var nMax=me.maxNumFromCache,nStart=nCurNum,nEnd=nCurNum+nMax;
+			if(me.pulldownIsRefresh){
+				oListItems.each(function(i,item){
+					if(i>=nStart&&i<nEnd){
+						me.addListItem(item);
+					}
+				});
+			}else{
+				nEnd=nSize-nCurNum;
+				nStart=nEnd-nMax;
+				oListItems.eachDesc(function(i,item){
+					if(i>=nStart&&i<nEnd){
+						me.addListItem(item,0);
+					}
+				});
+			}
+			me.refreshScroller();
+		}else{
+			me.getMore();
 		}
 	}
 	/**
