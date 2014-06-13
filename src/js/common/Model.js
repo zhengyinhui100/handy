@@ -55,7 +55,8 @@ function(AbstractDao,AbstractEvents){
    		_parseFields          : _fParseFields,       //属性预处理
    		_onAttrEvent          : _fOnAttrEvent,       //处理属性模型和集合事件
 		
-		initialize            : fInitialize,         //初始化
+		initialize            : fInitialize,         //类初始化
+//		init                  : $H.noop,             //自定义初始工作
 		getDefaults           : fGetDefaults,        //获取默认值
 		toJSON                : fToJSON,             //返回对象数据副本
 		sync                  : fSync,               //同步数据，可以通过重写进行自定义
@@ -226,18 +227,21 @@ function(AbstractDao,AbstractEvents){
 	 * @param {string}sEvent 事件名称
 	 * @param {Model|Collection}obj 对象
 	 */
-    function _fOnAttrEvent(sAttr,sEvent, obj) {
-    	if(sEvent=='invalid'||sEvent=='sync'||sEvent.indexOf('change:')==0){
+    function _fOnAttrEvent(sAttr,sEvent, oModel,oCollection) {
+    	if(sEvent=='invalid'||sEvent=='sync'||sEvent=='request'||sEvent.indexOf('change:')==0){
     		return;
     	}
-    	//模型被添加事件无需处理
-    	if(sEvent=='add'&&obj instanceof Model){
+    	//模型被添加事件无需处理，如果是集合add事件，oCollection是集合对象
+    	if(sEvent=='add'&&!$H.isInstance(oCollection)){
     		return;
     	}
     	var me=this;
     	var oVal=me.get(sAttr);
     	me.trigger('change:'+sAttr,me,oVal);
     	me.trigger('change',me);
+    	me.trigger.apply(me, arguments);
+    	//标记已触发对应属性change事件，通知set方法不必再触发
+    	me._attrEvts[sAttr]=1;
     	var oChange={};
     	oChange[sAttr]=oVal;
     	me._doDepends(oChange);
@@ -260,6 +264,7 @@ function(AbstractDao,AbstractEvents){
 		oOptions || (oOptions = {});
 		me.cid = $H.Util.uuid();
 		me._attributes = {};
+		me._attrEvts={};
 		if (oOptions.collection){
 			me.collection = oOptions.collection;
 		}
@@ -267,6 +272,9 @@ function(AbstractDao,AbstractEvents){
 			oAttrs = me.parse(oAttrs, oOptions) || {};
 		}
 		oAttrs = $H.extendIf(oAttrs, me.getDefaults());
+		if(me.init){
+			me.init();
+		}
 		me.set(oAttrs, oOptions);
 		me._changed = {};
 	}
@@ -439,7 +447,10 @@ function(AbstractDao,AbstractEvents){
 	        	me._pending = oOptions;
 	        }
 	        for (var k in oChanges) {
-	      	    me.trigger('change:' + k, me, oCurrent[k], oOptions);
+	        	//_onAttrEvent里触发过了的属性事件，这里不需要再触发
+	        	if(!me._attrEvts[k]){
+		      	    me.trigger('change:' + k, me, oCurrent[k], oOptions);
+	        	}
 	        }
 	    }
 	
@@ -461,6 +472,8 @@ function(AbstractDao,AbstractEvents){
 		    me._doDepends(oChanges,bSilent);
 	    }
 	    oResult.changed=bHasChange;
+	    //重新清空属性事件标记
+	    me._attrEvts={};
 	    return oResult;
     }
     /**
