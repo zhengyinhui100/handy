@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-06-12 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-06-13 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -4765,7 +4765,8 @@ function(AbstractDao,AbstractEvents){
    		_parseFields          : _fParseFields,       //属性预处理
    		_onAttrEvent          : _fOnAttrEvent,       //处理属性模型和集合事件
 		
-		initialize            : fInitialize,         //初始化
+		initialize            : fInitialize,         //类初始化
+//		init                  : $H.noop,             //自定义初始工作
 		getDefaults           : fGetDefaults,        //获取默认值
 		toJSON                : fToJSON,             //返回对象数据副本
 		sync                  : fSync,               //同步数据，可以通过重写进行自定义
@@ -4936,18 +4937,21 @@ function(AbstractDao,AbstractEvents){
 	 * @param {string}sEvent 事件名称
 	 * @param {Model|Collection}obj 对象
 	 */
-    function _fOnAttrEvent(sAttr,sEvent, obj) {
-    	if(sEvent=='invalid'||sEvent=='sync'||sEvent.indexOf('change:')==0){
+    function _fOnAttrEvent(sAttr,sEvent, oModel,oCollection) {
+    	if(sEvent=='invalid'||sEvent=='sync'||sEvent=='request'||sEvent.indexOf('change:')==0){
     		return;
     	}
-    	//模型被添加事件无需处理
-    	if(sEvent=='add'&&obj instanceof Model){
+    	//模型被添加事件无需处理，如果是集合add事件，oCollection是集合对象
+    	if(sEvent=='add'&&!$H.isInstance(oCollection)){
     		return;
     	}
     	var me=this;
     	var oVal=me.get(sAttr);
     	me.trigger('change:'+sAttr,me,oVal);
     	me.trigger('change',me);
+    	me.trigger.apply(me, arguments);
+    	//标记已触发对应属性change事件，通知set方法不必再触发
+    	me._attrEvts[sAttr]=1;
     	var oChange={};
     	oChange[sAttr]=oVal;
     	me._doDepends(oChange);
@@ -4970,6 +4974,7 @@ function(AbstractDao,AbstractEvents){
 		oOptions || (oOptions = {});
 		me.cid = $H.Util.uuid();
 		me._attributes = {};
+		me._attrEvts={};
 		if (oOptions.collection){
 			me.collection = oOptions.collection;
 		}
@@ -4977,6 +4982,9 @@ function(AbstractDao,AbstractEvents){
 			oAttrs = me.parse(oAttrs, oOptions) || {};
 		}
 		oAttrs = $H.extendIf(oAttrs, me.getDefaults());
+		if(me.init){
+			me.init();
+		}
 		me.set(oAttrs, oOptions);
 		me._changed = {};
 	}
@@ -5149,7 +5157,10 @@ function(AbstractDao,AbstractEvents){
 	        	me._pending = oOptions;
 	        }
 	        for (var k in oChanges) {
-	      	    me.trigger('change:' + k, me, oCurrent[k], oOptions);
+	        	//_onAttrEvent里触发过了的属性事件，这里不需要再触发
+	        	if(!me._attrEvts[k]){
+		      	    me.trigger('change:' + k, me, oCurrent[k], oOptions);
+	        	}
 	        }
 	    }
 	
@@ -5171,6 +5182,8 @@ function(AbstractDao,AbstractEvents){
 		    me._doDepends(oChanges,bSilent);
 	    }
 	    oResult.changed=bHasChange;
+	    //重新清空属性事件标记
+	    me._attrEvts={};
 	    return oResult;
     }
     /**
@@ -5507,6 +5520,7 @@ function(AbstractDao,AbstractEvents,Model){
 		remove                 : fRemove,             //移除模型
 		set                    : fSet,                //设置模型
 		each                   : fEach,               //遍历集合
+		eachDesc               : fEachDesc,           //降序遍历集合
 		reset                  : fReset,              //重置模型，此方法不会触发add、remove等事件，只会触发reset事件
 		push                   : fPush,               //添加到集合最后
 		pop                    : fPop,                //取出集合最后一个模型
@@ -5866,6 +5880,16 @@ function(AbstractDao,AbstractEvents,Model){
      */
     function fEach(fCall){
     	$H.each(this._models,fCall);
+    }
+    /**
+     * 降序遍历集合
+     * @param {function}fCall(nIndex,oModel) 回调函数
+     */
+    function fEachDesc(fCall){
+    	var aModels=this._models;
+    	for(var i=aModels.length-1;i>=0;i--){
+    		fCall(i,aModels[i]);
+    	}
     }
 	/**
 	 * 重置模型，此方法不会触发add、remove等事件，只会触发reset事件
@@ -11229,13 +11253,15 @@ function(AC){
 			}
 		},
 		
-		pullTxt     : '下拉可刷新',       //下拉过程提示文字
-		flipTxt     : '松开可刷新',       //到松开可以执行刷新操作时的提示
-		releaseTxt  : '正在刷新',         //松开时提示文字
-		scrollPos   : 'top',             //默认滚动到的位置，'top'顶部，'bottom'底部
-//		itemXtype   : '',                //子组件默认xtype
-//		refresh     : null,              //刷新接口
-//		getMore     : null,              //获取更多接口
+		pullTxt             : '下拉可刷新',       //下拉过程提示文字
+		flipTxt             : '松开可刷新',       //到松开可以执行刷新操作时的提示
+		releaseTxt          : '正在刷新',         //松开时提示文字
+		maxNumFromCache     : 20,                //使用缓存数据时单次最大加载数目    
+		scrollPos           : 'top',             //默认滚动到的位置，'top'顶部，'bottom'底部
+		pulldownIsRefresh   : true,              //true表示下拉式刷新，而按钮是获取更多，false表示相反
+//		itemXtype           : '',                //子组件默认xtype
+//		refresh             : null,              //刷新接口
+//		getMore             : null,              //获取更多接口
 		
 		tmpl        : [
 			'<div class="hui-list">',
@@ -11276,6 +11302,7 @@ function(AC){
 		removeListItem      : fRemoveListItem,     //删除列表项
 		refreshScroller     : fRefreshScroller,    //刷新iScroll
 		scrollTo            : fScrollTo,           //滚动到指定位置
+		loadMore            : fLoadMore,           //获取更多数据
 		destroy             : fDestroy             //销毁
 	});
 	/**
@@ -11289,13 +11316,10 @@ function(AC){
 			(me.defItem||(me.defItem={})).xtype=me.itemXtype;
 		}
 		var oListItems=me.model;
-		var bHas=false;
-		oListItems.each(function(i,item){
-			me.addListItem(item);
-			bHas=true;
-		});
-		if(!bHas){
+		if(oListItems.size()==0){
 			me.set('isEmpty',true);
+		}else{
+			me.loadMore();
 		}
 		me.listenTo(oListItems,{
 			'add':function(sEvt,oListItem){
@@ -11356,7 +11380,7 @@ function(AC){
 							if (oPdEl.hasClass(sReleaseCls)) {  
 				                oPdEl.addClass(sRefreshCls);  
 				                me.set('pdTxt',me.releaseTxt); 
-				                me.refresh();
+				                me.pulldownIsRefresh?me.refresh():me.loadMore();
 				            }
 						}
 					});
@@ -11384,7 +11408,7 @@ function(AC){
 				method : 'delegate',
 				selector : '.hui-list-more',
 				handler : function(){
-					me.getMore();
+					me.pulldownIsRefresh?me.loadMore():me.refresh();
 				}
 			});
 		}
@@ -11392,13 +11416,20 @@ function(AC){
 	/**
 	 * 添加列表项
 	 * @param {Object}oListItem 列表项模型
+	 * @param {number=}nIndex 指定添加位置
 	 */
-	function fAddListItem(oListItem){
+	function fAddListItem(oListItem,nIndex){
 		var me=this;
 		me.set('isEmpty',false);
+		if(nIndex===undefined){
+			nIndex=me.model.indexOf(oListItem);
+			//可能有缓存数据没有加载到视图中
+			var nCurLen=me.inited?me.children.length:me.items.length;
+			nIndex=nIndex>nCurLen?nCurLen:nIndex;
+		}
 		me.add({
 			model:oListItem
-		},me.model.indexOf(oListItem));
+		},nIndex);
 		me.refreshScroller();
 	}
 	/**
@@ -11446,6 +11477,37 @@ function(AC){
 			}
 		}else{
 			oScroller.scrollTo(pos,pageY);
+		}
+	}
+	/**
+	 * 获取更多数据
+	 */
+	function fLoadMore(){
+		var me=this;
+		var oListItems=me.model;
+		var nCurNum=me.children.length;
+		var nSize=oListItems.size();
+		if(nSize>nCurNum){
+			//先尝试从缓存中获取
+			var nMax=me.maxNumFromCache,nStart=nCurNum,nEnd=nCurNum+nMax;
+			if(me.pulldownIsRefresh){
+				oListItems.each(function(i,item){
+					if(i>=nStart&&i<nEnd){
+						me.addListItem(item);
+					}
+				});
+			}else{
+				nEnd=nSize-nCurNum;
+				nStart=nEnd-nMax;
+				oListItems.eachDesc(function(i,item){
+					if(i>=nStart&&i<nEnd){
+						me.addListItem(item,0);
+					}
+				});
+			}
+			me.refreshScroller();
+		}else{
+			me.getMore();
 		}
 	}
 	/**
