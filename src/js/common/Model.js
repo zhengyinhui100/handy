@@ -239,7 +239,7 @@ function(AbstractDao,AbstractEvents){
     	var oVal=me.get(sAttr);
     	me.trigger('change:'+sAttr,me,oVal);
     	me.trigger('change',me);
-    	me.trigger.apply(me, arguments);
+    	//me.trigger.apply(me, arguments);
     	//标记已触发对应属性change事件，通知set方法不必再触发
     	me._attrEvts[sAttr]=1;
     	var oChange={};
@@ -737,7 +737,7 @@ function(AbstractDao,AbstractEvents){
      * @param {Object}oOptions
      */
     function fParse(resp, oOptions) {
-    	if(resp.code&&resp.data){
+    	if(resp.code){
 	        return resp.data;
     	}else{
     		return resp;

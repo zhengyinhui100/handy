@@ -658,7 +658,11 @@ function(AbstractDao,AbstractEvents,Model){
      * @param {Object}oOptions
      */
     function fParse(resp, oOptions){
-        return resp.data;
+        if(resp.code){
+	        return resp.data;
+    	}else{
+    		return resp;
+    	}
     }
 	/**
 	 * 克隆

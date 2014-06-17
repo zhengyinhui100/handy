@@ -180,7 +180,9 @@ function(AC){
 	function fMask(){
 		var me=this;
 		if(!_mask){
-			_mask=$('<div class="hui-mask" style="display:none;"></div>').appendTo(document.body);
+			_mask=$('<div class="hui-mask" style="display:none;"></div>').appendTo(me.renderTo);
+		}else{
+			_mask.appendTo(me.renderTo);
 		}
 		_mask.css('z-index',_popupNum*1000+998);
 		if(_popupNum==0){
