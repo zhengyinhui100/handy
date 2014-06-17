@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-06-13 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-06-17 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -4949,7 +4949,7 @@ function(AbstractDao,AbstractEvents){
     	var oVal=me.get(sAttr);
     	me.trigger('change:'+sAttr,me,oVal);
     	me.trigger('change',me);
-    	me.trigger.apply(me, arguments);
+    	//me.trigger.apply(me, arguments);
     	//标记已触发对应属性change事件，通知set方法不必再触发
     	me._attrEvts[sAttr]=1;
     	var oChange={};
@@ -5447,7 +5447,7 @@ function(AbstractDao,AbstractEvents){
      * @param {Object}oOptions
      */
     function fParse(resp, oOptions) {
-    	if(resp.code&&resp.data){
+    	if(resp.code){
 	        return resp.data;
     	}else{
     		return resp;
@@ -6139,7 +6139,11 @@ function(AbstractDao,AbstractEvents,Model){
      * @param {Object}oOptions
      */
     function fParse(resp, oOptions){
-        return resp.data;
+        if(resp.code){
+	        return resp.data;
+    	}else{
+    		return resp;
+    	}
     }
 	/**
 	 * 克隆
@@ -7314,6 +7318,17 @@ function(ViewManager,ModelView,Model,Template){
 		bindRefType         : 'bindRef',         //绑定引用模型的方式：both(双向绑定)、bindRef{绑定引用模型}、bindXmodel(绑定xmodel)、null或空(不绑定)
 //		refModelAttrs       : {},                //引用模型属性列表
 //		children            : [],                //子视图列表
+		fastUpdateMethod    : {                  //快捷更新接口
+			renderTo        : function(value){
+				this.getEl()[this.renderBy]($(value));
+			},
+			hidden          : function(value){
+				value?this.hide():this.show();
+			},
+			disabled        : function(value){
+				value?this.disable():this.enable();
+			}
+		},
 		_customEvents       : [                  //自定义事件,可以通过参数属性的方式直接进行添加
 			'beforeRender','render','afterRender',
 			'beforeShow','show','afterShow',
@@ -7412,7 +7427,7 @@ function(ViewManager,ModelView,Model,Template){
 		var sHtml=me.findHtml(sExp);
 		if(me.ifBind(nNum)){
 			me.on('add',function(sEvt,oItem,nIndex){
-				if(oItem.match(sExp)){
+				if(oItem.match(sExp.replace(/^>\s?/,''))){
 					if(nIndex!==undefined){
 						var oEl=me.getMetaMorph(sMetaId);
 						for(var i=0;i<nIndex;i++){
@@ -7444,7 +7459,7 @@ function(ViewManager,ModelView,Model,Template){
 				return true;
 			}else if(p=='xtype'||p=='constructor'){
 				return true;
-			}else if(p=='xConfig'){
+			}else if(p=='xConfig'||p=='fastUpdateMethod'){
 				//继承父类配置
 				oProt[p]=$H.extendIf(oExtend[p],oProt[p]);
 				return true;
@@ -7524,7 +7539,7 @@ function(ViewManager,ModelView,Model,Template){
 			var refAttr;
 			if(refAttr=/^{{(((?!}}).)+)}}$/.exec(val)){
 				refAttr=refAttr[1];
-				(me.refModelAttrs||(me.refModelAttrs={}))[refAttr]=p;
+				(me.refModelAttrs||(me.refModelAttrs={}))[p]=refAttr;
 			}
 			var value=me[p];
 			//默认事件，可通过参数属性直接添加
@@ -7579,7 +7594,16 @@ function(ViewManager,ModelView,Model,Template){
 		if(oRefModel){
 			var aAttrs=me.refModelAttrs;
 			for(var attr in aAttrs){
-				me[aAttrs[attr]]=oRefModel.get(attr);
+				var refAttr=aAttrs[attr],val;
+				//嵌套属性
+				if(refAttr.indexOf('.')>0){
+					var attrs=refAttr.split('.');
+					val=oRefModel.get(attrs[0]);
+					val=val&&val.get(attrs[1]);
+				}else{
+					val=oRefModel.get(refAttr);
+				}
+				me[attr]=val;
 			}
 		}
 		
@@ -7939,11 +7963,10 @@ function(ViewManager,ModelView,Model,Template){
 	 */
 	function fSet(sKey,value){
 		var me=this;
-		var oConfig=me.xConfig;
-		var oModel=me.xmodel;
-		if(oModel&&oConfig[sKey]!==undefined){
-			oModel.set(sKey,value);
-		}else{
+		var o={};
+		o[sKey]=value;
+		//fastUpdate不成功则直接设置类属性
+		if(!me.fastUpdate(o)){
 			me[sKey]=value;
 		}
 	}
@@ -7982,17 +8005,33 @@ function(ViewManager,ModelView,Model,Template){
 		}
 		var oRefModel=me.getRefModel();
 		var oXmodel=me.xmodel;
-		function _fBind(sRefAttr,sXmodelAttr){
+		function _fBind(sAttr,sRefAttr){
+			//嵌套属性
+			var sNestedAttr;
+			if(sRefAttr.indexOf('.')>0){
+				var attrs=sRefAttr.split('.');
+				sRefAttr=attrs[0];
+				sNestedAttr=attrs[1];
+			}
 			//绑定引用模型
 			if(sType=='both'||sType=='bindRef'){
 				me.listenTo(oRefModel,'change:'+sRefAttr,function(sEvt,oModel,value){
-					me.set(sXmodelAttr,value);
+					if(sNestedAttr){
+						value=value&&value.get(sNestedAttr);
+					}
+					me.set(sAttr,value);
 				});
 			}
 			//绑定xmodel
 			if(sType=='both'||sType=='bindXmodel'){
-				me.listenTo(oXmodel,'change:'+sXmodelAttr,function(sEvt,oModel,value){
-					oRefModel.set(sRefAttr,value);
+				me.listenTo(oXmodel,'change:'+sAttr,function(sEvt,oModel,value){
+					if(sNestedAttr){
+						var m=oRefModel;
+						m=m.get(sRefAttr);
+						m&&m.set(sNestedAttr,value);
+					}else{
+						oRefModel.set(sRefAttr,value);
+					}
 				});
 			}
 		}
@@ -8049,7 +8088,7 @@ function(ViewManager,ModelView,Model,Template){
 		//'Button[attr=value]'=>'[xtype=Button][attr=value]'
 		sSel=sSel.replace(/^([^\[]+)/,'[xtype=$1]');
 		//循环检查
-		var r=/\[([^=|\!]+)(=|\!=)([^=]+)\]/g;
+		var r=/\[([^=|\!]+)(=|\!=)([^=]*)\]/g;
 		while(m=r.exec(sSel)){
 			prop=m[1];
 			//操作符：=|!=
@@ -8330,24 +8369,32 @@ function(ViewManager,ModelView,Model,Template){
 	 */
 	function fFastUpdate(oOptions){
 		var me=this;
+		var oXmodel=me.xmodel;
+		if(!oXmodel){
+			return false;
+		}
 		var oConfigs=me.xConfig;
+		var oFastUpdate=me.fastUpdateMethod;
 		var bContain=true;
-		var oXconf={},oOther={};
-		//检查选项是否都是xmodel的字段，如果是，则只需要更新xmodel即可，ui自动更新
+		var oXconf={},oFast={},oOther={};
+		//检查选项是否都是xmodel或fastUpdateMethod的字段，如果是，则只需要更新xmodel或调用fastUpdateMethod方法即可，ui自动更新
 		$H.each(oOptions,function(p,v){
 			//xConfig里没有的配置
 			if(oConfigs.hasOwnProperty(p)){
 				oXconf[p]=v;
+			}else if(oFastUpdate[p]){
+				oFast[p]=v;
 			}else{
 				oOther[p]=v;
 				bContain=false;
 			}
 		})
 		if(bContain){
-			me.xmodel.set(oOptions);
+			oXmodel.set(oOptions);
+			$H.each(oFast,function(k,v){
+				oFastUpdate[k].call(me,v);
+			})
 			return true;
-		}else{
-			
 		}
 		return false;
 	}
@@ -9109,7 +9156,9 @@ function(AC){
 	function fMask(){
 		var me=this;
 		if(!_mask){
-			_mask=$('<div class="hui-mask" style="display:none;"></div>').appendTo(document.body);
+			_mask=$('<div class="hui-mask" style="display:none;"></div>').appendTo(me.renderTo);
+		}else{
+			_mask.appendTo(me.renderTo);
 		}
 		_mask.css('z-index',_popupNum*1000+998);
 		if(_popupNum==0){
@@ -9551,7 +9600,8 @@ function(AC){
 		
 		doConfig         : fDoConfig,             //初始化配置
 		showOptions      : fShowOptions,          //显示选项菜单
-		val              : fVal                   //获取/设置值
+		val              : fVal,                  //获取/设置值
+		clearValue       : fClearValue            //清除选中值
 	});
 	
 	/**
@@ -9563,12 +9613,14 @@ function(AC){
 		var me=this;
 		me.callSuper();
 		//options配置成菜单
-		var oOptions=oParams.options;
+		var oOptions=$H.clone(oParams.options);
+		me.defTxt=me.get('text');
 		//根据默认值设置默认文字
 		var bHasVal=false;
 		for(var i=0,len=oOptions.length;i<len;i++){
 			var oOption=oOptions[i];
-			if(oOption.value==oParams.value){
+			var val=oOption.value;
+			if(val!==undefined&&val===oParams.value){
 				me.set('text',oOption.text);
 				oOption.selected=true;
 				bHasVal=true;
@@ -9612,12 +9664,22 @@ function(AC){
 					me.txt(oItem.get('text'));
 					//更新菜单选中状态
 					oMenu.select(oItem);
-					me.trigger("change");
+					me.trigger("change",sValue,oItem);
 				}
 			}
 		}else{
 			return me.get('value');
 		}
+	}
+	/**
+	 * 清除选中值
+	 */
+	function fClearValue(){
+		var me=this;
+		var oMenu=me.children[0];
+		oMenu.selectItem(oMenu.getSelected(),false);
+		me.set('value','');
+		me.set('text',me.defTxt)
 	}
 	
 	return Select;
@@ -9660,6 +9722,11 @@ function(AC){
 				}
 			}
 		},
+		fastUpdateMethod : {
+			inputHeight  : function(value){
+				this.findEl('input,textarea').css('height',value);
+			}
+		},
 //		inputHeight     : null,                //输入框高度 
 		type            : '',                  //输入框类型，默认为普通输入框，'search':搜索框
 		withClear       : false,               //带有清除按钮
@@ -9691,7 +9758,6 @@ function(AC){
 		],
 		doConfig        : fDoConfig,         //初始化配置
 		parseItem       : fParseItem,        //分析处理子组件
-		fastUpdate      : fFastUpdate,       //快速更新
 		val             : fVal,              //获取/设置输入框的值
 		focus           : fFocus             //聚焦
 	});
@@ -9757,18 +9823,6 @@ function(AC){
 				me.set('btnPos','right');
 			}
 		}
-	}
-	/**
-	 * 快速更新
-	 * @param {object}oOptions 选项
-	 * @return {boolean} true表示更新成功
-	 */
-	function fFastUpdate(oOptions){
-		var me=this;
-		if(oOptions.inputHeight){
-			me.findEl('input,textarea').css('height',oOptions.inputHeight);
-		}
-		return me.callSuper();
 	}
 	/**
 	 * 获取/设置输入框的值

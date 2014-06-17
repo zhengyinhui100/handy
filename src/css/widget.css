@@ -376,6 +376,9 @@
 
   background-image: linear-gradient(#5f9cc5, #6facd5);
 }
+.hui-btn.hui-btn-active-b {
+  color: #73bf00;
+}
 .hui-btn.hui-btn-active-b,
 .hui-btn.hui-btn-active-b:hover {
   padding-bottom: 0.3em;
