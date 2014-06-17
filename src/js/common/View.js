@@ -50,6 +50,17 @@ function(ViewManager,ModelView,Model,Template){
 		bindRefType         : 'bindRef',         //绑定引用模型的方式：both(双向绑定)、bindRef{绑定引用模型}、bindXmodel(绑定xmodel)、null或空(不绑定)
 //		refModelAttrs       : {},                //引用模型属性列表
 //		children            : [],                //子视图列表
+		fastUpdateMethod    : {                  //快捷更新接口
+			renderTo        : function(value){
+				this.getEl()[this.renderBy]($(value));
+			},
+			hidden          : function(value){
+				value?this.hide():this.show();
+			},
+			disabled        : function(value){
+				value?this.disable():this.enable();
+			}
+		},
 		_customEvents       : [                  //自定义事件,可以通过参数属性的方式直接进行添加
 			'beforeRender','render','afterRender',
 			'beforeShow','show','afterShow',
@@ -148,7 +159,7 @@ function(ViewManager,ModelView,Model,Template){
 		var sHtml=me.findHtml(sExp);
 		if(me.ifBind(nNum)){
 			me.on('add',function(sEvt,oItem,nIndex){
-				if(oItem.match(sExp)){
+				if(oItem.match(sExp.replace(/^>\s?/,''))){
 					if(nIndex!==undefined){
 						var oEl=me.getMetaMorph(sMetaId);
 						for(var i=0;i<nIndex;i++){
@@ -180,7 +191,7 @@ function(ViewManager,ModelView,Model,Template){
 				return true;
 			}else if(p=='xtype'||p=='constructor'){
 				return true;
-			}else if(p=='xConfig'){
+			}else if(p=='xConfig'||p=='fastUpdateMethod'){
 				//继承父类配置
 				oProt[p]=$H.extendIf(oExtend[p],oProt[p]);
 				return true;
@@ -260,7 +271,7 @@ function(ViewManager,ModelView,Model,Template){
 			var refAttr;
 			if(refAttr=/^{{(((?!}}).)+)}}$/.exec(val)){
 				refAttr=refAttr[1];
-				(me.refModelAttrs||(me.refModelAttrs={}))[refAttr]=p;
+				(me.refModelAttrs||(me.refModelAttrs={}))[p]=refAttr;
 			}
 			var value=me[p];
 			//默认事件，可通过参数属性直接添加
@@ -315,7 +326,16 @@ function(ViewManager,ModelView,Model,Template){
 		if(oRefModel){
 			var aAttrs=me.refModelAttrs;
 			for(var attr in aAttrs){
-				me[aAttrs[attr]]=oRefModel.get(attr);
+				var refAttr=aAttrs[attr],val;
+				//嵌套属性
+				if(refAttr.indexOf('.')>0){
+					var attrs=refAttr.split('.');
+					val=oRefModel.get(attrs[0]);
+					val=val&&val.get(attrs[1]);
+				}else{
+					val=oRefModel.get(refAttr);
+				}
+				me[attr]=val;
 			}
 		}
 		
@@ -675,11 +695,10 @@ function(ViewManager,ModelView,Model,Template){
 	 */
 	function fSet(sKey,value){
 		var me=this;
-		var oConfig=me.xConfig;
-		var oModel=me.xmodel;
-		if(oModel&&oConfig[sKey]!==undefined){
-			oModel.set(sKey,value);
-		}else{
+		var o={};
+		o[sKey]=value;
+		//fastUpdate不成功则直接设置类属性
+		if(!me.fastUpdate(o)){
 			me[sKey]=value;
 		}
 	}
@@ -718,17 +737,33 @@ function(ViewManager,ModelView,Model,Template){
 		}
 		var oRefModel=me.getRefModel();
 		var oXmodel=me.xmodel;
-		function _fBind(sRefAttr,sXmodelAttr){
+		function _fBind(sAttr,sRefAttr){
+			//嵌套属性
+			var sNestedAttr;
+			if(sRefAttr.indexOf('.')>0){
+				var attrs=sRefAttr.split('.');
+				sRefAttr=attrs[0];
+				sNestedAttr=attrs[1];
+			}
 			//绑定引用模型
 			if(sType=='both'||sType=='bindRef'){
 				me.listenTo(oRefModel,'change:'+sRefAttr,function(sEvt,oModel,value){
-					me.set(sXmodelAttr,value);
+					if(sNestedAttr){
+						value=value&&value.get(sNestedAttr);
+					}
+					me.set(sAttr,value);
 				});
 			}
 			//绑定xmodel
 			if(sType=='both'||sType=='bindXmodel'){
-				me.listenTo(oXmodel,'change:'+sXmodelAttr,function(sEvt,oModel,value){
-					oRefModel.set(sRefAttr,value);
+				me.listenTo(oXmodel,'change:'+sAttr,function(sEvt,oModel,value){
+					if(sNestedAttr){
+						var m=oRefModel;
+						m=m.get(sRefAttr);
+						m&&m.set(sNestedAttr,value);
+					}else{
+						oRefModel.set(sRefAttr,value);
+					}
 				});
 			}
 		}
@@ -785,7 +820,7 @@ function(ViewManager,ModelView,Model,Template){
 		//'Button[attr=value]'=>'[xtype=Button][attr=value]'
 		sSel=sSel.replace(/^([^\[]+)/,'[xtype=$1]');
 		//循环检查
-		var r=/\[([^=|\!]+)(=|\!=)([^=]+)\]/g;
+		var r=/\[([^=|\!]+)(=|\!=)([^=]*)\]/g;
 		while(m=r.exec(sSel)){
 			prop=m[1];
 			//操作符：=|!=
@@ -1066,24 +1101,32 @@ function(ViewManager,ModelView,Model,Template){
 	 */
 	function fFastUpdate(oOptions){
 		var me=this;
+		var oXmodel=me.xmodel;
+		if(!oXmodel){
+			return false;
+		}
 		var oConfigs=me.xConfig;
+		var oFastUpdate=me.fastUpdateMethod;
 		var bContain=true;
-		var oXconf={},oOther={};
-		//检查选项是否都是xmodel的字段，如果是，则只需要更新xmodel即可，ui自动更新
+		var oXconf={},oFast={},oOther={};
+		//检查选项是否都是xmodel或fastUpdateMethod的字段，如果是，则只需要更新xmodel或调用fastUpdateMethod方法即可，ui自动更新
 		$H.each(oOptions,function(p,v){
 			//xConfig里没有的配置
 			if(oConfigs.hasOwnProperty(p)){
 				oXconf[p]=v;
+			}else if(oFastUpdate[p]){
+				oFast[p]=v;
 			}else{
 				oOther[p]=v;
 				bContain=false;
 			}
 		})
 		if(bContain){
-			me.xmodel.set(oOptions);
+			oXmodel.set(oOptions);
+			$H.each(oFast,function(k,v){
+				oFastUpdate[k].call(me,v);
+			})
 			return true;
-		}else{
-			
 		}
 		return false;
 	}
