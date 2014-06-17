@@ -58,7 +58,8 @@ function(AC){
 		
 		doConfig         : fDoConfig,             //初始化配置
 		showOptions      : fShowOptions,          //显示选项菜单
-		val              : fVal                   //获取/设置值
+		val              : fVal,                  //获取/设置值
+		clearValue       : fClearValue            //清除选中值
 	});
 	
 	/**
@@ -70,12 +71,14 @@ function(AC){
 		var me=this;
 		me.callSuper();
 		//options配置成菜单
-		var oOptions=oParams.options;
+		var oOptions=$H.clone(oParams.options);
+		me.defTxt=me.get('text');
 		//根据默认值设置默认文字
 		var bHasVal=false;
 		for(var i=0,len=oOptions.length;i<len;i++){
 			var oOption=oOptions[i];
-			if(oOption.value==oParams.value){
+			var val=oOption.value;
+			if(val!==undefined&&val===oParams.value){
 				me.set('text',oOption.text);
 				oOption.selected=true;
 				bHasVal=true;
@@ -119,12 +122,22 @@ function(AC){
 					me.txt(oItem.get('text'));
 					//更新菜单选中状态
 					oMenu.select(oItem);
-					me.trigger("change");
+					me.trigger("change",sValue,oItem);
 				}
 			}
 		}else{
 			return me.get('value');
 		}
+	}
+	/**
+	 * 清除选中值
+	 */
+	function fClearValue(){
+		var me=this;
+		var oMenu=me.children[0];
+		oMenu.selectItem(oMenu.getSelected(),false);
+		me.set('value','');
+		me.set('text',me.defTxt)
 	}
 	
 	return Select;
