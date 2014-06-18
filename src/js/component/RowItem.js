@@ -54,11 +54,11 @@ function(AC){
 			me.set('text',"&nbsp;");
 		}
 		//默认文字域有下划线
-		if(me.text!==undefined&&me.underline===undefined){
+		if(me.text!==undefined&&!oSettings.hasOwnProperty('underline')){
 			me.set('underline',true);
 		}
 		//有点击函数时默认有右箭头
-		if(oSettings.click&&me.hasArrow===undefined){
+		if(oSettings.click&&!oSettings.hasOwnProperty('hasArrow')){
 			me.set('hasArrow',true);
 		}
 	}

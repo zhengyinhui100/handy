@@ -70,8 +70,9 @@ handy.add('Events',function($H){
 	 */
 	function _fDelegateHandler(fHandler,context){
 		var me=this;
-		return function(){
-			if(me.isSuspend!=true){
+		return function(sEvt){
+			//只屏蔽浏览器事件及自定义事件，模型事件不用屏蔽
+			if(me.isSuspend!=true||sEvt.indexOf(':')>0){
 				return fHandler.apply(context||me,arguments);
 			}
 		};

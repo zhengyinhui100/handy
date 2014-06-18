@@ -147,10 +147,10 @@ function(AC,Dialog){
 					aItems.push(_fGetSelect(nNum,1,31,'date',nMaxDay));
 					break;
 				case 'HH':
-					aItems.push(_fGetSelect(nNum,0,24,'hour'));
+					aItems.push(_fGetSelect(nNum,0,23,'hour'));
 					break;
 				case 'mm':
-					aItems.push(_fGetSelect(nNum,0,60,'minute'));
+					aItems.push(_fGetSelect(nNum,0,59,'minute'));
 					break;
 			}
 		}

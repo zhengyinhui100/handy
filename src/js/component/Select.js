@@ -16,7 +16,7 @@ function(AC){
 			cls             : 'select',
 			name            : '',                  //选项名
 			text            : '请选择...',          //为选择时的文字
-			value           : 'right',             //默认值
+			value           : '',                  //默认值
 			radius          : 'little',
 			iconPos         : 'right',             //图标位置，"left"|"right"|"top"|"bottom"
 			iconPosCls      : {
