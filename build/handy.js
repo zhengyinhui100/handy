@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-06-17 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-06-18 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -2039,8 +2039,9 @@ handy.add('Events',function($H){
 	 */
 	function _fDelegateHandler(fHandler,context){
 		var me=this;
-		return function(){
-			if(me.isSuspend!=true){
+		return function(sEvt){
+			//只屏蔽浏览器事件及自定义事件，模型事件不用屏蔽
+			if(me.isSuspend!=true||sEvt.indexOf(':')>0){
 				return fHandler.apply(context||me,arguments);
 			}
 		};
@@ -4748,10 +4749,13 @@ function(AbstractDao,AbstractEvents){
         idAttribute           : 'id',                //id默认属性名
 //      uuid                  : 0,                   //uuid，初始化时系统分配，具有全局唯一性
 //		dao                   : null,                //数据访问对象，默认为common.AbstractDao
+        
+        //系统属性
+//      fetching              : false,               //是否正在抓取数据，model.get('fetching')==true表示正在抓取
+		$isModel              : true,                //模型标记
 		
         //内部属性
 //      lastSyncTime          : null,                //上次同步时间
-//      fetching              : false,               //是否正在抓取数据
 //		_changing             : false,               //是否正在改变，但未保存
 		_pending              : false,               //
 //		_previousAttributes   : {},                  //较早的值
@@ -5275,7 +5279,7 @@ function(AbstractDao,AbstractEvents){
 	 */
     function fFetch(oOptions) {
     	var me=this;
-    	me.fetching=true;
+    	me.set('fetching',true);
         oOptions = oOptions ? $H.clone(oOptions) : {};
         if (oOptions.parse === void 0) {
         	oOptions.parse = true;
@@ -5283,7 +5287,7 @@ function(AbstractDao,AbstractEvents){
         var fSuccess = oOptions.success;
         var fBeforeSet = oOptions.beforeSet;
         oOptions.success = function(resp) {
-        	me.fetching=false;
+        	me.set('fetching',false);
         	var oData=me.parse(resp, oOptions);
         	if (fBeforeSet){
         		if(fBeforeSet(me, oData, oOptions)==false){
@@ -5500,11 +5504,13 @@ function(AbstractDao,AbstractEvents,Model){
 //		comparator             : '',                  //比较属性名或比较函数
 //		desc                   : false,               //是否降序
 		
+//      fetching              : false,               //是否正在抓取数据，collection.fetching==true表示正在抓取
 		//内部属性
 //      lastSyncTime           : null,                //上次同步时间
 //		_models                : [],                  //模型列表
 //		_byId                  : {},                  //根据id和cid索引
-//		length                 : 0,                   //模型集合长度
+//		length                 : 0,                   //集合长度
+		$isCollection          : true,                //集合标记
 		
 		_getIterator           : _fGetIterator,       //获取迭代函数
 		_reset                 : _fReset,             //重置集合
@@ -6084,10 +6090,12 @@ function(AbstractDao,AbstractEvents,Model){
     // data will be passed through the `reset` method instead of `set`.
     function fFetch(oOptions) {
     	var me=this;
+    	me.fetching=true;
         oOptions = oOptions ? $H.clone(oOptions) : {};
         var fSuccess = oOptions.success;
         var fBeforeSet = oOptions.beforeSet;
         oOptions.success = function(resp) {
+        	me.fetching=false;
         	var oData=me.parse(resp, oOptions);
         	if (fBeforeSet){
         		if(fBeforeSet(me, oData, oOptions)==false){
@@ -9558,7 +9566,7 @@ function(AC){
 			cls             : 'select',
 			name            : '',                  //选项名
 			text            : '请选择...',          //为选择时的文字
-			value           : 'right',             //默认值
+			value           : '',                  //默认值
 			radius          : 'little',
 			iconPos         : 'right',             //图标位置，"left"|"right"|"top"|"bottom"
 			iconPosCls      : {
@@ -9949,11 +9957,11 @@ function(AC){
 			me.set('text',"&nbsp;");
 		}
 		//默认文字域有下划线
-		if(me.text!==undefined&&me.underline===undefined){
+		if(me.text!==undefined&&!oSettings.hasOwnProperty('underline')){
 			me.set('underline',true);
 		}
 		//有点击函数时默认有右箭头
-		if(oSettings.click&&me.hasArrow===undefined){
+		if(oSettings.click&&!oSettings.hasOwnProperty('hasArrow')){
 			me.set('hasArrow',true);
 		}
 	}
@@ -10866,10 +10874,10 @@ function(AC,Dialog){
 					aItems.push(_fGetSelect(nNum,1,31,'date',nMaxDay));
 					break;
 				case 'HH':
-					aItems.push(_fGetSelect(nNum,0,24,'hour'));
+					aItems.push(_fGetSelect(nNum,0,23,'hour'));
 					break;
 				case 'mm':
-					aItems.push(_fGetSelect(nNum,0,60,'minute'));
+					aItems.push(_fGetSelect(nNum,0,59,'minute'));
 					break;
 			}
 		}

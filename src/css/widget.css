@@ -1433,14 +1433,14 @@
   filter: alpha(opacity= 20 );
   opacity: 0.2;
 }
-.hui-hidden {
-  display: none;
-}
 .hui-inline {
   display: -moz-inline-stack;
   display: inline-block;
   zoom: 1;
   *display: inline;
+}
+.hui-hidden {
+  display: none;
 }
 .hui-radius-little {
   -webkit-border-radius: 0.2em;
