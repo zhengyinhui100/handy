@@ -59,19 +59,22 @@ function(Debug,Object,Function,$H){
     	}
     	var oResult={}
     	var aExist=[];
+    	var aNotExist=[];
     	if(typeof id=="string"){
     		id=[id];
     	}
     	for(var i=0,nLen=id.length;i<nLen;i++){
-    		var result=_fChk(id[i]);
+    		var sId=id[i];
+    		sId=Object.alias(sId);
+    		var result=_fChk(sId);
     		if(!result){
-    			oResult.notExist=id[i];
-    			return oResult;
+    			aNotExist.push(sId);
     		}else{
     			aExist.push(result);
     		}
     	}
     	oResult.exist=aExist;
+    	oResult.notExist=aNotExist;
     	return oResult;
     }
     
@@ -348,13 +351,31 @@ function(Debug,Object,Function,$H){
    		for(var i=_aContext.length-1;i>=0;i--){
 	    	var oContext=_aContext[i];
 	    	var oResult=_fChkExisted(oContext.deps);
-	    	if(!oResult.notExist){
+	    	if(oResult.notExist.length===0){
 	    		_aContext.splice(i,1);
 	    		oContext.callback.apply(null,oResult.exist);
 	    		//定义成功后重新执行上下文
 	    		_fExecContext();
 	    		break;
 	    	}else if(i==0&&_requestingNum==0){
+	    		//输出错误分析
+	    		for(var i=_aContext.length-1;i>=0;i--){
+	    			var oContext=_aContext[i];
+	    			var oResult=_fChkExisted(oContext.deps);
+	    			var aNotExist=oResult.notExist;
+	    			var bHasDepds=false;
+	    			for(var j=_aContext.length-1;j>=0;j--){
+	    				if(Object.contains(aNotExist,_aContext[j].id)){
+	    					bHasDepds=true;
+	    					break;
+	    				}
+	    			}
+	    			if(!bHasDepds){
+						Debug.error(_RESOURCE_NOT_FOUND+oContext.id);
+	    			}
+    				Debug.warn(oContext.id);
+    				Debug.warn("----notExist : "+oResult.notExist);
+	    		}
 	    		Debug.error(_RESOURCE_NOT_FOUND+oResult.notExist);
 	    	}
    		}
@@ -369,7 +390,7 @@ function(Debug,Object,Function,$H){
 	 */
 	function fDefine(sId,aDeps,factory){
 		//读取实名
-		sId=$H.Object.alias(sId);
+		sId=Object.alias(sId);
 		var nLen=arguments.length;
 		if(nLen==2){
 			factory=aDeps;
@@ -413,16 +434,17 @@ function(Debug,Object,Function,$H){
 			}else{
 				Debug.warn(_LOADER_PRE+'factory no return:\n'+sId);
 			}
-		});
+		},sId);
 	}
     /**
 	 * 加载所需的资源
 	 * @method require(id,fCallback=)
 	 * @param {string|array}id    资源id（数组）
 	 * @param {function()=}fCallback(可选) 回调函数
+	 * @param {string=}sDefineId 当前请求要定义的资源id，这里只是为了检查加载出错时使用
 	 * @return {any}返回最后一个当前已加载的资源，通常用于className只有一个的情况，这样可以立即通过返回赋值
 	 */
-    function fRequire(id,fCallback){
+    function fRequire(id,fCallback,sDefineId){
     	var aIds=typeof id=="string"?[id]:id;
     	//此次required待请求资源数组
     	var aRequestIds=[];
@@ -433,14 +455,15 @@ function(Debug,Object,Function,$H){
     	for(var i=0,nLen=aIds.length;i<nLen;i++){
     		var sId=aIds[i];
 			//读取实名
-			sId=$H.Object.alias(sId);
+			sId=Object.alias(sId);
     		var oResult=_fChkExisted(sId);
-    		if(oResult.notExist){
+    		if(oResult.notExist.length>0){
     			//未加载资源放进队列中
     			aRequestIds.push(sId);
     			if(bNeedContext){
     				bNeedContext=false;
 	    			_aContext.push({
+	    				id        : sDefineId,
 	    				deps      : aIds,
 	    				callback  : fCallback
 	    			});
