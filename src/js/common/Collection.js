@@ -19,11 +19,13 @@ function(AbstractDao,AbstractEvents,Model){
 //		comparator             : '',                  //比较属性名或比较函数
 //		desc                   : false,               //是否降序
 		
+//      fetching              : false,               //是否正在抓取数据，collection.fetching==true表示正在抓取
 		//内部属性
 //      lastSyncTime           : null,                //上次同步时间
 //		_models                : [],                  //模型列表
 //		_byId                  : {},                  //根据id和cid索引
-//		length                 : 0,                   //模型集合长度
+//		length                 : 0,                   //集合长度
+		$isCollection          : true,                //集合标记
 		
 		_getIterator           : _fGetIterator,       //获取迭代函数
 		_reset                 : _fReset,             //重置集合
@@ -603,10 +605,12 @@ function(AbstractDao,AbstractEvents,Model){
     // data will be passed through the `reset` method instead of `set`.
     function fFetch(oOptions) {
     	var me=this;
+    	me.fetching=true;
         oOptions = oOptions ? $H.clone(oOptions) : {};
         var fSuccess = oOptions.success;
         var fBeforeSet = oOptions.beforeSet;
         oOptions.success = function(resp) {
+        	me.fetching=false;
         	var oData=me.parse(resp, oOptions);
         	if (fBeforeSet){
         		if(fBeforeSet(me, oData, oOptions)==false){

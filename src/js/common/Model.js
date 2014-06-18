@@ -38,10 +38,13 @@ function(AbstractDao,AbstractEvents){
         idAttribute           : 'id',                //id默认属性名
 //      uuid                  : 0,                   //uuid，初始化时系统分配，具有全局唯一性
 //		dao                   : null,                //数据访问对象，默认为common.AbstractDao
+        
+        //系统属性
+//      fetching              : false,               //是否正在抓取数据，model.get('fetching')==true表示正在抓取
+		$isModel              : true,                //模型标记
 		
         //内部属性
 //      lastSyncTime          : null,                //上次同步时间
-//      fetching              : false,               //是否正在抓取数据
 //		_changing             : false,               //是否正在改变，但未保存
 		_pending              : false,               //
 //		_previousAttributes   : {},                  //较早的值
@@ -565,7 +568,7 @@ function(AbstractDao,AbstractEvents){
 	 */
     function fFetch(oOptions) {
     	var me=this;
-    	me.fetching=true;
+    	me.set('fetching',true);
         oOptions = oOptions ? $H.clone(oOptions) : {};
         if (oOptions.parse === void 0) {
         	oOptions.parse = true;
@@ -573,7 +576,7 @@ function(AbstractDao,AbstractEvents){
         var fSuccess = oOptions.success;
         var fBeforeSet = oOptions.beforeSet;
         oOptions.success = function(resp) {
-        	me.fetching=false;
+        	me.set('fetching',false);
         	var oData=me.parse(resp, oOptions);
         	if (fBeforeSet){
         		if(fBeforeSet(me, oData, oOptions)==false){
