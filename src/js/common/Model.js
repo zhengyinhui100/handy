@@ -240,8 +240,9 @@ function(AbstractDao,AbstractEvents){
     	}
     	var me=this;
     	var oVal=me.get(sAttr);
-    	me.trigger('change:'+sAttr,me,oVal);
-    	me.trigger('change',me);
+    	var args=$H.toArray(arguments,1);
+    	me.trigger.apply(me,['change:'+sAttr,me,oVal].concat(args));
+    	me.trigger.apply(me,['change',me].concat(args));
     	//me.trigger.apply(me, arguments);
     	//标记已触发对应属性change事件，通知set方法不必再触发
     	me._attrEvts[sAttr]=1;
