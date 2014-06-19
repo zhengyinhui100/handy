@@ -20,7 +20,7 @@ function(AC){
 			pdTime          : '',                //上次刷新时间
 			hasMoreBtn      : true,              //是否有获取更多按钮
 			moreBtnTxt      : '查看更多',         //查看更多按钮的文字 
-			showBtnIfEmpty  :false,              //空列表时是否显示更多按钮，默认不显示
+			showBtnIfEmpty  : false,              //空列表时是否显示更多按钮，默认不显示
 			hasPullRefresh  : false,              //是否有下拉刷新
 			showMoreBtn     : {
 				depends : ['isEmpty','showBtnIfEmpty'],
@@ -80,6 +80,7 @@ function(AC){
 		refreshScroller     : fRefreshScroller,    //刷新iScroll
 		scrollTo            : fScrollTo,           //滚动到指定位置
 		loadMore            : fLoadMore,           //获取更多数据
+		showLoading         : fShowLoading,        //显示正在刷新
 		destroy             : fDestroy             //销毁
 	});
 	/**
@@ -241,19 +242,20 @@ function(AC){
 	 * 滚动到指定位置
 	 * @param {string|number}pos 位置，字符串参数：'top'表示顶部，'bottom'表示底部，数字参数表示横坐标
 	 * @param {number=}pageY 纵坐标
+	 * @param {number=}nTime 动画时间
 	 */
-	function fScrollTo(pos,pageY){
+	function fScrollTo(pos,pageY,nTime){
 		var me=this;
 		var oScroller=me.scroller;
 		if($H.isStr(pos)){
 			if(pos=='top'){
-				oScroller.scrollTo(0,0);
+				oScroller.scrollTo(0,-50);
 			}else if(pos=='bottom'){
 				var nHeight=me.findEl('.hui-list-inner')[0].clientHeight;
 				oScroller.scrollTo(0,-nHeight);
 			}
 		}else{
-			oScroller.scrollTo(pos,pageY);
+			oScroller.scrollTo(pos,pageY,nTime);
 		}
 	}
 	/**
@@ -286,6 +288,24 @@ function(AC){
 		}else{
 			me.getMore();
 		}
+	}
+	/**
+	 * 显示正在刷新
+	 * @param{boolean=}bRefresh 仅当true时执行刷新
+	 */
+	function fShowLoading(bRefresh){
+		var me=this;
+		var oScroller=me.scroller;
+		var tmp=oScroller.minScrollY;
+		oScroller.minScrollY=10;
+		if(bRefresh){
+			var oPdEl=me.findEl('.hui-list-pulldown');
+			oPdEl.addClass('hui-pd-release');
+		}
+		oScroller.scrollTo(0,0,200);
+		setTimeout(function(){
+			oScroller.minScrollY=tmp;
+		},250);
 	}
 	/**
 	 * 销毁
