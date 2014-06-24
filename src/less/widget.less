@@ -575,19 +575,31 @@
 	position:relative;
 	padding:.8em .6em .8em .4em;
 	min-height:2.8em;
+	.hui-icon{
+		margin-right:10px;
+	}
 	.hui-rowitem-txt{
 		.fn_word_break();
+		.fn_inline_block();
 	}
 	&.hui-rowitem-underline{
 		border-bottom:1px solid #ccc;
 	}
+	&.hui-mini{
+		padding:.4em .6em .4em .4em;
+	}
 }
 //域，左右两边的结构
 .hui-field{
+	position:relative;
 	text-align:left;
-	padding:.7em 0;
+	padding-left:5em;
 	.hui-field-left{
-		width:20%;
+		position:absolute;
+		left:0;
+		top:50%;
+		margin-top:-0.5em;
+		padding-left:.4em;
 		vertical-align:middle;
 		font-size:1em;
 		.c-txt-gray();
@@ -595,12 +607,14 @@
 		.fn_text_overflow();
 	}
 	.hui-field-right{
+		> *{
+			margin:0;
+		}
 		position:relative;
-		width:80%;
+		padding:.8em .4em; 
 		vertical-align:middle;
-		.fn_inline_block();
 	}
-	&.hui-field-nopadding{
+	.hui-field-nopadding{
 		padding:0;
 	}
 }

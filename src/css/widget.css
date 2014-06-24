@@ -864,19 +864,34 @@
   padding: .8em .6em .8em .4em;
   min-height: 2.8em;
 }
+.hui-rowitem .hui-icon {
+  margin-right: 10px;
+}
 .hui-rowitem .hui-rowitem-txt {
   word-wrap: break-word;
   word-break: break-all;
+  display: -moz-inline-stack;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
 }
 .hui-rowitem.hui-rowitem-underline {
   border-bottom: 1px solid #ccc;
 }
+.hui-rowitem.hui-mini {
+  padding: .4em .6em .4em .4em;
+}
 .hui-field {
+  position: relative;
   text-align: left;
-  padding: .7em 0;
+  padding-left: 5em;
 }
 .hui-field .hui-field-left {
-  width: 20%;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  margin-top: -0.5em;
+  padding-left: .4em;
   vertical-align: middle;
   font-size: 1em;
   color: #6a6a6a;
@@ -892,14 +907,13 @@
 }
 .hui-field .hui-field-right {
   position: relative;
-  width: 80%;
+  padding: .8em .4em;
   vertical-align: middle;
-  display: -moz-inline-stack;
-  display: inline-block;
-  zoom: 1;
-  *display: inline;
 }
-.hui-field.hui-field-nopadding {
+.hui-field .hui-field-right > * {
+  margin: 0;
+}
+.hui-field .hui-field-nopadding {
   padding: 0;
 }
 .hui-form .hui-form-tips {

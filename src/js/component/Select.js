@@ -78,7 +78,7 @@ function(AC){
 		for(var i=0,len=oOptions.length;i<len;i++){
 			var oOption=oOptions[i];
 			var val=oOption.value;
-			if(val!==undefined&&val===oParams.value){
+			if(val!==undefined&&val==oParams.value){
 				me.set('text',oOption.text);
 				oOption.selected=true;
 				bHasVal=true;

@@ -1,4 +1,4 @@
-/* Handy v1.0.0-dev | 2014-06-18 | zhengyinhui100@gmail.com */
+/* Handy v1.0.0-dev | 2014-06-20 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -1169,6 +1169,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 				oDebugDiv.style.display = 'block';
 			}
 			var oAppender=oDebugDiv.getElementsByTagName('DIV')[0];
+			oVar=oVar instanceof Error?oVar.message:oVar;
 			//这里原生的JSON.stringify有问题(&nbsp;中最后的'p;'会丢失)，统一强制使用自定义方法
 			var sMsg=typeof oVar=='string'?oVar:$H.Json.stringify(oVar, null, '&nbsp;&nbsp;&nbsp;&nbsp;',true);
 			sMsg=sMsg.replace(/\n|\\n/g,'<br/>');
@@ -1561,19 +1562,22 @@ function(Debug,Object,Function,$H){
     	}
     	var oResult={}
     	var aExist=[];
+    	var aNotExist=[];
     	if(typeof id=="string"){
     		id=[id];
     	}
     	for(var i=0,nLen=id.length;i<nLen;i++){
-    		var result=_fChk(id[i]);
+    		var sId=id[i];
+    		sId=Object.alias(sId);
+    		var result=_fChk(sId);
     		if(!result){
-    			oResult.notExist=id[i];
-    			return oResult;
+    			aNotExist.push(sId);
     		}else{
     			aExist.push(result);
     		}
     	}
     	oResult.exist=aExist;
+    	oResult.notExist=aNotExist;
     	return oResult;
     }
     
@@ -1850,13 +1854,31 @@ function(Debug,Object,Function,$H){
    		for(var i=_aContext.length-1;i>=0;i--){
 	    	var oContext=_aContext[i];
 	    	var oResult=_fChkExisted(oContext.deps);
-	    	if(!oResult.notExist){
+	    	if(oResult.notExist.length===0){
 	    		_aContext.splice(i,1);
 	    		oContext.callback.apply(null,oResult.exist);
 	    		//定义成功后重新执行上下文
 	    		_fExecContext();
 	    		break;
 	    	}else if(i==0&&_requestingNum==0){
+	    		//输出错误分析
+	    		for(var i=_aContext.length-1;i>=0;i--){
+	    			var oContext=_aContext[i];
+	    			var oResult=_fChkExisted(oContext.deps);
+	    			var aNotExist=oResult.notExist;
+	    			var bHasDepds=false;
+	    			for(var j=_aContext.length-1;j>=0;j--){
+	    				if(Object.contains(aNotExist,_aContext[j].id)){
+	    					bHasDepds=true;
+	    					break;
+	    				}
+	    			}
+	    			if(!bHasDepds){
+						Debug.error(_RESOURCE_NOT_FOUND+oContext.id);
+	    			}
+    				Debug.warn(oContext.id);
+    				Debug.warn("----notExist : "+oResult.notExist);
+	    		}
 	    		Debug.error(_RESOURCE_NOT_FOUND+oResult.notExist);
 	    	}
    		}
@@ -1871,7 +1893,7 @@ function(Debug,Object,Function,$H){
 	 */
 	function fDefine(sId,aDeps,factory){
 		//读取实名
-		sId=$H.Object.alias(sId);
+		sId=Object.alias(sId);
 		var nLen=arguments.length;
 		if(nLen==2){
 			factory=aDeps;
@@ -1915,16 +1937,17 @@ function(Debug,Object,Function,$H){
 			}else{
 				Debug.warn(_LOADER_PRE+'factory no return:\n'+sId);
 			}
-		});
+		},sId);
 	}
     /**
 	 * 加载所需的资源
 	 * @method require(id,fCallback=)
 	 * @param {string|array}id    资源id（数组）
 	 * @param {function()=}fCallback(可选) 回调函数
+	 * @param {string=}sDefineId 当前请求要定义的资源id，这里只是为了检查加载出错时使用
 	 * @return {any}返回最后一个当前已加载的资源，通常用于className只有一个的情况，这样可以立即通过返回赋值
 	 */
-    function fRequire(id,fCallback){
+    function fRequire(id,fCallback,sDefineId){
     	var aIds=typeof id=="string"?[id]:id;
     	//此次required待请求资源数组
     	var aRequestIds=[];
@@ -1935,14 +1958,15 @@ function(Debug,Object,Function,$H){
     	for(var i=0,nLen=aIds.length;i<nLen;i++){
     		var sId=aIds[i];
 			//读取实名
-			sId=$H.Object.alias(sId);
+			sId=Object.alias(sId);
     		var oResult=_fChkExisted(sId);
-    		if(oResult.notExist){
+    		if(oResult.notExist.length>0){
     			//未加载资源放进队列中
     			aRequestIds.push(sId);
     			if(bNeedContext){
     				bNeedContext=false;
 	    			_aContext.push({
+	    				id        : sDefineId,
 	    				deps      : aIds,
 	    				callback  : fCallback
 	    			});
@@ -4951,8 +4975,9 @@ function(AbstractDao,AbstractEvents){
     	}
     	var me=this;
     	var oVal=me.get(sAttr);
-    	me.trigger('change:'+sAttr,me,oVal);
-    	me.trigger('change',me);
+    	var args=$H.toArray(arguments,1);
+    	me.trigger.apply(me,['change:'+sAttr,me,oVal].concat(args));
+    	me.trigger.apply(me,['change',me].concat(args));
     	//me.trigger.apply(me, arguments);
     	//标记已触发对应属性change事件，通知set方法不必再触发
     	me._attrEvts[sAttr]=1;
@@ -9931,8 +9956,8 @@ function(AC){
 		
 		tmpl            : [
 			'<div {{bindAttr class="underline?hui-rowitem-underline"}}>',
-				'<div class="hui-towitem-txt">{{text}}</div>',
 				'{{placeItem}}',
+				'<div class="hui-rowitem-txt">{{text}}</div>',
 				'{{#if newsNumTxt}}',
 					'<span class="hui-news-tips">{{newsNumTxt}}</span>',
 				'{{else}}',
@@ -10027,11 +10052,11 @@ function(AC){
 		},
 		
 		tmpl            : [
-			'<div {{bindAttr class="noPadding?hui-field-nopadding"}}>',
+			'<div>',
 				'<div class="hui-field-left">',
 					'{{placeItem > [xrole=title]}}',
 				'</div>',
-				'<div class="hui-field-right">',
+				'<div {{bindAttr class="#hui-field-right noPadding?hui-field-nopadding"}}>',
 					'{{placeItem > [xrole=content]}}',
 				'</div>',
 			'</div>'
@@ -11084,8 +11109,7 @@ function(AC){
 			}
 		},
 		defItem  : {
-			xtype : 'Desc',
-			xrole : 'desc'
+			xtype : 'Desc'
 		},
 		
 //		imgClick        : $H.noop,        //图片点击事件函数
@@ -11103,9 +11127,9 @@ function(AC){
 						'{{title}}',
 						'<span class="hui-title-desc">{{titleDesc}}</span>',
 					'</div>',
-					'{{placeItem > [xrole=desc]}}',
+					'{{placeItem > [xtype=Desc]}}',
 				'</div>',
-				'{{placeItem > [xrole!=desc]}}',
+				'{{placeItem > [xtype!=Desc]}}',
 				'{{#if newsNumTxt}}',
 					'<span class="hui-news-tips">{{newsNumTxt}}</span>',
 				'{{else}}',
@@ -11305,7 +11329,7 @@ function(AC){
 			pdTime          : '',                //上次刷新时间
 			hasMoreBtn      : true,              //是否有获取更多按钮
 			moreBtnTxt      : '查看更多',         //查看更多按钮的文字 
-			showBtnIfEmpty  :false,              //空列表时是否显示更多按钮，默认不显示
+			showBtnIfEmpty  : false,              //空列表时是否显示更多按钮，默认不显示
 			hasPullRefresh  : false,              //是否有下拉刷新
 			showMoreBtn     : {
 				depends : ['isEmpty','showBtnIfEmpty'],
@@ -11365,6 +11389,7 @@ function(AC){
 		refreshScroller     : fRefreshScroller,    //刷新iScroll
 		scrollTo            : fScrollTo,           //滚动到指定位置
 		loadMore            : fLoadMore,           //获取更多数据
+		showLoading         : fShowLoading,        //显示正在刷新
 		destroy             : fDestroy             //销毁
 	});
 	/**
@@ -11526,19 +11551,20 @@ function(AC){
 	 * 滚动到指定位置
 	 * @param {string|number}pos 位置，字符串参数：'top'表示顶部，'bottom'表示底部，数字参数表示横坐标
 	 * @param {number=}pageY 纵坐标
+	 * @param {number=}nTime 动画时间
 	 */
-	function fScrollTo(pos,pageY){
+	function fScrollTo(pos,pageY,nTime){
 		var me=this;
 		var oScroller=me.scroller;
 		if($H.isStr(pos)){
 			if(pos=='top'){
-				oScroller.scrollTo(0,0);
+				oScroller.scrollTo(0,-50);
 			}else if(pos=='bottom'){
 				var nHeight=me.findEl('.hui-list-inner')[0].clientHeight;
 				oScroller.scrollTo(0,-nHeight);
 			}
 		}else{
-			oScroller.scrollTo(pos,pageY);
+			oScroller.scrollTo(pos,pageY,nTime);
 		}
 	}
 	/**
@@ -11571,6 +11597,24 @@ function(AC){
 		}else{
 			me.getMore();
 		}
+	}
+	/**
+	 * 显示正在刷新
+	 * @param{boolean=}bRefresh 仅当true时执行刷新
+	 */
+	function fShowLoading(bRefresh){
+		var me=this;
+		var oScroller=me.scroller;
+		var tmp=oScroller.minScrollY;
+		oScroller.minScrollY=10;
+		if(bRefresh){
+			var oPdEl=me.findEl('.hui-list-pulldown');
+			oPdEl.addClass('hui-pd-release');
+		}
+		oScroller.scrollTo(0,0,200);
+		setTimeout(function(){
+			oScroller.minScrollY=tmp;
+		},250);
 	}
 	/**
 	 * 销毁

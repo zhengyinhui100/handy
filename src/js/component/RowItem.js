@@ -28,8 +28,8 @@ function(AC){
 		
 		tmpl            : [
 			'<div {{bindAttr class="underline?hui-rowitem-underline"}}>',
-				'<div class="hui-towitem-txt">{{text}}</div>',
 				'{{placeItem}}',
+				'<div class="hui-rowitem-txt">{{text}}</div>',
 				'{{#if newsNumTxt}}',
 					'<span class="hui-news-tips">{{newsNumTxt}}</span>',
 				'{{else}}',

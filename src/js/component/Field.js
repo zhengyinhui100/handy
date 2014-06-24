@@ -26,11 +26,11 @@ function(AC){
 		},
 		
 		tmpl            : [
-			'<div {{bindAttr class="noPadding?hui-field-nopadding"}}>',
+			'<div>',
 				'<div class="hui-field-left">',
 					'{{placeItem > [xrole=title]}}',
 				'</div>',
-				'<div class="hui-field-right">',
+				'<div {{bindAttr class="#hui-field-right noPadding?hui-field-nopadding"}}>',
 					'{{placeItem > [xrole=content]}}',
 				'</div>',
 			'</div>'
