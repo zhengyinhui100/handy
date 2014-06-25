@@ -1,4 +1,3 @@
-/* Handy v1.0.0-dev | 2014-06-24 | zhengyinhui100@gmail.com */
 /**
  * handy 基本定义
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -86,7 +85,7 @@
 		return handy;
 	}
 	
-})();/**
+})();;/**
  * Json类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -315,7 +314,7 @@ handy.add('Json',function($H){
     }
 	
 	return Json;
-});/**
+});;/**
  * 对象扩展类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -934,7 +933,7 @@ handy.add('Object',function($H){
 	
 	return Object;
 	
-});/**
+});;/**
  * 浏览器环境类，分析浏览器类型、版本号、操作系统、内核类型、壳类型、flash版本
  * 浏览器版本，$H.Browser.ie/firefox/chrome/opera/safari(),如果浏览器是IE的，$H.Browser.ie()的值是浏览器的版本号，!$H.Browser.ie()表示非IE浏览器
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -1103,7 +1102,7 @@ handy.add("Browser","handy.base.Object",function(Object,$H){
 	_fInit();
 	return Browser;
 	
-});/**
+});;/**
  * 调试类，方便各浏览器下调试，在发布时统一删除调试代码，所有的输出和调试必须使用此类的方法，
  * 不得使用console等原生方法，发布到线上时需要把除了需要反馈给服务器的方法外的方法统一过滤掉
  * //TODO 快捷键切换调试等级
@@ -1295,7 +1294,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 	
 	return Debug;
 	
-});/**
+});;/**
  * 函数类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -1351,7 +1350,7 @@ handy.add('Function',function($H){
 	
 	return Function;
 	
-});/**
+});;/**
  * 面向对象支持类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -1501,7 +1500,7 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
 	
 	return CL;
 	
-});/**
+});;/**
  * 资源加载类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -1991,7 +1990,7 @@ function(Debug,Object,Function,$H){
     
     return Loader;
 	
-});/**
+});;/**
  * 自定义事件类，事件名称支持'all'表示所有事件，支持复杂形式：'event1 event2'或{event1:func1,event:func2}，
  * 事件名称支持命名空间(".name")，如：change.one
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -2273,7 +2272,7 @@ handy.add('Events',function($H){
 	}
 	
 	return Events;
-});/**
+});;/**
  * 日期扩展类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -2505,7 +2504,7 @@ handy.add('Date',function(){
 	}
 	
 	return Date;
-});/**
+});;/**
  * String工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -2706,7 +2705,7 @@ handy.add("String",function(){
 	}
 	
 	return String;
-});/**
+});;/**
  * Cookie工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -2790,7 +2789,7 @@ handy.add('Cookie',function(){
 	}
 	
 	return Cookie;
-});/**
+});;/**
  * 工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -2881,7 +2880,7 @@ handy.add('Util','B.Object',function(Object,$H){
 	
 	return Util;
 	
-});/**
+});;/**
  * 数组类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -3250,7 +3249,7 @@ handy.add('Array','B.Object',function(Object,$H){
 	
 	return Arr;
 	
-});/**
+});;/**
  * 地理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -3323,7 +3322,7 @@ handy.add('Geo',function($H){
 	
 	return Geo;
 	
-});/**
+});;/**
  * 模板类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -3824,7 +3823,7 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 	
 	return T;
 	
-});/**
+});;/**
  * HashChange类，兼容IE6/7浏览器实现hashchange事件
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * 
@@ -3963,7 +3962,7 @@ function(Debug,Util,$H){
 		}
 		
 	return HashChange;
-});/**
+});;/**
  * 支持类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -4040,7 +4039,7 @@ handy.add('Support','B.Browser',function(Browser,$H){
 	
 	return Support;
 	
-});/**
+});;/**
  * 校验类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -4287,7 +4286,7 @@ handy.add('Validator',['B.String','B.Object'],function(String,Object,$H){
 	
 	return Validator;
 	
-});/**
+});;/**
  * LocalStorage类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -4391,7 +4390,7 @@ handy.add('LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Even
 	 LocalStorage._init();
 	 
 	 return LocalStorage;
-});/**
+});;/**
  * 适配类库
  */
 (function($){
@@ -4425,7 +4424,7 @@ handy.add('LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Even
 	});
 	
 	
-})(handy);/**
+})(handy);;/**
  * 抽象事件类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-03-20
@@ -4518,7 +4517,7 @@ function(){
 	}
 	
 	return AbstractEvents;
-});/**
+});;/**
  * 数据仓库类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -4601,7 +4600,7 @@ function(){
 	
 	return DataStore;
 	
-});/****************************************************************
+});;/****************************************************************
 * Author:		郑银辉											*
 * Email:		zhengyinhui100@gmail.com						*
 * Created:		2014-01-25										*
@@ -4733,7 +4732,7 @@ function(LS){
 	
 	return AbstractDao;
 	
-});/**
+});;/**
  * 模型类，负责数据封装，可监听事件：invalid、sync、destroy、change:attr、change
  * PS：
  * 1、为了保证模型的一致性，新建模型实例必须使用静态get方法，而不能用new方式；
@@ -5508,7 +5507,7 @@ function(AbstractDao,AbstractEvents){
 	
 	return Model;
 	
-});/**
+});;/**
  * 集合类，封装模型集合，可监听事件：invalid、add、remove、sync、sort、sortItem、reset及模型的事件
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-03-06
@@ -6189,7 +6188,7 @@ function(AbstractDao,AbstractEvents,Model){
 	
 	return Collection;
 	
-});/**
+});;/**
  * 视图管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-10
@@ -6320,7 +6319,7 @@ $Define("CM.AbstractManager", function() {
 
 	return AbstractManager;
 	
-});/**
+});;/**
  * 视图管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-03-17
@@ -6381,7 +6380,7 @@ $Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
 
 	return ViewManager;
 	
-});/**
+});;/**
  * 抽象视图类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-05-17
@@ -6717,7 +6716,7 @@ function(ViewManager,AbstractEvents){
 	
 	return AbstractView;
 	
-});/**
+});;/**
  * 模型视图类，实现视图与数据的同步
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-05-11
@@ -7299,7 +7298,7 @@ function(Template,AbstractView,Model,Collection){
 	}
 	
 	return ModelView;
-});/**
+});;/**
  * 视图类
  * PS：注意，扩展视图类方法必须用本类的extend方法，扩展类的静态方法则可以使用$H.Object.extend方法，例如
  * var ExampleCmp=AbstractComponent.define('ExampleCmp');
@@ -8554,7 +8553,7 @@ function(ViewManager,ModelView,Model,Template){
 	
 	return View;
 	
-});/**
+});;/**
  * 组件管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-10
@@ -8584,7 +8583,7 @@ function(AbstractManager,ViewManager) {
 	$CM=new ComponentManager();
 	
 	return ComponentManager;
-});/**
+});;/**
  * 组件基类，所有组件必须继承自此类或此类的子类，定义组件必须用AbstractComponent.define方法
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2013-12-28
@@ -8812,7 +8811,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		
 	return AC;
 	
-});/**
+});;/**
  * 图标类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-01
@@ -8859,7 +8858,7 @@ function(AC){
 	
 	return Icon;
 	
-});/**
+});;/**
  * 按钮类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-13
@@ -8922,7 +8921,7 @@ function(AC){
 	
 	return Button;
 	
-});/**
+});;/**
  * 描述类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -8962,7 +8961,7 @@ function(AC,Model,Collection){
 		
 	return Desc;
 	
-});/**
+});;/**
  * 面板类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-01
@@ -9007,7 +9006,7 @@ function(AC){
 	
 	return Panel;
 	
-});/**
+});;/**
  * 弹出层类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-02-01
@@ -9215,7 +9214,7 @@ function(AC){
 	
 	return Popup;
 	
-});/**
+});;/**
  * 控制组类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-31
@@ -9454,7 +9453,7 @@ function(AC){
 	
 	return ControlGroup;
 	
-});/**
+});;/**
  * 图标类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-29
@@ -9513,7 +9512,7 @@ function(AC){
 	
 	return Radio;
 	
-});/**
+});;/**
  * 多选框类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-31
@@ -9573,7 +9572,7 @@ function(AC){
 	
 	return Checkbox;
 	
-});/**
+});;/**
  * 下拉选择框类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-02-01
@@ -9717,7 +9716,7 @@ function(AC){
 	
 	return Select;
 	
-});/**
+});;/**
  * 输入框类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-14
@@ -9881,7 +9880,7 @@ function(AC){
 	
 	return Input;
 	
-});/**
+});;/**
  * 文字标签类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -9926,7 +9925,7 @@ function(AC){
 	
 	return Label;
 	
-});/**
+});;/**
  * 列表行类，用于多行的结构
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -9993,7 +9992,7 @@ function(AC){
 	
 	return RowItem;
 	
-});/**
+});;/**
  * 集合类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-02-25
@@ -10024,7 +10023,7 @@ function(AC){
 	
 	return Set;
 	
-});/**
+});;/**
  * 表单域类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-02-25
@@ -10107,7 +10106,7 @@ function(AC){
 	
 	return Field;
 	
-});/**
+});;/**
  * 表单类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-02-25
@@ -10138,7 +10137,7 @@ function(AC){
 	
 	return Form;
 	
-});/**
+});;/**
  * 标签项类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-03-24
@@ -10287,7 +10286,7 @@ function(AC,Panel){
 	
 	return TabItem;
 	
-});/**
+});;/**
  * 标签类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-16
@@ -10351,7 +10350,7 @@ function(AC,TabItem,ControlGroup){
 	
 	return Tab;
 	
-});/**
+});;/**
  * 工具栏类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-16
@@ -10404,7 +10403,7 @@ function(AC){
 	
 	return Toolbar;
 	
-});/**
+});;/**
  * 提示类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-02-15
@@ -10484,7 +10483,7 @@ function(AC,Popup,ControlGroup){
 	
 	return Tips;
 	
-});/**
+});;/**
  * 对话框类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-17
@@ -10679,7 +10678,7 @@ function(AC,Popup){
 	
 	return Dialog;
 	
-});/**
+});;/**
  * 菜单类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-02-02
@@ -10750,7 +10749,7 @@ function(AC,Popup,ControlGroup){
 	
 	return Menu;
 	
-});/**
+});;/**
  * 时间选择弹窗类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -10957,7 +10956,7 @@ function(AC,Dialog){
 	
 	return DatePicker;
 	
-});/**
+});;/**
  * 日期选择框类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -11080,7 +11079,7 @@ function(AC,DatePicker){
 	
 	return DateSelect;
 	
-});/**
+});;/**
  * 横向卡片类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -11186,7 +11185,7 @@ function(AC){
 		
 	return Hcard;
 	
-});/**
+});;/**
  * 纵向卡片类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -11246,7 +11245,7 @@ function(AC){
 	
 	return Vcard;
 	
-});/**
+});;/**
  * 会话类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
@@ -11307,7 +11306,7 @@ function(AC){
 	
 	return Conversation;
 	
-});/**
+});;/**
  * 模型列表
  * ps:使用下拉刷新需要引入iScroll4
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -11629,7 +11628,7 @@ function(AC){
 	}
 	
 	return ModelList;
-});/****************************************************************
+});;/****************************************************************
 * Author:		郑银辉											*
 * Email:		zhengyinhui100@gmail.com						*
 * Created:		2013-12-14										*
@@ -11671,7 +11670,7 @@ $Define("M.AbstractModule","CM.View",function (View) {
 	}
 	
 	return AbstractModule;
-});/****************************************************************
+});;/****************************************************************
 * Author:		郑银辉											*
 * Email:		zhengyinhui100@gmail.com						*
 * Created:		2013-12-20										*
@@ -11690,7 +11689,7 @@ $Define("M.AbstractNavigator","handy.base.Object",function (Object) {
 	});
 	
 	return AbstractNavigator;
-});/****************************************************************
+});;/****************************************************************
 * Author:		郑银辉											*
 * Email:		zhengyinhui100@gmail.com						*
 * Created:		2013-12-15										*
@@ -11863,7 +11862,7 @@ function(HashChange){
 	
 	return History;
 	
-});/****************************************************************
+});;/****************************************************************
 * Author:		郑银辉											*
 * Email:		zhengyinhui100@gmail.com						*
 * Created:		2013-12-14										*
