@@ -1,7 +1,6 @@
-
 .DS_Store
+.ftppass
 src/.DS_Store
 node_modules/*
 src/css/*
 dist/*
-
