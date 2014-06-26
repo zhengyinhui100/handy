@@ -1,7 +1,7 @@
 
 .DS_Store
-
 src/.DS_Store
 node_modules/*
 src/css/*
 dist/*
+

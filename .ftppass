@@ -1,0 +1,10 @@
+{
+  "ftp.server.host": {
+    "username": "username1",
+    "password": "password1"
+  },
+  "authKey":{
+    "username": "username2",
+    "password": "password2"
+  }
+}
