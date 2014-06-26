@@ -6,9 +6,9 @@ module.exports = function(grunt) {
 		less : {
 			src : {
 				expand : true,
-				cwd : "src/less",
+				cwd : "/Users/hui/Documents/workspace/SportApp/WebContent/less",
 				src : "*.less",
-				dest:'src/css',
+				dest:'/Users/hui/Documents/workspace/SportApp/WebContent/sportapp/www/css',
 				ext : ".css"
 			}
 		},
@@ -112,6 +112,24 @@ module.exports = function(grunt) {
 				}
 			}
 		},
+		copy : {
+			img : {
+				files : [{
+							expand : true,
+							cwd:'src/img',
+							src : ['**/*','!**/*.ai'],
+							dest : 'dist/img'
+						}]
+			},
+			js:{
+				files : [{
+							expand : true,
+							cwd:'src/js',
+							src : ['**/*'],
+							dest : 'dist/js'
+						}]
+			}
+		},
 		jshint : {
 			// define the files to lint
 			files : ['Gruntfile.js', 'src/js/**/*.js'],
@@ -133,6 +151,19 @@ module.exports = function(grunt) {
 				files : ['src/less/*'],
 				tasks : ['less']
 			}
+		},
+		ftpscript: {
+    		main : {
+				options : {
+					host : '115.28.151.237',
+					port : 22
+					//"auth":{"username": "username2", "password": "password2"}
+				},
+				files : [{
+					src : ['dist/handy.min.js'],
+					dest : '/var/www/html/handy.min.js'
+				}]
+			}
 		}
 	});
 
@@ -143,9 +174,11 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-qunit');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-concat');
+	grunt.loadNpmTasks('grunt-contrib-copy');
+	grunt.loadNpmTasks('grunt-ftpscript');
 
-	grunt.registerTask('dev', ['less','concat', 'uglify','watch']);
+	grunt.registerTask('online', ['less','cssmin','concat','uglify','copy']);
 	
-	grunt.registerTask('default', ['less','cssmin']);
+	grunt.registerTask('default', ['less']);
 	
 };
