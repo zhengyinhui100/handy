@@ -3,12 +3,31 @@ module.exports = function(grunt) {
 
 	grunt.initConfig({
 		pkg : grunt.file.readJSON('package.json'),
+		less : {
+			src : {
+				expand : true,
+				cwd : "src/less",
+				src : "*.less",
+				dest:'src/css',
+				ext : ".css"
+			}
+		},
+		cssmin : {
+			add_banner : {
+				options : {
+					banner : '/* <%= pkg.name %> v<%= pkg.version %> | <%= grunt.template.today("yyyy-mm-dd") %> | zhengyinhui100@gmail.com */\n'
+				},
+				files : {
+					'dist/<%= pkg.name %>.min.css' : [
+												'src/css/reset.css',
+												'src/css/icon.css',
+												'src/css/widget.css'
+											]
+				}
+			}
+		},
 		concat : {
-			options : {
-				// 定义一个用于插入合并输出文件之间的字符
-				separator : ';'
-			},
-			dist : {
+			js : {
 				// 将要被合并的文件
 				src : [
 					'src/js/base/base.js',
@@ -85,11 +104,11 @@ module.exports = function(grunt) {
 		uglify : {
 			options : {
 				// 此处定义的banner注释将插入到输出文件的顶部
-				banner : '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n'
+				banner : '/* <%= pkg.name %> v<%= pkg.version %> | <%= grunt.template.today("yyyy-mm-dd") %> | zhengyinhui100@gmail.com */\n'
 			},
 			dist : {
 				files : {
-					'dist/<%= pkg.name %>.min.js' : ['<%= concat.dist.dest %>']
+					'dist/<%= pkg.name %>.min.js' : ['<%= concat.js.dest %>']
 				}
 			}
 		},
@@ -106,17 +125,27 @@ module.exports = function(grunt) {
 			}
 		},
 		watch : {
-			files : ['<%= jshint.files %>'],
-			tasks : ['jshint']
+			jshint:{
+				files : ['<%= jshint.files %>'],
+				tasks : ['jshint']
+			},
+			less:{
+				files : ['src/less/*'],
+				tasks : ['less']
+			}
 		}
 	});
 
+	grunt.loadNpmTasks('grunt-contrib-less');
+	grunt.loadNpmTasks('grunt-contrib-cssmin');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-qunit');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-concat');
 
-	// 只需在命令行上输入"grunt"，就会执行default task
-	grunt.registerTask('default', ['concat', 'uglify']);
+	grunt.registerTask('dev', ['less','concat', 'uglify','watch']);
+	
+	grunt.registerTask('default', ['less','cssmin','watch']);
+	
 };
