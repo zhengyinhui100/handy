@@ -17,6 +17,7 @@
 		"grunt-contrib-uglify":"~0.5.0",
 		"grunt-contrib-watch":"~0.6.1",
 		"grunt-contrib-copy":"~0.5.0",
-		"grunt-ftpscript":"~1.2.11"
+		"grunt-ftpscript":"~1.2.11",
+		"grunt-handy-require":"~0.1.0"
 	}
 }
