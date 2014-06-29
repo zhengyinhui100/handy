@@ -79,10 +79,16 @@ handy.add('Object',function($H){
 	 * 创建别名/读取实名，别名没有对应的存储空间，需要先转换为原始名字才能获取对应的存储空间，
 	 * Loader自动会优先尝试转换别名，因此，别名不能与现有的命名空间重叠
 	 * @method alias
-	 * @param {string=}sAlias 别名，如'B.Object'，为空时表示读取所有存储的别名
+	 * @param {string||object=}sAlias 别名，如'B.Object'，为空时表示读取所有存储的别名，也可以传入hash对象,{sAlias:sOrig}
 	 * @param {string=}sOrig 原名，如'handy.base.Object'，为空时表示读取实名
 	 */
 	function fAlias(sAlias,sOrig){
+		if(typeof sAlias==='object'){
+			for(var k in sAlias){
+				Object.alias(k,sAlias[k]);
+			}
+			return;
+		}
 		var oAlias=Object._alias;
 		//创建别名
 		if(sOrig){
