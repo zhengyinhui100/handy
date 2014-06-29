@@ -1,8 +1,12 @@
 module.exports = function(grunt) {
 	'use strict';
 
-	var cssDir='/Users/hui/Documents/workspace/SportApp/WebContent/sportapp/www/css/';
-	var buildDir='/Users/hui/Documents/workspace/SportApp/build/';
+	var projectDir='/Users/hui/Documents/workspace/sportapp/';
+	var buildDir=projectDir+'build/';
+	var wwwDir=projectDir+'www/'
+	var cssDir=wwwDir+'css/';
+	var buildVersionDir=buildDir;
+	var buildLibDir=buildVersionDir+'lib/';
 	
 	grunt.initConfig({
 		pkg : grunt.file.readJSON('package.json'),
@@ -13,10 +17,18 @@ module.exports = function(grunt) {
 		less : {
 			src : {
 				expand : true,
-				cwd : "/Users/hui/Documents/workspace/SportApp/WebContent/less",
+				cwd : projectDir+"/less",
 				src : "*.less",
 				dest:cssDir,
 				ext : ".css"
+			}
+		},
+		copy:{
+			all:{
+				expand : true,
+				cwd:wwwDir,
+				src : ['css/**','js/**','img/**','lib/**'],
+				dest :buildVersionDir
 			}
 		},
 		cssmin : {
@@ -24,21 +36,20 @@ module.exports = function(grunt) {
 				options : {
 					banner : '/* <%= pkg.name %> v<%= pkg.version %> | <%= grunt.template.today("yyyy-mm-dd") %> | zhengyinhui100@gmail.com */\n'
 				},
-				files : {
-					(buildDir+'css/<%= pkg.name %>.min.css' ): [
-												cssDir+'userlogin.css',
-												cssDir+'main.css'
-											]
-				}
+				expand: true,
+			    cwd: cssDir,
+				src:['userlogin.css','main.css'],
+				dest:buildVersionDir+'css/',
+				ext:'.min.css'
 			}
 		},
 		handy_require:{
 			js:{
 				expand : true,
-				cwd:'/Users/hui/Documents/workspace/SportApp/WebContent/sportapp/www/js',
-				src : ['**/*.js'],
-				dest: buildDir,
-				pkgName:'sportapp.js',
+				cwd: buildVersionDir+'js',
+				src : ['**/*.js','!*.js'],
+				dest: buildVersionDir+'js',
+				pkgName:'<%=pkg.name%>.js',
 				alias :{
 					's':'com.sport',
 					'm':'com.sport.module',
@@ -51,12 +62,38 @@ module.exports = function(grunt) {
 			}
 		},
 		concat : {
-			js : {
-				// 将要被合并的文件
+			crypto: {
 				src : [
+					buildLibDir+'crypto/aes.js',
+					buildLibDir+'crypto/mode-ecb.js',
+					buildLibDir+'crypto/pad-nopadding.js',
+					buildLibDir+'crypto/pad-zeropadding.js'
 				],
-				// 合并后的JS文件的存放位置
-				dest : 'dist/<%= pkg.name %>.js'
+				dest : buildLibDir+'crypto.js'
+			},
+			cryptomin:{
+				src : [
+					buildLibDir+'crypto/aes.min.js',
+					buildLibDir+'crypto/mode-ecb.min.js',
+					buildLibDir+'crypto/pad-nopadding.min.js',
+					buildLibDir+'crypto/pad-zeropadding.min.js'
+				],
+				dest : buildLibDir+'crypto.min.js'
+			},
+			otherlib:{
+				src : [
+					buildLibDir+'fastclick/fastclick.js',
+					buildLibDir+'iscroll/iscroll4.js'
+				],
+				dest : buildLibDir+'otherlib.js'
+			},
+			sportapp : {
+				src : [
+					buildVersionDir+'js/Config.js',
+					buildVersionDir+'js/<%= pkg.name %>.js',
+					buildVersionDir+'js/Start.js'
+				],
+				dest : buildVersionDir+'js/<%= pkg.name %>.js'
 			}
 		},
 		uglify : {
@@ -65,21 +102,12 @@ module.exports = function(grunt) {
 				banner : '/* <%= pkg.name %> v<%= pkg.version %> | <%= grunt.template.today("yyyy-mm-dd") %> | zhengyinhui100@gmail.com */\n'
 			},
 			dist : {
-				files : {
-					'dist/<%= pkg.name %>.min.js' : ['<%= concat.js.dest %>']
-				}
-			}
-		},
-		ftpscript: {
-    		main : {
-				options : {
-					host : '115.28.151.237',
-					port : 22
-					//"auth":{"username": "username2", "password": "password2"}
-				},
 				files : [{
-					src : ['dist/handy.min.js'],
-					dest : '/var/www/html/handy.min.js'
+					expand:true,
+					cwd:buildVersionDir,
+					src:['js/**/*.js','lib/otherlib.js'],
+					dest:buildVersionDir,
+					ext:'.min.js'
 				}]
 			}
 		}
@@ -96,11 +124,9 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-handy-require');
 
-	grunt.registerTask('online', ['less','cssmin','concat','uglify','copy']);
+	grunt.registerTask('online', ['clean','less','copy','cssmin','handy_require','concat','uglify']);
 	
-	grunt.registerTask('dev', ['clean','less','cssmin','handy_require']);
-	
-	grunt.registerTask('default', ['dev']);
+	grunt.registerTask('default', ['online']);
 	
 	
 };

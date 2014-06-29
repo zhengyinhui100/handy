@@ -116,11 +116,6 @@ module.exports = function(grunt) {
 				
 			}).join(grunt.util.normalizelf(options.separator));
 
-			// Write the destination file.
-			grunt.file.write(f.dest, src);
-
-			// Print a success message.
-			grunt.log.writeln('File "' + f.dest + '" created.');
 		});
 		
 		var pkgFilePath=data.dest+'/'+(data.pkgName||'project.pkg.js');
