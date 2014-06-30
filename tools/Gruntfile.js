@@ -31,18 +31,6 @@ module.exports = function(grunt) {
 				dest :buildVersionDir
 			}
 		},
-		cssmin : {
-			add_banner : {
-				options : {
-					banner : '/* <%= pkg.name %> v<%= pkg.version %> | <%= grunt.template.today("yyyy-mm-dd") %> | zhengyinhui100@gmail.com */\n'
-				},
-				expand: true,
-			    cwd: cssDir,
-				src:['userlogin.css','main.css'],
-				dest:buildVersionDir+'css/',
-				ext:'.min.css'
-			}
-		},
 		handy_require:{
 			js:{
 				expand : true,
@@ -62,6 +50,13 @@ module.exports = function(grunt) {
 			}
 		},
 		concat : {
+			css:{
+				src : [
+					buildVersionDir+'css/userlogin.css',
+					buildVersionDir+'css/main.css'
+				],
+				dest : buildVersionDir+'css/<%=pkg.name%>.css'
+			},
 			crypto: {
 				src : [
 					buildLibDir+'crypto/aes.js',
@@ -96,6 +91,18 @@ module.exports = function(grunt) {
 				dest : buildVersionDir+'js/<%= pkg.name %>.js'
 			}
 		},
+		cssmin : {
+			add_banner : {
+				options : {
+					banner : '/* <%= pkg.name %> v<%= pkg.version %> | <%= grunt.template.today("yyyy-mm-dd") %> | zhengyinhui100@gmail.com */\n'
+				},
+				expand: true,
+			    cwd: buildVersionDir,
+				src:['css/*'],
+				dest:buildVersionDir,
+				ext:'.min.css'
+			}
+		},
 		uglify : {
 			options : {
 				// 此处定义的banner注释将插入到输出文件的顶部
@@ -124,7 +131,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-handy-require');
 
-	grunt.registerTask('online', ['clean','less','copy','cssmin','handy_require','concat','uglify']);
+	grunt.registerTask('online', ['clean','less','copy','handy_require','concat','cssmin','uglify']);
 	
 	grunt.registerTask('default', ['online']);
 	

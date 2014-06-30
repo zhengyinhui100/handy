@@ -397,10 +397,16 @@ handy.add('Object',function($H){
 	 * 创建别名/读取实名，别名没有对应的存储空间，需要先转换为原始名字才能获取对应的存储空间，
 	 * Loader自动会优先尝试转换别名，因此，别名不能与现有的命名空间重叠
 	 * @method alias
-	 * @param {string=}sAlias 别名，如'B.Object'，为空时表示读取所有存储的别名
+	 * @param {string||object=}sAlias 别名，如'B.Object'，为空时表示读取所有存储的别名，也可以传入hash对象,{sAlias:sOrig}
 	 * @param {string=}sOrig 原名，如'handy.base.Object'，为空时表示读取实名
 	 */
 	function fAlias(sAlias,sOrig){
+		if(typeof sAlias==='object'){
+			for(var k in sAlias){
+				Object.alias(k,sAlias[k]);
+			}
+			return;
+		}
 		var oAlias=Object._alias;
 		//创建别名
 		if(sOrig){
@@ -1526,6 +1532,7 @@ function(Debug,Object,Function,$H){
 	
 	var Loader= {
 		traceLog                : false,                     //是否打印跟踪信息
+		combine                 : true,                      //是否合并请求
 //		rootPath                : {
 //			'handy'        : 'http://localhost:8081/handy/src',
 //			'com.example'  : 'http://example.com:8082/js'
@@ -1810,6 +1817,9 @@ function(Debug,Object,Function,$H){
 	 */
     function _fRequest(aRequestIds){
     	var bNeedRequest=false;
+    	var bCombine=Loader.combine,
+    	oCombineJs={},
+    	oCombineCss={};
     	for(var i=0,nLen=aRequestIds.length;i<nLen;i++){
     		var sId=aRequestIds[i];
     		//不处理已经在请求列表里的资源
@@ -1820,34 +1830,78 @@ function(Debug,Object,Function,$H){
 					id:sId,
 					status:'loading'
 				}
-				var _fCallback=Function.bind(_fResponse,null,sId);
+				if(!bCombine){
+					var _fCallback=Function.bind(_fResponse,null,sId);
+		    		if(Loader.traceLog){
+						Debug.log(_LOADER_PRE+"request:\n"+sUrl);
+			   		}
+		    		if(/.css$/.test(sUrl)){
+		    			_fGetCss(sUrl,_fCallback);
+		    		}else{
+		    			_fGetScript(sUrl,_fCallback) ;
+		    		}
+		    		_requestingNum++;
+				}else{
+					//按照域名整理js和css
+					var host=sUrl.match(/([^:]+:\/\/)?[^/]+\/?/);
+					host=host&&host[0]||'';
+					var sUri=sUrl.substring(host.length);
+					if(/.css$/.test(sUrl)){
+						var oCss=oCombineCss[host];
+		    			if(!oCss){
+							oCss=oCombineCss[host]={ids:[],uris:[]};
+						}
+						oCss.ids.push(sId);
+						oCss.uris.push(sUri);
+		    		}else{
+		    			var oJs=oCombineJs[host];
+		    			if(!oJs){
+							oJs=oCombineJs[host]={ids:[],uris:[]};
+						}
+						oJs.ids.push(sId);
+						oJs.uris.push(sUri);
+		    		}
+				}
+    		}
+    	}
+    	//合并请求
+    	var _fCmbRequest=function(oCombine){
+    		for(var host in oCombine){
+				var oItem=oCombine[host];
+				var aUris=oItem.uris;
+    			var _fCallback=Function.bind(_fResponse,null,oItem.ids);
+    			var sUrl=host+(aUris.length>1?('??'+aUris.join(',')):aUris[0]);
 	    		if(Loader.traceLog){
 					Debug.log(_LOADER_PRE+"request:\n"+sUrl);
 		   		}
-	    		if(/.css$/.test(sUrl)){
-	    			_fGetCss(sUrl,_fCallback);
-	    		}else{
-	    			_fGetScript(sUrl,_fCallback) ;
-	    		}
-	    		_requestingNum++;
-    		}
+		   		_fGetScript(sUrl,_fCallback) ;
+		   		_requestingNum++;
+			}
     	}
     	//提示loading
     	if(bNeedRequest){
+    		if(bCombine){
+    			_fCmbRequest(oCombineJs);
+    			_fCmbRequest(oCombineCss);
+    		}
     		Loader.showLoading(true);
     	}
     }
     /**
 	 * 资源下载完成回调
 	 * @method _fResponse
-	 * @param {string}sId 资源id
+	 * @param {string|array}id 资源id或数组
 	 */
-    function _fResponse(sId){
+    function _fResponse(id){
     	Loader.showLoading(false);
     	_requestingNum--;
-    	_oCache[sId].status='loaded';
+    	id=typeof id==='string'?[id]:id;
+    	//标记资源已加载
+    	for(var i=0;i<id.length;i++){
+	    	_oCache[id[i]].status='loaded';
+    	}
     	if(Loader.traceLog){
-			Debug.log(_LOADER_PRE+"Response:\n"+sId);
+			Debug.log(_LOADER_PRE+"Response:\n"+id.join('\n'));
    		}
     	_fExecContext();
     }

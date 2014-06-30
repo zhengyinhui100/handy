@@ -1,8 +1,16 @@
 module.exports = function(grunt) {
 	'use strict';
 
+	var cssDir='src/css/';
+	var buildDir='build/';
+	var buildVersionDir=buildDir;
+	
 	grunt.initConfig({
 		pkg : grunt.file.readJSON('package.json'),
+		clean:{
+			options:{force:true},
+			src:[cssDir,buildDir]
+		},
 		less : {
 			src : {
 				expand : true,
@@ -12,21 +20,28 @@ module.exports = function(grunt) {
 				ext : ".css"
 			}
 		},
-		cssmin : {
-			add_banner : {
-				options : {
-					banner : '/* <%= pkg.name %> v<%= pkg.version %> | <%= grunt.template.today("yyyy-mm-dd") %> | zhengyinhui100@gmail.com */\n'
-				},
-				files : {
-					'dist/<%= pkg.name %>.min.css' : [
-												'src/css/reset.css',
-												'src/css/icon.css',
-												'src/css/widget.css'
-											]
-				}
+		copy:{
+			src:{
+				expand : true,
+				cwd:'src',
+				src : ['css/**','js/**','img/**','!img/**/*.ai','!img/**/*.psd'],
+				dest :buildVersionDir
+			},
+			lib:{
+				expand : true,
+				src : ['lib/**/*.js'],
+				dest :buildVersionDir
 			}
 		},
 		concat : {
+			css:{
+				src : [
+					buildVersionDir+'css/reset.css',
+					buildVersionDir+'css/icon.css',
+					buildVersionDir+'css/widget.css'
+				],
+				dest : buildVersionDir+'css/<%=pkg.name%>.css'
+			},
 			js : {
 				// 将要被合并的文件
 				src : [
@@ -98,7 +113,19 @@ module.exports = function(grunt) {
 					'src/js/module/ModuleManager.js'
 				],
 				// 合并后的JS文件的存放位置
-				dest : 'dist/<%= pkg.name %>.js'
+				dest : buildVersionDir+'js/<%= pkg.name %>.js'
+			}
+		},
+		cssmin : {
+			add_banner : {
+				options : {
+					banner : '/* <%= pkg.name %> v<%= pkg.version %> | <%= grunt.template.today("yyyy-mm-dd") %> | zhengyinhui100@gmail.com */\n'
+				},
+				expand: true,
+			    cwd: buildVersionDir,
+				src:['css/*'],
+				dest:buildVersionDir,
+				ext:'.min.css'
 			}
 		},
 		uglify : {
@@ -107,27 +134,13 @@ module.exports = function(grunt) {
 				banner : '/* <%= pkg.name %> v<%= pkg.version %> | <%= grunt.template.today("yyyy-mm-dd") %> | zhengyinhui100@gmail.com */\n'
 			},
 			dist : {
-				files : {
-					'dist/<%= pkg.name %>.min.js' : ['<%= concat.js.dest %>']
-				}
-			}
-		},
-		copy : {
-			img : {
 				files : [{
-							expand : true,
-							cwd:'src/img',
-							src : ['**/*','!**/*.ai'],
-							dest : 'dist/img'
-						}]
-			},
-			js:{
-				files : [{
-							expand : true,
-							cwd:'src/js',
-							src : ['**/*'],
-							dest : 'dist/js'
-						}]
+					expand:true,
+					cwd:buildVersionDir,
+					src:['js/**/*.js','lib/**/*.js'],
+					dest:buildVersionDir,
+					ext:'.min.js'
+				}]
 			}
 		},
 		jshint : {
@@ -160,13 +173,14 @@ module.exports = function(grunt) {
 					//"auth":{"username": "username2", "password": "password2"}
 				},
 				files : [{
-					src : ['dist/handy.min.js'],
+					src : ['build/handy.min.js'],
 					dest : '/var/www/html/handy.min.js'
 				}]
 			}
 		}
 	});
 
+	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-less');
 	grunt.loadNpmTasks('grunt-contrib-cssmin');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
@@ -179,6 +193,6 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('online', ['less','cssmin','concat','uglify','copy']);
 	
-	grunt.registerTask('default', ['less','cssmin','concat','uglify','copy']);
+	grunt.registerTask('default', ['clean','less','copy','concat','cssmin','uglify']);
 	
 };

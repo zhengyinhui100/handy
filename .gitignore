@@ -3,4 +3,10 @@
 src/.DS_Store
 node_modules/*
 src/css/*
-dist/*
+build/*
+!build/css
+!build/css/handy.css
+!build/css/handy.min.css
+!build/js
+!build/js/handy.js
+!build/js/handy.min.js
