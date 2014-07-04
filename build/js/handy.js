@@ -1533,6 +1533,7 @@ function(Debug,Object,Function,$H){
 	var Loader= {
 		traceLog                : false,                     //是否打印跟踪信息
 		combine                 : true,                      //是否合并请求
+		isMin                   : false,                     //是否请求*.min.css和*.min.js
 //		rootPath                : {
 //			'handy'        : 'http://localhost:8081/handy/src',
 //			'com.example'  : 'http://example.com:8082/js'
@@ -1628,6 +1629,9 @@ function(Debug,Object,Function,$H){
     			sUrl=sId.replace(/\./g,"/")+".js";
     		}
     		sUrl=sRoot.replace(/\/$/,'')+'/'+sUrl.replace(/^\//,'');
+    		if(Loader.isMin){
+    			sUrl=sUrl.replace(/\.(css|js)$/,'.min.$1');
+    		}
     	}
 		return sUrl;
     }

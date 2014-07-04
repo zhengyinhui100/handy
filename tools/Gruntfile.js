@@ -7,6 +7,7 @@ module.exports = function(grunt) {
 	var cssDir=wwwDir+'css/';
 	var buildVersionDir=buildDir;
 	var buildLibDir=buildVersionDir+'lib/';
+	var deployDir='~/Documents/';
 	
 	grunt.initConfig({
 		pkg : grunt.file.readJSON('package.json'),
@@ -112,10 +113,41 @@ module.exports = function(grunt) {
 				files : [{
 					expand:true,
 					cwd:buildVersionDir,
-					src:['js/**/*.js','lib/otherlib.js'],
+					src:['js/**/*.js','lib/fastclick/*.js','lib/iscroll/*.js','lib/otherlib.js'],
 					dest:buildVersionDir,
 					ext:'.min.js'
 				}]
+			}
+		},
+		compress : {
+			main : {
+				options : {
+					archive: '<%=pkg.name%>.tar.gz',
+					mode : 'tgz'
+				},
+				files:[{
+					src : ['../build/**/*',buildVersionDir+'**/*'],
+					dest : '/Users/hui/Downloads/build'
+				}]
+			}
+		},
+		targz : {
+			standalone_win : {
+				files : {
+					'../build/**/*' : '<%=pkg.name%>.tar.gz'
+				}
+			}
+		},
+		shell : {
+			deploy : {
+				command : [
+					'cp -R ../build '+deployDir+'handy',
+					'cp -R '+buildVersionDir+' '+deployDir+'<%=pkg.name%>',
+					'cd '+deployDir,
+					'tar -cvzf app.tar.gz <%=pkg.name%> handy',
+					'rm -r handy',
+					'rm -r <%=pkg.name%>'
+				].join('&&')
 			}
 		}
 	});
@@ -130,10 +162,11 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-handy-require');
+	grunt.loadNpmTasks('grunt-contrib-compress');
+	grunt.loadNpmTasks('grunt-tar.gz');
+	grunt.loadNpmTasks('grunt-shell');
 
-	grunt.registerTask('online', ['clean','less','copy','handy_require','concat','cssmin','uglify']);
-	
-	grunt.registerTask('default', ['online']);
-	
+	grunt.registerTask('online', ['clean','less','copy','handy_require','concat','cssmin','uglify','shell']);
+	grunt.registerTask('default', ['shell']);
 	
 };
