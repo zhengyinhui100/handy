@@ -17,7 +17,7 @@ function(Debug,Object,Function,$H){
 	
 	var Loader= {
 		traceLog                : false,                     //是否打印跟踪信息
-		combine                 : true,                      //是否合并请求
+		combine                 : $H.isDebug?false:true,     //是否合并请求
 		isMin                   : false,                     //是否请求*.min.css和*.min.js
 //		rootPath                : {
 //			'handy'        : 'http://localhost:8081/handy/src',

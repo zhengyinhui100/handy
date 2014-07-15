@@ -67,6 +67,8 @@ module.exports = function(grunt) {
 					'src/js/base/LocalStorage.js', 
 					'src/js/base/adapt.js',
 					
+					'src/js/util/ImgCompress.js',
+					
 					'src/js/common/AbstractEvents.js',
 					'src/js/common/DataStore.js',
 					'src/js/common/AbstractDao.js',
@@ -102,6 +104,8 @@ module.exports = function(grunt) {
 					'src/js/component/Menu.js',
 					'src/js/component/DatePicker.js',
 					'src/js/component/DateSelect.js',
+					'src/js/component/Image.js',
+					'src/js/component/ImgUpload.js',
 					'src/js/component/Hcard.js',
 					'src/js/component/Vcard.js',
 					'src/js/component/Conversation.js',
@@ -110,7 +114,8 @@ module.exports = function(grunt) {
 					'src/js/module/AbstractModule.js',
 					'src/js/module/AbstractNavigator.js',
 					'src/js/module/History.js',
-					'src/js/module/ModuleManager.js'
+					'src/js/module/ModuleManager.js',
+					'src/js/module/DisplayImage.js'
 				],
 				// 合并后的JS文件的存放位置
 				dest : buildVersionDir+'js/<%= pkg.name %>.js'

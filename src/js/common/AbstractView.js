@@ -242,7 +242,7 @@ function(ViewManager,AbstractEvents){
 	 * 			{string}name      : 事件名
 	 * 			{function}handler : 监听函数
 	 * 			{jQuery=}el       : 绑定事件的节点，不传表示容器节点
-	 * 			{boolean=}custom    : 为true时是自定义事件
+	 * 			{boolean=}custom  : 为true时是自定义事件
 	 * 			{string=}selector : 选择器
 	 * 			{string=}method   : 绑定方式，默认为"bind"
 	 * }

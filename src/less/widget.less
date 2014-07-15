@@ -873,6 +873,24 @@
 	}
 }
 
+//图片上传组件
+.hui-img-upload{
+	&.hui-transparent,&.hui-transparent .hui-file-input{
+		position:absolute;
+		width:100%;
+		height:100%;
+		left:0;
+		top:0;
+		right:0;
+		bottom:0;
+		.fn_opacity(0);
+	}
+	img{
+		max-height:200px;
+		max-width:200px;
+	}
+}
+
 //列表
 .hui-list{
 	.hui-list-empty{
@@ -1180,4 +1198,23 @@
 .hui-slide-hide{
 	.fn_transition(all 0.05s linear);
 	.fn_transform(translateX(-300%));
+}
+
+
+
+
+.hui-displayimage{
+	height:100%;
+	background-color:#2b2b2b;
+	.hui-icon-loading{
+		position:absolute;
+		z-index:1;
+		width:44px;
+		height:44px;
+		left:-50px;
+		.fn_border_radius(2em);
+	}
+	.hui-displayimage-inner{
+		width:100%;
+	}
 }

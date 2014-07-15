@@ -107,6 +107,27 @@ gEnv='dev';
 	<div id="dateSelectDv"></div>
 	<br/><br/><br/><br/>
 	
+	<h3>上传图片：</h3>
+	<div id="imgUploadDv"></div>
+	<br/><br/><br/><br/>
+	
+	
+	
+	<h3>多文件上传测试：</h3>
+    <form action="http://my.com/file/filesUpload.do" method="post" enctype="multipart/form-data">  
+        <p>  
+            选择文件:<input type="file" name="files">  
+        <p>  
+            选择文件:<input type="file" name="files">  
+        <p>  
+            选择文件:<input type="file" name="files">  
+        <p>  
+            <input type="submit" value="提交">  
+    </form> 
+	<br/><br/><br/><br/>
+	
+	
+	
 	<h3>横向卡片：</h3>
 	<div id="hcardDv"></div>
 	<br/><br/><br/><br/>
@@ -174,6 +195,7 @@ gEnv='dev';
 $H.Loader.rootPath={
 	'handy'        : 'http://localhost/handy/src/js'
 }
+$H.Loader.combine=false;
 $Define('test',function(){
 	var Model=$Require('CM.Model'),
 	Collection=$Require('CM.Collection'),
@@ -199,6 +221,8 @@ $Define('test',function(){
 	Dialog=$Require('C.Dialog'),
 	DatePicker=$Require('C.DatePicker'),
 	DateSelect=$Require('C.DateSelect'),
+	Image=$Require('C.Image'),
+	ImgUpload=$Require('C.ImgUpload'),
 	Hcard=$Require('C.Hcard'),
 	Vcard=$Require('C.Vcard');
 	Conversation=$Require('C.Conversation');
@@ -569,6 +593,32 @@ $Define('test',function(){
 				title:'资料',
 				items:[{
 					xtype:'Field',
+					title:'头像：',
+					content:{
+						hasArrow:true,
+						underline:true,
+						height:70,
+						items:[{
+							xtype:'ImgUpload',
+							transparent:true,
+							compressOptions:{
+								width:100,
+								success:function(oData){
+									$D.log(oData);
+								}
+							}
+						},{
+							xtype:'Image',
+							style:{
+								position:'absolute',
+								zInzex:1
+							},
+							height:50,
+							imgSrc:'../../html/img.jpg'
+						}]
+					}
+				},{
+					xtype:'Field',
 					title:'用户名：',
 					content:{
 						text:'{{username}}',
@@ -582,15 +632,6 @@ $Define('test',function(){
 					content:{
 						underline:false,
 						text:'bb'
-					}
-				},{
-					xtype:'Field',
-					title:'头像：',
-					content:{
-						hasArrow:true,
-						underline:true,
-						text:'uu',
-						icon:'user'
 					}
 				},{
 					xtype:'Field',
@@ -1010,6 +1051,27 @@ $Define('test',function(){
 			change:function(){
 				$D.log(this.val());
 			}
+		});
+		
+		//图片上传
+		new Button({
+			renderTo:'#imgUploadDv',
+			text:'上传图片',
+			items:{
+				xtype:'ImgUpload',
+				transparent:true,
+				compressOptions:{
+					width:100,
+					success:function(oData){
+						$D.log(oData);
+					}
+				}
+			}
+		})
+		
+		new ImgUpload({
+			renderTo:'#imgUploadDv',
+			imgHeight:100
 		});
 		
 		//横向卡片

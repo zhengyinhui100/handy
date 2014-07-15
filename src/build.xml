@@ -1,3 +1,4 @@
+<!-- ant build仅供参考(不再维护)，不再使用，以grunt build为准 -->
 <project name="handy.build" default="build" basedir=".">
 	<description>Handy Build File</description>
 
@@ -45,6 +46,20 @@
 		</concat>
 	</target>
 
+	<target name="util">
+		<concat destfile="${tmp.dir}/${project.name}-util-pkg.js"
+			encoding="${charset}" outputencoding="${charset}">
+
+		    <path path="js/util/ImgCompress.js" />
+		</concat>
+		<concat destfile="${tmp.dir}/${project.name}-pkg.js" encoding="${charset}"
+			outputencoding="${charset}" append="true">
+
+			<path path="${tmp.dir}/${project.name}-util-pkg.js" />
+
+		</concat>
+	</target>
+	
 	<target name="common">
 		<concat destfile="${tmp.dir}/${project.name}-common-pkg.js"
 			encoding="${charset}" outputencoding="${charset}">
@@ -99,6 +114,8 @@
 			<path path="js/component/Menu.js" />
 			<path path="js/component/DatePicker.js"/>
 			<path path="js/component/DateSelect.js"/>
+			<path path="js/component/Image.js" />
+			<path path="js/component/ImgUpload.js" />
 			<path path="js/component/Hcard.js" />
 			<path path="js/component/Vcard.js" />
 			<path path="js/component/Conversation.js" />
@@ -122,6 +139,7 @@
 			<path path="js/module/AbstractNavigator.js" />
 			<path path="js/module/History.js" />
 			<path path="js/module/ModuleManager.js" />
+			<path path="js/module/DisplayImage.js" />
 
 		</concat>
 		<concat destfile="${tmp.dir}/${project.name}-pkg.js" encoding="${charset}"

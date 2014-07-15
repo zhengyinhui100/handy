@@ -52,7 +52,7 @@ function(History,AbstractManager){
 		//先标记为正在准备中，新建成功后赋值为模块对象
 		me.modules[sModName]={waiting:true};
 		//请求模块
-		$Require(me.defModPackage+sModName,function(Module){
+		$Require(sModName,function(Module){
 			var oOptions={
 				renderTo:me.container,
 				name:sModName,
@@ -64,6 +64,7 @@ function(History,AbstractManager){
 			var oMod=new Module(oOptions);
 			me.modules[sModName]=oMod;
 			$H.trigger('afterRender',oMod.getEl());
+			oMod.entry(oParams);
 			//可能加载完时，已切换到其它模块了
 			if(me.requestMod==sModName){
 				me._showMod(oMod);
@@ -117,7 +118,6 @@ function(History,AbstractManager){
 			$H.extend(me,oConf);
 			me.container=oConf.container?$(oConf.container):$(document.body);
 		}
-		me.defModPackage=me.defModPackage+".";
 		me.history=new History(function(sCode,oParam){
 			me.go(oParam.param);
 		});
@@ -175,6 +175,7 @@ function(History,AbstractManager){
 				oMod.clearCache==false;
 				me._showMod(oMod);
 				oMod.cache(param);
+				oMod.entry(param);
 			}else if(!oMod.waiting){
 				//标记不使用缓存，销毁模块
 				me._destroy(oMod);

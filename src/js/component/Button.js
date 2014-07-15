@@ -46,7 +46,6 @@ function(AC){
 			}
 		},
 //		icon            : null,                //图标名称
-		cls             : 'btn',               //组件样式名
 		
 		defItem         : {
 			xtype       : 'Icon'
