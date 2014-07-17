@@ -343,7 +343,13 @@ function(Template,AbstractView,Model,Collection){
 						//更新闭包的值
 						val=sValue;
 					}else{
-						jEl.attr(sAttr,sValue||'');
+						var v=sValue||'';
+						//设置value如果使用jQuery的attr方法，会调用node.setAttribute("value",v)方法，导致defaultValue也改变
+						if(sAttr==='value'){
+							jEl.val(v);
+						}else{
+							jEl.attr(sAttr,v);
+						}
 					}
 				});
 				if(sAttr=='value'&&bBindEl){

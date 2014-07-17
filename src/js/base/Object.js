@@ -313,9 +313,11 @@ handy.add('Object',function($H){
     * @method equals
     * @param {Object} o1 对象1
     * @param {Object} o2 对象2
+    * @param {boolean=}bStrict 仅当为true时表示严格对比，包括类型和值，
+    * 						   不为true时，转换成字符串时相等即返回true，如：1和"1"、true和"true"
     * @return {boolean} 返回判断结果
     */
-    function fEquals(o1, o2) {
+    function fEquals(o1, o2,bStrict) {
         //判断类型
         if (typeof (o1) == typeof (o2)) {
             //判断非对象类型
@@ -364,6 +366,9 @@ handy.add('Object',function($H){
             }
             //类型不一样，不相等
         } else {
+        	if(bStrict!==true&&Object.isSimple(o1)&&Object.isSimple(o2)&&(o1+''===o2+'')){
+        		return true;
+        	}
             return false;
         }
     }
