@@ -2,8 +2,9 @@
  * 模型类，负责数据封装，可监听事件：invalid、sync、destroy、change:attr、change
  * PS：
  * 1、为了保证模型的一致性，新建模型实例必须使用静态get方法，而不能用new方式；
- * 2、嵌套属性区别于普通属性，不可通过hasChanged、changedAttrbutes等方法获取改变，
- *    只能通过相关委托事件(_onAttrEvent方法里)进行监测
+ * 2、自定义属性默认不提交，需要提交需配置save:true
+ * 3、嵌套属性（自定义属性中类型为模型或集合类型的属性）区别于普通属性，不可通过hasChanged、changedAttrs等方法获取改变，save时也不会提交
+ *    只能通过相关委托事件(_onAttrEvent方法里)进行监测；
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-03-06
  */
@@ -22,6 +23,7 @@ function(AbstractDao,AbstractEvents){
 	     *	普通形式：
 	     *	{string}name:{
 		 *	    {string|Class=}type:类型，可以是字符串(string/number/Date/Model/Collection),也可以是类,
+		 *		{boolean=}save:是否需要保存，自定义字段保存时默认不提交，仅当声明为true时提交
 		 *		{object=}options:新建模型/集合实例时的选项,
 		 *		{*=}def:默认值,
 		 *   	{Function=}parse:设置该属性时自定义解析操作,
@@ -41,6 +43,7 @@ function(AbstractDao,AbstractEvents){
         
         //系统属性
 //      fetching              : false,               //是否正在抓取数据，model.get('fetching')==true表示正在抓取
+//		saving                : false,               //正在保存
 		$isModel              : true,                //模型标记
 		
         //内部属性
@@ -71,7 +74,7 @@ function(AbstractDao,AbstractEvents){
    		clear                 : fClear,              //清除所有属性
    		each                  : fEach,               //遍历字段
    		hasChanged            : fHasChanged,         //判断自上次change事件后有没有修改，可以指定属性
-   		changedAttrbutes      : fChangedAttributes,  //返回改变过的属性，可以指定需要判断的属性
+   		changedAttrs          : fChangedAttrs,       //返回改变过的属性，可以指定需要判断的属性
    		previous              : fPrevious,           //返回修改前的值，如果没有修改过，则返回null
    		fetch                 : fFetch,              //获取模型数据
    		save                  : fSave,               //保存模型
@@ -516,31 +519,63 @@ function(AbstractDao,AbstractEvents){
 	/**
 	 * 判断自上次change事件后有没有修改，可以指定属性
 	 * @param {string=}sAttr 参数属性，为空表示判断对象有没有修改
-	 * @retur {boolean} true表示有修改
+	 * @param {boolean=}bAll 仅当为true时检测所有的属性，否则只检测需要提交的属性
+	 * @return {boolean} true表示有修改
 	 */
-    function fHasChanged(sAttr) {
-    	var oChange=this._changed;
-        if (sAttr == null){
-        	return !$H.isEmpty(oChange);
-        }
-        return $H.contains(oChange, sAttr);
+    function fHasChanged(sAttr,bAll) {
+    	if($H.isBool(sAttr)){
+    		bAll=sAttr;
+    		sAttr=undefined;
+    	}
+    	if(bAll){
+	    	var oChanged=this._changed;
+	        if (sAttr == null){
+	        	return !$H.isEmpty(oChanged);
+	        }
+	        return $H.contains(oChanged, sAttr);
+    	}else{
+    		var oChanged=this.changedAttrs();
+    		if(sAttr == null){
+    			return !!oChanged;
+    		}
+	    	return oChanged&&$H.contains(oChanged, sAttr);
+    	}
     }
 	/**
 	 * 返回改变过的属性，可以指定需要判断的属性
-	 * @param {Object=}oDiff 参数属性，表示只判断传入的属性
+	 * @param {Object=}oDiff 参数属性，表示只判断传入的属性列表，返回跟参数属性不同的属性表
+	 * @param {boolean=}bAll 仅当为true时检测所有的属性，否则只检测需要提交的属性
 	 * @retur {boolean} 如果有改变，返回改变的属性，否则，返回false
 	 */
-    function fChangedAttributes(oDiff) {
+    function fChangedAttrs(oDiff,bAll) {
     	var me=this;
-        if (!oDiff){
-            return me.hasChanged() ? $H.clone(me._changed) : false;
-        }
+    	if($H.isBool(oDiff)){
+    		bAll=oDiff;
+    		oDiff=undefined;
+    	}
         var val, changed = false;
+        var oFields=me.fields;
         var oOld = me._changing ? me._previousAttributes : me._attributes;
-        for (var sAttr in oDiff) {
-            if (!$H.equals(oOld[sAttr], (val = oDiff[sAttr]))){
-	            (changed || (changed = {}))[sAttr] = val;
-            }
+        var _fGet=function(oAttrs){
+	        for (var sAttr in oAttrs) {
+	        	var bNeed=true;
+	        	//bAll不为true时只检测需要保存的属性
+	        	if(!bAll){
+	        		var bHas=oFields.hasOwnProperty(sAttr);
+	        		bNeed=!bHas||(bHas&&oFields[sAttr].save);
+	        	}
+	            if (bNeed){
+	            	val = oAttrs[sAttr];
+	            	if(!oDiff||(oDiff&&!$H.equals(oOld[sAttr], val))){
+			            (changed || (changed = {}))[sAttr] = val;
+	            	}
+	            }
+	        }
+        }
+        if(oDiff){
+        	_fGet(oDiff);
+        }else{
+        	_fGet(me._changed);
         }
         return changed;
     }
@@ -605,6 +640,7 @@ function(AbstractDao,AbstractEvents){
 	 * 		{function=}success 成功回调函数
 	 * 		{boolean=}update true时执行update操作
 	 * 		{boolean=}now 是否立即更新模型，默认是等到回调返回时才更新
+	 * 		{function=}noChanged 没有需要提交的属性时，调用的函数
 	 * }
 	 */
     function fSave(sKey, val, oOptions) {
@@ -640,6 +676,7 @@ function(AbstractDao,AbstractEvents){
         }
         var fSuccess = oOptions.success;
         oOptions.success = function(resp) {
+        	me.saving=false;
 	        var oServerAttrs = me.parse(resp, oOptions);
 	        //now!=true，确保更新相应数据(可能没有返回相应数据)
 	        if (!oOptions.now){
@@ -654,16 +691,23 @@ function(AbstractDao,AbstractEvents){
 	        }
 	        me.trigger('sync', me, resp, oOptions);
 	    };
-
+		var fError = oOptions.error;
+		oOptions.error=function(){
+			me.saving=false;
+			if(fError){
+				fError.apply(me,arguments);
+			}
+		}
 	    sMethod = me.isNew() ? 'create' : (oOptions.update ? 'update':'patch' );
     	//patch只提交所有改变的值
 	    var oSaveAttrs;
 	    if (sMethod === 'patch'){
-	    	var oChanged=me.changedAttrbutes(oAttrs);
+	    	var oChanged=me.changedAttrs(oAttrs);
 	    	//没有改变的属性，直接执行回调函数
 	    	if(!oChanged){
-	    		if (fSuccess){
-		        	fSuccess(me, oOptions);
+	    		var fNoChange = oOptions.noChange;
+	    		if (fNoChange){
+		        	fNoChange(me, oOptions);
 		        }
 		        return;
 	    	}
@@ -680,6 +724,7 @@ function(AbstractDao,AbstractEvents){
 	    	}
 	    }
 	    oOptions.attrs=oSaveAttrs;
+	    me.saving=true;
 	    me.sync(sMethod, me, oOptions);
     }
 	/**
