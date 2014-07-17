@@ -33,11 +33,14 @@ function(AC,Popup){
 //		noAction        : false,          //true时没有底部按钮
 //		noOk            : false,          //true时没有确定按钮
 //		noCancel        : false,          //true时没有取消按钮
+		noIgnore        : true,           //true时没有忽略按钮
 		okTxt           : '确定',         //确定按钮文字
 		cancelTxt       : '取消',         //取消按钮文字
-//		activeBtn       : null,          //为按钮添加激活样式，1表示左边，2表示右边
+		ignoreTxt       : '不保存',       //忽略按钮文字
+//		activeBtn       : null,          //为按钮添加激活样式，1表示左边，2表示右边，3为中间(如果有忽略按钮的话)
 //		okCall          : function(){},  //确定按钮事件函数
 //		cancelCall      : function(){},  //取消按钮事件函数
+//		ignoreCall      : function(){},  //忽略按钮事件函数
 		
 		clickHide       : false,          //点击不隐藏
 		
@@ -161,6 +164,20 @@ function(AC,Popup){
 						text:me.cancelTxt,
 						click:function(){
 							if((me.cancelCall&&me.cancelCall())!=false){
+								me.hide();
+							}
+						}
+					}
+				});
+			}
+			if(!me.noIgnore){
+				//忽略按钮
+				aActions.push({
+					title:{
+						isActive:me.activeBtn==3,
+						text:me.ignoreTxt,
+						click:function(){
+							if((me.ignoreCall&&me.ignoreCall())!=false){
 								me.hide();
 							}
 						}
