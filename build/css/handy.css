@@ -1083,6 +1083,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   cursor: pointer;
   text-align: center;
   font-size: 16px;
+  font-weight: bold;
   margin: .5em 0;
   padding: .4em 1em;
   min-width: .75em;
@@ -1092,7 +1093,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   color: #222;
   border: 1px solid #ccc;
   zoom: 1;
-  font-weight: 700;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -1124,7 +1124,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-btn-gray {
   border: 1px solid #ccc;
   background: #eee;
-  color: #222;
+  color: #555;
   text-shadow: 0 1px 0 #fff;
   background-image: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#f1f1f1));
   /* old webkit,Saf4+, Chrome */
@@ -1999,6 +1999,12 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-tips-notxt .hui-icon {
   margin: 0;
 }
+.hui-tips-inline span {
+  float: left;
+}
+.hui-tips-inline .hui-icon {
+  margin-right: 3px;
+}
 .hui-tips-white {
   background: #fff;
   border-color: #ddd;
@@ -2042,7 +2048,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   width: 92.5%;
   max-width: 500px;
   padding: 0;
-  top: -15px;
+  top: -500px;
   z-index: 1000;
   overflow: hidden;
 }

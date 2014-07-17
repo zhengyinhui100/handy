@@ -631,9 +631,11 @@ handy.add('Object',function($H){
     * @method equals
     * @param {Object} o1 对象1
     * @param {Object} o2 对象2
+    * @param {boolean=}bStrict 仅当为true时表示严格对比，包括类型和值，
+    * 						   不为true时，转换成字符串时相等即返回true，如：1和"1"、true和"true"
     * @return {boolean} 返回判断结果
     */
-    function fEquals(o1, o2) {
+    function fEquals(o1, o2,bStrict) {
         //判断类型
         if (typeof (o1) == typeof (o2)) {
             //判断非对象类型
@@ -682,6 +684,9 @@ handy.add('Object',function($H){
             }
             //类型不一样，不相等
         } else {
+        	if(bStrict!==true&&Object.isSimple(o1)&&Object.isSimple(o2)&&(o1+''===o2+'')){
+        		return true;
+        	}
             return false;
         }
     }
@@ -2129,9 +2134,9 @@ handy.add('Events',function($H){
 	 */
 	function _fDelegateHandler(fHandler,context){
 		var me=this;
-		return function(sEvt){
+		return function(evt){
 			//只屏蔽浏览器事件及自定义事件，模型事件不用屏蔽
-			if(me.isSuspend!=true||sEvt.indexOf(':')>0){
+			if(me.isSuspend!=true||(typeof evt==='string'&&evt.indexOf(':')>0)){
 				return fHandler.apply(context||me,arguments);
 			}
 		};
@@ -4537,12 +4542,10 @@ function(){
 		if(!image){
 			return;
 		}
-		var oImgSrc=image,sType;
+		var oImgSrc=image;
 		if(image instanceof File){
-			var URL = URL || webkitURL;
-			oImgSrc = URL.createObjectURL(image);
-			var sName=image.name;
-			sType=sName.substring(sName.lastIndexOf('.')+1);
+			var oURL = URL || webkitURL;
+			oImgSrc = oURL.createObjectURL(image);
 		}
 		var oImg = new Image();
             oImg.src = oImgSrc;
@@ -4603,7 +4606,6 @@ function(){
 
             // 生成结果
             var oResult = {
-            	type:sType,
                 orig : image,
                 base64 : base64,
                 //去除data前缀的数据
@@ -4615,7 +4617,7 @@ function(){
 	}
 	
 	/* jpeg_encoder_basic.js  for android jpeg压缩质量修复 */
-	function JPEGEncoder(a){function I(a){var c,i,j,k,l,m,n,o,p,b=[16,11,10,16,24,40,51,61,12,12,14,19,26,58,60,55,14,13,16,24,40,57,69,56,14,17,22,29,51,87,80,62,18,22,37,56,68,109,103,77,24,35,55,64,81,104,113,92,49,64,78,87,103,121,120,101,72,92,95,98,112,100,103,99];for(c=0;64>c;c++)i=d((b[c]*a+50)/100),1>i?i=1:i>255&&(i=255),e[z[c]]=i;for(j=[17,18,24,47,99,99,99,99,18,21,26,66,99,99,99,99,24,26,56,99,99,99,99,99,47,66,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99],k=0;64>k;k++)l=d((j[k]*a+50)/100),1>l?l=1:l>255&&(l=255),f[z[k]]=l;for(m=[1,1.387039845,1.306562965,1.175875602,1,.785694958,.5411961,.275899379],n=0,o=0;8>o;o++)for(p=0;8>p;p++)g[n]=1/(8*e[z[n]]*m[o]*m[p]),h[n]=1/(8*f[z[n]]*m[o]*m[p]),n++}function J(a,b){var f,g,c=0,d=0,e=new Array;for(f=1;16>=f;f++){for(g=1;g<=a[f];g++)e[b[d]]=[],e[b[d]][0]=c,e[b[d]][1]=f,d++,c++;c*=2}return e}function K(){i=J(A,B),j=J(E,F),k=J(C,D),l=J(G,H)}function L(){var c,d,e,a=1,b=2;for(c=1;15>=c;c++){for(d=a;b>d;d++)n[32767+d]=c,m[32767+d]=[],m[32767+d][1]=c,m[32767+d][0]=d;for(e=-(b-1);-a>=e;e++)n[32767+e]=c,m[32767+e]=[],m[32767+e][1]=c,m[32767+e][0]=b-1+e;a<<=1,b<<=1}}function M(){for(var a=0;256>a;a++)x[a]=19595*a,x[a+256>>0]=38470*a,x[a+512>>0]=7471*a+32768,x[a+768>>0]=-11059*a,x[a+1024>>0]=-21709*a,x[a+1280>>0]=32768*a+8421375,x[a+1536>>0]=-27439*a,x[a+1792>>0]=-5329*a}function N(a){for(var b=a[0],c=a[1]-1;c>=0;)b&1<<c&&(r|=1<<s),c--,s--,0>s&&(255==r?(O(255),O(0)):O(r),s=7,r=0)}function O(a){q.push(w[a])}function P(a){O(255&a>>8),O(255&a)}function Q(a,b){var c,d,e,f,g,h,i,j,l,p,q,r,s,t,u,v,w,x,y,z,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_,k=0;const m=8,n=64;for(l=0;m>l;++l)c=a[k],d=a[k+1],e=a[k+2],f=a[k+3],g=a[k+4],h=a[k+5],i=a[k+6],j=a[k+7],p=c+j,q=c-j,r=d+i,s=d-i,t=e+h,u=e-h,v=f+g,w=f-g,x=p+v,y=p-v,z=r+t,A=r-t,a[k]=x+z,a[k+4]=x-z,B=.707106781*(A+y),a[k+2]=y+B,a[k+6]=y-B,x=w+u,z=u+s,A=s+q,C=.382683433*(x-A),D=.5411961*x+C,E=1.306562965*A+C,F=.707106781*z,G=q+F,H=q-F,a[k+5]=H+D,a[k+3]=H-D,a[k+1]=G+E,a[k+7]=G-E,k+=8;for(k=0,l=0;m>l;++l)c=a[k],d=a[k+8],e=a[k+16],f=a[k+24],g=a[k+32],h=a[k+40],i=a[k+48],j=a[k+56],I=c+j,J=c-j,K=d+i,L=d-i,M=e+h,N=e-h,O=f+g,P=f-g,Q=I+O,R=I-O,S=K+M,T=K-M,a[k]=Q+S,a[k+32]=Q-S,U=.707106781*(T+R),a[k+16]=R+U,a[k+48]=R-U,Q=P+N,S=N+L,T=L+J,V=.382683433*(Q-T),W=.5411961*Q+V,X=1.306562965*T+V,Y=.707106781*S,Z=J+Y,$=J-Y,a[k+40]=$+W,a[k+24]=$-W,a[k+8]=Z+X,a[k+56]=Z-X,k++;for(l=0;n>l;++l)_=a[l]*b[l],o[l]=_>0?0|_+.5:0|_-.5;return o}function R(){P(65504),P(16),O(74),O(70),O(73),O(70),O(0),O(1),O(1),O(0),P(1),P(1),O(0),O(0)}function S(a,b){P(65472),P(17),O(8),P(b),P(a),O(3),O(1),O(17),O(0),O(2),O(17),O(1),O(3),O(17),O(1)}function T(){var a,b;for(P(65499),P(132),O(0),a=0;64>a;a++)O(e[a]);for(O(1),b=0;64>b;b++)O(f[b])}function U(){var a,b,c,d,e,f,g,h;for(P(65476),P(418),O(0),a=0;16>a;a++)O(A[a+1]);for(b=0;11>=b;b++)O(B[b]);for(O(16),c=0;16>c;c++)O(C[c+1]);for(d=0;161>=d;d++)O(D[d]);for(O(1),e=0;16>e;e++)O(E[e+1]);for(f=0;11>=f;f++)O(F[f]);for(O(17),g=0;16>g;g++)O(G[g+1]);for(h=0;161>=h;h++)O(H[h])}function V(){P(65498),P(12),O(3),O(1),O(0),O(2),O(17),O(3),O(17),O(0),O(63),O(0)}function W(a,b,c,d,e){var h,l,o,q,r,s,t,u,v,w,f=e[0],g=e[240];const i=16,j=63,k=64;for(l=Q(a,b),o=0;k>o;++o)p[z[o]]=l[o];for(q=p[0]-c,c=p[0],0==q?N(d[0]):(h=32767+q,N(d[n[h]]),N(m[h])),r=63;r>0&&0==p[r];r--);if(0==r)return N(f),c;for(s=1;r>=s;){for(u=s;0==p[s]&&r>=s;++s);if(v=s-u,v>=i){for(t=v>>4,w=1;t>=w;++w)N(g);v=15&v}h=32767+p[s],N(e[(v<<4)+n[h]]),N(m[h]),s++}return r!=j&&N(f),c}function X(){var b,a=String.fromCharCode;for(b=0;256>b;b++)w[b]=a(b)}function Y(a){if(0>=a&&(a=1),a>100&&(a=100),y!=a){var b=0;b=50>a?Math.floor(5e3/a):Math.floor(200-2*a),I(b),y=a,console.log("Quality set to: "+a+"%")}}function Z(){var c,b=(new Date).getTime();a||(a=50),X(),K(),L(),M(),Y(a),c=(new Date).getTime()-b,console.log("Initialization "+c+"ms")}var d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,A,B,C,D,E,F,G,H;Math.round,d=Math.floor,e=new Array(64),f=new Array(64),g=new Array(64),h=new Array(64),m=new Array(65535),n=new Array(65535),o=new Array(64),p=new Array(64),q=[],r=0,s=7,t=new Array(64),u=new Array(64),v=new Array(64),w=new Array(256),x=new Array(2048),z=[0,1,5,6,14,15,27,28,2,4,7,13,16,26,29,42,3,8,12,17,25,30,41,43,9,11,18,24,31,40,44,53,10,19,23,32,39,45,52,54,20,22,33,38,46,51,55,60,21,34,37,47,50,56,59,61,35,36,48,49,57,58,62,63],A=[0,0,1,5,1,1,1,1,1,1,0,0,0,0,0,0,0],B=[0,1,2,3,4,5,6,7,8,9,10,11],C=[0,0,2,1,3,3,2,4,3,5,5,4,4,0,0,1,125],D=[1,2,3,0,4,17,5,18,33,49,65,6,19,81,97,7,34,113,20,50,129,145,161,8,35,66,177,193,21,82,209,240,36,51,98,114,130,9,10,22,23,24,25,26,37,38,39,40,41,42,52,53,54,55,56,57,58,67,68,69,70,71,72,73,74,83,84,85,86,87,88,89,90,99,100,101,102,103,104,105,106,115,116,117,118,119,120,121,122,131,132,133,134,135,136,137,138,146,147,148,149,150,151,152,153,154,162,163,164,165,166,167,168,169,170,178,179,180,181,182,183,184,185,186,194,195,196,197,198,199,200,201,202,210,211,212,213,214,215,216,217,218,225,226,227,228,229,230,231,232,233,234,241,242,243,244,245,246,247,248,249,250],E=[0,0,3,1,1,1,1,1,1,1,1,1,0,0,0,0,0],F=[0,1,2,3,4,5,6,7,8,9,10,11],G=[0,0,2,1,2,4,4,3,4,7,5,4,4,0,1,2,119],H=[0,1,2,3,17,4,5,33,49,6,18,65,81,7,97,113,19,34,50,129,8,20,66,145,161,177,193,9,35,51,82,240,21,98,114,209,10,22,36,52,225,37,241,23,24,25,26,38,39,40,41,42,53,54,55,56,57,58,67,68,69,70,71,72,73,74,83,84,85,86,87,88,89,90,99,100,101,102,103,104,105,106,115,116,117,118,119,120,121,122,130,131,132,133,134,135,136,137,138,146,147,148,149,150,151,152,153,154,162,163,164,165,166,167,168,169,170,178,179,180,181,182,183,184,185,186,194,195,196,197,198,199,200,201,202,210,211,212,213,214,215,216,217,218,226,227,228,229,230,231,232,233,234,242,243,244,245,246,247,248,249,250],this.encode=function(a,b){var d,e,f,m,n,o,p,y,z,A,B,C,D,E,F,G,H,I,J,K,c=(new Date).getTime();for(b&&Y(b),q=new Array,r=0,s=7,P(65496),R(),T(),S(a.width,a.height),U(),V(),d=0,e=0,f=0,r=0,s=7,this.encode.displayName="_encode_",m=a.data,n=a.width,o=a.height,p=4*n,z=0;o>z;){for(y=0;p>y;){for(D=p*z+y,E=D,F=-1,G=0,H=0;64>H;H++)G=H>>3,F=4*(7&H),E=D+G*p+F,z+G>=o&&(E-=p*(z+1+G-o)),y+F>=p&&(E-=y+F-p+4),A=m[E++],B=m[E++],C=m[E++],t[H]=(x[A]+x[B+256>>0]+x[C+512>>0]>>16)-128,u[H]=(x[A+768>>0]+x[B+1024>>0]+x[C+1280>>0]>>16)-128,v[H]=(x[A+1280>>0]+x[B+1536>>0]+x[C+1792>>0]>>16)-128;d=W(t,g,d,i,k),e=W(u,h,e,j,l),f=W(v,h,f,j,l),y+=32}z+=8}return s>=0&&(I=[],I[1]=s+1,I[0]=(1<<s+1)-1,N(I)),P(65497),J="data:image/jpeg;base64,"+btoa(q.join("")),q=[],K=(new Date).getTime()-c,console.log("Encoding time: "+K+"ms"),J},Z()}function getImageDataFromImage(a){var d,b="string"==typeof a?document.getElementById(a):a,c=document.createElement("canvas");return c.width=b.width,c.height=b.height,d=c.getContext("2d"),d.drawImage(b,0,0),d.getImageData(0,0,c.width,c.height)}
+	function JPEGEncoder(a){function I(a){var c,i,j,k,l,m,n,o,p,b=[16,11,10,16,24,40,51,61,12,12,14,19,26,58,60,55,14,13,16,24,40,57,69,56,14,17,22,29,51,87,80,62,18,22,37,56,68,109,103,77,24,35,55,64,81,104,113,92,49,64,78,87,103,121,120,101,72,92,95,98,112,100,103,99];for(c=0;64>c;c++)i=d((b[c]*a+50)/100),1>i?i=1:i>255&&(i=255),e[z[c]]=i;for(j=[17,18,24,47,99,99,99,99,18,21,26,66,99,99,99,99,24,26,56,99,99,99,99,99,47,66,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99],k=0;64>k;k++)l=d((j[k]*a+50)/100),1>l?l=1:l>255&&(l=255),f[z[k]]=l;for(m=[1,1.387039845,1.306562965,1.175875602,1,.785694958,.5411961,.275899379],n=0,o=0;8>o;o++)for(p=0;8>p;p++)g[n]=1/(8*e[z[n]]*m[o]*m[p]),h[n]=1/(8*f[z[n]]*m[o]*m[p]),n++}function J(a,b){var f,g,c=0,d=0,e=new Array;for(f=1;16>=f;f++){for(g=1;g<=a[f];g++)e[b[d]]=[],e[b[d]][0]=c,e[b[d]][1]=f,d++,c++;c*=2}return e}function K(){i=J(A,B),j=J(E,F),k=J(C,D),l=J(G,H)}function L(){var c,d,e,a=1,b=2;for(c=1;15>=c;c++){for(d=a;b>d;d++)n[32767+d]=c,m[32767+d]=[],m[32767+d][1]=c,m[32767+d][0]=d;for(e=-(b-1);-a>=e;e++)n[32767+e]=c,m[32767+e]=[],m[32767+e][1]=c,m[32767+e][0]=b-1+e;a<<=1,b<<=1}}function M(){for(var a=0;256>a;a++)x[a]=19595*a,x[a+256>>0]=38470*a,x[a+512>>0]=7471*a+32768,x[a+768>>0]=-11059*a,x[a+1024>>0]=-21709*a,x[a+1280>>0]=32768*a+8421375,x[a+1536>>0]=-27439*a,x[a+1792>>0]=-5329*a}function N(a){for(var b=a[0],c=a[1]-1;c>=0;)b&1<<c&&(r|=1<<s),c--,s--,0>s&&(255==r?(O(255),O(0)):O(r),s=7,r=0)}function O(a){q.push(w[a])}function P(a){O(255&a>>8),O(255&a)}function Q(a,b){var c,d,e,f,g,h,i,j,l,p,q,r,s,t,u,v,w,x,y,z,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,$,_,k=0;var m=8,n=64;for(l=0;m>l;++l)c=a[k],d=a[k+1],e=a[k+2],f=a[k+3],g=a[k+4],h=a[k+5],i=a[k+6],j=a[k+7],p=c+j,q=c-j,r=d+i,s=d-i,t=e+h,u=e-h,v=f+g,w=f-g,x=p+v,y=p-v,z=r+t,A=r-t,a[k]=x+z,a[k+4]=x-z,B=.707106781*(A+y),a[k+2]=y+B,a[k+6]=y-B,x=w+u,z=u+s,A=s+q,C=.382683433*(x-A),D=.5411961*x+C,E=1.306562965*A+C,F=.707106781*z,G=q+F,H=q-F,a[k+5]=H+D,a[k+3]=H-D,a[k+1]=G+E,a[k+7]=G-E,k+=8;for(k=0,l=0;m>l;++l)c=a[k],d=a[k+8],e=a[k+16],f=a[k+24],g=a[k+32],h=a[k+40],i=a[k+48],j=a[k+56],I=c+j,J=c-j,K=d+i,L=d-i,M=e+h,N=e-h,O=f+g,P=f-g,Q=I+O,R=I-O,S=K+M,T=K-M,a[k]=Q+S,a[k+32]=Q-S,U=.707106781*(T+R),a[k+16]=R+U,a[k+48]=R-U,Q=P+N,S=N+L,T=L+J,V=.382683433*(Q-T),W=.5411961*Q+V,X=1.306562965*T+V,Y=.707106781*S,Z=J+Y,$=J-Y,a[k+40]=$+W,a[k+24]=$-W,a[k+8]=Z+X,a[k+56]=Z-X,k++;for(l=0;n>l;++l)_=a[l]*b[l],o[l]=_>0?0|_+.5:0|_-.5;return o}function R(){P(65504),P(16),O(74),O(70),O(73),O(70),O(0),O(1),O(1),O(0),P(1),P(1),O(0),O(0)}function S(a,b){P(65472),P(17),O(8),P(b),P(a),O(3),O(1),O(17),O(0),O(2),O(17),O(1),O(3),O(17),O(1)}function T(){var a,b;for(P(65499),P(132),O(0),a=0;64>a;a++)O(e[a]);for(O(1),b=0;64>b;b++)O(f[b])}function U(){var a,b,c,d,e,f,g,h;for(P(65476),P(418),O(0),a=0;16>a;a++)O(A[a+1]);for(b=0;11>=b;b++)O(B[b]);for(O(16),c=0;16>c;c++)O(C[c+1]);for(d=0;161>=d;d++)O(D[d]);for(O(1),e=0;16>e;e++)O(E[e+1]);for(f=0;11>=f;f++)O(F[f]);for(O(17),g=0;16>g;g++)O(G[g+1]);for(h=0;161>=h;h++)O(H[h])}function V(){P(65498),P(12),O(3),O(1),O(0),O(2),O(17),O(3),O(17),O(0),O(63),O(0)}function W(a,b,c,d,e){var h,l,o,q,r,s,t,u,v,w,f=e[0],g=e[240];var i=16,j=63,k=64;for(l=Q(a,b),o=0;k>o;++o)p[z[o]]=l[o];for(q=p[0]-c,c=p[0],0==q?N(d[0]):(h=32767+q,N(d[n[h]]),N(m[h])),r=63;r>0&&0==p[r];r--);if(0==r)return N(f),c;for(s=1;r>=s;){for(u=s;0==p[s]&&r>=s;++s);if(v=s-u,v>=i){for(t=v>>4,w=1;t>=w;++w)N(g);v=15&v}h=32767+p[s],N(e[(v<<4)+n[h]]),N(m[h]),s++}return r!=j&&N(f),c}function X(){var b,a=String.fromCharCode;for(b=0;256>b;b++)w[b]=a(b)}function Y(a){if(0>=a&&(a=1),a>100&&(a=100),y!=a){var b=0;b=50>a?Math.floor(5e3/a):Math.floor(200-2*a),I(b),y=a,console.log("Quality set to: "+a+"%")}}function Z(){var c,b=(new Date).getTime();a||(a=50),X(),K(),L(),M(),Y(a),c=(new Date).getTime()-b,console.log("Initialization "+c+"ms")}var d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,A,B,C,D,E,F,G,H;Math.round,d=Math.floor,e=new Array(64),f=new Array(64),g=new Array(64),h=new Array(64),m=new Array(65535),n=new Array(65535),o=new Array(64),p=new Array(64),q=[],r=0,s=7,t=new Array(64),u=new Array(64),v=new Array(64),w=new Array(256),x=new Array(2048),z=[0,1,5,6,14,15,27,28,2,4,7,13,16,26,29,42,3,8,12,17,25,30,41,43,9,11,18,24,31,40,44,53,10,19,23,32,39,45,52,54,20,22,33,38,46,51,55,60,21,34,37,47,50,56,59,61,35,36,48,49,57,58,62,63],A=[0,0,1,5,1,1,1,1,1,1,0,0,0,0,0,0,0],B=[0,1,2,3,4,5,6,7,8,9,10,11],C=[0,0,2,1,3,3,2,4,3,5,5,4,4,0,0,1,125],D=[1,2,3,0,4,17,5,18,33,49,65,6,19,81,97,7,34,113,20,50,129,145,161,8,35,66,177,193,21,82,209,240,36,51,98,114,130,9,10,22,23,24,25,26,37,38,39,40,41,42,52,53,54,55,56,57,58,67,68,69,70,71,72,73,74,83,84,85,86,87,88,89,90,99,100,101,102,103,104,105,106,115,116,117,118,119,120,121,122,131,132,133,134,135,136,137,138,146,147,148,149,150,151,152,153,154,162,163,164,165,166,167,168,169,170,178,179,180,181,182,183,184,185,186,194,195,196,197,198,199,200,201,202,210,211,212,213,214,215,216,217,218,225,226,227,228,229,230,231,232,233,234,241,242,243,244,245,246,247,248,249,250],E=[0,0,3,1,1,1,1,1,1,1,1,1,0,0,0,0,0],F=[0,1,2,3,4,5,6,7,8,9,10,11],G=[0,0,2,1,2,4,4,3,4,7,5,4,4,0,1,2,119],H=[0,1,2,3,17,4,5,33,49,6,18,65,81,7,97,113,19,34,50,129,8,20,66,145,161,177,193,9,35,51,82,240,21,98,114,209,10,22,36,52,225,37,241,23,24,25,26,38,39,40,41,42,53,54,55,56,57,58,67,68,69,70,71,72,73,74,83,84,85,86,87,88,89,90,99,100,101,102,103,104,105,106,115,116,117,118,119,120,121,122,130,131,132,133,134,135,136,137,138,146,147,148,149,150,151,152,153,154,162,163,164,165,166,167,168,169,170,178,179,180,181,182,183,184,185,186,194,195,196,197,198,199,200,201,202,210,211,212,213,214,215,216,217,218,226,227,228,229,230,231,232,233,234,242,243,244,245,246,247,248,249,250],this.encode=function(a,b){var d,e,f,m,n,o,p,y,z,A,B,C,D,E,F,G,H,I,J,K,c=(new Date).getTime();for(b&&Y(b),q=new Array,r=0,s=7,P(65496),R(),T(),S(a.width,a.height),U(),V(),d=0,e=0,f=0,r=0,s=7,this.encode.displayName="_encode_",m=a.data,n=a.width,o=a.height,p=4*n,z=0;o>z;){for(y=0;p>y;){for(D=p*z+y,E=D,F=-1,G=0,H=0;64>H;H++)G=H>>3,F=4*(7&H),E=D+G*p+F,z+G>=o&&(E-=p*(z+1+G-o)),y+F>=p&&(E-=y+F-p+4),A=m[E++],B=m[E++],C=m[E++],t[H]=(x[A]+x[B+256>>0]+x[C+512>>0]>>16)-128,u[H]=(x[A+768>>0]+x[B+1024>>0]+x[C+1280>>0]>>16)-128,v[H]=(x[A+1280>>0]+x[B+1536>>0]+x[C+1792>>0]>>16)-128;d=W(t,g,d,i,k),e=W(u,h,e,j,l),f=W(v,h,f,j,l),y+=32}z+=8}return s>=0&&(I=[],I[1]=s+1,I[0]=(1<<s+1)-1,N(I)),P(65497),J="data:image/jpeg;base64,"+btoa(q.join("")),q=[],K=(new Date).getTime()-c,console.log("Encoding time: "+K+"ms"),J},Z()}function getImageDataFromImage(a){var d,b="string"==typeof a?document.getElementById(a):a,c=document.createElement("canvas");return c.width=b.width,c.height=b.height,d=c.getContext("2d"),d.drawImage(b,0,0),d.getImageData(0,0,c.width,c.height)}
 
 	/* megapix-image.js for IOS(iphone5+) drawImage画面扭曲修复  */
 	!function(){function a(a){var d,e,b=a.naturalWidth,c=a.naturalHeight;return b*c>1048576?(d=document.createElement("canvas"),d.width=d.height=1,e=d.getContext("2d"),e.drawImage(a,-b+1,0),0===e.getImageData(0,0,1,1).data[3]):!1}function b(a,b,c){var e,f,g,h,i,j,k,d=document.createElement("canvas");for(d.width=1,d.height=c,e=d.getContext("2d"),e.drawImage(a,0,0),f=e.getImageData(0,0,1,c).data,g=0,h=c,i=c;i>g;)j=f[4*(i-1)+3],0===j?h=i:g=i,i=h+g>>1;return k=i/c,0===k?1:k}function c(a,b,c){var e=document.createElement("canvas");return d(a,e,b,c),e.toDataURL("image/jpeg",b.quality||.8)}function d(c,d,f,g){var m,n,o,p,q,r,s,t,u,v,w,h=c.naturalWidth,i=c.naturalHeight,j=f.width,k=f.height,l=d.getContext("2d");for(l.save(),e(d,l,j,k,f.orientation),m=a(c),m&&(h/=2,i/=2),n=1024,o=document.createElement("canvas"),o.width=o.height=n,p=o.getContext("2d"),q=g?b(c,h,i):1,r=Math.ceil(n*j/h),s=Math.ceil(n*k/i/q),t=0,u=0;i>t;){for(v=0,w=0;h>v;)p.clearRect(0,0,n,n),p.drawImage(c,-v,-t),l.drawImage(o,0,0,n,n,w,u,r,s),v+=n,w+=r;t+=n,u+=s}l.restore(),o=p=null}function e(a,b,c,d,e){switch(e){case 5:case 6:case 7:case 8:a.width=d,a.height=c;break;default:a.width=c,a.height=d}switch(e){case 2:b.translate(c,0),b.scale(-1,1);break;case 3:b.translate(c,d),b.rotate(Math.PI);break;case 4:b.translate(0,d),b.scale(1,-1);break;case 5:b.rotate(.5*Math.PI),b.scale(1,-1);break;case 6:b.rotate(.5*Math.PI),b.translate(0,-d);break;case 7:b.rotate(.5*Math.PI),b.translate(c,-d),b.scale(-1,1);break;case 8:b.rotate(-.5*Math.PI),b.translate(-c,0)}}function f(a){var b,c,d;if(window.Blob&&a instanceof Blob){if(b=new Image,c=window.URL&&window.URL.createObjectURL?window.URL:window.webkitURL&&window.webkitURL.createObjectURL?window.webkitURL:null,!c)throw Error("No createObjectURL function found to create blob url");b.src=c.createObjectURL(a),this.blob=a,a=b}a.naturalWidth||a.naturalHeight||(d=this,a.onload=function(){var b,c,a=d.imageLoadListeners;if(a)for(d.imageLoadListeners=null,b=0,c=a.length;c>b;b++)a[b]()},this.imageLoadListeners=[]),this.srcImage=a}f.prototype.render=function(a,b){var e,f,g,h,i,j,k,l,m,n,o;if(this.imageLoadListeners)return e=this,this.imageLoadListeners.push(function(){e.render(a,b)}),void 0;b=b||{},f=this.srcImage.naturalWidth,g=this.srcImage.naturalHeight,h=b.width,i=b.height,j=b.maxWidth,k=b.maxHeight,l=!this.blob||"image/jpeg"===this.blob.type,h&&!i?i=g*h/f<<0:i&&!h?h=f*i/g<<0:(h=f,i=g),j&&h>j&&(h=j,i=g*h/f<<0),k&&i>k&&(i=k,h=f*i/g<<0),m={width:h,height:i};for(n in b)m[n]=b[n];o=a.tagName.toLowerCase(),"img"===o?a.src=c(this.srcImage,m,l):"canvas"===o&&d(this.srcImage,a,m,l),"function"==typeof this.onrender&&this.onrender(a)},"function"==typeof define&&define.amd?define([],function(){return f}):this.MegaPixImage=f}();
@@ -4938,8 +4940,9 @@ function(LS){
  * 模型类，负责数据封装，可监听事件：invalid、sync、destroy、change:attr、change
  * PS：
  * 1、为了保证模型的一致性，新建模型实例必须使用静态get方法，而不能用new方式；
- * 2、嵌套属性区别于普通属性，不可通过hasChanged、changedAttrbutes等方法获取改变，
- *    只能通过相关委托事件(_onAttrEvent方法里)进行监测
+ * 2、自定义属性默认不提交，需要提交需配置save:true
+ * 3、嵌套属性（自定义属性中类型为模型或集合类型的属性）区别于普通属性，不可通过hasChanged、changedAttrs等方法获取改变，save时也不会提交
+ *    只能通过相关委托事件(_onAttrEvent方法里)进行监测；
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-03-06
  */
@@ -4958,6 +4961,7 @@ function(AbstractDao,AbstractEvents){
 	     *	普通形式：
 	     *	{string}name:{
 		 *	    {string|Class=}type:类型，可以是字符串(string/number/Date/Model/Collection),也可以是类,
+		 *		{boolean=}save:是否需要保存，自定义字段保存时默认不提交，仅当声明为true时提交
 		 *		{object=}options:新建模型/集合实例时的选项,
 		 *		{*=}def:默认值,
 		 *   	{Function=}parse:设置该属性时自定义解析操作,
@@ -4977,6 +4981,7 @@ function(AbstractDao,AbstractEvents){
         
         //系统属性
 //      fetching              : false,               //是否正在抓取数据，model.get('fetching')==true表示正在抓取
+//		saving                : false,               //正在保存
 		$isModel              : true,                //模型标记
 		
         //内部属性
@@ -5007,7 +5012,7 @@ function(AbstractDao,AbstractEvents){
    		clear                 : fClear,              //清除所有属性
    		each                  : fEach,               //遍历字段
    		hasChanged            : fHasChanged,         //判断自上次change事件后有没有修改，可以指定属性
-   		changedAttrbutes      : fChangedAttributes,  //返回改变过的属性，可以指定需要判断的属性
+   		changedAttrs          : fChangedAttrs,       //返回改变过的属性，可以指定需要判断的属性
    		previous              : fPrevious,           //返回修改前的值，如果没有修改过，则返回null
    		fetch                 : fFetch,              //获取模型数据
    		save                  : fSave,               //保存模型
@@ -5452,31 +5457,63 @@ function(AbstractDao,AbstractEvents){
 	/**
 	 * 判断自上次change事件后有没有修改，可以指定属性
 	 * @param {string=}sAttr 参数属性，为空表示判断对象有没有修改
-	 * @retur {boolean} true表示有修改
+	 * @param {boolean=}bAll 仅当为true时检测所有的属性，否则只检测需要提交的属性
+	 * @return {boolean} true表示有修改
 	 */
-    function fHasChanged(sAttr) {
-    	var oChange=this._changed;
-        if (sAttr == null){
-        	return !$H.isEmpty(oChange);
-        }
-        return $H.contains(oChange, sAttr);
+    function fHasChanged(sAttr,bAll) {
+    	if($H.isBool(sAttr)){
+    		bAll=sAttr;
+    		sAttr=undefined;
+    	}
+    	if(bAll){
+	    	var oChanged=this._changed;
+	        if (sAttr == null){
+	        	return !$H.isEmpty(oChanged);
+	        }
+	        return $H.contains(oChanged, sAttr);
+    	}else{
+    		var oChanged=this.changedAttrs();
+    		if(sAttr == null){
+    			return !!oChanged;
+    		}
+	    	return oChanged&&$H.contains(oChanged, sAttr);
+    	}
     }
 	/**
 	 * 返回改变过的属性，可以指定需要判断的属性
-	 * @param {Object=}oDiff 参数属性，表示只判断传入的属性
+	 * @param {Object=}oDiff 参数属性，表示只判断传入的属性列表，返回跟参数属性不同的属性表
+	 * @param {boolean=}bAll 仅当为true时检测所有的属性，否则只检测需要提交的属性
 	 * @retur {boolean} 如果有改变，返回改变的属性，否则，返回false
 	 */
-    function fChangedAttributes(oDiff) {
+    function fChangedAttrs(oDiff,bAll) {
     	var me=this;
-        if (!oDiff){
-            return me.hasChanged() ? $H.clone(me._changed) : false;
-        }
+    	if($H.isBool(oDiff)){
+    		bAll=oDiff;
+    		oDiff=undefined;
+    	}
         var val, changed = false;
+        var oFields=me.fields;
         var oOld = me._changing ? me._previousAttributes : me._attributes;
-        for (var sAttr in oDiff) {
-            if (!$H.equals(oOld[sAttr], (val = oDiff[sAttr]))){
-	            (changed || (changed = {}))[sAttr] = val;
-            }
+        var _fGet=function(oAttrs){
+	        for (var sAttr in oAttrs) {
+	        	var bNeed=true;
+	        	//bAll不为true时只检测需要保存的属性
+	        	if(!bAll){
+	        		var bHas=oFields.hasOwnProperty(sAttr);
+	        		bNeed=!bHas||(bHas&&oFields[sAttr].save);
+	        	}
+	            if (bNeed){
+	            	val = oAttrs[sAttr];
+	            	if(!oDiff||(oDiff&&!$H.equals(oOld[sAttr], val))){
+			            (changed || (changed = {}))[sAttr] = val;
+	            	}
+	            }
+	        }
+        }
+        if(oDiff){
+        	_fGet(oDiff);
+        }else{
+        	_fGet(me._changed);
         }
         return changed;
     }
@@ -5541,6 +5578,7 @@ function(AbstractDao,AbstractEvents){
 	 * 		{function=}success 成功回调函数
 	 * 		{boolean=}update true时执行update操作
 	 * 		{boolean=}now 是否立即更新模型，默认是等到回调返回时才更新
+	 * 		{function=}noChanged 没有需要提交的属性时，调用的函数
 	 * }
 	 */
     function fSave(sKey, val, oOptions) {
@@ -5576,6 +5614,7 @@ function(AbstractDao,AbstractEvents){
         }
         var fSuccess = oOptions.success;
         oOptions.success = function(resp) {
+        	me.saving=false;
 	        var oServerAttrs = me.parse(resp, oOptions);
 	        //now!=true，确保更新相应数据(可能没有返回相应数据)
 	        if (!oOptions.now){
@@ -5590,16 +5629,23 @@ function(AbstractDao,AbstractEvents){
 	        }
 	        me.trigger('sync', me, resp, oOptions);
 	    };
-
+		var fError = oOptions.error;
+		oOptions.error=function(){
+			me.saving=false;
+			if(fError){
+				fError.apply(me,arguments);
+			}
+		}
 	    sMethod = me.isNew() ? 'create' : (oOptions.update ? 'update':'patch' );
     	//patch只提交所有改变的值
 	    var oSaveAttrs;
 	    if (sMethod === 'patch'){
-	    	var oChanged=me.changedAttrbutes(oAttrs);
+	    	var oChanged=me.changedAttrs(oAttrs);
 	    	//没有改变的属性，直接执行回调函数
 	    	if(!oChanged){
-	    		if (fSuccess){
-		        	fSuccess(me, oOptions);
+	    		var fNoChange = oOptions.noChange;
+	    		if (fNoChange){
+		        	fNoChange(me, oOptions);
 		        }
 		        return;
 	    	}
@@ -5616,6 +5662,7 @@ function(AbstractDao,AbstractEvents){
 	    	}
 	    }
 	    oOptions.attrs=oSaveAttrs;
+	    me.saving=true;
 	    me.sync(sMethod, me, oOptions);
     }
 	/**
@@ -7268,7 +7315,13 @@ function(Template,AbstractView,Model,Collection){
 						//更新闭包的值
 						val=sValue;
 					}else{
-						jEl.attr(sAttr,sValue||'');
+						var v=sValue||'';
+						//设置value如果使用jQuery的attr方法，会调用node.setAttribute("value",v)方法，导致defaultValue也改变
+						if(sAttr==='value'){
+							jEl.val(v);
+						}else{
+							jEl.attr(sAttr,v);
+						}
 					}
 				});
 				if(sAttr=='value'&&bBindEl){
@@ -7967,9 +8020,9 @@ function(ViewManager,ModelView,Model,Template){
 			return false;
 		}
 		me.trigger('render');
-		me.callChild();
 		//缓存容器
 		me._container=$("#"+me.getId());
+		me.callChild();
 		me.rendered=true;
 		//初始化样式
 		me.initStyle();
@@ -9320,10 +9373,13 @@ function(AC){
 		}
 		//默认居中显示
 		var showPos=me.showPos;
-		if(typeof showPos=="string"){
+		var sType=typeof showPos;
+		if(sType==="string"){
 			me[showPos]();
-		}else if(typeof showPos=="function"){
+		}else if(sType==="function"){
 			showPos.call(me);
+		}else if(sType==='object'){
+			oEl.css(me.showPos);
 		}
 		if(!me.noMask){
 			me.mask();
@@ -9865,12 +9921,13 @@ function(AC){
 		//options配置成菜单
 		var oOptions=$H.clone(oParams.options);
 		me.defTxt=me.get('text');
+		var sValue=me.get('value');
 		//根据默认值设置默认文字
 		var bHasVal=false;
 		for(var i=0,len=oOptions.length;i<len;i++){
 			var oOption=oOptions[i];
 			var val=oOption.value;
-			if(val!==undefined&&val==oParams.value){
+			if(val!==undefined&&val==sValue){
 				me.set('text',oOption.text);
 				oOption.selected=true;
 				bHasVal=true;
@@ -9929,7 +9986,7 @@ function(AC){
 		var oMenu=me.children[0];
 		oMenu.selectItem(oMenu.getSelected(),false);
 		me.set('value','');
-		me.set('text',me.defTxt)
+		me.set('text',me.defTxt);
 	}
 	
 	return Select;
@@ -10355,9 +10412,50 @@ function(AC){
 					'{{placeItem}}',
 				'</form>',
 			'</div>'
-		].join('')
+		].join(''),
+		
+		hasChanged      : fHasChanged      //检测是否有表单改变的域/值
 		
 	});
+	
+	/**
+	 * 检测是否有表单改变的域/值
+	 * @return {boolean} true表示有变化
+	 */
+	function fHasChanged(){
+		var me=this;
+		var bHasChange=false;
+		me.findEl('input,textarea').each(function(i,oEl){
+			if(oEl.type==='checkbox'||oEl.type==='radio'){
+				if (oEl.checked != oEl.defaultChecked){
+					bHasChange=true;
+					return false;
+				}
+			}else{
+				if (oEl.value != oEl.defaultValue){
+					bHasChange=true;
+					return false;
+				}
+			}
+		});
+		me.findEl('select').each(function(i,oEl){
+			var def = 0, opt;
+			for (var i = 0, len = oEl.options.length; i < len; i++) {
+				opt = oEl.options[i];
+				bHasChange = bHasChange || (opt.selected != opt.defaultSelected);
+				if (opt.defaultSelected){
+					def = i;
+				}
+			}
+			if (bHasChange && !oEl.multiple){
+				bHasChange = (def != oEl.selectedIndex);
+			}
+			if (bHasChange){
+				return false;
+			}
+		});
+		return bHasChange;
+	}
 	
 	return Form;
 	
@@ -10657,7 +10755,7 @@ function(AC,Popup,ControlGroup){
 		timeout         : 2000,
 		
 		tmpl            : [
-			'<div {{bindAttr class="text:hui-tips-notxt"}}>',
+			'<div {{bindAttr class="text:hui-tips-notxt c-clear"}}>',
 				'{{placeItem}}',
 				'{{#if text}}<span class="hui-tips-txt">{{text}}</span>{{/if}}',
 			'</div>'
@@ -10705,6 +10803,32 @@ function(AC,Popup,ControlGroup){
 				noMask:true,
 				tType:'mini'
 			});
+		}else if(oSettings.type==='inlineLoading'){
+			//顶部提示默认配置
+			$H.extend(me,{
+				noMask:true,
+				clickHide:false,
+				destroyWhenHide:false,
+				timeout:null,
+				delayShow:false,
+				shadowOverlay:null,
+				isMini:true,
+				tType:'inline',
+				width:'auto',
+				style:{
+					zIndex:0
+				},
+				theme:null,
+				showPos:{
+					left:10,
+					top:10
+				},
+				items:{
+					xtype:'Icon',
+					name:'loading-mini',
+					hasBg:false
+				}
+			});
 		}
 		me.callSuper();
 	}
@@ -10747,11 +10871,14 @@ function(AC,Popup){
 //		noAction        : false,          //true时没有底部按钮
 //		noOk            : false,          //true时没有确定按钮
 //		noCancel        : false,          //true时没有取消按钮
+		noIgnore        : true,           //true时没有忽略按钮
 		okTxt           : '确定',         //确定按钮文字
 		cancelTxt       : '取消',         //取消按钮文字
-//		activeBtn       : null,          //为按钮添加激活样式，1表示左边，2表示右边
+		ignoreTxt       : '不保存',       //忽略按钮文字
+//		activeBtn       : null,          //为按钮添加激活样式，1表示左边，2表示右边，3为中间(如果有忽略按钮的话)
 //		okCall          : function(){},  //确定按钮事件函数
 //		cancelCall      : function(){},  //取消按钮事件函数
+//		ignoreCall      : function(){},  //忽略按钮事件函数
 		
 		clickHide       : false,          //点击不隐藏
 		
@@ -10875,6 +11002,20 @@ function(AC,Popup){
 						text:me.cancelTxt,
 						click:function(){
 							if((me.cancelCall&&me.cancelCall())!=false){
+								me.hide();
+							}
+						}
+					}
+				});
+			}
+			if(!me.noIgnore){
+				//忽略按钮
+				aActions.push({
+					title:{
+						isActive:me.activeBtn==3,
+						text:me.ignoreTxt,
+						click:function(){
+							if((me.ignoreCall&&me.ignoreCall())!=false){
 								me.hide();
 							}
 						}
@@ -11207,7 +11348,7 @@ function(AC,DatePicker){
 		xConfig         : {
 			cls             : 'dsel',
 			name            : '',                  //选项名
-			value           : 'right',             //默认值
+			value           : '',             //默认值
 			text            : {                    //选择框的文字
 				depends   : ['value'],
 				parse     : function(){
@@ -11392,7 +11533,8 @@ function(AC,ImgCompress){
 		xConfig             : {
 			cls             : 'img-upload',
 			transparent     : false,      //是否透明
-			showImg         : true       //是否显示预览
+			useFileInput    : true,       //是否使用file input获取文件
+			showImg         : true        //是否显示预览
 		},
 		
 //		compressOptions     : {}         //压缩选项，参照ImgCompress.compress方法
@@ -11404,6 +11546,8 @@ function(AC,ImgCompress){
 				var oFile = e.target.files[0];
 				ImgCompress.compress(oFile,this.compressOptions);
 			}
+		},{
+			
 		}],
 		
 		tmpl            : [
@@ -11416,9 +11560,106 @@ function(AC,ImgCompress){
 						'<img src="" class="js-preview">',
 					'</div>',
 				'{{/unless}}',
-				'<input type="file" class="hui-file-input">',
-			'</div>'].join('')
+				'<input type="hidden" class="js-file-content" name="fileContent">',
+				'{{#if useFileInput}}',
+					'<input type="file" class="hui-file-input">',
+				'{{/if}}',
+			'</div>'].join(''),
+		
+		doConfig         : fDoConfig,           //初始化配置
+		showSelDialog    : fShowSelDialog,      //显示选择照片源类型对话框
+		getPicture       : fGetPicture,         //获取照片
+		cleanContent     : fCleanContent        //清除文件内容
 	});
+	
+	/**
+	 * 初始化配置
+	 * @param {object}oSettings 选项
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		me.callSuper();
+		var oCmprOptions=oSettings.compressOptions;
+		var fSuccess=oCmprOptions&&oCmprOptions.success;
+		me.compressOptions=$H.extend({},me.compressOptions);
+		me.compressOptions.success=function(oData){
+			me.findEl('.js-file-content').val(oData.clearBase64);
+			fSuccess&&fSuccess(oData);
+		}
+		if(oSettings.useFileInput===undefined){
+			me.set('useFileInput',!window.cordova);
+		}
+		if(!me.get('useFileInput')){
+			me.listen({
+				name:'click',
+				handler:function(){
+					me.showSelDialog();
+				}
+			})
+		}
+	}
+	/**
+	 * 显示选择照片源类型对话框
+	 */
+	function fShowSelDialog(){
+		var me=this;
+		var oDialog=new $C.Dialog({
+			contentMsg:'上传照片',
+			width:250,
+			noAction:true,
+			clickHide:true,
+			items:{
+				xtype:'Panel',
+				xrole:'dialog-content',
+				items:[{
+					xtype:'Button',
+					text:'拍照',
+					isInline:false,
+					click:function(){
+						me.getPicture(Camera.PictureSourceType.CAMERA);
+					}
+				},{
+					xtype:'Button',
+					text:'相册',
+					isInline:false,
+					click:function(){
+						me.getPicture(Camera.PictureSourceType.PHOTOLIBRARY);
+					}
+				}]
+			}
+		})
+	}
+	/**
+	 * 获取照片
+	 * @param {number}nSourceType 照片源类型
+	 */
+	function fGetPicture(nSourceType){
+		var me=this;
+		//phonegap
+		navigator.camera.getPicture(
+			function (imageData) {
+			    ImgCompress.compress(imageData,me.compressOptions);
+			},
+			function onFail(message) {
+				//用户取消不提示
+				if(message!='no image selected'&&message.indexOf('cancel')<0){
+				    $C.Tips({text:'获取照片失败: ' + message,theme:'error'});
+				}
+			}, 
+			{ 
+				quality: 50,
+				mediaType:Camera.MediaType.PICTURE,
+			    destinationType:Camera.DestinationType.FILE_URI,
+			    sourceType:nSourceType
+			}
+		);
+	}
+	/**
+	 * 清除文件内容
+	 */
+	function fCleanContent(){
+		this.findEl('.js-file-content').val('');
+	}
 	
 	return ImgUpload;
 	
@@ -12146,8 +12387,9 @@ function(HashChange){
 	 * @param {*}param 要保存到hash中的参数
 	 */
 	function fSaveHash(param){
+		var sParam=$H.Json.stringify(param);
 		//这里主动设置之后还会触发hashchange，不能在hashchange里添加set方法屏蔽此次change，因为可能不止一个地方需要hashchange事件
-		$H.setHash("#"+$H.Json.stringify(param));
+		$H.setHash("#"+sParam);
 	}
 	/**
 	 * 获取当前hash参数
