@@ -73,12 +73,13 @@ function(AC){
 		//options配置成菜单
 		var oOptions=$H.clone(oParams.options);
 		me.defTxt=me.get('text');
+		var sValue=me.get('value');
 		//根据默认值设置默认文字
 		var bHasVal=false;
 		for(var i=0,len=oOptions.length;i<len;i++){
 			var oOption=oOptions[i];
 			var val=oOption.value;
-			if(val!==undefined&&val==oParams.value){
+			if(val!==undefined&&val==sValue){
 				me.set('text',oOption.text);
 				oOption.selected=true;
 				bHasVal=true;
@@ -137,7 +138,7 @@ function(AC){
 		var oMenu=me.children[0];
 		oMenu.selectItem(oMenu.getSelected(),false);
 		me.set('value','');
-		me.set('text',me.defTxt)
+		me.set('text',me.defTxt);
 	}
 	
 	return Select;

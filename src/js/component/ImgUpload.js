@@ -66,7 +66,7 @@ function(AC,ImgCompress){
 		me.callSuper();
 		var oCmprOptions=oSettings.compressOptions;
 		var fSuccess=oCmprOptions&&oCmprOptions.success;
-		me.compressOptions=$H.clone(me.compressOptions);
+		me.compressOptions=$H.extend({},me.compressOptions);
 		me.compressOptions.success=function(oData){
 			me.findEl('.js-file-content').val(oData.clearBase64);
 			fSuccess&&fSuccess(oData);
