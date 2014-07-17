@@ -28,6 +28,7 @@
 	cursor: pointer;
 	text-align: center;
 	font-size: 16px;
+	font-weight: bold;
 	margin: .5em 0;
 	padding: .4em 1em;
 	min-width: .75em;
@@ -37,7 +38,6 @@
 	color: #222;
 	border: 1px solid #ccc;
 	zoom:1;
-	font-weight: 700;
 	.fn_user_select();
 	&:hover{
 		font-weight: bold;
@@ -70,7 +70,7 @@
 .hui-btn-gray{
 	border: 1px solid #ccc;
 	background: #eee;
-	color: #222;
+	color: #555;
 	text-shadow: 0 1px 0 #fff;
 	.fn_linear_gradient_top(#fff,#f1f1f1);
 	&:hover{
@@ -789,6 +789,14 @@
 		margin:0;
 	}
 }
+.hui-tips-inline{
+	span{
+		float:left;
+	}
+	.hui-icon{
+		margin-right:3px;
+	}
+}
 .hui-tips-white{
 	background: #fff;
 	border-color: #ddd;
@@ -812,7 +820,7 @@
 	width: 92.5%;
 	max-width: 500px;
 	padding: 0;
-	top: -15px;
+	top: -500px;
 	z-index: 1000;
 	overflow:hidden;
 	&>:first-child{

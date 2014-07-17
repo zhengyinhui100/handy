@@ -98,10 +98,13 @@ function(AC){
 		}
 		//默认居中显示
 		var showPos=me.showPos;
-		if(typeof showPos=="string"){
+		var sType=typeof showPos;
+		if(sType==="string"){
 			me[showPos]();
-		}else if(typeof showPos=="function"){
+		}else if(sType==="function"){
 			showPos.call(me);
+		}else if(sType==='object'){
+			oEl.css(me.showPos);
 		}
 		if(!me.noMask){
 			me.mask();

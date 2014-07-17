@@ -17,7 +17,7 @@ function(AC,DatePicker){
 		xConfig         : {
 			cls             : 'dsel',
 			name            : '',                  //选项名
-			value           : 'right',             //默认值
+			value           : '',             //默认值
 			text            : {                    //选择框的文字
 				depends   : ['value'],
 				parse     : function(){

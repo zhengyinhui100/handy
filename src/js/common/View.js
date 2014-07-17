@@ -459,9 +459,9 @@ function(ViewManager,ModelView,Model,Template){
 			return false;
 		}
 		me.trigger('render');
-		me.callChild();
 		//缓存容器
 		me._container=$("#"+me.getId());
+		me.callChild();
 		me.rendered=true;
 		//初始化样式
 		me.initStyle();

@@ -92,7 +92,7 @@ gEnv='dev';
 	<br/><br/><br/><br/>
 	
 	<h3>提示：</h3>
-	<div id="tipsDv"></div>
+	<div id="tipsDv" style="position:relative"></div>
 	<br/><br/><br/><br/>
 	
 	<h3>对话框：</h3>
@@ -843,6 +843,15 @@ $Define('test',function(){
 		});
 		
 		//提示
+		new Tips({
+			renderTo:'#tipsDv',
+			type:'inlineLoading',
+			text:'加载中...',
+			showPos:{
+				left:0,
+				top:-20
+			}
+		});
 		new Button({
 			renderTo:'#tipsDv',
 			text:'默认提示',

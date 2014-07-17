@@ -24,7 +24,7 @@ function(AC,Popup,ControlGroup){
 		timeout         : 2000,
 		
 		tmpl            : [
-			'<div {{bindAttr class="text:hui-tips-notxt"}}>',
+			'<div {{bindAttr class="text:hui-tips-notxt c-clear"}}>',
 				'{{placeItem}}',
 				'{{#if text}}<span class="hui-tips-txt">{{text}}</span>{{/if}}',
 			'</div>'
@@ -71,6 +71,32 @@ function(AC,Popup,ControlGroup){
 				showPos:'top',
 				noMask:true,
 				tType:'mini'
+			});
+		}else if(oSettings.type==='inlineLoading'){
+			//顶部提示默认配置
+			$H.extend(me,{
+				noMask:true,
+				clickHide:false,
+				destroyWhenHide:false,
+				timeout:null,
+				delayShow:false,
+				shadowOverlay:null,
+				isMini:true,
+				tType:'inline',
+				width:'auto',
+				style:{
+					zIndex:0
+				},
+				theme:null,
+				showPos:{
+					left:10,
+					top:10
+				},
+				items:{
+					xtype:'Icon',
+					name:'loading-mini',
+					hasBg:false
+				}
 			});
 		}
 		me.callSuper();

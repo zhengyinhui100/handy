@@ -104,8 +104,9 @@ function(HashChange){
 	 * @param {*}param 要保存到hash中的参数
 	 */
 	function fSaveHash(param){
+		var sParam=$H.Json.stringify(param);
 		//这里主动设置之后还会触发hashchange，不能在hashchange里添加set方法屏蔽此次change，因为可能不止一个地方需要hashchange事件
-		$H.setHash("#"+$H.Json.stringify(param));
+		$H.setHash("#"+sParam);
 	}
 	/**
 	 * 获取当前hash参数
