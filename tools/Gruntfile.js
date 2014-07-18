@@ -34,7 +34,7 @@ module.exports = function(grunt) {
 		},
 		copy:{
 			//local test build 把options改名即可忽略此替换过程
-			options : {
+			doptions : {
 				//二进制文件必须排除，否则会损坏文件
 				noProcess:['**/*.jpg','**/*.png','**/*.jpeg','**/*.gif','**/*.swf'],
 				process : function(content, srcpath) {
@@ -225,6 +225,6 @@ module.exports = function(grunt) {
 	
 	grunt.registerTask('bulidDevApk', ['shell:buildDevApk']);
 	
-	grunt.registerTask('default', ['test']);
+	grunt.registerTask('default', ['appTar']);
 	
 };

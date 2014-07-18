@@ -137,6 +137,7 @@ function(AC){
 					me.scroller= new window.iScroll(oWrapper[0], {
 						useTransition: true,
 						topOffset: nStartY,
+						vScrollbar:false,
 						onRefresh: function () {
 							if(oPdEl.hasClass(sRefreshCls)){
 				                oPdEl.removeClass(sRefreshCls+' '+sReleaseCls);  

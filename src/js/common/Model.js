@@ -641,6 +641,7 @@ function(AbstractDao,AbstractEvents){
 	 * 		{boolean=}update true时执行update操作
 	 * 		{boolean=}now 是否立即更新模型，默认是等到回调返回时才更新
 	 * 		{function=}noChanged 没有需要提交的属性时，调用的函数
+	 * 		{object=}extAttrs 额外提交的属性，只在原有属性有改变需要提交时才提交，noChanged时忽略此属性
 	 * }
 	 */
     function fSave(sKey, val, oOptions) {
@@ -722,6 +723,10 @@ function(AbstractDao,AbstractEvents){
 	    	if($H.isInstance(oSaveAttrs[key])){
 	    		delete oSaveAttrs[key];
 	    	}
+	    }
+	    //额外属性
+	    if(oOptions.extAttrs){
+	    	$H.extend(oSaveAttrs,oOptions.extAttrs);
 	    }
 	    oOptions.attrs=oSaveAttrs;
 	    me.saving=true;
