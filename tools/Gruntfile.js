@@ -33,6 +33,7 @@ module.exports = function(grunt) {
 			}
 		},
 		copy:{
+			//local test build 把options改名即可忽略此替换过程
 			options : {
 				//二进制文件必须排除，否则会损坏文件
 				noProcess:['**/*.jpg','**/*.png','**/*.jpeg','**/*.gif','**/*.swf'],

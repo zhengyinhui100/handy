@@ -16,8 +16,7 @@ handy.add("String",function(){
 		left			: fLeft,			// 截断left
 		isNumStr		: fIsNumStr,        // 字符串是否是数字
 		hasChn          : fHasChn,          // 字符是否包含中文
-		isChn           : fIsChn,           // 字符是否是中文
-		addParam		: fAddParam		    // 在url后面增加get参数
+		isChn           : fIsChn            // 字符是否是中文
 	}
 	/**
 	 * 删除标签字符串
@@ -183,19 +182,6 @@ handy.add("String",function(){
 	 */
 	function fIsChn(sStr){
 		return /^[\u4E00-\u9FA5]+$/.test(sStr);
-	}
-	/**
-	 * 在该字符串中增加get需要的参数，如果改字符串代表的url没有get的参数，需要在后面加?，如果有，需要在后面加&
-	 * @method  addParam
-	 * @param  {string} sStr 需要操作的字符串
-	 * @param  {string} sParam 需要添加到url中的参数
-	 * @return {string} sStr 新组成的字符串
-	 */
-	function fAddParam(sStr, sParam){
-		if(sParam){
-			sStr += (sStr.indexOf("?")>-1 ? "&" : "?")+sParam;
-		}
-		return sStr;
 	}
 	
 	return String;

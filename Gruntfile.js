@@ -24,12 +24,7 @@ module.exports = function(grunt) {
 			src:{
 				expand : true,
 				cwd:'src',
-				src : ['css/**','js/**','img/**','!img/**/*.ai','!img/**/*.psd'],
-				dest :buildVersionDir
-			},
-			lib:{
-				expand : true,
-				src : ['lib/**/*.js'],
+				src : ['css/**','js/**','img/**','lib/**','!img/**/*.ai','!img/**/*.psd'],
 				dest :buildVersionDir
 			}
 		},
@@ -58,6 +53,7 @@ module.exports = function(grunt) {
 					'src/js/base/String.js',
 					'src/js/base/Cookie.js', 
 					'src/js/base/Util.js',
+					'src/js/base/Url.js',
 					'src/js/base/Array.js', 
 					'src/js/base/Geo.js',
 					'src/js/base/Template.js', 
@@ -80,6 +76,12 @@ module.exports = function(grunt) {
 					'src/js/common/ModelView.js', 
 					'src/js/common/View.js',
 
+					'src/js/module/AbstractModule.js',
+					'src/js/module/AbstractNavigator.js',
+					'src/js/module/History.js',
+					'src/js/module/ModuleManager.js',
+					'src/js/module/DisplayImage.js',
+					
 					'src/js/component/ComponentManager.js',
 					'src/js/component/AbstractComponent.js',
 					'src/js/component/Icon.js',
@@ -109,13 +111,8 @@ module.exports = function(grunt) {
 					'src/js/component/Hcard.js',
 					'src/js/component/Vcard.js',
 					'src/js/component/Conversation.js',
-					'src/js/component/ModelList.js',
+					'src/js/component/ModelList.js'
 
-					'src/js/module/AbstractModule.js',
-					'src/js/module/AbstractNavigator.js',
-					'src/js/module/History.js',
-					'src/js/module/ModuleManager.js',
-					'src/js/module/DisplayImage.js'
 				],
 				// 合并后的JS文件的存放位置
 				dest : buildVersionDir+'js/<%= pkg.name %>.js'
