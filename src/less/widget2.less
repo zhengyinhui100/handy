@@ -20,9 +20,6 @@
 	background-repeat: no-repeat;
 	.fn_border_radius(1em);
 }
-.hui-icon-loading{
-	background-size:auto;
-}
 
 //按钮btn
 .hui-btn{
@@ -33,9 +30,9 @@
 	text-align: center;
 	font-size: 1em;
 	font-weight: bold;
-	margin: 0.5em 0;
-	padding: 0.375em 1em;
-	min-width: 0.75em;
+	margin: .5em 0;
+	padding: .4em 1em;
+	min-width: .75em;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	background: #fff;
@@ -150,8 +147,8 @@
 .hui-btn.hui-btn-active-b{
 	color:#548805;
 	&,&:hover{
-		padding-bottom:0.25em;
-		border-bottom:0.188em solid #73bf00;
+		padding-bottom:0.3em;
+		border-bottom:0.2em solid #73bf00;
 	}
 }
 .hui-btn.hui-btn-active-c{
@@ -172,7 +169,7 @@
 .hui-btn.hui-btn-back{
 	overflow:visible;
 	margin-left:0.938em;
-	.fn_border_radius_left(0.188em);
+	.fn_border_radius_left(.2em);
 }
 .hui-btn.hui-btn-back:before{
 	content:'';
@@ -181,23 +178,23 @@
 ////支持css3
 .hui-mi-csstransforms{
 	.hui-btn-back:before{
-		left:-0.625em;
+		left:-0.65em;
 		top:0.25em;
-		width:1.313em;
-		height:1.313em;
+		width:1.33em;
+		height:1.33em;
 		.fn_transform(~"rotate(135deg)");
 	}
 	.hui-btn-back.hui-shadow-surround:before{
-		left:-0.75em;
-		top:0.313em;
+		left:-0.7em;
+		top:0.32em;
 		//.fn_box_shadow(~"1px 0 0 rgba(255,255,255,.3),inset 0 -1px 0 rgba(255,255,255,.3)");
 	}
 	//小号后退按钮
 	.hui-btn-back.hui-btn-black.hui-size-mini:before{
 		width:1.5em;
 		height:1.5em;
-		left:-0.75em;
-		top:0.313em;
+		left:-0.8em;
+		top:0.32em;
 	}
 	
 	//灰色按钮
@@ -241,14 +238,14 @@
 		&:before{
 			left:-2em;
 			top:0;
-			border:1em solid transparent;
-			border-right:1em solid #333;
+			border:1.01em solid transparent;
+			border-right:1.01em solid #333;
 		}
 	}
 	//小号按钮
 	.hui-btn-back.hui-size-mini:before{
-		left:-2.063em;
-		border-width:1.063em;
+		left:-2.1em;
+		border-width:1.105em;
 	}
 	//灰色按钮
 	.hui-btn-back.hui-btn-gray{
@@ -292,15 +289,15 @@
 	}
 }
 .hui-btn-icon-left{
-	padding-left:2.25em;
+	padding-left:2.3em;
 	.hui-icon{
-		left:0.688em;
+		left:0.7em;
 	}
 }
 .hui-btn-icon-right{
-	padding-right:2.25em;
+	padding-right:2.3em;
 	.hui-icon{
-		right:0.688em;
+		right:0.7em;
 	}
 }
 .hui-btn-icon-top,.hui-btn-icon-bottom{
@@ -330,7 +327,7 @@
 	}
 }
 .hui-btn-icon-bottom{
-	padding-bottom:1.75em;
+	padding-bottom:1.8em;
 	.hui-icon{
 		bottom:0.313em;
 	}
@@ -470,8 +467,8 @@
 	}
 	.hui-slidesel-selector{
 		.fn_inline_block();
-		height:1.75em;
-		padding:0.375em 2em;
+		height:1.8em;
+		padding:.4em 2em;
 		border-top:0.125em solid #222;
 		border-bottom:0.125em solid #222;
 	}
@@ -479,8 +476,8 @@
 		position:absolute;
 		top:50%;
 		text-align:center;
-		height:1.75em;
-		padding:0.375em 2em;
+		height:1.8em;
+		padding:.4em 2em;
 	}
 }
 
@@ -494,12 +491,12 @@
 	.hui-input-txt,textarea{
 		border: 0;
 		width: 100%;
-		padding: 0.375em;
+		padding: .4em;
 		margin: 0;
 		background: transparent none;
 		-webkit-appearance: none;
-		min-height: 1.375em;
-		line-height: 1.375em;
+		min-height: 1.4em;
+		line-height: 1.4em;
 		font-size: 1em;
 		.fn_box_sizing(border-box);
 		outline:none;
@@ -511,7 +508,7 @@
 		}
 	}
 	textarea{
-		height:2.75em;
+		height:2.8em;
 		resize:none;
 		display:block;
     	.fn_transition(height 200ms linear);
@@ -578,8 +575,8 @@
 //行，有右箭头、下划线
 .hui-rowitem{
 	position:relative;
-	padding:0.75em 0.563em 0.75em 0.375em;
-	min-height:2.75em;
+	padding:.8em .6em .8em .4em;
+	min-height:2.8em;
 	.hui-icon{
 		margin-right:0.625em;
 	}
@@ -591,7 +588,7 @@
 		border-bottom:1px solid #ccc;
 	}
 	&.hui-size-mini{
-		padding:0.375em 0.563em 0.375em 0.375em;
+		padding:.4em .6em .4em .4em;
 	}
 }
 //域，左右两边的结构
@@ -604,7 +601,7 @@
 		left:0;
 		top:50%;
 		margin-top:-0.5em;
-		padding-left:0.375em;
+		padding-left:.4em;
 		vertical-align:middle;
 		font-size:1em;
 		.c-txt-gray();
@@ -616,7 +613,7 @@
 			margin:0;
 		}
 		position:relative;
-		padding:0.75em 0.375em; 
+		padding:.8em .4em; 
 		vertical-align:middle;
 	}
 	.hui-field-nopadding{
@@ -641,13 +638,13 @@
 //集合区域
 .hui-set{
 	.hui-set-title{
-		padding:0.375em;
+		padding:.4em;
 		text-align:left;
 		font-weight:normal;
 		border-bottom:1px solid #ccc;
 	}
 	.hui-set-content{
-		margin:2em 0.688em;
+		margin:2em .7em;
 	}
 }
 //工具栏
@@ -662,26 +659,26 @@
 	font-weight: 700;
 	text-shadow: 0 -1px 0 #000;
 	.hui-tbar-title{
-		min-height: 1.063em;
+		min-height: 1.1em;
 		text-align: center;
 		font-size: 1em;
 		display: block;
-		padding: 0.563em 4em 0.75em;
+		padding: .6em 4em .8em;
 		text-overflow: ellipsis;
 		overflow: hidden;
 		white-space: nowrap;
 		outline: 0!important;
 	}
 	.hui-btn{
-		margin-top:0.25em;
-		margin-bottom:0.25em;
+		margin-top:0.3em;
+		margin-bottom:0.3em;
 	}
 	.hui-tbar-btn-left,.hui-tbar-btn-right{
 		position:absolute;
 		top:50%;
-		margin-top:-1.063em;
+		margin-top:-1.1em;
 		&.hui-size-mini{
-			margin-top:-1.063em;
+			margin-top:-1.1em;
 		}
 	}
 	.hui-tbar-btn-left{
@@ -769,21 +766,21 @@
 	z-index:99999;
 	text-align:center;
 	//大loading提示
-	padding:0.75em 1.5em;
+	padding:0.8em 1.5em;
 	.hui-icon-loading{
 		//display:none;
 		width:2.75em;
 		height:2.75em;
-		margin:0 auto 0.625em;
+		margin:0 auto .625em;
 		.fn_border_radius(2.25em);
 	}
 	.hui-tips-txt{
 		white-space:nowrap;
 	}
 	&.hui-size-mini{
-		padding:0.188em 0.5em;
+		padding:.2em .5em;
 		.hui-tips-txt{
-			font-size:0.75em;
+			font-size:0.8em;
 		}
 	}
 }
@@ -869,13 +866,13 @@
 .hui-dp{
 	width:15.625em;
 	.hui-content-title{
-		font-size:1.063em;
+		font-size:1.1em;
 	}
 	.hui-select{
 		float:left;
 		margin-right:0.625em;
-		padding-left:0.188em;
-		padding-right:0.188em;
+		padding-left:.2em;
+		padding-right:.2em;
 	}
 	.hui-dp-year{
 		margin-left:1.625em;
@@ -910,7 +907,7 @@
 		padding:2em 0;
 	}
 	.hui-list-pulldown{
-		padding:0.5em 0;
+		padding:.5em 0;
 		.hui-icon{
 			margin-top:-1em;
 		}
@@ -987,7 +984,7 @@
 	.hui-title-desc{
 		position:absolute;
 		right:0.625em;
-		font-size:0.75em;
+		font-size:.8em;
 		color:#6a6a6a;
 	}
 	.hui-content-desc{
@@ -1011,7 +1008,7 @@
 	.hui-vcard-title{
 		position:relative;
 		background:#f1f1f1;
-		padding-left:0.375em;
+		padding-left:.4em;
 		&.hui-title-hasimg{
 			padding-left:2.813em;
 		}
@@ -1023,13 +1020,13 @@
 			}
 		}
 		.hui-title-txt{
-			padding:0.375em 0;
+			padding:0.4em 0;
 		}
 		.hui-title-extra{
 			position:absolute;
 			top:0;
 			right:0.625em;
-			padding:0.375em;
+			padding:0.4em;
 		}
 	}
 	.hui-vcard-action{
@@ -1047,9 +1044,9 @@
 	padding:0.938em 2.5em;
 	.hui-conver-time{
 		text-align:center;
-		font-size:0.563em;
+		font-size:.6em;
 		color:#888;
-		padding:0.063em;
+		padding:.1em;
 	}
 	.hui-conver-img{
 		position:absolute;
@@ -1065,7 +1062,7 @@
 		border:1px solid #eee;
 		.hui-radius-little();
 		.fn_inline_block();
-		padding:0.375em;
+		padding:.4em;
 	}
 	.hui-triangle{
 		position:absolute;
@@ -1160,12 +1157,12 @@
 }
 //圆角
 .hui-radius-little{
-	.fn_border_radius(0.188em);
+	.fn_border_radius(.2em);
 	-webkit-background-clip: padding;
 	background-clip: padding-box;
 }
 .hui-radius-normal{
-	.fn_border_radius(0.375em);
+	.fn_border_radius(.4em);
 	-webkit-background-clip: padding;
 	background-clip: padding-box;
 }
@@ -1209,8 +1206,8 @@
 //小尺寸
 .hui-size-mini{
 	&.hui-btn{
-		margin-top: 0.25em;
-		margin-bottom: 0.25em;
+		margin-top: .25em;
+		margin-bottom: .25em;
 	}
 	font-size: 0.75em;
 	&.hui-icon,.hui-icon{

@@ -21,9 +21,9 @@ module.exports = function(grunt) {
 			}
 		},
 		copy:{
-			pxToEm:{
+			fixLess:{
 				options : {
-					process : function(content, srcpath) {
+					process2 : function(content, srcpath) {
 						return content.replace(/([0-9\.]+px)/g, function(match,$1){
 							var v=$1.replace('px','');
 							if(v=='1'){
@@ -35,11 +35,30 @@ module.exports = function(grunt) {
 							grunt.log.writeln($1+"-->"+v);
 							return v;
 						});
+					},
+					process : function(content, srcpath) {
+						//修正错误的em值
+						return content.replace(/([0-9\.]+em)/g, function(match,$1){
+							var v=$1.replace('em','');
+							v=parseFloat(v);
+							//转换成px
+							v=v*16;
+							grunt.log.writeln(v);
+							v=Math.floor(v);
+							grunt.log.writeln(v);
+							v=(1/16)*v;
+							v=Math.ceil(v*1000)/1000;
+							v=v+'em';
+							if($1!=v){
+								grunt.log.writeln($1+"-->"+v);
+							}
+							return v;
+						});
 					}
 				},
 				files:[{
 					expand : true,
-					cwd : "src/less/2",
+					cwd : "src/less",
 					src : "widget.less",
 					dest:'src/less'
 				}]
@@ -218,6 +237,6 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('online', ['clean','less','copy:src','concat','cssmin','uglify']);
 	
-	grunt.registerTask('default', ['online']);
+	grunt.registerTask('default', ['copy:fixLess']);
 	
 };

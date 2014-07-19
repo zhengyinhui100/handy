@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>pxToEm</title>
+<script type="text/javascript" src="../src/lib/jquery.js"></script>
+<style type="text/css">
+	#list span{
+		display:inline-block;
+		padding:5px 10px;
+		width:70px;
+	}
+</style>
+</head>
+<body>
+  默认字体大小:<input id="base" name="name" value="16"/>px
+  <br>
+  px:<input id="px" name="name" value="1"/>
+  <br>
+  em:<input id="em" name="name"/>
+  <div id="list"></div>
+  <script type="text/javascript">
+  	function px2em(px){
+  		var base=$('#base').val();
+	  	base=parseInt(base);
+  		var em=1/base*px;
+  		em=Math.ceil(em*1000)/1000;
+  		return em;
+  	}
+  	function em2px(em){
+  		var base=$('#base').val();
+	  	base=parseInt(base);
+	  	var px=Math.floor(em*base);
+  		return px;
+  	}
+  	function list(){
+	  	var html=[];
+	  	for(var i=1;i<100;i++){
+			html.push('<div class="item"><span>'+i+'px</span><span>'+px2em(i)+'em</span></div>');  		
+	  	}
+	  	$("#list").empty().append(html.join(''));
+  	}
+  	function getEm(){
+  		var px=$("#px").val();
+  		px=parseInt(px);
+  		$("#em").val(px2em(px));
+  	}
+  	function getPx(){
+  		var em=$("#em").val();
+  		em=parseFloat(em);
+  		$("#px").val(em2px(em));
+  	}
+  	list();
+  	getEm();
+  	$("#base").bind('input propertychange',function(){
+  		list();
+  		getEm();
+  	})
+  	$("#px").bind('input propertychange',function(){
+  		getEm();
+  	})
+  	$("#em").bind('input propertychange',function(){
+  		getPx();
+  	})
+  </script>
+</body>
+</html>
