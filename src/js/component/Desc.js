@@ -29,7 +29,7 @@ function(AC,Model,Collection){
 		tmpl     : [
 			'<div class="hui-content-desc">',
 				'{{#if icon}}',
-					'<span {{bindAttr class="#hui-icon #hui-mini #hui-alt-icon iconCls #hui-light"}}></span>',
+					'<span {{bindAttr class="#hui-icon #hui-size-mini #hui-alt-icon iconCls #hui-light"}}></span>',
 				'{{/if}}',
 				'{{text}}',
 			'</div>'

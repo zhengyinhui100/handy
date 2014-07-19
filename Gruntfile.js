@@ -216,10 +216,8 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-ftpscript');
 
-	grunt.registerTask('online', ['less','cssmin','concat','uglify','copy:src']);
+	grunt.registerTask('online', ['clean','less','copy:src','concat','cssmin','uglify']);
 	
-	grunt.registerTask('dev', ['clean','less','copy:src','concat','cssmin','uglify']);
-	
-	grunt.registerTask('default', ['copy:pxToEm']);
+	grunt.registerTask('default', ['online']);
 	
 };

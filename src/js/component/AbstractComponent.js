@@ -32,7 +32,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 			shadowInset     : false,        	 //内阴影
 			shadowSurround  : false,             //外围亮阴影，主要用于黑色工具栏内的按钮
 			shadowOverlay   : false,             //遮罩层里组件的阴影效果，主要用于弹出层
-			isMini          : false,       	     //小号
+			size            : '',       	     //尺寸，normal:正常，mini:小号
 			isActive        : false,             //是否激活
 			isFocus         : false,        	 //聚焦
 			isInline        : false,             //是否内联(宽度自适应)
@@ -41,6 +41,13 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 				depends : ['cls'],
 				parse :function(){
 					return 'hui-'+this.get("cls");
+				}
+			},
+			sizeCls          : {
+				depends : ['size'],
+				parse :function(){
+					var size=this.get("size");
+					return size&&'hui-size-'+size;
 				}
 			},
 			tTypeCls        : {
@@ -156,7 +163,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 	function fPreTmpl(){
 		var me=this;
 		me.callSuper();
-		me.tmpl=me.tmpl.replace(/(class=['"])/,'$1#js-component cmpCls tTypeCls themeCls radiusCls isMini?hui-mini shadow?hui-shadow shadowSurround?hui-shadow-surround '+
+		me.tmpl=me.tmpl.replace(/(class=['"])/,'$1#js-component cmpCls tTypeCls themeCls radiusCls sizeCls shadow?hui-shadow shadowSurround?hui-shadow-surround '+
 		'shadowOverlay?hui-shadow-overlay shadowInset?hui-shadow-inset activeClass isFocus?hui-focus isInline?hui-inline ');
 	}
 	/**

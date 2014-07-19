@@ -81,7 +81,7 @@ function(AC,Popup,ControlGroup){
 				timeout:null,
 				delayShow:false,
 				shadowOverlay:null,
-				isMini:true,
+				size:'mini',
 				tType:'inline',
 				width:'auto',
 				style:{

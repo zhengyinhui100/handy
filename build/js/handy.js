@@ -5613,6 +5613,7 @@ function(AbstractDao,AbstractEvents){
 	 * 		{boolean=}update true时执行update操作
 	 * 		{boolean=}now 是否立即更新模型，默认是等到回调返回时才更新
 	 * 		{function=}noChanged 没有需要提交的属性时，调用的函数
+	 * 		{object=}extAttrs 额外提交的属性，只在原有属性有改变需要提交时才提交，noChanged时忽略此属性
 	 * }
 	 */
     function fSave(sKey, val, oOptions) {
@@ -5694,6 +5695,10 @@ function(AbstractDao,AbstractEvents){
 	    	if($H.isInstance(oSaveAttrs[key])){
 	    		delete oSaveAttrs[key];
 	    	}
+	    }
+	    //额外属性
+	    if(oOptions.extAttrs){
+	    	$H.extend(oSaveAttrs,oOptions.extAttrs);
 	    }
 	    oOptions.attrs=oSaveAttrs;
 	    me.saving=true;
@@ -9147,7 +9152,7 @@ function(History,AbstractManager){
 				renderTo:me.container,
 				name:sModName,
 				xtype:sModName,
-				extCls:'js-module m-module m-'+sModName.replace(/\./g,'-'),
+				extCls:'js-module m-module '+sModName.replace(/\./g,'-'),
 				hidden:true
 			};
 			$H.extend(oOptions,oParams);
@@ -9616,10 +9621,6 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 				xtype:'Icon',
 				name:me.icon
 			})
-		}
-		//父组件是迷你的，子组件默认也是迷你的
-		if(me.isMini){
-			me.defItem=$H.extend({isMini:true},me.defItem);
 		}
 	}
 	/**
@@ -10657,6 +10658,7 @@ function(AC){
 		},
 //		inputHeight     : null,                //输入框高度 
 		type            : '',                  //输入框类型，默认为普通输入框，'search':搜索框
+		maxHeight       : 85,                  //输入框最大高度，进对textarea有效
 		withClear       : false,               //带有清除按钮
 		
 		tmpl            : [
@@ -10713,6 +10715,7 @@ function(AC){
 					var nNewHeight=oTextarea[0].scrollHeight;
 					//TODO Firefox下scrollHeight不准确，会忽略padding
 					if(nNewHeight>=50){
+						nNewHeight=nNewHeight<=me.maxHeight?nNewHeight:me.maxHeight
 						oTextarea.css("height",nNewHeight);
 					}
 				}
@@ -12653,6 +12656,7 @@ function(AC){
 					me.scroller= new window.iScroll(oWrapper[0], {
 						useTransition: true,
 						topOffset: nStartY,
+						vScrollbar:false,
 						onRefresh: function () {
 							if(oPdEl.hasClass(sRefreshCls)){
 				                oPdEl.removeClass(sRefreshCls+' '+sReleaseCls);  

@@ -145,7 +145,7 @@ function(AC,Popup){
 					xtype:'Button',
 					radius:'big',
 					icon:'delete',
-					isMini:false,
+					size:'normal',
 					theme:'gray',
 					pos:'left',
 					click:function(){

@@ -215,7 +215,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-shell');
 
 	
-	grunt.registerTask('test', ['clean:build','less','copy:build','handy_require','concat','cssmin','uglify','shell:build']);
+	grunt.registerTask('testStaticBuild', ['clean:build','less','copy:build','handy_require','concat','cssmin','uglify','shell:build']);
 	
 	grunt.registerTask('appBuild', ['clean:appBuild','copy:appBuild']);
 	
@@ -225,6 +225,6 @@ module.exports = function(grunt) {
 	
 	grunt.registerTask('bulidDevApk', ['shell:buildDevApk']);
 	
-	grunt.registerTask('default', ['appTar']);
+	grunt.registerTask('default', ['testStaticBuild']);
 	
 };

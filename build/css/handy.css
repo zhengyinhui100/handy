@@ -90,11 +90,15 @@ html {
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
+  font-size: 100%;
 }
 body {
   overflow-x: hidden;
   min-height: 100%;
   position: relative;
+}
+.hui-mobile body {
+  font-size: 15px;
 }
 /* HTML5 display-role reset for older browsers */
 article,
@@ -181,17 +185,17 @@ http://www.w3cplus.com/content/css3-box-sizing
 	margin: 0;
 	padding: 0;
 	border-width: 1px;
-	height: 17px;
+	height: 1.063em;
 	//.fn_box_sizing(border-box);
 	//IE6、7不支持box-sizing
-	*height:15px; 
-    *width: 15px;
+	*height:0.938em; 
+    *width: 0.938em;
 }
 				
 .checkbox,
 .radio {
-	width: 13px;
-	height: 13px;
+	width: 0.813em;
+	height: 0.813em;
 }
 */
 /*
@@ -961,7 +965,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-icon-loading-mini {
   background-image: url(../img/loading-mini.gif);
-  background-size: 16px 16px;
 }
 .hui-icon-pull-loading {
   background-image: url(data:image/gif;base64,R0lGODlhTgBOAKIHACtgw22j54C38h5SvD90zlaM247F+f///yH/C05FVFNDQVBFMi4wAwEAAAAh/wtYTVAgRGF0YVhNUDw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpFRTMzNThDNDQ0NzFFMDExOThFQkY2RUI3MUQwODk0MCIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo4M0QyMDAzNUY5NjcxMUUwQjdFQ0Y3RDUxMjhFREE1NSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo4M0QyMDAzNEY5NjcxMUUwQjdFQ0Y3RDUxMjhFREE1NSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IFdpbmRvd3MiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo3RDg4NTEzRDY1RjlFMDExQTc3RkU3RUQxN0JDRERFMyIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpFRTMzNThDNDQ0NzFFMDExOThFQkY2RUI3MUQwODk0MCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94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);
@@ -1058,14 +1061,15 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   overflow: hidden;
 }
 .hui-icon {
-  width: 22px;
-  height: 22px;
+  width: 1.375em;
+  height: 1.375em;
   display: -moz-inline-stack;
   display: inline-block;
   zoom: 1;
   *display: inline;
   background-position: center center;
   background-repeat: no-repeat;
+  background-size: 1em 1em;
   vertical-align: middle;
 }
 .hui-icon-bg {
@@ -1082,7 +1086,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   display: block;
   cursor: pointer;
   text-align: center;
-  font-size: 16px;
+  font-size: 1em;
   font-weight: bold;
   margin: .5em 0;
   padding: .4em 1em;
@@ -1091,7 +1095,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   white-space: nowrap;
   background: #fff;
   color: #222;
-  border: 1px solid #ccc;
   zoom: 1;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -1104,14 +1107,14 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-btn-mark {
   display: none;
   position: absolute;
-  height: 8px;
-  width: 8px;
-  left: 10px;
+  height: 0.5em;
+  width: 0.5em;
+  left: 0.625em;
   top: 50%;
-  margin-top: -4px;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  border-radius: 4px;
+  margin-top: -0.25em;
+  -webkit-border-radius: 0.25em;
+  -moz-border-radius: 0.25em;
+  border-radius: 0.25em;
 }
 .hui-btn-mark-black .hui-btn-mark {
   display: block;
@@ -1299,7 +1302,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   background-image: linear-gradient(#5f9cc5, #6facd5);
 }
 .hui-btn.hui-btn-active-b {
-  color: #73bf00;
+  color: #548805;
 }
 .hui-btn.hui-btn-active-b,
 .hui-btn.hui-btn-active-b:hover {
@@ -1329,7 +1332,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-btn.hui-btn-back {
   overflow: visible;
-  margin-left: 15px;
+  margin-left: 0.938em;
   -moz-border-radius-topleft: 0.2em;
   -webkit-border-top-left-radius: 0.2em;
   border-top-left-radius: 0.2em;
@@ -1457,11 +1460,11 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-btn-icon-right .hui-icon {
   position: absolute;
   top: 50%;
-  margin-top: -11px;
+  margin-top: -0.688em;
 }
 .hui-btn-icon-left.hui-mini .hui-icon,
 .hui-btn-icon-right.hui-mini .hui-icon {
-  margin-top: -9px;
+  margin-top: -0.563em;
 }
 .hui-btn-icon-left {
   padding-left: 2.3em;
@@ -1479,43 +1482,43 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-btn-icon-bottom .hui-icon {
   position: absolute;
   left: 50%;
-  margin-left: -11px;
+  margin-left: -0.688em;
 }
 .hui-btn-icon-top.hui-mini .hui-icon,
 .hui-btn-icon-bottom.hui-mini .hui-icon {
-  margin-left: -9px;
+  margin-left: -0.563em;
 }
 .hui-btn-icon-top {
   padding-top: 1.8em;
 }
 .hui-btn-icon-top .hui-icon {
-  top: 5px;
+  top: 0.313em;
 }
 .hui-btn-icon-top.hui-mini {
   padding-top: 1.5em;
 }
 .hui-btn-icon-top.hui-mini .hui-icon {
-  top: 2px;
+  top: 0.125em;
 }
 .hui-btn-icon-bottom {
   padding-bottom: 1.8em;
 }
 .hui-btn-icon-bottom .hui-icon {
-  bottom: 5px;
+  bottom: 0.313em;
 }
 .hui-btn-icon-bottom.hui-mini {
   padding-bottom: 1.5em;
 }
 .hui-btn-icon-bottom.hui-mini .hui-icon {
-  bottom: 2px;
+  bottom: 0.125em;
 }
 .hui-btn-icon-notxt {
   padding: 0;
-  width: 30px;
-  height: 30px;
+  width: 1.875em;
+  height: 1.875em;
 }
 .hui-btn-icon-notxt .hui-icon {
-  margin: 3px 1px 2px 1px;
+  margin: 0.188em 1px 0.125em 1px;
 }
 .hui-panel .hui-panel-loading {
   position: relative;
@@ -1529,7 +1532,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   text-align: center;
   position: absolute;
   top: 50%;
-  margin-top: -50px;
+  margin-top: -3.125em;
   width: 100%;
 }
 .hui-panel .hui-panel-loading .hui-tips {
@@ -1606,7 +1609,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-radio.hui-btn,
 .hui-chkbox.hui-btn {
-  padding-left: 35px;
+  padding-left: 2.188em;
   text-align: left;
   vertical-align: bottom;
   margin: 0;
@@ -1615,8 +1618,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-chkbox .hui-icon {
   position: absolute;
   top: 50%;
-  margin-top: -11px;
-  left: 10px;
+  margin-top: -0.688em;
+  left: 0.625em;
 }
 .hui-radio input,
 .hui-chkbox input {
@@ -1632,7 +1635,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   z-index: 1000;
   -webkit-transform: translateZ(0);
   overflow: auto;
-  max-height: 200px;
+  max-height: 12.5em;
 }
 .hui-menu .hui-icon-check {
   display: none;
@@ -1657,8 +1660,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   *display: inline;
   height: 1.8em;
   padding: .4em 2em;
-  border-top: 2px solid #222;
-  border-bottom: 2px solid #222;
+  border-top: 0.125em solid #222;
+  border-bottom: 0.125em solid #222;
 }
 .hui-slidesel .hui-slidesel-slider {
   position: absolute;
@@ -1684,7 +1687,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   -webkit-appearance: none;
   min-height: 1.4em;
   line-height: 1.4em;
-  font-size: 16px;
+  font-size: 1em;
   -moz-box-sizing: border-box;
   /*Firefox3.5+*/
   -webkit-box-sizing: border-box;
@@ -1715,33 +1718,33 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   transition: height 200ms linear;
 }
 .hui-input-icon-left {
-  padding-left: 40px;
+  padding-left: 2.5em;
 }
 .hui-input-icon-left .hui-icon {
   position: absolute;
-  left: 10px;
+  left: 0.625em;
   top: 50%;
-  margin-top: -11px;
+  margin-top: -0.688em;
 }
 .hui-input-btn-right {
-  padding-right: 40px;
+  padding-right: 2.5em;
 }
 .hui-input-btn-right .hui-btn {
   position: absolute;
-  right: 10px;
+  right: 0.625em;
   top: 50%;
-  margin-top: -13px;
+  margin-top: -0.813em;
 }
 .hui-input-btn-right .hui-btn-icon-notxt {
-  margin-top: -15px;
+  margin-top: -0.938em;
 }
 .hui-click-arrow {
   position: absolute;
-  margin-top: -18px;
-  width: 20px;
-  height: 36px;
+  margin-top: -1.125em;
+  width: 1.25em;
+  height: 2.25em;
   top: 50%;
-  right: 3px;
+  right: 0.188em;
   text-align: center;
   vertical-align: middle;
 }
@@ -1749,24 +1752,24 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   position: absolute;
   top: 50%;
   left: 50%;
-  margin-top: -11px;
-  margin-left: -11px;
+  margin-top: -0.688em;
+  margin-left: -0.688em;
 }
 .hui-news-tips {
   position: absolute;
   top: 50%;
-  margin-top: -5px;
-  padding-left: 4px;
-  padding-right: 4px;
+  margin-top: -0.313em;
+  padding-left: 0.25em;
+  padding-right: 0.25em;
   background-color: red;
   text-align: center;
   vertical-align: middle;
-  font-size: 8px;
+  font-size: 0.5em;
   color: #fff;
-  -webkit-border-radius: 8px;
-  -moz-border-radius: 8px;
-  border-radius: 8px;
-  right: 5px;
+  -webkit-border-radius: 0.5em;
+  -moz-border-radius: 0.5em;
+  border-radius: 0.5em;
+  right: 0.313em;
 }
 .hui-label.hui-label-default {
   color: #222;
@@ -1777,7 +1780,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   min-height: 2.8em;
 }
 .hui-rowitem .hui-icon {
-  margin-right: 10px;
+  margin-right: 0.625em;
 }
 .hui-rowitem .hui-rowitem-txt {
   word-wrap: break-word;
@@ -1838,7 +1841,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   padding-left: 22%;
 }
 .hui-form .hui-form-action .hui-btn {
-  margin-right: 30px;
+  margin-right: 1.875em;
 }
 .hui-set .hui-set-title {
   padding: .4em;
@@ -1886,13 +1889,13 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   margin-top: -1.1em;
 }
 .hui-tbar .hui-tbar-btn-left {
-  left: 5px;
+  left: 0.313em;
 }
 .hui-tbar .hui-tbar-btn-right {
-  right: 5px;
+  right: 0.313em;
 }
 .hui-tbar .hui-btn-icon-notxt {
-  margin-top: -15px;
+  margin-top: -0.938em;
 }
 .hui-tbar .hui-tab {
   margin: 0;
@@ -2003,7 +2006,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   float: left;
 }
 .hui-tips-inline .hui-icon {
-  margin-right: 3px;
+  margin-right: 0.188em;
 }
 .hui-tips-white {
   background: #fff;
@@ -2046,9 +2049,9 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   position: absolute;
   -webkit-transform: translateZ(0);
   width: 92.5%;
-  max-width: 500px;
+  max-width: 31.25em;
   padding: 0;
-  top: -500px;
+  top: -31.25em;
   z-index: 1000;
   overflow: hidden;
 }
@@ -2081,34 +2084,34 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   background-image: linear-gradient(#f9f9f9, #eeeeee);
 }
 .hui-dialog .hui-body-content {
-  padding: 15px;
+  padding: 0.938em;
 }
 .hui-dialog .hui-content-title {
   font-size: 2em;
   font-weight: bold;
 }
 .hui-dialog .hui-content-msg {
-  margin: 10px 0 10px 0;
+  margin: 0.625em 0 0.625em 0;
   word-wrap: break-word;
   word-break: break-all;
 }
 .hui-dp {
-  width: 250px;
+  width: 15.625em;
 }
 .hui-dp .hui-content-title {
   font-size: 1.1em;
 }
 .hui-dp .hui-select {
   float: left;
-  margin-right: 10px;
+  margin-right: 0.625em;
   padding-left: .2em;
   padding-right: .2em;
 }
 .hui-dp .hui-dp-year {
-  margin-left: 26px;
+  margin-left: 1.625em;
 }
 .hui-dp .hui-dp-hour {
-  margin-left: 57px;
+  margin-left: 3.563em;
 }
 .hui-img-upload.hui-transparent,
 .hui-img-upload.hui-transparent .hui-file-input {
@@ -2123,8 +2126,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   opacity: 0;
 }
 .hui-img-upload img {
-  max-height: 200px;
-  max-width: 200px;
+  max-height: 12.5em;
+  max-width: 12.5em;
 }
 .hui-list .hui-list-empty {
   text-align: center;
@@ -2169,11 +2172,11 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-list .hui-list-more {
   text-align: center;
-  padding-bottom: 20px;
+  padding-bottom: 1.25em;
 }
 .hui-list .hui-list-more .hui-btn {
   margin-bottom: 0;
-  width: 150px;
+  width: 9.375em;
 }
 .hui-list .hui-list-item {
   position: relative;
@@ -2185,21 +2188,21 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-hcard {
   position: relative;
-  padding: 5px;
+  padding: 0.313em;
   min-height: 4.5em;
 }
 .hui-hcard.hui-hcard-hasimg {
-  padding-left: 70px;
+  padding-left: 4.375em;
 }
 .hui-hcard .hui-hcard-img {
   position: absolute;
-  left: 5px;
+  left: 0.313em;
 }
 .hui-hcard .hui-hcard-img img {
-  height: 60px;
+  height: 3.75em;
 }
 .hui-hcard .hui-hcard-content {
-  padding-right: 10px;
+  padding-right: 0.625em;
 }
 .hui-hcard .hui-content-title {
   position: relative;
@@ -2209,12 +2212,12 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   -ms-text-overflow: ellipsis;
   text-overflow: ellipsis;
   color: #222;
-  font-size: 16px;
-  padding-bottom: 5px;
+  font-size: 1em;
+  padding-bottom: 0.313em;
 }
 .hui-hcard .hui-title-desc {
   position: absolute;
-  right: 10px;
+  right: 0.625em;
   font-size: .8em;
   color: #6a6a6a;
 }
@@ -2224,20 +2227,20 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   -o-text-overflow: ellipsis;
   -ms-text-overflow: ellipsis;
   text-overflow: ellipsis;
-  font-size: 12px;
+  font-size: 0.75em;
   color: #6a6a6a;
   vertical-align: bottom;
   padding-bottom: 1px;
 }
 .hui-hcard .hui-content-desc .hui-icon {
-  margin-right: 2px;
+  margin-right: 0.125em;
 }
 .hui-hcard.hui-hcard-little .hui-content-desc {
-  padding-top: 12px;
-  padding-bottom: 10px;
+  padding-top: 0.75em;
+  padding-bottom: 0.625em;
 }
 .hui-vcard {
-  margin: 10px 0;
+  margin: 0.625em 0;
 }
 .hui-vcard .hui-vcard-title {
   position: relative;
@@ -2245,14 +2248,14 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   padding-left: .4em;
 }
 .hui-vcard .hui-vcard-title.hui-title-hasimg {
-  padding-left: 45px;
+  padding-left: 2.813em;
 }
 .hui-vcard .hui-vcard-title .hui-title-img {
   position: absolute;
-  left: 10px;
+  left: 0.625em;
 }
 .hui-vcard .hui-vcard-title .hui-title-img img {
-  height: 30px;
+  height: 1.875em;
 }
 .hui-vcard .hui-vcard-title .hui-title-txt {
   padding: 0.4em 0;
@@ -2260,7 +2263,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-vcard .hui-vcard-title .hui-title-extra {
   position: absolute;
   top: 0;
-  right: 10px;
+  right: 0.625em;
   padding: 0.4em;
 }
 .hui-vcard .hui-vcard-action {
@@ -2271,7 +2274,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-conversation {
   position: relative;
-  padding: 15px 40px;
+  padding: 0.938em 2.5em;
 }
 .hui-conversation .hui-conver-time {
   text-align: center;
@@ -2281,10 +2284,10 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-conversation .hui-conver-img {
   position: absolute;
-  width: 38px;
+  width: 2.375em;
 }
 .hui-conversation .hui-conver-img img {
-  height: 38px;
+  height: 2.375em;
 }
 .hui-conversation .hui-conver-content {
   position: relative;
@@ -2305,14 +2308,14 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-conversation .hui-triangle {
   position: absolute;
-  top: 8px;
+  top: 0.5em;
   border: 1px solid #eee;
-  border-width: 4px;
+  border-width: 0.25em;
   border-top-color: transparent;
   border-bottom-color: transparent;
 }
 .hui-conversation .hui-triangle .hui-triangle-inner {
-  top: -4px;
+  top: -0.25em;
   height: 0;
 }
 .hui-conversation.hui-conversation-left .hui-conver-img {
@@ -2322,12 +2325,12 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   background: #ccccff;
 }
 .hui-conversation.hui-conversation-left .hui-triangle {
-  left: -7px;
-  border-right-width: 7px;
+  left: -0.438em;
+  border-right-width: 0.438em;
   border-left: 0;
 }
 .hui-conversation.hui-conversation-left .hui-triangle .hui-triangle-inner {
-  left: 2px;
+  left: 0.125em;
   border-right-color: #ccccff;
 }
 .hui-conversation.hui-conversation-right .hui-conver-img {
@@ -2339,13 +2342,31 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   background-color: #99ccff;
 }
 .hui-conversation.hui-conversation-right .hui-triangle {
-  right: -7px;
-  border-left-width: 7px;
+  right: -0.438em;
+  border-left-width: 0.438em;
   border-right: 0;
 }
 .hui-conversation.hui-conversation-right .hui-triangle .hui-triangle-inner {
-  right: 2px;
+  right: 0.125em;
   border-left-color: #99ccff;
+}
+.hui-input-zone {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  border-top: 1px solid #ccc;
+  background: #fff;
+  padding: 0.625em 4.063em 0.625em 0.625em;
+  padding-right: 3.125em;
+}
+.hui-input-zone .hui-btn {
+  position: absolute;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  right: 0.188em;
+  bottom: 0.5em;
 }
 .hui-mask {
   position: absolute;
@@ -2391,19 +2412,19 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   background-clip: padding-box;
 }
 .hui-shadow {
-  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 0 1px 0.188em rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 1px 0.188em rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 0.188em rgba(0, 0, 0, 0.2);
 }
 .hui-shadow-inset {
-  -webkit-box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2);
-  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: inset 0 1px 0.25em rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: inset 0 1px 0.25em rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 1px 0.25em rgba(0, 0, 0, 0.2);
 }
 .hui-shadow-overlay {
-  -webkit-box-shadow: 0 0px 12px rgba(0, 0, 0, 0.6);
-  -moz-box-shadow: 0 0px 12px rgba(0, 0, 0, 0.6);
-  box-shadow: 0 0px 12px rgba(0, 0, 0, 0.6);
+  -webkit-box-shadow: 0 0em 0.75em rgba(0, 0, 0, 0.6);
+  -moz-box-shadow: 0 0em 0.75em rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0em 0.75em rgba(0, 0, 0, 0.6);
 }
 .hui-shadow-surround {
   -webkit-box-shadow: 0 1px 0 rgba(255,255,255,.3),inset 0 1px 0 rgba(255,255,255,.3);
@@ -2411,9 +2432,9 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   box-shadow: 0 1px 0 rgba(255,255,255,.3),inset 0 1px 0 rgba(255,255,255,.3);
 }
 .hui-focus {
-  -webkit-box-shadow: 0 0 12px #387bbe;
-  -moz-box-shadow: 0 0 12px #387bbe;
-  box-shadow: 0 0 12px #387bbe;
+  -webkit-box-shadow: 0 0 0.75em #387bbe;
+  -moz-box-shadow: 0 0 0.75em #387bbe;
+  box-shadow: 0 0 0.75em #387bbe;
 }
 .hui-disable {
   cursor: default!important;
@@ -2424,7 +2445,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   z-index: 1;
 }
 .hui-mini {
-  font-size: 12.5px;
+  font-size: 0.75em;
 }
 .hui-mini.hui-btn {
   margin-top: .25em;
@@ -2432,8 +2453,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-mini.hui-icon,
 .hui-mini .hui-icon {
-  width: 18px;
-  height: 18px;
+  width: 1.125em;
+  height: 1.125em;
 }
 .hui-light {
   filter: alpha(opacity= 50 );
@@ -2479,9 +2500,9 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-displayimage .hui-icon-loading {
   position: absolute;
   z-index: 1;
-  width: 44px;
-  height: 44px;
-  left: -50px;
+  width: 2.75em;
+  height: 2.75em;
+  left: -3.125em;
   -webkit-border-radius: 2em;
   -moz-border-radius: 2em;
   border-radius: 2em;

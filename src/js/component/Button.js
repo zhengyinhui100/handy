@@ -17,7 +17,7 @@ function(AC){
 			text            : '',                  //按钮文字
 			theme           : 'gray',
 			markType        : '',                  //标记类型，默认无标记，'black'黑色圆点标记，'red'红色圆点标记
-			iconPos         : '',                  //图标位置，"left"|"right"|"top"|"bottom"
+			iconPos         : '',                  //图标位置，"left"|"right"|"top"|"bottom"，空字符表示无图标
 			activeCls       : 'hui-btn-active',    //激活样式
 			isBack          : false,               //是否是后退按钮
 			radius          : 'little',            //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
