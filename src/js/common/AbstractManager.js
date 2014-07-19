@@ -19,7 +19,8 @@ $Define("CM.AbstractManager", function() {
 		unregister    : fUnRegister,      //注销视图
 		eachInEl      : fEachInEl,        //循环指定节点里的被管理对象
 		generateId    : fGenerateId,      //生成视图的id
-		get           : fGet              //根据id或cid查找视图
+		get           : fGet,             //根据id或cid查找视图
+		find          : fFind             //查找视图
 	});
 	/**
 	 * 初始化
@@ -28,6 +29,7 @@ $Define("CM.AbstractManager", function() {
 		var me=this;
 		me._types={};
 		me._all={};
+		me._allForCid={};
 	}
 	/**
 	 * 注册视图类型
@@ -62,7 +64,7 @@ $Define("CM.AbstractManager", function() {
 		var sCid=oView.cid=oParams.cid||$H.uuid();
 		var sId=oView._id=me.generateId(sCid,oView.xtype);
 		me._all[sId]=oView;
-		me._all[sCid]=oView;
+		me._allForCid[sCid]=oView;
 	}
 	/**
 	 * 注销视图
@@ -77,8 +79,9 @@ $Define("CM.AbstractManager", function() {
 		if(oAll[sId]==oView){
 			delete oAll[sId];
 		}
-		if(oAll[sCid]==oView){
-			delete oAll[sCid];
+		var oCids=this._allForCid;
+		if(oCids[sCid]==oView){
+			delete oCids[sCid];
 		}
 	}
 	/**
@@ -120,11 +123,34 @@ $Define("CM.AbstractManager", function() {
 	 * 根据id或cid查找视图
 	 * @method get
 	 * @param {string}sId 视图id或者cid
+	 * @return {View} 返回找到的视图
 	 */
 	function fGet(sId){
 		var me=this;
+		return me._all[sId]||me._allForCid[sId];
+	}
+	/**
+	 * 查找视图
+	 * @param {string}sQuery
+	 * @return {array} 返回匹配的结果数组
+	 */
+	function fFind(sQuery){
+		var me=this;
 		var all=me._all;
-		return all[sId];
+		var r=[];
+		for(var id in all){
+			var oView=all[id];
+			if(!oView.parent){
+				if(oView.match(sQuery)){
+					r.push(oView);
+				}
+				var tmp=oView.find(sQuery);
+				if(tmp.length>0){
+					r=r.concat(tmp);
+				}
+			}
+		};
+		return r;
 	}
 
 	return AbstractManager;

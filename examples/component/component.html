@@ -768,9 +768,43 @@ $Define('test',function(){
 		});
 		
 		//工具栏
+		var aFixCmps;
+		$(document).click(function(){
+			aFixCmps=aFixCmps||$V.find('.fixCmp');
+			for(var i=0;i<aFixCmps.length;i++){
+				var oCmp=aFixCmps[i];
+				oCmp[oCmp.hidden?'show':'hide']();
+			}
+		})
+		new Toolbar({
+			renderTo:'#toolbarDv',
+			title:'点击页面隐藏工具栏',
+			cClass:'fixCmp',
+			isHeader:true,
+			items:[{
+				xtype:'Button',
+				pos:'left',
+				theme:'dark',
+				tType:'adapt',
+				icon:'carat-l',
+				click:function(){
+					$D.log(1);
+				}
+			},{
+				xtype:'Button',
+				theme:'dark',
+				tType:'adapt',
+				icon:'check',
+				pos:'right'
+			}]
+		})
 		new Toolbar({
 			renderTo:'#toolbarDv',
 			title:'header标题',
+			cClass:'fixCmp',
+			style:{
+				top:40
+			},
 			isHeader:true,
 			items:[{
 				xtype:'Button',
@@ -794,6 +828,7 @@ $Define('test',function(){
 		new Toolbar({
 			renderTo:'#toolbarDv',
 			isFooter:true,
+			cClass:'fixCmp',
 			height:'2.5em',
 			items:[{
 				xtype:'Button',
@@ -1143,7 +1178,11 @@ $Define('test',function(){
 				}]
 			},{
 				xtype:'Panel',
+				cClass:'fixCmp',
 				extCls:'hui-input-zone',
+				style:{
+					bottom:40
+				},
 				items:[{
 					xtype:'Input',
 					isTextarea:true,

@@ -16,6 +16,7 @@ function(AC){
 			cls             : 'btn',
 			text            : '',                  //按钮文字
 			theme           : 'gray',
+//			tType           : 'adapt',             //自适应按钮，一般用于工具栏
 			markType        : '',                  //标记类型，默认无标记，'black'黑色圆点标记，'red'红色圆点标记
 			iconPos         : '',                  //图标位置，"left"|"right"|"top"|"bottom"，空字符表示无图标
 			activeCls       : 'hui-btn-active',    //激活样式
@@ -23,11 +24,13 @@ function(AC){
 			radius          : 'little',            //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 			shadow          : true,        	       //外阴影
 			isInline        : true,                //宽度自适应
-			hasText         : {
-				depends : ['text'],
+			noTxtCls        : {
+				depends : ['text','tType'],
 				parse : function(){
 					var sTxt=this.get('text');
-					return sTxt||sTxt===0;
+					if(!(this.get('tType')=='adapt'||sTxt||sTxt===0)){
+						return 'hui-btn-icon-notxt';
+					}
 				}
 			},
 			iconPosCls      : {
@@ -51,12 +54,37 @@ function(AC){
 			xtype       : 'Icon'
 		},
 		
-		tmpl            : ['<a href="javascript:;" hidefocus="true" {{bindAttr class="hasText:hui-btn-icon-notxt isBack?hui-btn-back markCls iconPosCls"}}>',
+		tmpl            : ['<a href="javascript:;" hidefocus="true" {{bindAttr class="noTxtCls isBack?hui-btn-back markCls iconPosCls"}}>',
 								'<span class="hui-btn-txt">{{text}}</span>',
 								'{{placeItem}}',
 								'<span class="hui-btn-mark"></span>',
-							'</a>'].join('')
+							'</a>'].join(''),
+		doConfig        : fDoConfig           //初始化配置
 	});
+	
+	/**
+	 * 初始化配置
+	 * @param {object}oSettings
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		if(oSettings.tType==='adapt'){
+			oSettings=$H.clone(oSettings);
+			$H.extend(oSettings,{
+				isInline:false,
+				radius:null,
+				shadow:null,
+				shadowSurround:null
+			});
+			if(typeof oSettings.icon==='string'){
+				oSettings.icon={
+					name:oSettings.icon,
+					hasBg:false
+				}
+			}
+		}
+		me.callSuper([oSettings]);
+	}
 	
 	return Button;
 	

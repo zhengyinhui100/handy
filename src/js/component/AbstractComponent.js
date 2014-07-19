@@ -150,11 +150,17 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		me.callSuper();
 		
 		//图标组件快捷添加
-		if(me.icon){
-			me.add({
-				xtype:'Icon',
-				name:me.icon
-			})
+		var icon;
+		if(icon=me.icon){
+			if(typeof icon==='string'){
+				me.add({
+					xtype:'Icon',
+					name:icon
+				})
+			}else{
+				icon.xtype='Icon';
+				me.add(icon);
+			}
 		}
 	}
 	/**

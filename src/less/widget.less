@@ -85,6 +85,13 @@
 		.fn_linear_gradient_top(#f6f6f6,#e0e0e0);
 	}
 }
+//深灰色按钮，一般用于工具栏
+.hui-btn-dark{
+	background: #444;
+	&:hover{
+		background: #333;
+	}
+}
 //黑色按钮
 .hui-btn-black{
 	border: 1px solid #111;
@@ -347,6 +354,13 @@
 	height:1.875em;
 	.hui-icon{
 		margin: 0.188em 1px 0.125em 1px;
+	}
+}
+//纯图标按钮
+.hui-btn-adapt{
+	border:none;
+	&:hover{
+		border:none;
 	}
 }
 
@@ -684,14 +698,26 @@
 			margin-top:-1.063em;
 		}
 	}
+	.hui-btn-icon-notxt{
+		margin-top:-0.938em;
+	}
 	.hui-tbar-btn-left{
 		left:0.313em;
 	}
 	.hui-tbar-btn-right{
 		right:0.313em;
 	}
-	.hui-btn-icon-notxt{
-		margin-top:-0.938em;
+	.hui-btn-adapt.hui-tbar-btn-left{
+		left:0;
+		top:0;
+		bottom:0;
+		margin:0;
+	}
+	.hui-btn-adapt.hui-tbar-btn-right{
+		right:0;
+		top:0;
+		bottom:0;
+		margin:0;
 	}
 	.hui-tab{
 		margin:0;
