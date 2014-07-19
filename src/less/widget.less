@@ -11,6 +11,7 @@
 	.fn_inline_block();
 	background-position:center center;
 	background-repeat: no-repeat;
+	background-size: 1em 1em;
 	vertical-align:middle;
 }
 .hui-icon-bg{
@@ -27,7 +28,7 @@
 	display: block;
 	cursor: pointer;
 	text-align: center;
-	font-size: 16px;
+	font-size: 1em;
 	font-weight: bold;
 	margin: .5em 0;
 	padding: .4em 1em;
@@ -36,7 +37,7 @@
 	white-space: nowrap;
 	background: #fff;
 	color: #222;
-	border: 1px solid #ccc;
+	//border: 1px solid #ccc;
 	zoom:1;
 	.fn_user_select();
 	&:hover{
@@ -47,12 +48,12 @@
 .hui-btn-mark{
 	display:none;
 	position:absolute;
-	height:8px;
-	width:8px;
-	left:10px;
+	height:0.5em;
+	width:0.5em;
+	left:0.625em;
 	top:50%;
-	margin-top:-4px;
-	.fn_border_radius(4px);
+	margin-top:-0.25em;
+	.fn_border_radius(0.25em);
 }
 .hui-btn-mark-black{
 	.hui-btn-mark{
@@ -167,7 +168,7 @@
 //后退箭头按钮
 .hui-btn.hui-btn-back{
 	overflow:visible;
-	margin-left:15px;
+	margin-left:0.938em;
 	.fn_border_radius_left(.2em);
 }
 .hui-btn.hui-btn-back:before{
@@ -279,11 +280,11 @@
 	.hui-icon{
 		position:absolute;
 		top:50%;
-		margin-top:-11px;
+		margin-top:-0.688em;
 	}
 	&.hui-mini{
 		.hui-icon{
-			margin-top:-9px;
+			margin-top:-0.563em;
 		}
 	}
 }
@@ -303,11 +304,11 @@
 	.hui-icon{
 		position:absolute;
 		left:50%;
-		margin-left:-11px;
+		margin-left:-0.688em;
 	}
 	&.hui-mini{
 		.hui-icon{
-			margin-left:-9px;
+			margin-left:-0.563em;
 		}
 		
 	}
@@ -315,12 +316,12 @@
 .hui-btn-icon-top{
 	padding-top:1.8em;
 	.hui-icon{
-		top:5px;
+		top:0.313em;
 	}
 	&.hui-mini{
 		padding-top:1.5em;
 		.hui-icon{
-			top:2px;
+			top:0.125em;
 		}
 		
 	}
@@ -328,21 +329,21 @@
 .hui-btn-icon-bottom{
 	padding-bottom:1.8em;
 	.hui-icon{
-		bottom:5px;
+		bottom:0.313em;
 	}
 	&.hui-mini{
 		padding-bottom:1.5em;
 		.hui-icon{
-			bottom:2px;
+			bottom:0.125em;
 		}
 	}
 }
 .hui-btn-icon-notxt{
 	padding:0;
-	width:30px;
-	height:30px;
+	width:1.875em;
+	height:1.875em;
 	.hui-icon{
-		margin: 3px 1px 2px 1px;
+		margin: 0.188em 1px 0.125em 1px;
 	}
 }
 
@@ -356,7 +357,7 @@
 			.fn_inline_block();
 			.c-h-middle-container();
 			.c-v-middle();
-			margin-top:-50px;
+			margin-top:-3.125em;
 			width:100%;
 		}
 		.hui-tips{
@@ -413,7 +414,7 @@
 //单选框
 .hui-radio,.hui-chkbox{
 	&.hui-btn{
-		padding-left:35px;
+		padding-left:2.188em;
 		text-align:left;
 		vertical-align:bottom;
 		margin:0;
@@ -421,8 +422,8 @@
 	.hui-icon{
 		position:absolute;
 		top:50%;
-		margin-top:-11px;
-		left:10px;
+		margin-top:-0.688em;
+		left:0.625em;
 	}
 	input{
 		display:none;
@@ -442,7 +443,7 @@
 	.hui-popup();
 	//考虑二级菜单，暂不使用overflow
 	overflow:auto;
-	max-height:200px;
+	max-height:12.5em;
 	.hui-icon-check{
 		display:none;
 	}
@@ -468,8 +469,8 @@
 		.fn_inline_block();
 		height:1.8em;
 		padding:.4em 2em;
-		border-top:2px solid #222;
-		border-bottom:2px solid #222;
+		border-top:0.125em solid #222;
+		border-bottom:0.125em solid #222;
 	}
 	.hui-slidesel-slider{
 		position:absolute;
@@ -496,7 +497,7 @@
 		-webkit-appearance: none;
 		min-height: 1.4em;
 		line-height: 1.4em;
-		font-size: 16px;
+		font-size: 1em;
 		.fn_box_sizing(border-box);
 		outline:none;
 		&:focus{
@@ -514,57 +515,57 @@
 	}
 }
 .hui-input-icon-left{
-	padding-left:40px;
+	padding-left:2.5em;
 	.hui-icon{
 		position:absolute;
-		left:10px;
+		left:0.625em;
 		top:50%;
-		margin-top:-11px;
+		margin-top:-0.688em;
 	}
 }
 .hui-input-btn-right{
-	padding-right:40px;
+	padding-right:2.5em;
 	.hui-btn{
 		position:absolute;
-		right:10px;
+		right:0.625em;
 		top:50%;
-		margin-top:-13px;
+		margin-top:-0.813em;
 	}
 	.hui-btn-icon-notxt{
-		margin-top:-15px;
+		margin-top:-0.938em;
 	}
 }
 //右边垂直居中的箭头图标
 .hui-click-arrow{
 	position:absolute;
-	margin-top:-18px;
-	width:20px;
-	height:36px;
+	margin-top:-1.125em;
+	width:1.25em;
+	height:2.25em;
 	top:50%;
-	right:3px;
+	right:0.188em;
 	text-align:center;
 	vertical-align:middle;
 	.hui-icon{
 		position:absolute;
 		top:50%;
 		left:50%;
-		margin-top:-11px;
-		margin-left:-11px;
+		margin-top:-0.688em;
+		margin-left:-0.688em;
 	}
 }
 .hui-news-tips{
 	position:absolute;
 	top:50%;
-	margin-top:-5px;
-	padding-left:4px;
-	padding-right:4px;
+	margin-top:-0.313em;
+	padding-left:0.25em;
+	padding-right:0.25em;
 	background-color:red;
 	text-align:center;
 	vertical-align:middle;
-	font-size:8px;
+	font-size:0.5em;
 	color:#fff;
-	.fn_border_radius(8px);
-	right:5px;
+	.fn_border_radius(0.5em);
+	right:0.313em;
 }
 .hui-label{
 	&.hui-label-default{
@@ -577,7 +578,7 @@
 	padding:.8em .6em .8em .4em;
 	min-height:2.8em;
 	.hui-icon{
-		margin-right:10px;
+		margin-right:0.625em;
 	}
 	.hui-rowitem-txt{
 		.fn_word_break();
@@ -630,7 +631,7 @@
 	.hui-form-action{
 		padding-left:22%;
 		.hui-btn{
-			margin-right:30px;
+			margin-right:1.875em;
 		}
 	}
 }
@@ -681,13 +682,13 @@
 		}
 	}
 	.hui-tbar-btn-left{
-		left:5px;
+		left:0.313em;
 	}
 	.hui-tbar-btn-right{
-		right:5px;
+		right:0.313em;
 	}
 	.hui-btn-icon-notxt{
-		margin-top:-15px;
+		margin-top:-0.938em;
 	}
 	.hui-tab{
 		margin:0;
@@ -794,7 +795,7 @@
 		float:left;
 	}
 	.hui-icon{
-		margin-right:3px;
+		margin-right:0.188em;
 	}
 }
 .hui-tips-white{
@@ -818,9 +819,9 @@
 .hui-dialog{
 	.hui-popup();
 	width: 92.5%;
-	max-width: 500px;
+	max-width: 31.25em;
 	padding: 0;
-	top: -500px;
+	top: -31.25em;
 	z-index: 1000;
 	overflow:hidden;
 	&>:first-child{
@@ -846,7 +847,7 @@
 		.fn_linear_gradient_top(#f9f9f9,#eee);
 	}
 	.hui-body-content{
-		padding:15px;
+		padding:0.938em;
 	}
 	.hui-body-action{
 		//.fn_border_radius_bottom(inherit);
@@ -856,28 +857,28 @@
 		font-weight:bold;
 	}
 	.hui-content-msg{
-		margin:10px 0 10px 0;
+		margin:0.625em 0 0.625em 0;
 		.fn_word_break();
 	}
 }
 
 //日期选择器
 .hui-dp{
-	width:250px;
+	width:15.625em;
 	.hui-content-title{
 		font-size:1.1em;
 	}
 	.hui-select{
 		float:left;
-		margin-right:10px;
+		margin-right:0.625em;
 		padding-left:.2em;
 		padding-right:.2em;
 	}
 	.hui-dp-year{
-		margin-left:26px;
+		margin-left:1.625em;
 	}
 	.hui-dp-hour{
-		margin-left:57px;
+		margin-left:3.563em;
 	}
 }
 
@@ -894,8 +895,8 @@
 		.fn_opacity(0);
 	}
 	img{
-		max-height:200px;
-		max-width:200px;
+		max-height:12.5em;
+		max-width:12.5em;
 	}
 }
 
@@ -939,10 +940,10 @@
 	}
 	.hui-list-more{
 		text-align:center;
-		padding-bottom:20px;
+		padding-bottom:1.25em;
 		.hui-btn{
 			margin-bottom:0;
-			width:150px;
+			width:9.375em;
 		}
 	}
 	.hui-list-item{
@@ -958,64 +959,64 @@
 //横向卡片
 .hui-hcard{
 	position:relative;
-	padding:5px;
+	padding:0.313em;
 	min-height:4.5em;
 	&.hui-hcard-hasimg{
-		padding-left:70px;
+		padding-left:4.375em;
 	}
 	.hui-hcard-img{
 		position:absolute;
-		left:5px;
+		left:0.313em;
 		img{
-			height:60px;
+			height:3.75em;
 		}
 	}
 	.hui-hcard-content{
-		padding-right:10px;
+		padding-right:0.625em;
 	}
 	.hui-content-title{
 		position:relative;
 		.fn_text_overflow();
 		color:#222;
-		font-size:16px;
-		padding-bottom:5px;
+		font-size:1em;
+		padding-bottom:0.313em;
 	}
 	.hui-title-desc{
 		position:absolute;
-		right:10px;
+		right:0.625em;
 		font-size:.8em;
 		color:#6a6a6a;
 	}
 	.hui-content-desc{
 		.fn_text_overflow();
-		font-size:12px;
+		font-size:0.75em;
 		color:#6a6a6a;
 		vertical-align:bottom;
 		padding-bottom:1px;
 		.hui-icon{
-			margin-right:2px;
+			margin-right:0.125em;
 		}
 	}
 	&.hui-hcard-little .hui-content-desc{
-		padding-top:12px;
-		padding-bottom:10px;
+		padding-top:0.75em;
+		padding-bottom:0.625em;
 	}
 }
 //纵向卡片
 .hui-vcard{
-	margin:10px 0;
+	margin:0.625em 0;
 	.hui-vcard-title{
 		position:relative;
 		background:#f1f1f1;
 		padding-left:.4em;
 		&.hui-title-hasimg{
-			padding-left:45px;
+			padding-left:2.813em;
 		}
 		.hui-title-img{
 			position:absolute;
-			left:10px;
+			left:0.625em;
 			img{
-				height:30px;
+				height:1.875em;
 			}
 		}
 		.hui-title-txt{
@@ -1024,7 +1025,7 @@
 		.hui-title-extra{
 			position:absolute;
 			top:0;
-			right:10px;
+			right:0.625em;
 			padding:0.4em;
 		}
 	}
@@ -1040,7 +1041,7 @@
 //会话
 .hui-conversation{
 	position:relative;
-	padding:15px 40px;
+	padding:0.938em 2.5em;
 	.hui-conver-time{
 		text-align:center;
 		font-size:.6em;
@@ -1049,9 +1050,9 @@
 	}
 	.hui-conver-img{
 		position:absolute;
-		width:38px;
+		width:2.375em;
 		img{
-			height:38px;
+			height:2.375em;
 		}
 	}
 	.hui-conver-content{
@@ -1065,13 +1066,13 @@
 	}
 	.hui-triangle{
 		position:absolute;
-		top:8px;
+		top:0.5em;
 		border:1px solid #eee;
-		border-width:4px;
+		border-width:0.25em;
 		border-top-color:transparent;
 		border-bottom-color:transparent;
 		.hui-triangle-inner{
-			top:-4px;
+			top:-0.25em;
 			height:0;
 		}
 	}
@@ -1083,11 +1084,11 @@
 			background:#ccccff;
 		}
 		.hui-triangle{
-			left:-7px;
-			border-right-width:7px;
+			left:-0.438em;
+			border-right-width:0.438em;
 			border-left:0;
 			.hui-triangle-inner{
-				left:2px;
+				left:0.125em;
 				border-right-color:#ccccff;
 			}
 		}
@@ -1102,11 +1103,11 @@
 			background-color:#99ccff;
 		}
 		.hui-triangle{
-			right:-7px;
-			border-left-width:7px;
+			right:-0.438em;
+			border-left-width:0.438em;
 			border-right:0;
 			.hui-triangle-inner{
-				right:2px;
+				right:0.125em;
 				border-left-color:#99ccff;
 			}
 		}
@@ -1121,15 +1122,15 @@
 	z-index:100;
 	border-top:1px solid #ccc;
 	background:#fff;
-	padding:10px 65px 10px 10px;
-	padding-right:50px;
+	padding:0.625em 4.063em 0.625em 0.625em;
+	padding-right:3.125em;
 	//position:relative;
 	.hui-btn{
 		position:absolute;
-		padding-left:8px;
-		padding-right:8px;
-		right:3px;
-		bottom:8px;
+		padding-left:0.5em;
+		padding-right:0.5em;
+		right:0.188em;
+		bottom:0.5em;
 	}
 }
 //遮罩层
@@ -1172,15 +1173,15 @@
 }
 //阴影
 .hui-shadow{
-	.fn_box_shadow( 0 1px 3px rgba(0,0,0,.2));
+	.fn_box_shadow( 0 1px 0.188em rgba(0,0,0,.2));
 }
 //内阴影
 .hui-shadow-inset{
-	.fn_box_shadow(inset 0 1px 4px rgba(0,0,0,.2));
+	.fn_box_shadow(inset 0 1px 0.25em rgba(0,0,0,.2));
 }
 //覆盖层阴影
 .hui-shadow-overlay{
-	.fn_box_shadow(0 0px 12px rgba(0,0,0,.6));
+	.fn_box_shadow(0 0em 0.75em rgba(0,0,0,.6));
 }
 //（黑色工具栏内按钮）亮阴影
 .hui-shadow-surround {
@@ -1188,7 +1189,7 @@
 }
 //聚焦
 .hui-focus{
-	.fn_box_shadow(0 0 12px #387bbe);
+	.fn_box_shadow(0 0 0.75em #387bbe);
 }
 //禁止
 .hui-disable{
@@ -1204,10 +1205,10 @@
 		margin-top: .25em;
 		margin-bottom: .25em;
 	}
-	font-size: 12.5px;
+	font-size: 0.75em;
 	&.hui-icon,.hui-icon{
-		width:18px;
-		height:18px;
+		width:1.125em;
+		height:1.125em;
 	}
 }
 //半透明，减淡颜色
@@ -1237,9 +1238,9 @@
 	.hui-icon-loading{
 		position:absolute;
 		z-index:1;
-		width:44px;
-		height:44px;
-		left:-50px;
+		width:2.75em;
+		height:2.75em;
+		left:-3.125em;
 		.fn_border_radius(2em);
 	}
 	.hui-displayimage-inner{

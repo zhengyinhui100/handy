@@ -149,10 +149,6 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 				name:me.icon
 			})
 		}
-		//父组件是迷你的，子组件默认也是迷你的
-		if(me.isMini){
-			me.defItem=$H.extend({isMini:true},me.defItem);
-		}
 	}
 	/**
 	 * 预处理模板，添加组件样式

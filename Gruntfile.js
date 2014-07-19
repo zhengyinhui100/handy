@@ -21,6 +21,29 @@ module.exports = function(grunt) {
 			}
 		},
 		copy:{
+			pxToEm:{
+				options : {
+					process : function(content, srcpath) {
+						return content.replace(/([0-9\.]+px)/g, function(match,$1){
+							var v=$1.replace('px','');
+							if(v=='1'){
+								return $1;
+							}
+							v=(1/16)*parseInt(v);
+							v=Math.ceil(v*1000)/1000;
+							v=v+'em';
+							grunt.log.writeln($1+"-->"+v);
+							return v;
+						});
+					}
+				},
+				files:[{
+					expand : true,
+					cwd : "src/less/2",
+					src : "widget.less",
+					dest:'src/less'
+				}]
+			},
 			src:{
 				expand : true,
 				cwd:'src',
@@ -193,8 +216,10 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-ftpscript');
 
-	grunt.registerTask('online', ['less','cssmin','concat','uglify','copy']);
+	grunt.registerTask('online', ['less','cssmin','concat','uglify','copy:src']);
 	
-	grunt.registerTask('default', ['clean','less','copy','concat','cssmin','uglify']);
+	grunt.registerTask('dev', ['clean','less','copy:src','concat','cssmin','uglify']);
+	
+	grunt.registerTask('default', ['copy:pxToEm']);
 	
 };
