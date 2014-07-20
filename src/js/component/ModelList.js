@@ -131,7 +131,7 @@ function(AC){
 					var me=this;
 					var oWrapper=me.getEl();
 					var oPdEl=oWrapper.find('.hui-list-pulldown');
-					var nStartY=50;
+					var nStartY=48;
 					var sRefreshCls='hui-pd-refresh';
 					var sReleaseCls='hui-pd-release';
 					me.scroller= new window.iScroll(oWrapper[0], {
