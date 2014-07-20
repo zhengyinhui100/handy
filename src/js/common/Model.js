@@ -416,20 +416,22 @@ function(AbstractDao,AbstractEvents){
 	    			curVal&&me.unlistenTo(curVal,'all');
 	    		}else{
 					oCurrent[sAttr] = val;
-					if(!curVal||curVal.id!=val.id){
-						//这里如果传入就是模型，_parseFields方法不进行处理，因此这里标记为已改变
-						val._changedTmp=true;
+					if(!curVal||!val||curVal.id!=val.id){
 						//如果有旧值，需要清除相关事件
 	    				curVal&&me.unlistenTo(curVal,'all');
-						//新模型需要监听事件
-	    				me.listenTo(val,'all',$H.bind(me._onAttrEvent,me,sAttr));
+	    				if(val){
+							//这里如果传入就是模型，_parseFields方法不进行处理，因此这里标记为已改变
+							val._changedTmp=true;
+							//新模型需要监听事件
+		    				me.listenTo(val,'all',$H.bind(me._onAttrEvent,me,sAttr));
+	    				}
 					}
 	    		}
 	    		////与当前值不相等，放入本次改变列表中
-    			if(bUnset||val._changedTmp){
+    			if(bUnset||!val||val._changedTmp){
     				oChanges[sAttr]=val;
     			}
-				delete val._changedTmp;
+				val&&delete val._changedTmp;
 	    	}else{
 		   	    //与当前值不相等，放入本次改变列表中
 		    	if (!$H.equals(oCurrent[sAttr], val)){

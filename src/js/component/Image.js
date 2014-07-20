@@ -16,15 +16,16 @@ function(AC,DisplayImage){
 	Image.extend({
 		//初始配置
 		xConfig         : {
-			cls         : 'img',
+			cls         : 'image',
 			imgSrc      : '',          //图片地址
 			radius      : 'little'     //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 		},
-//		fixHeight       : 50,          //适应高度，自动修正图片高度，在不改变图片宽高比的前提下，最大化接近适应高度
-//		fixWidth        : 50,          //适应宽度，自动修正图片宽度，在不改变图片宽高比的前提下，最大化接近适应宽度
+//		height          : 50,          //指定高度会自动修正图片高度，在不改变图片宽高比的前提下，最大化接近指定的高度
+//		width           : 50,          //指定宽度会自动修正图片宽度，在不改变图片宽高比的前提下，最大化接近指定的宽度
 		_customEvents   : ['imgLoad'],
 		listeners       : [{
 			name:'load',
+			el:'img',
 			handler:function(oEvt){
 				var me=this;
 				var oImg=oEvt.target;
@@ -34,8 +35,9 @@ function(AC,DisplayImage){
 	            var w = oImg.width,
 	                h = oImg.height,
 	                scale = w / h,
-	                nFixW=me.fixWidth,
-	                nFixH=me.fixHeight;
+	                nFixW=me.width,
+	                nFixH=me.height;
+	            oImg=$(oImg);
 	            if(nFixW||nFixH){
 		            if(w>nFixW){
 		            	w=nFixW;
@@ -45,13 +47,22 @@ function(AC,DisplayImage){
 		            	h=nFixH;
 		            	w=h*scale;
 		            }
-		            $(oImg).attr({width:w,height:h});
+		            oImg.attr({width:w,height:h});
+	            }
+	            var nLeft,nTop;
+	            if(w<nFixW){
+	            	nLeft=(nFixW-w)/2;
+	            	oImg.css('left',nLeft);
+	            }
+	            if(h<nFixH){
+	            	nTop=(nFixH-h)/2;
+	            	oImg.css('top',nTop);
 	            }
 				me.trigger("imgLoad",oEvt);
 			}
 		}],
 		
-		tmpl            : '<img {{bindAttr src="imgSrc"}}/>'
+		tmpl            : '<div><img {{bindAttr src="imgSrc"}}/></div>'
 		
 	});
 	

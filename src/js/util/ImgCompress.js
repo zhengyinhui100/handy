@@ -76,8 +76,13 @@ function(){
             $(oCanvas).attr({width : w, height : h});
             oCtx.drawImage(oImg, 0, 0, w, h);
             
+            //图片背景如果是透明的，默认保存成base64会变成黑色的，这里把白色图片跟原图合并，这样保存后透明背景就变成指定颜色(#ffffff)的了
+			oCtx.globalCompositeOperation = "destination-over";
+			oCtx.fillStyle = '#ffffff';
+			oCtx.fillRect(0,0,w,h);
+            
             var nQuality=oOptions.quality||0.5;
-
+			var base64;
 
             // 修复IOS
             if( $H.ios() ) {
@@ -90,7 +95,7 @@ function(){
                 base64 = encoder.encode(oCtx.getImageData(0,0,w,h), nQuality * 100 );
             }else{
 				//生成base64
-	            var base64 = oCanvas.toDataURL('image/jpeg', nQuality );
+	            base64 = oCanvas.toDataURL('image/jpeg', nQuality );
             }
 
             // 生成结果

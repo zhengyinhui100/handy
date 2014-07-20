@@ -16,8 +16,15 @@ function(AC){
 			image     : '',    //图片
 			title     : '',    //标题
 			titleDesc : '',    //标题说明
+			hasImg    : true,  //是否有图片
 			hasArrow  : false, //是否有右边箭头，有点击函数时默认有右箭头
-			newsNum   : 0,             //新消息提示数目，大于9自动显示成"9+"
+			newsNum   : 0,     //新消息提示数目，大于9自动显示成"9+"
+			hasImgCls    : {      //是否有图片
+				depends : ['image','hasImg'],
+				parse:function(val){
+					return (this.get('image')||this.get('hasImg'))?'hui-hcard-hasimg':'';
+				}
+			},  
 			newsNumTxt      : {
 				depends : ['newsNum'],
 				parse:function(){
@@ -34,7 +41,7 @@ function(AC){
 //		contentClick    : $H.noop,        //图片点击事件函数
 		
 		tmpl     : [
-			'<div {{bindAttr class="image?hui-hcard-hasimg"}}>',
+			'<div {{bindAttr class="hasImgCls"}}>',
 				'{{#if image}}',
 					'<div class="hui-hcard-img js-img">',
 						'<img {{bindAttr src="image"}}>',

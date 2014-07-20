@@ -36,7 +36,7 @@ function(){
 			sName=$H.alias(sName);
 		}
 		if(oCache=_cache[sName]){
-			if(!oOptions){
+			if(oOptions===undefined){
 				return oCache;
 			}else if(!$H.isObj(oOptions)){
 				//根据id查找
