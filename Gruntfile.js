@@ -237,6 +237,6 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('online', ['clean','less','copy:src','concat','cssmin','uglify']);
 	
-	grunt.registerTask('default', ['copy:fixLess']);
+	grunt.registerTask('default', ['online']);
 	
 };

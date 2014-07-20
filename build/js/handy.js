@@ -6499,7 +6499,8 @@ $Define("CM.AbstractManager", function() {
 		unregister    : fUnRegister,      //注销视图
 		eachInEl      : fEachInEl,        //循环指定节点里的被管理对象
 		generateId    : fGenerateId,      //生成视图的id
-		get           : fGet              //根据id或cid查找视图
+		get           : fGet,             //根据id或cid查找视图
+		find          : fFind             //查找视图
 	});
 	/**
 	 * 初始化
@@ -6508,6 +6509,7 @@ $Define("CM.AbstractManager", function() {
 		var me=this;
 		me._types={};
 		me._all={};
+		me._allForCid={};
 	}
 	/**
 	 * 注册视图类型
@@ -6542,7 +6544,7 @@ $Define("CM.AbstractManager", function() {
 		var sCid=oView.cid=oParams.cid||$H.uuid();
 		var sId=oView._id=me.generateId(sCid,oView.xtype);
 		me._all[sId]=oView;
-		me._all[sCid]=oView;
+		me._allForCid[sCid]=oView;
 	}
 	/**
 	 * 注销视图
@@ -6557,8 +6559,9 @@ $Define("CM.AbstractManager", function() {
 		if(oAll[sId]==oView){
 			delete oAll[sId];
 		}
-		if(oAll[sCid]==oView){
-			delete oAll[sCid];
+		var oCids=this._allForCid;
+		if(oCids[sCid]==oView){
+			delete oCids[sCid];
 		}
 	}
 	/**
@@ -6600,11 +6603,34 @@ $Define("CM.AbstractManager", function() {
 	 * 根据id或cid查找视图
 	 * @method get
 	 * @param {string}sId 视图id或者cid
+	 * @return {View} 返回找到的视图
 	 */
 	function fGet(sId){
 		var me=this;
+		return me._all[sId]||me._allForCid[sId];
+	}
+	/**
+	 * 查找视图
+	 * @param {string}sQuery
+	 * @return {array} 返回匹配的结果数组
+	 */
+	function fFind(sQuery){
+		var me=this;
 		var all=me._all;
-		return all[sId];
+		var r=[];
+		for(var id in all){
+			var oView=all[id];
+			if(!oView.parent){
+				if(oView.match(sQuery)){
+					r.push(oView);
+				}
+				var tmp=oView.find(sQuery);
+				if(tmp.length>0){
+					r=r.concat(tmp);
+				}
+			}
+		};
+		return r;
 	}
 
 	return AbstractManager;
@@ -9505,7 +9531,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 			shadowInset     : false,        	 //内阴影
 			shadowSurround  : false,             //外围亮阴影，主要用于黑色工具栏内的按钮
 			shadowOverlay   : false,             //遮罩层里组件的阴影效果，主要用于弹出层
-			isMini          : false,       	     //小号
+			size            : '',       	     //尺寸，normal:正常，mini:小号
 			isActive        : false,             //是否激活
 			isFocus         : false,        	 //聚焦
 			isInline        : false,             //是否内联(宽度自适应)
@@ -9514,6 +9540,13 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 				depends : ['cls'],
 				parse :function(){
 					return 'hui-'+this.get("cls");
+				}
+			},
+			sizeCls          : {
+				depends : ['size'],
+				parse :function(){
+					var size=this.get("size");
+					return size&&'hui-size-'+size;
 				}
 			},
 			tTypeCls        : {
@@ -9616,11 +9649,17 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 		me.callSuper();
 		
 		//图标组件快捷添加
-		if(me.icon){
-			me.add({
-				xtype:'Icon',
-				name:me.icon
-			})
+		var icon;
+		if(icon=me.icon){
+			if(typeof icon==='string'){
+				me.add({
+					xtype:'Icon',
+					name:icon
+				})
+			}else{
+				icon.xtype='Icon';
+				me.add(icon);
+			}
 		}
 	}
 	/**
@@ -9629,7 +9668,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 	function fPreTmpl(){
 		var me=this;
 		me.callSuper();
-		me.tmpl=me.tmpl.replace(/(class=['"])/,'$1#js-component cmpCls tTypeCls themeCls radiusCls isMini?hui-mini shadow?hui-shadow shadowSurround?hui-shadow-surround '+
+		me.tmpl=me.tmpl.replace(/(class=['"])/,'$1#js-component cmpCls tTypeCls themeCls radiusCls sizeCls shadow?hui-shadow shadowSurround?hui-shadow-surround '+
 		'shadowOverlay?hui-shadow-overlay shadowInset?hui-shadow-inset activeClass isFocus?hui-focus isInline?hui-inline ');
 	}
 	/**
@@ -9762,18 +9801,21 @@ function(AC){
 			cls             : 'btn',
 			text            : '',                  //按钮文字
 			theme           : 'gray',
+//			tType           : 'adapt',             //自适应按钮，一般用于工具栏
 			markType        : '',                  //标记类型，默认无标记，'black'黑色圆点标记，'red'红色圆点标记
-			iconPos         : '',                  //图标位置，"left"|"right"|"top"|"bottom"
+			iconPos         : '',                  //图标位置，"left"|"right"|"top"|"bottom"，空字符表示无图标
 			activeCls       : 'hui-btn-active',    //激活样式
 			isBack          : false,               //是否是后退按钮
 			radius          : 'little',            //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 			shadow          : true,        	       //外阴影
 			isInline        : true,                //宽度自适应
-			hasText         : {
-				depends : ['text'],
+			noTxtCls        : {
+				depends : ['text','tType'],
 				parse : function(){
 					var sTxt=this.get('text');
-					return sTxt||sTxt===0;
+					if(!(this.get('tType')=='adapt'||sTxt||sTxt===0)){
+						return 'hui-btn-icon-notxt';
+					}
 				}
 			},
 			iconPosCls      : {
@@ -9797,12 +9839,37 @@ function(AC){
 			xtype       : 'Icon'
 		},
 		
-		tmpl            : ['<a href="javascript:;" hidefocus="true" {{bindAttr class="hasText:hui-btn-icon-notxt isBack?hui-btn-back markCls iconPosCls"}}>',
+		tmpl            : ['<a href="javascript:;" hidefocus="true" {{bindAttr class="noTxtCls isBack?hui-btn-back markCls iconPosCls"}}>',
 								'<span class="hui-btn-txt">{{text}}</span>',
 								'{{placeItem}}',
 								'<span class="hui-btn-mark"></span>',
-							'</a>'].join('')
+							'</a>'].join(''),
+		doConfig        : fDoConfig           //初始化配置
 	});
+	
+	/**
+	 * 初始化配置
+	 * @param {object}oSettings
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		if(oSettings.tType==='adapt'){
+			oSettings=$H.clone(oSettings);
+			$H.extend(oSettings,{
+				isInline:false,
+				radius:null,
+				shadow:null,
+				shadowSurround:null
+			});
+			if(typeof oSettings.icon==='string'){
+				oSettings.icon={
+					name:oSettings.icon,
+					hasBg:false
+				}
+			}
+		}
+		me.callSuper([oSettings]);
+	}
 	
 	return Button;
 	
@@ -9838,7 +9905,7 @@ function(AC,Model,Collection){
 		tmpl     : [
 			'<div class="hui-content-desc">',
 				'{{#if icon}}',
-					'<span {{bindAttr class="#hui-icon #hui-mini #hui-alt-icon iconCls #hui-light"}}></span>',
+					'<span {{bindAttr class="#hui-icon #hui-size-mini #hui-alt-icon iconCls #hui-light"}}></span>',
 				'{{/if}}',
 				'{{text}}',
 			'</div>'
@@ -11435,7 +11502,7 @@ function(AC,Popup,ControlGroup){
 				timeout:null,
 				delayShow:false,
 				shadowOverlay:null,
-				isMini:true,
+				size:'mini',
 				tType:'inline',
 				width:'auto',
 				style:{
@@ -11606,7 +11673,7 @@ function(AC,Popup){
 					xtype:'Button',
 					radius:'big',
 					icon:'delete',
-					isMini:false,
+					size:'normal',
 					theme:'gray',
 					pos:'left',
 					click:function(){

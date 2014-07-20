@@ -1080,6 +1080,9 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   -moz-border-radius: 1em;
   border-radius: 1em;
 }
+.hui-icon-loading {
+  background-size: auto;
+}
 .hui-btn {
   position: relative;
   text-decoration: none;
@@ -1088,9 +1091,9 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   text-align: center;
   font-size: 1em;
   font-weight: bold;
-  margin: .5em 0;
-  padding: .4em 1em;
-  min-width: .75em;
+  margin: 0.5em 0;
+  padding: 0.375em 1em;
+  min-width: 0.75em;
   text-overflow: ellipsis;
   white-space: nowrap;
   background: #fff;
@@ -1157,6 +1160,12 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   background-image: -o-linear-gradient(#f6f6f6, #e0e0e0);
   /* Opera 11.10+ */
   background-image: linear-gradient(#f6f6f6, #e0e0e0);
+}
+.hui-btn-dark {
+  background: #444;
+}
+.hui-btn-dark:hover {
+  background: #333;
 }
 .hui-btn-black {
   border: 1px solid #111;
@@ -1306,8 +1315,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-btn.hui-btn-active-b,
 .hui-btn.hui-btn-active-b:hover {
-  padding-bottom: 0.3em;
-  border-bottom: 0.2em solid #73bf00;
+  padding-bottom: 0.25em;
+  border-bottom: 0.188em solid #73bf00;
 }
 .hui-btn.hui-btn-active-c .hui-icon-bg,
 .hui-btn.hui-btn-active-c:hover .hui-icon-bg {
@@ -1333,22 +1342,22 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-btn.hui-btn-back {
   overflow: visible;
   margin-left: 0.938em;
-  -moz-border-radius-topleft: 0.2em;
-  -webkit-border-top-left-radius: 0.2em;
-  border-top-left-radius: 0.2em;
-  -moz-border-radius-bottomleft: 0.2em;
-  -webkit-border-bottom-left-radius: 0.2em;
-  border-bottom-left-radius: 0.2em;
+  -moz-border-radius-topleft: 0.188em;
+  -webkit-border-top-left-radius: 0.188em;
+  border-top-left-radius: 0.188em;
+  -moz-border-radius-bottomleft: 0.188em;
+  -webkit-border-bottom-left-radius: 0.188em;
+  border-bottom-left-radius: 0.188em;
 }
 .hui-btn.hui-btn-back:before {
   content: '';
   position: absolute;
 }
 .hui-mi-csstransforms .hui-btn-back:before {
-  left: -0.65em;
+  left: -0.625em;
   top: 0.25em;
-  width: 1.33em;
-  height: 1.33em;
+  width: 1.313em;
+  height: 1.313em;
   -moz-transform: rotate(135deg);
   -webkit-transform: rotate(135deg);
   -o-transform: rotate(135deg);
@@ -1356,14 +1365,14 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   transform: rotate(135deg);
 }
 .hui-mi-csstransforms .hui-btn-back.hui-shadow-surround:before {
-  left: -0.7em;
-  top: 0.32em;
+  left: -0.75em;
+  top: 0.313em;
 }
-.hui-mi-csstransforms .hui-btn-back.hui-btn-black.hui-mini:before {
+.hui-mi-csstransforms .hui-btn-back.hui-btn-black.hui-size-mini:before {
   width: 1.5em;
   height: 1.5em;
-  left: -0.8em;
-  top: 0.32em;
+  left: -0.75em;
+  top: 0.313em;
 }
 .hui-mi-csstransforms .hui-btn-back.hui-btn-gray:before {
   border-right: 1px solid #ccc;
@@ -1431,12 +1440,12 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-mi-no-csstransforms .hui-btn-back:before {
   left: -2em;
   top: 0;
-  border: 1.01em solid transparent;
-  border-right: 1.01em solid #333;
+  border: 1em solid transparent;
+  border-right: 1em solid #333;
 }
-.hui-mi-no-csstransforms .hui-btn-back.hui-mini:before {
-  left: -2.1em;
-  border-width: 1.105em;
+.hui-mi-no-csstransforms .hui-btn-back.hui-size-mini:before {
+  left: -2.063em;
+  border-width: 1.063em;
 }
 .hui-mi-no-csstransforms .hui-btn-back.hui-btn-gray:before {
   border-right-color: #eee;
@@ -1462,21 +1471,21 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   top: 50%;
   margin-top: -0.688em;
 }
-.hui-btn-icon-left.hui-mini .hui-icon,
-.hui-btn-icon-right.hui-mini .hui-icon {
+.hui-btn-icon-left.hui-size-mini .hui-icon,
+.hui-btn-icon-right.hui-size-mini .hui-icon {
   margin-top: -0.563em;
 }
 .hui-btn-icon-left {
-  padding-left: 2.3em;
+  padding-left: 2.25em;
 }
 .hui-btn-icon-left .hui-icon {
-  left: 0.7em;
+  left: 0.688em;
 }
 .hui-btn-icon-right {
-  padding-right: 2.3em;
+  padding-right: 2.25em;
 }
 .hui-btn-icon-right .hui-icon {
-  right: 0.7em;
+  right: 0.688em;
 }
 .hui-btn-icon-top .hui-icon,
 .hui-btn-icon-bottom .hui-icon {
@@ -1484,32 +1493,32 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   left: 50%;
   margin-left: -0.688em;
 }
-.hui-btn-icon-top.hui-mini .hui-icon,
-.hui-btn-icon-bottom.hui-mini .hui-icon {
+.hui-btn-icon-top.hui-size-mini .hui-icon,
+.hui-btn-icon-bottom.hui-size-mini .hui-icon {
   margin-left: -0.563em;
 }
 .hui-btn-icon-top {
-  padding-top: 1.8em;
+  padding-top: 2em;
 }
 .hui-btn-icon-top .hui-icon {
   top: 0.313em;
 }
-.hui-btn-icon-top.hui-mini {
+.hui-btn-icon-top.hui-size-mini {
   padding-top: 1.5em;
 }
-.hui-btn-icon-top.hui-mini .hui-icon {
+.hui-btn-icon-top.hui-size-mini .hui-icon {
   top: 0.125em;
 }
 .hui-btn-icon-bottom {
-  padding-bottom: 1.8em;
+  padding-bottom: 1.75em;
 }
 .hui-btn-icon-bottom .hui-icon {
   bottom: 0.313em;
 }
-.hui-btn-icon-bottom.hui-mini {
+.hui-btn-icon-bottom.hui-size-mini {
   padding-bottom: 1.5em;
 }
-.hui-btn-icon-bottom.hui-mini .hui-icon {
+.hui-btn-icon-bottom.hui-size-mini .hui-icon {
   bottom: 0.125em;
 }
 .hui-btn-icon-notxt {
@@ -1519,6 +1528,12 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-btn-icon-notxt .hui-icon {
   margin: 0.188em 1px 0.125em 1px;
+}
+.hui-btn-adapt {
+  border: none;
+}
+.hui-btn-adapt:hover {
+  border: none;
 }
 .hui-panel .hui-panel-loading {
   position: relative;
@@ -1658,8 +1673,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   display: inline-block;
   zoom: 1;
   *display: inline;
-  height: 1.8em;
-  padding: .4em 2em;
+  height: 1.75em;
+  padding: 0.375em 2em;
   border-top: 0.125em solid #222;
   border-bottom: 0.125em solid #222;
 }
@@ -1667,8 +1682,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   position: absolute;
   top: 50%;
   text-align: center;
-  height: 1.8em;
-  padding: .4em 2em;
+  height: 1.75em;
+  padding: 0.375em 2em;
 }
 .hui-input {
   position: relative;
@@ -1681,12 +1696,12 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-input textarea {
   border: 0;
   width: 100%;
-  padding: .4em;
+  padding: 0.375em;
   margin: 0;
   background: transparent none;
   -webkit-appearance: none;
-  min-height: 1.4em;
-  line-height: 1.4em;
+  min-height: 1.375em;
+  line-height: 1.375em;
   font-size: 1em;
   -moz-box-sizing: border-box;
   /*Firefox3.5+*/
@@ -1709,7 +1724,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   outline: none;
 }
 .hui-input textarea {
-  height: 2.8em;
+  height: 2.75em;
   resize: none;
   display: block;
   -moz-transition: height 200ms linear;
@@ -1776,8 +1791,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-rowitem {
   position: relative;
-  padding: .8em .6em .8em .4em;
-  min-height: 2.8em;
+  padding: 0.75em 0.563em 0.75em 0.375em;
+  min-height: 2.75em;
 }
 .hui-rowitem .hui-icon {
   margin-right: 0.625em;
@@ -1793,8 +1808,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-rowitem.hui-rowitem-underline {
   border-bottom: 1px solid #ccc;
 }
-.hui-rowitem.hui-mini {
-  padding: .4em .6em .4em .4em;
+.hui-rowitem.hui-size-mini {
+  padding: 0.375em 0.563em 0.375em 0.375em;
 }
 .hui-field {
   position: relative;
@@ -1806,7 +1821,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   left: 0;
   top: 50%;
   margin-top: -0.5em;
-  padding-left: .4em;
+  padding-left: 0.375em;
   vertical-align: middle;
   font-size: 1em;
   color: #6a6a6a;
@@ -1822,7 +1837,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-field .hui-field-right {
   position: relative;
-  padding: .8em .4em;
+  padding: 0.75em 0.375em;
   vertical-align: middle;
 }
 .hui-field .hui-field-right > * {
@@ -1844,13 +1859,13 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   margin-right: 1.875em;
 }
 .hui-set .hui-set-title {
-  padding: .4em;
+  padding: 0.375em;
   text-align: left;
   font-weight: normal;
   border-bottom: 1px solid #ccc;
 }
 .hui-set .hui-set-content {
-  margin: 2em .7em;
+  margin: 2em 0.688em;
 }
 .hui-tbar {
   position: relative;
@@ -1864,29 +1879,32 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   text-shadow: 0 -1px 0 #000000;
 }
 .hui-tbar .hui-tbar-title {
-  min-height: 1.1em;
+  min-height: 1.063em;
   text-align: center;
   font-size: 1em;
   display: block;
-  padding: .6em 4em .8em;
+  padding: 0.563em 4em 0.75em;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
   outline: 0!important;
 }
 .hui-tbar .hui-btn {
-  margin-top: 0.3em;
-  margin-bottom: 0.3em;
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
 }
 .hui-tbar .hui-tbar-btn-left,
 .hui-tbar .hui-tbar-btn-right {
   position: absolute;
   top: 50%;
-  margin-top: -1.1em;
+  margin-top: -1.063em;
 }
-.hui-tbar .hui-tbar-btn-left.hui-mini,
-.hui-tbar .hui-tbar-btn-right.hui-mini {
-  margin-top: -1.1em;
+.hui-tbar .hui-tbar-btn-left.hui-size-mini,
+.hui-tbar .hui-tbar-btn-right.hui-size-mini {
+  margin-top: -1.063em;
+}
+.hui-tbar .hui-btn-icon-notxt {
+  margin-top: -0.938em;
 }
 .hui-tbar .hui-tbar-btn-left {
   left: 0.313em;
@@ -1894,8 +1912,17 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-tbar .hui-tbar-btn-right {
   right: 0.313em;
 }
-.hui-tbar .hui-btn-icon-notxt {
-  margin-top: -0.938em;
+.hui-tbar .hui-btn-adapt.hui-tbar-btn-left {
+  left: 0;
+  top: 0;
+  bottom: 0;
+  margin: 0;
+}
+.hui-tbar .hui-btn-adapt.hui-tbar-btn-right {
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: 0;
 }
 .hui-tbar .hui-tab {
   margin: 0;
@@ -1977,12 +2004,12 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   -webkit-transform: translateZ(0);
   z-index: 99999;
   text-align: center;
-  padding: 0.8em 1.5em;
+  padding: 0.75em 1.5em;
 }
 .hui-tips .hui-icon-loading {
   width: 2.75em;
   height: 2.75em;
-  margin: 0 auto .625em;
+  margin: 0 auto 0.625em;
   -webkit-border-radius: 2.25em;
   -moz-border-radius: 2.25em;
   border-radius: 2.25em;
@@ -1990,11 +2017,11 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-tips .hui-tips-txt {
   white-space: nowrap;
 }
-.hui-tips.hui-mini {
-  padding: .2em .5em;
+.hui-tips.hui-size-mini {
+  padding: 0.188em 0.5em;
 }
-.hui-tips.hui-mini .hui-tips-txt {
-  font-size: 0.8em;
+.hui-tips.hui-size-mini .hui-tips-txt {
+  font-size: 0.75em;
 }
 .hui-tips-notxt {
   padding: 0;
@@ -2099,13 +2126,13 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   width: 15.625em;
 }
 .hui-dp .hui-content-title {
-  font-size: 1.1em;
+  font-size: 1.063em;
 }
 .hui-dp .hui-select {
   float: left;
   margin-right: 0.625em;
-  padding-left: .2em;
-  padding-right: .2em;
+  padding-left: 0.188em;
+  padding-right: 0.188em;
 }
 .hui-dp .hui-dp-year {
   margin-left: 1.625em;
@@ -2134,7 +2161,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   padding: 2em 0;
 }
 .hui-list .hui-list-pulldown {
-  padding: .5em 0;
+  padding: 0.5em 0;
 }
 .hui-list .hui-list-pulldown .hui-icon {
   margin-top: -1em;
@@ -2218,7 +2245,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-hcard .hui-title-desc {
   position: absolute;
   right: 0.625em;
-  font-size: .8em;
+  font-size: 0.75em;
   color: #6a6a6a;
 }
 .hui-hcard .hui-content-desc {
@@ -2245,7 +2272,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-vcard .hui-vcard-title {
   position: relative;
   background: #f1f1f1;
-  padding-left: .4em;
+  padding-left: 0.375em;
 }
 .hui-vcard .hui-vcard-title.hui-title-hasimg {
   padding-left: 2.813em;
@@ -2258,13 +2285,13 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   height: 1.875em;
 }
 .hui-vcard .hui-vcard-title .hui-title-txt {
-  padding: 0.4em 0;
+  padding: 0.375em 0;
 }
 .hui-vcard .hui-vcard-title .hui-title-extra {
   position: absolute;
   top: 0;
   right: 0.625em;
-  padding: 0.4em;
+  padding: 0.375em;
 }
 .hui-vcard .hui-vcard-action {
   padding-right: 1px;
@@ -2278,9 +2305,9 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-conversation .hui-conver-time {
   text-align: center;
-  font-size: .6em;
+  font-size: 0.563em;
   color: #888;
-  padding: .1em;
+  padding: 0.063em;
 }
 .hui-conversation .hui-conver-img {
   position: absolute;
@@ -2295,16 +2322,16 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   word-break: break-all;
   color: #555;
   border: 1px solid #eee;
-  -webkit-border-radius: 0.2em;
-  -moz-border-radius: 0.2em;
-  border-radius: 0.2em;
+  -webkit-border-radius: 0.188em;
+  -moz-border-radius: 0.188em;
+  border-radius: 0.188em;
   -webkit-background-clip: padding;
   background-clip: padding-box;
   display: -moz-inline-stack;
   display: inline-block;
   zoom: 1;
   *display: inline;
-  padding: .4em;
+  padding: 0.375em;
 }
 .hui-conversation .hui-triangle {
   position: absolute;
@@ -2391,16 +2418,16 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   display: none;
 }
 .hui-radius-little {
-  -webkit-border-radius: 0.2em;
-  -moz-border-radius: 0.2em;
-  border-radius: 0.2em;
+  -webkit-border-radius: 0.188em;
+  -moz-border-radius: 0.188em;
+  border-radius: 0.188em;
   -webkit-background-clip: padding;
   background-clip: padding-box;
 }
 .hui-radius-normal {
-  -webkit-border-radius: 0.4em;
-  -moz-border-radius: 0.4em;
-  border-radius: 0.4em;
+  -webkit-border-radius: 0.375em;
+  -moz-border-radius: 0.375em;
+  border-radius: 0.375em;
   -webkit-background-clip: padding;
   background-clip: padding-box;
 }
@@ -2444,15 +2471,18 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   opacity: 0.3;
   z-index: 1;
 }
-.hui-mini {
+.hui-size-normal {
+  font-size: 16px;
+}
+.hui-size-mini {
   font-size: 0.75em;
 }
-.hui-mini.hui-btn {
-  margin-top: .25em;
-  margin-bottom: .25em;
+.hui-size-mini.hui-btn {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
 }
-.hui-mini.hui-icon,
-.hui-mini .hui-icon {
+.hui-size-mini.hui-icon,
+.hui-size-mini .hui-icon {
   width: 1.125em;
   height: 1.125em;
 }
