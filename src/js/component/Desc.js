@@ -17,6 +17,7 @@ function(AC,Model,Collection){
 			cls      : 'desc',
 			icon     : '',
 			text     : '',
+			txtOverflow : true,
 			iconCls : {
 				depends:['icon'],
 				parse:function(){
@@ -27,7 +28,7 @@ function(AC,Model,Collection){
 		},
 		
 		tmpl     : [
-			'<div class="hui-content-desc">',
+			'<div {{bindAttr class="txtOverflow?hui-desc-overflow"}}>',
 				'{{#if icon}}',
 					'<span {{bindAttr class="#hui-icon #hui-size-mini #hui-alt-icon iconCls #hui-light"}}></span>',
 				'{{/if}}',

@@ -15,7 +15,7 @@ function(AC){
 			cls          : 'vcard',
 			image        : '',    //图片
 			title        : '',    //标题
-			extraTitle   : ''     //标题右边文字
+			extTitle   : ''     //标题右边文字
 		},
 		
 		tmpl         : [
@@ -24,8 +24,12 @@ function(AC){
 					'<div class="hui-title-img">',
 						'<img {{bindAttr src="image"}}>',
 					'</div>',
-					'<div class="hui-title-txt">{{title}}</div>',
-					'<div class="hui-title-extra">{{extraTitle}}</div>',
+					'{{#if title}}',
+						'<div class="hui-title-txt">{{title}}</div>',
+					'{{/if}}',
+					'{{#if extTitle}}',
+						'<div class="hui-title-extra">{{extTitle}}</div>',
+					'{{/if}}',
 				'</div>',
 				'{{placeItem > [xrole!=action]}}',
 				'<div class="hui-vcard-action">',

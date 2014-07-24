@@ -80,7 +80,7 @@ function(AC){
 		refreshScroller     : fRefreshScroller,    //刷新iScroll
 		scrollTo            : fScrollTo,           //滚动到指定位置
 		loadMore            : fLoadMore,           //获取更多数据
-		showLoading         : fShowLoading,        //显示正在刷新
+		pullLoading         : fPullLoading,        //显示正在刷新
 		destroy             : fDestroy             //销毁
 	});
 	/**
@@ -294,7 +294,7 @@ function(AC){
 	 * 显示正在刷新
 	 * @param{boolean=}bRefresh 仅当true时执行刷新
 	 */
-	function fShowLoading(bRefresh){
+	function fPullLoading(bRefresh){
 		var me=this;
 		var oScroller=me.scroller;
 		var tmp=oScroller.minScrollY;

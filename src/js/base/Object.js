@@ -100,7 +100,7 @@ handy.add('Object',function($H){
 			}
 		}else if(sAlias){
 			//转换别名
-			var sName=sAlias,nIndex=sAlias.length-1,sSuffix='';
+			var sName=sAlias,nIndex=sAlias.length,sSuffix='';
 			do{
 				//找到别名返回实名
 				if(oAlias[sName]){

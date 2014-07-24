@@ -96,6 +96,7 @@ body {
   overflow-x: hidden;
   min-height: 100%;
   position: relative;
+  color: #333;
 }
 .hui-mobile body {
   font-size: 15px;
@@ -1096,6 +1097,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   min-width: 0.75em;
   text-overflow: ellipsis;
   white-space: nowrap;
+  border: 1px solid #ccc;
   background: #fff;
   color: #222;
   zoom: 1;
@@ -1535,6 +1537,14 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-btn-adapt:hover {
   border: none;
 }
+.hui-image {
+  position: relative;
+}
+.hui-image img {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
 .hui-panel .hui-panel-loading {
   position: relative;
   height: 100%;
@@ -1806,7 +1816,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   *display: inline;
 }
 .hui-rowitem.hui-rowitem-underline {
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #ddd;
 }
 .hui-rowitem.hui-size-mini {
   padding: 0.375em 0.563em 0.375em 0.375em;
@@ -2213,10 +2223,29 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-pc .hui-list .hui-list-item:active {
   background: #f3f3f3;
 }
+.hui-desc {
+  font-size: 0.75em;
+  color: #6a6a6a;
+  vertical-align: bottom;
+  padding-bottom: 1px;
+}
+.hui-desc.hui-desc-overflow {
+  overflow: hidden;
+  white-space: nowrap;
+  -o-text-overflow: ellipsis;
+  -ms-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+}
+.hui-desc .hui-icon {
+  margin-right: 0.125em;
+}
 .hui-hcard {
   position: relative;
   padding: 0.313em;
   min-height: 4.5em;
+}
+.hui-hcard.hui-hcard-border {
+  border: 1px solid #eee;
 }
 .hui-hcard.hui-hcard-hasimg {
   padding-left: 4.375em;
@@ -2248,21 +2277,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   font-size: 0.75em;
   color: #6a6a6a;
 }
-.hui-hcard .hui-content-desc {
-  overflow: hidden;
-  white-space: nowrap;
-  -o-text-overflow: ellipsis;
-  -ms-text-overflow: ellipsis;
-  text-overflow: ellipsis;
-  font-size: 0.75em;
-  color: #6a6a6a;
-  vertical-align: bottom;
-  padding-bottom: 1px;
-}
-.hui-hcard .hui-content-desc .hui-icon {
-  margin-right: 0.125em;
-}
-.hui-hcard.hui-hcard-little .hui-content-desc {
+.hui-hcard.hui-hcard-little .hui-desc {
   padding-top: 0.75em;
   padding-bottom: 0.625em;
 }

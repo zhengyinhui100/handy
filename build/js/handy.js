@@ -418,7 +418,7 @@ handy.add('Object',function($H){
 			}
 		}else if(sAlias){
 			//转换别名
-			var sName=sAlias,nIndex=sAlias.length-1,sSuffix='';
+			var sName=sAlias,nIndex=sAlias.length,sSuffix='';
 			do{
 				//找到别名返回实名
 				if(oAlias[sName]){
@@ -4621,8 +4621,13 @@ function(){
             $(oCanvas).attr({width : w, height : h});
             oCtx.drawImage(oImg, 0, 0, w, h);
             
+            //图片背景如果是透明的，默认保存成base64会变成黑色的，这里把白色图片跟原图合并，这样保存后透明背景就变成指定颜色(#ffffff)的了
+			oCtx.globalCompositeOperation = "destination-over";
+			oCtx.fillStyle = '#ffffff';
+			oCtx.fillRect(0,0,w,h);
+            
             var nQuality=oOptions.quality||0.5;
-
+			var base64;
 
             // 修复IOS
             if( $H.ios() ) {
@@ -4635,7 +4640,7 @@ function(){
                 base64 = encoder.encode(oCtx.getImageData(0,0,w,h), nQuality * 100 );
             }else{
 				//生成base64
-	            var base64 = oCanvas.toDataURL('image/jpeg', nQuality );
+	            base64 = oCanvas.toDataURL('image/jpeg', nQuality );
             }
 
             // 生成结果
@@ -4791,7 +4796,7 @@ function(){
 			sName=$H.alias(sName);
 		}
 		if(oCache=_cache[sName]){
-			if(!oOptions){
+			if(oOptions===undefined){
 				return oCache;
 			}else if(!$H.isObj(oOptions)){
 				//根据id查找
@@ -5388,20 +5393,22 @@ function(AbstractDao,AbstractEvents){
 	    			curVal&&me.unlistenTo(curVal,'all');
 	    		}else{
 					oCurrent[sAttr] = val;
-					if(!curVal||curVal.id!=val.id){
-						//这里如果传入就是模型，_parseFields方法不进行处理，因此这里标记为已改变
-						val._changedTmp=true;
+					if(!curVal||!val||curVal.id!=val.id){
 						//如果有旧值，需要清除相关事件
 	    				curVal&&me.unlistenTo(curVal,'all');
-						//新模型需要监听事件
-	    				me.listenTo(val,'all',$H.bind(me._onAttrEvent,me,sAttr));
+	    				if(val){
+							//这里如果传入就是模型，_parseFields方法不进行处理，因此这里标记为已改变
+							val._changedTmp=true;
+							//新模型需要监听事件
+		    				me.listenTo(val,'all',$H.bind(me._onAttrEvent,me,sAttr));
+	    				}
 					}
 	    		}
 	    		////与当前值不相等，放入本次改变列表中
-    			if(bUnset||val._changedTmp){
+    			if(bUnset||!val||val._changedTmp){
     				oChanges[sAttr]=val;
     			}
-				delete val._changedTmp;
+				val&&delete val._changedTmp;
 	    	}else{
 		   	    //与当前值不相等，放入本次改变列表中
 		    	if (!$H.equals(oCurrent[sAttr], val)){
@@ -9506,7 +9513,7 @@ function(AbstractManager,ViewManager) {
 $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,View){
 	
 	//访问component包内容的快捷别名
-	$C=$H.ns('C',{});
+	$C=$H.ns('C');
 	
 	var AC=$H.createClass();
 	
@@ -9893,6 +9900,7 @@ function(AC,Model,Collection){
 			cls      : 'desc',
 			icon     : '',
 			text     : '',
+			txtOverflow : true,
 			iconCls : {
 				depends:['icon'],
 				parse:function(){
@@ -9903,7 +9911,7 @@ function(AC,Model,Collection){
 		},
 		
 		tmpl     : [
-			'<div class="hui-content-desc">',
+			'<div {{bindAttr class="txtOverflow?hui-desc-overflow"}}>',
 				'{{#if icon}}',
 					'<span {{bindAttr class="#hui-icon #hui-size-mini #hui-alt-icon iconCls #hui-light"}}></span>',
 				'{{/if}}',
@@ -12161,15 +12169,16 @@ function(AC,DisplayImage){
 	Image.extend({
 		//初始配置
 		xConfig         : {
-			cls         : 'img',
+			cls         : 'image',
 			imgSrc      : '',          //图片地址
 			radius      : 'little'     //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 		},
-//		fixHeight       : 50,          //适应高度，自动修正图片高度，在不改变图片宽高比的前提下，最大化接近适应高度
-//		fixWidth        : 50,          //适应宽度，自动修正图片宽度，在不改变图片宽高比的前提下，最大化接近适应宽度
+//		height          : 50,          //指定高度会自动修正图片高度，在不改变图片宽高比的前提下，最大化接近指定的高度
+//		width           : 50,          //指定宽度会自动修正图片宽度，在不改变图片宽高比的前提下，最大化接近指定的宽度
 		_customEvents   : ['imgLoad'],
 		listeners       : [{
 			name:'load',
+			el:'img',
 			handler:function(oEvt){
 				var me=this;
 				var oImg=oEvt.target;
@@ -12179,8 +12188,9 @@ function(AC,DisplayImage){
 	            var w = oImg.width,
 	                h = oImg.height,
 	                scale = w / h,
-	                nFixW=me.fixWidth,
-	                nFixH=me.fixHeight;
+	                nFixW=me.width,
+	                nFixH=me.height;
+	            oImg=$(oImg);
 	            if(nFixW||nFixH){
 		            if(w>nFixW){
 		            	w=nFixW;
@@ -12190,13 +12200,22 @@ function(AC,DisplayImage){
 		            	h=nFixH;
 		            	w=h*scale;
 		            }
-		            $(oImg).attr({width:w,height:h});
+		            oImg.attr({width:w,height:h});
+	            }
+	            var nLeft,nTop;
+	            if(w<nFixW){
+	            	nLeft=(nFixW-w)/2;
+	            	oImg.css('left',nLeft);
+	            }
+	            if(h<nFixH){
+	            	nTop=(nFixH-h)/2;
+	            	oImg.css('top',nTop);
 	            }
 				me.trigger("imgLoad",oEvt);
 			}
 		}],
 		
-		tmpl            : '<img {{bindAttr src="imgSrc"}}/>'
+		tmpl            : '<div><img {{bindAttr src="imgSrc"}}/></div>'
 		
 	});
 	
@@ -12372,8 +12391,16 @@ function(AC){
 			image     : '',    //图片
 			title     : '',    //标题
 			titleDesc : '',    //标题说明
+			hasImg    : true,  //是否有图片
 			hasArrow  : false, //是否有右边箭头，有点击函数时默认有右箭头
-			newsNum   : 0,             //新消息提示数目，大于9自动显示成"9+"
+			newsNum   : 0,     //新消息提示数目，大于9自动显示成"9+"
+			hasBorder : false,
+			hasImgCls    : {      //是否有图片
+				depends : ['image','hasImg'],
+				parse:function(val){
+					return (this.get('image')||this.get('hasImg'))?'hui-hcard-hasimg':'';
+				}
+			},  
 			newsNumTxt      : {
 				depends : ['newsNum'],
 				parse:function(){
@@ -12390,7 +12417,7 @@ function(AC){
 //		contentClick    : $H.noop,        //图片点击事件函数
 		
 		tmpl     : [
-			'<div {{bindAttr class="image?hui-hcard-hasimg"}}>',
+			'<div {{bindAttr class="hasImgCls hasBorder?hui-hcard-border"}}>',
 				'{{#if image}}',
 					'<div class="hui-hcard-img js-img">',
 						'<img {{bindAttr src="image"}}>',
@@ -12478,7 +12505,7 @@ function(AC){
 			cls          : 'vcard',
 			image        : '',    //图片
 			title        : '',    //标题
-			extraTitle   : ''     //标题右边文字
+			extTitle   : ''     //标题右边文字
 		},
 		
 		tmpl         : [
@@ -12487,8 +12514,12 @@ function(AC){
 					'<div class="hui-title-img">',
 						'<img {{bindAttr src="image"}}>',
 					'</div>',
-					'<div class="hui-title-txt">{{title}}</div>',
-					'<div class="hui-title-extra">{{extraTitle}}</div>',
+					'{{#if title}}',
+						'<div class="hui-title-txt">{{title}}</div>',
+					'{{/if}}',
+					'{{#if extTitle}}',
+						'<div class="hui-title-extra">{{extTitle}}</div>',
+					'{{/if}}',
 				'</div>',
 				'{{placeItem > [xrole!=action]}}',
 				'<div class="hui-vcard-action">',
@@ -12666,7 +12697,7 @@ function(AC){
 		refreshScroller     : fRefreshScroller,    //刷新iScroll
 		scrollTo            : fScrollTo,           //滚动到指定位置
 		loadMore            : fLoadMore,           //获取更多数据
-		showLoading         : fShowLoading,        //显示正在刷新
+		pullLoading         : fPullLoading,        //显示正在刷新
 		destroy             : fDestroy             //销毁
 	});
 	/**
@@ -12717,7 +12748,7 @@ function(AC){
 					var me=this;
 					var oWrapper=me.getEl();
 					var oPdEl=oWrapper.find('.hui-list-pulldown');
-					var nStartY=50;
+					var nStartY=48;
 					var sRefreshCls='hui-pd-refresh';
 					var sReleaseCls='hui-pd-release';
 					me.scroller= new window.iScroll(oWrapper[0], {
@@ -12880,7 +12911,7 @@ function(AC){
 	 * 显示正在刷新
 	 * @param{boolean=}bRefresh 仅当true时执行刷新
 	 */
-	function fShowLoading(bRefresh){
+	function fPullLoading(bRefresh){
 		var me=this;
 		var oScroller=me.scroller;
 		var tmp=oScroller.minScrollY;

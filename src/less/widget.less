@@ -997,11 +997,27 @@
 		background:#f3f3f3;
 	}
 }
+//描述/注释
+.hui-desc{
+	&.hui-desc-overflow{
+		.fn_text_overflow();
+	}
+	font-size:0.75em;
+	color:#6a6a6a;
+	vertical-align:bottom;
+	padding-bottom:1px;
+	.hui-icon{
+		margin-right:0.125em;
+	}
+}
 //横向卡片
 .hui-hcard{
 	position:relative;
 	padding:0.313em;
 	min-height:4.5em;
+	&.hui-hcard-border{
+		border:1px solid #eee;
+	}
 	&.hui-hcard-hasimg{
 		padding-left:4.375em;
 	}
@@ -1028,17 +1044,7 @@
 		font-size:0.75em;
 		color:#6a6a6a;
 	}
-	.hui-content-desc{
-		.fn_text_overflow();
-		font-size:0.75em;
-		color:#6a6a6a;
-		vertical-align:bottom;
-		padding-bottom:1px;
-		.hui-icon{
-			margin-right:0.125em;
-		}
-	}
-	&.hui-hcard-little .hui-content-desc{
+	&.hui-hcard-little .hui-desc{
 		padding-top:0.75em;
 		padding-bottom:0.625em;
 	}
