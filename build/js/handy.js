@@ -7390,7 +7390,10 @@ function(Template,AbstractView,Model,Collection){
 						var v=sValue||'';
 						//设置value如果使用jQuery的attr方法，会调用node.setAttribute("value",v)方法，导致defaultValue也改变
 						if(sAttr==='value'){
-							jEl.val(v);
+							//避免输入时经过模型事件设置值
+							if(v!==jEl.val()){
+								jEl.val(v);
+							}
 						}else{
 							jEl.attr(sAttr,v);
 						}
@@ -8459,8 +8462,14 @@ function(ViewManager,ModelView,Model,Template){
 			//操作符：=|!=
 			op=m[2];
 			value=m[3];
-			if(value=='false'||value=='true'){
-				value=eval(value);
+			if(value==='false'){
+				value=false;
+			}else if(value==='true'){
+				value=true;
+			}else if(value==='null'){
+				value=null;
+			}else if(value==='undefined'){
+				value=undefined;
 			}
 			viewVal=oObj.get?oObj.get(prop):oObj[prop];
 			if(op==="="?viewVal!=value:viewVal==value){
@@ -12191,24 +12200,34 @@ function(AC,DisplayImage){
 	                nFixW=me.width,
 	                nFixH=me.height;
 	            oImg=$(oImg);
+	            //适应大小
 	            if(nFixW||nFixH){
-		            if(w>nFixW){
+	            	if($H.isStr(nFixW)&&nFixW.indexOf('em')>0){
+	            		nFixW=me.getEl()[0].clientWidth;
+	            	}
+	            	if($H.isStr(nFixH)&&nFixH.indexOf('em')>0){
+	            		nFixH=me.getEl()[0].clientHeight;
+	            	}
+		            if(nFixW&&w>nFixW){
 		            	w=nFixW;
-		            	h = w / scale;
+		            	h = Math.ceil(w / scale);
 		            }
-		            if(h>nFixH){
+		            if(nFixH&&h>nFixH){
 		            	h=nFixH;
-		            	w=h*scale;
+		            	w=Math.ceil(h*scale);
 		            }
 		            oImg.attr({width:w,height:h});
 	            }
+	            //居中定位
 	            var nLeft,nTop;
 	            if(w<nFixW){
 	            	nLeft=(nFixW-w)/2;
+	            	nLeft=Math.ceil(nLeft);
 	            	oImg.css('left',nLeft);
 	            }
 	            if(h<nFixH){
 	            	nTop=(nFixH-h)/2;
+	            	nTop=Math.ceil(nTop);
 	            	oImg.css('top',nTop);
 	            }
 				me.trigger("imgLoad",oEvt);
@@ -12394,7 +12413,7 @@ function(AC){
 			hasImg    : true,  //是否有图片
 			hasArrow  : false, //是否有右边箭头，有点击函数时默认有右箭头
 			newsNum   : 0,     //新消息提示数目，大于9自动显示成"9+"
-			hasBorder : false,
+			hasBorder : false, //是否有边框
 			hasImgCls    : {      //是否有图片
 				depends : ['image','hasImg'],
 				parse:function(val){
@@ -12417,7 +12436,7 @@ function(AC){
 //		contentClick    : $H.noop,        //图片点击事件函数
 		
 		tmpl     : [
-			'<div {{bindAttr class="hasImgCls hasBorder?hui-hcard-border"}}>',
+			'<div {{bindAttr class="hasImgCls hasBorder?hui-border"}}>',
 				'{{#if image}}',
 					'<div class="hui-hcard-img js-img">',
 						'<img {{bindAttr src="image"}}>',
@@ -12503,17 +12522,18 @@ function(AC){
 		//初始配置
 		xConfig      : {
 			cls          : 'vcard',
-			image        : '',    //图片
+			hasImg       : false, //标题是否有图片
 			title        : '',    //标题
-			extTitle   : ''     //标题右边文字
+			hasBorder    : false, //是否有边框
+			extTitle     : ''       //标题右边文字
 		},
 		
+//		action       : {}         //快捷指定按钮
+		
 		tmpl         : [
-			'<div>',
-				'<div {{bindAttr class="#hui-vcard-title image?hui-title-hasimg #c-clear"}}>',
-					'<div class="hui-title-img">',
-						'<img {{bindAttr src="image"}}>',
-					'</div>',
+			'<div {{bindAttr class="hasBorder?hui-border"}}>',
+				'<div {{bindAttr class="#hui-vcard-title hasImg?hui-title-hasimg #c-clear"}}>',
+					'{{placeItem > [xrole=title]}}',
 					'{{#if title}}',
 						'<div class="hui-title-txt">{{title}}</div>',
 					'{{/if}}',
@@ -12521,7 +12541,7 @@ function(AC){
 						'<div class="hui-title-extra">{{extTitle}}</div>',
 					'{{/if}}',
 				'</div>',
-				'{{placeItem > [xrole!=action]}}',
+				'{{placeItem > [xrole!=title][xrole!=action]}}',
 				'<div class="hui-vcard-action">',
 					'{{placeItem > [xrole=action]}}',
 				'</div>',
