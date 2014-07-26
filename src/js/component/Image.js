@@ -38,24 +38,34 @@ function(AC,DisplayImage){
 	                nFixW=me.width,
 	                nFixH=me.height;
 	            oImg=$(oImg);
+	            //适应大小
 	            if(nFixW||nFixH){
-		            if(w>nFixW){
+	            	if($H.isStr(nFixW)&&nFixW.indexOf('em')>0){
+	            		nFixW=me.getEl()[0].clientWidth;
+	            	}
+	            	if($H.isStr(nFixH)&&nFixH.indexOf('em')>0){
+	            		nFixH=me.getEl()[0].clientHeight;
+	            	}
+		            if(nFixW&&w>nFixW){
 		            	w=nFixW;
-		            	h = w / scale;
+		            	h = Math.ceil(w / scale);
 		            }
-		            if(h>nFixH){
+		            if(nFixH&&h>nFixH){
 		            	h=nFixH;
-		            	w=h*scale;
+		            	w=Math.ceil(h*scale);
 		            }
 		            oImg.attr({width:w,height:h});
 	            }
+	            //居中定位
 	            var nLeft,nTop;
 	            if(w<nFixW){
 	            	nLeft=(nFixW-w)/2;
+	            	nLeft=Math.ceil(nLeft);
 	            	oImg.css('left',nLeft);
 	            }
 	            if(h<nFixH){
 	            	nTop=(nFixH-h)/2;
+	            	nTop=Math.ceil(nTop);
 	            	oImg.css('top',nTop);
 	            }
 				me.trigger("imgLoad",oEvt);

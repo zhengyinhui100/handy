@@ -13,17 +13,18 @@ function(AC){
 		//初始配置
 		xConfig      : {
 			cls          : 'vcard',
-			image        : '',    //图片
+			hasImg       : false, //标题是否有图片
 			title        : '',    //标题
-			extTitle   : ''     //标题右边文字
+			hasBorder    : false, //是否有边框
+			extTitle     : ''       //标题右边文字
 		},
 		
+//		action       : {}         //快捷指定按钮
+		
 		tmpl         : [
-			'<div>',
-				'<div {{bindAttr class="#hui-vcard-title image?hui-title-hasimg #c-clear"}}>',
-					'<div class="hui-title-img">',
-						'<img {{bindAttr src="image"}}>',
-					'</div>',
+			'<div {{bindAttr class="hasBorder?hui-border"}}>',
+				'<div {{bindAttr class="#hui-vcard-title hasImg?hui-title-hasimg #c-clear"}}>',
+					'{{placeItem > [xrole=title]}}',
 					'{{#if title}}',
 						'<div class="hui-title-txt">{{title}}</div>',
 					'{{/if}}',
@@ -31,7 +32,7 @@ function(AC){
 						'<div class="hui-title-extra">{{extTitle}}</div>',
 					'{{/if}}',
 				'</div>',
-				'{{placeItem > [xrole!=action]}}',
+				'{{placeItem > [xrole!=title][xrole!=action]}}',
 				'<div class="hui-vcard-action">',
 					'{{placeItem > [xrole=action]}}',
 				'</div>',

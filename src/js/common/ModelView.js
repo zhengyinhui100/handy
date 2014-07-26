@@ -346,7 +346,10 @@ function(Template,AbstractView,Model,Collection){
 						var v=sValue||'';
 						//设置value如果使用jQuery的attr方法，会调用node.setAttribute("value",v)方法，导致defaultValue也改变
 						if(sAttr==='value'){
-							jEl.val(v);
+							//避免输入时经过模型事件设置值
+							if(v!==jEl.val()){
+								jEl.val(v);
+							}
 						}else{
 							jEl.attr(sAttr,v);
 						}

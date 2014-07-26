@@ -19,7 +19,7 @@ function(AC){
 			hasImg    : true,  //是否有图片
 			hasArrow  : false, //是否有右边箭头，有点击函数时默认有右箭头
 			newsNum   : 0,     //新消息提示数目，大于9自动显示成"9+"
-			hasBorder : false,
+			hasBorder : false, //是否有边框
 			hasImgCls    : {      //是否有图片
 				depends : ['image','hasImg'],
 				parse:function(val){
@@ -42,7 +42,7 @@ function(AC){
 //		contentClick    : $H.noop,        //图片点击事件函数
 		
 		tmpl     : [
-			'<div {{bindAttr class="hasImgCls hasBorder?hui-hcard-border"}}>',
+			'<div {{bindAttr class="hasImgCls hasBorder?hui-border"}}>',
 				'{{#if image}}',
 					'<div class="hui-hcard-img js-img">',
 						'<img {{bindAttr src="image"}}>',

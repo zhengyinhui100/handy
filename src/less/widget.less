@@ -1015,9 +1015,6 @@
 	position:relative;
 	padding:0.313em;
 	min-height:4.5em;
-	&.hui-hcard-border{
-		border:1px solid #eee;
-	}
 	&.hui-hcard-hasimg{
 		padding-left:4.375em;
 	}
@@ -1063,7 +1060,8 @@
 			position:absolute;
 			left:0.625em;
 			img{
-				height:1.875em;
+				max-width:1.875em;
+				max-height:1.875em;
 			}
 		}
 		.hui-title-txt{
@@ -1081,6 +1079,9 @@
 		padding-right:1px;
 		.hui-btn{
 			margin:0;
+		}
+		.hui-inline{
+			margin:0.4em 1em 0.8em;
 		}
 	}
 }
@@ -1195,6 +1196,10 @@
 }
 
 //公用效果
+//边框
+.hui-border{
+	border:1px solid #eee;
+}
 //内联样式（自适应宽度）
 .hui-inline{
 	.fn_inline_block();

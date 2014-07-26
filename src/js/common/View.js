@@ -826,8 +826,14 @@ function(ViewManager,ModelView,Model,Template){
 			//操作符：=|!=
 			op=m[2];
 			value=m[3];
-			if(value=='false'||value=='true'){
-				value=eval(value);
+			if(value==='false'){
+				value=false;
+			}else if(value==='true'){
+				value=true;
+			}else if(value==='null'){
+				value=null;
+			}else if(value==='undefined'){
+				value=undefined;
 			}
 			viewVal=oObj.get?oObj.get(prop):oObj[prop];
 			if(op==="="?viewVal!=value:viewVal==value){
