@@ -33,7 +33,7 @@ module.exports = function(grunt) {
 			}
 		}else if(sAlias){
 			//转换别名
-			var sName=sAlias,nIndex=sAlias.length-1,sSuffix='';
+			var sName=sAlias,nIndex=sAlias.length,sSuffix='';
 			do{
 				//找到别名返回实名
 				if(oAlias[sName]){
@@ -121,6 +121,7 @@ module.exports = function(grunt) {
 		var pkgFilePath=data.dest+'/'+(data.pkgName||'project.pkg.js');
 		
 		var sCode='';
+		var num=0;
 		var _fTraversal=function(aChildren){
 			if(!aChildren){
 				return;
@@ -130,6 +131,7 @@ module.exports = function(grunt) {
 				_fTraversal(oChild.children);
 				var sContent=oContents[oChild.id];
 				if(sContent){
+					num++;
 					sCode+=sContent+'\n';
 					delete oContents[oChild.id];
 				}
@@ -138,6 +140,8 @@ module.exports = function(grunt) {
 		_fTraversal(_aDepTree);
 		
 		grunt.file.write(pkgFilePath, sCode);
+		
+		grunt.log.writeln('cancat '+num+' files.');
 		
 		
 	});
