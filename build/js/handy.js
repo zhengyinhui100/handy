@@ -4959,20 +4959,105 @@ function(LS){
 	        //oParam.contentType = 'application/json';
 	        oParam.data = oOptions.attrs || oModel.toJSON(oOptions);
 	    }
-	    
+	    var result;
 		if(sStoreType=='remote'){
 			//服务端存储
 			oParam.url+='/'+sMethod+'.do';
 			$H.extend(oParam,oOptions);
-			me.ajax(oParam);
+			result=me.ajax(oParam);
 		}else{
 			//本地存储
-			LS[me._localMethodMap[sMethod]](oParam);
+			result=LS[me._localMethodMap[sMethod]](oParam);
 		}
 		oModel.trigger('request', oModel, oOptions);
+		return result;
 	}
 	
 	return AbstractDao;
+	
+});
+/**
+ * 抽象数据类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+//"handy.common.AbstractData"
+$Define('CM.AbstractData',
+['CM.AbstractDao',
+'CM.AbstractEvents',
+'CM.DataStore'],
+function(AbstractDao,AbstractEvents){
+	
+	var AbstractData=AbstractEvents.derive({
+		_isDirty        : true,
+		dirtyTime       : 30*60*1000,     //数据失效时间，超出则标记为脏数据
+//		lastSyncTime    : null,           //上次同步时间
+//		dao             : null,           //数据访问对象，默认为common.AbstractDao
+		initialize      : fInitialize,    //初始化
+		isDirty         : fIsDirty,       //返回是否是脏数据
+		setDirty        : fSetDirty,      //设置脏数据
+		sync            : fSync,          //同步数据，可以通过重写进行自定义
+		fetch           : $H.noop,        //抓取数据
+		fetchIf         : fFetchIf        //仅在脏数据时抓取数据
+	});
+	
+	/**
+	 * 初始化
+	 */
+	function fInitialize(){
+		var me=this;
+		me.callSuper();
+		me.uuid=$H.uuid();
+		//配置dao对象
+		me.dao=me.dao||$H.getSingleton(AbstractDao);
+	}
+	/**
+	 * 返回是否是脏数据
+	 * @return {boolean} true表示是脏数据
+	 */
+	function fIsDirty(){
+		var me=this;
+		var bDirty=me._isDirty;
+		if(!bDirty){
+			if(me.lastSyncTime){
+				var now=$H.now();
+				bDirty=now.getTime()-me.lastSyncTime.getTime()>=me.dirtyTime;
+			}
+		}
+		return bDirty;
+	}
+	/**
+	 * 设置为脏数据
+	 */
+	function fSetDirty(){
+		this._isDirty=true;
+	}
+	/**
+	 * 同步数据，可以通过重写进行自定义
+	 * @param {string}sMethod 方法名
+	 * @param {CM.AbstractData}oData 数据对象
+	 * @param {Object}oOptions 设置
+	 * @return {*} 返回同步方法的结果，如果是抓取远程数据，返回jQuery的xhr对象
+	 */
+    function fSync(sMethod,oData,oOptions) {
+    	var me=this;
+    	me.lastSyncTime=$H.now();
+    	this._isDirty=false;
+        return me.dao.sync(sMethod,oData,oOptions);
+    }
+    /**
+     * 仅在脏数据时抓取数据
+     * @param {object=}oOptions 选项
+     * @return {*=} 返回同步方法的结果，如果是抓取远程数据，返回jQuery的xhr对象
+     */
+    function fFetchIf(oOptions){
+    	var me=this;
+    	//非脏数据不进行抓取
+        if(me.isDirty()){
+        	return me.fetch(oOptions);
+        }
+    }
+	
+	return AbstractData;
 	
 });
 /**
@@ -4987,12 +5072,13 @@ function(LS){
  */
 //"handy.common.Model"
 $Define('CM.Model',
-['CM.AbstractDao',
-'CM.AbstractEvents',
-'CM.DataStore'],
-function(AbstractDao,AbstractEvents){
+[
+'CM.AbstractData',
+'CM.DataStore'
+],
+function(AbstractData){
 	
-	var Model=AbstractEvents.derive({
+	var Model=AbstractData.derive({
 		//可扩展属性
 //      fields                : {},                  
 		/**
@@ -5016,7 +5102,6 @@ function(AbstractDao,AbstractEvents){
 //		id                    : 0,                   //模型id
         idAttribute           : 'id',                //id默认属性名
 //      uuid                  : 0,                   //uuid，初始化时系统分配，具有全局唯一性
-//		dao                   : null,                //数据访问对象，默认为common.AbstractDao
         
         //系统属性
 //      fetching              : false,               //是否正在抓取数据，model.get('fetching')==true表示正在抓取
@@ -5024,7 +5109,6 @@ function(AbstractDao,AbstractEvents){
 		$isModel              : true,                //模型标记
 		
         //内部属性
-//      lastSyncTime          : null,                //上次同步时间
 //		_changing             : false,               //是否正在改变，但未保存
 		_pending              : false,               //
 //		_previousAttributes   : {},                  //较早的值
@@ -5042,7 +5126,6 @@ function(AbstractDao,AbstractEvents){
 //		init                  : $H.noop,             //自定义初始工作
 		getDefaults           : fGetDefaults,        //获取默认值
 		toJSON                : fToJSON,             //返回对象数据副本
-		sync                  : fSync,               //同步数据，可以通过重写进行自定义
    		get                   : fGet,                //获取指定属性值
    		escape                : fEscape,             //获取html编码过的属性值 
    		has                   : fHas,                //判断是否含有参数属性
@@ -5236,19 +5319,20 @@ function(AbstractDao,AbstractEvents){
 	 * @param {Object}oOptions 选项{
 	 * 		{common.Collection}collection 集合对象
 	 * 		{boolean}parse 是否解析
+	 * 		{object=}custom 自定义配置
 	 * }
 	 */
 	function fInitialize(oAttributes, oOptions) {
 		var me=this;
 		me.callSuper();
-		me.uuid=$H.uuid();
-		//配置dao对象
-		me.dao=me.dao||$H.getSingleton(AbstractDao);
 		var oAttrs = oAttributes || {};
 		oOptions || (oOptions = {});
 		me.cid = $H.Util.uuid();
 		me._attributes = {};
 		me._attrEvts={};
+		if(oOptions.custom){
+			$H.extend(me,oOptions.custom);
+		}
 		if (oOptions.collection){
 			me.collection = oOptions.collection;
 		}
@@ -5283,18 +5367,6 @@ function(AbstractDao,AbstractEvents){
 	 */
     function fToJSON() {
         return $H.clone(this._attributes);
-    }
-	/**
-	 * 同步数据，可以通过重写进行自定义
-	 * @param {string}sMethod 方法名
-	 * @param {CM.Model}oModel 模型对象
-	 * @param {Object}oOptions 设置
-	 * @return {*} 根据同步方法的结果
-	 */
-    function fSync(sMethod,oModel,oOptions) {
-    	var me=this;
-    	me.lastSyncTime=$H.now();
-        return me.dao.sync(sMethod,oModel,oOptions);
     }
     /**
      * 获取指定属性值
@@ -5579,11 +5651,15 @@ function(AbstractDao,AbstractEvents){
     }
 	/**
 	 * 获取模型数据
-	 * @param {Object=}oOptions 备选参数
+	 * @param {Object=}oOptions 备选参数{
+	 * 		{function=}beforeSet 设置前操作，返回false则不进行后续设置
+	 * 		{function=}success 设置成功回调
+	 * 		{function|boolean=}parse boolean表示是否要使用parse函数处理回调数据，function表示使用该函数处理回调数据
+	 * }
+	 * @return {*} 返回同步方法的结果，如果是抓取远程数据，返回jQuery的xhr对象
 	 */
     function fFetch(oOptions) {
     	var me=this;
-    	me.set('fetching',true);
         oOptions = oOptions ? $H.clone(oOptions) : {};
         if (oOptions.parse === void 0) {
         	oOptions.parse = true;
@@ -5607,7 +5683,8 @@ function(AbstractDao,AbstractEvents){
         	}
         	me.trigger('sync', me, oData, oOptions);
         };
-        me.sync('read', me, oOptions);
+    	me.set('fetching',true);
+        return me.sync('read', me, oOptions);
     }
 	/**
 	 * 保存模型
@@ -5810,23 +5887,22 @@ function(AbstractDao,AbstractEvents){
  */
 //"handy.common.Collection"
 $Define('CM.Collection',
-['CM.AbstractDao',
-'CM.AbstractEvents',
+[
+'CM.AbstractData',
 'CM.Model',
-'CM.DataStore'],
-function(AbstractDao,AbstractEvents,Model){
+'CM.DataStore'
+],
+function(AbstractData,Model){
 	
-	var Collection=AbstractEvents.derive({
+	var Collection=AbstractData.derive({
 		//可扩展属性
 //		url                    : '',                  //集合url
 		model                  : Model,               //子对象模型类
-//		dao                    : null,                //数据访问对象，默认为common.AbstractDao
 //		comparator             : '',                  //比较属性名或比较函数
 //		desc                   : false,               //是否降序
 		
-//      fetching              : false,               //是否正在抓取数据，collection.fetching==true表示正在抓取
+//      fetching              : false,                //是否正在抓取数据，collection.fetching==true表示正在抓取
 		//内部属性
-//      lastSyncTime           : null,                //上次同步时间
 //		_models                : [],                  //模型列表
 //		_byId                  : {},                  //根据id和cid索引
 //		length                 : 0,                   //集合长度
@@ -5841,7 +5917,6 @@ function(AbstractDao,AbstractEvents,Model){
 		
 		initialize             : fInitialize,         //初始化
 		toJSON                 : fToJSON,             //返回json格式数据(模型数据的数组)
-		sync                   : fSync,               //同步数据，可以通过重写进行自定义
 		add                    : fAdd,                //添加模型
 		remove                 : fRemove,             //移除模型
 		set                    : fSet,                //设置模型
@@ -5994,26 +6069,19 @@ function(AbstractDao,AbstractEvents,Model){
 	 * @param {Array=}aModels 模型数组
 	 * @param {Object=}oOptions 选项{
 	 * 		{Model=}model 模型类
-	 * 		{function=}comparator 比较函数
+	 * 		{object=}custom 自定义配置
 	 * }
 	 */
 	function fInitialize(aModels, oOptions) {
 		var me=this;
 		me.callSuper();
-		me.dao=me.dao||$H.getSingleton(AbstractDao);
 	    oOptions || (oOptions = {});
 	    if (oOptions.model) {
 	    	me.model = oOptions.model;
 	    }
-	    if (oOptions.url) {
-	    	me.url = oOptions.url;
-	    }
-	    if (oOptions.comparator !== void 0) {
-	    	me.comparator = oOptions.comparator;
-	    }
-	    if (oOptions.desc !== void 0) {
-	    	me.desc = oOptions.desc;
-	    }
+	    if(oOptions.custom){
+			$H.extend(me,oOptions.custom);
+		}
 	    me._reset();
 	    if (aModels){
 	    	me.reset(aModels, $H.extend({silent: true}, oOptions));
@@ -6036,18 +6104,6 @@ function(AbstractDao,AbstractEvents,Model){
         return $H.map(me._models,function(oModel){
         	return oModel.toJSON(oOptions); 
         });
-    }
-	/**
-	 * 同步数据，可以通过重写进行自定义
-	 * @param {string}sMethod 方法名
-	 * @param {Collection}oCollection 集合对象
-	 * @param {Object}oOptions 设置
-	 * @return {*} 返回同步方法的结果
-	 */
-    function fSync(sMethod,oCollection,oOptions) {
-    	var me=this;
-    	me.lastSyncTime=$H.now();
-        return me.dao.sync(sMethod,oCollection,oOptions);
     }
 	/**
 	 * 添加模型
@@ -6402,15 +6458,15 @@ function(AbstractDao,AbstractEvents,Model){
     }
 	/**
 	 * 请求数据
-	 * @param {Object=}oOptions
-	 * @return {}
+	 * @param {Object=}oOptions{
+	 * 		{function=}beforeSet 设置前操作，返回false则不进行后续设置
+	 * 		{function=}success 设置成功回调
+	 * 		{boolean=}reset true表示使用reset方法设置
+	 * }
+	 * @return {*} 返回同步方法的结果，如果是抓取远程数据，返回jQuery的xhr对象
 	 */
-    // Fetch the default set of models for me collection, resetting the
-    // collection when they arrive. If `reset: true` is passed, the response
-    // data will be passed through the `reset` method instead of `set`.
     function fFetch(oOptions) {
     	var me=this;
-    	me.fetching=true;
         oOptions = oOptions ? $H.clone(oOptions) : {};
         var fSuccess = oOptions.success;
         var fBeforeSet = oOptions.beforeSet;
@@ -6429,6 +6485,7 @@ function(AbstractDao,AbstractEvents,Model){
         	}
         	me.trigger('sync', me, oData, oOptions);
         };
+    	me.fetching=true;
         return me.sync('read', me, oOptions);
     }
 	/**
@@ -8921,6 +8978,7 @@ $Define("M.AbstractModule","CM.View",function (View) {
 //		name           : null,           //{string}模块名
 //		chName         : null,           //{string}模块的中文名称
 		
+		getModId       : fGetModId,      //获取模块id 
 //		getData        : null,           //{function()}获取该模块的初始化数据
 //		clone          : null,           //{function()}克隆接口
 		useCache       : $H.noop,        //判断是否使用模块缓存
@@ -8931,6 +8989,13 @@ $Define("M.AbstractModule","CM.View",function (View) {
 		exit           : function(){return true},  //离开该模块前调用, 返回true允许离开, 否则不允许离开
 		cleanCache     : fCleanCache     //清除模块缓存
 	});
+	/**
+	 * 获取模块id 
+	 * @return {string} 返回模块id
+	 */
+	function fGetModId(){
+		
+	}
 	/**
 	 * 清除模块缓存
 	 */
@@ -9163,21 +9228,37 @@ function(History,AbstractManager){
 		//container        : null,   //默认模块容器
 		//navigator        : null,   //定制模块导航类
 		//defModPackage    : "com.xxx.module",  //默认模块所在包名
+		maxModNum          : 100,     //最大缓存模块数
 		
 //		requestMod         : '',     //正在请求的模块名
 //		currentMod         : '',     //当前模块名
+//		_modules           : {},     //模块缓存
+//		_modStack          : [],     //模块调度记录
+//		_modNum            : {},     //模块名数量统计
 		
+		_getModId          : _fGetModId,        //获取modId
 		_createMod         : _fCreateMod,       //新建模块
 		_showMod           : _fShowMod,         //显示模块
 		_destroy           : _fDestroy,         //销毁模块
 		
 		initialize         : fInitialize,      //初始化模块管理
+		setModule          : fSetModule,       //设置/缓存模块
+		getModule          : fGetModule,       //获取缓存的模块
 		go                 : fGo,              //进入模块
 		update             : fUpdate,          //更新模块
 		clearCache         : fClearCache,      //清除缓存模块
 		back               : fBack             //后退一步
 	});
 	
+	/**
+	 * 获取modId
+	 * @param {string}sModName 模块名
+	 * @param {string|number=}sModelId 模型/集合id
+	 * @return {string} 返回模块id
+	 */
+	function _fGetModId(sModName,sModelId){
+		return sModName+(sModelId?'-'+sModelId:'');
+	}
 	/**
 	 * 新建模块
 	 * @method _createMod
@@ -9186,24 +9267,28 @@ function(History,AbstractManager){
 	function _fCreateMod(oParams){
 		var me=this;
 		var sModName=oParams.modName;
+		var sModId=oParams.modId;
 		//先标记为正在准备中，新建成功后赋值为模块对象
-		me.modules[sModName]={waiting:true};
+		me.setModule({waiting:true},sModName,oParams.modelId);
 		//请求模块
 		$Require(sModName,function(Module){
 			var oOptions={
 				renderTo:me.container,
+				modName:sModName,
+				modId:sModId,
 				name:sModName,
 				xtype:sModName,
+				cid:sModId.replace(/\./g,'-'),
 				extCls:'js-module m-module '+sModName.replace(/\./g,'-'),
 				hidden:true
 			};
 			$H.extend(oOptions,oParams);
 			var oMod=new Module(oOptions);
-			me.modules[sModName]=oMod;
+			me._modules[sModId]=oMod;
 			$H.trigger('afterRender',oMod.getEl());
 			oMod.entry(oParams);
 			//可能加载完时，已切换到其它模块了
-			if(me.requestMod==sModName){
+			if(me.requestMod==sModId){
 				me._showMod(oMod);
 			}
 		});
@@ -9215,7 +9300,7 @@ function(History,AbstractManager){
 	 */
 	function _fShowMod(oMod){
 		var me=this;
-		var oCurMod=me.modules[me.currentMod];
+		var oCurMod=me._modules[me.currentMod];
 		//如果导航类方法返回true，则不使用模块管理类的导航
 		if(!(me.navigator&&me.navigator.navigate(oMod,oCurMod,me))){
 			if(oCurMod){
@@ -9227,7 +9312,7 @@ function(History,AbstractManager){
 			oCurMod.isActive=false;
 		}
 		oMod.isActive=true;
-		me.currentMod=oMod.name;
+		me.currentMod=oMod.modId;
 	}
 	/**
 	 * 销毁模块
@@ -9236,8 +9321,18 @@ function(History,AbstractManager){
 	 */
 	function _fDestroy(oMod){
 		var me=this;
+		var aStack=me._modStack;
+		var sModId=oMod.modId;
+		for(var i=0,len=aStack.length;i<len;i++){
+			if(aStack[i].modId===sModId){
+				aStack.splice(i,1);
+				me._modNum[oMod.modName]--;
+				break;
+			}
+		}
 		oMod.destroy();
-		delete me.modules[oMod.name];
+		$D.info('destroy:'+sModId);
+		delete me._modules[sModId];
 	}
 	/**
 	 * 初始化模块管理
@@ -9258,7 +9353,54 @@ function(History,AbstractManager){
 		me.history=new History(function(sCode,oParam){
 			me.go(oParam.param);
 		});
-		me.modules={};
+		me._modules={};
+		me._modStack=[];
+		me._modNum={};
+	}
+	/**
+	 * 设置/缓存模块，当缓存的模块数量超过限制时，删除历史最久的超过模块各类型平均限制数的模块
+	 * @param {new:M.AbstractModule}oModule 模块对象
+	 * @param {string}sModName 模块名
+	 * @param {string|number=}modelId 模型/集合id
+	 */
+	function fSetModule(oModule,sModName,modelId){
+		var me=this;
+		var oMods=me._modules;
+		var aStack=me._modStack;
+		var oNum=me._modNum;
+		var sModId=me._getModId(sModName,modelId);
+		oMods[sModId]=oModule;
+		aStack.push({
+			modId:sModId,
+			modName:sModName
+		});
+		if(!oNum[sModName]){
+			oNum[sModName]=1;
+		}else{
+			oNum[sModName]++;
+		}
+		if(aStack.length>me.maxModNum){
+			var nModTypeNum=$H.count(oNum);
+			var nAverage=me.maxModNum/nModTypeNum;
+			for(var i=0,len=aStack.length;i<len;i++){
+				var oItem=aStack[i];
+				if(oNum[oItem.modName]>nAverage){
+					me._destroy(oMods[oItem.modId]);
+					break;
+				}
+			}
+		}
+	}
+	/**
+	 * 获取缓存的模块
+	 * @param {string}sModName 模块名
+	 * @param {string|number=}modelId 模型/集合id
+	 * @return {?new:M.AbstractModule}返回对应的模块
+	 */
+	function fGetModule(sModName,modelId){
+		var me=this;
+		var sModId=me._getModId(sModName,modelId);
+		return me._moduels[sModId];
 	}
 	/**
 	 * 进入模块
@@ -9276,12 +9418,20 @@ function(History,AbstractManager){
 			param={modName:param};
 		}
 		var sModName=param.modName;
+		//模块id
+		var sModId=sModName;
+		if(param.model){
+			var sModelId=param.modelId=param.model.id;
+			sModId=me._getModId(sModName,sModelId);
+			
+		}
+		param.modId=sModId;
 		//当前显示的模块名
 		var sCurrentMod=me.currentMod;
-		var oMods=me.modules;
+		var oMods=me._modules;
 		var oCurrentMod=oMods[sCurrentMod];
 		//如果要进入的正好是当前显示模块，调用模块reset方法
-		if(sCurrentMod==sModName){
+		if(sCurrentMod==sModId){
 			if(!oCurrentMod.waiting){
 				oCurrentMod.reset();
 			}
@@ -9300,10 +9450,10 @@ function(History,AbstractManager){
 		}
 		
 		//标记当前请求模块，主要用于异步请求模块回调时判断是否已经进了其它模块
-		me.requestMod=sModName;
+		me.requestMod=sModId;
 		
 		//如果在缓存模块中，直接显示该模块，并且调用该模块cache方法
-		var oMod=oMods[sModName];
+		var oMod=oMods[sModId];
 		//如果模块有缓存
 		if(oMod){
 			//标记使用缓存，要调用cache方法
@@ -9345,17 +9495,23 @@ function(History,AbstractManager){
 	function fUpdate(oModule,oParams){
 		var oNew=oModule.update(oParams);
 		if(oNew){
-			this.modules[oModule.name]=oNew;
+			this._modules[oModule.modId]=oNew;
 			$H.trigger('afterRender',oNew.getEl());
 		}
 		return oNew;
 	}
 	/**
 	 * 清除缓存模块
-	 * @param {Module}oModule 参数模块
+	 * @param {Module|string}module 参数模块或模块名
+	 * @param {number=|string=}modelId 模型id
 	 */
-	function fClearCache(oModule){
-		oModule.notCache=true;
+	function fClearCache(module,modelId){
+		if($H.isStr(module)){
+			module=this.getModule(module,modelId);
+		}
+		if(module){
+			module.notCache=true;
+		}
 	}
 	/**
 	 * 后退一步
@@ -9365,7 +9521,7 @@ function(History,AbstractManager){
 	function fBack(bForceExit){
 		var me=this;
 		if(bForceExit){
-			me.modules[me.currentMod]._forceExit=true;
+			me._modules[me.currentMod]._forceExit=true;
 		}
 		history.back();
 	}
