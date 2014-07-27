@@ -10,12 +10,13 @@
  */
 //"handy.common.Model"
 $Define('CM.Model',
-['CM.AbstractDao',
-'CM.AbstractEvents',
-'CM.DataStore'],
-function(AbstractDao,AbstractEvents){
+[
+'CM.AbstractData',
+'CM.DataStore'
+],
+function(AbstractData){
 	
-	var Model=AbstractEvents.derive({
+	var Model=AbstractData.derive({
 		//可扩展属性
 //      fields                : {},                  
 		/**
@@ -39,7 +40,6 @@ function(AbstractDao,AbstractEvents){
 //		id                    : 0,                   //模型id
         idAttribute           : 'id',                //id默认属性名
 //      uuid                  : 0,                   //uuid，初始化时系统分配，具有全局唯一性
-//		dao                   : null,                //数据访问对象，默认为common.AbstractDao
         
         //系统属性
 //      fetching              : false,               //是否正在抓取数据，model.get('fetching')==true表示正在抓取
@@ -47,7 +47,6 @@ function(AbstractDao,AbstractEvents){
 		$isModel              : true,                //模型标记
 		
         //内部属性
-//      lastSyncTime          : null,                //上次同步时间
 //		_changing             : false,               //是否正在改变，但未保存
 		_pending              : false,               //
 //		_previousAttributes   : {},                  //较早的值
@@ -65,7 +64,6 @@ function(AbstractDao,AbstractEvents){
 //		init                  : $H.noop,             //自定义初始工作
 		getDefaults           : fGetDefaults,        //获取默认值
 		toJSON                : fToJSON,             //返回对象数据副本
-		sync                  : fSync,               //同步数据，可以通过重写进行自定义
    		get                   : fGet,                //获取指定属性值
    		escape                : fEscape,             //获取html编码过的属性值 
    		has                   : fHas,                //判断是否含有参数属性
@@ -259,19 +257,20 @@ function(AbstractDao,AbstractEvents){
 	 * @param {Object}oOptions 选项{
 	 * 		{common.Collection}collection 集合对象
 	 * 		{boolean}parse 是否解析
+	 * 		{object=}custom 自定义配置
 	 * }
 	 */
 	function fInitialize(oAttributes, oOptions) {
 		var me=this;
 		me.callSuper();
-		me.uuid=$H.uuid();
-		//配置dao对象
-		me.dao=me.dao||$H.getSingleton(AbstractDao);
 		var oAttrs = oAttributes || {};
 		oOptions || (oOptions = {});
 		me.cid = $H.Util.uuid();
 		me._attributes = {};
 		me._attrEvts={};
+		if(oOptions.custom){
+			$H.extend(me,oOptions.custom);
+		}
 		if (oOptions.collection){
 			me.collection = oOptions.collection;
 		}
@@ -306,18 +305,6 @@ function(AbstractDao,AbstractEvents){
 	 */
     function fToJSON() {
         return $H.clone(this._attributes);
-    }
-	/**
-	 * 同步数据，可以通过重写进行自定义
-	 * @param {string}sMethod 方法名
-	 * @param {CM.Model}oModel 模型对象
-	 * @param {Object}oOptions 设置
-	 * @return {*} 根据同步方法的结果
-	 */
-    function fSync(sMethod,oModel,oOptions) {
-    	var me=this;
-    	me.lastSyncTime=$H.now();
-        return me.dao.sync(sMethod,oModel,oOptions);
     }
     /**
      * 获取指定属性值
@@ -602,11 +589,15 @@ function(AbstractDao,AbstractEvents){
     }
 	/**
 	 * 获取模型数据
-	 * @param {Object=}oOptions 备选参数
+	 * @param {Object=}oOptions 备选参数{
+	 * 		{function=}beforeSet 设置前操作，返回false则不进行后续设置
+	 * 		{function=}success 设置成功回调
+	 * 		{function|boolean=}parse boolean表示是否要使用parse函数处理回调数据，function表示使用该函数处理回调数据
+	 * }
+	 * @return {*} 返回同步方法的结果，如果是抓取远程数据，返回jQuery的xhr对象
 	 */
     function fFetch(oOptions) {
     	var me=this;
-    	me.set('fetching',true);
         oOptions = oOptions ? $H.clone(oOptions) : {};
         if (oOptions.parse === void 0) {
         	oOptions.parse = true;
@@ -630,7 +621,8 @@ function(AbstractDao,AbstractEvents){
         	}
         	me.trigger('sync', me, oData, oOptions);
         };
-        me.sync('read', me, oOptions);
+    	me.set('fetching',true);
+        return me.sync('read', me, oOptions);
     }
 	/**
 	 * 保存模型

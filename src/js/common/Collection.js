@@ -5,23 +5,22 @@
  */
 //"handy.common.Collection"
 $Define('CM.Collection',
-['CM.AbstractDao',
-'CM.AbstractEvents',
+[
+'CM.AbstractData',
 'CM.Model',
-'CM.DataStore'],
-function(AbstractDao,AbstractEvents,Model){
+'CM.DataStore'
+],
+function(AbstractData,Model){
 	
-	var Collection=AbstractEvents.derive({
+	var Collection=AbstractData.derive({
 		//可扩展属性
 //		url                    : '',                  //集合url
 		model                  : Model,               //子对象模型类
-//		dao                    : null,                //数据访问对象，默认为common.AbstractDao
 //		comparator             : '',                  //比较属性名或比较函数
 //		desc                   : false,               //是否降序
 		
-//      fetching              : false,               //是否正在抓取数据，collection.fetching==true表示正在抓取
+//      fetching              : false,                //是否正在抓取数据，collection.fetching==true表示正在抓取
 		//内部属性
-//      lastSyncTime           : null,                //上次同步时间
 //		_models                : [],                  //模型列表
 //		_byId                  : {},                  //根据id和cid索引
 //		length                 : 0,                   //集合长度
@@ -36,7 +35,6 @@ function(AbstractDao,AbstractEvents,Model){
 		
 		initialize             : fInitialize,         //初始化
 		toJSON                 : fToJSON,             //返回json格式数据(模型数据的数组)
-		sync                   : fSync,               //同步数据，可以通过重写进行自定义
 		add                    : fAdd,                //添加模型
 		remove                 : fRemove,             //移除模型
 		set                    : fSet,                //设置模型
@@ -189,26 +187,19 @@ function(AbstractDao,AbstractEvents,Model){
 	 * @param {Array=}aModels 模型数组
 	 * @param {Object=}oOptions 选项{
 	 * 		{Model=}model 模型类
-	 * 		{function=}comparator 比较函数
+	 * 		{object=}custom 自定义配置
 	 * }
 	 */
 	function fInitialize(aModels, oOptions) {
 		var me=this;
 		me.callSuper();
-		me.dao=me.dao||$H.getSingleton(AbstractDao);
 	    oOptions || (oOptions = {});
 	    if (oOptions.model) {
 	    	me.model = oOptions.model;
 	    }
-	    if (oOptions.url) {
-	    	me.url = oOptions.url;
-	    }
-	    if (oOptions.comparator !== void 0) {
-	    	me.comparator = oOptions.comparator;
-	    }
-	    if (oOptions.desc !== void 0) {
-	    	me.desc = oOptions.desc;
-	    }
+	    if(oOptions.custom){
+			$H.extend(me,oOptions.custom);
+		}
 	    me._reset();
 	    if (aModels){
 	    	me.reset(aModels, $H.extend({silent: true}, oOptions));
@@ -231,18 +222,6 @@ function(AbstractDao,AbstractEvents,Model){
         return $H.map(me._models,function(oModel){
         	return oModel.toJSON(oOptions); 
         });
-    }
-	/**
-	 * 同步数据，可以通过重写进行自定义
-	 * @param {string}sMethod 方法名
-	 * @param {Collection}oCollection 集合对象
-	 * @param {Object}oOptions 设置
-	 * @return {*} 返回同步方法的结果
-	 */
-    function fSync(sMethod,oCollection,oOptions) {
-    	var me=this;
-    	me.lastSyncTime=$H.now();
-        return me.dao.sync(sMethod,oCollection,oOptions);
     }
 	/**
 	 * 添加模型
@@ -597,15 +576,15 @@ function(AbstractDao,AbstractEvents,Model){
     }
 	/**
 	 * 请求数据
-	 * @param {Object=}oOptions
-	 * @return {}
+	 * @param {Object=}oOptions{
+	 * 		{function=}beforeSet 设置前操作，返回false则不进行后续设置
+	 * 		{function=}success 设置成功回调
+	 * 		{boolean=}reset true表示使用reset方法设置
+	 * }
+	 * @return {*} 返回同步方法的结果，如果是抓取远程数据，返回jQuery的xhr对象
 	 */
-    // Fetch the default set of models for me collection, resetting the
-    // collection when they arrive. If `reset: true` is passed, the response
-    // data will be passed through the `reset` method instead of `set`.
     function fFetch(oOptions) {
     	var me=this;
-    	me.fetching=true;
         oOptions = oOptions ? $H.clone(oOptions) : {};
         var fSuccess = oOptions.success;
         var fBeforeSet = oOptions.beforeSet;
@@ -624,6 +603,7 @@ function(AbstractDao,AbstractEvents,Model){
         	}
         	me.trigger('sync', me, oData, oOptions);
         };
+    	me.fetching=true;
         return me.sync('read', me, oOptions);
     }
 	/**

@@ -110,6 +110,7 @@ module.exports = function(grunt) {
 					'src/js/common/AbstractEvents.js',
 					'src/js/common/DataStore.js',
 					'src/js/common/AbstractDao.js',
+					'src/js/common/AbstractData.js',
 					'src/js/common/Model.js',
 					'src/js/common/Collection.js',
 					'src/js/common/AbstractManager.js',

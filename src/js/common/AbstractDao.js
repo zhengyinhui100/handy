@@ -115,17 +115,18 @@ function(LS){
 	        //oParam.contentType = 'application/json';
 	        oParam.data = oOptions.attrs || oModel.toJSON(oOptions);
 	    }
-	    
+	    var result;
 		if(sStoreType=='remote'){
 			//服务端存储
 			oParam.url+='/'+sMethod+'.do';
 			$H.extend(oParam,oOptions);
-			me.ajax(oParam);
+			result=me.ajax(oParam);
 		}else{
 			//本地存储
-			LS[me._localMethodMap[sMethod]](oParam);
+			result=LS[me._localMethodMap[sMethod]](oParam);
 		}
 		oModel.trigger('request', oModel, oOptions);
+		return result;
 	}
 	
 	return AbstractDao;
