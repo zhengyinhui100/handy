@@ -23,6 +23,7 @@ $Define("M.AbstractModule","CM.View",function (View) {
 //		name           : null,           //{string}模块名
 //		chName         : null,           //{string}模块的中文名称
 		
+		getModId       : fGetModId,      //获取模块id 
 //		getData        : null,           //{function()}获取该模块的初始化数据
 //		clone          : null,           //{function()}克隆接口
 		useCache       : $H.noop,        //判断是否使用模块缓存
@@ -33,6 +34,13 @@ $Define("M.AbstractModule","CM.View",function (View) {
 		exit           : function(){return true},  //离开该模块前调用, 返回true允许离开, 否则不允许离开
 		cleanCache     : fCleanCache     //清除模块缓存
 	});
+	/**
+	 * 获取模块id 
+	 * @return {string} 返回模块id
+	 */
+	function fGetModId(){
+		
+	}
 	/**
 	 * 清除模块缓存
 	 */
