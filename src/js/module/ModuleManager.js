@@ -196,7 +196,7 @@ function(History,AbstractManager){
 	function fGetModule(sModName,modelId){
 		var me=this;
 		var sModId=me._getModId(sModName,modelId);
-		return me._moduels[sModId];
+		return me._modules[sModId];
 	}
 	/**
 	 * 进入模块
