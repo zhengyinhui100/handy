@@ -5,15 +5,20 @@
 handy.add('Util','B.Object',function(Object,$H){
 	
 	var Util={
-		isWindow         : fIsWindow,  //检查是否是window对象
-		uuid             : fUuid,      //获取handy内部uuid
-		getHash          : fGetHash,   //获取hash，不包括“？”开头的query部分
-		setHash          : fSetHash,   //设置hash，不改变“？”开头的query部分
-		position         : fPosition,  //获取节点位置
-		result           : fResult     //如果对象中的指定属性是函数, 则调用它, 否则, 返回它
+		isWindow         : fIsWindow,          //检查是否是window对象
+		uuid             : fUuid,              //获取handy内部uuid
+		getHash          : fGetHash,           //获取hash，不包括“？”开头的query部分
+		setHash          : fSetHash,           //设置hash，不改变“？”开头的query部分
+		getDefFontSize   : fGetDefFontSize,    //获取默认字体大小
+		setDefFontSize   : fSetDefFontSize,    //设置默认字体大小
+		em2px            : fEm2px,             //em转化为px
+		px2em            : fPx2em,             //px转化为em
+		position         : fPosition,          //获取节点位置
+		result           : fResult             //如果对象中的指定属性是函数, 则调用它, 否则, 返回它
 	}
 	
 	var _nUuid=0;
+	var _defFontSize;
 	
 	/**
 	 * 检查是否是window对象
@@ -52,6 +57,60 @@ handy.add('Util','B.Object',function(Object,$H){
 			sHash=sOrgHash.replace(/#[^\?]*/,sHash);
 		}
 		top.location.hash=sHash;
+	}
+	/**
+	 * 获取默认字体大小
+	 * @param {element=}oParent 需要检测的父元素，默认是body
+	 * @return {number} 返回默认字体大小(px单位)
+	 */
+	function fGetDefFontSize(oParent) {
+		var bGlobal=!oParent;
+		if(bGlobal&&_defFontSize){
+			return _defFontSize;
+		}
+		oParent = oParent || document.body;
+		var oDiv = document.createElement('div');
+		oDiv.style.cssText = 'display:inline-block; padding:0; line-height:1; position:absolute; visibility:hidden; font-size:1em';
+		oDiv.appendChild(document.createTextNode('M'));
+		oParent.appendChild(oDiv);
+		var nSize = oDiv.offsetHeight;
+		if(bGlobal){
+			_defFontSize=nSize;
+		}
+		oParent.removeChild(oDiv);
+		return nSize;
+	}
+	/**
+	 * 设置默认字体大小
+	 * @param {number|string}size 需要设置的字体大小
+	 * @param {element=}oParent 需要检测的父元素，默认是body
+	 */
+	function fSetDefFontSize(size,oParent){
+		oParent = oParent || document.body;
+		if(typeof size=='number'){
+			size+='px';
+		}
+		oParent.style.fontSize=size;
+	}
+	/**
+	 * em转化为px
+	 * @param {number}nEm 参数em值
+	 * @return {number} 返回相应px值
+	 */
+	function fEm2px(nEm){
+		var nDef=Util.getDefFontSize();
+		return Math.floor(nEm*nDef);
+	}
+	/**
+	 * px转化为em
+	 * @param {number}nPx 参数px值
+	 * @return {number} 返回相应em值
+	 */
+	function fPx2em(nPx){
+		var nDef=Util.getDefFontSize();
+		var nEm=1/nDef*nPx;
+  		nEm=Math.ceil(nEm*1000)/1000;
+  		return nEm;
 	}
 	/**
 	 * 获取节点位置
