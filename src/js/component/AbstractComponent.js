@@ -9,9 +9,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 	//访问component包内容的快捷别名
 	$C=$H.ns('C');
 	
-	var AC=$H.createClass();
-	
-	$H.inherit(AC,View,{
+	var AC=View.derive({
 		//实例属性、方法
 		xtype               : 'AbstractComponent',       //组件类型
 		

@@ -14,10 +14,8 @@ $Define("M.ModuleManager",
 "CM.AbstractManager"],
 function(History,AbstractManager){
 	
-	var ModuleManager=$H.createClass();
-	
 	//TODO 使用AbstractManager的方法
-	$H.inherit(ModuleManager,AbstractManager,{
+	var ModuleManager=AbstractManager.derive({
 		
 		type               : 'module',
 		
