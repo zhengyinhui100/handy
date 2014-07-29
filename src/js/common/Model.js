@@ -196,6 +196,12 @@ function(AbstractData){
 				if($H.isStr(type)){
 					if(type=='Date'){
 						val=$H.parseDate(val);
+					}else if(type=='string'||type=='str'){
+						val=val?''+val:'';
+					}else if(type=='number'||type=='num'){
+						val=val?parseFloat(val):0;
+					}else if(type=='boolean'||type=='bool'){
+						val=val&&val!=='false';
 					}else if(type.indexOf('.')>0){
 						type=$H.ns(type);
 					}
@@ -342,7 +348,8 @@ function(AbstractData){
 	 * @return {object}{
 	 * 		{boolean}changed : true表示此次设置改变了模型，false表示未改变
 	 * 		{boolean=}invalid : 仅当true时表示未通过校验
-	 * 		{Model}result:模型对象自身
+	 * 		{Model}result:模型对象自身,
+	 * 		{boolean=}silent:true时不触发事件
 	 * } 
 	 */
     function fSet(sKey, val, oOptions) {
@@ -548,13 +555,13 @@ function(AbstractData){
         var _fGet=function(oAttrs){
 	        for (var sAttr in oAttrs) {
 	        	var bNeed=true;
+            	val = oAttrs[sAttr];
 	        	//bAll不为true时只检测需要保存的属性
 	        	if(!bAll){
 	        		var bHas=oFields.hasOwnProperty(sAttr);
-	        		bNeed=!bHas||(bHas&&oFields[sAttr].save);
+	        		bNeed=!bHas||(bHas&&($H.isSimple(val)||oFields[sAttr].save));
 	        	}
 	            if (bNeed){
-	            	val = oAttrs[sAttr];
 	            	if(!oDiff||(oDiff&&!$H.equals(oOld[sAttr], val))){
 			            (changed || (changed = {}))[sAttr] = val;
 	            	}

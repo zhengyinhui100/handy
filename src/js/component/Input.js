@@ -100,7 +100,8 @@ function(AC){
 					var nNewHeight=oTextarea[0].scrollHeight;
 					//TODO Firefox下scrollHeight不准确，会忽略padding
 					if(nNewHeight>=50){
-						nNewHeight=nNewHeight<=me.maxHeight?nNewHeight:me.maxHeight
+						var nMax=me.maxHeight>me.inputHeight?me.maxHeight:me.inputHeight;
+						nNewHeight=nNewHeight<=nMax?nNewHeight:nMax
 						oTextarea.css("height",nNewHeight);
 					}
 				}

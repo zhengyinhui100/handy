@@ -2858,15 +2858,20 @@ handy.add('Cookie',function(){
 handy.add('Util','B.Object',function(Object,$H){
 	
 	var Util={
-		isWindow         : fIsWindow,  //检查是否是window对象
-		uuid             : fUuid,      //获取handy内部uuid
-		getHash          : fGetHash,   //获取hash，不包括“？”开头的query部分
-		setHash          : fSetHash,   //设置hash，不改变“？”开头的query部分
-		position         : fPosition,  //获取节点位置
-		result           : fResult     //如果对象中的指定属性是函数, 则调用它, 否则, 返回它
+		isWindow         : fIsWindow,          //检查是否是window对象
+		uuid             : fUuid,              //获取handy内部uuid
+		getHash          : fGetHash,           //获取hash，不包括“？”开头的query部分
+		setHash          : fSetHash,           //设置hash，不改变“？”开头的query部分
+		getDefFontSize   : fGetDefFontSize,    //获取默认字体大小
+		setDefFontSize   : fSetDefFontSize,    //设置默认字体大小
+		em2px            : fEm2px,             //em转化为px
+		px2em            : fPx2em,             //px转化为em
+		position         : fPosition,          //获取节点位置
+		result           : fResult             //如果对象中的指定属性是函数, 则调用它, 否则, 返回它
 	}
 	
 	var _nUuid=0;
+	var _defFontSize;
 	
 	/**
 	 * 检查是否是window对象
@@ -2905,6 +2910,60 @@ handy.add('Util','B.Object',function(Object,$H){
 			sHash=sOrgHash.replace(/#[^\?]*/,sHash);
 		}
 		top.location.hash=sHash;
+	}
+	/**
+	 * 获取默认字体大小
+	 * @param {element=}oParent 需要检测的父元素，默认是body
+	 * @return {number} 返回默认字体大小(px单位)
+	 */
+	function fGetDefFontSize(oParent) {
+		var bGlobal=!oParent;
+		if(bGlobal&&_defFontSize){
+			return _defFontSize;
+		}
+		oParent = oParent || document.body;
+		var oDiv = document.createElement('div');
+		oDiv.style.cssText = 'display:inline-block; padding:0; line-height:1; position:absolute; visibility:hidden; font-size:1em';
+		oDiv.appendChild(document.createTextNode('M'));
+		oParent.appendChild(oDiv);
+		var nSize = oDiv.offsetHeight;
+		if(bGlobal){
+			_defFontSize=nSize;
+		}
+		oParent.removeChild(oDiv);
+		return nSize;
+	}
+	/**
+	 * 设置默认字体大小
+	 * @param {number|string}size 需要设置的字体大小
+	 * @param {element=}oParent 需要检测的父元素，默认是body
+	 */
+	function fSetDefFontSize(size,oParent){
+		oParent = oParent || document.body;
+		if(typeof size=='number'){
+			size+='px';
+		}
+		oParent.style.fontSize=size;
+	}
+	/**
+	 * em转化为px
+	 * @param {number}nEm 参数em值
+	 * @return {number} 返回相应px值
+	 */
+	function fEm2px(nEm){
+		var nDef=Util.getDefFontSize();
+		return Math.floor(nEm*nDef);
+	}
+	/**
+	 * px转化为em
+	 * @param {number}nPx 参数px值
+	 * @return {number} 返回相应em值
+	 */
+	function fPx2em(nPx){
+		var nDef=Util.getDefFontSize();
+		var nEm=1/nDef*nPx;
+  		nEm=Math.ceil(nEm*1000)/1000;
+  		return nEm;
 	}
 	/**
 	 * 获取节点位置
@@ -5258,6 +5317,12 @@ function(AbstractData){
 				if($H.isStr(type)){
 					if(type=='Date'){
 						val=$H.parseDate(val);
+					}else if(type=='string'||type=='str'){
+						val=val?''+val:'';
+					}else if(type=='number'||type=='num'){
+						val=val?parseFloat(val):0;
+					}else if(type=='boolean'||type=='bool'){
+						val=val&&val!=='false';
 					}else if(type.indexOf('.')>0){
 						type=$H.ns(type);
 					}
@@ -5404,7 +5469,8 @@ function(AbstractData){
 	 * @return {object}{
 	 * 		{boolean}changed : true表示此次设置改变了模型，false表示未改变
 	 * 		{boolean=}invalid : 仅当true时表示未通过校验
-	 * 		{Model}result:模型对象自身
+	 * 		{Model}result:模型对象自身,
+	 * 		{boolean=}silent:true时不触发事件
 	 * } 
 	 */
     function fSet(sKey, val, oOptions) {
@@ -5610,13 +5676,13 @@ function(AbstractData){
         var _fGet=function(oAttrs){
 	        for (var sAttr in oAttrs) {
 	        	var bNeed=true;
+            	val = oAttrs[sAttr];
 	        	//bAll不为true时只检测需要保存的属性
 	        	if(!bAll){
 	        		var bHas=oFields.hasOwnProperty(sAttr);
-	        		bNeed=!bHas||(bHas&&oFields[sAttr].save);
+	        		bNeed=!bHas||(bHas&&($H.isSimple(val)||oFields[sAttr].save));
 	        	}
 	            if (bNeed){
-	            	val = oAttrs[sAttr];
 	            	if(!oDiff||(oDiff&&!$H.equals(oOld[sAttr], val))){
 			            (changed || (changed = {}))[sAttr] = val;
 	            	}
@@ -6708,9 +6774,7 @@ $Define("CM.AbstractManager", function() {
 //"handy.common.ViewManager"
 $Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
 
-	var ViewManager = $H.createClass();
-
-	$H.inherit(ViewManager,AbstractManager,{
+	var ViewManager = AbstractManager.derive({
 		type          : 'view',           //管理类型
 		initialize    : fInitialize,      //初始化
 		afterRender   : fAfterRender,     //调用指定dom节点包含的视图的afterRender方法
@@ -7115,7 +7179,7 @@ $Define('CM.ModelView',
 function(Template,AbstractView,Model,Collection){
 	
 	var ModelView=AbstractView.derive({
-		bindType            : 'both',              //绑定类型，‘el’表示绑定节点，‘model’表示绑定模型，‘both’表示双向绑定
+		bindType            : 'model',                //绑定类型，‘el’表示绑定(监听)节点，‘model’表示绑定(监听)模型，‘both’表示双向绑定
 //		model               : null,                //模型对象
 //		xmodel              : null,                //执行模板时使用的模型对象，本类中与model属性相同
 //		modelClass          : null,                //模型类
@@ -8965,10 +9029,9 @@ $Define("M.AbstractModule","CM.View",function (View) {
 	 * 
 	 * @class AbstractModule
 	 */
-	var AbstractModule = $H.createClass();
-	
-	$H.inherit(AbstractModule,View, {
+	var AbstractModule = View.derive({
 		
+		xtype          : 'Module',
 //		isLoaded       : false,          //{boolean}模块是否已载入
 //		isActived      : false,          //{boolean}模块是否是当前活跃的
 //		renderTo       : null,           //自定义模块容器，{jQuery}对象或选择器
@@ -8978,7 +9041,6 @@ $Define("M.AbstractModule","CM.View",function (View) {
 //		name           : null,           //{string}模块名
 //		chName         : null,           //{string}模块的中文名称
 		
-		getModId       : fGetModId,      //获取模块id 
 //		getData        : null,           //{function()}获取该模块的初始化数据
 //		clone          : null,           //{function()}克隆接口
 		useCache       : $H.noop,        //判断是否使用模块缓存
@@ -8989,13 +9051,6 @@ $Define("M.AbstractModule","CM.View",function (View) {
 		exit           : function(){return true},  //离开该模块前调用, 返回true允许离开, 否则不允许离开
 		cleanCache     : fCleanCache     //清除模块缓存
 	});
-	/**
-	 * 获取模块id 
-	 * @return {string} 返回模块id
-	 */
-	function fGetModId(){
-		
-	}
 	/**
 	 * 清除模块缓存
 	 */
@@ -9216,10 +9271,8 @@ $Define("M.ModuleManager",
 "CM.AbstractManager"],
 function(History,AbstractManager){
 	
-	var ModuleManager=$H.createClass();
-	
 	//TODO 使用AbstractManager的方法
-	$H.inherit(ModuleManager,AbstractManager,{
+	var ModuleManager=AbstractManager.derive({
 		
 		type               : 'module',
 		
@@ -9400,7 +9453,7 @@ function(History,AbstractManager){
 	function fGetModule(sModName,modelId){
 		var me=this;
 		var sModId=me._getModId(sModName,modelId);
-		return me._moduels[sModId];
+		return me._modules[sModId];
 	}
 	/**
 	 * 进入模块
@@ -9680,9 +9733,7 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 	//访问component包内容的快捷别名
 	$C=$H.ns('C');
 	
-	var AC=$H.createClass();
-	
-	$H.inherit(AC,View,{
+	var AC=View.derive({
 		//实例属性、方法
 		xtype               : 'AbstractComponent',       //组件类型
 		
@@ -10955,7 +11006,8 @@ function(AC){
 					var nNewHeight=oTextarea[0].scrollHeight;
 					//TODO Firefox下scrollHeight不准确，会忽略padding
 					if(nNewHeight>=50){
-						nNewHeight=nNewHeight<=me.maxHeight?nNewHeight:me.maxHeight
+						var nMax=me.maxHeight>me.inputHeight?me.maxHeight:me.inputHeight;
+						nNewHeight=nNewHeight<=nMax?nNewHeight:nMax
 						oTextarea.css("height",nNewHeight);
 					}
 				}
