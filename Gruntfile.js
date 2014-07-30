@@ -79,9 +79,8 @@ module.exports = function(grunt) {
 				],
 				dest : buildVersionDir+'css/<%=pkg.name%>.css'
 			},
-			js : {
-				// 将要被合并的文件
-				src : [
+			jsBase:{
+				src:[
 					'src/js/base/base.js',
 					'src/js/base/Json.js', 
 					'src/js/base/Object.js',
@@ -103,8 +102,14 @@ module.exports = function(grunt) {
 					'src/js/base/Support.js', 
 					'src/js/base/Validator.js',
 					'src/js/base/LocalStorage.js', 
-					'src/js/base/adapt.js',
-					
+					'src/js/base/adapt.js'
+				],
+				// 合并后的JS文件的存放位置
+				dest : buildVersionDir+'js/<%= pkg.name %>-base.js'
+			},
+			jsOther : {
+				// 将要被合并的文件
+				src : [
 					'src/js/util/ImgCompress.js',
 					
 					'src/js/common/AbstractEvents.js',
@@ -156,6 +161,14 @@ module.exports = function(grunt) {
 					'src/js/component/Conversation.js',
 					'src/js/component/ModelList.js'
 
+				],
+				// 合并后的JS文件的存放位置
+				dest : buildVersionDir+'js/<%= pkg.name %>-other.js'
+			},
+			jsAll:{
+				src:[
+					buildVersionDir+'js/<%= pkg.name %>-base.js',
+					buildVersionDir+'js/<%= pkg.name %>-other.js'
 				],
 				// 合并后的JS文件的存放位置
 				dest : buildVersionDir+'js/<%= pkg.name %>.js'
