@@ -25,8 +25,14 @@ function(AC){
 		
 		tmpl             : [
 			'<div {{bindAttr class="isHeader?hui-header isFooter?hui-footer"}}>',
-				'{{placeItem}}',
+				'<div class="hui-tbar-left">',
+					'{{placeItem > [pos=left]}}',
+				'</div>',
+				'{{placeItem > [pos!=left][pos!=right]}}',
 				'{{#if title}}<h1 class="hui-tbar-title js-tbar-txt">{{title}}</h1>{{/if}}',
+				'<div class="hui-tbar-right">',
+					'{{placeItem > [pos=right]}}',
+				'</div>',
 			'</div>'
 		].join(''),
 		
@@ -41,6 +47,7 @@ function(AC){
 	function fParseItem(oItem){
 		if(oItem.xtype=='Button'){
 			oItem.shadowSurround=true;
+			return;
 			if(oItem.pos=='left'){
 				oItem.extCls=(oItem.extCls||"")+' hui-tbar-btn-left';
 			}else if(oItem.pos=="right"){

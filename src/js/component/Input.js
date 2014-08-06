@@ -43,7 +43,7 @@ function(AC){
 		},
 //		inputHeight     : null,                //输入框高度 
 		type            : '',                  //输入框类型，默认为普通输入框，'search':搜索框
-		maxHeight       : 85,                  //输入框最大高度，进对textarea有效
+		maxHeight       : '5.313em',           //输入框最大高度，进对textarea有效
 		withClear       : false,               //带有清除按钮
 		
 		tmpl            : [
@@ -88,6 +88,7 @@ function(AC){
 			me.icon='search';
 		}
 		me.callSuper();
+		me.maxHeight=$H.em2px(me.maxHeight);
 		if(oSettings.isTextarea){
 			//textarea高度自适应，IE6、7、8支持propertychange事件，input被其他浏览器所支持
 			me.listeners.push({
@@ -100,7 +101,7 @@ function(AC){
 					var nNewHeight=oTextarea[0].scrollHeight;
 					//TODO Firefox下scrollHeight不准确，会忽略padding
 					if(nNewHeight>=50){
-						var nMax=me.maxHeight>me.inputHeight?me.maxHeight:me.inputHeight;
+						var nMax=me.inputHeight&&me.maxHeight<me.inputHeight?me.inputHeight:me.maxHeight;
 						nNewHeight=nNewHeight<=nMax?nNewHeight:nMax
 						oTextarea.css("height",nNewHeight);
 					}

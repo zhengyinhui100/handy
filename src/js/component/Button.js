@@ -71,7 +71,7 @@ function(AC){
 		if(oSettings.tType==='adapt'){
 			oSettings=$H.clone(oSettings);
 			$H.extend(oSettings,{
-				isInline:false,
+				isInline:true,
 				radius:null,
 				shadow:null,
 				shadowSurround:null

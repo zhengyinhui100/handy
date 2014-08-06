@@ -17,6 +17,7 @@ function(AC){
 			title     : '',    //标题
 			titleDesc : '',    //标题说明
 			hasImg    : true,  //是否有图片
+			txtOverflow : true, ////文字超出长度显示省略号
 			hasArrow  : false, //是否有右边箭头，有点击函数时默认有右箭头
 			newsNum   : 0,     //新消息提示数目，大于9自动显示成"9+"
 			hasBorder : false, //是否有边框
@@ -49,7 +50,7 @@ function(AC){
 					'</div>',
 				'{{/if}}',
 				'<div class="hui-hcard-content js-content">',
-					'<div class="hui-content-title">',
+					'<div {{bindAttr class="#hui-content-title txtOverflow?c-txt-overflow"}}>',
 						'{{title}}',
 						'<span class="hui-title-desc">{{titleDesc}}</span>',
 					'</div>',

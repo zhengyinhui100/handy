@@ -17,7 +17,7 @@ function(AC,Model,Collection){
 			cls      : 'desc',
 			icon     : '',
 			text     : '',
-			txtOverflow : true,
+			txtOverflow : true,     //文字超出长度显示省略号
 			iconCls : {
 				depends:['icon'],
 				parse:function(){
@@ -28,7 +28,7 @@ function(AC,Model,Collection){
 		},
 		
 		tmpl     : [
-			'<div {{bindAttr class="txtOverflow?hui-desc-overflow"}}>',
+			'<div {{bindAttr class="txtOverflow?c-txt-overflow"}}>',
 				'{{#if icon}}',
 					'<span {{bindAttr class="#hui-icon #hui-size-mini #hui-alt-icon iconCls #hui-light"}}></span>',
 				'{{/if}}',

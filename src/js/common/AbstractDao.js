@@ -60,21 +60,21 @@ function(LS){
 		oParams.error=$H.intercept(fError,oParams.beforeErr);
 		var fSucc=$H.intercept(oParams.success,me.success);
 		oParams.success=$H.intercept(fSucc,oParams.beforeSucc);
-		oParams.beforeSend=$H.intercept($H.bind(me.beforeSend,me),oParams.beforeSend);
-		oParams.complete=$H.intercept($H.bind(me.complete,me),oParams.complete);
+		oParams.beforeSend=$H.intercept($H.bind(me.beforeSend,me,oParams),oParams.beforeSend);
+		oParams.complete=$H.intercept($H.bind(me.complete,me,oParams),oParams.complete);
 		return $.ajax(oParams);
 	}
 	/**
 	 * 发送前处理
 	 */
-	function fBeforeSend(){
-		this.showLoading(true);
+	function fBeforeSend(oParams){
+		this.showLoading(true,oParams);
 	}
 	/**
 	 * 发送完处理
 	 */
-	function fComplete(){
-		this.showLoading(false);
+	function fComplete(oParams){
+		this.showLoading(false,oParams);
 	}
 	/**
 	 * 获取数据

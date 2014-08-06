@@ -98,6 +98,9 @@ handy.add('Util','B.Object',function(Object,$H){
 	 * @return {number} 返回相应px值
 	 */
 	function fEm2px(nEm){
+		if(typeof nEm==='string'){
+			nEm=parseFloat(nEm.replace('em',''));
+		}
 		var nDef=Util.getDefFontSize();
 		return Math.floor(nEm*nDef);
 	}
