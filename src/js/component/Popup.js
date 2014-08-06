@@ -141,8 +141,8 @@ function(AC){
 		var me=this;
 		var oEl=me.getEl();
 		oEl.css({
-			left: "80px",
-			top:"8px",
+			left: $H.em2px(5),
+			top:$H.em2px(0.5),
 			position:'fixed'
 		});
 	}

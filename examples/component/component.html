@@ -587,13 +587,14 @@ $Define('test',function(){
 		var form=new Form({
 			renderTo:'#formDv',
 			refModel:oModel,
+			extCls:'hui-field-3-words',
 			width:400,
 			items:[{
 				xtype:'Set',
 				title:'资料',
 				items:[{
 					xtype:'Field',
-					title:'头像：',
+					title:'头像',
 					content:{
 						hasArrow:true,
 						underline:true,
@@ -619,7 +620,7 @@ $Define('test',function(){
 					}
 				},{
 					xtype:'Field',
-					title:'用户名：',
+					title:'用户名',
 					content:{
 						text:'{{username}}',
 						click:function(){
@@ -628,14 +629,14 @@ $Define('test',function(){
 					}
 				},{
 					xtype:'Field',
-					title:'昵称：',
+					title:'昵称',
 					content:{
 						underline:false,
 						text:'bb'
 					}
 				},{
 					xtype:'Field',
-					title:'邮箱：',
+					title:'邮箱',
 					labelColor:'gray',
 					labelAlign:'right',
 					items:{
@@ -653,7 +654,7 @@ $Define('test',function(){
 					}
 				},{
 					xtype:'Field',
-					title:'性别：',
+					title:'性别',
 					items:{
 						xtype:'Select',
 						name:'level',
@@ -675,7 +676,7 @@ $Define('test',function(){
 					}
 				},{
 					xtype:"Field",
-					title:'描述：',
+					title:'描述',
 					items:{
 						xtype:'Input',
 						type:'textarea',

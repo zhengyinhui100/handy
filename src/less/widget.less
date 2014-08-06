@@ -354,7 +354,11 @@
 	width:1.875em;
 	height:1.875em;
 	.hui-icon{
-		margin: 0.188em 0.063em 0.125em 0.063em;
+		position:absolute;
+		top:50%;
+		left:50%;
+		margin-top:-0.688em;
+		margin-left:-0.688em;
 	}
 }
 //纯图标按钮
@@ -624,7 +628,7 @@
 .hui-field{
 	position:relative;
 	text-align:left;
-	padding-left:5em;
+	padding-left:2em;
 	.hui-field-left{
 		position:absolute;
 		left:0;
@@ -632,8 +636,8 @@
 		margin-top:-0.5em;
 		padding-left:0.375em;
 		vertical-align:middle;
-		font-size:1em;
-		.c-txt-gray();
+		font-size:.8em;
+		.c-txt-light();
 		.fn_inline_block();
 		.fn_text_overflow();
 	}
@@ -649,6 +653,15 @@
 		padding:0;
 	}
 }
+.hui-field-3-words .hui-field{
+	padding-left:3em;
+}
+.hui-field-4-words .hui-field{
+	padding-left:4em;
+}
+.hui-field-5-words .hui-field{
+	padding-left:5em;
+}
 //普通表单
 .hui-form{
 	.hui-form-tips{
@@ -661,6 +674,9 @@
 		padding-left:22%;
 		.hui-btn{
 			margin-right:1.875em;
+		}
+		.hui-btn:nth-last-of-type(1){
+			margin-right:0;
 		}
 	}
 }
@@ -692,7 +708,7 @@
 		text-align: center;
 		font-size: 1em;
 		display: block;
-		padding: 0.563em 4em 0.75em;
+		padding: 0.625em 4em;
 		text-overflow: ellipsis;
 		overflow: hidden;
 		white-space: nowrap;
@@ -701,6 +717,9 @@
 	.hui-btn{
 		margin-top:0.25em;
 		margin-bottom:0.25em;
+	}
+	.hui-btn-adapt{
+		padding-top:0.5em;
 	}
 	.hui-tbar-btn-left,.hui-tbar-btn-right{
 		position:absolute;
@@ -832,11 +851,16 @@
 	}
 }
 .hui-tips-inline{
-	span{
-		float:left;
+	padding:0.5em 1em;
+	.hui-icon{
+		position:absolute;
+		left:0.313em;
 	}
 	.hui-icon{
 		margin-right:0.188em;
+	}
+	&.hui-tips-has-icon{
+		padding-left:1.75em;
 	}
 }
 .hui-tips-white{

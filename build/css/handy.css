@@ -1529,7 +1529,11 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   height: 1.875em;
 }
 .hui-btn-icon-notxt .hui-icon {
-  margin: 0.188em 0.063em 0.125em 0.063em;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -0.688em;
+  margin-left: -0.688em;
 }
 .hui-btn-adapt {
   border: none;
@@ -1824,7 +1828,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-field {
   position: relative;
   text-align: left;
-  padding-left: 5em;
+  padding-left: 2em;
 }
 .hui-field .hui-field-left {
   position: absolute;
@@ -1833,8 +1837,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   margin-top: -0.5em;
   padding-left: 0.375em;
   vertical-align: middle;
-  font-size: 1em;
-  color: #6a6a6a;
+  font-size: .8em;
+  color: #888;
   display: -moz-inline-stack;
   display: inline-block;
   zoom: 1;
@@ -1856,6 +1860,15 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-field .hui-field-nopadding {
   padding: 0;
 }
+.hui-field-3-words .hui-field {
+  padding-left: 3em;
+}
+.hui-field-4-words .hui-field {
+  padding-left: 4em;
+}
+.hui-field-5-words .hui-field {
+  padding-left: 5em;
+}
 .hui-form .hui-form-tips {
   text-align: center;
 }
@@ -1867,6 +1880,9 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-form .hui-form-action .hui-btn {
   margin-right: 1.875em;
+}
+.hui-form .hui-form-action .hui-btn:nth-last-of-type(1) {
+  margin-right: 0;
 }
 .hui-set .hui-set-title {
   padding: 0.375em;
@@ -1893,7 +1909,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   text-align: center;
   font-size: 1em;
   display: block;
-  padding: 0.563em 4em 0.75em;
+  padding: 0.625em 4em;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
@@ -1902,6 +1918,9 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-tbar .hui-btn {
   margin-top: 0.25em;
   margin-bottom: 0.25em;
+}
+.hui-tbar .hui-btn-adapt {
+  padding-top: 0.5em;
 }
 .hui-tbar .hui-tbar-btn-left,
 .hui-tbar .hui-tbar-btn-right {
@@ -2039,11 +2058,18 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-tips-notxt .hui-icon {
   margin: 0;
 }
-.hui-tips-inline span {
-  float: left;
+.hui-tips-inline {
+  padding: 0.5em 1em;
+}
+.hui-tips-inline .hui-icon {
+  position: absolute;
+  left: 0.313em;
 }
 .hui-tips-inline .hui-icon {
   margin-right: 0.188em;
+}
+.hui-tips-inline.hui-tips-has-icon {
+  padding-left: 1.75em;
 }
 .hui-tips-white {
   background: #fff;

@@ -19,7 +19,7 @@ function(AC){
 		tmpl            : [
 			'<div>',
 				'<form action="">',
-				'<div class="hui-form-tips c-txt-error"></div>',
+					'<div class="hui-form-tips c-txt-error"></div>',
 					'{{placeItem}}',
 				'</form>',
 			'</div>'

@@ -124,7 +124,7 @@ function(ViewManager,ModelView,Model,Template){
 		callChild           : fCallChild,        //调用子视图方法
 		add                 : fAdd,              //添加子视图
 		remove              : fRemove,           //删除子视图
-		parseItem           : function(){},      //分析子视图，由具体视图类实现
+		parseItem           : $H.noop,           //分析子视图，由具体视图类实现
 		parseItems          : fParseItems,       //分析子视图列表
 		
 		//更新、销毁

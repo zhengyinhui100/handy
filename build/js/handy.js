@@ -1162,11 +1162,11 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 				oDebugDiv.innerHTML = [
 					'<a href="javascript:void(0)" onclick="this.parentNode.style.display=\'none\'">关闭</a>',
 					'<a href="javascript:void(0)" onclick="this.parentNode.getElementsByTagName(\'DIV\')[0].innerHTML=\'\';">清空</a>',
-					'<a href="javascript:void(0)" onclick="if(this.innerHTML==\'全屏\'){this.parentNode.style.height=\''+oDocument.body.offsetHeight+'px\';this.innerHTML=\'收起\'}else{this.parentNode.style.height=\'100px\';this.innerHTML=\'全屏\';}">收起</a>',
+					'<a href="javascript:void(0)" onclick="if(this.innerHTML==\'全屏\'){this.parentNode.style.height=\''+oDocument.body.offsetHeight+'px\';this.innerHTML=\'收起\'}else{this.parentNode.style.height=\'6.25em\';this.innerHTML=\'全屏\';}">收起</a>',
 					'<a href="javascript:void(0)" onclick="var oDv=this.parentNode.getElementsByTagName(\'div\')[0];if(this.innerHTML==\'底部\'){oDv.scrollTop=oDv.scrollHeight;this.innerHTML=\'顶部\';}else{oDv.scrollTop=0;this.innerHTML=\'底部\';}">顶部</a>',
 					'<a href="javascript:void(0)" onclick="location.reload();">刷新</a>',
 					'<a href="javascript:void(0)" onclick="history.back();">后退</a>'
-				].join('&nbsp;&nbsp;&nbsp;&nbsp;')+'<div style="padding-top:5px;height:90%;overflow:auto;"></div>';
+				].join('&nbsp;&nbsp;&nbsp;&nbsp;')+'<div style="padding-top:0.313;height:90%;overflow:auto;"></div>';
 				oDebugDiv.style.position = 'fixed';
 				oDebugDiv.style.width = '100%';
 				oDebugDiv.style.left = 0;
@@ -1174,8 +1174,8 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 				oDebugDiv.style.right = 0;
 				oDebugDiv.style.height = '100%';
 				oDebugDiv.style.backgroundColor = '#aaa';
-				oDebugDiv.style.fontSize = '12px';
-				oDebugDiv.style.padding = '10px';
+				oDebugDiv.style.fontSize = '0.75em';
+				oDebugDiv.style.padding = '0.625em';
 				oDebugDiv.style.zIndex = 9999999999;
 				oDebugDiv.style.opacity=0.95;
 				oDebugDiv.style.filter="alpha(opacity=95)";
@@ -7881,7 +7881,7 @@ function(ViewManager,ModelView,Model,Template){
 		callChild           : fCallChild,        //调用子视图方法
 		add                 : fAdd,              //添加子视图
 		remove              : fRemove,           //删除子视图
-		parseItem           : function(){},      //分析子视图，由具体视图类实现
+		parseItem           : $H.noop,           //分析子视图，由具体视图类实现
 		parseItems          : fParseItems,       //分析子视图列表
 		
 		//更新、销毁
@@ -10328,8 +10328,8 @@ function(AC){
 		var me=this;
 		var oEl=me.getEl();
 		oEl.css({
-			left: "80px",
-			top:"8px",
+			left: $H.em2px(5),
+			top:$H.em2px(0.5),
 			position:'fixed'
 		});
 	}
@@ -10488,7 +10488,7 @@ function(AC){
 	 * @param {object}oItem 子组件配置项
 	 */
 	function fParseItem(oItem){
-		oItem.extCls=(oItem.extCls||"")+'js-item';
+		oItem.extCls=(oItem.extCls||"")+' js-item';
 	}
 	/**
 	 * 布局
@@ -11323,7 +11323,7 @@ function(AC){
 		tmpl            : [
 			'<div>',
 				'<form action="">',
-				'<div class="hui-form-tips c-txt-error"></div>',
+					'<div class="hui-form-tips c-txt-error"></div>',
 					'{{placeItem}}',
 				'</form>',
 			'</div>'
@@ -11735,8 +11735,8 @@ function(AC,Popup,ControlGroup){
 				},
 				theme:null,
 				showPos:{
-					left:10,
-					top:10
+					left:$H.em2px(0.625),
+					top:$H.em2px(0.625)
 				},
 				items:{
 					xtype:'Icon',
@@ -12416,7 +12416,7 @@ function(AC,DisplayImage){
 	            	if($H.isStr(nFixH)&&nFixH.indexOf('em')>0){
 	            		nFixH=me.getEl()[0].clientHeight;
 	            	}
-		            if(nFixW&&w>nFixW){
+		            if(nFixW&&w!=nFixW){
 		            	w=nFixW;
 		            	h = Math.ceil(w / scale);
 		            }
@@ -12976,7 +12976,8 @@ function(AC){
 					var me=this;
 					var oWrapper=me.getEl();
 					var oPdEl=oWrapper.find('.hui-list-pulldown');
-					var nStartY=48;
+					var nStartY=$H.em2px(3.125);
+					var nValve=$H.em2px(0.313);
 					var sRefreshCls='hui-pd-refresh';
 					var sReleaseCls='hui-pd-release';
 					me.scroller= new window.iScroll(oWrapper[0], {
@@ -12990,11 +12991,11 @@ function(AC){
 							}
 						},
 						onScrollMove: function () {
-							if (this.y > 5 && !oPdEl.hasClass(sReleaseCls)) {  
+							if (this.y > nValve && !oPdEl.hasClass(sReleaseCls)) {  
 				                oPdEl.addClass(sReleaseCls);  
 				                me.set('pdTxt',me.flipTxt);  
 								this.minScrollY = 0;
-				            } else if (this.y < 5 && oPdEl.hasClass(sReleaseCls)) {  
+				            } else if (this.y < nValve && oPdEl.hasClass(sReleaseCls)) {  
 				                oPdEl.removeClass(sReleaseCls);;  
 				                me.set('pdTxt',me.pullTxt); 
 								this.minScrollY = -nStartY;
@@ -13095,7 +13096,7 @@ function(AC){
 		var oScroller=me.scroller;
 		if($H.isStr(pos)){
 			if(pos=='top'){
-				oScroller.scrollTo(0,-50);
+				oScroller.scrollTo(0,-$H.em2px(3.125));
 			}else if(pos=='bottom'){
 				var nHeight=me.findEl('.hui-list-inner')[0].clientHeight;
 				oScroller.scrollTo(0,-nHeight);
@@ -13143,7 +13144,7 @@ function(AC){
 		var me=this;
 		var oScroller=me.scroller;
 		var tmp=oScroller.minScrollY;
-		oScroller.minScrollY=10;
+		oScroller.minScrollY=$H.em2px(0.625);
 		if(bRefresh){
 			var oPdEl=me.findEl('.hui-list-pulldown');
 			oPdEl.addClass('hui-pd-release');

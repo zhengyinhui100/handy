@@ -89,8 +89,8 @@ function(AC,Popup,ControlGroup){
 				},
 				theme:null,
 				showPos:{
-					left:10,
-					top:10
+					left:$H.em2px(0.625),
+					top:$H.em2px(0.625)
 				},
 				items:{
 					xtype:'Icon',

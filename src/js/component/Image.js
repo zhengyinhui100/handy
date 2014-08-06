@@ -46,7 +46,7 @@ function(AC,DisplayImage){
 	            	if($H.isStr(nFixH)&&nFixH.indexOf('em')>0){
 	            		nFixH=me.getEl()[0].clientHeight;
 	            	}
-		            if(nFixW&&w>nFixW){
+		            if(nFixW&&w!=nFixW){
 		            	w=nFixW;
 		            	h = Math.ceil(w / scale);
 		            }

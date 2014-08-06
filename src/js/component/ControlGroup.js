@@ -89,7 +89,7 @@ function(AC){
 	 * @param {object}oItem 子组件配置项
 	 */
 	function fParseItem(oItem){
-		oItem.extCls=(oItem.extCls||"")+'js-item';
+		oItem.extCls=(oItem.extCls||"")+' js-item';
 	}
 	/**
 	 * 布局

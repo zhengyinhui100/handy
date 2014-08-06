@@ -131,7 +131,8 @@ function(AC){
 					var me=this;
 					var oWrapper=me.getEl();
 					var oPdEl=oWrapper.find('.hui-list-pulldown');
-					var nStartY=48;
+					var nStartY=$H.em2px(3.125);
+					var nValve=$H.em2px(0.313);
 					var sRefreshCls='hui-pd-refresh';
 					var sReleaseCls='hui-pd-release';
 					me.scroller= new window.iScroll(oWrapper[0], {
@@ -145,11 +146,11 @@ function(AC){
 							}
 						},
 						onScrollMove: function () {
-							if (this.y > 5 && !oPdEl.hasClass(sReleaseCls)) {  
+							if (this.y > nValve && !oPdEl.hasClass(sReleaseCls)) {  
 				                oPdEl.addClass(sReleaseCls);  
 				                me.set('pdTxt',me.flipTxt);  
 								this.minScrollY = 0;
-				            } else if (this.y < 5 && oPdEl.hasClass(sReleaseCls)) {  
+				            } else if (this.y < nValve && oPdEl.hasClass(sReleaseCls)) {  
 				                oPdEl.removeClass(sReleaseCls);;  
 				                me.set('pdTxt',me.pullTxt); 
 								this.minScrollY = -nStartY;
@@ -250,7 +251,7 @@ function(AC){
 		var oScroller=me.scroller;
 		if($H.isStr(pos)){
 			if(pos=='top'){
-				oScroller.scrollTo(0,-50);
+				oScroller.scrollTo(0,-$H.em2px(3.125));
 			}else if(pos=='bottom'){
 				var nHeight=me.findEl('.hui-list-inner')[0].clientHeight;
 				oScroller.scrollTo(0,-nHeight);
@@ -298,7 +299,7 @@ function(AC){
 		var me=this;
 		var oScroller=me.scroller;
 		var tmp=oScroller.minScrollY;
-		oScroller.minScrollY=10;
+		oScroller.minScrollY=$H.em2px(0.625);
 		if(bRefresh){
 			var oPdEl=me.findEl('.hui-list-pulldown');
 			oPdEl.addClass('hui-pd-release');
