@@ -36,7 +36,8 @@ function(AC){
 			}
 		},
 		defItem  : {
-			xtype : 'Desc'
+			xtype : 'Desc',
+			xrole : 'content'
 		},
 		
 //		imgClick        : $H.noop,        //图片点击事件函数
@@ -54,9 +55,9 @@ function(AC){
 						'{{title}}',
 						'<span class="hui-title-desc">{{titleDesc}}</span>',
 					'</div>',
-					'{{placeItem > [xtype=Desc]}}',
+					'{{placeItem > [xrole=content]}}',
 				'</div>',
-				'{{placeItem > [xtype!=Desc]}}',
+				'{{placeItem > [xrole!=content]}}',
 				'{{#if newsNumTxt}}',
 					'<span class="hui-news-tips">{{newsNumTxt}}</span>',
 				'{{else}}',

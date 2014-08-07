@@ -133,6 +133,7 @@ module.exports = function(grunt) {
 					'src/js/component/ComponentManager.js',
 					'src/js/component/AbstractComponent.js',
 					'src/js/component/Icon.js',
+					'src/js/component/Link.js',
 					'src/js/component/Button.js',
 					'src/js/component/Desc.js',
 					'src/js/component/Panel.js',

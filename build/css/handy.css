@@ -1006,6 +1006,13 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   zoom: 1;
   *display: inline;
 }
+.c-txt-overflow {
+  overflow: hidden;
+  white-space: nowrap;
+  -o-text-overflow: ellipsis;
+  -ms-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+}
 .c-txt-error,
 .c-txt-red {
   color: #c00;
@@ -1915,42 +1922,27 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   white-space: nowrap;
   outline: 0!important;
 }
+.hui-tbar .hui-tbar-left,
+.hui-tbar .hui-tbar-right {
+  position: absolute;
+  height: 100%;
+  top: 0;
+}
+.hui-tbar .hui-tbar-left {
+  left: 0;
+}
+.hui-tbar .hui-tbar-right {
+  right: 0;
+}
 .hui-tbar .hui-btn {
-  margin-top: 0.25em;
-  margin-bottom: 0.25em;
+  margin-left: 0.5em;
+  margin-top: 0.1em;
+}
+.hui-tbar .hui-btn.hui-size-mini {
+  margin-top: 0.5em;
 }
 .hui-tbar .hui-btn-adapt {
   padding-top: 0.5em;
-}
-.hui-tbar .hui-tbar-btn-left,
-.hui-tbar .hui-tbar-btn-right {
-  position: absolute;
-  top: 50%;
-  margin-top: -1.063em;
-}
-.hui-tbar .hui-tbar-btn-left.hui-size-mini,
-.hui-tbar .hui-tbar-btn-right.hui-size-mini {
-  margin-top: -1.063em;
-}
-.hui-tbar .hui-btn-icon-notxt {
-  margin-top: -0.938em;
-}
-.hui-tbar .hui-tbar-btn-left {
-  left: 0.313em;
-}
-.hui-tbar .hui-tbar-btn-right {
-  right: 0.313em;
-}
-.hui-tbar .hui-btn-adapt.hui-tbar-btn-left {
-  left: 0;
-  top: 0;
-  bottom: 0;
-  margin: 0;
-}
-.hui-tbar .hui-btn-adapt.hui-tbar-btn-right {
-  right: 0;
-  top: 0;
-  bottom: 0;
   margin: 0;
 }
 .hui-tbar .hui-tab {
@@ -2255,20 +2247,12 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   vertical-align: bottom;
   padding-bottom: 0.063em;
 }
-.hui-desc.hui-desc-overflow {
-  overflow: hidden;
-  white-space: nowrap;
-  -o-text-overflow: ellipsis;
-  -ms-text-overflow: ellipsis;
-  text-overflow: ellipsis;
-}
 .hui-desc .hui-icon {
   margin-right: 0.125em;
 }
 .hui-hcard {
   position: relative;
   padding: 0.313em;
-  min-height: 4.5em;
 }
 .hui-hcard.hui-hcard-hasimg {
   padding-left: 4.375em;
@@ -2280,16 +2264,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-hcard .hui-hcard-img img {
   height: 3.75em;
 }
-.hui-hcard .hui-hcard-content {
-  padding-right: 0.625em;
-}
 .hui-hcard .hui-content-title {
   position: relative;
-  overflow: hidden;
-  white-space: nowrap;
-  -o-text-overflow: ellipsis;
-  -ms-text-overflow: ellipsis;
-  text-overflow: ellipsis;
   color: #222;
   font-size: 1em;
   padding-bottom: 0.313em;
@@ -2299,10 +2275,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   right: 0.625em;
   font-size: 0.75em;
   color: #6a6a6a;
-}
-.hui-hcard.hui-hcard-little .hui-desc {
-  padding-top: 0.75em;
-  padding-bottom: 0.625em;
 }
 .hui-vcard {
   margin: 0.625em 0;

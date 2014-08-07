@@ -2951,6 +2951,9 @@ handy.add('Util','B.Object',function(Object,$H){
 	 * @return {number} 返回相应px值
 	 */
 	function fEm2px(nEm){
+		if(typeof nEm==='string'){
+			nEm=parseFloat(nEm.replace('em',''));
+		}
 		var nDef=Util.getDefFontSize();
 		return Math.floor(nEm*nDef);
 	}
@@ -4963,21 +4966,21 @@ function(LS){
 		oParams.error=$H.intercept(fError,oParams.beforeErr);
 		var fSucc=$H.intercept(oParams.success,me.success);
 		oParams.success=$H.intercept(fSucc,oParams.beforeSucc);
-		oParams.beforeSend=$H.intercept($H.bind(me.beforeSend,me),oParams.beforeSend);
-		oParams.complete=$H.intercept($H.bind(me.complete,me),oParams.complete);
+		oParams.beforeSend=$H.intercept($H.bind(me.beforeSend,me,oParams),oParams.beforeSend);
+		oParams.complete=$H.intercept($H.bind(me.complete,me,oParams),oParams.complete);
 		return $.ajax(oParams);
 	}
 	/**
 	 * 发送前处理
 	 */
-	function fBeforeSend(){
-		this.showLoading(true);
+	function fBeforeSend(oParams){
+		this.showLoading(true,oParams);
 	}
 	/**
 	 * 发送完处理
 	 */
-	function fComplete(){
-		this.showLoading(false);
+	function fComplete(oParams){
+		this.showLoading(false,oParams);
 	}
 	/**
 	 * 获取数据
@@ -10079,7 +10082,7 @@ function(AC){
 		if(oSettings.tType==='adapt'){
 			oSettings=$H.clone(oSettings);
 			$H.extend(oSettings,{
-				isInline:false,
+				isInline:true,
 				radius:null,
 				shadow:null,
 				shadowSurround:null
@@ -10116,7 +10119,7 @@ function(AC,Model,Collection){
 			cls      : 'desc',
 			icon     : '',
 			text     : '',
-			txtOverflow : true,
+			txtOverflow : true,     //文字超出长度显示省略号
 			iconCls : {
 				depends:['icon'],
 				parse:function(){
@@ -10127,7 +10130,7 @@ function(AC,Model,Collection){
 		},
 		
 		tmpl     : [
-			'<div {{bindAttr class="txtOverflow?hui-desc-overflow"}}>',
+			'<div {{bindAttr class="txtOverflow?c-txt-overflow"}}>',
 				'{{#if icon}}',
 					'<span {{bindAttr class="#hui-icon #hui-size-mini #hui-alt-icon iconCls #hui-light"}}></span>',
 				'{{/if}}',
@@ -10949,7 +10952,7 @@ function(AC){
 		},
 //		inputHeight     : null,                //输入框高度 
 		type            : '',                  //输入框类型，默认为普通输入框，'search':搜索框
-		maxHeight       : 85,                  //输入框最大高度，进对textarea有效
+		maxHeight       : '5.313em',           //输入框最大高度，进对textarea有效
 		withClear       : false,               //带有清除按钮
 		
 		tmpl            : [
@@ -10994,6 +10997,7 @@ function(AC){
 			me.icon='search';
 		}
 		me.callSuper();
+		me.maxHeight=$H.em2px(me.maxHeight);
 		if(oSettings.isTextarea){
 			//textarea高度自适应，IE6、7、8支持propertychange事件，input被其他浏览器所支持
 			me.listeners.push({
@@ -11006,7 +11010,7 @@ function(AC){
 					var nNewHeight=oTextarea[0].scrollHeight;
 					//TODO Firefox下scrollHeight不准确，会忽略padding
 					if(nNewHeight>=50){
-						var nMax=me.maxHeight>me.inputHeight?me.maxHeight:me.inputHeight;
+						var nMax=me.inputHeight&&me.maxHeight<me.inputHeight?me.inputHeight:me.maxHeight;
 						nNewHeight=nNewHeight<=nMax?nNewHeight:nMax
 						oTextarea.css("height",nNewHeight);
 					}
@@ -11617,8 +11621,14 @@ function(AC){
 		
 		tmpl             : [
 			'<div {{bindAttr class="isHeader?hui-header isFooter?hui-footer"}}>',
-				'{{placeItem}}',
+				'<div class="hui-tbar-left">',
+					'{{placeItem > [pos=left]}}',
+				'</div>',
+				'{{placeItem > [pos!=left][pos!=right]}}',
 				'{{#if title}}<h1 class="hui-tbar-title js-tbar-txt">{{title}}</h1>{{/if}}',
+				'<div class="hui-tbar-right">',
+					'{{placeItem > [pos=right]}}',
+				'</div>',
 			'</div>'
 		].join(''),
 		
@@ -11633,6 +11643,7 @@ function(AC){
 	function fParseItem(oItem){
 		if(oItem.xtype=='Button'){
 			oItem.shadowSurround=true;
+			return;
 			if(oItem.pos=='left'){
 				oItem.extCls=(oItem.extCls||"")+' hui-tbar-btn-left';
 			}else if(oItem.pos=="right"){
@@ -12619,6 +12630,7 @@ function(AC){
 			title     : '',    //标题
 			titleDesc : '',    //标题说明
 			hasImg    : true,  //是否有图片
+			txtOverflow : true, ////文字超出长度显示省略号
 			hasArrow  : false, //是否有右边箭头，有点击函数时默认有右箭头
 			newsNum   : 0,     //新消息提示数目，大于9自动显示成"9+"
 			hasBorder : false, //是否有边框
@@ -12651,7 +12663,7 @@ function(AC){
 					'</div>',
 				'{{/if}}',
 				'<div class="hui-hcard-content js-content">',
-					'<div class="hui-content-title">',
+					'<div {{bindAttr class="#hui-content-title txtOverflow?c-txt-overflow"}}>',
 						'{{title}}',
 						'<span class="hui-title-desc">{{titleDesc}}</span>',
 					'</div>',

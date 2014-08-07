@@ -33,6 +33,7 @@ function(AC,Model,Collection){
 					'<span {{bindAttr class="#hui-icon #hui-size-mini #hui-alt-icon iconCls #hui-light"}}></span>',
 				'{{/if}}',
 				'{{text}}',
+				'{{placeItem}}',
 			'</div>'
 		].join('')
 	});

@@ -18,9 +18,12 @@ function(AC){
 		
 		tmpl            : [
 			'<div>',
-				'<h1 class="hui-set-title">{{title}}</h1>',
+				'<div class="hui-set-title">',
+					'<h1 class="title">{{title}}</h1>',
+					'{{placeItem > [xrole=title]}}',
+				'</div>',
 				'<div class="hui-set-content">',
-					'{{placeItem}}',
+					'{{placeItem > [xrole!=title]}}',
 				'</div>',
 			'</div>'
 		].join('')

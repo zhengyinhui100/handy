@@ -183,6 +183,9 @@ function(AC){
 					}
 				}
 			});
+		}
+		
+		if(me.get('hasMoreBtn')){
 			me.listen({
 				name    : 'click',
 				method : 'delegate',
