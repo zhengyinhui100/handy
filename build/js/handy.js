@@ -8580,24 +8580,32 @@ function(ViewManager,ModelView,Model,Template){
 		//'Button[attr=value]'=>'[xtype=Button][attr=value]'
 		sSel=sSel.replace(/^([^\[]+)/,'[xtype=$1]');
 		//循环检查
-		var r=/\[([^=|\!]+)(=|\!=)([^=]*)\]/g;
+		var r=/\[(\!?[^=|\!]+)(=|\!=)?([^=]*)?\]/g;
 		while(m=r.exec(sSel)){
 			prop=m[1];
+			viewVal=oObj.get?oObj.get(prop):oObj[prop];
 			//操作符：=|!=
 			op=m[2];
-			value=m[3];
-			if(value==='false'){
-				value=false;
-			}else if(value==='true'){
-				value=true;
-			}else if(value==='null'){
-				value=null;
-			}else if(value==='undefined'){
-				value=undefined;
-			}
-			viewVal=oObj.get?oObj.get(prop):oObj[prop];
-			if(op==="="?viewVal!=value:viewVal==value){
-				return false;
+			//三目运算
+			if(op){
+				value=m[3];
+				if(value==='false'){
+					value=false;
+				}else if(value==='true'){
+					value=true;
+				}else if(value==='null'){
+					value=null;
+				}else if(value==='undefined'){
+					value=undefined;
+				}
+				if(op==="="?viewVal!=value:viewVal==value){
+					return false;
+				}
+			}else{
+				//简略表达式，如：!val、val
+				if((prop.indexOf('!')==0&&viewVal)||(prop.indexOf('!')<0&&!viewVal)){
+					return false;
+				}
 			}
 		}
 		return true;
@@ -10010,6 +10018,33 @@ function(AC){
 	
 });
 /**
+ * 链接类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-08-07
+ */
+
+$Define('C.Link',
+'C.AbstractComponent',
+function(AC){
+	
+	var Link=AC.define('Link');
+	
+	Link.extend({
+		//初始配置
+		xConfig         : {
+			cls         : 'link',
+			text        : ''               
+		},
+		
+		tmpl            : 
+			'<a hidefocus="true" href="javascript:;">{{text}}</a>'
+		
+	});
+	
+	return Link;
+	
+});
+/**
  * 按钮类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-13
@@ -10026,7 +10061,8 @@ function(AC){
 		xConfig             : {
 			cls             : 'btn',
 			text            : '',                  //按钮文字
-			theme           : 'gray',
+			extTxt          : '',                  //附加文字
+			theme           : 'gray',              //主题
 //			tType           : 'adapt',             //自适应按钮，一般用于工具栏
 			markType        : '',                  //标记类型，默认无标记，'black'黑色圆点标记，'red'红色圆点标记
 			iconPos         : '',                  //图标位置，"left"|"right"|"top"|"bottom"，空字符表示无图标
@@ -10067,6 +10103,7 @@ function(AC){
 		
 		tmpl            : ['<a href="javascript:;" hidefocus="true" {{bindAttr class="noTxtCls isBack?hui-btn-back markCls iconPosCls"}}>',
 								'<span class="hui-btn-txt">{{text}}</span>',
+								'<span class="hui-btn-ext">{{extTxt}}</span>',
 								'{{placeItem}}',
 								'<span class="hui-btn-mark"></span>',
 							'</a>'].join(''),
@@ -10131,13 +10168,33 @@ function(AC,Model,Collection){
 		
 		tmpl     : [
 			'<div {{bindAttr class="txtOverflow?c-txt-overflow"}}>',
-				'{{#if icon}}',
-					'<span {{bindAttr class="#hui-icon #hui-size-mini #hui-alt-icon iconCls #hui-light"}}></span>',
-				'{{/if}}',
-				'{{text}}',
+				'{{placeItem > [xrole=icon]}}',
+				'<span class="hui-desc-txt">{{text}}</span>',
+				'<div class="hui-desc-right">',
+					'{{placeItem > [xrole=right]}}',
+				'</div>',
+				'{{placeItem > [!xrole]}}',
 			'</div>'
-		].join('')
+		].join(''),
+		
+		parseItem  : fParseItem      //分析子组件
 	});
+	
+	/**
+	 * 分析子组件
+	 * @param{object}oItem
+	 */
+	function fParseItem(oItem){
+		if(oItem.xtype==='Icon'){
+			$H.extendIf(oItem,{
+				xrole:'icon',
+				isAlt:true,
+				extCls:'hui-light',
+				size:'mini',
+				hasBg:false
+			});
+		}
+	}
 		
 	return Desc;
 	
@@ -11210,9 +11267,12 @@ function(AC){
 		
 		tmpl            : [
 			'<div>',
-				'<h1 class="hui-set-title">{{title}}</h1>',
+				'<div class="hui-set-title">',
+					'<h1 class="title">{{title}}</h1>',
+					'{{placeItem > [xrole=title]}}',
+				'</div>',
 				'<div class="hui-set-content">',
-					'{{placeItem}}',
+					'{{placeItem > [xrole!=title]}}',
 				'</div>',
 			'</div>'
 		].join('')
@@ -11622,12 +11682,12 @@ function(AC){
 		tmpl             : [
 			'<div {{bindAttr class="isHeader?hui-header isFooter?hui-footer"}}>',
 				'<div class="hui-tbar-left">',
-					'{{placeItem > [pos=left]}}',
+					'{{placeItem > [xrole=left]}}',
 				'</div>',
-				'{{placeItem > [pos!=left][pos!=right]}}',
+				'{{placeItem > [xrole!=left][xrole!=right]}}',
 				'{{#if title}}<h1 class="hui-tbar-title js-tbar-txt">{{title}}</h1>{{/if}}',
 				'<div class="hui-tbar-right">',
-					'{{placeItem > [pos=right]}}',
+					'{{placeItem > [xrole=right]}}',
 				'</div>',
 			'</div>'
 		].join(''),
@@ -12628,6 +12688,7 @@ function(AC){
 			cls       : 'hcard',
 			image     : '',    //图片
 			title     : '',    //标题
+			titleExt  : '',    //小标题
 			titleDesc : '',    //标题说明
 			hasImg    : true,  //是否有图片
 			txtOverflow : true, ////文字超出长度显示省略号
@@ -12649,14 +12710,15 @@ function(AC){
 			}
 		},
 		defItem  : {
-			xtype : 'Desc'
+			xtype : 'Desc',
+			xrole : 'content'
 		},
 		
 //		imgClick        : $H.noop,        //图片点击事件函数
 //		contentClick    : $H.noop,        //图片点击事件函数
 		
 		tmpl     : [
-			'<div {{bindAttr class="hasImgCls hasBorder?hui-border"}}>',
+			'<div {{bindAttr class="hasImgCls hasBorder?hui-border hasArrow?hui-hcard-padding-right"}}>',
 				'{{#if image}}',
 					'<div class="hui-hcard-img js-img">',
 						'<img {{bindAttr src="image"}}>',
@@ -12665,11 +12727,12 @@ function(AC){
 				'<div class="hui-hcard-content js-content">',
 					'<div {{bindAttr class="#hui-content-title txtOverflow?c-txt-overflow"}}>',
 						'{{title}}',
+						'<span class="hui-title-ext">{{titleExt}}</span>',
 						'<span class="hui-title-desc">{{titleDesc}}</span>',
 					'</div>',
-					'{{placeItem > [xtype=Desc]}}',
+					'{{placeItem > [xrole=content]}}',
 				'</div>',
-				'{{placeItem > [xtype!=Desc]}}',
+				'{{placeItem > [xrole!=content]}}',
 				'{{#if newsNumTxt}}',
 					'<span class="hui-news-tips">{{newsNumTxt}}</span>',
 				'{{else}}',
@@ -13040,6 +13103,9 @@ function(AC){
 					}
 				}
 			});
+		}
+		
+		if(me.get('hasMoreBtn')){
 			me.listen({
 				name    : 'click',
 				method : 'delegate',

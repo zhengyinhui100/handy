@@ -158,10 +158,7 @@ a:active {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-touch-callout: none;
   -webkit-user-drag: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
   -ms-touch-action: none;
-  -moz-user-select: -moz-none;
 }
 input,
 textarea {
@@ -1116,6 +1113,10 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-btn:hover {
   font-weight: bold;
 }
+.hui-btn .hui-btn-ext {
+  color: #D10000;
+  font-weight: normal;
+}
 .hui-btn-mark {
   display: none;
   position: absolute;
@@ -1897,6 +1898,16 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   font-weight: normal;
   border-bottom: 1px solid #ccc;
 }
+.hui-set .hui-set-title .title {
+  display: -moz-inline-stack;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
+  margin-right: 2em;
+}
+.hui-set .hui-set-title .hui-btn {
+  margin: 0;
+}
 .hui-set .hui-set-content {
   margin: 2em 0.688em;
 }
@@ -1933,13 +1944,18 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-tbar .hui-tbar-right {
   right: 0;
+  text-align: right;
 }
 .hui-tbar .hui-btn {
-  margin-left: 0.5em;
+  margin-left: 1em;
+  margin-right: 1em;
   margin-top: 0.1em;
 }
 .hui-tbar .hui-btn.hui-size-mini {
   margin-top: 0.5em;
+}
+.hui-tbar .hui-btn-back {
+  margin-left: 1.5em;
 }
 .hui-tbar .hui-btn-adapt {
   padding-top: 0.5em;
@@ -2239,16 +2255,27 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-pc .hui-list .hui-list-item:hover,
 .hui-pc .hui-list .hui-list-item:active {
-  background: #f3f3f3;
+  background: #fbfaf8;
 }
 .hui-desc {
   font-size: 0.75em;
   color: #6a6a6a;
   vertical-align: bottom;
   padding-bottom: 0.063em;
+  zoom: 1;
 }
 .hui-desc .hui-icon {
   margin-right: 0.125em;
+}
+.hui-desc .hui-icon,
+.hui-desc .hui-desc-txt {
+  float: left;
+}
+.hui-desc .hui-btn {
+  margin: 0 0 0 2em;
+}
+.hui-desc .hui-desc-right {
+  float: right;
 }
 .hui-hcard {
   position: relative;
@@ -2256,6 +2283,9 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-hcard.hui-hcard-hasimg {
   padding-left: 4.375em;
+}
+.hui-hcard.hui-hcard-padding-right {
+  padding-right: 1.5em;
 }
 .hui-hcard .hui-hcard-img {
   position: absolute;
@@ -2269,6 +2299,11 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   color: #222;
   font-size: 1em;
   padding-bottom: 0.313em;
+}
+.hui-hcard .hui-title-ext {
+  margin-left: 1.5em;
+  color: #888;
+  font-size: 0.8em;
 }
 .hui-hcard .hui-title-desc {
   position: absolute;
@@ -2312,6 +2347,25 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-vcard .hui-vcard-action .hui-inline {
   margin: 0.4em 1em 0.8em;
+}
+.hui-comment .hui-content-title {
+  font-size: 0.8em;
+}
+.hui-comment.hui-hcard-hasimg {
+  padding-left: 3.5em;
+}
+.hui-comment .comment-content {
+  padding: 1em 0 2em 0;
+  color: #222;
+  font-size: 1em;
+}
+.hui-comment .hui-comment-quote {
+  border-bottom: 1px solid #F3DDB3;
+}
+.hui-comment .hui-comment {
+  background-color: #FFFEF4;
+  border: 1px solid #F3DDB3;
+  border-bottom: 0;
 }
 .hui-conversation {
   position: relative;

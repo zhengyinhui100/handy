@@ -29,17 +29,33 @@ function(AC,Model,Collection){
 		
 		tmpl     : [
 			'<div {{bindAttr class="txtOverflow?c-txt-overflow"}}>',
-				'{{#if icon}}',
-					'<span {{bindAttr class="#hui-icon #hui-size-mini #hui-alt-icon iconCls #hui-light"}}></span>',
-				'{{/if}}',
+				'{{placeItem > [xrole=icon]}}',
 				'<span class="hui-desc-txt">{{text}}</span>',
 				'<div class="hui-desc-right">',
 					'{{placeItem > [xrole=right]}}',
 				'</div>',
-				'{{placeItem > [xrole!=right]}}',
+				'{{placeItem > [!xrole]}}',
 			'</div>'
-		].join('')
+		].join(''),
+		
+		parseItem  : fParseItem      //分析子组件
 	});
+	
+	/**
+	 * 分析子组件
+	 * @param{object}oItem
+	 */
+	function fParseItem(oItem){
+		if(oItem.xtype==='Icon'){
+			$H.extendIf(oItem,{
+				xrole:'icon',
+				isAlt:true,
+				extCls:'hui-light',
+				size:'mini',
+				hasBg:false
+			});
+		}
+	}
 		
 	return Desc;
 	

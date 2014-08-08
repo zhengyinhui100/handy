@@ -820,24 +820,32 @@ function(ViewManager,ModelView,Model,Template){
 		//'Button[attr=value]'=>'[xtype=Button][attr=value]'
 		sSel=sSel.replace(/^([^\[]+)/,'[xtype=$1]');
 		//循环检查
-		var r=/\[([^=|\!]+)(=|\!=)([^=]*)\]/g;
+		var r=/\[(\!?[^=|\!]+)(=|\!=)?([^=]*)?\]/g;
 		while(m=r.exec(sSel)){
 			prop=m[1];
+			viewVal=oObj.get?oObj.get(prop):oObj[prop];
 			//操作符：=|!=
 			op=m[2];
-			value=m[3];
-			if(value==='false'){
-				value=false;
-			}else if(value==='true'){
-				value=true;
-			}else if(value==='null'){
-				value=null;
-			}else if(value==='undefined'){
-				value=undefined;
-			}
-			viewVal=oObj.get?oObj.get(prop):oObj[prop];
-			if(op==="="?viewVal!=value:viewVal==value){
-				return false;
+			//三目运算
+			if(op){
+				value=m[3];
+				if(value==='false'){
+					value=false;
+				}else if(value==='true'){
+					value=true;
+				}else if(value==='null'){
+					value=null;
+				}else if(value==='undefined'){
+					value=undefined;
+				}
+				if(op==="="?viewVal!=value:viewVal==value){
+					return false;
+				}
+			}else{
+				//简略表达式，如：!val、val
+				if((prop.indexOf('!')==0&&viewVal)||(prop.indexOf('!')<0&&!viewVal)){
+					return false;
+				}
 			}
 		}
 		return true;
