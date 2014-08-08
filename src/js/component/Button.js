@@ -15,7 +15,8 @@ function(AC){
 		xConfig             : {
 			cls             : 'btn',
 			text            : '',                  //按钮文字
-			theme           : 'gray',
+			extTxt          : '',                  //附加文字
+			theme           : 'gray',              //主题
 //			tType           : 'adapt',             //自适应按钮，一般用于工具栏
 			markType        : '',                  //标记类型，默认无标记，'black'黑色圆点标记，'red'红色圆点标记
 			iconPos         : '',                  //图标位置，"left"|"right"|"top"|"bottom"，空字符表示无图标
@@ -56,6 +57,7 @@ function(AC){
 		
 		tmpl            : ['<a href="javascript:;" hidefocus="true" {{bindAttr class="noTxtCls isBack?hui-btn-back markCls iconPosCls"}}>',
 								'<span class="hui-btn-txt">{{text}}</span>',
+								'<span class="hui-btn-ext">{{extTxt}}</span>',
 								'{{placeItem}}',
 								'<span class="hui-btn-mark"></span>',
 							'</a>'].join(''),

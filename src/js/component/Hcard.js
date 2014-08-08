@@ -15,6 +15,7 @@ function(AC){
 			cls       : 'hcard',
 			image     : '',    //图片
 			title     : '',    //标题
+			titleExt  : '',    //小标题
 			titleDesc : '',    //标题说明
 			hasImg    : true,  //是否有图片
 			txtOverflow : true, ////文字超出长度显示省略号
@@ -44,7 +45,7 @@ function(AC){
 //		contentClick    : $H.noop,        //图片点击事件函数
 		
 		tmpl     : [
-			'<div {{bindAttr class="hasImgCls hasBorder?hui-border"}}>',
+			'<div {{bindAttr class="hasImgCls hasBorder?hui-border hasArrow?hui-hcard-padding-right"}}>',
 				'{{#if image}}',
 					'<div class="hui-hcard-img js-img">',
 						'<img {{bindAttr src="image"}}>',
@@ -53,6 +54,7 @@ function(AC){
 				'<div class="hui-hcard-content js-content">',
 					'<div {{bindAttr class="#hui-content-title txtOverflow?c-txt-overflow"}}>',
 						'{{title}}',
+						'<span class="hui-title-ext">{{titleExt}}</span>',
 						'<span class="hui-title-desc">{{titleDesc}}</span>',
 					'</div>',
 					'{{placeItem > [xrole=content]}}',

@@ -290,6 +290,13 @@ $Define('test',function(){
 		
 		new Button({
 			renderTo:'#buttonDv',
+			size:'mini',
+			text:"回复",
+			extTxt:'(20)'
+		})
+		
+		new Button({
+			renderTo:'#buttonDv',
 			items:{
 				xtype:"Icon",
 				name:"carat-l"
@@ -784,7 +791,7 @@ $Define('test',function(){
 			isHeader:true,
 			items:[{
 				xtype:'Button',
-				pos:'left',
+				xrole:'left',
 				theme:'dark',
 				tType:'adapt',
 				icon:'carat-l',
@@ -796,7 +803,7 @@ $Define('test',function(){
 				theme:'dark',
 				tType:'adapt',
 				icon:'check',
-				pos:'right'
+				xrole:'right'
 			}]
 		})
 		new Toolbar({
@@ -812,7 +819,7 @@ $Define('test',function(){
 				isBack:true,
 				text:'后退',
 				size:'mini',
-				pos:'left',
+				xrole:'left',
 				theme:'blue',
 				click:function(){
 					$D.log(1);
@@ -821,7 +828,7 @@ $Define('test',function(){
 				xtype:'Button',
 				text:'按钮',
 				size:'mini',
-				pos:'right',
+				xrole:'right',
 				theme:'black'
 			}]
 		})
@@ -835,13 +842,12 @@ $Define('test',function(){
 				xtype:'Button',
 				text:'后退',
 				width:'45%',
-				pos:'left',
 				theme:'blue'
 			},{
 				xtype:'Button',
 				text:'按钮',
 				width:'45%',
-				pos:'right',
+				style:{float:'right'},
 				theme:'black'
 			}]
 		})

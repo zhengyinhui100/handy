@@ -26,12 +26,12 @@ function(AC){
 		tmpl             : [
 			'<div {{bindAttr class="isHeader?hui-header isFooter?hui-footer"}}>',
 				'<div class="hui-tbar-left">',
-					'{{placeItem > [pos=left]}}',
+					'{{placeItem > [xrole=left]}}',
 				'</div>',
-				'{{placeItem > [pos!=left][pos!=right]}}',
+				'{{placeItem > [xrole!=left][xrole!=right]}}',
 				'{{#if title}}<h1 class="hui-tbar-title js-tbar-txt">{{title}}</h1>{{/if}}',
 				'<div class="hui-tbar-right">',
-					'{{placeItem > [pos=right]}}',
+					'{{placeItem > [xrole=right]}}',
 				'</div>',
 			'</div>'
 		].join(''),

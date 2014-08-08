@@ -48,6 +48,10 @@
 	&:hover{
 		font-weight: bold;
 	}
+	.hui-btn-ext{
+		color:#D10000;
+		font-weight:normal;
+	}
 }
 //按钮标记
 .hui-btn-mark{
@@ -732,13 +736,18 @@
 	}
 	.hui-tbar-right{
 		right:0;
+		text-align:right;
 	}
 	.hui-btn{
-		margin-left:0.5em;
+		margin-left:1em;
+		margin-right:1em;
 		margin-top:0.1em;
 		&.hui-size-mini{
 			margin-top:0.5em;
 		}
+	}
+	.hui-btn-back{
+		margin-left:1.5em;
 	}
 	.hui-btn-adapt{
 		padding-top:0.5em;
@@ -1012,7 +1021,7 @@
 }
 .hui-pc .hui-list .hui-list-item{
 	&:hover,&:active{
-		background:#f3f3f3;
+		background:#fbfaf8;
 	}
 }
 //描述/注释
@@ -1021,8 +1030,18 @@
 	color:#6a6a6a;
 	vertical-align:bottom;
 	padding-bottom:0.063em;
+	.c-clear();
 	.hui-icon{
 		margin-right:0.125em;
+	}
+	.hui-icon,.hui-desc-txt{
+		float:left;
+	}
+	.hui-btn{
+		margin:0 0 0 2em;
+	}
+	.hui-desc-right{
+		float:right;
 	}
 }
 //横向卡片
@@ -1031,6 +1050,9 @@
 	padding:0.313em;
 	&.hui-hcard-hasimg{
 		padding-left:4.375em;
+	}
+	&.hui-hcard-padding-right{
+		padding-right:1.5em;
 	}
 	.hui-hcard-img{
 		position:absolute;
@@ -1044,6 +1066,11 @@
 		color:#222;
 		font-size:1em;
 		padding-bottom:0.313em;
+	}
+	.hui-title-ext{
+		margin-left:1.5em;
+		color:#888;
+		font-size:0.8em;
 	}
 	.hui-title-desc{
 		position:absolute;
@@ -1089,6 +1116,29 @@
 		.hui-inline{
 			margin:0.4em 1em 0.8em;
 		}
+	}
+}
+
+//评论
+.hui-comment{
+	.hui-content-title{
+		font-size:0.8em;
+	}
+	&.hui-hcard-hasimg{
+		padding-left:3.5em;
+	}
+	.comment-content{
+		padding:1em 0 2em 0;
+		color:#222;
+		font-size:1em;
+	}
+	.hui-comment-quote{
+		border-bottom:1px solid #F3DDB3;
+	}
+	.hui-comment{
+		background-color:#FFFEF4;
+		border:1px solid #F3DDB3;
+		border-bottom:0;
 	}
 }
 

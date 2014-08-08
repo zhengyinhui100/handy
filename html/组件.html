@@ -75,7 +75,8 @@ h3 {
 	</a>
 	<a href="javascript:;" hidefocus="true"
 		class="hui-btn hui-btn-gray hui-shadow hui-inline hui-radius-normal">
-		<span class="hui-btn-txt">内联按钮(宽度自适应)</span>
+		<span class="hui-btn-txt">内联按钮</span>
+		<span class="hui-btn-ext">(宽度自适应)</span>
 	</a>
 	<a href="javascript:;" hidefocus="true"
 		class="hui-btn hui-shadow hui-inline hui-btn-blue hui-radius-big">
@@ -278,30 +279,6 @@ h3 {
 	<br />
 	<br />
 	
-	<h3>滑动选择框：</h3>
-	<div class="hui-slidesel">
-		<div class="hui-slidesel-btn">
-			<a href="javascript:;" hidefocus="true"></a>
-		</div>
-		<div class="hui-slidesel-selector"></div>
-		<div class="hui-slidesel-btn-down">
-			<a href="javascript:;" hidefocus="true"></a>
-		</div>
-		<div class="hui-slidesel-slider">
-			<div class="hui-slider-item">1</div>
-			<div class="hui-slider-item">1</div>
-			<div class="hui-slider-item">1</div>
-			<div class="hui-slider-item">1</div>
-			<div class="hui-slider-item">1</div>
-			<div class="hui-slider-item">1</div>
-			<div class="hui-slider-item">1</div>
-		</div>
-	</div>
-	
-	<br />
-	<br />
-	<br />
-	<br />
 
 	<h3>输入框：</h3>
 	<div class="hui-input hui-radius-normal">
@@ -487,37 +464,49 @@ h3 {
 
 	<h3>工具栏：</h3>
 	<div class="hui-tbar">
-		<a href="javascript:;" hidefocus="true"
-			class="hui-btn hui-shadow-surround hui-inline hui-size-mini hui-btn-blue hui-tbar-btn-left hui-radius-big">
-			<span class="hui-btn-txt">蓝色按钮</span>
-		</a>
+		<div class="hui-tbar-left">
+			<a href="javascript:;" hidefocus="true"
+				class="hui-btn hui-shadow-surround hui-inline hui-size-mini hui-btn-blue hui-tbar-btn-left hui-radius-big">
+				<span class="hui-btn-txt">蓝色按钮</span>
+			</a>
+		</div>
 		<h1 class="hui-tbar-title">标题</h1>
-		<a href="javascript:;" hidefocus="true"
-			class="hui-btn hui-shadow-surround hui-inline hui-size-mini hui-btn-black hui-tbar-btn-right hui-radius-big">
-			<span class="hui-btn-txt">黑色按钮</span>
-		</a>
+		<div class="hui-tbar-right">
+			<a href="javascript:;" hidefocus="true"
+				class="hui-btn hui-shadow-surround hui-inline hui-size-mini hui-btn-black hui-tbar-btn-right hui-radius-big">
+				<span class="hui-btn-txt">黑色按钮</span>
+			</a>
+		</div>
 	</div>
 	<div class="hui-header hui-tbar">
-		<a href="javascript:;" hidefocus="true"
-			class="hui-btn hui-btn-adapt hui-btn-dark hui-tbar-btn-left">
-			<span class="hui-icon hui-icon-carat-l"></span>
-		</a>
+		<div class="hui-tbar-left">
+			<a href="javascript:;" hidefocus="true"
+				class="hui-btn hui-btn-adapt hui-btn-dark hui-tbar-btn-left">
+				<span class="hui-icon hui-icon-carat-l"></span>
+			</a>
+		</div>
 		<h1 class="hui-tbar-title">header</h1>
-		<a href="javascript:;" hidefocus="true"
-			class="hui-btn hui-btn-dark hui-btn-adapt hui-tbar-btn-right">
-			<span class="hui-icon hui-icon-check"></span>
-		</a>
+		<div class="hui-tbar-right">
+			<a href="javascript:;" hidefocus="true"
+				class="hui-btn hui-btn-dark hui-btn-adapt hui-tbar-btn-right">
+				<span class="hui-icon hui-icon-check"></span>
+			</a>
+		</div>
 	</div>
 	<div class="hui-footer hui-tbar">
-		<a href="javascript:;" hidefocus="true"
-			class="hui-btn hui-btn-back hui-shadow-surround hui-inline hui-size-mini hui-btn-blue hui-tbar-btn-left hui-radius-big">
-			<span class="hui-btn-txt">返回</span>
-		</a>
+		<div class="hui-tbar-left">
+			<a href="javascript:;" hidefocus="true"
+				class="hui-btn hui-btn-back hui-shadow-surround hui-inline hui-size-mini hui-btn-blue hui-tbar-btn-left hui-radius-big">
+				<span class="hui-btn-txt">返回</span>
+			</a>
+		</div>
 		<h1 class="hui-tbar-title">footer</h1>
-		<a href="javascript:;" hidefocus="true"
-			class="hui-btn hui-shadow-surround hui-inline hui-size-mini hui-btn-black hui-tbar-btn-right hui-radius-big">
-			<span class="hui-btn-txt">黑色按钮</span>
-		</a>
+		<div class="hui-tbar-right">
+			<a href="javascript:;" hidefocus="true"
+				class="hui-btn hui-shadow-surround hui-inline hui-size-mini hui-btn-black hui-tbar-btn-right hui-radius-big">
+				<span class="hui-btn-txt">黑色按钮</span>
+			</a>
+		</div>
 	</div>
 
 	<br />
@@ -666,7 +655,7 @@ h3 {
 		</div>
 		<!-- E 正在刷新 -->
 		<!-- S 列表项：横向卡片 -->
-		<div class="hui-list-item hui-hcard">
+		<div class="hui-list-item hui-hcard hui-hcard-padding-right">
 			<div class="hui-hcard-content">
 				<div class="hui-content-title">
 				周六下午5点去踢球111111111111111111111111111111111111
@@ -679,6 +668,10 @@ h3 {
 				<div class="hui-desc">
 					<span class="hui-icon hui-size-mini hui-alt-icon hui-icon-location hui-light">
 					</span>大学城华工足球场，1.5km
+					<div class="hui-desc-right">
+						<span class="hui-icon hui-size-mini hui-alt-icon hui-icon-comment hui-light">
+						</span>3
+					</div>
 				</div>
 				<div class="hui-desc">
 					<span class="hui-icon hui-size-mini hui-alt-icon hui-icon-user hui-light">
@@ -692,7 +685,7 @@ h3 {
 		</div>
 		<!-- E 列表项 -->
 		<!-- S 列表项：横向带图片卡片 -->
-		<div class="hui-list-item hui-hcard hui-hcard-hasimg hui-hcard-border">
+		<div class="hui-list-item hui-hcard hui-hcard-hasimg hui-hcard-border hui-hcard-padding-right">
 			<div class="hui-hcard-img">
 				<img alt="" src="./img.jpg">
 			</div>
@@ -711,8 +704,16 @@ h3 {
 					</span>大学城华工足球场，1.5km
 				</div>
 				<div class="hui-desc">
-					<span class="hui-icon hui-size-mini hui-alt-icon hui-icon-user hui-light">
-					</span>10人参加，3人评论，发布者：倾城
+					<span class="hui-icon hui-size-mini hui-alt-icon hui-icon-user hui-light"></span>
+					10人参加，3人评论，发布者：倾城 
+					<div class="hui-desc-right">
+						<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-radius-little hui-shadow hui-inline">
+							<span class="hui-btn-txt">回复</span>
+						</a>
+						<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-radius-little hui-shadow hui-inline">
+							<span class="hui-btn-txt">支持</span>
+						</a>
+					</div>
 				</div>
 			</div>
 			<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-shadow hui-inline hui-radius-normal">
@@ -800,6 +801,102 @@ h3 {
 		<!-- E 右边对齐会话项 -->
 	</div>
 	<!-- E 会话列表 -->
+	<br />
+	<br />
+	<br />
+	<br />
+
+	<h3>评论列表：</h3>
+	
+	<div class="hui-list-item hui-hcard hui-hcard-hasimg hui-hcard-border hui-comment">
+		<div class="hui-hcard-img">
+			<img alt="" src="./img.jpg">
+		</div>
+		<div class="hui-hcard-content">
+			<div class="hui-content-title">
+				倾城
+				<span class="hui-title-ext">
+				0.04km|2分钟前
+				</span>
+			</div>
+			<div class="hui-comment-quote">
+				<div class="hui-list-item hui-hcard hui-hcard-hasimg hui-hcard-border hui-comment">
+					<div class="hui-hcard-img">
+						<img alt="" src="./img.jpg">
+					</div>
+					<div class="hui-hcard-content">
+						<div class="hui-content-title">
+							倾城
+							<span class="hui-title-ext">
+							0.04km|2分钟前
+							</span>
+							<span class="hui-title-desc">
+							1
+							</span>
+						</div>
+						<div class="hui-desc comment-content">顶</div>
+						<div class="hui-desc c-clear">
+							08-08 12:00 
+							<div class="hui-desc-right">
+								<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-radius-little hui-shadow hui-inline">
+									<span class="hui-btn-txt">支持</span>
+								</a>
+								<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-radius-little hui-shadow hui-inline">
+									<span class="hui-btn-txt">回复</span>
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="hui-list-item hui-hcard hui-hcard-hasimg hui-hcard-border hui-comment">
+					<div class="hui-hcard-img">
+						<img alt="" src="./img.jpg">
+					</div>
+					<div class="hui-hcard-content">
+						<div class="hui-content-title">
+							倾城
+							<span class="hui-title-ext">
+							0.04km|2分钟前
+							</span>
+							<span class="hui-title-desc">
+							2
+							</span>
+						</div>
+						<div class="hui-desc comment-content">
+							顶
+						</div>
+						<div class="hui-desc c-clear">
+							08-08 12:00 
+							<div class="hui-desc-right">
+								<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-radius-little hui-shadow hui-inline">
+									<span class="hui-btn-txt">支持</span>
+								</a>
+								<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-radius-little hui-shadow hui-inline">
+									<span class="hui-btn-txt">回复</span>
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="hui-desc comment-content">
+				顶
+			</div>
+			<div class="hui-desc c-clear">
+				08-08 12:00 
+				<div class="hui-desc-right">
+					<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-radius-little hui-shadow hui-inline">
+						<span class="hui-btn-txt">支持</span>
+					</a>
+					<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-radius-little hui-shadow hui-inline">
+						<span class="hui-btn-txt">回复</span>
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	
 	<br />
 	<br />
 	<br />
