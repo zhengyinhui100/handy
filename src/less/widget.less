@@ -368,6 +368,7 @@
 }
 //纯图标按钮
 .hui-btn-adapt{
+	height:100%;
 	border:none;
 	&:hover{
 		border:none;
@@ -387,10 +388,14 @@
 
 //面板
 .hui-panel{
+	position:relative;
 	.hui-panel-loading{
-		position:relative;
-		height:100%;
 		.c-v-middle-container();
+		position:absolute;
+		left:0;
+		bottom:0;
+		height:100%;
+		width:100%;
 		.hui-loading-container{
 			.fn_inline_block();
 			.c-h-middle-container();
@@ -405,6 +410,7 @@
 		}
 		.hui-mask{
 			.fn_opacity(0.1);
+			z-index:1;
 		}
 	}
 }
@@ -615,6 +621,9 @@
 	position:relative;
 	padding:0.75em 0.563em 0.75em 0.375em;
 	min-height:2.75em;
+	&.hui-rowitem-padding-right{
+		padding-right:1.5em
+	}
 	.hui-icon{
 		margin-right:0.625em;
 	}
@@ -768,6 +777,7 @@
 	position:fixed;
 	left:0;
 	z-index:100;
+	font-size:1.1em;
 }
 .hui-header{
 	top:0;
@@ -836,6 +846,7 @@
 		height:2.75em;
 		margin:0 auto 0.625em;
 		.fn_border_radius(2.25em);
+		background-size:contain;
 	}
 	.hui-tips-txt{
 		white-space:nowrap;
@@ -1030,7 +1041,6 @@
 	color:#6a6a6a;
 	vertical-align:bottom;
 	padding-bottom:0.063em;
-	.c-clear();
 	.hui-icon{
 		margin-right:0.125em;
 	}

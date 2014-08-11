@@ -40,6 +40,10 @@ function(ViewManager,ModelView,Model,Template){
 ////	lazy                : false,             //保留属性：懒加载，初始化时只设置占位标签，只在调用show方法时进行实际初始化
 		xConfig             : {},                //视图模型xmodel的字段配置
 		
+//		width               : null,              //宽度(默认单位是px)
+//		height              : null,              //高度(默认单位是px)
+//		style               : {},                //其它样式，如:{top:10,left:10}
+		
 		//属性
 //		configed            : false,             //是否已经调用了doConfig
 //		startParseItems     : false,             //是否已开始初始化子视图
@@ -451,9 +455,10 @@ function(ViewManager,ModelView,Model,Template){
 	/**
 	 * 渲染后续工作
 	 * @method afterRender
+	 * @param {boolean=}bParentCall 是否是来自callChild的调用
 	 * @return {boolean=} 仅当已经完成过渲染时返回false
 	 */
-	function fAfterRender(){
+	function fAfterRender(bParentCall){
 		var me=this;
 		if(me.rendered){
 			return false;
@@ -461,7 +466,7 @@ function(ViewManager,ModelView,Model,Template){
 		me.trigger('render');
 		//缓存容器
 		me._container=$("#"+me.getId());
-		me.callChild();
+		me.callChild([true]);
 		me.rendered=true;
 		//初始化样式
 		me.initStyle();
@@ -474,7 +479,7 @@ function(ViewManager,ModelView,Model,Template){
 		}
 		me.trigger('afterRender');
 		//显示
-		if(!me.hidden){
+		if(!bParentCall&&!me.hidden){
 			me.show();
 		}
 	}

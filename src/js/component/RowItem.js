@@ -27,7 +27,7 @@ function(AC){
 		},
 		
 		tmpl            : [
-			'<div {{bindAttr class="underline?hui-rowitem-underline"}}>',
+			'<div {{bindAttr class="underline?hui-rowitem-underline hasArrow?hui-rowitem-padding-right"}}>',
 				'{{placeItem}}',
 				'<div class="hui-rowitem-txt">{{text}}</div>',
 				'{{#if newsNumTxt}}',

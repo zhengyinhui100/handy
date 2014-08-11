@@ -7800,6 +7800,10 @@ function(ViewManager,ModelView,Model,Template){
 ////	lazy                : false,             //保留属性：懒加载，初始化时只设置占位标签，只在调用show方法时进行实际初始化
 		xConfig             : {},                //视图模型xmodel的字段配置
 		
+//		width               : null,              //宽度(默认单位是px)
+//		height              : null,              //高度(默认单位是px)
+//		style               : {},                //其它样式，如:{top:10,left:10}
+		
 		//属性
 //		configed            : false,             //是否已经调用了doConfig
 //		startParseItems     : false,             //是否已开始初始化子视图
@@ -9752,9 +9756,6 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 //		icon                : null,              //图标
 		
 		////通用样式
-//		width               : null,              //宽度(默认单位是px)
-//		height              : null,              //高度(默认单位是px)
-//		style               : {},                //其它样式，如:{top:10,left:10}
 		xConfig             : {
 			extCls          : '',                //附加样式名
 			tType           : '',                //主题类型
@@ -10167,7 +10168,7 @@ function(AC,Model,Collection){
 		},
 		
 		tmpl     : [
-			'<div {{bindAttr class="txtOverflow?c-txt-overflow"}}>',
+			'<div {{bindAttr class="#c-clear txtOverflow?c-txt-overflow"}}>',
 				'{{placeItem > [xrole=icon]}}',
 				'<span class="hui-desc-txt">{{text}}</span>',
 				'<div class="hui-desc-right">',
@@ -12691,7 +12692,7 @@ function(AC){
 			titleExt  : '',    //小标题
 			titleDesc : '',    //标题说明
 			hasImg    : true,  //是否有图片
-			txtOverflow : true, ////文字超出长度显示省略号
+			txtOverflow : true, //文字超出长度显示省略号
 			hasArrow  : false, //是否有右边箭头，有点击函数时默认有右箭头
 			newsNum   : 0,     //新消息提示数目，大于9自动显示成"9+"
 			hasBorder : false, //是否有边框
@@ -12883,7 +12884,11 @@ function(AC){
 			'<div class="c-clear">',
 				'<div class="hui-conver-time">{{time}}</div>',
 				'<div class="hui-conver-img js-conver-img">',
-					'<img {{bindAttr src="image"}}>',
+					'{{#if image}}',
+						'<img {{bindAttr src="image"}}>',
+					'{{else}}',
+						'{{placeItem}}',
+					'{{/if}}',
 				'</div>',
 				'<div class="hui-conver-content">',
 					'{{content}}',
@@ -13058,6 +13063,8 @@ function(AC){
 					me.scroller= new window.iScroll(oWrapper[0], {
 						useTransition: true,
 						topOffset: nStartY,
+						//bounce:false,
+						mouseWheel:true,
 						vScrollbar:false,
 						onRefresh: function () {
 							if(oPdEl.hasClass(sRefreshCls)){

@@ -17,9 +17,6 @@ $Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,
 //		icon                : null,              //图标
 		
 		////通用样式
-//		width               : null,              //宽度(默认单位是px)
-//		height              : null,              //高度(默认单位是px)
-//		style               : {},                //其它样式，如:{top:10,left:10}
 		xConfig             : {
 			extCls          : '',                //附加样式名
 			tType           : '',                //主题类型

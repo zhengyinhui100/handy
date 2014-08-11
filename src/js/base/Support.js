@@ -70,7 +70,7 @@ handy.add('Support','B.Browser',function(Browser,$H){
 				sCls+=' ie'+ie;
 			}
 		}
-		document.documentElement.className+=" "+sCls;
+		document.documentElement.className+=" "+sCls+" hui";
 	}
 	
 	return Support;

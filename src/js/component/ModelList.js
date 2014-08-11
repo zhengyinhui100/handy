@@ -78,6 +78,7 @@ function(AC){
 		addListItem         : fAddListItem,        //添加列表项
 		removeListItem      : fRemoveListItem,     //删除列表项
 		refreshScroller     : fRefreshScroller,    //刷新iScroll
+		lazyRefresh         : fLazyRefreshScroller,//懒刷新iScroll
 		scrollTo            : fScrollTo,           //滚动到指定位置
 		loadMore            : fLoadMore,           //获取更多数据
 		pullLoading         : fPullLoading,        //显示正在刷新
@@ -138,6 +139,8 @@ function(AC){
 					me.scroller= new window.iScroll(oWrapper[0], {
 						useTransition: true,
 						topOffset: nStartY,
+						//bounce:false,
+						mouseWheel:true,
 						vScrollbar:false,
 						onRefresh: function () {
 							if(oPdEl.hasClass(sRefreshCls)){
@@ -169,15 +172,13 @@ function(AC){
 			//同步数据后需要刷新
 			me.listenTo(me.model,'sync',function(){
 				me.set('pdTime',$H.formatDate($H.now(),'HH:mm'));
-				setTimeout(function(){
-					me.refreshScroller();
-				},0);
+				me.lazyRefresh();
 			});
 			//show后需要refresh下，否则无法滚动，iscroll需要浏览器渲染后才能正常初始化
 			me.listen({
 				name:'afterShow',
 				handler:function(){
-					me.refreshScroller();
+					me.lazyRefresh();
 					if(me.scrollPos=='bottom'){
 						me.scrollTo('bottom');
 					}
@@ -213,7 +214,7 @@ function(AC){
 		me.add({
 			model:oListItem
 		},nIndex);
-		me.refreshScroller();
+		me.lazyRefresh();
 	}
 	/**
 	 * 删除列表项
@@ -231,7 +232,7 @@ function(AC){
 		if(me.children.length==0){
 			me.set('isEmpty',true);;
 		}
-		me.refreshScroller();
+		me.lazyRefresh();
 	}
 	/**
 	 * 刷新iScroll
@@ -242,6 +243,20 @@ function(AC){
 		if(me.scroller&&me.getEl()[0].clientHeight){
 	    	me.scroller.refresh();
 		}
+	}
+	/**
+	 * 懒刷新iScroll，多次调用此方法只会执行一次实际刷新
+	 */
+	function fLazyRefreshScroller(){
+		var me=this;
+		if(me._toRefresh){
+			return;
+		}
+		me._toRefresh=1;
+		setTimeout(function(){
+			me._toRefresh=0;
+			me.refreshScroller();
+		},0);
 	}
 	/**
 	 * 滚动到指定位置
@@ -289,7 +304,7 @@ function(AC){
 					}
 				});
 			}
-			me.refreshScroller();
+			me.lazyRefresh();
 		}else{
 			me.getMore();
 		}

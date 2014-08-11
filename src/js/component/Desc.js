@@ -28,7 +28,7 @@ function(AC,Model,Collection){
 		},
 		
 		tmpl     : [
-			'<div {{bindAttr class="txtOverflow?c-txt-overflow"}}>',
+			'<div {{bindAttr class="#c-clear txtOverflow?c-txt-overflow"}}>',
 				'{{placeItem > [xrole=icon]}}',
 				'<span class="hui-desc-txt">{{text}}</span>',
 				'<div class="hui-desc-right">',

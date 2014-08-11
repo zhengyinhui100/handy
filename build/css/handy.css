@@ -1544,6 +1544,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   margin-left: -0.688em;
 }
 .hui-btn-adapt {
+  height: 100%;
   border: none;
 }
 .hui-btn-adapt:hover {
@@ -1986,6 +1987,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   position: fixed;
   left: 0;
   z-index: 100;
+  font-size: 1.1em;
 }
 .hui-header {
   top: 0;
@@ -2262,7 +2264,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   color: #6a6a6a;
   vertical-align: bottom;
   padding-bottom: 0.063em;
-  zoom: 1;
 }
 .hui-desc .hui-icon {
   margin-right: 0.125em;

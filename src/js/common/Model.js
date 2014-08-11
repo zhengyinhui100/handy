@@ -271,7 +271,7 @@ function(AbstractData){
 		me.callSuper();
 		var oAttrs = oAttributes || {};
 		oOptions || (oOptions = {});
-		me.cid = $H.Util.uuid();
+		me.cid = 'md_'+$H.Util.uuid();
 		me._attributes = {};
 		me._attrEvts={};
 		if(oOptions.custom){
