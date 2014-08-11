@@ -23,8 +23,42 @@
 .hui-icon-loading{
 	background-size:auto;
 }
-
-
+.hui-mi-csstransforms{
+	.hui-icon-loading,.hui-icon-loading-mini{
+		background-image:none;
+		border:0.313em solid #ccc;
+		opacity:.9;
+		border-top:0.313em solid rgba(0,0,0,0);
+		.fn_border_radius(2.25em);
+		width:2.75em;
+		height:2.75em;
+		margin:0 auto;
+		-moz-animation:spin .5s infinite linear;
+		-webkit-animation:spin .5s infinite linear;
+	}
+	.hui-icon-loading-mini{
+		width:1em;
+		height:1em;
+		border-width:0.188em;
+		.fn_border_radius(1em);
+	}
+}
+@-moz-keyframes spin {
+	0% { -moz-transform:rotate(0deg); }
+	100% { -moz-transform:rotate(360deg); }
+}
+@-moz-keyframes spinoff {
+	0% { -moz-transform:rotate(0deg); }
+	100% { -moz-transform:rotate(-360deg); }
+}
+@-webkit-keyframes spin {
+	0% { -webkit-transform:rotate(0deg); }
+	100% { -webkit-transform:rotate(360deg); }
+}
+@-webkit-keyframes spinoff {
+	0% { -webkit-transform:rotate(0deg); }
+	100% { -webkit-transform:rotate(-360deg); }
+}
 //按钮btn
 .hui-btn{
 	position: relative;
@@ -839,7 +873,7 @@
 	z-index:99999;
 	text-align:center;
 	//大loading提示
-	padding:0.75em 1.5em;
+	padding:0.75em 1em;
 	.hui-icon-loading{
 		//display:none;
 		width:2.75em;
@@ -850,6 +884,7 @@
 	}
 	.hui-tips-txt{
 		white-space:nowrap;
+		margin-left:0.4em;
 	}
 	&.hui-size-mini{
 		padding:0.188em 0.5em;
@@ -868,7 +903,8 @@
 	padding:0.5em 1em;
 	.hui-icon{
 		position:absolute;
-		left:0.313em;
+		left:0.438em;
+		top:0.688em;
 	}
 	.hui-icon{
 		margin-right:0.188em;

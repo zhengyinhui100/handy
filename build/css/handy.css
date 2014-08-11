@@ -1088,6 +1088,61 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-icon-loading {
   background-size: auto;
 }
+.hui-mi-csstransforms .hui-icon-loading,
+.hui-mi-csstransforms .hui-icon-loading-mini {
+  background-image: none;
+  border: 0.313em solid #ccc;
+  opacity: .9;
+  border-top: 0.313em solid rgba(0, 0, 0, 0);
+  -webkit-border-radius: 2.25em;
+  -moz-border-radius: 2.25em;
+  border-radius: 2.25em;
+  width: 2.75em;
+  height: 2.75em;
+  margin: 0 auto;
+  -moz-animation: spin .5s infinite linear;
+  -webkit-animation: spin .5s infinite linear;
+}
+.hui-mi-csstransforms .hui-icon-loading-mini {
+  width: 1em;
+  height: 1em;
+  border-width: 0.188em;
+  -webkit-border-radius: 1em;
+  -moz-border-radius: 1em;
+  border-radius: 1em;
+}
+@-moz-keyframes spin {
+  0% {
+    -moz-transform: rotate(0deg);
+  }
+  100% {
+    -moz-transform: rotate(360deg);
+  }
+}
+@-moz-keyframes spinoff {
+  0% {
+    -moz-transform: rotate(0deg);
+  }
+  100% {
+    -moz-transform: rotate(-360deg);
+  }
+}
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+@-webkit-keyframes spinoff {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(-360deg);
+  }
+}
 .hui-btn {
   position: relative;
   text-decoration: none;
@@ -1558,9 +1613,16 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   left: 0;
   top: 0;
 }
+.hui-panel {
+  position: relative;
+}
 .hui-panel .hui-panel-loading {
   position: relative;
+  position: absolute;
+  left: 0;
+  bottom: 0;
   height: 100%;
+  width: 100%;
 }
 .hui-panel .hui-panel-loading .hui-loading-container {
   display: -moz-inline-stack;
@@ -1585,6 +1647,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-panel .hui-panel-loading .hui-mask {
   filter: alpha(opacity= 10 );
   opacity: 0.1;
+  z-index: 1;
 }
 .hui-ctrlgp {
   border: 1px solid #ccc;
@@ -1817,6 +1880,9 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   padding: 0.75em 0.563em 0.75em 0.375em;
   min-height: 2.75em;
 }
+.hui-rowitem.hui-rowitem-padding-right {
+  padding-right: 1.5em;
+}
 .hui-rowitem .hui-icon {
   margin-right: 0.625em;
 }
@@ -2043,7 +2109,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   -webkit-transform: translateZ(0);
   z-index: 99999;
   text-align: center;
-  padding: 0.75em 1.5em;
+  padding: 0.75em 1em;
 }
 .hui-tips .hui-icon-loading {
   width: 2.75em;
@@ -2052,9 +2118,11 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   -webkit-border-radius: 2.25em;
   -moz-border-radius: 2.25em;
   border-radius: 2.25em;
+  background-size: contain;
 }
 .hui-tips .hui-tips-txt {
   white-space: nowrap;
+  margin-left: 0.4em;
 }
 .hui-tips.hui-size-mini {
   padding: 0.188em 0.5em;
@@ -2073,7 +2141,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-tips-inline .hui-icon {
   position: absolute;
-  left: 0.313em;
+  left: 0.438em;
+  top: 0.688em;
 }
 .hui-tips-inline .hui-icon {
   margin-right: 0.188em;

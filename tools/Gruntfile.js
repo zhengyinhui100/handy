@@ -34,7 +34,7 @@ module.exports = function(grunt) {
 		},
 		copy:{
 			//local test build 把options改名即可忽略此替换过程
-			options2 : {
+			options : {
 				//二进制文件必须排除，否则会损坏文件
 				noProcess:['**/*.jpg','**/*.png','**/*.jpeg','**/*.gif','**/*.swf'],
 				process : function(content, srcpath) {
@@ -215,6 +215,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-shell');
 
 	
+	//local test build 把copy.options改名
 	grunt.registerTask('testStaticBuild', ['clean:build','less','copy:build','handy_require','concat','cssmin','uglify','shell:build']);
 	
 	grunt.registerTask('appBuild', ['clean:appBuild','copy:appBuild']);

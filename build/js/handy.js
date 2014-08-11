@@ -4211,7 +4211,7 @@ handy.add('Support','B.Browser',function(Browser,$H){
 				sCls+=' ie'+ie;
 			}
 		}
-		document.documentElement.className+=" "+sCls;
+		document.documentElement.className+=" "+sCls+" hui";
 	}
 	
 	return Support;
@@ -5395,7 +5395,7 @@ function(AbstractData){
 		me.callSuper();
 		var oAttrs = oAttributes || {};
 		oOptions || (oOptions = {});
-		me.cid = $H.Util.uuid();
+		me.cid = 'md_'+$H.Util.uuid();
 		me._attributes = {};
 		me._attrEvts={};
 		if(oOptions.custom){
@@ -8215,9 +8215,10 @@ function(ViewManager,ModelView,Model,Template){
 	/**
 	 * 渲染后续工作
 	 * @method afterRender
+	 * @param {boolean=}bParentCall 是否是来自callChild的调用
 	 * @return {boolean=} 仅当已经完成过渲染时返回false
 	 */
-	function fAfterRender(){
+	function fAfterRender(bParentCall){
 		var me=this;
 		if(me.rendered){
 			return false;
@@ -8225,7 +8226,7 @@ function(ViewManager,ModelView,Model,Template){
 		me.trigger('render');
 		//缓存容器
 		me._container=$("#"+me.getId());
-		me.callChild();
+		me.callChild([true]);
 		me.rendered=true;
 		//初始化样式
 		me.initStyle();
@@ -8238,7 +8239,7 @@ function(ViewManager,ModelView,Model,Template){
 		}
 		me.trigger('afterRender');
 		//显示
-		if(!me.hidden){
+		if(!bParentCall&&!me.hidden){
 			me.show();
 		}
 	}
@@ -11209,7 +11210,7 @@ function(AC){
 		},
 		
 		tmpl            : [
-			'<div {{bindAttr class="underline?hui-rowitem-underline"}}>',
+			'<div {{bindAttr class="underline?hui-rowitem-underline hasArrow?hui-rowitem-padding-right"}}>',
 				'{{placeItem}}',
 				'<div class="hui-rowitem-txt">{{text}}</div>',
 				'{{#if newsNumTxt}}',
@@ -13003,6 +13004,7 @@ function(AC){
 		addListItem         : fAddListItem,        //添加列表项
 		removeListItem      : fRemoveListItem,     //删除列表项
 		refreshScroller     : fRefreshScroller,    //刷新iScroll
+		lazyRefresh         : fLazyRefreshScroller,//懒刷新iScroll
 		scrollTo            : fScrollTo,           //滚动到指定位置
 		loadMore            : fLoadMore,           //获取更多数据
 		pullLoading         : fPullLoading,        //显示正在刷新
@@ -13096,15 +13098,13 @@ function(AC){
 			//同步数据后需要刷新
 			me.listenTo(me.model,'sync',function(){
 				me.set('pdTime',$H.formatDate($H.now(),'HH:mm'));
-				setTimeout(function(){
-					me.refreshScroller();
-				},0);
+				me.lazyRefresh();
 			});
 			//show后需要refresh下，否则无法滚动，iscroll需要浏览器渲染后才能正常初始化
 			me.listen({
 				name:'afterShow',
 				handler:function(){
-					me.refreshScroller();
+					me.lazyRefresh();
 					if(me.scrollPos=='bottom'){
 						me.scrollTo('bottom');
 					}
@@ -13140,7 +13140,7 @@ function(AC){
 		me.add({
 			model:oListItem
 		},nIndex);
-		me.refreshScroller();
+		me.lazyRefresh();
 	}
 	/**
 	 * 删除列表项
@@ -13158,7 +13158,7 @@ function(AC){
 		if(me.children.length==0){
 			me.set('isEmpty',true);;
 		}
-		me.refreshScroller();
+		me.lazyRefresh();
 	}
 	/**
 	 * 刷新iScroll
@@ -13169,6 +13169,20 @@ function(AC){
 		if(me.scroller&&me.getEl()[0].clientHeight){
 	    	me.scroller.refresh();
 		}
+	}
+	/**
+	 * 懒刷新iScroll，多次调用此方法只会执行一次实际刷新
+	 */
+	function fLazyRefreshScroller(){
+		var me=this;
+		if(me._toRefresh){
+			return;
+		}
+		me._toRefresh=1;
+		setTimeout(function(){
+			me._toRefresh=0;
+			me.refreshScroller();
+		},0);
 	}
 	/**
 	 * 滚动到指定位置
@@ -13216,7 +13230,7 @@ function(AC){
 					}
 				});
 			}
-			me.refreshScroller();
+			me.lazyRefresh();
 		}else{
 			me.getMore();
 		}
