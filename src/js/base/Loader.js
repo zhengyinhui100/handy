@@ -25,7 +25,7 @@ function(Debug,Object,Function,$H){
 //		},                       //根url，根据命名空间前缀匹配替换，如果没有匹配则是空字符串''；如果rootPath是字符串则直接使用
 		timeout                 : 15000,
 		skinName                : 'skin',                   //皮肤名称，皮肤css的url里包含的字符串片段，用于检查css是否是皮肤
-//		urlMap                  : {
+//		sourceMap               : {
 //			'example':{
 //				url       : 'http://url',     //url
 //				chkExist  : function(){return true}    //验证此资源是否存在的方法
@@ -51,9 +51,9 @@ function(Debug,Object,Function,$H){
     		//css和js文件只验证是否加载完
     		if(/\.(css|js)$/.test(sId)){
     			return _oCache[sId]&&_oCache[sId].status=='loaded';
-    		}else if(Loader.urlMap&&Loader.urlMap[sId]){
+    		}else if(Loader.sourceMap&&Loader.sourceMap[sId]){
     			//自定义资源使用自定义方法验证
-    			return Loader.urlMap[sId].chkExist();
+    			return Loader.sourceMap[sId].chkExist();
     		}else{
     			//标准命名空间规则验证
 	    		return Object.ns(sId);
@@ -87,7 +87,7 @@ function(Debug,Object,Function,$H){
 	 * @return {string}sUrl 实际url
 	 */
     function _fGetUrl(sId){
-    	var sUrl=Loader.urlMap&&Loader.urlMap[sId]&&Loader.urlMap[sId].url;
+    	var sUrl=Loader.sourceMap&&Loader.sourceMap[sId]&&Loader.sourceMap[sId].url;
     	if(!sUrl){
     		var sRoot='';
     		var rootPath=Loader.rootPath;

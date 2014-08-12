@@ -17,8 +17,8 @@ function(AbstractModule){
 				var me=this;
 				var oEl=me.getEl()[0];
 				me.findEl('.js-loading').css({
-					left:oEl.clientWidth/2-22,
-					top:oEl.clientHeight/2-22
+					left:oEl.clientWidth/2-$H.em2px(1.375),
+					top:oEl.clientHeight/2-$H.em2px(1.375)
 				});
 			}
 		},{

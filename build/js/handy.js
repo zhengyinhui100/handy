@@ -1546,7 +1546,7 @@ function(Debug,Object,Function,$H){
 //		},                       //根url，根据命名空间前缀匹配替换，如果没有匹配则是空字符串''；如果rootPath是字符串则直接使用
 		timeout                 : 15000,
 		skinName                : 'skin',                   //皮肤名称，皮肤css的url里包含的字符串片段，用于检查css是否是皮肤
-//		urlMap                  : {
+//		sourceMap               : {
 //			'example':{
 //				url       : 'http://url',     //url
 //				chkExist  : function(){return true}    //验证此资源是否存在的方法
@@ -1572,9 +1572,9 @@ function(Debug,Object,Function,$H){
     		//css和js文件只验证是否加载完
     		if(/\.(css|js)$/.test(sId)){
     			return _oCache[sId]&&_oCache[sId].status=='loaded';
-    		}else if(Loader.urlMap&&Loader.urlMap[sId]){
+    		}else if(Loader.sourceMap&&Loader.sourceMap[sId]){
     			//自定义资源使用自定义方法验证
-    			return Loader.urlMap[sId].chkExist();
+    			return Loader.sourceMap[sId].chkExist();
     		}else{
     			//标准命名空间规则验证
 	    		return Object.ns(sId);
@@ -1608,7 +1608,7 @@ function(Debug,Object,Function,$H){
 	 * @return {string}sUrl 实际url
 	 */
     function _fGetUrl(sId){
-    	var sUrl=Loader.urlMap&&Loader.urlMap[sId]&&Loader.urlMap[sId].url;
+    	var sUrl=Loader.sourceMap&&Loader.sourceMap[sId]&&Loader.sourceMap[sId].url;
     	if(!sUrl){
     		var sRoot='';
     		var rootPath=Loader.rootPath;
@@ -7009,6 +7009,7 @@ function(ViewManager,AbstractEvents){
 	 * 			{CM.AbstractEvents|Function=}target : 监听对象(listenTo方法)，继承自AbstractEvents的实例对象，传入函数(this是本视图对象)则使用函数返回值
 	 * 			{boolean=}custom  : 为true时是自定义事件
 	 * 			{number=}times    : 执行次数
+	 * 			{boolean=}condition : 条件，不传默认执行监听
 	 * 			{string=}selector : 选择器
 	 * 			{any=}context     : 监听函数执行的上下文对象，默认是对象
 	 * 			{string=}method   : 绑定方式，默认为"bind"，可以是"delegate","on"等jquery提供的事件方法
@@ -7019,7 +7020,9 @@ function(ViewManager,AbstractEvents){
 		if(me._parseListenEvents('listen',oEvent)){
 			return;
 		}
-		
+		if(oEvent.hasOwnProperty('condition')&&!oEvent.condition){
+			return;
+		}
 		var sName=oEvent.name,
 			context=oEvent.context,
 			nTimes=oEvent.times,
@@ -9617,8 +9620,8 @@ function(AbstractModule){
 				var me=this;
 				var oEl=me.getEl()[0];
 				me.findEl('.js-loading').css({
-					left:oEl.clientWidth/2-22,
-					top:oEl.clientHeight/2-22
+					left:oEl.clientWidth/2-$H.em2px(1.375),
+					top:oEl.clientHeight/2-$H.em2px(1.375)
 				});
 			}
 		},{
@@ -12181,9 +12184,9 @@ function(AC,Dialog){
 			xrole:'dialog-content',
 			name:'dialogSelect',
 			value:sValue,
-			width:50,
+			width:$H.em2px(3.125),
 			cClass:sName,
-			optionWidth:100,
+			optionWidth:$H.em2px(6.25),
 			iconPos:'bottom',
 			extCls:'hui-dp-'+sName,
 			options:[],
@@ -12614,7 +12617,7 @@ function(AC,ImgCompress){
 		var me=this;
 		var oDialog=new $C.Dialog({
 			contentMsg:'上传照片',
-			width:250,
+			width:$H.em2px(15.625),
 			noAction:true,
 			clickHide:true,
 			items:{

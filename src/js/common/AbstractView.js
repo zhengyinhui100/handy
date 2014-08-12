@@ -178,6 +178,7 @@ function(ViewManager,AbstractEvents){
 	 * 			{CM.AbstractEvents|Function=}target : 监听对象(listenTo方法)，继承自AbstractEvents的实例对象，传入函数(this是本视图对象)则使用函数返回值
 	 * 			{boolean=}custom  : 为true时是自定义事件
 	 * 			{number=}times    : 执行次数
+	 * 			{boolean=}condition : 条件，不传默认执行监听
 	 * 			{string=}selector : 选择器
 	 * 			{any=}context     : 监听函数执行的上下文对象，默认是对象
 	 * 			{string=}method   : 绑定方式，默认为"bind"，可以是"delegate","on"等jquery提供的事件方法
@@ -188,7 +189,9 @@ function(ViewManager,AbstractEvents){
 		if(me._parseListenEvents('listen',oEvent)){
 			return;
 		}
-		
+		if(oEvent.hasOwnProperty('condition')&&!oEvent.condition){
+			return;
+		}
 		var sName=oEvent.name,
 			context=oEvent.context,
 			nTimes=oEvent.times,

@@ -90,7 +90,7 @@ function(AC,ImgCompress){
 		var me=this;
 		var oDialog=new $C.Dialog({
 			contentMsg:'上传照片',
-			width:250,
+			width:$H.em2px(15.625),
 			noAction:true,
 			clickHide:true,
 			items:{

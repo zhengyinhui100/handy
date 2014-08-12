@@ -958,10 +958,10 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-mi-no-svg .hui-chkbox-on .hui-icon-chkbox {
   background-image: url(../img/icons-png/checkbox-on.png);
 }
-.hui-icon-loading {
+.hui-mi-no-csstransforms .hui-icon-loading {
   background-image: url(../img/loading.gif);
 }
-.hui-icon-loading-mini {
+.hui-mi-no-csstransforms .hui-icon-loading-mini {
   background-image: url(../img/loading-mini.gif);
 }
 .hui-icon-pull-loading {
@@ -1106,7 +1106,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-mi-csstransforms .hui-icon-loading-mini {
   width: 1em;
   height: 1em;
-  border-width: 0.188em;
+  border-width: 0.125em;
   -webkit-border-radius: 1em;
   -moz-border-radius: 1em;
   border-radius: 1em;

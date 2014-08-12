@@ -68,11 +68,13 @@ function(AC,DisplayImage){
 	            	nTop=Math.ceil(nTop);
 	            	oImg.css('top',nTop);
 	            }
+	            //修正尺寸后才显示图片，避免出现图片大小变化过程
+	            me.getEl().removeClass('hui-image-hidden');
 				me.trigger("imgLoad",oEvt);
 			}
 		}],
 		
-		tmpl            : '<div><img {{bindAttr src="imgSrc"}}/></div>'
+		tmpl            : '<div class="hui-image-hidden"><img {{bindAttr src="imgSrc"}}/></div>'
 		
 	});
 	
