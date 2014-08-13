@@ -33,7 +33,6 @@ function(AbstractModule){
 				var me=this;
 			    var oImg=me.findEl('.js-img');
 			    me.fixImgSize(oImg);
-			    oImg.css("marginTop",-oImg.height()/2);
 			}
 		},{
 			name:'load',
@@ -41,10 +40,9 @@ function(AbstractModule){
 			handler:function(){
 				var me=this;
 				me.showLoading(false);
-			    me.findEl('.js-img').hide();
-				var oImg=me.findEl('.js-orig').show();
+			    me.findEl('.js-img').addClass('hui-hidden');
+				var oImg=me.findEl('.js-orig');
 				me.fixImgSize(oImg);
-				oImg.css("marginTop",-oImg.height()/2);
 			}
 		}],
 		tmpl        : [
@@ -68,9 +66,9 @@ function(AbstractModule){
 		var me=this;
 		if(oParams.imgSrc!=me.lastSrc){
 			var src=me.imgSrc=me.lastSrc=oParams.imgSrc;
-			me.findEl('.js-img').attr('src',src).show();
+			me.findEl('.js-img').attr('src',src).addClass('hui-hidden');
 			me.showLoading();
-			me.findEl('.js-orig').attr('src',oParams.origSrc).hide();
+			me.findEl('.js-orig').attr('src',oParams.origSrc).addClass('hui-hidden');
 		}
 	}
 	/**
@@ -80,20 +78,24 @@ function(AbstractModule){
 	function fFixImgSize(jImg){
 		var oImg=jImg[0];
 		var oEl=this.getEl()[0];
+		//先移除宽度和高度属性才能获取准确的图片尺寸
+		jImg.removeAttr("width").removeAttr("height");
         var w = oImg.width,
             h = oImg.height,
             scale = w / h,
             nFixW=oEl.clientWidth,
-            nFixH=oEl.clientHeight,
-            nFixScale=nFixW/nFixH;
-        if(scale>nFixScale){
+            nFixH=oEl.clientHeight;
+        if(nFixW&&w!=nFixW){
         	w=nFixW;
-        	h = w / scale;
-        }else{
+        	h = Math.ceil(w / scale);
+        }
+        if(nFixH&&h>nFixH){
         	h=nFixH;
-        	w=h*scale;
+        	w=Math.ceil(h*scale);
         }
         jImg.attr({width:w,height:h});
+        jImg.css("marginTop",-h/2);
+        jImg.removeClass('hui-hidden');
 	}
 	/**
 	 * 显示/隐藏加载提示
