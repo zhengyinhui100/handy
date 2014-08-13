@@ -1613,6 +1613,9 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   left: 0;
   top: 0;
 }
+.hui-image.hui-image-hidden img {
+  display: none;
+}
 .hui-panel {
   position: relative;
 }

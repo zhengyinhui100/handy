@@ -54,7 +54,7 @@ function(AC,DisplayImage){
 		            	h=nFixH;
 		            	w=Math.ceil(h*scale);
 		            }
-		            oImg.attr({width:w,height:h});
+		            oImg.css({width:w,height:h});
 	            }
 	            //居中定位
 	            var nLeft,nTop;

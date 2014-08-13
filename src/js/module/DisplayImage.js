@@ -93,7 +93,7 @@ function(AbstractModule){
         	h=nFixH;
         	w=Math.ceil(h*scale);
         }
-        jImg.attr({width:w,height:h});
+        jImg.css({width:w,height:h});
         jImg.css("marginTop",-h/2);
         jImg.removeClass('hui-hidden');
 	}

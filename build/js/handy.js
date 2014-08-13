@@ -2586,10 +2586,12 @@ handy.add("String",function(){
 	
 	var String={
 		stripTags		: fStripTags,       // 删除标签
-		escapeHTML		: fEscapeHTML,      // html编码
-		unescapeHTML	: fUnescapeHTML,    // html解码
-		decodeHTML		: fDecodeHTML,	    // html解码
+		escape   		: fEscape    ,      // html编码
+		unescape    	: fUnescape,        // html解码
 		encodeHTML		: fEncodeHTML,	    // html编码
+		decodeHTML		: fDecodeHTML,	    // html解码
+		htmlToTxt       : fHtmlToTxt,       // htlm转换为纯文本
+		TxtToHtml       : fTxtToHtml,       // 纯文本转换为html
 		trim			: fTrim,            // 删除字符串两边的空格
 		check			: fCheck,		    // 检查特殊字符串
 		len				: fLen,         	// 计算字符串打印长度,一个中文字符长度为2
@@ -2609,11 +2611,10 @@ handy.add("String",function(){
 	};
 	/**
 	 * html编码,escape方式
-	 * @method  escapeHTML
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return  {string} 编码后的html代码
 	 */
-	function fEscapeHTML(sStr){
+	function fEscape(sStr){
 		if(!sStr){
 			return sStr;
 		}
@@ -2625,33 +2626,14 @@ handy.add("String",function(){
 
 	/**
 	 * html解码,escape方式
-	 * @method  unescapeHTML
 	 * @param  {string} sStr	需要操作的字符串
 	 * @return {string}  	解码后的html代码  
 	 */
-	function fUnescapeHTML(sStr){
+	function fUnescape(sStr){
 		var oDiv = document.createElement('div');
 		oDiv.innerHTML = String.stripTags(sStr);
 		return oDiv.childNodes[0].nodeValue;
 	};
-
-	/**
-	 * html解码，替换掉html编码
-	 * @method  decodeHTML
-	 * @param  {string} sStr 需要操作的字符串
-	 * @return {string} sStr 解码后的html代码  
-	 */
-	function fDecodeHTML(sStr){
-		sStr = sStr.replace(/&lt;/gi,"<");
-		sStr = sStr.replace(/&gt;/gi,">");
-		sStr = sStr.replace(/&quot;/gi,"\"");
-		sStr = sStr.replace(/&apos;/gi,"\'");
-		sStr = sStr.replace(/<\/?br>/gi,"\n");
-		sStr = sStr.replace(/&amp;/gi,"&");
-		sStr = sStr.replace(/&nbsp;/gi," ");
-		return sStr;
-	};
-
 	/**
 	 * html编码，替换<>等为html编码
 	 * @method  encodeHTML
@@ -2668,6 +2650,53 @@ handy.add("String",function(){
 		sStr = sStr.replace(/ /gi,"&nbsp;");
 		return sStr;
 	};
+	/**
+	 * html解码，替换掉html编码
+	 * @method  decodeHTML
+	 * @param  {string} sStr 需要操作的字符串
+	 * @return {string} sStr 解码后的html代码  
+	 */
+	function fDecodeHTML(sStr){
+		sStr = sStr.replace(/&lt;/gi,"<");
+		sStr = sStr.replace(/&gt;/gi,">");
+		sStr = sStr.replace(/&quot;/gi,"\"");
+		sStr = sStr.replace(/&apos;/gi,"\'");
+		sStr = sStr.replace(/<\/?br>/gi,"\n");
+		sStr = sStr.replace(/&amp;/gi,"&");
+		sStr = sStr.replace(/&nbsp;/gi," ");
+		return sStr;
+	};
+	/**
+	 * html转换为纯文本
+	 * @param {string}sContent 参数html
+	 * @param {boolean}bIgnore 是否忽略换行
+	 * @return {string} 返回纯文本
+	 */
+	function fHtmlToTxt(sContent){
+		sHtml = sHtml.replace(/\n/ig, "");
+		sHtml = sHtml.replace(/\\s+/ig, "");
+		if(!bIgnore){
+			// 替换块级标签为换行符
+			sHtml = sHtml.replace(/<\/(address|blockquote|center|dir|div|dl|fieldset|form|hr|h[1-6]|isindex|iframe|menu|ol|p|pre|table|ul)>/gi,"\n");
+			// 替换换行符
+			sHtml = sHtml.replace(/<br>/gi, "\n");
+		}
+		// 处理列表
+		sHtml = sHtml.replace(/<li>/gi, " . ");
+		// 消除遗留html标签
+		sHtml = sHtml.replace(/<[^>]+>/g, "");
+		// 处理转义字符
+		sHtml = String.decodeHTML(sHtml);
+		return sHtml;
+	}
+	/**
+	 * 纯文本转换为html
+	 * @param {string}sContent 参数纯文本
+	 * @return {string} 返回hmlt片段
+	 */
+	function fTxtToHtml(sContent){
+		return String.encodeHTML(sContent);
+	}
 	/**
 	 * 去掉字符串两边的空格
 	 * @method  trim
@@ -4741,6 +4770,7 @@ function(){
 	
 	$H.extend(AbstractEvents.prototype,{
 //		_eventCache          : {},                     //自定义事件池
+//		_execEvtCache        : [],                     //待执行事件队列
 //		_listenTo            : [],                     //存储对其它对象的监听
 		initialize           : fInitialize,            //初始化
 		_parseListenToEvents : _fParseListenToEvents,  //处理对象类型或者空格相隔的多事件
@@ -4753,6 +4783,7 @@ function(){
 	function fInitialize(){
 		var me=this;
 		me._eventCache={};
+		me._execEvtCache=[];
 		me._listenTo=[];
 	}
 	/**
@@ -5450,7 +5481,7 @@ function(AbstractData){
      * @return {*} 返回对应属性编码后的值
 	 */
     function fEscape(sAttr) {
-        return $H.String.escapeHTML(this.get(sAttr));
+        return $H.String.escape(this.get(sAttr));
     }
 	/**
 	 * 判断是否含有参数属性
@@ -7427,6 +7458,10 @@ function(Template,AbstractView,Model,Collection){
 				//传递结果值给输入框辅助函数
 				if(sType&&sAttr=='value'){
 					oOptions.value=sVal;
+					//textarea不需设置value
+					if(sType==='textarea'){
+						continue;
+					}
 				}
 				sVal=(m[1]||'')+sVal+m[4];
 			}else if(sVal){
@@ -8752,13 +8787,17 @@ function(ViewManager,ModelView,Model,Template){
 	/**
 	 * 添加子视图
 	 * @method add
-	 * @param {object|Array}item 视图对象或视图配置或数组
+	 * @param {object|Array}item 视图对象或视图配置或数组，可以加上条件判断:item.condition(为假时忽略该配置项)
 	 * @param {number=}nIndex 指定添加的索引，默认添加到最后
 	 * @return {?Component} 添加的子视图只有一个时返回该视图对象，参数是数组时返回空
 	 */
 	function fAdd(item,nIndex){
 		var me=this;
 		if(me._applyArray()){
+			return;
+		}
+		//条件为假，直接忽略
+		if(item.hasOwnProperty('condition')&&!item.condition){
 			return;
 		}
 		var bNoIndex=nIndex===undefined;
@@ -9636,7 +9675,6 @@ function(AbstractModule){
 				var me=this;
 			    var oImg=me.findEl('.js-img');
 			    me.fixImgSize(oImg);
-			    oImg.css("marginTop",-oImg.height()/2);
 			}
 		},{
 			name:'load',
@@ -9644,10 +9682,9 @@ function(AbstractModule){
 			handler:function(){
 				var me=this;
 				me.showLoading(false);
-			    me.findEl('.js-img').hide();
-				var oImg=me.findEl('.js-orig').show();
+			    me.findEl('.js-img').addClass('hui-hidden');
+				var oImg=me.findEl('.js-orig');
 				me.fixImgSize(oImg);
-				oImg.css("marginTop",-oImg.height()/2);
 			}
 		}],
 		tmpl        : [
@@ -9671,9 +9708,9 @@ function(AbstractModule){
 		var me=this;
 		if(oParams.imgSrc!=me.lastSrc){
 			var src=me.imgSrc=me.lastSrc=oParams.imgSrc;
-			me.findEl('.js-img').attr('src',src).show();
+			me.findEl('.js-img').attr('src',src).addClass('hui-hidden');
 			me.showLoading();
-			me.findEl('.js-orig').attr('src',oParams.origSrc).hide();
+			me.findEl('.js-orig').attr('src',oParams.origSrc).addClass('hui-hidden');
 		}
 	}
 	/**
@@ -9683,20 +9720,24 @@ function(AbstractModule){
 	function fFixImgSize(jImg){
 		var oImg=jImg[0];
 		var oEl=this.getEl()[0];
+		//先移除宽度和高度属性才能获取准确的图片尺寸
+		jImg.removeAttr("width").removeAttr("height");
         var w = oImg.width,
             h = oImg.height,
             scale = w / h,
             nFixW=oEl.clientWidth,
-            nFixH=oEl.clientHeight,
-            nFixScale=nFixW/nFixH;
-        if(scale>nFixScale){
+            nFixH=oEl.clientHeight;
+        if(nFixW&&w!=nFixW){
         	w=nFixW;
-        	h = w / scale;
-        }else{
+        	h = Math.ceil(w / scale);
+        }
+        if(nFixH&&h>nFixH){
         	h=nFixH;
-        	w=h*scale;
+        	w=Math.ceil(h*scale);
         }
         jImg.attr({width:w,height:h});
+        jImg.css("marginTop",-h/2);
+        jImg.removeClass('hui-hidden');
 	}
 	/**
 	 * 显示/隐藏加载提示
@@ -11120,7 +11161,7 @@ function(AC){
 	 * @return {string=} 如果是读取操作，返回当前值
 	 */
 	function fVal(sValue){
-		var oInput=this.findEl('input,textarea');
+		var oInput=this.findEl('.js-input');
 		if(sValue!==undefined){
 			oInput.val(sValue);
 		}else{
@@ -11132,7 +11173,7 @@ function(AC){
 	 * @method focus
 	 */
 	function fFocus(){
-		this.findEl('input').focus();
+		this.findEl('.js-input').focus();
 	}
 	
 	return Input;
@@ -12514,11 +12555,13 @@ function(AC,DisplayImage){
 	            	nTop=Math.ceil(nTop);
 	            	oImg.css('top',nTop);
 	            }
+	            //修正尺寸后才显示图片，避免出现图片大小变化过程
+	            me.getEl().removeClass('hui-image-hidden');
 				me.trigger("imgLoad",oEvt);
 			}
 		}],
 		
-		tmpl            : '<div><img {{bindAttr src="imgSrc"}}/></div>'
+		tmpl            : '<div class="hui-image-hidden"><img {{bindAttr src="imgSrc"}}/></div>'
 		
 	});
 	
