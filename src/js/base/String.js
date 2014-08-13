@@ -6,10 +6,12 @@ handy.add("String",function(){
 	
 	var String={
 		stripTags		: fStripTags,       // 删除标签
-		escapeHTML		: fEscapeHTML,      // html编码
-		unescapeHTML	: fUnescapeHTML,    // html解码
-		decodeHTML		: fDecodeHTML,	    // html解码
+		escape   		: fEscape    ,      // html编码
+		unescape    	: fUnescape,        // html解码
 		encodeHTML		: fEncodeHTML,	    // html编码
+		decodeHTML		: fDecodeHTML,	    // html解码
+		htmlToTxt       : fHtmlToTxt,       // htlm转换为纯文本
+		TxtToHtml       : fTxtToHtml,       // 纯文本转换为html
 		trim			: fTrim,            // 删除字符串两边的空格
 		check			: fCheck,		    // 检查特殊字符串
 		len				: fLen,         	// 计算字符串打印长度,一个中文字符长度为2
@@ -29,11 +31,10 @@ handy.add("String",function(){
 	};
 	/**
 	 * html编码,escape方式
-	 * @method  escapeHTML
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return  {string} 编码后的html代码
 	 */
-	function fEscapeHTML(sStr){
+	function fEscape(sStr){
 		if(!sStr){
 			return sStr;
 		}
@@ -45,33 +46,14 @@ handy.add("String",function(){
 
 	/**
 	 * html解码,escape方式
-	 * @method  unescapeHTML
 	 * @param  {string} sStr	需要操作的字符串
 	 * @return {string}  	解码后的html代码  
 	 */
-	function fUnescapeHTML(sStr){
+	function fUnescape(sStr){
 		var oDiv = document.createElement('div');
 		oDiv.innerHTML = String.stripTags(sStr);
 		return oDiv.childNodes[0].nodeValue;
 	};
-
-	/**
-	 * html解码，替换掉html编码
-	 * @method  decodeHTML
-	 * @param  {string} sStr 需要操作的字符串
-	 * @return {string} sStr 解码后的html代码  
-	 */
-	function fDecodeHTML(sStr){
-		sStr = sStr.replace(/&lt;/gi,"<");
-		sStr = sStr.replace(/&gt;/gi,">");
-		sStr = sStr.replace(/&quot;/gi,"\"");
-		sStr = sStr.replace(/&apos;/gi,"\'");
-		sStr = sStr.replace(/<\/?br>/gi,"\n");
-		sStr = sStr.replace(/&amp;/gi,"&");
-		sStr = sStr.replace(/&nbsp;/gi," ");
-		return sStr;
-	};
-
 	/**
 	 * html编码，替换<>等为html编码
 	 * @method  encodeHTML
@@ -88,6 +70,53 @@ handy.add("String",function(){
 		sStr = sStr.replace(/ /gi,"&nbsp;");
 		return sStr;
 	};
+	/**
+	 * html解码，替换掉html编码
+	 * @method  decodeHTML
+	 * @param  {string} sStr 需要操作的字符串
+	 * @return {string} sStr 解码后的html代码  
+	 */
+	function fDecodeHTML(sStr){
+		sStr = sStr.replace(/&lt;/gi,"<");
+		sStr = sStr.replace(/&gt;/gi,">");
+		sStr = sStr.replace(/&quot;/gi,"\"");
+		sStr = sStr.replace(/&apos;/gi,"\'");
+		sStr = sStr.replace(/<\/?br>/gi,"\n");
+		sStr = sStr.replace(/&amp;/gi,"&");
+		sStr = sStr.replace(/&nbsp;/gi," ");
+		return sStr;
+	};
+	/**
+	 * html转换为纯文本
+	 * @param {string}sContent 参数html
+	 * @param {boolean}bIgnore 是否忽略换行
+	 * @return {string} 返回纯文本
+	 */
+	function fHtmlToTxt(sContent){
+		sHtml = sHtml.replace(/\n/ig, "");
+		sHtml = sHtml.replace(/\\s+/ig, "");
+		if(!bIgnore){
+			// 替换块级标签为换行符
+			sHtml = sHtml.replace(/<\/(address|blockquote|center|dir|div|dl|fieldset|form|hr|h[1-6]|isindex|iframe|menu|ol|p|pre|table|ul)>/gi,"\n");
+			// 替换换行符
+			sHtml = sHtml.replace(/<br>/gi, "\n");
+		}
+		// 处理列表
+		sHtml = sHtml.replace(/<li>/gi, " . ");
+		// 消除遗留html标签
+		sHtml = sHtml.replace(/<[^>]+>/g, "");
+		// 处理转义字符
+		sHtml = String.decodeHTML(sHtml);
+		return sHtml;
+	}
+	/**
+	 * 纯文本转换为html
+	 * @param {string}sContent 参数纯文本
+	 * @return {string} 返回hmlt片段
+	 */
+	function fTxtToHtml(sContent){
+		return String.encodeHTML(sContent);
+	}
 	/**
 	 * 去掉字符串两边的空格
 	 * @method  trim

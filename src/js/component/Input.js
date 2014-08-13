@@ -149,7 +149,7 @@ function(AC){
 	 * @return {string=} 如果是读取操作，返回当前值
 	 */
 	function fVal(sValue){
-		var oInput=this.findEl('input,textarea');
+		var oInput=this.findEl('.js-input');
 		if(sValue!==undefined){
 			oInput.val(sValue);
 		}else{
@@ -161,7 +161,7 @@ function(AC){
 	 * @method focus
 	 */
 	function fFocus(){
-		this.findEl('input').focus();
+		this.findEl('.js-input').focus();
 	}
 	
 	return Input;

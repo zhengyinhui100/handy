@@ -13,6 +13,7 @@ function(){
 	
 	$H.extend(AbstractEvents.prototype,{
 //		_eventCache          : {},                     //自定义事件池
+//		_execEvtCache        : [],                     //待执行事件队列
 //		_listenTo            : [],                     //存储对其它对象的监听
 		initialize           : fInitialize,            //初始化
 		_parseListenToEvents : _fParseListenToEvents,  //处理对象类型或者空格相隔的多事件
@@ -25,6 +26,7 @@ function(){
 	function fInitialize(){
 		var me=this;
 		me._eventCache={};
+		me._execEvtCache=[];
 		me._listenTo=[];
 	}
 	/**

@@ -256,6 +256,10 @@ function(Template,AbstractView,Model,Collection){
 				//传递结果值给输入框辅助函数
 				if(sType&&sAttr=='value'){
 					oOptions.value=sVal;
+					//textarea不需设置value
+					if(sType==='textarea'){
+						continue;
+					}
 				}
 				sVal=(m[1]||'')+sVal+m[4];
 			}else if(sVal){

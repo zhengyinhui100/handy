@@ -326,7 +326,7 @@ function(AbstractData){
      * @return {*} 返回对应属性编码后的值
 	 */
     function fEscape(sAttr) {
-        return $H.String.escapeHTML(this.get(sAttr));
+        return $H.String.escape(this.get(sAttr));
     }
 	/**
 	 * 判断是否含有参数属性

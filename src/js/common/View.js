@@ -989,13 +989,17 @@ function(ViewManager,ModelView,Model,Template){
 	/**
 	 * 添加子视图
 	 * @method add
-	 * @param {object|Array}item 视图对象或视图配置或数组
+	 * @param {object|Array}item 视图对象或视图配置或数组，可以加上条件判断:item.condition(为假时忽略该配置项)
 	 * @param {number=}nIndex 指定添加的索引，默认添加到最后
 	 * @return {?Component} 添加的子视图只有一个时返回该视图对象，参数是数组时返回空
 	 */
 	function fAdd(item,nIndex){
 		var me=this;
 		if(me._applyArray()){
+			return;
+		}
+		//条件为假，直接忽略
+		if(item.hasOwnProperty('condition')&&!item.condition){
 			return;
 		}
 		var bNoIndex=nIndex===undefined;
