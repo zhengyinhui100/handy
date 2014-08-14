@@ -117,6 +117,14 @@ function(AC){
 				}
 			},me.timeout);
 		}
+		//用户点击后退时先隐藏弹出层
+		$H.once('hisoryChange',function(){
+			if(me.showed&&!me.destroyed){
+				me.hide();
+				$H.stop();
+				return false;
+			}
+		});
 	}
 	/**
 	 * 隐藏

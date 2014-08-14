@@ -34,7 +34,7 @@ function(AC){
 			xtype       : 'Menu',
 			hidden      : true,
 			markType    : 'hook',
-			showPos     : 'followEl',
+			showPos     : $H.mobile()?'center':'followEl',
 			renderTo    : "body"              //子组件须设置renderTo才会自动render
 		},
 		

@@ -60,21 +60,36 @@ function(AC){
 				name : 'focus',
 				el : '.js-input',
 				handler : function(){
-					this.getEl().addClass('hui-focus');
+					var me=this;
+					me.getEl().addClass('hui-focus');
+					me.focused=true;
+					if($H.mobile()){
+						//用户点击后退时先隐藏弹出层
+						$H.once('hisoryChange',function(){
+							if(me.focused&&!me.destroyed){
+								me.blur();
+								$H.stop();
+								return false;
+							}
+						});
+					}
 				}
 			},
 			{
 				name : 'blur',
 				el : '.js-input',
 				handler : function(){
-					this.getEl().removeClass('hui-focus');
+					var me=this;
+					me.getEl().removeClass('hui-focus');
+					me.focused=false;
 				}
 			}
 		],
 		doConfig        : fDoConfig,         //初始化配置
 		parseItem       : fParseItem,        //分析处理子组件
 		val             : fVal,              //获取/设置输入框的值
-		focus           : fFocus             //聚焦
+		focus           : fFocus,            //聚焦
+		blur            : fBlur              //失焦
 	});
 	
 	/**
@@ -162,6 +177,13 @@ function(AC){
 	 */
 	function fFocus(){
 		this.findEl('.js-input').focus();
+	}
+	/**
+	 * 失焦
+	 * @method focus
+	 */
+	function fBlur(){
+		this.findEl('.js-input').blur();
 	}
 	
 	return Input;

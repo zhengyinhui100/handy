@@ -8,6 +8,7 @@ handy.add('Events',function($H){
 	var Events={
 		_eventCache        : {},                   //自定义事件池
 		_execEvtCache      : [],                   //待执行事件队列
+//		_stopEvent         : false,                //是否停止(本次)事件
 		_parseEvents       : _fParseEvents,        //分析事件对象
 		_parseCustomEvents : _fParseCustomEvents,  //处理对象类型或者空格相隔的多事件
 		_delegateHandler   : _fDelegateHandler,    //统一代理回调函数
@@ -18,6 +19,7 @@ handy.add('Events',function($H){
 		off                : fOff,                 //移除事件
 		suspend            : fSuspend,             //挂起事件
 		resume             : fResume,              //恢复事件
+		stop               : fStop,                //停止(本次)事件
 		trigger            : fTrigger              //触发事件
 	};
 	
@@ -105,7 +107,12 @@ handy.add('Events',function($H){
 			}
 			//只是返回最后一个函数的结果，返回结果在某些情况可以作为通知器使用
 			result=fDelegation.apply(me,oEvent.args);
+			if(me._stopEvent){
+				aEvts.splice(0,aEvts.length);
+				return false;
+			}
 		});
+		me._stopEvent=false;
 		return result;
 	}
 	/**
@@ -199,6 +206,12 @@ handy.add('Events',function($H){
 			}
 		}
 		return false;
+	}
+	/**
+	 * 停止(本次)事件
+	 */
+	function fStop(){
+		this._stopEvent=true;
 	}
 	/**
 	 * 触发事件

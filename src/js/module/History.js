@@ -60,18 +60,21 @@ function(HashChange){
 			return false;
 		}
 		var oState=aStates[sKey];
-		var bResult;
-		if(oState){
-			bResult=oState.onStateChange(oState.param,true);
-		}else{
-			$D.warn("hisory state not found");
-			bResult=me.error('stateNotFound',oHashParam);
+		//监听全局hisoryChange，返回false可阻止当前变化
+		var bResult=$H.trigger('hisoryChange',oState,oCurState);
+		if(bResult!==false){
+			if(oState){
+				bResult=oState.onStateChange(oState.param,true);
+			}else{
+				$D.warn("hisory state not found");
+				bResult=me.error('stateNotFound',oHashParam);
+			}
 		}
 		//如果调用不成功，则恢复原先的hashstate
-		if(bResult!=true){
+		if(bResult===false){
 			oHashParam={
 				hKey    : sCurKey,
-				param   : oCurState.param
+				modId   : oCurState.param&&oCurState.param.modId
 			};
 			me.saveHash(oHashParam);
 		}else{
@@ -95,7 +98,7 @@ function(HashChange){
 		var oParam=oState.param;
 		me.saveHash({
 			hKey    : sHistoryKey,
-			modName : oParam&&oParam.modName
+			modId   : oParam&&oParam.modId
 		});
 	}
 	/**

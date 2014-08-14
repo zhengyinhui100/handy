@@ -214,6 +214,16 @@ function(History,AbstractManager){
 			param={modName:param};
 		}
 		var sModName=param.modName;
+		//刷新浏览器时，hash参数里没有modName
+		if(!sModName){
+			var sModId=param.modId;
+			//只有没有modId的模块可以进入
+			if($H.isStr(sModId)&&sModId.indexOf('-')<0){
+				sModName=param.modName=sModId;
+			}else{
+				return;
+			}
+		}
 		//模块id
 		var sModId=sModName;
 		if(param.model){
@@ -252,6 +262,9 @@ function(History,AbstractManager){
 		var oMod=oMods[sModId];
 		//如果模块有缓存
 		if(oMod){
+			if(oMod.waiting){
+				return;
+			}
 			//标记使用缓存，要调用cache方法
 			if(oMod.notCache!=true&&oMod.clearCache!=true&&oMod.useCache(param)!=false){
 				//恢复设置

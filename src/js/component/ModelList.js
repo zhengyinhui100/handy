@@ -180,7 +180,9 @@ function(AC){
 				handler:function(){
 					me.lazyRefresh();
 					if(me.scrollPos=='bottom'){
-						me.scrollTo('bottom');
+						setTimeout(function(){
+							me.scrollTo('bottom');
+						},0);
 					}
 				}
 			});
