@@ -11,8 +11,14 @@
 	.fn_inline_block();
 	background-position:center center;
 	background-repeat: no-repeat;
-	background-size: 1em 1em;
+	background-size:1em 1em;
 	vertical-align:middle;
+}
+.hui-icon-carat-l,.hui-icon-carat-r,.hui-icon-location{
+	background-size:auto 1em;
+}
+.hui-icon-carat-u,.hui-icon-carat-d,.hui-icon-eye,.hui-icon-cloud,.hui-icon-mail,.hui-icon-minus{
+	background-size:1em auto;
 }
 .hui-icon-bg{
 	background-color: #666;
@@ -634,6 +640,7 @@
 		left:50%;
 		margin-top:-0.688em;
 		margin-left:-0.688em;
+		background-size:0.438em;
 	}
 }
 .hui-news-tips{
@@ -1293,12 +1300,13 @@
 	position: absolute;
 	z-index: 998;
 	left: 0;
-	top: 0;
+	//如果设置为0，某些机型(android 4.3，三星galaxy grand2 G7106，红米1s)会有黑色方块，原因暂不明
+	top: 1px;
 	bottom:0;
 	right:0;
 	width: 100%;
-	height: 100%;
-	background: black;
+	height: 100%;	
+	background:black;
 	.fn_opacity(0.2);
 }
 

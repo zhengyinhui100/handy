@@ -968,6 +968,9 @@ handy.add("Browser","handy.base.Object",function(Object,$H){
 			'mobile',                                   //移动设备类型，@return{string}'ios'|'android'|'nokian'|'webos'
 			'android','ios',                            //android或者ios版本，@return{string}
 			'iPhone','iPod','iPad',                     //ios设备版本，@return{string}
+			'tablet',                                   //是否是平板电脑
+			'phone',                                    //是否是手机
+			'hasTouch',                                 //是否是触摸设备
 			'flash'                                     //flash版本，@return{string}
 		],
 		function(sName){
@@ -990,6 +993,9 @@ handy.add("Browser","handy.base.Object",function(Object,$H){
 		_fParseShell(userAgent);
 		_fParseMobile(userAgent);
 		_fParseFlash();
+		if("ontouchend" in document){
+			_oInfo.hasTouch=true;
+		}
 	}
 	/**
 	 * 分析浏览器类型及版本
@@ -1052,7 +1058,7 @@ handy.add("Browser","handy.base.Object",function(Object,$H){
 	 */
 	function _fParseMobile(userAgent) {
 		var ua = userAgent,m;
-		if ((m = ua.match(/AppleWebKit\/([\d.]*)/)) && m[1]){
+		if ((m = ua.match(/AppleWebKit\/?([\d.]*)/)) && m[1]){
 			if (/ Mobile\//.test(ua) && ua.match(/iPad|iPod|iPhone/)) {
 				_oInfo.mobile = 'ios'; // iPad, iPhone, iPod Touch
 	
@@ -1065,9 +1071,17 @@ handy.add("Browser","handy.base.Object",function(Object,$H){
 				if (m && m[0]) {
 					_oInfo[m[0].toLowerCase()] = _oInfo.ios;
 				}
-			} else if (/ Android/i.test(ua)) {
+				if(/ipad/.test(ua)){
+					_oInfo.tablet='ios';
+				}else{
+					_oInfo.phone='ios';
+				}
+			} else if (/Android/i.test(ua)) {
+				_oInfo.mobile = 'android';
 				if (/Mobile/.test(ua)) {
-					_oInfo.mobile = 'android';
+					_oInfo.phone='android';
+				}else{
+					_oInfo.tablet='android';
 				}
 				m = ua.match(/Android ([^\s]*);/);
 				if (m && m[1]) {
@@ -1140,6 +1154,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 		warn        : fWarn,        //输出警告信息
 		error		: fError,		//输出错误信息
 		time        : fTime,        //输出统计时间,info级别
+//		debugLog    : $H.noop,      //线上错误处理
 		debug		: fDebug		//出现调试断点
 	}
 	/**
@@ -1166,7 +1181,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 					'<a href="javascript:void(0)" onclick="var oDv=this.parentNode.getElementsByTagName(\'div\')[0];if(this.innerHTML==\'底部\'){oDv.scrollTop=oDv.scrollHeight;this.innerHTML=\'顶部\';}else{oDv.scrollTop=0;this.innerHTML=\'底部\';}">顶部</a>',
 					'<a href="javascript:void(0)" onclick="location.reload();">刷新</a>',
 					'<a href="javascript:void(0)" onclick="history.back();">后退</a>'
-				].join('&nbsp;&nbsp;&nbsp;&nbsp;')+'<div style="padding-top:0.313;height:90%;overflow:auto;"></div>';
+				].join('&nbsp;&nbsp;&nbsp;&nbsp;')+'<div style="padding-top:0.313;height:90%;overflow:auto;font-size:0.75em;"></div>';
 				oDebugDiv.style.position = 'fixed';
 				oDebugDiv.style.width = '100%';
 				oDebugDiv.style.left = 0;
@@ -1174,7 +1189,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 				oDebugDiv.style.right = 0;
 				oDebugDiv.style.height = '100%';
 				oDebugDiv.style.backgroundColor = '#aaa';
-				oDebugDiv.style.fontSize = '0.75em';
+				oDebugDiv.style.fontSize = '1em';
 				oDebugDiv.style.padding = '0.625em';
 				oDebugDiv.style.zIndex = 9999999999;
 				oDebugDiv.style.opacity=0.95;
@@ -1258,9 +1273,14 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 			return;
 		}
 		Debug.out(oVar,!!bShowInPage,"error");
-		if(oVar instanceof Error){
-			//抛出异常，主要是为了方便调试，如果异常被catch住的话，控制台不会输出具体错误位置
-			throw oVar;
+		if($H.isDebug){
+			if(oVar instanceof Error){
+				//抛出异常，主要是为了方便调试，如果异常被catch住的话，控制台不会输出具体错误位置
+				throw oVar;
+			}
+		}else{
+			//线上自行实现log接口
+			Debug.debugLog&&Debug.debugLog(oVar);
 		}
 	}
 	/**
@@ -2072,6 +2092,7 @@ handy.add('Events',function($H){
 	var Events={
 		_eventCache        : {},                   //自定义事件池
 		_execEvtCache      : [],                   //待执行事件队列
+//		_stopEvent         : false,                //是否停止(本次)事件
 		_parseEvents       : _fParseEvents,        //分析事件对象
 		_parseCustomEvents : _fParseCustomEvents,  //处理对象类型或者空格相隔的多事件
 		_delegateHandler   : _fDelegateHandler,    //统一代理回调函数
@@ -2082,6 +2103,7 @@ handy.add('Events',function($H){
 		off                : fOff,                 //移除事件
 		suspend            : fSuspend,             //挂起事件
 		resume             : fResume,              //恢复事件
+		stop               : fStop,                //停止(本次)事件
 		trigger            : fTrigger              //触发事件
 	};
 	
@@ -2169,7 +2191,12 @@ handy.add('Events',function($H){
 			}
 			//只是返回最后一个函数的结果，返回结果在某些情况可以作为通知器使用
 			result=fDelegation.apply(me,oEvent.args);
+			if(me._stopEvent){
+				aEvts.splice(0,aEvts.length);
+				return false;
+			}
 		});
+		me._stopEvent=false;
 		return result;
 	}
 	/**
@@ -2263,6 +2290,12 @@ handy.add('Events',function($H){
 			}
 		}
 		return false;
+	}
+	/**
+	 * 停止(本次)事件
+	 */
+	function fStop(){
+		this._stopEvent=true;
 	}
 	/**
 	 * 触发事件
@@ -9200,18 +9233,21 @@ function(HashChange){
 			return false;
 		}
 		var oState=aStates[sKey];
-		var bResult;
-		if(oState){
-			bResult=oState.onStateChange(oState.param,true);
-		}else{
-			$D.warn("hisory state not found");
-			bResult=me.error('stateNotFound',oHashParam);
+		//监听全局hisoryChange，返回false可阻止当前变化
+		var bResult=$H.trigger('hisoryChange',oState,oCurState);
+		if(bResult!==false){
+			if(oState){
+				bResult=oState.onStateChange(oState.param,true);
+			}else{
+				$D.warn("hisory state not found");
+				bResult=me.error('stateNotFound',oHashParam);
+			}
 		}
 		//如果调用不成功，则恢复原先的hashstate
-		if(bResult!=true){
+		if(bResult===false){
 			oHashParam={
 				hKey    : sCurKey,
-				param   : oCurState.param
+				modId   : oCurState.param&&oCurState.param.modId
 			};
 			me.saveHash(oHashParam);
 		}else{
@@ -9235,7 +9271,7 @@ function(HashChange){
 		var oParam=oState.param;
 		me.saveHash({
 			hKey    : sHistoryKey,
-			modName : oParam&&oParam.modName
+			modId   : oParam&&oParam.modId
 		});
 	}
 	/**
@@ -9529,6 +9565,16 @@ function(History,AbstractManager){
 			param={modName:param};
 		}
 		var sModName=param.modName;
+		//刷新浏览器时，hash参数里没有modName
+		if(!sModName){
+			var sModId=param.modId;
+			//只有没有modId的模块可以进入
+			if($H.isStr(sModId)&&sModId.indexOf('-')<0){
+				sModName=param.modName=sModId;
+			}else{
+				return;
+			}
+		}
 		//模块id
 		var sModId=sModName;
 		if(param.model){
@@ -9567,6 +9613,9 @@ function(History,AbstractManager){
 		var oMod=oMods[sModId];
 		//如果模块有缓存
 		if(oMod){
+			if(oMod.waiting){
+				return;
+			}
 			//标记使用缓存，要调用cache方法
 			if(oMod.notCache!=true&&oMod.clearCache!=true&&oMod.useCache(param)!=false){
 				//恢复设置
@@ -9735,7 +9784,7 @@ function(AbstractModule){
         	h=nFixH;
         	w=Math.ceil(h*scale);
         }
-        jImg.attr({width:w,height:h});
+        jImg.css({width:w,height:h});
         jImg.css("marginTop",-h/2);
         jImg.removeClass('hui-hidden');
 	}
@@ -10410,6 +10459,14 @@ function(AC){
 				}
 			},me.timeout);
 		}
+		//用户点击后退时先隐藏弹出层
+		$H.once('hisoryChange',function(){
+			if(me.showed&&!me.destroyed){
+				me.hide();
+				$H.stop();
+				return false;
+			}
+		});
 	}
 	/**
 	 * 隐藏
@@ -10476,13 +10533,13 @@ function(AC){
 	function fMask(){
 		var me=this;
 		if(!_mask){
-			_mask=$('<div class="hui-mask" style="display:none;"></div>').appendTo(me.renderTo);
+			_mask=$('<div class="hui-mask hui-hidden"></div>').appendTo(me.renderTo);
 		}else{
 			_mask.appendTo(me.renderTo);
 		}
 		_mask.css('z-index',_popupNum*1000+998);
 		if(_popupNum==0){
-			_mask.show();
+			_mask.removeClass('hui-hidden');
 		}
 		_popupNum++;
 	}
@@ -10494,7 +10551,7 @@ function(AC){
 		var me=this;
 		_popupNum--;
 		if(_popupNum==0){
-			_mask.hide();
+			_mask.addClass('hui-hidden');
 		}else{
 			_mask.css('z-index',(_popupNum-1)*1000+998);
 		}
@@ -10900,7 +10957,7 @@ function(AC){
 			xtype       : 'Menu',
 			hidden      : true,
 			markType    : 'hook',
-			showPos     : 'followEl',
+			showPos     : $H.mobile()?'center':'followEl',
 			renderTo    : "body"              //子组件须设置renderTo才会自动render
 		},
 		
@@ -11072,21 +11129,36 @@ function(AC){
 				name : 'focus',
 				el : '.js-input',
 				handler : function(){
-					this.getEl().addClass('hui-focus');
+					var me=this;
+					me.getEl().addClass('hui-focus');
+					me.focused=true;
+					if($H.mobile()){
+						//用户点击后退时先隐藏弹出层
+						$H.once('hisoryChange',function(){
+							if(me.focused&&!me.destroyed){
+								me.blur();
+								$H.stop();
+								return false;
+							}
+						});
+					}
 				}
 			},
 			{
 				name : 'blur',
 				el : '.js-input',
 				handler : function(){
-					this.getEl().removeClass('hui-focus');
+					var me=this;
+					me.getEl().removeClass('hui-focus');
+					me.focused=false;
 				}
 			}
 		],
 		doConfig        : fDoConfig,         //初始化配置
 		parseItem       : fParseItem,        //分析处理子组件
 		val             : fVal,              //获取/设置输入框的值
-		focus           : fFocus             //聚焦
+		focus           : fFocus,            //聚焦
+		blur            : fBlur              //失焦
 	});
 	
 	/**
@@ -11174,6 +11246,13 @@ function(AC){
 	 */
 	function fFocus(){
 		this.findEl('.js-input').focus();
+	}
+	/**
+	 * 失焦
+	 * @method focus
+	 */
+	function fBlur(){
+		this.findEl('.js-input').blur();
 	}
 	
 	return Input;
@@ -11564,7 +11643,7 @@ function(AC,Panel){
 			$H.extend(content,{
 				xrole:'content',
 				hidden:!me.selected,
-				extCls:'js-content'
+				extCls:(content.extCls||'')+' js-content'
 			});
 			me.add(content);
 		}
@@ -12541,7 +12620,7 @@ function(AC,DisplayImage){
 		            	h=nFixH;
 		            	w=Math.ceil(h*scale);
 		            }
-		            oImg.attr({width:w,height:h});
+		            oImg.css({width:w,height:h});
 	            }
 	            //居中定位
 	            var nLeft,nTop;
@@ -13112,6 +13191,7 @@ function(AC){
 						useTransition: true,
 						topOffset: nStartY,
 						//bounce:false,
+						//bounceLock:true,
 						mouseWheel:true,
 						vScrollbar:false,
 						onRefresh: function () {
@@ -13152,7 +13232,9 @@ function(AC){
 				handler:function(){
 					me.lazyRefresh();
 					if(me.scrollPos=='bottom'){
-						me.scrollTo('bottom');
+						setTimeout(function(){
+							me.scrollTo('bottom');
+						},0);
 					}
 				}
 			});

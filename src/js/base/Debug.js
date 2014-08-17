@@ -20,6 +20,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 		warn        : fWarn,        //输出警告信息
 		error		: fError,		//输出错误信息
 		time        : fTime,        //输出统计时间,info级别
+//		debugLog    : $H.noop,      //线上错误处理
 		debug		: fDebug		//出现调试断点
 	}
 	/**
@@ -46,7 +47,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 					'<a href="javascript:void(0)" onclick="var oDv=this.parentNode.getElementsByTagName(\'div\')[0];if(this.innerHTML==\'底部\'){oDv.scrollTop=oDv.scrollHeight;this.innerHTML=\'顶部\';}else{oDv.scrollTop=0;this.innerHTML=\'底部\';}">顶部</a>',
 					'<a href="javascript:void(0)" onclick="location.reload();">刷新</a>',
 					'<a href="javascript:void(0)" onclick="history.back();">后退</a>'
-				].join('&nbsp;&nbsp;&nbsp;&nbsp;')+'<div style="padding-top:0.313;height:90%;overflow:auto;"></div>';
+				].join('&nbsp;&nbsp;&nbsp;&nbsp;')+'<div style="padding-top:0.313;height:90%;overflow:auto;font-size:0.75em;"></div>';
 				oDebugDiv.style.position = 'fixed';
 				oDebugDiv.style.width = '100%';
 				oDebugDiv.style.left = 0;
@@ -54,7 +55,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 				oDebugDiv.style.right = 0;
 				oDebugDiv.style.height = '100%';
 				oDebugDiv.style.backgroundColor = '#aaa';
-				oDebugDiv.style.fontSize = '0.75em';
+				oDebugDiv.style.fontSize = '1em';
 				oDebugDiv.style.padding = '0.625em';
 				oDebugDiv.style.zIndex = 9999999999;
 				oDebugDiv.style.opacity=0.95;
@@ -138,9 +139,14 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 			return;
 		}
 		Debug.out(oVar,!!bShowInPage,"error");
-		if(oVar instanceof Error){
-			//抛出异常，主要是为了方便调试，如果异常被catch住的话，控制台不会输出具体错误位置
-			throw oVar;
+		if($H.isDebug){
+			if(oVar instanceof Error){
+				//抛出异常，主要是为了方便调试，如果异常被catch住的话，控制台不会输出具体错误位置
+				throw oVar;
+			}
+		}else{
+			//线上自行实现log接口
+			Debug.debugLog&&Debug.debugLog(oVar);
 		}
 	}
 	/**

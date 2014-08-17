@@ -140,6 +140,7 @@ function(AC){
 						useTransition: true,
 						topOffset: nStartY,
 						//bounce:false,
+						//bounceLock:true,
 						mouseWheel:true,
 						vScrollbar:false,
 						onRefresh: function () {

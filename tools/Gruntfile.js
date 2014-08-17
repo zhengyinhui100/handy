@@ -13,6 +13,7 @@ module.exports = function(grunt) {
 	var testConfig={
 		serverName:'http://115.28.151.237:8080/',
 		staticServerName:'http://115.28.151.237/',
+		//staticServerName:'http://192.168.0.209/',
 		environment:'test'
 	}
 	
@@ -171,6 +172,7 @@ module.exports = function(grunt) {
 					'cp -R ../build '+deployDir+'handy',
 					'cp -R '+buildVersionDir+' '+deployDir+'<%=pkg.name%>',
 					'cd '+deployDir,
+					'rm -f static.tar.gz',
 					'tar -cvzf static.tar.gz <%=pkg.name%> handy',
 					'rm -r handy',
 					'rm -r <%=pkg.name%>'
@@ -179,6 +181,7 @@ module.exports = function(grunt) {
 			appTar:{
 				command : [
 					'cd '+appDir,
+					'rm -f '+deployDir+'app.zip',
 					'zip -r '+deployDir+'app.zip www'
 				].join('&&')
 			},
@@ -216,7 +219,9 @@ module.exports = function(grunt) {
 
 	
 	//local test build 把copy.options改名
-	grunt.registerTask('testStaticBuild', ['clean:build','less','copy:build','handy_require','concat','cssmin','uglify','shell:build']);
+	grunt.registerTask('testSportAppBuild', ['clean:build','less','copy:build','handy_require','concat','cssmin','uglify']);
+	
+	grunt.registerTask('testStaticBuild', ['testSportAppBuild','shell:build']);
 	
 	grunt.registerTask('appBuild', ['clean:appBuild','copy:appBuild']);
 	

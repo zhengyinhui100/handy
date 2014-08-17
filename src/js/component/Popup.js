@@ -191,13 +191,13 @@ function(AC){
 	function fMask(){
 		var me=this;
 		if(!_mask){
-			_mask=$('<div class="hui-mask" style="display:none;"></div>').appendTo(me.renderTo);
+			_mask=$('<div class="hui-mask hui-hidden"></div>').appendTo(me.renderTo);
 		}else{
 			_mask.appendTo(me.renderTo);
 		}
 		_mask.css('z-index',_popupNum*1000+998);
 		if(_popupNum==0){
-			_mask.show();
+			_mask.removeClass('hui-hidden');
 		}
 		_popupNum++;
 	}
@@ -209,7 +209,7 @@ function(AC){
 		var me=this;
 		_popupNum--;
 		if(_popupNum==0){
-			_mask.hide();
+			_mask.addClass('hui-hidden');
 		}else{
 			_mask.css('z-index',(_popupNum-1)*1000+998);
 		}

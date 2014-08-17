@@ -18,6 +18,9 @@ handy.add("Browser","handy.base.Object",function(Object,$H){
 			'mobile',                                   //移动设备类型，@return{string}'ios'|'android'|'nokian'|'webos'
 			'android','ios',                            //android或者ios版本，@return{string}
 			'iPhone','iPod','iPad',                     //ios设备版本，@return{string}
+			'tablet',                                   //是否是平板电脑
+			'phone',                                    //是否是手机
+			'hasTouch',                                 //是否是触摸设备
 			'flash'                                     //flash版本，@return{string}
 		],
 		function(sName){
@@ -40,6 +43,9 @@ handy.add("Browser","handy.base.Object",function(Object,$H){
 		_fParseShell(userAgent);
 		_fParseMobile(userAgent);
 		_fParseFlash();
+		if("ontouchend" in document){
+			_oInfo.hasTouch=true;
+		}
 	}
 	/**
 	 * 分析浏览器类型及版本
@@ -102,7 +108,7 @@ handy.add("Browser","handy.base.Object",function(Object,$H){
 	 */
 	function _fParseMobile(userAgent) {
 		var ua = userAgent,m;
-		if ((m = ua.match(/AppleWebKit\/([\d.]*)/)) && m[1]){
+		if ((m = ua.match(/AppleWebKit\/?([\d.]*)/)) && m[1]){
 			if (/ Mobile\//.test(ua) && ua.match(/iPad|iPod|iPhone/)) {
 				_oInfo.mobile = 'ios'; // iPad, iPhone, iPod Touch
 	
@@ -115,9 +121,17 @@ handy.add("Browser","handy.base.Object",function(Object,$H){
 				if (m && m[0]) {
 					_oInfo[m[0].toLowerCase()] = _oInfo.ios;
 				}
-			} else if (/ Android/i.test(ua)) {
+				if(/ipad/.test(ua)){
+					_oInfo.tablet='ios';
+				}else{
+					_oInfo.phone='ios';
+				}
+			} else if (/Android/i.test(ua)) {
+				_oInfo.mobile = 'android';
 				if (/Mobile/.test(ua)) {
-					_oInfo.mobile = 'android';
+					_oInfo.phone='android';
+				}else{
+					_oInfo.tablet='android';
 				}
 				m = ua.match(/Android ([^\s]*);/);
 				if (m && m[1]) {

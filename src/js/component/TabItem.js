@@ -77,7 +77,7 @@ function(AC,Panel){
 			$H.extend(content,{
 				xrole:'content',
 				hidden:!me.selected,
-				extCls:'js-content'
+				extCls:(content.extCls||'')+' js-content'
 			});
 			me.add(content);
 		}
