@@ -19,12 +19,16 @@ function(){
 	 * 		{number=}height:压缩后图片高度，不传表示使用原图的高度，优先级高于maxHeight，宽度和高度如果只提供一个则另一个根据实际尺寸等比例计算得出
 	 * 		{number=}maxWidth:压缩后最大宽度
 	 * 		{number=}maxHeight:压缩后最大高度
+	 * 		{number=}cropX:裁剪图片的起始横坐标
+	 * 		{number=}cropY:裁剪图片的起始纵坐标
+	 * 		{number=}cropW:裁剪图片的宽度
+	 * 		{number=}cropH:裁剪图片的高度
 	 * 		{number=}quality:压缩率，默认是0.5
-	 * }
-	 * @return {
-	 * 		{object|string}orig:原图对象
-	 * 		{string}base64:压缩后的base64字符串
-	 * 		{string}clearBase64:去除data前缀的压缩后的base64字符串
+	 * 		{function({object})}success:回调函数，参数说明:{
+	 * 			{object|string}orig:原图对象
+	 * 			{string}base64:压缩后的base64字符串
+	 * 			{string}clearBase64:去除data前缀的压缩后的base64字符串
+	 * 		}
 	 * }
 	 */
 	function fCompress(image,oOptions){
@@ -38,43 +42,89 @@ function(){
 		}
 		var oImg = new Image();
             oImg.src = oImgSrc;
-
+            
         oImg.onload = function () {
 
             // 生成比例
             var w = oImg.width,
                 h = oImg.height,
-                scale = w / h,
+                bCrop=oOptions.cropX!==undefined,
                 nMaxW=oOptions.maxWidth,
                 nMaxH=oOptions.maxHeight,
                 nSettingW=oOptions.width,
                 nSettingH=oOptions.height;
-            if(w>nMaxW){
-            	w=nMaxW;
-            	h = w / scale;
-            }
-            if(h>nMaxH){
-            	h=nMaxH;
-            	w=h*scale;
-            }
-            if(nSettingW){
-            	w=nSettingW;
-            	if(!nSettingH){
-		            h = w / scale;
-            	}
-            }
-            if(nSettingH){
-            	h=nSettingH;
-            	if(!nSettingW){
+            var _fCeil=Math.ceil;
+            //修正图片尺寸
+            var _fFixSize=function(w,h){
+                var scale = w / h;
+	            if(nSettingW){
+	            	w=nSettingW;
+	            	if(!nSettingH){
+			            h = w / scale;
+	            	}
+	            }else if(w>nMaxW){
+	            	w=nMaxW;
+	            	h = w / scale;
+	            }
+	            
+	            if(nSettingH){
+	            	h=nSettingH;
+	            	if(!nSettingW){
+		            	w=h*scale;
+	            	}
+	            }else if(h>nMaxH){
+	            	h=nMaxH;
 	            	w=h*scale;
-            	}
+	            }
+	            return {
+	            	w:_fCeil(w),
+	            	h:_fCeil(h)
+	            }
             }
-
+            
             // 生成canvas
             var oCanvas = document.createElement('canvas');
             var oCtx = oCanvas.getContext('2d');
-            $(oCanvas).attr({width : w, height : h});
-            oCtx.drawImage(oImg, 0, 0, w, h);
+            var jCanvas=$(oCanvas);
+        	var nCropW=oOptions.cropW;
+        	var nCropH=oOptions.cropH;
+        	var nCropX=oOptions.cropX;
+        	var nCropY=oOptions.cropY;
+        	var bIOS=$H.ios();
+            //需要裁剪
+            if(bCrop){
+            	var oSize=_fFixSize(nCropW,nCropH);
+            	if(bIOS){
+            		//需要第三方库修正图片，canvas先绘制原图，等修正后再进行截取
+            		nCropW=oSize.w;
+            		nCropH=oSize.h;
+            		var nCropScale=nCropW/oOptions.cropW;
+            		if(nCropScale!=1){
+            			w=_fCeil(w*nCropScale);
+            			nCropX=_fCeil(nCropX*nCropScale);
+            		}
+            		nCropScale=nCropH/oOptions.cropH;
+            		if(nCropScale!=1){
+            			h=_fCeil(h*nCropScale);
+            			nCropY=_fCeil(nCropY*nCropScale);
+            		}
+            		jCanvas.attr({width : w, height : h});
+	            	oCtx.drawImage(oImg, 0, 0, w, h);
+            	}else{
+	            	w=oSize.w;
+	            	h=oSize.h;
+		            jCanvas.attr({width:w, height:h});
+	            	oCtx.drawImage(oImg,nCropX,nCropY,nCropW,nCropH,0,0,w,h);
+            	}
+            }else{
+            	var oSize=_fFixSize(w,h);
+            	w=oSize.w;
+            	h=oSize.h;
+           		jCanvas.attr({width : w, height : h});
+	            oCtx.drawImage(oImg, 0, 0, w, h);
+            }
+            
+
             
             //图片背景如果是透明的，默认保存成base64会变成黑色的，这里把白色图片跟原图合并，这样保存后透明背景就变成指定颜色(#ffffff)的了
 			oCtx.globalCompositeOperation = "destination-over";
@@ -85,11 +135,16 @@ function(){
 			var base64;
 
             // 修复IOS
-            if( $H.ios() ) {
+            if(bIOS) {
                 var mpImg = new MegaPixImage(oImg);
                 mpImg.render(oCanvas, { maxWidth: w, maxHeight: h, quality: nQuality, orientation: 6 });
+                if(bCrop){
+                	var oData=oCtx.getImageData(nCropX,nCropY,nCropW,nCropH);
+                	jCanvas.attr({width : nCropW, height : nCropH});
+                	oCtx.putImageData(oData,0,0);
+                }
                 base64 = oCanvas.toDataURL('image/jpeg', nQuality);
-            }else if( $H.android()) {
+            }else if($H.android()) {
 	            // 修复android
                 var encoder = new JPEGEncoder();
                 base64 = encoder.encode(oCtx.getImageData(0,0,w,h), nQuality * 100 );

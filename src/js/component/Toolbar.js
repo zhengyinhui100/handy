@@ -45,14 +45,8 @@ function(AC){
 	 * @param {object}oItem 子组件配置
 	 */
 	function fParseItem(oItem){
-		if(oItem.xtype=='Button'){
+		if(oItem.xtype==='Button'&&oItem.shadowSurround===undefined){
 			oItem.shadowSurround=true;
-			return;
-			if(oItem.pos=='left'){
-				oItem.extCls=(oItem.extCls||"")+' hui-tbar-btn-left';
-			}else if(oItem.pos=="right"){
-				oItem.extCls=(oItem.extCls||"")+' hui-tbar-btn-right';
-			}
 		}
 	}
 	

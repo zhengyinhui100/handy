@@ -328,6 +328,7 @@ handy.add('Object',function($H){
 			'C'             : 'handy.component',
 			'M'             : 'handy.module',
 			'U'             : 'handy.util',
+			'E'             : 'handy.effect',
 			'CM'            : 'handy.common'
 		},               
 		ns                  : fNamespace,       //创建或读取命名空间，可以传入用以初始化该命名空间的对象
@@ -4688,12 +4689,16 @@ function(){
 	 * 		{number=}height:压缩后图片高度，不传表示使用原图的高度，优先级高于maxHeight，宽度和高度如果只提供一个则另一个根据实际尺寸等比例计算得出
 	 * 		{number=}maxWidth:压缩后最大宽度
 	 * 		{number=}maxHeight:压缩后最大高度
+	 * 		{number=}cropX:裁剪图片的起始横坐标
+	 * 		{number=}cropY:裁剪图片的起始纵坐标
+	 * 		{number=}cropW:裁剪图片的宽度
+	 * 		{number=}cropH:裁剪图片的高度
 	 * 		{number=}quality:压缩率，默认是0.5
-	 * }
-	 * @return {
-	 * 		{object|string}orig:原图对象
-	 * 		{string}base64:压缩后的base64字符串
-	 * 		{string}clearBase64:去除data前缀的压缩后的base64字符串
+	 * 		{function({object})}success:回调函数，参数说明:{
+	 * 			{object|string}orig:原图对象
+	 * 			{string}base64:压缩后的base64字符串
+	 * 			{string}clearBase64:去除data前缀的压缩后的base64字符串
+	 * 		}
 	 * }
 	 */
 	function fCompress(image,oOptions){
@@ -4707,43 +4712,89 @@ function(){
 		}
 		var oImg = new Image();
             oImg.src = oImgSrc;
-
+            
         oImg.onload = function () {
 
             // 生成比例
             var w = oImg.width,
                 h = oImg.height,
-                scale = w / h,
+                bCrop=oOptions.cropX!==undefined,
                 nMaxW=oOptions.maxWidth,
                 nMaxH=oOptions.maxHeight,
                 nSettingW=oOptions.width,
                 nSettingH=oOptions.height;
-            if(w>nMaxW){
-            	w=nMaxW;
-            	h = w / scale;
-            }
-            if(h>nMaxH){
-            	h=nMaxH;
-            	w=h*scale;
-            }
-            if(nSettingW){
-            	w=nSettingW;
-            	if(!nSettingH){
-		            h = w / scale;
-            	}
-            }
-            if(nSettingH){
-            	h=nSettingH;
-            	if(!nSettingW){
+            var _fCeil=Math.ceil;
+            //修正图片尺寸
+            var _fFixSize=function(w,h){
+                var scale = w / h;
+	            if(nSettingW){
+	            	w=nSettingW;
+	            	if(!nSettingH){
+			            h = w / scale;
+	            	}
+	            }else if(w>nMaxW){
+	            	w=nMaxW;
+	            	h = w / scale;
+	            }
+	            
+	            if(nSettingH){
+	            	h=nSettingH;
+	            	if(!nSettingW){
+		            	w=h*scale;
+	            	}
+	            }else if(h>nMaxH){
+	            	h=nMaxH;
 	            	w=h*scale;
-            	}
+	            }
+	            return {
+	            	w:_fCeil(w),
+	            	h:_fCeil(h)
+	            }
             }
-
+            
             // 生成canvas
             var oCanvas = document.createElement('canvas');
             var oCtx = oCanvas.getContext('2d');
-            $(oCanvas).attr({width : w, height : h});
-            oCtx.drawImage(oImg, 0, 0, w, h);
+            var jCanvas=$(oCanvas);
+        	var nCropW=oOptions.cropW;
+        	var nCropH=oOptions.cropH;
+        	var nCropX=oOptions.cropX;
+        	var nCropY=oOptions.cropY;
+        	var bIOS=$H.ios();
+            //需要裁剪
+            if(bCrop){
+            	var oSize=_fFixSize(nCropW,nCropH);
+            	if(bIOS){
+            		//需要第三方库修正图片，canvas先绘制原图，等修正后再进行截取
+            		nCropW=oSize.w;
+            		nCropH=oSize.h;
+            		var nCropScale=nCropW/oOptions.cropW;
+            		if(nCropScale!=1){
+            			w=_fCeil(w*nCropScale);
+            			nCropX=_fCeil(nCropX*nCropScale);
+            		}
+            		nCropScale=nCropH/oOptions.cropH;
+            		if(nCropScale!=1){
+            			h=_fCeil(h*nCropScale);
+            			nCropY=_fCeil(nCropY*nCropScale);
+            		}
+            		jCanvas.attr({width : w, height : h});
+	            	oCtx.drawImage(oImg, 0, 0, w, h);
+            	}else{
+	            	w=oSize.w;
+	            	h=oSize.h;
+		            jCanvas.attr({width:w, height:h});
+	            	oCtx.drawImage(oImg,nCropX,nCropY,nCropW,nCropH,0,0,w,h);
+            	}
+            }else{
+            	var oSize=_fFixSize(w,h);
+            	w=oSize.w;
+            	h=oSize.h;
+           		jCanvas.attr({width : w, height : h});
+	            oCtx.drawImage(oImg, 0, 0, w, h);
+            }
+            
+
             
             //图片背景如果是透明的，默认保存成base64会变成黑色的，这里把白色图片跟原图合并，这样保存后透明背景就变成指定颜色(#ffffff)的了
 			oCtx.globalCompositeOperation = "destination-over";
@@ -4754,11 +4805,16 @@ function(){
 			var base64;
 
             // 修复IOS
-            if( $H.ios() ) {
+            if(bIOS) {
                 var mpImg = new MegaPixImage(oImg);
                 mpImg.render(oCanvas, { maxWidth: w, maxHeight: h, quality: nQuality, orientation: 6 });
+                if(bCrop){
+                	var oData=oCtx.getImageData(nCropX,nCropY,nCropW,nCropH);
+                	jCanvas.attr({width : nCropW, height : nCropH});
+                	oCtx.putImageData(oData,0,0);
+                }
                 base64 = oCanvas.toDataURL('image/jpeg', nQuality);
-            }else if( $H.android()) {
+            }else if($H.android()) {
 	            // 修复android
                 var encoder = new JPEGEncoder();
                 base64 = encoder.encode(oCtx.getImageData(0,0,w,h), nQuality * 100 );
@@ -4786,6 +4842,132 @@ function(){
 	!function(){function a(a){var d,e,b=a.naturalWidth,c=a.naturalHeight;return b*c>1048576?(d=document.createElement("canvas"),d.width=d.height=1,e=d.getContext("2d"),e.drawImage(a,-b+1,0),0===e.getImageData(0,0,1,1).data[3]):!1}function b(a,b,c){var e,f,g,h,i,j,k,d=document.createElement("canvas");for(d.width=1,d.height=c,e=d.getContext("2d"),e.drawImage(a,0,0),f=e.getImageData(0,0,1,c).data,g=0,h=c,i=c;i>g;)j=f[4*(i-1)+3],0===j?h=i:g=i,i=h+g>>1;return k=i/c,0===k?1:k}function c(a,b,c){var e=document.createElement("canvas");return d(a,e,b,c),e.toDataURL("image/jpeg",b.quality||.8)}function d(c,d,f,g){var m,n,o,p,q,r,s,t,u,v,w,h=c.naturalWidth,i=c.naturalHeight,j=f.width,k=f.height,l=d.getContext("2d");for(l.save(),e(d,l,j,k,f.orientation),m=a(c),m&&(h/=2,i/=2),n=1024,o=document.createElement("canvas"),o.width=o.height=n,p=o.getContext("2d"),q=g?b(c,h,i):1,r=Math.ceil(n*j/h),s=Math.ceil(n*k/i/q),t=0,u=0;i>t;){for(v=0,w=0;h>v;)p.clearRect(0,0,n,n),p.drawImage(c,-v,-t),l.drawImage(o,0,0,n,n,w,u,r,s),v+=n,w+=r;t+=n,u+=s}l.restore(),o=p=null}function e(a,b,c,d,e){switch(e){case 5:case 6:case 7:case 8:a.width=d,a.height=c;break;default:a.width=c,a.height=d}switch(e){case 2:b.translate(c,0),b.scale(-1,1);break;case 3:b.translate(c,d),b.rotate(Math.PI);break;case 4:b.translate(0,d),b.scale(1,-1);break;case 5:b.rotate(.5*Math.PI),b.scale(1,-1);break;case 6:b.rotate(.5*Math.PI),b.translate(0,-d);break;case 7:b.rotate(.5*Math.PI),b.translate(c,-d),b.scale(-1,1);break;case 8:b.rotate(-.5*Math.PI),b.translate(-c,0)}}function f(a){var b,c,d;if(window.Blob&&a instanceof Blob){if(b=new Image,c=window.URL&&window.URL.createObjectURL?window.URL:window.webkitURL&&window.webkitURL.createObjectURL?window.webkitURL:null,!c)throw Error("No createObjectURL function found to create blob url");b.src=c.createObjectURL(a),this.blob=a,a=b}a.naturalWidth||a.naturalHeight||(d=this,a.onload=function(){var b,c,a=d.imageLoadListeners;if(a)for(d.imageLoadListeners=null,b=0,c=a.length;c>b;b++)a[b]()},this.imageLoadListeners=[]),this.srcImage=a}f.prototype.render=function(a,b){var e,f,g,h,i,j,k,l,m,n,o;if(this.imageLoadListeners)return e=this,this.imageLoadListeners.push(function(){e.render(a,b)}),void 0;b=b||{},f=this.srcImage.naturalWidth,g=this.srcImage.naturalHeight,h=b.width,i=b.height,j=b.maxWidth,k=b.maxHeight,l=!this.blob||"image/jpeg"===this.blob.type,h&&!i?i=g*h/f<<0:i&&!h?h=f*i/g<<0:(h=f,i=g),j&&h>j&&(h=j,i=g*h/f<<0),k&&i>k&&(i=k,h=f*i/g<<0),m={width:h,height:i};for(n in b)m[n]=b[n];o=a.tagName.toLowerCase(),"img"===o?a.src=c(this.srcImage,m,l):"canvas"===o&&d(this.srcImage,a,m,l),"function"==typeof this.onrender&&this.onrender(a)},"function"==typeof define&&define.amd?define([],function(){return f}):this.MegaPixImage=f}();
 	
 	return ImgCompress;
+	
+});
+/**
+ * 拖拽效果类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+//"handy.effect.Draggable"
+$Define('E.Draggable',
+function(){
+	
+	var Draggable=$H.createClass();
+	
+	var _events=$H.hasTouch()?['touchstart','touchmove','touchend']:['mousedown','mousemove','mouseup'];
+	
+	$H.extend(Draggable.prototype,{
+		initialize        : fInitialize,        //初始化
+		start             : fStart,             //开始
+		move              : fMove,              //移动
+		end               : fEnd,               //结束
+		destroy           : fDestroy            //销毁
+	});
+	/**
+	 * 初始化
+	 * @param {string|element|jquery}el 需要拖拽效果的节点
+	 * @param {object}oOptions 选项{
+	 * 		{function(}start:开始移动时的回调函数
+	 * 		{function({object}oPos)}move:移动时的回调函数
+	 * 		{function(}end:结束移动时的回调函数
+	 * }
+	 */
+	function fInitialize(el,oOptions) {
+		var me = this;
+		me.options=oOptions||{};
+		var oEl =me.el= $(el);
+		var fHandler=me.startHandler=function(oEvt){
+			me.start(oEvt);
+		};
+		oEl.on(_events[0],fHandler);
+		fHandler=me.moveHandler=function(oEvt){
+			me.move(oEvt);
+		};
+		oEl.on(_events[1],fHandler);
+		fHandler=me.endHandler=function(oEvt){
+			me.end(oEvt);
+		};
+		oEl.on(_events[2],fHandler);
+	}
+	/**
+	 * 开始
+	 * @param {jEvent}oEvt 事件对象
+	 */
+	function fStart(oEvt) {
+		var me=this;
+		me.drag=true;
+		if($H.hasTouch()){
+			oEvt = oEvt.originalEvent.touches[0];
+		}
+		me.eventX=oEvt.clientX;
+		me.eventY=oEvt.clientY;
+		var oEl=me.el[0];
+		var left=oEl.style.left||0;
+		if($H.isStr(left)){
+			left=parseInt(left.replace('px',''));
+		}
+		me.elX=left;
+		var top=oEl.style.top||0;
+		if($H.isStr(top)){
+			top=parseInt(top.replace('px',''));
+		}
+		me.elY=top;
+		var oOptions=me.options;
+		oOptions.start&&oOptions.start();
+	}
+	/**
+	 * 移动
+	 * @param {jEvent}oEvt 事件对象
+	 */
+	function fMove(oEvt) {
+		var me=this;
+		if(me.drag===true){
+			if($H.hasTouch()){
+				oEvt = oEvt.originalEvent;
+				oEvt.preventDefault();
+				oEvt = oEvt.touches[0];
+			}
+			var nOffsetX=oEvt.clientX-me.eventX;
+			var nOffsetY=oEvt.clientY-me.eventY;
+			var oEl=me.el[0];
+			var left=me.elX+nOffsetX;
+			var top=me.elY+nOffsetY;
+			var oOptions=me.options;
+			var result=oOptions.move&&oOptions.move({
+				origX:me.elX,
+				origY:me.elY,
+				curX:left,
+				curY:top,
+				offsetX:nOffsetX,
+				offsetY:nOffsetY
+			});
+			if(result!==false){
+				oEl.style.left=(result&&result.curX||left)+'px';
+				oEl.style.top=(result&&result.curY||top)+'px';
+			}
+		}
+	}
+	/**
+	 * 结束
+	 */
+	function fEnd(){
+		var me=this;
+		me.drag=false;
+		var oOptions=me.options;
+		oOptions.end&&oOptions.end();
+	}
+	/**
+	 * 销毁
+	 */
+	function fDestroy(){
+		var me=this;
+		var oEl=me.el;
+		oEl.off(_events[0],me.startHandler);
+		oEl.off(_events[1],me.moveHandler);
+		oEl.off(_events[2],me.endHandler);
+	}
+	
+	return Draggable;
 	
 });
 /**
@@ -9221,9 +9403,11 @@ function(HashChange){
 	 * @method stateChange
 	 */
 	function fStateChange(){
-		var me=this,
-			oHashParam=me.getHashParam(),
-		    sKey=oHashParam.hKey,
+		var me=this,oHashParam=me.getHashParam();
+		if(!oHashParam){
+			return;
+		}
+		var sKey=oHashParam.hKey,
 		 	sCurKey=me.currentKey,
 		 	aStates=me.states,
 		 	oCurState=aStates[sCurKey];
@@ -9837,7 +10021,7 @@ function(AbstractManager,ViewManager) {
  * @created 2013-12-28
  */
 //"handy.component.AbstractComponent"
-$Define('C.AbstractComponent',["CM.ViewManager",'CM.View'],function(ViewManager,View){
+$Define('C.AbstractComponent',["CM.ViewManager",'CM.View','C.ComponentManager'],function(ViewManager,View){
 	
 	//访问component包内容的快捷别名
 	$C=$H.ns('C');
@@ -10384,6 +10568,7 @@ function(AC){
 	function fDoConfig(oParam){
 		var me=this;
 		me.callSuper();
+		me.extCls=(me.extCls||'')+' hui-popup';
 		//添加点击即隐藏事件
 		if(me.clickHide){
 			me.listeners.push({
@@ -10445,7 +10630,7 @@ function(AC){
 			me[showPos]();
 		}else if(sType==="function"){
 			showPos.call(me);
-		}else if(sType==='object'){
+		}else if(sType==='object'&&showPos!==null){
 			oEl.css(me.showPos);
 		}
 		if(!me.noMask){
@@ -11826,14 +12011,8 @@ function(AC){
 	 * @param {object}oItem 子组件配置
 	 */
 	function fParseItem(oItem){
-		if(oItem.xtype=='Button'){
+		if(oItem.xtype==='Button'&&oItem.shadowSurround===undefined){
 			oItem.shadowSurround=true;
-			return;
-			if(oItem.pos=='left'){
-				oItem.extCls=(oItem.extCls||"")+' hui-tbar-btn-left';
-			}else if(oItem.pos=="right"){
-				oItem.extCls=(oItem.extCls||"")+' hui-tbar-btn-right';
-			}
 		}
 	}
 	
@@ -12094,9 +12273,10 @@ function(AC,Popup){
 					xtype:'Button',
 					radius:'big',
 					icon:'delete',
-					size:'normal',
+					shadow:false,
+					shadowSurround:false,
 					theme:'gray',
-					pos:'left',
+					xrole:'left',
 					click:function(){
 						me.hide();
 					}
@@ -12565,6 +12745,84 @@ function(AC,DatePicker){
 	
 });
 /**
+ * 图片抽象类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+
+$Define('C.AbstractImage',
+'C.AbstractComponent',
+function(AC){
+	
+	var AbstractImage=AC.define('AbstractImage');
+	
+	AbstractImage.extend({
+		_customEvents   : ['imgFixed'], //自定义事件，图片已修正
+//		height          : 50,           //指定高度会自动修正图片高度，在不改变图片宽高比的前提下，最大化接近指定的高度
+//		width           : 50,           //指定宽度会自动修正图片宽度，在不改变图片宽高比的前提下，最大化接近指定的宽度
+		fixImgSize      : fFixImgSize   //修正图片尺寸，及居中显示
+	});
+	/**
+	 * 修正图片尺寸，及居中显示
+	 * @param {element}oImg 图片节点对象
+	 */
+	function fFixImgSize(oImg){
+		var me=this;
+		//先移除宽度和高度属性才能获取准确的图片尺寸
+		var jImg=$(oImg).removeAttr("width").removeAttr("height").css({width:'',height:''});
+		var oEl=me.getEl()[0];
+		// 生成比例
+        var w = nOrigW=oImg.width,
+            h = nOrigH=oImg.height,
+            scale = w / h,
+            nFixW=me.width,
+            nFixH=me.height;
+    	if(nFixW===undefined||($H.isStr(nFixW)&&nFixW.indexOf('em')>0)){
+    		nFixW=oEl.clientWidth;
+    	}
+    	if(nFixH===undefined||($H.isStr(nFixH)&&nFixH.indexOf('em')>0)){
+    		nFixH=oEl.clientHeight;
+    	}
+        //适应大小
+        if(nFixW||nFixH){
+            if(nFixW&&w!=nFixW){
+            	w=nFixW;
+            	h = Math.ceil(w / scale);
+            }
+            if(nFixH&&h>nFixH){
+            	h=nFixH;
+            	w=Math.ceil(h*scale);
+            }
+            jImg.css({width:w,height:h});
+        }
+        //居中定位
+        var nLeft=0,nTop=0;
+        if(w<nFixW){
+        	nLeft=(nFixW-w)/2;
+        	nLeft=Math.ceil(nLeft);
+        }
+    	jImg.css('left',nLeft);
+        if(h<nFixH){
+        	nTop=(nFixH-h)/2;
+        	nTop=Math.ceil(nTop);
+        }
+    	jImg.css('top',nTop);
+        //修正尺寸后才显示图片，避免出现图片大小变化过程
+        jImg.removeClass('hui-hidden');
+		me.trigger("imgFixed",jImg);
+		return {
+			width:w,
+			height:h,
+			origW:nOrigW,
+			origH:nOrigH,
+			left:nLeft,
+			top:nTop
+		}
+	}
+	
+	return AbstractImage;
+	
+});
+/**
  * 图片类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-07-12
@@ -12573,74 +12831,30 @@ function(AC,DatePicker){
 $Define('C.Image',
 [
 'C.AbstractComponent',
-'M.DisplayImage'
+'C.AbstractImage'
 ],
-function(AC,DisplayImage){
+function(AC,AbstractImage){
 	
-	var Image=AC.define('Image');
+	var Image=AC.define('Image',AbstractImage);
 	
 	Image.extend({
 		//初始配置
 		xConfig         : {
 			cls         : 'image',
 			imgSrc      : '',          //图片地址
-			radius      : 'little'     //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
+			radius      : 'normal'     //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 		},
-//		height          : 50,          //指定高度会自动修正图片高度，在不改变图片宽高比的前提下，最大化接近指定的高度
-//		width           : 50,          //指定宽度会自动修正图片宽度，在不改变图片宽高比的前提下，最大化接近指定的宽度
-		_customEvents   : ['imgLoad'],
 		listeners       : [{
 			name:'load',
 			el:'img',
 			handler:function(oEvt){
 				var me=this;
 				var oImg=oEvt.target;
-				//先移除宽度和高度属性才能获取准确的图片尺寸
-				$(oImg).removeAttr("width").removeAttr("height");
-				// 生成比例
-	            var w = oImg.width,
-	                h = oImg.height,
-	                scale = w / h,
-	                nFixW=me.width,
-	                nFixH=me.height;
-	            oImg=$(oImg);
-	            //适应大小
-	            if(nFixW||nFixH){
-	            	if($H.isStr(nFixW)&&nFixW.indexOf('em')>0){
-	            		nFixW=me.getEl()[0].clientWidth;
-	            	}
-	            	if($H.isStr(nFixH)&&nFixH.indexOf('em')>0){
-	            		nFixH=me.getEl()[0].clientHeight;
-	            	}
-		            if(nFixW&&w!=nFixW){
-		            	w=nFixW;
-		            	h = Math.ceil(w / scale);
-		            }
-		            if(nFixH&&h>nFixH){
-		            	h=nFixH;
-		            	w=Math.ceil(h*scale);
-		            }
-		            oImg.css({width:w,height:h});
-	            }
-	            //居中定位
-	            var nLeft,nTop;
-	            if(w<nFixW){
-	            	nLeft=(nFixW-w)/2;
-	            	nLeft=Math.ceil(nLeft);
-	            	oImg.css('left',nLeft);
-	            }
-	            if(h<nFixH){
-	            	nTop=(nFixH-h)/2;
-	            	nTop=Math.ceil(nTop);
-	            	oImg.css('top',nTop);
-	            }
-	            //修正尺寸后才显示图片，避免出现图片大小变化过程
-	            me.getEl().removeClass('hui-image-hidden');
-				me.trigger("imgLoad",oEvt);
+				me.fixImgSize(oImg);
 			}
 		}],
 		
-		tmpl            : '<div class="hui-image-hidden"><img {{bindAttr src="imgSrc"}}/></div>'
+		tmpl            : '<div><img {{bindAttr src="imgSrc"}} class="hui-hidden"/></div>'
 		
 	});
 	
@@ -12671,6 +12885,9 @@ function(AC,ImgCompress){
 			showImg         : true        //是否显示预览
 		},
 		
+		crop                : true,      //是否需要剪切
+//		cropWinW            : 100,       //裁剪窗口宽度
+//		cropWinH            : 100,       //裁剪窗口高度
 //		compressOptions     : {}         //压缩选项，参照ImgCompress.compress方法
 		
 		listeners       : [{
@@ -12678,7 +12895,7 @@ function(AC,ImgCompress){
 			name : 'change',
 			handler : function(e) {
 				var oFile = e.target.files[0];
-				ImgCompress.compress(oFile,this.compressOptions);
+				this.processImg(oFile);
 			}
 		},{
 			
@@ -12703,6 +12920,7 @@ function(AC,ImgCompress){
 		doConfig         : fDoConfig,           //初始化配置
 		showSelDialog    : fShowSelDialog,      //显示选择照片源类型对话框
 		getPicture       : fGetPicture,         //获取照片
+		processImg       : fProcessImg,         //处理图片
 		cleanContent     : fCleanContent        //清除文件内容
 	});
 	
@@ -12772,7 +12990,7 @@ function(AC,ImgCompress){
 		//phonegap
 		navigator.camera.getPicture(
 			function (imageData) {
-			    ImgCompress.compress(imageData,me.compressOptions);
+			    me.processImg(imageData);
 			},
 			function onFail(message) {
 				//用户取消不提示
@@ -12789,6 +13007,33 @@ function(AC,ImgCompress){
 		);
 	}
 	/**
+	 * 处理图片
+	 * @param {File|object}imageData 图片数据
+	 */
+	function fProcessImg(imageData){
+		var me=this;
+		if(imageData instanceof File){
+			var oURL = URL || webkitURL;
+			imageData = oURL.createObjectURL(imageData);
+		}
+		if(me.crop){
+			$Require('C.CropWindow',function(CropWindow){
+				var oWin=new CropWindow({
+					imgSrc:imageData,
+					width:me.cropWinW,
+					height:me.cropWinH,
+					success:function(oResult){
+						oWin.hide();
+						var oOptions=$H.extend(oResult,me.compressOptions);
+						ImgCompress.compress(imageData,oOptions);
+					}
+				});
+			});
+		}else{
+			ImgCompress.compress(imageData,me.compressOptions);
+		}
+	}
+	/**
 	 * 清除文件内容
 	 */
 	function fCleanContent(){
@@ -12796,6 +13041,251 @@ function(AC,ImgCompress){
 	}
 	
 	return ImgUpload;
+	
+});
+/**
+ * 图片裁剪类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+
+$Define('C.Crop',
+[
+'C.AbstractComponent',
+'C.AbstractImage',
+'E.Draggable'
+],
+function(AC,AbstractImage,Draggable){
+	
+	var Crop=AC.define('Crop',AbstractImage);
+	
+	var _startEvent=$H.hasTouch()?'touchstart':'mousedown';
+	
+	Crop.extend({
+		//初始配置
+		xConfig         : {
+			cls         : 'crop',
+			imgSrc      : ''
+		},
+		listeners       : [{
+			name:'load',
+			el:'.js-orig-img',
+			handler:function(){
+				this.initCrop();
+			}
+		},{
+			name:_startEvent,
+			el:'.js-box-img',
+			handler:function(){
+				this.startDrag();
+			}
+		},{
+			name:_startEvent,
+			el:'.js-op-bar',
+			handler:function(oEvt){
+				this.startZoom(oEvt);
+			}
+		}],
+		
+		cropWidth       : '9.375em',           //剪切框宽度
+		cropHeight      : '9.375em',           //剪切框高度
+		
+		tmpl            : [
+			'<div>',
+				'<img class="js-orig-img hui-orig-img hui-hidden" {{bindAttr src="imgSrc"}}>',
+				'<div class="hui-mask"></div>',
+				'<div class="js-crop-box hui-crop-box">',
+					'<div class="js-box-img hui-box-img">',
+						'<img class="js-crop-img hui-crop-img hui-hidden" {{bindAttr src="imgSrc"}}>',
+					'</div>',
+					'<div class="hui-box-op">',
+						'<div class="hui-op-handle hui-op-handle-n"></div>',
+						'<div class="hui-op-handle hui-op-handle-e"></div>',
+						'<div class="hui-op-handle hui-op-handle-s"></div>',
+						'<div class="hui-op-handle hui-op-handle-w"></div>',
+						'<div class="js-op-bar hui-op-bar hui-op-bar-n"></div>',
+						'<div class="js-op-bar hui-op-bar hui-op-bar-e"></div>',
+						'<div class="js-op-bar hui-op-bar hui-op-bar-s"></div>',
+						'<div class="js-op-bar hui-op-bar hui-op-bar-w"></div>',
+					'</div>',
+				'</div>',
+			'</div>'].join(''),
+		initCrop        : fInitCrop,   //初始化
+		startDrag       : fStartDrag,  //点击剪切框内容，准备开始拖拽
+		startZoom       : fStartZoom,  //点击剪切框边框，准备开始缩放
+		move            : fMove,       //移动选择框
+		dragCrop        : fDragCrop,   //拖拽选中框
+		zoomCrop        : fZoomCrop,   //缩放选择框
+		getResult       : fGetResult,  //获取裁剪结果
+		destroy         : fDestroy     //销毁
+	});
+	
+	/**
+	 * 初始化
+	 */
+	function fInitCrop(){
+		var me=this;
+		var oImg=me.origImg=me.findEl('.js-orig-img');
+		//修正图片大小
+		var oSize=me.fixImgSize(oImg[0]);
+		me.origW=oSize.origW;
+		me.origH=oSize.origH;
+		//裁剪框大小
+		if($H.isStr(me.cropWidth)){
+			me.cropWidth=$H.em2px(me.cropWidth);
+		}
+		if($H.isStr(me.cropHeight)){
+			me.cropHeight=$H.em2px(me.cropHeight);
+		}
+		//图片居中显示的偏移量
+		var nLeftOffset=me.leftOffset=oSize.left;
+		var nTopOffset=me.topOffset=oSize.top;
+		//裁剪框居中显示
+		var nWidth=oSize.width;
+		var nHeight=oSize.height;
+		//缩放比例
+		me.scale=nHeight/oSize.origH;
+		var nLeft=me.cropX=Math.ceil((nWidth-me.cropWidth)/2);
+		var nTop=me.cropY=Math.ceil((nHeight-me.cropHeight)/2);
+		me.cropBox=me.findEl('.js-crop-box').css({
+			left:nLeftOffset+nLeft,
+			top:nTopOffset+nTop,
+			width:me.cropWidth,
+			height:me.cropHeight
+		});
+		//裁剪框中的图片校对位置
+		me.cropImg=me.findEl('.js-crop-img').css({
+			height:nHeight,
+			width:nWidth,
+			marginLeft:-nLeft,
+			marginTop:-nTop
+		}).removeClass('hui-hidden');
+		me.draggable=new Draggable(me.getEl(),{
+			move:function(oPos){
+				return me.move(oPos);
+			},
+			end:function(){
+				me.dragging=false;
+				me.zooming=false;
+			}
+		});
+	}
+	/**
+	 * 点击剪切框内容，准备开始拖拽
+	 */
+	function fStartDrag(){
+		var me=this;
+		me.dragging=true;
+		me.initCropX=me.cropX;
+		me.initCropY=me.cropY;
+	}
+	/**
+	 * 点击剪切框边框，准备开始缩放
+	 * @param {jEvent}oEvt 事件对象
+	 */
+	function fStartZoom(oEvt){
+		var me=this;
+		me.zooming=true;
+		me.initCropWidth=me.cropWidth;
+		me.initCropHeight=me.cropHeight;
+		var sCls=oEvt.currentTarget.className;
+		if(sCls.indexOf('-n')>0){
+			me.zoomDirect='n';
+		}else if(sCls.indexOf('-e')>0){
+			me.zoomDirect='e';
+		}else if(sCls.indexOf('-s')>0){
+			me.zoomDirect='s';
+		}else{
+			me.zoomDirect='w';
+		}
+		me.initCropX=me.cropX;
+		me.initCropY=me.cropY;
+	}
+	/**
+	 * 移动选择框
+	 * @param {object}oPos 位置信息
+	 */
+	function fMove(oPos){
+		var me=this;
+		if(me.dragging){
+			me.dragCrop(oPos);
+		}else if(me.zooming){
+			me.zoomCrop(oPos);
+		}
+		return false;
+	}
+	/**
+	 * 拖拽选择框
+	 * @param {object}oPos 位置信息
+	 */
+	function fDragCrop(oPos){
+		var me=this;
+		me.cropX=me.initCropX+oPos.offsetX;
+		me.cropY=me.initCropY+oPos.offsetY;
+		me.cropImg.css({
+			marginLeft:-me.cropX,
+			marginTop:-me.cropY
+		});
+		me.cropBox.css({
+			left:me.leftOffset+me.cropX,
+			top:me.topOffset+me.cropY
+		});
+	}
+	/**
+	 * 缩放选择框
+	 * @param {object}oPos 位置信息
+	 */
+	function fZoomCrop(oPos){
+		var me=this;
+		var sDirection=me.zoomDirect;
+		var nOffset=(sDirection==='n'||sDirection==='s')?oPos.offsetY:oPos.offsetX;
+		//向上或向左
+		if(sDirection==='n'||sDirection==='w'){
+			me.dragCrop({
+				offsetX:nOffset,
+				offsetY:nOffset
+			});
+			nOffset=-nOffset;
+		}
+		me.cropWidth=me.initCropWidth+nOffset;
+		me.cropHeight=me.initCropHeight+nOffset;
+		me.cropBox.css({
+			width:me.cropWidth,
+			height:me.cropWidth
+		});
+		return false;
+	}
+	/**
+	 * 获取裁剪结果
+	 * @return {object} {
+	 * 		{number}x:起始横坐标,
+	 * 		{number}y:起始纵坐标,
+	 * 		{number}w:宽度,
+	 * 		{number}h:高度
+	 * }
+	 */
+	function fGetResult(){
+		var me=this;
+		var nScale=me.scale;
+		var fCeil=Math.ceil;
+		return {
+			cropX:fCeil(me.cropX/nScale),
+			cropY:fCeil(me.cropY/nScale),
+			cropW:fCeil(me.cropWidth/nScale),
+			cropH:fCeil(me.cropHeight/nScale),
+			origW:me.origW,
+			origH:me.origH
+		};
+	}
+	/**
+	 * 销毁
+	 */
+	function fDestroy(){
+		var me=this;
+		me.draggable.destroy();
+		me.callSuper();
+	}
+	
+	return Crop;
 	
 });
 /**

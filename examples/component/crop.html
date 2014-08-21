@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="viewport"
+	content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=320, height=device-height , target-densitydpi=142" />
+<title>剪切图片</title> 
+<link rel="stylesheet" type="text/css"
+	href="../../src/css/reset.css" />
+<link rel="stylesheet" type="text/css"
+	href="../../src/css/common.css" />
+<link rel="stylesheet" type="text/css"
+	href="../../src/css/icon.css" />
+<link rel="stylesheet" type="text/css"
+	href="../../src/css/widget.css" />
+<style type="text/css">
+	body{
+		height:100%;
+	}
+	h3{
+		margin:20px 0;
+		padding:5px;
+		background:#ccc;
+	}
+</style>
+<script type="text/javascript">
+gEnv='dev';
+</script>
+</head>
+<body>
+</body>
+<script type="text/javascript"
+	src="../../src/lib/modernizr.js"></script>
+<script type="text/javascript"
+	src="../../src/lib/jquery.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/base.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Json.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Object.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Browser.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Debug.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Function.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Class.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Loader.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Events.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Date.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/String.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Cookie.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Util.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Array.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Geo.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Template.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/HashChange.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Support.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/Validator.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/LocalStorage.js"></script>
+<script type="text/javascript"
+	src="../../src/js/base/adapt.js"></script>
+<script type="text/javascript">
+$H.Loader.rootPath={
+	'handy'        : '../../src/js/'
+}
+$H.Loader.combine=false;
+$Define('test',function(){
+	var Icon=$Require('C.Icon');
+	var Button=$Require('C.Button');
+	var Toolbar=$Require('C.Toolbar');
+	var Crop=$Require('C.Crop');
+	var CropWindow=$Require('C.CropWindow');
+	
+	function example(){
+		
+		new CropWindow({
+			imgSrc:'../../html/img.jpg',
+			success:function(oResult){
+				alert($H.stringify(oResult))
+			}
+		});
+		
+	}
+	
+	$D.time()
+	for(var i=0;i<1;i++){
+		example();
+	}
+	
+	$D.time(true,'组件初始化时间：');
+	var num=0;
+	$CM.eachInEl($(document.body),function(){
+		num++;
+	})
+	$D.log('组件数目：'+num);
+	
+});
+</script>
+</html>

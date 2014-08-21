@@ -42,6 +42,7 @@ function(AC){
 	function fDoConfig(oParam){
 		var me=this;
 		me.callSuper();
+		me.extCls=(me.extCls||'')+' hui-popup';
 		//添加点击即隐藏事件
 		if(me.clickHide){
 			me.listeners.push({
@@ -103,7 +104,7 @@ function(AC){
 			me[showPos]();
 		}else if(sType==="function"){
 			showPos.call(me);
-		}else if(sType==='object'){
+		}else if(sType==='object'&&showPos!==null){
 			oEl.css(me.showPos);
 		}
 		if(!me.noMask){

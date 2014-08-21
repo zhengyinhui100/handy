@@ -22,6 +22,9 @@ function(AC,ImgCompress){
 			showImg         : true        //是否显示预览
 		},
 		
+		crop                : true,      //是否需要剪切
+//		cropWinW            : 100,       //裁剪窗口宽度
+//		cropWinH            : 100,       //裁剪窗口高度
 //		compressOptions     : {}         //压缩选项，参照ImgCompress.compress方法
 		
 		listeners       : [{
@@ -29,7 +32,7 @@ function(AC,ImgCompress){
 			name : 'change',
 			handler : function(e) {
 				var oFile = e.target.files[0];
-				ImgCompress.compress(oFile,this.compressOptions);
+				this.processImg(oFile);
 			}
 		},{
 			
@@ -54,6 +57,7 @@ function(AC,ImgCompress){
 		doConfig         : fDoConfig,           //初始化配置
 		showSelDialog    : fShowSelDialog,      //显示选择照片源类型对话框
 		getPicture       : fGetPicture,         //获取照片
+		processImg       : fProcessImg,         //处理图片
 		cleanContent     : fCleanContent        //清除文件内容
 	});
 	
@@ -123,7 +127,7 @@ function(AC,ImgCompress){
 		//phonegap
 		navigator.camera.getPicture(
 			function (imageData) {
-			    ImgCompress.compress(imageData,me.compressOptions);
+			    me.processImg(imageData);
 			},
 			function onFail(message) {
 				//用户取消不提示
@@ -138,6 +142,33 @@ function(AC,ImgCompress){
 			    sourceType:nSourceType
 			}
 		);
+	}
+	/**
+	 * 处理图片
+	 * @param {File|object}imageData 图片数据
+	 */
+	function fProcessImg(imageData){
+		var me=this;
+		if(imageData instanceof File){
+			var oURL = URL || webkitURL;
+			imageData = oURL.createObjectURL(imageData);
+		}
+		if(me.crop){
+			$Require('C.CropWindow',function(CropWindow){
+				var oWin=new CropWindow({
+					imgSrc:imageData,
+					width:me.cropWinW,
+					height:me.cropWinH,
+					success:function(oResult){
+						oWin.hide();
+						var oOptions=$H.extend(oResult,me.compressOptions);
+						ImgCompress.compress(imageData,oOptions);
+					}
+				});
+			});
+		}else{
+			ImgCompress.compress(imageData,me.compressOptions);
+		}
 	}
 	/**
 	 * 清除文件内容

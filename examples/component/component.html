@@ -224,7 +224,7 @@ $Define('test',function(){
 	Image=$Require('C.Image'),
 	ImgUpload=$Require('C.ImgUpload'),
 	Hcard=$Require('C.Hcard'),
-	Vcard=$Require('C.Vcard');
+	Vcard=$Require('C.Vcard'),
 	Conversation=$Require('C.Conversation');
 	
 	function example(){
@@ -781,7 +781,7 @@ $Define('test',function(){
 			aFixCmps=aFixCmps||$V.find('.fixCmp');
 			for(var i=0;i<aFixCmps.length;i++){
 				var oCmp=aFixCmps[i];
-				oCmp[oCmp.hidden?'show':'hide']();
+				oCmp.hide();
 			}
 		})
 		new Toolbar({
@@ -1227,7 +1227,7 @@ $Define('test',function(){
 				}]
 			}]
 		});
-	
+		
 	}
 	
 	$D.time()

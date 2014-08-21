@@ -418,16 +418,12 @@
 //图片类
 .hui-image{
 	position:relative;
-	//background:#ccc;
+	overflow:hidden;
+	background:#AFB6B1;
 	img{
 		position:absolute;
 		left:0;
 		top:0;
-	}
-	&.hui-image-hidden{
-		img{
-			display:none;
-		}
 	}
 }
 
@@ -522,6 +518,8 @@
 //弹出层
 .hui-popup{
 	position:absolute;
+	left:0;
+	top:0;
 	z-index: 1000;
 	//fix android z-index失效
 	-webkit-transform:translateZ(0);
@@ -529,7 +527,6 @@
 
 //菜单
 .hui-menu{
-	.hui-popup();
 	//考虑二级菜单，暂不使用overflow
 	overflow:auto;
 	max-height:12.5em;
@@ -694,9 +691,7 @@
 		left:0;
 		top:50%;
 		margin-top:-0.5em;
-		padding-left:0.375em;
 		vertical-align:middle;
-		font-size:.8em;
 		.c-txt-light();
 		.fn_inline_block();
 		.fn_text_overflow();
@@ -797,9 +792,13 @@
 		margin-left:1em;
 		margin-right:1em;
 		margin-top:0.1em;
-		&.hui-size-mini{
-			margin-top:0.5em;
-		}
+	}
+	.hui-btn-icon-notxt{
+		margin-left:0.5em;
+		margin-top:0.25em;
+	}
+	.hui-size-mini{
+		margin-top:0.5em;
 	}
 	.hui-btn-back{
 		margin-left:1.5em;
@@ -881,7 +880,6 @@
 }
 //提示
 .hui-tips{
-	.hui-popup();
 	z-index:99999;
 	text-align:center;
 	//大loading提示
@@ -944,7 +942,6 @@
 }
 //对话框
 .hui-dialog{
-	.hui-popup();
 	width: 92.5%;
 	max-width: 31.25em;
 	padding: 0;
@@ -1308,6 +1305,107 @@
 	height: 100%;	
 	background:black;
 	.fn_opacity(0.2);
+}
+
+//图片裁剪
+.hui-crop{
+	position:relative;
+	overflow:hidden;
+	height:100%;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	-moz-user-select: -moz-none;
+	.hui-orig-img{
+		position:absolute;
+	}
+	.hui-crop-box{
+		position:absolute;
+		cursor:move;
+		z-index:1000;
+	}
+	.hui-box-img{
+		position:absolute;
+		top:0;
+		left:0;
+		overflow:hidden;
+		width:100%;
+		height:100%;
+		z-index:1001;
+	}
+	.hui-crop-img{
+		position:absolute;
+	}
+	.hui-box-op{
+		height:100%;
+		width:100%;
+	}
+	.hui-op-bar,.hui-op-handle{
+		position:absolute;
+		z-index:1002;
+	}
+	.hui-op-bar-n,.hui-op-bar-s{
+		height:1em;
+		width:100%;
+	}
+	.hui-op-bar-w,.hui-op-bar-e{
+		height:100%;
+		width:1em;
+	}
+	.hui-op-bar-n{
+		cursor:n-resize;
+		top:-0.5em;
+	}
+	.hui-op-bar-e{
+		cursor:e-resize;
+		right:-0.5em;
+	}
+	.hui-op-bar-s{
+		cursor:s-resize;
+		bottom:-0.5em;
+	}
+	.hui-op-bar-w{
+		cursor:w-resize;
+		left:-0.5em;
+	}
+	.hui-op-handle{
+		height:0.5em;
+		width:0.5em;
+		background-color:#4AEEEE;
+	}
+	.hui-op-handle-n{
+		cursor:n-resize;
+		left:50%;
+		top:-0.25em;
+		margin-left:-0.25em;
+	}
+	.hui-op-handle-e{
+		cursor:e-resize;
+		top:50%;
+		right:-0.25em;
+		margin-top:-0.25em;
+	}
+	.hui-op-handle-s{
+		cursor:s-resize;
+		left:50%;
+		bottom:-0.25em;
+		margin-left:-0.25em;
+	}
+	.hui-op-handle-w{
+		cursor:w-resize;
+		top:50%;
+		left:-0.25em;
+		margin-top:-0.25em;
+	}
+	.hui-mask{
+		.fn_opacity(0.5);
+	}
+}
+//图片裁切窗口
+.hui-cropwin{
+	height:100%;
+	width:100%;
+	padding-top:2.625em;
+	background:#fff;
 }
 
 //公用效果

@@ -10,6 +10,7 @@ handy.add('Object',function($H){
 			'C'             : 'handy.component',
 			'M'             : 'handy.module',
 			'U'             : 'handy.util',
+			'E'             : 'handy.effect',
 			'CM'            : 'handy.common'
 		},               
 		ns                  : fNamespace,       //创建或读取命名空间，可以传入用以初始化该命名空间的对象

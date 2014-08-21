@@ -577,10 +577,12 @@ h3 {
 
 		<div class="hui-dialog hui-shadow-overlay hui-radius-normal" style="top:0">
 			<div class="hui-dialog-header hui-tbar hui-tbar-gray">
-				<a href="javascript:;" hidefocus="true"
-					class="hui-btn hui-btn-gray hui-shadow hui-inline hui-btn-icon-notxt hui-radius-big hui-tbar-btn-left">
-					<span class="hui-icon hui-icon-bg hui-icon-delete"></span>
-				</a>
+				<div class="hui-tbar-left">
+					<a href="javascript:;" hidefocus="true"
+						class="hui-btn hui-btn-gray hui-shadow hui-inline hui-btn-icon-notxt hui-radius-big hui-tbar-btn-left">
+						<span class="hui-icon hui-icon-bg hui-icon-delete"></span>
+					</a>
+				</div>
 				<h1 class="hui-tbar-title">标题</h1>
 			</div>
 			<div class="hui-dialog-body">
@@ -901,5 +903,27 @@ h3 {
 	<br />
 	<br />
 	<br />
+	
+	<h3>图片裁剪：</h3>
+	<div class="hui-crop" style="width:512px;height:770px;">
+		<img class="hui-orig-img" src="./img.jpg" style="width:512px;height:770px;">
+		<div class="hui-mask"></div>
+		<div class="hui-crop-box" style="height:200px;width:200px;top:200px;left:200px;">
+			<div class="hui-box-img">
+				<img class="hui-crop-img" src="./img.jpg" style="left:-200px;top:-200px;width:512px;height:770px;">
+			</div>
+			<div class="hui-box-op">
+				<div class="hui-op-handle hui-op-handle-n"></div>
+				<div class="hui-op-handle hui-op-handle-e"></div>
+				<div class="hui-op-handle hui-op-handle-s"></div>
+				<div class="hui-op-handle hui-op-handle-w"></div>
+				<div class="hui-op-bar hui-op-bar-n"></div>
+				<div class="hui-op-bar hui-op-bar-e"></div>
+				<div class="hui-op-bar hui-op-bar-s"></div>
+				<div class="hui-op-bar hui-op-bar-w"></div>
+			</div>
+		</div>
+	</div>
+	
 </body>
 </html>

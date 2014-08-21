@@ -48,9 +48,11 @@ function(HashChange){
 	 * @method stateChange
 	 */
 	function fStateChange(){
-		var me=this,
-			oHashParam=me.getHashParam(),
-		    sKey=oHashParam.hKey,
+		var me=this,oHashParam=me.getHashParam();
+		if(!oHashParam){
+			return;
+		}
+		var sKey=oHashParam.hKey,
 		 	sCurKey=me.currentKey,
 		 	aStates=me.states,
 		 	oCurState=aStates[sCurKey];

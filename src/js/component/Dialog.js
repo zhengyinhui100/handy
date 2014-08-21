@@ -145,9 +145,10 @@ function(AC,Popup){
 					xtype:'Button',
 					radius:'big',
 					icon:'delete',
-					size:'normal',
+					shadow:false,
+					shadowSurround:false,
 					theme:'gray',
-					pos:'left',
+					xrole:'left',
 					click:function(){
 						me.hide();
 					}

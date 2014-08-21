@@ -112,6 +112,8 @@ module.exports = function(grunt) {
 				src : [
 					'src/js/util/ImgCompress.js',
 					
+					'src/js/effect/Draggable.js',
+					
 					'src/js/common/AbstractEvents.js',
 					'src/js/common/DataStore.js',
 					'src/js/common/AbstractDao.js',
@@ -155,8 +157,10 @@ module.exports = function(grunt) {
 					'src/js/component/Menu.js',
 					'src/js/component/DatePicker.js',
 					'src/js/component/DateSelect.js',
+					'src/js/component/AbstractImage.js',
 					'src/js/component/Image.js',
 					'src/js/component/ImgUpload.js',
+					'src/js/component/Crop.js',
 					'src/js/component/Hcard.js',
 					'src/js/component/Vcard.js',
 					'src/js/component/Conversation.js',
