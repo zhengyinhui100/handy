@@ -75,10 +75,11 @@ function(){
 	 */
 	function fMove(oEvt) {
 		var me=this;
+		//阻止滚动页面或原生拖拽
+		oEvt.preventDefault();
 		if(me.drag===true){
 			if($H.hasTouch()){
 				oEvt = oEvt.originalEvent;
-				oEvt.preventDefault();
 				oEvt = oEvt.touches[0];
 			}
 			var nOffsetX=oEvt.clientX-me.eventX;

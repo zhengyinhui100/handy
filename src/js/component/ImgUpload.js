@@ -31,11 +31,45 @@ function(AC,ImgCompress){
 			el   : 'input',
 			name : 'change',
 			handler : function(e) {
-				var oFile = e.target.files[0];
-				this.processImg(oFile);
+				var oInput=e.target;
+				var file,name,imgSrc,oFiles;
+				if(oFiles=oInput.files){
+					if(oFiles.length==0){
+						return;
+					}
+					file= oFiles[0];
+					oInput.value='';
+					name=file.name
+					var oURL = URL || webkitURL;
+					imgSrc = oURL.createObjectURL(file);
+				}else{
+					oInput.select(); 
+					//ie9在file控件下获取焦点情况下 document.selection.createRange() 将会拒绝访问
+					oInput.blur();
+    				imgSrc = document.selection.createRange().text;  
+					if(!imgSrc){
+						return;
+					}
+					name=imgSrc;
+				}
+				if(!/.+\.(jpg|gif|png|jpeg|bmp)$/.test(name)){
+					$C.Tips({text:"您选择的文件不是图片",theme:'error'});
+					return;
+				}
+				this.processImg(imgSrc);
 			}
 		},{
-			
+			name:'click',
+			el:'.js-file-input',
+			handler:function(oEvt){
+				if($H.ie()<10){
+					//ie本地图片预览，http://www.cnblogs.com/yansi/archive/2013/04/14/3021199.html
+					//网页端裁剪图片(FileAPI)，兼容谷歌火狐IE6/7/8，http://www.oschina.net/code/snippet_988397_33758
+					//Flash头像上传新浪微博破解加强版，https://github.com/zhushunqing/FaustCplus
+					oEvt.preventDefault();
+					$C.Tips('上传功能暂时不支持IE9及以下版本，请使用其它浏览器，推荐chrome浏览器。')
+				}
+			}
 		}],
 		
 		tmpl            : [
@@ -50,7 +84,7 @@ function(AC,ImgCompress){
 				'{{/unless}}',
 				'<input type="hidden" class="js-file-content" name="fileContent">',
 				'{{#if useFileInput}}',
-					'<input type="file" class="hui-file-input">',
+					'<input type="file" class="js-file-input hui-file-input">',
 				'{{/if}}',
 			'</div>'].join(''),
 		
@@ -145,29 +179,25 @@ function(AC,ImgCompress){
 	}
 	/**
 	 * 处理图片
-	 * @param {File|object}imageData 图片数据
+	 * @param {object|string}imgSrc 图片源
 	 */
-	function fProcessImg(imageData){
+	function fProcessImg(imgSrc){
 		var me=this;
-		if(imageData instanceof File){
-			var oURL = URL || webkitURL;
-			imageData = oURL.createObjectURL(imageData);
-		}
 		if(me.crop){
 			$Require('C.CropWindow',function(CropWindow){
 				var oWin=new CropWindow({
-					imgSrc:imageData,
+					imgSrc:imgSrc,
 					width:me.cropWinW,
 					height:me.cropWinH,
 					success:function(oResult){
 						oWin.hide();
 						var oOptions=$H.extend(oResult,me.compressOptions);
-						ImgCompress.compress(imageData,oOptions);
+						ImgCompress.compress(imgSrc,oOptions);
 					}
 				});
 			});
 		}else{
-			ImgCompress.compress(imageData,me.compressOptions);
+			ImgCompress.compress(imgSrc,me.compressOptions);
 		}
 	}
 	/**

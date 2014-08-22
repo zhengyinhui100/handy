@@ -126,6 +126,7 @@ function(AC){
 				return false;
 			}
 		});
+		me.callSuper();
 	}
 	/**
 	 * 隐藏

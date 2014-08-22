@@ -36,7 +36,7 @@ function(){
 			return;
 		}
 		var oImgSrc=image;
-		if(image instanceof File){
+		if(typeof File==='object'&&image instanceof File){
 			var oURL = URL || webkitURL;
 			oImgSrc = oURL.createObjectURL(image);
 		}

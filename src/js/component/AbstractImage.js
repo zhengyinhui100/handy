@@ -61,7 +61,7 @@ function(AC){
         }
     	jImg.css('top',nTop);
         //修正尺寸后才显示图片，避免出现图片大小变化过程
-        jImg.removeClass('hui-hidden');
+        jImg.removeClass('hui-unvisible');
 		me.trigger("imgFixed",jImg);
 		return {
 			width:w,

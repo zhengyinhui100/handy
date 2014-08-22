@@ -1,26 +1,32 @@
 /**
- * 图片窗口类，弹出展示大图片
+ * 图片展示类，弹出展示大图片
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define('C.ImageWindow',
+$Define('C.DisplayImage',
 [
 'C.AbstractComponent',
-'C.Popup'
+'C.Popup',
+'C.AbstractImage'
 ],
-function(AC,Popup){
+function(AC,Popup,AbstractImage){
 	
-	var ImageWindow=AC.define('ImageWindow',Popup);
+	var DisplayImage=AC.define('DisplayImage',Popup);
 	
-	ImageWindow.extend({
+	$H.extendIf(DisplayImage.prototype,AbstractImage.prototype);
+	
+	DisplayImage.extend({
 		//初始配置
 		xConfig         : {
-			cls         : 'imgwin'
+			cls         : 'dispimg'
 		},
 		
-		//		imgSrc      : '',              //缩略图src
-//		origSrc     : '',              //原图src
-		listeners   : [{
+//		imgSrc          : '',              //缩略图src
+//		origSrc         : '',              //原图src
+		showPos         : null,
+		noMask          : true,
+
+		listeners       : [{
 			name:'afterShow',
 			custom:true,
 			handler:function(){
@@ -30,58 +36,38 @@ function(AC,Popup){
 					left:oEl.clientWidth/2-$H.em2px(1.375),
 					top:oEl.clientHeight/2-$H.em2px(1.375)
 				});
-			}
-		},{
-			name : "click",
-			handler:function(){
-				$M.back();
+				me.showLoading();
+				me.findEl('.js-img').attr('src',me.imgSrc);
+				me.findEl('.js-orig').attr('src',me.origSrc);
 			}
 		},{
 			name:'load',
 			el:'.js-img',
-			handler:function(){
+			handler:function(oEvt){
 				var me=this;
-			    var oImg=me.findEl('.js-img');
-			    me.fixImgSize(oImg);
+			    me.fixImgSize(oEvt.target);
 			}
 		},{
 			name:'load',
 			el:'.js-orig',
-			handler:function(){
+			handler:function(oEvt){
 				var me=this;
 				me.showLoading(false);
 			    me.findEl('.js-img').addClass('hui-hidden');
-				var oImg=me.findEl('.js-orig');
-				me.fixImgSize(oImg);
+				me.fixImgSize(oEvt.target);
 			}
 		}],
 		tmpl        : [
-			'<div class="hui-displayimage c-v-middle-container">',
+			'<div class="c-v-middle-container">',
 				'<span class="js-loading hui-icon hui-icon-loading hui-icon-bg hui-hidden"></span>',
-				'<div class="hui-displayimage-inner c-h-middle-container c-v-middle">',
-					'<img class="js-img c-h-middle"/>',
-					'<img class="js-orig c-h-middle">',
-				'</div>',
+				'<img class="js-img hui-unvisible"/>',
+				'<img class="js-orig hui-unvisible">',
 			'</div>'].join(""),
-		entry       : fEntry,            //进入模块
-		fixImgSize  : fFixImgSize,       //调整图片大小以最大化适应模块大小
+//		fixImgSize  : fFixImgSize,       //调整图片大小以最大化适应模块大小
 		showLoading : fShowLoading       //显示/隐藏加载提示
 		
 	});
 	
-	/**
-	 * 进入模块
-	 * @param {object}oParams 参数选项
-	 */
-	function fEntry(oParams){
-		var me=this;
-		if(oParams.imgSrc!=me.lastSrc){
-			var src=me.imgSrc=me.lastSrc=oParams.imgSrc;
-			me.findEl('.js-img').attr('src',src).addClass('hui-hidden');
-			me.showLoading();
-			me.findEl('.js-orig').attr('src',oParams.origSrc).addClass('hui-hidden');
-		}
-	}
 	/**
 	 * 调整图片大小以最大化适应模块大小
 	 * @param {jquery}jImg 图片对象
@@ -117,6 +103,6 @@ function(AC,Popup){
 		me.findEl('.js-loading')[bShow===false?"addClass":"removeClass"]('hui-hidden');
 	}
 	
-	return ImageWindow;
+	return DisplayImage;
 	
 });

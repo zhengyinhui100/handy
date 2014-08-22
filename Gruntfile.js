@@ -74,6 +74,7 @@ module.exports = function(grunt) {
 			css:{
 				src : [
 					buildVersionDir+'css/reset.css',
+					buildVersionDir+'css/common.css',
 					buildVersionDir+'css/icon.css',
 					buildVersionDir+'css/widget.css'
 				],
@@ -130,7 +131,6 @@ module.exports = function(grunt) {
 					'src/js/module/AbstractNavigator.js',
 					'src/js/module/History.js',
 					'src/js/module/ModuleManager.js',
-					'src/js/module/DisplayImage.js',
 					
 					'src/js/component/ComponentManager.js',
 					'src/js/component/AbstractComponent.js',
@@ -160,6 +160,7 @@ module.exports = function(grunt) {
 					'src/js/component/AbstractImage.js',
 					'src/js/component/Image.js',
 					'src/js/component/ImgUpload.js',
+					'src/js/component/DisplayImage.js',
 					'src/js/component/Crop.js',
 					'src/js/component/Hcard.js',
 					'src/js/component/Vcard.js',

@@ -18,10 +18,16 @@ function(AC,AbstractImage,Draggable){
 	Crop.extend({
 		//初始配置
 		xConfig         : {
-			cls         : 'crop',
-			imgSrc      : ''
+			cls         : 'crop'
 		},
 		listeners       : [{
+			name:'afterRender',
+			custom:true,
+			handler:function(){
+				var me=this;
+				me.findEl('.js-orig-img,.js-crop-img').attr('src',me.imgSrc);
+			}
+		},{
 			name:'load',
 			el:'.js-orig-img',
 			handler:function(){
@@ -41,16 +47,17 @@ function(AC,AbstractImage,Draggable){
 			}
 		}],
 		
+		imgSrc          : '',                  //图片源
 		cropWidth       : '9.375em',           //剪切框宽度
 		cropHeight      : '9.375em',           //剪切框高度
 		
 		tmpl            : [
 			'<div>',
-				'<img class="js-orig-img hui-orig-img hui-hidden" {{bindAttr src="imgSrc"}}>',
+				'<img class="js-orig-img hui-orig-img hui-unvisible">',
 				'<div class="hui-mask"></div>',
 				'<div class="js-crop-box hui-crop-box">',
 					'<div class="js-box-img hui-box-img">',
-						'<img class="js-crop-img hui-crop-img hui-hidden" {{bindAttr src="imgSrc"}}>',
+						'<img class="js-crop-img hui-crop-img hui-unvisible">',
 					'</div>',
 					'<div class="hui-box-op">',
 						'<div class="hui-op-handle hui-op-handle-n"></div>',
@@ -113,7 +120,7 @@ function(AC,AbstractImage,Draggable){
 			width:nWidth,
 			marginLeft:-nLeft,
 			marginTop:-nTop
-		}).removeClass('hui-hidden');
+		}).removeClass('hui-unvisible');
 		me.draggable=new Draggable(me.getEl(),{
 			move:function(oPos){
 				return me.move(oPos);

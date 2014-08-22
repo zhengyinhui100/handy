@@ -28,7 +28,7 @@ module.exports = function(grunt) {
 			src : {
 				expand : true,
 				cwd : projectDir+"/less",
-				src : "*.less",
+				src : ["userlogin.less","main.less"],
 				dest:cssDir,
 				ext : ".css"
 			}

@@ -1,8 +1,8 @@
 //组件，class以"hui-"开头，次级以上级名称为命名前缀，如上级名为hui-list-item,则次级以hui-item-为前缀
 
 //这里编译会导入common的内容,1.5以后版本可用@import (reference) url('/client/views/mixins.import.less');http://lesscss.org/features/#import-options-reference
-@import "function";
-@import "common";
+@import (reference) "function";
+@import (reference) "common";
 
 //图标icon
 .hui-icon{
@@ -1016,6 +1016,9 @@
 		top:0;
 		right:0;
 		bottom:0;
+		//IE(<=10)中，单击浏览按钮可以弹出窗口，双击文本框区域可以弹出窗口；其它主流浏览器中，单击input任何区域都可以弹出窗口；
+    	//设置input字体大小，IE、火狐、Opera的浏览按钮都变大了，以此遮盖文本域，达到所有区域都能单击打开浏览的目的。
+		font-size:30em;
 		.fn_opacity(0);
 	}
 	img{
@@ -1404,8 +1407,33 @@
 .hui-cropwin{
 	height:100%;
 	width:100%;
-	padding-top:2.625em;
+	padding-top:2.563em;
 	background:#fff;
+}
+
+
+//图片展示
+.hui-dispimg{
+	position:relative;
+	height:100%;
+	width:100%;
+	background-color:#2b2b2b;
+	&.hui-popup{
+		position:absolute;
+	}
+	.hui-icon-loading{
+		position:absolute;
+		z-index:1;
+		width:2.75em;
+		height:2.75em;
+		left:-3.125em;
+		.fn_border_radius(2em);
+	}
+	img{
+		position:absolute;
+		left:0;
+		top:0;
+	}
 }
 
 //公用效果
@@ -1419,6 +1447,9 @@
 }
 .hui-hidden{
 	display:none;
+}
+.hui-unvisible{
+	visibility:hidden;
 }
 //圆角
 .hui-radius-little{
@@ -1498,22 +1529,3 @@
 	.fn_transform(translateX(-300%));
 }
 
-
-
-//通用模块
-//图片展示模块
-.hui-displayimage{
-	height:100%;
-	background-color:#2b2b2b;
-	.hui-icon-loading{
-		position:absolute;
-		z-index:1;
-		width:2.75em;
-		height:2.75em;
-		left:-3.125em;
-		.fn_border_radius(2em);
-	}
-	.hui-displayimage-inner{
-		width:100%;
-	}
-}

@@ -30,7 +30,7 @@ function(AC,AbstractImage){
 			}
 		}],
 		
-		tmpl            : '<div><img {{bindAttr src="imgSrc"}} class="hui-hidden"/></div>'
+		tmpl            : '<div><img {{bindAttr src="imgSrc"}} class="hui-unvisible"/></div>'
 		
 	});
 	
