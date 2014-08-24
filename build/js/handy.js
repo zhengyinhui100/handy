@@ -4706,7 +4706,7 @@ function(){
 			return;
 		}
 		var oImgSrc=image;
-		if(image instanceof File){
+		if(typeof File==='object'&&image instanceof File){
 			var oURL = URL || webkitURL;
 			oImgSrc = oURL.createObjectURL(image);
 		}
@@ -4921,10 +4921,11 @@ function(){
 	 */
 	function fMove(oEvt) {
 		var me=this;
+		//阻止滚动页面或原生拖拽
+		oEvt.preventDefault();
 		if(me.drag===true){
 			if($H.hasTouch()){
 				oEvt = oEvt.originalEvent;
-				oEvt.preventDefault();
 				oEvt = oEvt.touches[0];
 			}
 			var nOffsetX=oEvt.clientX-me.eventX;
@@ -9874,117 +9875,6 @@ function(History,AbstractManager){
 	
 });
 /**
- * 图片展示模块
- * @author 郑银辉(zhengyinhui100@gmail.com)
- */
-
-$Define("M.DisplayImage",
-'M.AbstractModule',
-function(AbstractModule){
-	
-	var DisplayImage=AbstractModule.derive({
-//		imgSrc      : '',              //缩略图src
-//		origSrc     : '',              //原图src
-		listeners   : [{
-			name:'afterShow',
-			custom:true,
-			handler:function(){
-				var me=this;
-				var oEl=me.getEl()[0];
-				me.findEl('.js-loading').css({
-					left:oEl.clientWidth/2-$H.em2px(1.375),
-					top:oEl.clientHeight/2-$H.em2px(1.375)
-				});
-			}
-		},{
-			name : "click",
-			handler:function(){
-				$M.back();
-			}
-		},{
-			name:'load',
-			el:'.js-img',
-			handler:function(){
-				var me=this;
-			    var oImg=me.findEl('.js-img');
-			    me.fixImgSize(oImg);
-			}
-		},{
-			name:'load',
-			el:'.js-orig',
-			handler:function(){
-				var me=this;
-				me.showLoading(false);
-			    me.findEl('.js-img').addClass('hui-hidden');
-				var oImg=me.findEl('.js-orig');
-				me.fixImgSize(oImg);
-			}
-		}],
-		tmpl        : [
-			'<div class="hui-displayimage c-v-middle-container">',
-				'<span class="js-loading hui-icon hui-icon-loading hui-icon-bg hui-hidden"></span>',
-				'<div class="hui-displayimage-inner c-h-middle-container c-v-middle">',
-					'<img class="js-img c-h-middle"/>',
-					'<img class="js-orig c-h-middle">',
-				'</div>',
-			'</div>'].join(""),
-		entry       : fEntry,            //进入模块
-		fixImgSize  : fFixImgSize,       //调整图片大小以最大化适应模块大小
-		showLoading : fShowLoading       //显示/隐藏加载提示
-	});
-	
-	/**
-	 * 进入模块
-	 * @param {object}oParams 参数选项
-	 */
-	function fEntry(oParams){
-		var me=this;
-		if(oParams.imgSrc!=me.lastSrc){
-			var src=me.imgSrc=me.lastSrc=oParams.imgSrc;
-			me.findEl('.js-img').attr('src',src).addClass('hui-hidden');
-			me.showLoading();
-			me.findEl('.js-orig').attr('src',oParams.origSrc).addClass('hui-hidden');
-		}
-	}
-	/**
-	 * 调整图片大小以最大化适应模块大小
-	 * @param {jquery}jImg 图片对象
-	 */
-	function fFixImgSize(jImg){
-		var oImg=jImg[0];
-		var oEl=this.getEl()[0];
-		//先移除宽度和高度属性才能获取准确的图片尺寸
-		jImg.removeAttr("width").removeAttr("height");
-        var w = oImg.width,
-            h = oImg.height,
-            scale = w / h,
-            nFixW=oEl.clientWidth,
-            nFixH=oEl.clientHeight;
-        if(nFixW&&w!=nFixW){
-        	w=nFixW;
-        	h = Math.ceil(w / scale);
-        }
-        if(nFixH&&h>nFixH){
-        	h=nFixH;
-        	w=Math.ceil(h*scale);
-        }
-        jImg.css({width:w,height:h});
-        jImg.css("marginTop",-h/2);
-        jImg.removeClass('hui-hidden');
-	}
-	/**
-	 * 显示/隐藏加载提示
-	 * @param {boolean=}bShow 仅当false隐藏
-	 */
-	function fShowLoading(bShow){
-		var me=this;
-		me.findEl('.js-loading')[bShow===false?"addClass":"removeClass"]('hui-hidden');
-	}
-	
-	return DisplayImage;
-	
-});
-/**
  * 组件管理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-10
@@ -10652,6 +10542,7 @@ function(AC){
 				return false;
 			}
 		});
+		me.callSuper();
 	}
 	/**
 	 * 隐藏
@@ -12807,7 +12698,7 @@ function(AC){
         }
     	jImg.css('top',nTop);
         //修正尺寸后才显示图片，避免出现图片大小变化过程
-        jImg.removeClass('hui-hidden');
+        jImg.removeClass('hui-unvisible');
 		me.trigger("imgFixed",jImg);
 		return {
 			width:w,
@@ -12854,7 +12745,7 @@ function(AC,AbstractImage){
 			}
 		}],
 		
-		tmpl            : '<div><img {{bindAttr src="imgSrc"}} class="hui-hidden"/></div>'
+		tmpl            : '<div><img {{bindAttr src="imgSrc"}} class="hui-unvisible"/></div>'
 		
 	});
 	
@@ -12894,11 +12785,45 @@ function(AC,ImgCompress){
 			el   : 'input',
 			name : 'change',
 			handler : function(e) {
-				var oFile = e.target.files[0];
-				this.processImg(oFile);
+				var oInput=e.target;
+				var file,name,imgSrc,oFiles;
+				if(oFiles=oInput.files){
+					if(oFiles.length==0){
+						return;
+					}
+					file= oFiles[0];
+					oInput.value='';
+					name=file.name
+					var oURL = URL || webkitURL;
+					imgSrc = oURL.createObjectURL(file);
+				}else{
+					oInput.select(); 
+					//ie9在file控件下获取焦点情况下 document.selection.createRange() 将会拒绝访问
+					oInput.blur();
+    				imgSrc = document.selection.createRange().text;  
+					if(!imgSrc){
+						return;
+					}
+					name=imgSrc;
+				}
+				if(!/.+\.(jpg|gif|png|jpeg|bmp)$/.test(name)){
+					$C.Tips({text:"您选择的文件不是图片",theme:'error'});
+					return;
+				}
+				this.processImg(imgSrc);
 			}
 		},{
-			
+			name:'click',
+			el:'.js-file-input',
+			handler:function(oEvt){
+				if($H.ie()<10){
+					//ie本地图片预览，http://www.cnblogs.com/yansi/archive/2013/04/14/3021199.html
+					//网页端裁剪图片(FileAPI)，兼容谷歌火狐IE6/7/8，http://www.oschina.net/code/snippet_988397_33758
+					//Flash头像上传新浪微博破解加强版，https://github.com/zhushunqing/FaustCplus
+					oEvt.preventDefault();
+					$C.Tips('上传功能暂时不支持IE9及以下版本，请使用其它浏览器，推荐chrome浏览器。')
+				}
+			}
 		}],
 		
 		tmpl            : [
@@ -12913,7 +12838,7 @@ function(AC,ImgCompress){
 				'{{/unless}}',
 				'<input type="hidden" class="js-file-content" name="fileContent">',
 				'{{#if useFileInput}}',
-					'<input type="file" class="hui-file-input">',
+					'<input type="file" class="js-file-input hui-file-input">',
 				'{{/if}}',
 			'</div>'].join(''),
 		
@@ -13008,29 +12933,25 @@ function(AC,ImgCompress){
 	}
 	/**
 	 * 处理图片
-	 * @param {File|object}imageData 图片数据
+	 * @param {object|string}imgSrc 图片源
 	 */
-	function fProcessImg(imageData){
+	function fProcessImg(imgSrc){
 		var me=this;
-		if(imageData instanceof File){
-			var oURL = URL || webkitURL;
-			imageData = oURL.createObjectURL(imageData);
-		}
 		if(me.crop){
 			$Require('C.CropWindow',function(CropWindow){
 				var oWin=new CropWindow({
-					imgSrc:imageData,
+					imgSrc:imgSrc,
 					width:me.cropWinW,
 					height:me.cropWinH,
 					success:function(oResult){
 						oWin.hide();
 						var oOptions=$H.extend(oResult,me.compressOptions);
-						ImgCompress.compress(imageData,oOptions);
+						ImgCompress.compress(imgSrc,oOptions);
 					}
 				});
 			});
 		}else{
-			ImgCompress.compress(imageData,me.compressOptions);
+			ImgCompress.compress(imgSrc,me.compressOptions);
 		}
 	}
 	/**
@@ -13041,6 +12962,114 @@ function(AC,ImgCompress){
 	}
 	
 	return ImgUpload;
+	
+});
+/**
+ * 图片展示类，弹出展示大图片
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+
+$Define('C.DisplayImage',
+[
+'C.AbstractComponent',
+'C.Popup',
+'C.AbstractImage'
+],
+function(AC,Popup,AbstractImage){
+	
+	var DisplayImage=AC.define('DisplayImage',Popup);
+	
+	$H.extendIf(DisplayImage.prototype,AbstractImage.prototype);
+	
+	DisplayImage.extend({
+		//初始配置
+		xConfig         : {
+			cls         : 'dispimg'
+		},
+		
+//		imgSrc          : '',              //缩略图src
+//		origSrc         : '',              //原图src
+		showPos         : null,
+		noMask          : true,
+
+		listeners       : [{
+			name:'afterShow',
+			custom:true,
+			handler:function(){
+				var me=this;
+				var oEl=me.getEl()[0];
+				me.findEl('.js-loading').css({
+					left:oEl.clientWidth/2-$H.em2px(1.375),
+					top:oEl.clientHeight/2-$H.em2px(1.375)
+				});
+				me.showLoading();
+				me.findEl('.js-img').attr('src',me.imgSrc);
+				me.findEl('.js-orig').attr('src',me.origSrc);
+			}
+		},{
+			name:'load',
+			el:'.js-img',
+			handler:function(oEvt){
+				var me=this;
+			    me.fixImgSize(oEvt.target);
+			}
+		},{
+			name:'load',
+			el:'.js-orig',
+			handler:function(oEvt){
+				var me=this;
+				me.showLoading(false);
+			    me.findEl('.js-img').addClass('hui-hidden');
+				me.fixImgSize(oEvt.target);
+			}
+		}],
+		tmpl        : [
+			'<div class="c-v-middle-container">',
+				'<span class="js-loading hui-icon hui-icon-loading hui-icon-bg hui-hidden"></span>',
+				'<img class="js-img hui-unvisible"/>',
+				'<img class="js-orig hui-unvisible">',
+			'</div>'].join(""),
+//		fixImgSize  : fFixImgSize,       //调整图片大小以最大化适应模块大小
+		showLoading : fShowLoading       //显示/隐藏加载提示
+		
+	});
+	
+	/**
+	 * 调整图片大小以最大化适应模块大小
+	 * @param {jquery}jImg 图片对象
+	 */
+	function fFixImgSize(jImg){
+		var oImg=jImg[0];
+		var oEl=this.getEl()[0];
+		//先移除宽度和高度属性才能获取准确的图片尺寸
+		jImg.removeAttr("width").removeAttr("height");
+        var w = oImg.width,
+            h = oImg.height,
+            scale = w / h,
+            nFixW=oEl.clientWidth,
+            nFixH=oEl.clientHeight;
+        if(nFixW&&w!=nFixW){
+        	w=nFixW;
+        	h = Math.ceil(w / scale);
+        }
+        if(nFixH&&h>nFixH){
+        	h=nFixH;
+        	w=Math.ceil(h*scale);
+        }
+        jImg.css({width:w,height:h});
+        jImg.css("marginTop",-h/2);
+        jImg.removeClass('hui-hidden');
+	}
+	/**
+	 * 显示/隐藏加载提示
+	 * @param {boolean=}bShow 仅当false隐藏
+	 */
+	function fShowLoading(bShow){
+		var me=this;
+		me.findEl('.js-loading')[bShow===false?"addClass":"removeClass"]('hui-hidden');
+	}
+	
+	return DisplayImage;
 	
 });
 /**
@@ -13063,10 +13092,16 @@ function(AC,AbstractImage,Draggable){
 	Crop.extend({
 		//初始配置
 		xConfig         : {
-			cls         : 'crop',
-			imgSrc      : ''
+			cls         : 'crop'
 		},
 		listeners       : [{
+			name:'afterRender',
+			custom:true,
+			handler:function(){
+				var me=this;
+				me.findEl('.js-orig-img,.js-crop-img').attr('src',me.imgSrc);
+			}
+		},{
 			name:'load',
 			el:'.js-orig-img',
 			handler:function(){
@@ -13086,16 +13121,17 @@ function(AC,AbstractImage,Draggable){
 			}
 		}],
 		
+		imgSrc          : '',                  //图片源
 		cropWidth       : '9.375em',           //剪切框宽度
 		cropHeight      : '9.375em',           //剪切框高度
 		
 		tmpl            : [
 			'<div>',
-				'<img class="js-orig-img hui-orig-img hui-hidden" {{bindAttr src="imgSrc"}}>',
+				'<img class="js-orig-img hui-orig-img hui-unvisible">',
 				'<div class="hui-mask"></div>',
 				'<div class="js-crop-box hui-crop-box">',
 					'<div class="js-box-img hui-box-img">',
-						'<img class="js-crop-img hui-crop-img hui-hidden" {{bindAttr src="imgSrc"}}>',
+						'<img class="js-crop-img hui-crop-img hui-unvisible">',
 					'</div>',
 					'<div class="hui-box-op">',
 						'<div class="hui-op-handle hui-op-handle-n"></div>',
@@ -13158,7 +13194,7 @@ function(AC,AbstractImage,Draggable){
 			width:nWidth,
 			marginLeft:-nLeft,
 			marginTop:-nTop
-		}).removeClass('hui-hidden');
+		}).removeClass('hui-unvisible');
 		me.draggable=new Draggable(me.getEl(),{
 			move:function(oPos){
 				return me.move(oPos);
@@ -13286,6 +13322,79 @@ function(AC,AbstractImage,Draggable){
 	}
 	
 	return Crop;
+	
+});
+/**
+ * 截图窗口类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+
+$Define('C.CropWindow',
+[
+'C.AbstractComponent',
+'C.Popup',
+'C.Crop'
+],
+function(AC,Popup,Crop){
+	
+	var CropWindow=AC.define('CropWindow',Popup);
+	
+	CropWindow.extend({
+		//初始配置
+		xConfig         : {
+			cls         : 'cropwin'
+		},
+		
+		title           : '裁切图片',         //标题
+//		imgSrc          : '',                //图片src
+//		success         : $H.noop,           //裁剪成功回调函数
+		
+		showPos         : null,
+		noMask          : true,
+		clickHide       : false,
+		
+		doConfig        : fDoConfig          //初始化配置
+		
+	});
+	
+	/**
+	 * 初始化配置
+	 * @param {Object}oSettings 参数配置
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		me.callSuper();
+		me.add([{
+			xtype:'Toolbar',
+			title:me.title,
+			isHeader:true,
+			items:[{
+				xtype:'Button',
+				xrole:'left',
+				theme:'dark',
+				tType:'adapt',
+				icon:'carat-l',
+				click:function(){
+					me.hide();
+				}
+			},{
+				xtype:'Button',
+				xrole:'right',
+				theme:'dark',
+				tType:'adapt',
+				icon:'check',
+				click:function(){
+					var oResult=me.find('Crop')[0].getResult();
+					me.success&&me.success(oResult);
+				}
+			}]
+		},{
+			xtype:'Crop',
+			imgSrc:me.imgSrc
+		}]);
+	}
+	
+	return CropWindow;
 	
 });
 /**

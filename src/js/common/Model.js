@@ -44,6 +44,7 @@ function(AbstractData){
         //系统属性
 //      fetching              : false,               //是否正在抓取数据，model.get('fetching')==true表示正在抓取
 //		saving                : false,               //正在保存
+//		destroyed             : false,               //是否已销毁
 		$isModel              : true,                //模型标记
 		
         //内部属性
@@ -747,6 +748,7 @@ function(AbstractData){
         var destroy = function() {
             me.trigger('destroy', me, me.collection, oOptions);
             me.off('all');
+            me.destroyed=true;
         };
 
         oOptions.success = function(resp) {

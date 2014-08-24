@@ -35,12 +35,12 @@ function(History,AbstractManager){
 		_getModId          : _fGetModId,        //获取modId
 		_createMod         : _fCreateMod,       //新建模块
 		_showMod           : _fShowMod,         //显示模块
-		_destroy           : _fDestroy,         //销毁模块
 		
 		initialize         : fInitialize,      //初始化模块管理
 		setModule          : fSetModule,       //设置/缓存模块
 		getModule          : fGetModule,       //获取缓存的模块
 		go                 : fGo,              //进入模块
+		destroy            : fDestroy,         //销毁模块
 		update             : fUpdate,          //更新模块
 		clearCache         : fClearCache,      //清除缓存模块
 		back               : fBack             //后退一步
@@ -111,26 +111,6 @@ function(History,AbstractManager){
 		me.currentMod=oMod.modId;
 	}
 	/**
-	 * 销毁模块
-	 * @method _destroy
-	 * @param {Module}oMod 待销毁的模块
-	 */
-	function _fDestroy(oMod){
-		var me=this;
-		var aStack=me._modStack;
-		var sModId=oMod.modId;
-		for(var i=0,len=aStack.length;i<len;i++){
-			if(aStack[i].modId===sModId){
-				aStack.splice(i,1);
-				me._modNum[oMod.modName]--;
-				break;
-			}
-		}
-		oMod.destroy();
-		$D.info('destroy:'+sModId);
-		delete me._modules[sModId];
-	}
-	/**
 	 * 初始化模块管理
 	 * @param {object}oConf {      //初始化配置参数
 	 * 			{string}defModPackage  : 默认模块所在包名
@@ -181,7 +161,7 @@ function(History,AbstractManager){
 			for(var i=0,len=aStack.length;i<len;i++){
 				var oItem=aStack[i];
 				if(oNum[oItem.modName]>nAverage){
-					me._destroy(oMods[oItem.modId]);
+					me.destroy(oMods[oItem.modId]);
 					break;
 				}
 			}
@@ -274,7 +254,7 @@ function(History,AbstractManager){
 				oMod.entry(param);
 			}else if(!oMod.waiting){
 				//标记不使用缓存，销毁模块
-				me._destroy(oMod);
+				me.destroy(oMod);
 				//重新标记当前模块
 //				me.currentMod=sModName;
 				//重新创建模块
@@ -294,6 +274,27 @@ function(History,AbstractManager){
 			});
 		}
 		return true;
+	}
+	/**
+	 * 销毁模块
+	 * @param {Module}oMod 待销毁的模块
+	 */
+	function fDestroy(oMod){
+		var me=this;
+		var aStack=me._modStack;
+		var sModId=oMod.modId;
+		if(me.currentMod===sModId){
+			$M.back();
+		}
+		for(var i=0,len=aStack.length;i<len;i++){
+			if(aStack[i].modId===sModId){
+				aStack.splice(i,1);
+				me._modNum[oMod.modName]--;
+				break;
+			}
+		}
+		oMod.destroy();
+		delete me._modules[sModId];
 	}
 	/**
 	 * 更新模块
