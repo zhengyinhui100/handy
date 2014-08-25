@@ -80,16 +80,23 @@ module.exports = function(grunt) {
 				],
 				dest : buildVersionDir+'css/<%=pkg.name%>.css'
 			},
-			jsBase:{
+			jsLoader:{
 				src:[
-					'src/js/base/base.js',
-					'src/js/base/Json.js', 
-					'src/js/base/Object.js',
-					'src/js/base/Browser.js', 
-					'src/js/base/Debug.js',
-					'src/js/base/Function.js', 
+					'src/js/loader/base.js',
+					'src/js/loader/Json.js', 
+					'src/js/loader/Object.js',
+					'src/js/loader/Browser.js', 
+					'src/js/loader/Debug.js',
+					'src/js/loader/Loader.js'
+				],
+				// 合并后的JS文件的存放位置
+				dest : buildVersionDir+'js/<%= pkg.name %>-loader.js'
+			},
+			jsOther : {
+				// 将要被合并的文件
+				src : [
 					'src/js/base/Class.js',
-					'src/js/base/Loader.js', 
+					'src/js/base/Function.js', 
 					'src/js/base/Events.js',
 					'src/js/base/Date.js', 
 					'src/js/base/String.js',
@@ -103,14 +110,8 @@ module.exports = function(grunt) {
 					'src/js/base/Support.js', 
 					'src/js/base/Validator.js',
 					'src/js/base/LocalStorage.js', 
-					'src/js/base/adapt.js'
-				],
-				// 合并后的JS文件的存放位置
-				dest : buildVersionDir+'js/<%= pkg.name %>-base.js'
-			},
-			jsOther : {
-				// 将要被合并的文件
-				src : [
+					'src/js/base/Adapt.js',
+					
 					'src/js/util/ImgCompress.js',
 					
 					'src/js/effect/Draggable.js',
@@ -175,7 +176,7 @@ module.exports = function(grunt) {
 			},
 			jsAll:{
 				src:[
-					buildVersionDir+'js/<%= pkg.name %>-base.js',
+					buildVersionDir+'js/<%= pkg.name %>-loader.js',
 					buildVersionDir+'js/<%= pkg.name %>-other.js'
 				],
 				// 合并后的JS文件的存放位置

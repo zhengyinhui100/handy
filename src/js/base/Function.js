@@ -2,7 +2,7 @@
  * 函数类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Function',function($H){
+$Define('B.Function',function(){
 	
 	var Function={
 		bind                : fBind,              //函数bind方法

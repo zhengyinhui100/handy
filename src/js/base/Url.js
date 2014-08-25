@@ -2,7 +2,7 @@
  * Url工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add("Url",function(){
+$Define("B.Url",function(){
 	
 	var Url={
 		getParam        : fGetParam,        //获取url里的参数

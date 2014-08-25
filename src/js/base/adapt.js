@@ -1,16 +1,10 @@
 /**
  * 适配类库
  */
-(function($){
+$Define('B.Adapt',function(){
 	
 	//框架全局变量
-	$H=$.noConflict();
-	H=$H;
-	Hui=$H;
-	$D=$H.Debug;
-	$HD=$H.Date;
-	$Define=$H.Loader.define;
-	$Require=$H.Loader.require;
+	
 	
 
 	//项目系统全局变量
@@ -31,5 +25,6 @@
 		$H.trigger('removeEl',oEl);
 	});
 	
+	return 1;
 	
-})(handy);
+});

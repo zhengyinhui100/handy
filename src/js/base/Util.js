@@ -2,7 +2,7 @@
  * 工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Util','B.Object',function(Object,$H){
+$Define('B.Util','B.Object',function(Object){
 	
 	var Util={
 		isWindow         : fIsWindow,          //检查是否是window对象

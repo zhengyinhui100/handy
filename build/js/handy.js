@@ -7,7 +7,7 @@
 	var _handy = window.handy,
 	_$ = window.$,
 	
-	handy=window.handy=window.$=function(selector,context){
+	handy=window.handy=window.$H=function(selector,context){
 		//return new handy.Element(selector,context);
 	};
 	
@@ -15,6 +15,7 @@
 	handy.version    = '1.0.0';    //版本号
 	handy.isDebug    = typeof gEnv=='undefined'?false:gEnv=='dev';     //是否是调试状态
 	handy.expando    = ("handy-" +  handy.version).replace(/\./g,'_');    //自定义属性名
+	handy.base={};
 	handy.add        = fAdd;            //添加子模块
 	handy.noConflict = fNoConflict;     //处理命名冲突
 	handy.noop       = function(){};    //空函数
@@ -25,18 +26,15 @@
 	 * @method add
 	 * @param {string}sName 模块名称
 	 * @param {Object=}aRequires 模块依赖资源
-	 * @param {function(Object):*}fDefined 模块功能定义
+	 * @param {function|object}factory 模块功能定义
 	 */
-	function fAdd(sName,aRequires,fDefined,dds){
-		if(!fDefined){
-			fDefined=aRequires;
+	function fAdd(sName,aRequires,factory){
+		if(!factory){
+			factory=aRequires;
 			aRequires=null;
 		}
-		//TODO 由于Loader可能还未定义，这里特殊处理，以后考虑将Loader单独抽出来
-		if(true||!aRequires||!handy.Loader){
-			if(!handy.base){
-				handy.base={};
-			}
+		var oModule=factory;
+		if(typeof factory==='function'){
 			var args=[];
 			if(aRequires){
 				if(typeof aRequires=="string"){
@@ -47,24 +45,16 @@
 					}
 				}
 			}
-			args.push(handy);
-			var oModule=fDefined.apply(window,args);
-			handy.base[sName]=handy[sName]=oModule;
-			if('Browser,Class,Array,Geo,Cookie,Date,Events,Function,Json,Object,String,Template,Util,Url'.indexOf(sName)>=0){
-				for(var key in oModule){
-					//!Function[key]专为bind方法
-					if(handy.isDebug&&typeof handy[key]!="undefined"&&('console' in window)&&!Function[key]){
-						console.log(handy[key]);
-						console.log(sName+"命名冲突:"+key);
-					}
-					handy[key]=oModule[key];
-				}
+			oModule=factory.apply(window,args);
+		}
+		handy.base[sName]=handy[sName]=oModule;
+		for(var method in oModule){
+			//!Function[method]专为bind方法
+			if(handy.isDebug&&typeof handy[method]!="undefined"&&('console' in window)&&!Function[method]){
+				console.log(handy[method]);
+				console.log(sName+"命名冲突:"+method);
 			}
-		}else{
-			handy.Loader.require(aRequires, function() {
-				Array.prototype.push.call(arguments, handy);
-				handy.base[sName] = handy[sName] = fDefined.apply(window,arguments);
-			});
+			handy[method]=oModule[method];
 		}
 	}
 	/**
@@ -92,7 +82,7 @@
  */
  //参考：https://github.com/douglascrockford/JSON-js/blob/master/json2.js
  //https://developer.mozilla.org/zh-CN/docs/JavaScript/Reference/Global_Objects/JSON
-handy.add('Json',function($H){
+handy.add('Json',function(){
 	
 	var Json={
 		stringify   : fStringify,    //序列化，将json对象转化为字符串
@@ -320,7 +310,7 @@ handy.add('Json',function($H){
  * 对象扩展类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Object',function($H){
+handy.add('Object',function(){
 	
 	var Object={
 		_alias              : {                 //存储别名，公共库建议大写，以便更好地与普通名称区别开，具体项目的别名建议小写
@@ -393,6 +383,12 @@ handy.add('Object',function($H){
         	}
             oObject=oObject[aPath[j]];  
         } 
+        
+        //base库特殊处理，直接添加到handy下
+		var sBase='handy.base.';
+		if(bIsCreate&&sPath.indexOf(sBase)===0){
+			$H.add(sPath.replace(sBase,''),oObject);
+		}
     	return oObject;
 	}
 	/**
@@ -954,7 +950,7 @@ handy.add('Object',function($H){
  * 浏览器版本，$H.Browser.ie/firefox/chrome/opera/safari(),如果浏览器是IE的，$H.Browser.ie()的值是浏览器的版本号，!$H.Browser.ie()表示非IE浏览器
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add("Browser","handy.base.Object",function(Object,$H){
+handy.add("Browser","handy.base.Object",function(Object){
 
 	var _oInfo={};
 	
@@ -1139,9 +1135,9 @@ handy.add("Browser","handy.base.Object",function(Object,$H){
  * //TODO 快捷键切换调试等级
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser,$H){
+handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser){
 	
-	var Debug={
+	var Debug=window.$D={
 		level	    : $H.isDebug?0:5,  //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
 		LOG_LEVEL	: 1,            //日志级别
 		DEBUG_LEVEL : 2,            //调试级别
@@ -1333,220 +1329,12 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 	
 });
 /**
- * 函数类
- * @author 郑银辉(zhengyinhui100@gmail.com)
- */
-handy.add('Function',function($H){
-	
-	var Function={
-		bind                : fBind,              //函数bind方法
-		intercept           : fIntercept          //创建函数拦截器
-	}
-	
-	var _nUuid=0;
-	
-	/**
-	 * 函数bind方法
-	 * @method  bind
-	 * @param {function()}fFunc 被绑定的函数
-	 * @param {Object}oScope  需要绑定的对象
-	 * @param {Object}args    需要绑定的参数
-	 * @return  {function()}    返回新构造的函数
-	 */
-	function fBind(fFunc,oScope,args) {
-		var aBindArgs = Array.prototype.slice.call(arguments,2);
-		return function() {
-			var aArgs=aBindArgs.slice();
-			Array.prototype.push.apply(aArgs, arguments);
-			return fFunc.apply(oScope, aArgs);
-		};
-	}
-	/**
-	 * 创建函数拦截器
-	 * @method  intercept(fExecFunc,fInterceptFunc[,oExecScope,oInterceptScope])
-	 * @param {function()}fExecFunc 被拦截的函数，this指向oExecScope||window
-	 * @param {function()}fInterceptFunc 拦截函数,仅当当拦截函数返回false时，不执行被拦截函数；拦截函数this指向oInterceptScope||oExecScope||window
-	 * @param {Object}oExecScope  被拦截的函数绑定的对象
-	 * @param {Object}oInterceptScope  拦截函数绑定的对象
-	 * @return  {function()}    返回新构造的函数
-	 */
-	function fIntercept(fExecFunc,fInterceptFunc,oExecScope,oInterceptScope) {
-		if($H.Object.isFunc(fExecFunc)&&$H.Object.isFunc(fInterceptFunc)){
-			return function() {
-						var oExScope=oExecScope||this;
-						var oInterScope={};
-		                var args = arguments;
-						oInterScope.scope=oInterceptScope;
-		                oInterScope.target = oExScope;
-		                oInterScope.method = fExecFunc;
-		                return fInterceptFunc.apply(oInterScope, args) != false ?
-				                   fExecFunc.apply(oExScope, args) :false;
-				   };
-		}
-		return fExecFunc||fInterceptFunc;
-	}
-	
-	return Function;
-	
-});
-/**
- * 面向对象支持类
- * @author 郑银辉(zhengyinhui100@gmail.com)
- */
-handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
-	
-	var CL={
-		createClass         : fCreateClass,     //创建类
-		inherit				: fInherit,  		//继承
-		getSingleton        : fGetSingleton     //获取单例
-	}
-	
-	/**
-    * 创建类
-    * @param {string=}sPath 类路径
-    * @return {Object} 返回新创建的类
-    */
-    function fCreateClass(sPath) {
-        //获得一个类定义，并且绑定一个类初始化方法，这里使用名字Class在控制台显得更友好
-        var Class = function(){
-        	var me,fInitialize,oArgs=arguments;
-        	//new 方式调用
-        	if(this.constructor==Class){
-        		me = this;
-        	}else{
-        		//非new方式(如Class(args))，转换为new方式，但一般不推荐这种方式
-        		me = oArgs.callee;
-        		var t=function(){};
-        		t.prototype=me.prototype;
-        		var newObj=new t;
-        		me.apply(newObj,oArgs);
-        		return newObj;
-        	}
-        	//获得initialize引用的对象，如果不是通过new调用(比如:Class())，就没有this.initialize
-        	fInitialize = me.initialize;
-            if (fInitialize) {
-            	//所有对象类型包括数组类型的属性都重新clone，避免在实例方法中修改到类属性
-            	//根据组件example页面118-11800个不同组件的测试，手机上大概会影响5-10%的性能，pc上不是很明显
-//            	for(var p in me){
-//            		if(typeof me[p]=="object"){
-//            			me[p]=Object.clone(me[p]);
-//            		}
-//            	}
-                // 返回当前class派生出来对象可以被定义
-            	return fInitialize.apply(me, oArgs);
-            }
-        };
-        Class.$isClass=true;
-        /**
-         * 便捷创建子类方法
-         * @param {Object=} oProtoExtend 需要扩展的prototype属性
-    	 * @param {Object=} oStaticExtend 需要扩展的静态属性
-   	     * @param {object=} oExtendOptions 继承父类静态方法时，extend方法的选项
-         */
-        Class.derive=function(oProtoExtend,oStaticExtend,oExtendOptions){
-        	var cChild=CL.createClass();
-        	CL.inherit(cChild,this,oProtoExtend,oStaticExtend,oExtendOptions);
-        	return cChild;
-        }
-        /**
-         * 便捷访问父类方法
-         * @method callSuper
-         * @param {Class=}oSuper 指定父类，如果不指定，默认为定义此方法的类的父类，如果该值为空，则为实际调用对象的父类
-         * @param {Array}aArgs 参数数组，默认为调用它的函数的参数
-         * @return {*} 返回对应方法执行结果
-         */
-        Class.prototype.callSuper=function(oSuper,aArgs){
-        	var me=this;
-        	if(oSuper&&!oSuper.$isClass&&oSuper.length!==undefined){
-        		aArgs=oSuper;
-        		oSuper=null;
-        	}
-        	var fCaller=arguments.callee.caller;
-        	var oCallerSuper=fCaller.$owner.superProto;
-        	aArgs=aArgs||fCaller.arguments;
-        	oSuper=oSuper?oSuper.prototype:(oCallerSuper||me.constructor.superProto);
-        	var sMethod=fCaller.$name;
-        	if(oSuper){
-        		var fMethod=oSuper[sMethod];
-        		if(Object.isFunc(fMethod)){
-        			return fMethod.apply(me,aArgs);
-        		}
-        	}
-        };
-        if(sPath){
-        	this.ns(sPath,Class);
-        }
-        return Class;
-    }
-    /**
-    * 继承
-    * @param {Object} oChild 子类
-    * @param {Object} oParent 父类
-    * @param {Object=} oProtoExtend 需要扩展的prototype属性
-    * @param {Object=} oStaticExtend 需要扩展的静态属性
-    * @param {object=} oExtendOptions 继承父类静态方法时，extend方法的选项
-    */
-    function fInherit(oChild, oParent,oProtoExtend,oStaticExtend,oExtendOptions) {
-        var Inheritance = function(){};
-        Inheritance.prototype = oParent.prototype;
-		/* 
-			使用new父类方式生成子类的prototype
-			为什么不使用oChild.prototype = oParent.prototype?
-			1.子类和父类的prototype不能指向同一个对象，否则父类的属性或者方法会可能被覆盖
-			2.父类中构造函数可能会有对象成员定义
-			缺点：
-			1.父类的构造函数不能继承，如果父类的构造函数有参数或者代码逻辑的话，会有些意外情况出现
-			2.constructor需要重新覆盖
-		*/
-        //继承静态方法
-        Object.extend(oChild, oParent,oExtendOptions);
-        oChild.prototype = new Inheritance();
-        //重新覆盖constructor
-        oChild.prototype.constructor = oChild;
-        oChild.superClass = oParent;
-        oChild.superProto = oParent.prototype;
-        //额外的继承动作
-        if(oParent._onInherit){
-            try{
-                oParent._onInherit(oChild);
-            }catch(e){
-            	Debug.error(e);
-            }
-        }
-        //扩展静态属性
-        if(oStaticExtend){
-            Object.extend(oChild, oStaticExtend);
-        }
-        //扩展prototype属性
-        if(oProtoExtend){
-            Object.extend(oChild.prototype, oProtoExtend);
-        }
-    }
-    /**
-     * 获取单例
-     * @param {string|Class}clazz 类或者命名空间
-     * @return {Object} 返回单例对象
-     */
-    function fGetSingleton(clazz){
-    	var cClass;
-    	if(typeof clazz=='string'){
-    		cClass=Object.ns(clazz);
-    	}else{
-    		cClass=clazz;
-    	}
-    	return cClass&&(cClass.$singleton||(cClass.$singleton=new cClass()));
-    }
-	
-	return CL;
-	
-});
-/**
  * 资源加载类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 handy.add("Loader",
-["B.Debug","B.Object","B.Function"],
-function(Debug,Object,Function,$H){
+["B.Debug","B.Object"],
+function(Debug,Object){
 	
 	var _LOADER_PRE='[Handy Loader] ',
 		_RESOURCE_NOT_FOUND= _LOADER_PRE+'not found: ',
@@ -1578,6 +1366,9 @@ function(Debug,Object,Function,$H){
 		define                  : fDefine,                  //定义资源资源
 	    require                 : fRequire                  //获取所需资源后执行回调
 	}
+	
+	window.$Define=Loader.define;
+	window.$Require=Loader.require;
 	
      /**
 	 * 检查对应的资源是否已加载，只要检测到一个不存在的资源就立刻返回
@@ -1862,7 +1653,9 @@ function(Debug,Object,Function,$H){
 					status:'loading'
 				}
 				if(!bCombine){
-					var _fCallback=Function.bind(_fResponse,null,sId);
+					var _fCallback=function(){
+						_fResponse(sId);
+					}
 		    		if(Loader.traceLog){
 						Debug.log(_LOADER_PRE+"request:\n"+sUrl);
 			   		}
@@ -1900,7 +1693,9 @@ function(Debug,Object,Function,$H){
     		for(var host in oCombine){
 				var oItem=oCombine[host];
 				var aUris=oItem.uris;
-    			var _fCallback=Function.bind(_fResponse,null,oItem.ids);
+    			var _fCallback=function(){
+    				_fResponse(oItem.ids);
+    			}
     			var sUrl=host+(aUris.length>1?('??'+aUris.join(',')):aUris[0]);
 	    		if(Loader.traceLog){
 					Debug.log(_LOADER_PRE+"request:\n"+sUrl);
@@ -1976,19 +1771,21 @@ function(Debug,Object,Function,$H){
     }
     /**
 	 * 定义loader资源
-	 * @method define(sId,aDeps=,factory)
+	 * @method define(sId,deps=,factory)
 	 * @param {string}sId   资源id，可以是id、命名空间，也可以是url地址（如css）
-	 * @param {Array=}aDeps  依赖的资源
+	 * @param {Array|string=}deps  依赖的资源
 	 * @param {*}factory  资源工厂，可以是函数，也可以是字符串模板
 	 * @return {number}nIndex 返回回调索引
 	 */
-	function fDefine(sId,aDeps,factory){
+	function fDefine(sId,deps,factory){
 		//读取实名
 		sId=Object.alias(sId);
 		var nLen=arguments.length;
 		if(nLen==2){
-			factory=aDeps;
-			aDeps=[];
+			factory=deps;
+			deps=[];
+		}else{
+			deps=typeof deps=="string"?[deps]:deps;
 		}
 		
 		//检出factory方法内声明的$Require依赖，如：var m=$Require('m');
@@ -1996,11 +1793,11 @@ function(Debug,Object,Function,$H){
 			var m,sFactoryStr=factory.toString();
 			var r=/\$Require\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
 			while(m=r.exec(sFactoryStr)){
-				aDeps.push(m[1]);
+				deps.push(m[1]);
 			}
 		}
 		
-		Loader.require(aDeps,function(){
+		Loader.require(deps,function(){
 			var resource;
 			if(typeof factory=="function"){
 				try{
@@ -2018,6 +1815,7 @@ function(Debug,Object,Function,$H){
 			}else{
 				resource=factory;
 			}
+			
 			if(resource){
 				Object.ns(sId,resource);
 				//添加命名空间元数据
@@ -2035,11 +1833,12 @@ function(Debug,Object,Function,$H){
 	 * @method require(id,fCallback=)
 	 * @param {string|array}id    资源id（数组）
 	 * @param {function()=}fCallback(可选) 回调函数
-	 * @param {string=}sDefineId 当前请求要定义的资源id，这里只是为了检查加载出错时使用
+	 * @param {string=}sDefineId 当前请求要定义的资源id，这里只是为了检查加载出错时使用，外部使用忽略此参数
 	 * @return {any}返回最后一个当前已加载的资源，通常用于className只有一个的情况，这样可以立即通过返回赋值
 	 */
     function fRequire(id,fCallback,sDefineId){
     	var aIds=typeof id=="string"?[id]:id;
+    	fCallback=fCallback||$H.noop;
     	//此次required待请求资源数组
     	var aRequestIds=[];
     	//已加载的资源
@@ -2084,11 +1883,219 @@ function(Debug,Object,Function,$H){
 	
 });
 /**
+ * 面向对象支持类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+$Define("B.Class",["B.Object",'B.Debug'],function(Object,Debug){
+	
+	var Cls={
+		createClass         : fCreateClass,     //创建类
+		inherit				: fInherit,  		//继承
+		getSingleton        : fGetSingleton     //获取单例
+	}
+	
+	/**
+    * 创建类
+    * @param {string=}sPath 类路径
+    * @return {Object} 返回新创建的类
+    */
+    function fCreateClass(sPath) {
+        //获得一个类定义，并且绑定一个类初始化方法，这里使用名字Class在控制台显得更友好
+        var Class = function(){
+        	var me,fInitialize,oArgs=arguments;
+        	//new 方式调用
+        	if(this.constructor==Class){
+        		me = this;
+        	}else{
+        		//非new方式(如Class(args))，转换为new方式，但一般不推荐这种方式
+        		me = oArgs.callee;
+        		var t=function(){};
+        		t.prototype=me.prototype;
+        		var newObj=new t;
+        		me.apply(newObj,oArgs);
+        		return newObj;
+        	}
+        	//获得initialize引用的对象，如果不是通过new调用(比如:Class())，就没有this.initialize
+        	fInitialize = me.initialize;
+            if (fInitialize) {
+            	//所有对象类型包括数组类型的属性都重新clone，避免在实例方法中修改到类属性
+            	//根据组件example页面118-11800个不同组件的测试，手机上大概会影响5-10%的性能，pc上不是很明显
+//            	for(var p in me){
+//            		if(typeof me[p]=="object"){
+//            			me[p]=Object.clone(me[p]);
+//            		}
+//            	}
+                // 返回当前class派生出来对象可以被定义
+            	return fInitialize.apply(me, oArgs);
+            }
+        };
+        Class.$isClass=true;
+        /**
+         * 便捷创建子类方法
+         * @param {Object=} oProtoExtend 需要扩展的prototype属性
+    	 * @param {Object=} oStaticExtend 需要扩展的静态属性
+   	     * @param {object=} oExtendOptions 继承父类静态方法时，extend方法的选项
+         */
+        Class.derive=function(oProtoExtend,oStaticExtend,oExtendOptions){
+        	var cChild=Cls.createClass();
+        	Cls.inherit(cChild,this,oProtoExtend,oStaticExtend,oExtendOptions);
+        	return cChild;
+        }
+        /**
+         * 便捷访问父类方法
+         * @method callSuper
+         * @param {Class=}oSuper 指定父类，如果不指定，默认为定义此方法的类的父类，如果该值为空，则为实际调用对象的父类
+         * @param {Array}aArgs 参数数组，默认为调用它的函数的参数
+         * @return {*} 返回对应方法执行结果
+         */
+        Class.prototype.callSuper=function(oSuper,aArgs){
+        	var me=this;
+        	if(oSuper&&!oSuper.$isClass&&oSuper.length!==undefined){
+        		aArgs=oSuper;
+        		oSuper=null;
+        	}
+        	var fCaller=arguments.callee.caller;
+        	var oCallerSuper=fCaller.$owner.superProto;
+        	aArgs=aArgs||fCaller.arguments;
+        	oSuper=oSuper?oSuper.prototype:(oCallerSuper||me.constructor.superProto);
+        	var sMethod=fCaller.$name;
+        	if(oSuper){
+        		var fMethod=oSuper[sMethod];
+        		if(Object.isFunc(fMethod)){
+        			return fMethod.apply(me,aArgs);
+        		}
+        	}
+        };
+        if(sPath){
+        	this.ns(sPath,Class);
+        }
+        return Class;
+    }
+    /**
+    * 继承
+    * @param {Object} oChild 子类
+    * @param {Object} oParent 父类
+    * @param {Object=} oProtoExtend 需要扩展的prototype属性
+    * @param {Object=} oStaticExtend 需要扩展的静态属性
+    * @param {object=} oExtendOptions 继承父类静态方法时，extend方法的选项
+    */
+    function fInherit(oChild, oParent,oProtoExtend,oStaticExtend,oExtendOptions) {
+        var Inheritance = function(){};
+        Inheritance.prototype = oParent.prototype;
+		/* 
+			使用new父类方式生成子类的prototype
+			为什么不使用oChild.prototype = oParent.prototype?
+			1.子类和父类的prototype不能指向同一个对象，否则父类的属性或者方法会可能被覆盖
+			2.父类中构造函数可能会有对象成员定义
+			缺点：
+			1.父类的构造函数不能继承，如果父类的构造函数有参数或者代码逻辑的话，会有些意外情况出现
+			2.constructor需要重新覆盖
+		*/
+        //继承静态方法
+        Object.extend(oChild, oParent,oExtendOptions);
+        oChild.prototype = new Inheritance();
+        //重新覆盖constructor
+        oChild.prototype.constructor = oChild;
+        oChild.superClass = oParent;
+        oChild.superProto = oParent.prototype;
+        //额外的继承动作
+        if(oParent._onInherit){
+            try{
+                oParent._onInherit(oChild);
+            }catch(e){
+            	Debug.error(e);
+            }
+        }
+        //扩展静态属性
+        if(oStaticExtend){
+            Object.extend(oChild, oStaticExtend);
+        }
+        //扩展prototype属性
+        if(oProtoExtend){
+            Object.extend(oChild.prototype, oProtoExtend);
+        }
+    }
+    /**
+     * 获取单例
+     * @param {string|Class}clazz 类或者命名空间
+     * @return {Object} 返回单例对象
+     */
+    function fGetSingleton(clazz){
+    	var cClass;
+    	if(typeof clazz=='string'){
+    		cClass=Object.ns(clazz);
+    	}else{
+    		cClass=clazz;
+    	}
+    	return cClass&&(cClass.$singleton||(cClass.$singleton=new cClass()));
+    }
+	
+	return Cls;
+	
+});
+/**
+ * 函数类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+$Define('B.Function',function(){
+	
+	var Function={
+		bind                : fBind,              //函数bind方法
+		intercept           : fIntercept          //创建函数拦截器
+	}
+	
+	var _nUuid=0;
+	
+	/**
+	 * 函数bind方法
+	 * @method  bind
+	 * @param {function()}fFunc 被绑定的函数
+	 * @param {Object}oScope  需要绑定的对象
+	 * @param {Object}args    需要绑定的参数
+	 * @return  {function()}    返回新构造的函数
+	 */
+	function fBind(fFunc,oScope,args) {
+		var aBindArgs = Array.prototype.slice.call(arguments,2);
+		return function() {
+			var aArgs=aBindArgs.slice();
+			Array.prototype.push.apply(aArgs, arguments);
+			return fFunc.apply(oScope, aArgs);
+		};
+	}
+	/**
+	 * 创建函数拦截器
+	 * @method  intercept(fExecFunc,fInterceptFunc[,oExecScope,oInterceptScope])
+	 * @param {function()}fExecFunc 被拦截的函数，this指向oExecScope||window
+	 * @param {function()}fInterceptFunc 拦截函数,仅当当拦截函数返回false时，不执行被拦截函数；拦截函数this指向oInterceptScope||oExecScope||window
+	 * @param {Object}oExecScope  被拦截的函数绑定的对象
+	 * @param {Object}oInterceptScope  拦截函数绑定的对象
+	 * @return  {function()}    返回新构造的函数
+	 */
+	function fIntercept(fExecFunc,fInterceptFunc,oExecScope,oInterceptScope) {
+		if($H.Object.isFunc(fExecFunc)&&$H.Object.isFunc(fInterceptFunc)){
+			return function() {
+						var oExScope=oExecScope||this;
+						var oInterScope={};
+		                var args = arguments;
+						oInterScope.scope=oInterceptScope;
+		                oInterScope.target = oExScope;
+		                oInterScope.method = fExecFunc;
+		                return fInterceptFunc.apply(oInterScope, args) != false ?
+				                   fExecFunc.apply(oExScope, args) :false;
+				   };
+		}
+		return fExecFunc||fInterceptFunc;
+	}
+	
+	return Function;
+	
+});
+/**
  * 自定义事件类，事件名称支持'all'表示所有事件，支持复杂形式：'event1 event2'或{event1:func1,event:func2}，
  * 事件名称支持命名空间(".name")，如：change.one
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Events',function($H){
+$Define('B.Events',function(){
 	
 	var Events={
 		_eventCache        : {},                   //自定义事件池
@@ -2383,7 +2390,7 @@ handy.add('Events',function($H){
  * 日期扩展类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Date',function(){
+$Define('B.Date',function(){
 	
 	var WDate=window.Date;
 	
@@ -2616,7 +2623,7 @@ handy.add('Date',function(){
  * String工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add("String",function(){
+$Define("B.String",function(){
 	
 	var String={
 		stripTags		: fStripTags,       // 删除标签
@@ -2833,7 +2840,7 @@ handy.add("String",function(){
  * Cookie工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Cookie',function(){
+$Define('B.Cookie',function(){
 	
 	var Cookie={
 		getCookie     : fGetCookie,    //获取cookie
@@ -2918,7 +2925,7 @@ handy.add('Cookie',function(){
  * 工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Util','B.Object',function(Object,$H){
+$Define('B.Util','B.Object',function(Object){
 	
 	var Util={
 		isWindow         : fIsWindow,          //检查是否是window对象
@@ -3072,7 +3079,7 @@ handy.add('Util','B.Object',function(Object,$H){
  * Url工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add("Url",function(){
+$Define("B.Url",function(){
 	
 	var Url={
 		getParam        : fGetParam,        //获取url里的参数
@@ -3120,7 +3127,7 @@ handy.add("Url",function(){
  * 数组类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Array','B.Object',function(Object,$H){
+$Define('B.Array','B.Object',function(Object){
 	
 	var Arr={
 		map           : fMap,          //映射每一个值, 通过一个转换函数产生一个新的数组
@@ -3490,7 +3497,7 @@ handy.add('Array','B.Object',function(Object,$H){
  * 地理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Geo',function($H){
+$Define('B.Geo',function(){
 	
 	var Geo={
 		distance         : fDistance          //计算两点距离(单位为km，保留两位小数)
@@ -3564,7 +3571,7 @@ handy.add('Geo',function($H){
  * 模板类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Object,String,Debug,Function,$H){
+$Define('B.Template',['B.Object','B.String','B.Debug','B.Function'],function(Object,String,Debug,Function){
 		
 	var T={
 		//配置
@@ -4068,9 +4075,9 @@ handy.add('Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
  * 
  */
 //use jQuery
-handy.add("HashChange",
+$Define("B.HashChange",
 ['handy.base.Debug','handy.base.Util'],
-function(Debug,Util,$H){
+function(Debug,Util){
 
 	/**
 	 * IE8+ | FF3.6+ | Safari5+ | Chrome | Opera 10.6+ 支持hashchange
@@ -4206,7 +4213,7 @@ function(Debug,Util,$H){
  * 支持类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Support','B.Browser',function(Browser,$H){
+$Define('B.Support','B.Browser',function(Browser){
 	
 	
 	var Support={
@@ -4284,7 +4291,7 @@ handy.add('Support','B.Browser',function(Browser,$H){
  * 校验类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Validator',['B.String','B.Object'],function(String,Object,$H){
+$Define('B.Validator',['B.String','B.Object'],function(String,Object){
 	
 	var Validator={
 		messages: {
@@ -4532,7 +4539,7 @@ handy.add('Validator',['B.String','B.Object'],function(String,Object,$H){
  * LocalStorage类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Events,Json,$H){
+$Define('B.LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Events,Json){
 	
 	var LocalStorage={
 		_init           : _fInit,              //初始化
@@ -4636,16 +4643,10 @@ handy.add('LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Even
 /**
  * 适配类库
  */
-(function($){
+$Define('B.Adapt',function(){
 	
 	//框架全局变量
-	$H=$.noConflict();
-	H=$H;
-	Hui=$H;
-	$D=$H.Debug;
-	$HD=$H.Date;
-	$Define=$H.Loader.define;
-	$Require=$H.Loader.require;
+	
 	
 
 	//项目系统全局变量
@@ -4666,8 +4667,9 @@ handy.add('LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Even
 		$H.trigger('removeEl',oEl);
 	});
 	
+	return 1;
 	
-})(handy);
+});
 /**
  * 图片压缩类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -5415,6 +5417,7 @@ function(AbstractData){
         //系统属性
 //      fetching              : false,               //是否正在抓取数据，model.get('fetching')==true表示正在抓取
 //		saving                : false,               //正在保存
+//		destroyed             : false,               //是否已销毁
 		$isModel              : true,                //模型标记
 		
         //内部属性
@@ -6118,6 +6121,7 @@ function(AbstractData){
         var destroy = function() {
             me.trigger('destroy', me, me.collection, oOptions);
             me.off('all');
+            me.destroyed=true;
         };
 
         oOptions.success = function(resp) {
@@ -9571,12 +9575,12 @@ function(History,AbstractManager){
 		_getModId          : _fGetModId,        //获取modId
 		_createMod         : _fCreateMod,       //新建模块
 		_showMod           : _fShowMod,         //显示模块
-		_destroy           : _fDestroy,         //销毁模块
 		
 		initialize         : fInitialize,      //初始化模块管理
 		setModule          : fSetModule,       //设置/缓存模块
 		getModule          : fGetModule,       //获取缓存的模块
 		go                 : fGo,              //进入模块
+		destroy            : fDestroy,         //销毁模块
 		update             : fUpdate,          //更新模块
 		clearCache         : fClearCache,      //清除缓存模块
 		back               : fBack             //后退一步
@@ -9647,26 +9651,6 @@ function(History,AbstractManager){
 		me.currentMod=oMod.modId;
 	}
 	/**
-	 * 销毁模块
-	 * @method _destroy
-	 * @param {Module}oMod 待销毁的模块
-	 */
-	function _fDestroy(oMod){
-		var me=this;
-		var aStack=me._modStack;
-		var sModId=oMod.modId;
-		for(var i=0,len=aStack.length;i<len;i++){
-			if(aStack[i].modId===sModId){
-				aStack.splice(i,1);
-				me._modNum[oMod.modName]--;
-				break;
-			}
-		}
-		oMod.destroy();
-		$D.info('destroy:'+sModId);
-		delete me._modules[sModId];
-	}
-	/**
 	 * 初始化模块管理
 	 * @param {object}oConf {      //初始化配置参数
 	 * 			{string}defModPackage  : 默认模块所在包名
@@ -9717,7 +9701,7 @@ function(History,AbstractManager){
 			for(var i=0,len=aStack.length;i<len;i++){
 				var oItem=aStack[i];
 				if(oNum[oItem.modName]>nAverage){
-					me._destroy(oMods[oItem.modId]);
+					me.destroy(oMods[oItem.modId]);
 					break;
 				}
 			}
@@ -9810,7 +9794,7 @@ function(History,AbstractManager){
 				oMod.entry(param);
 			}else if(!oMod.waiting){
 				//标记不使用缓存，销毁模块
-				me._destroy(oMod);
+				me.destroy(oMod);
 				//重新标记当前模块
 //				me.currentMod=sModName;
 				//重新创建模块
@@ -9830,6 +9814,27 @@ function(History,AbstractManager){
 			});
 		}
 		return true;
+	}
+	/**
+	 * 销毁模块
+	 * @param {Module}oMod 待销毁的模块
+	 */
+	function fDestroy(oMod){
+		var me=this;
+		var aStack=me._modStack;
+		var sModId=oMod.modId;
+		if(me.currentMod===sModId){
+			$M.back();
+		}
+		for(var i=0,len=aStack.length;i<len;i++){
+			if(aStack[i].modId===sModId){
+				aStack.splice(i,1);
+				me._modNum[oMod.modName]--;
+				break;
+			}
+		}
+		oMod.destroy();
+		delete me._modules[sModId];
 	}
 	/**
 	 * 更新模块
@@ -10580,8 +10585,8 @@ function(AC){
 		// 设置定位坐标
 		var me=this;
 		var oEl=me.getEl();
-		var width=me.width||oEl.outerWidth();
-		var height=me.height||oEl.outerHeight();
+		var width=me.width||oEl[0].clientWidth;
+		var height=me.height||oEl[0].clientHeight;
 		var oDoc=document;
 		var x = ((oDoc.documentElement.offsetWidth || oDoc.body.offsetWidth) - width)/2;
 		var y = ((oDoc.documentElement.clientHeight || oDoc.body.clientHeight) - height)/2 + (oDoc.documentElement.scrollTop||oDoc.body.scrollTop);
@@ -10737,7 +10742,7 @@ function(AC){
 		if(me.rendered){
 			var nLen=me.children.length;
 			var width=Math.floor(100/nLen);
-			var oItems=me.findEl('> .js-item');
+			var oItems=me.getEl().children('.js-item');
 			var sFirstCls='hui-item-first';
 			var sLastCls='hui-item-last';
 			oItems.each(function(i,el){

@@ -2,7 +2,7 @@
  * 支持类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Support','B.Browser',function(Browser,$H){
+$Define('B.Support','B.Browser',function(Browser){
 	
 	
 	var Support={

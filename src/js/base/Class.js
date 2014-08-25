@@ -2,9 +2,9 @@
  * 面向对象支持类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
+$Define("B.Class",["B.Object",'B.Debug'],function(Object,Debug){
 	
-	var CL={
+	var Cls={
 		createClass         : fCreateClass,     //创建类
 		inherit				: fInherit,  		//继承
 		getSingleton        : fGetSingleton     //获取单例
@@ -53,8 +53,8 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
    	     * @param {object=} oExtendOptions 继承父类静态方法时，extend方法的选项
          */
         Class.derive=function(oProtoExtend,oStaticExtend,oExtendOptions){
-        	var cChild=CL.createClass();
-        	CL.inherit(cChild,this,oProtoExtend,oStaticExtend,oExtendOptions);
+        	var cChild=Cls.createClass();
+        	Cls.inherit(cChild,this,oProtoExtend,oStaticExtend,oExtendOptions);
         	return cChild;
         }
         /**
@@ -146,6 +146,6 @@ handy.add("Class",["B.Object",'B.Debug'],function(Object,Debug,$H){
     	return cClass&&(cClass.$singleton||(cClass.$singleton=new cClass()));
     }
 	
-	return CL;
+	return Cls;
 	
 });

@@ -4,9 +4,9 @@
  * //TODO 快捷键切换调试等级
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser,$H){
+handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser){
 	
-	var Debug={
+	var Debug=window.$D={
 		level	    : $H.isDebug?0:5,  //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
 		LOG_LEVEL	: 1,            //日志级别
 		DEBUG_LEVEL : 2,            //调试级别

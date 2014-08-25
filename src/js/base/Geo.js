@@ -2,7 +2,7 @@
  * 地理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Geo',function($H){
+$Define('B.Geo',function(){
 	
 	var Geo={
 		distance         : fDistance          //计算两点距离(单位为km，保留两位小数)

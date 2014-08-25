@@ -2,7 +2,7 @@
  * 日期扩展类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Date',function(){
+$Define('B.Date',function(){
 	
 	var WDate=window.Date;
 	

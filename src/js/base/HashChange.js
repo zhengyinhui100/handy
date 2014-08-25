@@ -4,9 +4,9 @@
  * 
  */
 //use jQuery
-handy.add("HashChange",
+$Define("B.HashChange",
 ['handy.base.Debug','handy.base.Util'],
-function(Debug,Util,$H){
+function(Debug,Util){
 
 	/**
 	 * IE8+ | FF3.6+ | Safari5+ | Chrome | Opera 10.6+ 支持hashchange

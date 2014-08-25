@@ -7,7 +7,7 @@
 	var _handy = window.handy,
 	_$ = window.$,
 	
-	handy=window.handy=window.$=function(selector,context){
+	handy=window.handy=window.$H=function(selector,context){
 		//return new handy.Element(selector,context);
 	};
 	
@@ -15,6 +15,7 @@
 	handy.version    = '1.0.0';    //版本号
 	handy.isDebug    = typeof gEnv=='undefined'?false:gEnv=='dev';     //是否是调试状态
 	handy.expando    = ("handy-" +  handy.version).replace(/\./g,'_');    //自定义属性名
+	handy.base={};
 	handy.add        = fAdd;            //添加子模块
 	handy.noConflict = fNoConflict;     //处理命名冲突
 	handy.noop       = function(){};    //空函数
@@ -25,18 +26,15 @@
 	 * @method add
 	 * @param {string}sName 模块名称
 	 * @param {Object=}aRequires 模块依赖资源
-	 * @param {function(Object):*}fDefined 模块功能定义
+	 * @param {function|object}factory 模块功能定义
 	 */
-	function fAdd(sName,aRequires,fDefined,dds){
-		if(!fDefined){
-			fDefined=aRequires;
+	function fAdd(sName,aRequires,factory){
+		if(!factory){
+			factory=aRequires;
 			aRequires=null;
 		}
-		//TODO 由于Loader可能还未定义，这里特殊处理，以后考虑将Loader单独抽出来
-		if(true||!aRequires||!handy.Loader){
-			if(!handy.base){
-				handy.base={};
-			}
+		var oModule=factory;
+		if(typeof factory==='function'){
 			var args=[];
 			if(aRequires){
 				if(typeof aRequires=="string"){
@@ -47,24 +45,16 @@
 					}
 				}
 			}
-			args.push(handy);
-			var oModule=fDefined.apply(window,args);
-			handy.base[sName]=handy[sName]=oModule;
-			if('Browser,Class,Array,Geo,Cookie,Date,Events,Function,Json,Object,String,Template,Util,Url'.indexOf(sName)>=0){
-				for(var key in oModule){
-					//!Function[key]专为bind方法
-					if(handy.isDebug&&typeof handy[key]!="undefined"&&('console' in window)&&!Function[key]){
-						console.log(handy[key]);
-						console.log(sName+"命名冲突:"+key);
-					}
-					handy[key]=oModule[key];
-				}
+			oModule=factory.apply(window,args);
+		}
+		handy.base[sName]=handy[sName]=oModule;
+		for(var method in oModule){
+			//!Function[method]专为bind方法
+			if(handy.isDebug&&typeof handy[method]!="undefined"&&('console' in window)&&!Function[method]){
+				console.log(handy[method]);
+				console.log(sName+"命名冲突:"+method);
 			}
-		}else{
-			handy.Loader.require(aRequires, function() {
-				Array.prototype.push.call(arguments, handy);
-				handy.base[sName] = handy[sName] = fDefined.apply(window,arguments);
-			});
+			handy[method]=oModule[method];
 		}
 	}
 	/**

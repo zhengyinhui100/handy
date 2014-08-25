@@ -2,7 +2,7 @@
  * 数组类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Array','B.Object',function(Object,$H){
+$Define('B.Array','B.Object',function(Object){
 	
 	var Arr={
 		map           : fMap,          //映射每一个值, 通过一个转换函数产生一个新的数组

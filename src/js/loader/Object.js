@@ -2,7 +2,7 @@
  * 对象扩展类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Object',function($H){
+handy.add('Object',function(){
 	
 	var Object={
 		_alias              : {                 //存储别名，公共库建议大写，以便更好地与普通名称区别开，具体项目的别名建议小写
@@ -75,6 +75,12 @@ handy.add('Object',function($H){
         	}
             oObject=oObject[aPath[j]];  
         } 
+        
+        //base库特殊处理，直接添加到handy下
+		var sBase='handy.base.';
+		if(bIsCreate&&sPath.indexOf(sBase)===0){
+			$H.add(sPath.replace(sBase,''),oObject);
+		}
     	return oObject;
 	}
 	/**

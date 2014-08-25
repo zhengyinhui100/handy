@@ -3,8 +3,8 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 handy.add("Loader",
-["B.Debug","B.Object","B.Function"],
-function(Debug,Object,Function,$H){
+["B.Debug","B.Object"],
+function(Debug,Object){
 	
 	var _LOADER_PRE='[Handy Loader] ',
 		_RESOURCE_NOT_FOUND= _LOADER_PRE+'not found: ',
@@ -36,6 +36,9 @@ function(Debug,Object,Function,$H){
 		define                  : fDefine,                  //定义资源资源
 	    require                 : fRequire                  //获取所需资源后执行回调
 	}
+	
+	window.$Define=Loader.define;
+	window.$Require=Loader.require;
 	
      /**
 	 * 检查对应的资源是否已加载，只要检测到一个不存在的资源就立刻返回
@@ -320,7 +323,9 @@ function(Debug,Object,Function,$H){
 					status:'loading'
 				}
 				if(!bCombine){
-					var _fCallback=Function.bind(_fResponse,null,sId);
+					var _fCallback=function(){
+						_fResponse(sId);
+					}
 		    		if(Loader.traceLog){
 						Debug.log(_LOADER_PRE+"request:\n"+sUrl);
 			   		}
@@ -358,7 +363,9 @@ function(Debug,Object,Function,$H){
     		for(var host in oCombine){
 				var oItem=oCombine[host];
 				var aUris=oItem.uris;
-    			var _fCallback=Function.bind(_fResponse,null,oItem.ids);
+    			var _fCallback=function(){
+    				_fResponse(oItem.ids);
+    			}
     			var sUrl=host+(aUris.length>1?('??'+aUris.join(',')):aUris[0]);
 	    		if(Loader.traceLog){
 					Debug.log(_LOADER_PRE+"request:\n"+sUrl);
@@ -434,19 +441,21 @@ function(Debug,Object,Function,$H){
     }
     /**
 	 * 定义loader资源
-	 * @method define(sId,aDeps=,factory)
+	 * @method define(sId,deps=,factory)
 	 * @param {string}sId   资源id，可以是id、命名空间，也可以是url地址（如css）
-	 * @param {Array=}aDeps  依赖的资源
+	 * @param {Array|string=}deps  依赖的资源
 	 * @param {*}factory  资源工厂，可以是函数，也可以是字符串模板
 	 * @return {number}nIndex 返回回调索引
 	 */
-	function fDefine(sId,aDeps,factory){
+	function fDefine(sId,deps,factory){
 		//读取实名
 		sId=Object.alias(sId);
 		var nLen=arguments.length;
 		if(nLen==2){
-			factory=aDeps;
-			aDeps=[];
+			factory=deps;
+			deps=[];
+		}else{
+			deps=typeof deps=="string"?[deps]:deps;
 		}
 		
 		//检出factory方法内声明的$Require依赖，如：var m=$Require('m');
@@ -454,11 +463,11 @@ function(Debug,Object,Function,$H){
 			var m,sFactoryStr=factory.toString();
 			var r=/\$Require\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
 			while(m=r.exec(sFactoryStr)){
-				aDeps.push(m[1]);
+				deps.push(m[1]);
 			}
 		}
 		
-		Loader.require(aDeps,function(){
+		Loader.require(deps,function(){
 			var resource;
 			if(typeof factory=="function"){
 				try{
@@ -476,6 +485,7 @@ function(Debug,Object,Function,$H){
 			}else{
 				resource=factory;
 			}
+			
 			if(resource){
 				Object.ns(sId,resource);
 				//添加命名空间元数据
@@ -493,11 +503,12 @@ function(Debug,Object,Function,$H){
 	 * @method require(id,fCallback=)
 	 * @param {string|array}id    资源id（数组）
 	 * @param {function()=}fCallback(可选) 回调函数
-	 * @param {string=}sDefineId 当前请求要定义的资源id，这里只是为了检查加载出错时使用
+	 * @param {string=}sDefineId 当前请求要定义的资源id，这里只是为了检查加载出错时使用，外部使用忽略此参数
 	 * @return {any}返回最后一个当前已加载的资源，通常用于className只有一个的情况，这样可以立即通过返回赋值
 	 */
     function fRequire(id,fCallback,sDefineId){
     	var aIds=typeof id=="string"?[id]:id;
+    	fCallback=fCallback||$H.noop;
     	//此次required待请求资源数组
     	var aRequestIds=[];
     	//已加载的资源
