@@ -38,18 +38,18 @@ function(){
 		if(oCache=_cache[sName]){
 			if(oOptions===undefined){
 				return oCache;
-			}else if(!$H.isObj(oOptions)){
-				//根据id查找
-				return oCache[oOptions];
-			}else{
-				var aResult=[];
-				$H.each(oCache,function(k,obj){
-					if($H.largeThan(obj,oOptions)){
-						aResult.push(obj);
-					}
-				});
-				return aResult;
 			}
+			if(!$H.isObj(oOptions)){
+				//根据id查找
+				oOptions={id:oOptions};
+			}
+			var aResult=[];
+			$H.each(oCache,function(k,obj){
+				if($H.largeThan(obj,oOptions)){
+					aResult.push(obj);
+				}
+			});
+			return aResult.length>0?aResult[0]:null;
 		}
 	}
 	/**
@@ -70,7 +70,7 @@ function(){
 		}
 		var sName=data.constructor.$ns;
 		var aCache=_cache[sName]||(_cache[sName]={});
-		aCache[data.id]=data;
+		aCache[data.uuid]=data;
 		//快捷访问别名(客户id)
 		if(sCid){
 			if(!_cache[sCid]){

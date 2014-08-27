@@ -34,7 +34,6 @@ function(AC){
 				'<div class="hui-conver-content">',
 					'{{content}}',
 					'<div class="hui-triangle">',
-						'<div class="hui-triangle hui-triangle-inner"></div>',
 					'</div>',
 				'</div>',
 			'</div>'].join(''),

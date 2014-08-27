@@ -18,6 +18,7 @@ function(AC,Popup,ControlGroup){
 			cls             : 'tips',
 			text            : '',
 			radius          : 'normal',
+			hasArrow        : false,               //是否有箭头
 			theme           : 'black'
 		},
 //		type            : 'miniLoading',            类型，‘loading’表示居中加载中提示，‘topTips’表示顶部简单提示，‘miniLoading’表示顶部无背景loading小提示
@@ -27,6 +28,9 @@ function(AC,Popup,ControlGroup){
 			'<div {{bindAttr class="text:hui-tips-notxt c-clear"}}>',
 				'{{placeItem}}',
 				'{{#if text}}<span class="hui-tips-txt">{{text}}</span>{{/if}}',
+				'{{#if hasArrow}}',
+					'<div class="hui-triangle"><div class="hui-triangle hui-triangle-inner"></div></div>',
+				'{{/if}}',
 			'</div>'
 		].join(''),
 		doConfig        : fDoConfig     //初始化配置

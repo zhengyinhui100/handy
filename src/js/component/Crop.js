@@ -21,7 +21,7 @@ function(AC,AbstractImage,Draggable){
 			cls         : 'crop'
 		},
 		listeners       : [{
-			name:'afterRender',
+			name:'show',
 			custom:true,
 			handler:function(){
 				var me=this;

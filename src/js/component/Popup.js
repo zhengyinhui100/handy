@@ -31,6 +31,7 @@ function(AC){
 		hide             : fHide,            //隐藏
 		top              : fTop,             //顶部显示
 		center           : fCenter,          //居中显示
+		bottom           : fBottom,          //底部显示
 		followEl         : fFollowEl,        //根据指定节点显示
 		mask             : fMask,            //显示遮罩层
 		unmask           : fUnmask           //隐藏遮罩层
@@ -164,8 +165,8 @@ function(AC){
 		// 设置定位坐标
 		var me=this;
 		var oEl=me.getEl();
-		var width=me.width||oEl[0].clientWidth;
-		var height=me.height||oEl[0].clientHeight;
+		var width=oEl[0].clientWidth;
+		var height=oEl[0].clientHeight;
 		var oDoc=document;
 		var x = ((oDoc.documentElement.offsetWidth || oDoc.body.offsetWidth) - width)/2;
 		var y = ((oDoc.documentElement.clientHeight || oDoc.body.clientHeight) - height)/2 + (oDoc.documentElement.scrollTop||oDoc.body.scrollTop);
@@ -173,6 +174,21 @@ function(AC){
 		oEl.css({
 			left:x + "px",
 			top:y-(me.offsetTop||0) + "px"
+		});
+	}
+	/**
+	 * 底部显示
+	 */
+	function fBottom(){
+		// 设置定位坐标
+		var me=this;
+		var oEl=me.getEl();
+		var width=oEl[0].clientWidth;
+		var oDoc=document;
+		var x = ((oDoc.documentElement.offsetWidth || oDoc.body.offsetWidth) - width)/2;
+		oEl.css({
+			left:x + "px",
+			bottom:me.get('hasArrow')?'1em':0
 		});
 	}
 	/**

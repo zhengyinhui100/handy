@@ -107,13 +107,13 @@ function(AbstractData){
 		var bHasChange=false;
 		//如果有id，需要先查找是否有存在的模型，查询直接id效率高，所以先进行查询，查询不到id才通过new后，查询联合id
 		if(id=oVal[sIdName]){
-	        oModel=$S.get(_Class,id);
+	        oModel=$S.get(_Class,{id:id});
         }
         if(!oModel){
 	        //因为可能存在自定义联合主键，所以这里没有现存的模型而新建一个实例时，要把val传入，以便获取正确的主键
 	        var oModel=new _Class(oVal,oOptions),tmp;
 	        //放入数据仓库
-			if(!(tmp=$S.get(oModel,oModel.id))){
+			if(!(tmp=$S.get(oModel,{id:oModel.id}))){
 				bHasChange=true;
 				$S.push(oModel);
 			}else{
