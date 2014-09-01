@@ -2,6 +2,7 @@ module.exports = function(grunt) {
 	'use strict';
 
 	var projectDir='/Users/hui/Documents/workspace/sportapp/';
+	var ftlDir='/Users/hui/Documents/workspace/sport-web/src/main/webapp/WEB-INF/views';
 	var deployDir='/Users/hui/Documents/';
 	
 	var buildDir=projectDir+'build/';
@@ -10,11 +11,22 @@ module.exports = function(grunt) {
 	var buildVersionDir=buildDir;
 	var buildLibDir=buildVersionDir+'lib/';
 	var appDir=deployDir+'appBuild/';
+	var oNow=new Date();
+	var _fFix=function(nNum){
+		return nNum<10?'0'+nNum:nNum;
+	}
+	var sVersion=''+oNow.getFullYear()+_fFix(oNow.getMonth() + 1)+_fFix(oNow.getDate())+_fFix(oNow.getHours())+_fFix(oNow.getMinutes())+_fFix(oNow.getSeconds());
 	var testConfig={
 		serverName:'http://115.28.151.237:8080/',
 		staticServerName:'http://115.28.151.237/',
 		//staticServerName:'http://192.168.0.209/',
-		environment:'test'
+		environment:'test',
+		//native app版本号
+		appVersion:1.0,
+		//webapp(前端更新)版本号
+		version:1.0,
+		//前端更新版本(时间)
+		staticVersion:sVersion
 	}
 	
 	grunt.initConfig({
@@ -28,7 +40,7 @@ module.exports = function(grunt) {
 			src : {
 				expand : true,
 				cwd : projectDir+"/less",
-				src : ["userlogin.less","main.less"],
+				src : ["appinit.less","userlogin.less","main.less"],
 				dest:cssDir,
 				ext : ".css"
 			}
@@ -39,7 +51,7 @@ module.exports = function(grunt) {
 				//二进制文件必须排除，否则会损坏文件
 				noProcess:['**/*.jpg','**/*.png','**/*.jpeg','**/*.gif','**/*.swf'],
 				process : function(content, srcpath) {
-					if(/\.(js|html)$/.test(srcpath)){
+					if(/\.(js|html|ftl)$/.test(srcpath)){
 						return content.replace(/{%=(((?!%}).)+)%}/g, function(match,$1){
 							return testConfig[$1];
 						});
@@ -53,11 +65,28 @@ module.exports = function(grunt) {
 				src : ['css/**/*','img/**/*','js/**/*','lib/**/*'],
 				dest :buildVersionDir
 			},
-			appBuild:{
+			app:{
 				expand : true,
 				cwd:projectDir,
-				src : ['**/*','!platforms/**/*','!plugins/**','!build/**','!htmlTmpl/**','!less/**',/*'!www/img/**',*/'!www/js/**','!www/lib/**'],
+				src : [
+					'**/*','!platforms/**/*','!plugins/**','!build/**','!htmlTmpl/**',
+					'!less/**','!www/img/**','!www/css/**','!www/js/**','!www/lib/**'
+				],
 				dest :appDir
+			},
+			appLocal:{
+				expand : true,
+				cwd:buildDir,
+				src : [
+					'js/AppInit.min.js','css/appinit.min.css'
+				],
+				dest :appDir+'www'
+			},
+			ftl:{
+				expand : true,
+				cwd:ftlDir,
+				src : ['index.ftl','chkVersion.ftl'],
+				dest :deployDir
 			}
 		},
 		handy_require:{
@@ -169,20 +198,23 @@ module.exports = function(grunt) {
 		shell : {
 			build : {
 				command : [
-					'cp -R ../build '+deployDir+'handy',
-					'cp -R '+buildVersionDir+' '+deployDir+'<%=pkg.name%>',
+					'mkdir '+deployDir+sVersion,
+					'cp -R ../build '+deployDir+sVersion+'/'+'handy',
+					'cp -R '+buildVersionDir+' '+deployDir+sVersion+'/'+'<%=pkg.name%>',
 					'cd '+deployDir,
 					'rm -f static.tar.gz',
-					'tar -cvzf static.tar.gz <%=pkg.name%> handy',
-					'rm -r handy',
-					'rm -r <%=pkg.name%>'
+					'tar -cvzf static.tar.gz index.ftl chkVersion.ftl '+sVersion,
+					'rm -f index.ftl chkVersion.ftl',
+					'rm -rf '+sVersion
 				].join('&&')
 			},
 			appTar:{
 				command : [
 					'cd '+appDir,
 					'rm -f '+deployDir+'app.zip',
-					'zip -r '+deployDir+'app.zip www'
+					'zip -r '+deployDir+'app.zip www',
+					'cd ../',
+					'rm -rf appBuild'
 				].join('&&')
 			},
 			buildDevApk:{
@@ -219,18 +251,20 @@ module.exports = function(grunt) {
 
 	
 	//local test build 把copy.options改名
-	grunt.registerTask('testSportAppBuild', ['clean:build','less','copy:build','handy_require','concat','cssmin','uglify']);
+	grunt.registerTask('testStaticBuild', ['clean:build','less','copy:build','copy:ftl','handy_require','concat','cssmin','uglify']);
 	
-	grunt.registerTask('testStaticBuild', ['testSportAppBuild','shell:build']);
+	grunt.registerTask('testStaticTar', ['testStaticBuild','shell:build']);
 	
-	grunt.registerTask('appBuild', ['clean:appBuild','copy:appBuild']);
+	grunt.registerTask('appBuild', ['clean:appBuild','copy:app','copy:appLocal']);
 	
-	grunt.registerTask('appTar', ['appBuild','shell:appTar']);
+	grunt.registerTask('appTar', ['testStaticBuild','appBuild','shell:appTar']);
+	
+	grunt.registerTask('testTar', ['testStaticBuild','shell:build','appBuild','shell:appTar']);
 	
 	grunt.registerTask('bulidTestApk', ['appBuild','shell:buildTestApk']);
 	
 	grunt.registerTask('bulidDevApk', ['shell:buildDevApk']);
 	
-	grunt.registerTask('default', ['testStaticBuild']);
+	grunt.registerTask('default', ['testTar']);
 	
 };

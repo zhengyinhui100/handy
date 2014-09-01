@@ -1742,8 +1742,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-popup {
   position: absolute;
-  left: 0;
-  top: 0;
   z-index: 1000;
   -webkit-transform: translateZ(0);
 }
@@ -2134,8 +2132,9 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   background-size: contain;
 }
 .hui-tips .hui-tips-txt {
-  white-space: nowrap;
   margin-left: 0.4em;
+  word-wrap: break-word;
+  word-break: break-all;
 }
 .hui-tips.hui-size-mini {
   padding: 0.188em 0.5em;
@@ -2165,40 +2164,35 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-tips-white {
   background: #fff;
-  border-color: #ddd;
   color: #333;
   text-shadow: 0 1px 0 #f3f3f3;
+}
+.hui-tips-arrow {
+  background: #fff;
+  border: 1px solid #ccc;
+  color: #333;
+  text-shadow: 0 1px 0 #f3f3f3;
+}
+.hui-tips-arrow .hui-triangle {
+  border-left-width: 0.5em;
+  border-right-width: 0.5em;
+  border-top-color: #ccc;
+  left: 50%;
+  margin-left: -0.5em;
+}
+.hui-tips-arrow .hui-triangle .hui-triangle-inner {
+  border-top-color: #fff;
+  left: 0em;
+  bottom: 0.125em;
 }
 .hui-tips-black {
   background: #111;
   color: #fff;
   text-shadow: 0 -1px 0 #000000;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#3c3c3c), to(#111111));
-  /* old webkit,Saf4+, Chrome */
-  background-image: -webkit-linear-gradient(#3c3c3c, #111111);
-  /* Chrome 10+, Saf5.1+ */
-  background-image: -moz-linear-gradient(#3c3c3c, #111111);
-  /* FF3.6 */
-  background-image: -ms-linear-gradient(#3c3c3c, #111111);
-  /* IE10 */
-  background-image: -o-linear-gradient(#3c3c3c, #111111);
-  /* Opera 11.10+ */
-  background-image: linear-gradient(#3c3c3c, #111111);
 }
 .hui-tips-error {
   background: #eee;
   color: #c00;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#f1f1f1));
-  /* old webkit,Saf4+, Chrome */
-  background-image: -webkit-linear-gradient(#ffffff, #f1f1f1);
-  /* Chrome 10+, Saf5.1+ */
-  background-image: -moz-linear-gradient(#ffffff, #f1f1f1);
-  /* FF3.6 */
-  background-image: -ms-linear-gradient(#ffffff, #f1f1f1);
-  /* IE10 */
-  background-image: -o-linear-gradient(#ffffff, #f1f1f1);
-  /* Opera 11.10+ */
-  background-image: linear-gradient(#ffffff, #f1f1f1);
 }
 .hui-dialog {
   width: 92.5%;
@@ -2239,8 +2233,14 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-dialog .hui-body-content {
   padding: 0.938em;
 }
+.hui-dialog .hui-body-action {
+  border-top: 1px solid #ccc;
+}
+.hui-dialog .hui-body-action .hui-btn {
+  border: none;
+}
 .hui-dialog .hui-content-title {
-  font-size: 2em;
+  font-size: 1em;
   font-weight: bold;
 }
 .hui-dialog .hui-content-msg {
@@ -2449,6 +2449,21 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   border: 1px solid #F3DDB3;
   border-bottom: 0;
 }
+.hui-triangle {
+  position: absolute;
+  bottom: -1em;
+  height: 0;
+  width: 0;
+  border: 1em solid #000;
+  border-bottom-width: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+.hui-triangle .hui-triangle-inner {
+  border-top-color: #fff;
+  bottom: 0.25em;
+  left: -1em;
+}
 .hui-conversation {
   position: relative;
   padding: 0.938em 2.813em;
@@ -2484,16 +2499,10 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   padding: 0.375em;
 }
 .hui-conversation .hui-triangle {
-  position: absolute;
   top: 0.5em;
-  border: 1px solid #eee;
   border-width: 0.25em;
   border-top-color: transparent;
   border-bottom-color: transparent;
-}
-.hui-conversation .hui-triangle .hui-triangle-inner {
-  top: -0.25em;
-  height: 0;
 }
 .hui-conversation.hui-conversation-left .hui-conver-img {
   left: 0;
@@ -2505,9 +2514,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   left: -0.438em;
   border-right-width: 0.438em;
   border-left: 0;
-}
-.hui-conversation.hui-conversation-left .hui-triangle .hui-triangle-inner {
-  left: 0.125em;
   border-right-color: #ccccff;
 }
 .hui-conversation.hui-conversation-right .hui-conver-img {
@@ -2522,9 +2528,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   right: -0.438em;
   border-left-width: 0.438em;
   border-right: 0;
-}
-.hui-conversation.hui-conversation-right .hui-triangle .hui-triangle-inner {
-  right: 0.125em;
   border-left-color: #99ccff;
 }
 .hui-input-zone {
@@ -2662,6 +2665,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-dispimg {
   position: relative;
+  top: 0;
+  left: 0;
   height: 100%;
   width: 100%;
   background-color: #2b2b2b;

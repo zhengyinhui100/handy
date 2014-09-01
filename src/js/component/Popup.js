@@ -18,6 +18,7 @@ function(AC){
 		clickHide       : true,            //是否点击就隐藏
 //		timeout         : null,            //自动隐藏的时间(毫秒)，不指定此值则不自动隐藏
 		showPos         : 'center',        //定位方法名:center(居中)、followEl(跟随指定元素)、top(顶部)，或者传入自定义定位函数
+//		offsetTop       : 0,               //顶部偏移量
 		destroyWhenHide : true,            //隐藏时保留对象，不自动销毁，默认弹出层会自动销毁
 //		noMask          : false,           //仅当true时没有遮罩层
 		

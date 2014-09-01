@@ -5109,18 +5109,18 @@ function(){
 		if(oCache=_cache[sName]){
 			if(oOptions===undefined){
 				return oCache;
-			}else if(!$H.isObj(oOptions)){
-				//根据id查找
-				return oCache[oOptions];
-			}else{
-				var aResult=[];
-				$H.each(oCache,function(k,obj){
-					if($H.largeThan(obj,oOptions)){
-						aResult.push(obj);
-					}
-				});
-				return aResult;
 			}
+			if(!$H.isObj(oOptions)){
+				//根据id查找
+				oOptions={id:oOptions};
+			}
+			var aResult=[];
+			$H.each(oCache,function(k,obj){
+				if($H.largeThan(obj,oOptions)){
+					aResult.push(obj);
+				}
+			});
+			return aResult.length>0?aResult[0]:null;
 		}
 	}
 	/**
@@ -5141,7 +5141,7 @@ function(){
 		}
 		var sName=data.constructor.$ns;
 		var aCache=_cache[sName]||(_cache[sName]={});
-		aCache[data.id]=data;
+		aCache[data.uuid]=data;
 		//快捷访问别名(客户id)
 		if(sCid){
 			if(!_cache[sCid]){
@@ -5480,13 +5480,13 @@ function(AbstractData){
 		var bHasChange=false;
 		//如果有id，需要先查找是否有存在的模型，查询直接id效率高，所以先进行查询，查询不到id才通过new后，查询联合id
 		if(id=oVal[sIdName]){
-	        oModel=$S.get(_Class,id);
+	        oModel=$S.get(_Class,{id:id});
         }
         if(!oModel){
 	        //因为可能存在自定义联合主键，所以这里没有现存的模型而新建一个实例时，要把val传入，以便获取正确的主键
 	        var oModel=new _Class(oVal,oOptions),tmp;
 	        //放入数据仓库
-			if(!(tmp=$S.get(oModel,oModel.id))){
+			if(!(tmp=$S.get(oModel,{id:oModel.id}))){
 				bHasChange=true;
 				$S.push(oModel);
 			}else{
@@ -10439,6 +10439,7 @@ function(AC){
 		clickHide       : true,            //是否点击就隐藏
 //		timeout         : null,            //自动隐藏的时间(毫秒)，不指定此值则不自动隐藏
 		showPos         : 'center',        //定位方法名:center(居中)、followEl(跟随指定元素)、top(顶部)，或者传入自定义定位函数
+//		offsetTop       : 0,               //顶部偏移量
 		destroyWhenHide : true,            //隐藏时保留对象，不自动销毁，默认弹出层会自动销毁
 //		noMask          : false,           //仅当true时没有遮罩层
 		
@@ -10452,6 +10453,7 @@ function(AC){
 		hide             : fHide,            //隐藏
 		top              : fTop,             //顶部显示
 		center           : fCenter,          //居中显示
+		bottom           : fBottom,          //底部显示
 		followEl         : fFollowEl,        //根据指定节点显示
 		mask             : fMask,            //显示遮罩层
 		unmask           : fUnmask           //隐藏遮罩层
@@ -10585,8 +10587,8 @@ function(AC){
 		// 设置定位坐标
 		var me=this;
 		var oEl=me.getEl();
-		var width=me.width||oEl[0].clientWidth;
-		var height=me.height||oEl[0].clientHeight;
+		var width=oEl[0].clientWidth;
+		var height=oEl[0].clientHeight;
 		var oDoc=document;
 		var x = ((oDoc.documentElement.offsetWidth || oDoc.body.offsetWidth) - width)/2;
 		var y = ((oDoc.documentElement.clientHeight || oDoc.body.clientHeight) - height)/2 + (oDoc.documentElement.scrollTop||oDoc.body.scrollTop);
@@ -10594,6 +10596,21 @@ function(AC){
 		oEl.css({
 			left:x + "px",
 			top:y-(me.offsetTop||0) + "px"
+		});
+	}
+	/**
+	 * 底部显示
+	 */
+	function fBottom(){
+		// 设置定位坐标
+		var me=this;
+		var oEl=me.getEl();
+		var width=oEl[0].clientWidth;
+		var oDoc=document;
+		var x = ((oDoc.documentElement.offsetWidth || oDoc.body.offsetWidth) - width)/2;
+		oEl.css({
+			left:x + "px",
+			bottom:me.get('hasArrow')?'1em':0
 		});
 	}
 	/**
@@ -11935,6 +11952,7 @@ function(AC,Popup,ControlGroup){
 			cls             : 'tips',
 			text            : '',
 			radius          : 'normal',
+			hasArrow        : false,               //是否有箭头
 			theme           : 'black'
 		},
 //		type            : 'miniLoading',            类型，‘loading’表示居中加载中提示，‘topTips’表示顶部简单提示，‘miniLoading’表示顶部无背景loading小提示
@@ -11944,6 +11962,9 @@ function(AC,Popup,ControlGroup){
 			'<div {{bindAttr class="text:hui-tips-notxt c-clear"}}>',
 				'{{placeItem}}',
 				'{{#if text}}<span class="hui-tips-txt">{{text}}</span>{{/if}}',
+				'{{#if hasArrow}}',
+					'<div class="hui-triangle"><div class="hui-triangle hui-triangle-inner"></div></div>',
+				'{{/if}}',
 			'</div>'
 		].join(''),
 		doConfig        : fDoConfig     //初始化配置
@@ -12187,6 +12208,7 @@ function(AC,Popup){
 					title:{
 						isActive:me.activeBtn==1,
 						text:me.cancelTxt,
+						cClass:'cancelBtn',
 						click:function(){
 							if((me.cancelCall&&me.cancelCall())!=false){
 								me.hide();
@@ -12201,6 +12223,7 @@ function(AC,Popup){
 					title:{
 						isActive:me.activeBtn==3,
 						text:me.ignoreTxt,
+						cClass:'ignoreBtn',
 						click:function(){
 							if((me.ignoreCall&&me.ignoreCall())!=false){
 								me.hide();
@@ -12214,6 +12237,7 @@ function(AC,Popup){
 				aActions.push({
 					title:{
 						text:me.okTxt,
+						cClass:'okBtn',
 						isActive:me.activeBtn==2,
 						click:function(){
 							if((me.okCall&&me.okCall())!=false){
@@ -13100,7 +13124,7 @@ function(AC,AbstractImage,Draggable){
 			cls         : 'crop'
 		},
 		listeners       : [{
-			name:'afterRender',
+			name:'show',
 			custom:true,
 			handler:function(){
 				var me=this;
@@ -13623,7 +13647,6 @@ function(AC){
 				'<div class="hui-conver-content">',
 					'{{content}}',
 					'<div class="hui-triangle">',
-						'<div class="hui-triangle hui-triangle-inner"></div>',
 					'</div>',
 				'</div>',
 			'</div>'].join(''),

@@ -163,6 +163,7 @@ function(AC,Popup){
 					title:{
 						isActive:me.activeBtn==1,
 						text:me.cancelTxt,
+						cClass:'cancelBtn',
 						click:function(){
 							if((me.cancelCall&&me.cancelCall())!=false){
 								me.hide();
@@ -177,6 +178,7 @@ function(AC,Popup){
 					title:{
 						isActive:me.activeBtn==3,
 						text:me.ignoreTxt,
+						cClass:'ignoreBtn',
 						click:function(){
 							if((me.ignoreCall&&me.ignoreCall())!=false){
 								me.hide();
@@ -190,6 +192,7 @@ function(AC,Popup){
 				aActions.push({
 					title:{
 						text:me.okTxt,
+						cClass:'okBtn',
 						isActive:me.activeBtn==2,
 						click:function(){
 							if((me.okCall&&me.okCall())!=false){
