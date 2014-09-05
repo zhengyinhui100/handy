@@ -319,7 +319,9 @@ handy.add('Object',function(){
 			'M'             : 'handy.module',
 			'U'             : 'handy.util',
 			'E'             : 'handy.effect',
-			'CM'            : 'handy.common'
+			'CM'            : 'handy.common',
+			'D'             : 'handy.data',
+			'V'             : 'handy.view'
 		},               
 		ns                  : fNamespace,       //创建或读取命名空间，可以传入用以初始化该命名空间的对象
 		alias               : fAlias,           //创建别名/读取实名
@@ -5073,8 +5075,8 @@ function(){
  * 数据仓库类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-//"handy.common.DataStore"
-$Define('CM.DataStore',
+//"handy.data.DataStore"
+$Define('D.DataStore',
 function(){
 	var DataStore=$H.createClass();
 	
@@ -5161,8 +5163,8 @@ function(){
 /**
  * 数据访问对象抽象类，模块的dao都要继承此类，dao内的方法只可以使用此类的方法进行数据操作，以便进行统一的管理
  */
-//handy.common.AbstractDao
-$Define('CM.AbstractDao',
+//handy.data.AbstractDao
+$Define('D.AbstractDao',
 'B.LocalStorage',
 function(LS){
 	
@@ -5291,11 +5293,11 @@ function(LS){
  * 抽象数据类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-//"handy.common.AbstractData"
-$Define('CM.AbstractData',
-['CM.AbstractDao',
+//"handy.data.AbstractData"
+$Define('D.AbstractData',
+['D.AbstractDao',
 'CM.AbstractEvents',
-'CM.DataStore'],
+'D.DataStore'],
 function(AbstractDao,AbstractEvents){
 	
 	var AbstractData=AbstractEvents.derive({
@@ -5345,7 +5347,7 @@ function(AbstractDao,AbstractEvents){
 	/**
 	 * 同步数据，可以通过重写进行自定义
 	 * @param {string}sMethod 方法名
-	 * @param {CM.AbstractData}oData 数据对象
+	 * @param {D.AbstractData}oData 数据对象
 	 * @param {Object}oOptions 设置
 	 * @return {*} 返回同步方法的结果，如果是抓取远程数据，返回jQuery的xhr对象
 	 */
@@ -5381,11 +5383,11 @@ function(AbstractDao,AbstractEvents){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-03-06
  */
-//"handy.common.Model"
-$Define('CM.Model',
+//"handy.data.Model"
+$Define('D.Model',
 [
-'CM.AbstractData',
-'CM.DataStore'
+'D.AbstractData',
+'D.DataStore'
 ],
 function(AbstractData){
 	
@@ -5397,7 +5399,7 @@ function(AbstractData){
 	     *	普通形式：
 	     *	{string}name:{
 		 *	    {string|Class=}type:类型，可以是字符串(string/number/Date/Model/Collection),也可以是类,
-		 *		{boolean=}save:是否需要保存，自定义字段保存时默认不提交，仅当声明为true时提交
+		 *		{boolean=}unsave:是否不需要保存，嵌套属性都不提交，基本类型的自定义字段保存时默认提交，仅当声明为unsave:true时不提交
 		 *		{object=}options:新建模型/集合实例时的选项,
 		 *		{*=}def:默认值,
 		 *   	{Function=}parse:设置该属性时自定义解析操作,
@@ -5447,6 +5449,7 @@ function(AbstractData){
    		each                  : fEach,               //遍历字段
    		hasChanged            : fHasChanged,         //判断自上次change事件后有没有修改，可以指定属性
    		changedAttrs          : fChangedAttrs,       //返回改变过的属性，可以指定需要判断的属性
+   		filterUnsave          : fFilterUnsave,       //过滤掉不需要保存的属性
    		previous              : fPrevious,           //返回修改前的值，如果没有修改过，则返回null
    		fetch                 : fFetch,              //获取模型数据
    		save                  : fSave,               //保存模型
@@ -5933,7 +5936,7 @@ function(AbstractData){
 	        	//bAll不为true时只检测需要保存的属性
 	        	if(!bAll){
 	        		var bHas=oFields.hasOwnProperty(sAttr);
-	        		bNeed=!bHas||(bHas&&($H.isSimple(val)||oFields[sAttr].save));
+	        		bNeed=!bHas||(bHas&&($H.isSimple(val)&&!oFields[sAttr].unsave));
 	        	}
 	            if (bNeed){
 	            	if(!oDiff||(oDiff&&!$H.equals(oOld[sAttr], val))){
@@ -5948,6 +5951,25 @@ function(AbstractData){
         	_fGet(me._changed);
         }
         return changed;
+    }
+    /**
+     * 过滤掉不需要保存的属性
+     * @param {object=}oAttrs 要处理的属性表，默认是模型属性表
+     * @return {object} 返回需要提交保存的属性表
+     */
+    function fFilterUnsave(oAttrs){
+    	var me=this;
+    	var oFields=me.fields;
+    	oAttrs=oAttrs||me._attributes;
+    	var oResult={};
+    	$H.each(oAttrs,function(k,val){
+	    	var bHas=oFields.hasOwnProperty(k);
+		    var bNeed=!bHas||(bHas&&$H.isSimple(val)&&!oFields[k].unsave);
+		    if(bNeed){
+		    	oResult[k]=val;
+		    }
+    	})
+    	return oResult;
     }
 	/**
 	 * 返回修改前的值，如果没有修改过，则返回null
@@ -6093,12 +6115,7 @@ function(AbstractData){
 	    	var oCurrent=$H.extend({},me._attributes);
 	    	oSaveAttrs = $H.extend(oCurrent,oAttrs);
 	    }
-	    //过滤掉嵌套集合和模型
-	    for(var key in oSaveAttrs){
-	    	if($H.isInstance(oSaveAttrs[key])){
-	    		delete oSaveAttrs[key];
-	    	}
-	    }
+	    oSaveAttrs=me.filterUnsave(oSaveAttrs);
 	    //额外属性
 	    if(oOptions.extAttrs){
 	    	$H.extend(oSaveAttrs,oOptions.extAttrs);
@@ -6205,12 +6222,12 @@ function(AbstractData){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-03-06
  */
-//"handy.common.Collection"
-$Define('CM.Collection',
+//"handy.data.Collection"
+$Define('D.Collection',
 [
-'CM.AbstractData',
-'CM.Model',
-'CM.DataStore'
+'D.AbstractData',
+'D.Model',
+'D.DataStore'
 ],
 function(AbstractData,Model){
 	
@@ -6867,8 +6884,8 @@ function(AbstractData,Model){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-10
  */
-//"handy.common.AbstractManager"
-$Define("CM.AbstractManager", function() {
+//"handy.view.AbstractManager"
+$Define("V.AbstractManager", function() {
 
 	var AbstractManager = $H.createClass();
 	
@@ -7025,8 +7042,8 @@ $Define("CM.AbstractManager", function() {
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-03-17
  */
-//"handy.common.ViewManager"
-$Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
+//"handy.view.ViewManager"
+$Define("V.ViewManager", 'V.AbstractManager',function(AbstractManager) {
 
 	var ViewManager = AbstractManager.derive({
 		type          : 'view',           //管理类型
@@ -7085,10 +7102,10 @@ $Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-05-17
  */
- //"handy.common.AbstractView"
-$Define('CM.AbstractView',
+ //"handy.view.AbstractView"
+$Define('V.AbstractView',
 [
-'CM.ViewManager',
+'V.ViewManager',
 'CM.AbstractEvents'
 ],
 function(ViewManager,AbstractEvents){
@@ -7425,13 +7442,13 @@ function(ViewManager,AbstractEvents){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-05-11
  */
-//"handy.common.ModelView"
-$Define('CM.ModelView',
+//"handy.view.ModelView"
+$Define('V.ModelView',
 [
 'B.Template',
-'CM.AbstractView',
-'CM.Model',
-'CM.Collection'
+'V.AbstractView',
+'D.Model',
+'D.Collection'
 ],
 function(Template,AbstractView,Model,Collection){
 	
@@ -8026,11 +8043,11 @@ function(Template,AbstractView,Model,Collection){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-02-17
  */
-//"handy.common.View"
-$Define('CM.View',
-['CM.ViewManager',
-'CM.ModelView',
-'CM.Model',
+//"handy.view.View"
+$Define('V.View',
+['V.ViewManager',
+'V.ModelView',
+'D.Model',
 'B.Template'],
 function(ViewManager,ModelView,Model,Template){
 	
@@ -9301,7 +9318,7 @@ function(ViewManager,ModelView,Model,Template){
 * Created:		2013-12-14										*
 *****************************************************************/
 //handy.module.AbstractModule
-$Define("M.AbstractModule","CM.View",function (View) {
+$Define("M.AbstractModule","V.View",function (View) {
 	/**
 	 * 模块基类
 	 * 
@@ -9551,7 +9568,7 @@ function(HashChange){
 //handy.module.ModuleManager
 $Define("M.ModuleManager",
 ["M.History",
-"CM.AbstractManager"],
+"V.AbstractManager"],
 function(History,AbstractManager){
 	
 	//TODO 使用AbstractManager的方法
@@ -9564,7 +9581,7 @@ function(History,AbstractManager){
 		//container        : null,   //默认模块容器
 		//navigator        : null,   //定制模块导航类
 		//defModPackage    : "com.xxx.module",  //默认模块所在包名
-		maxModNum          : 100,     //最大缓存模块数
+		maxModNum          : $H.mobile()?20:50,     //最大缓存模块数
 		
 //		requestMod         : '',     //正在请求的模块名
 //		currentMod         : '',     //当前模块名
@@ -9886,8 +9903,8 @@ function(History,AbstractManager){
  */
 //"handy.component.ComponentManager"
 $Define("C.ComponentManager", 
-['CM.AbstractManager',
-'CM.ViewManager'],
+['V.AbstractManager',
+'V.ViewManager'],
 function(AbstractManager,ViewManager) {
 
 	var ComponentManager = AbstractManager.derive({
@@ -9916,7 +9933,7 @@ function(AbstractManager,ViewManager) {
  * @created 2013-12-28
  */
 //"handy.component.AbstractComponent"
-$Define('C.AbstractComponent',["CM.ViewManager",'CM.View','C.ComponentManager'],function(ViewManager,View){
+$Define('C.AbstractComponent',["V.ViewManager",'V.View','C.ComponentManager'],function(ViewManager,View){
 	
 	//访问component包内容的快捷别名
 	$C=$H.ns('C');
@@ -10318,8 +10335,8 @@ function(AC){
 
 $Define('C.Desc',
 ['C.AbstractComponent',
-'CM.Model',
-'CM.Collection'],
+'D.Model',
+'D.Collection'],
 function(AC,Model,Collection){
 	
 	var Desc=AC.define('Desc');

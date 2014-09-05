@@ -1915,7 +1915,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-field {
   position: relative;
   text-align: left;
-  padding-left: 2em;
+  padding-left: 2.5em;
 }
 .hui-field .hui-field-left {
   position: absolute;
@@ -1946,13 +1946,13 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   padding: 0;
 }
 .hui-field-3-words .hui-field {
-  padding-left: 3em;
+  padding-left: 3.5em;
 }
 .hui-field-4-words .hui-field {
-  padding-left: 4em;
+  padding-left: 4.5em;
 }
 .hui-field-5-words .hui-field {
-  padding-left: 5em;
+  padding-left: 5.5em;
 }
 .hui-form .hui-form-tips {
   text-align: center;
