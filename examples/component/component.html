@@ -167,7 +167,7 @@ $H.Loader.rootPath={
 }
 $H.Loader.combine=false;
 $Define('test','handy.All',function(){
-	var Model=$Require('CM.Model'),
+	var Model=$Require('D.Model'),
 	Icon=$Require('C.Icon'),
 	Button=$Require('C.Button'),
 	Desc=$Require('C.Desc'),
@@ -850,6 +850,69 @@ $Define('test','handy.All',function(){
 						}
 					]
 			}]
+		});
+		
+		$('#toolbarDv').append('<br><br>');
+		
+		new Toolbar({
+			renderTo:'#toolbarDv',
+			items:{
+				xtype:'Tab',
+				theme:'noborder',
+				size:'mini',
+				activeType:'c',
+				items:[{
+						selected:true,
+						title:{
+							text:'首页',
+							iconPos:'top',
+							theme:'black',
+							items:{
+								xtype:'Icon',
+								size:'normal',
+								hasBg:false,
+								name:'home'
+							}
+						}
+					},{
+						title:{
+							text:'发现',
+							theme:'black',
+							iconPos:'top',
+							items:{
+								xtype:'Icon',
+								size:'normal',
+								hasBg:false,
+								name:'eye'
+							}
+						}
+					},{
+						title:{
+							text:'联系人',
+							theme:'black',
+							iconPos:'top',
+							items:{
+								xtype:'Icon',
+								size:'normal',
+								hasBg:false,
+								name:'user'
+							}
+						}
+					},{
+						title:{
+							text:'设置',
+							iconPos:'top',
+							theme:'black',
+							items:{
+								xtype:'Icon',
+								size:'normal',
+								hasBg:false,
+								name:'gear'
+							}
+						}
+					}
+				]
+			}
 		});
 		
 		//提示
