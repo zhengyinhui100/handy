@@ -5,8 +5,8 @@
 
 $Define('C.Desc',
 ['C.AbstractComponent',
-'CM.Model',
-'CM.Collection'],
+'D.Model',
+'D.Collection'],
 function(AC,Model,Collection){
 	
 	var Desc=AC.define('Desc');

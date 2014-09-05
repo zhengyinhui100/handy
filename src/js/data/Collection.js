@@ -3,12 +3,12 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-03-06
  */
-//"handy.common.Collection"
-$Define('CM.Collection',
+//"handy.data.Collection"
+$Define('D.Collection',
 [
-'CM.AbstractData',
-'CM.Model',
-'CM.DataStore'
+'D.AbstractData',
+'D.Model',
+'D.DataStore'
 ],
 function(AbstractData,Model){
 	

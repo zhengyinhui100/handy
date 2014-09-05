@@ -8,11 +8,11 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-03-06
  */
-//"handy.common.Model"
-$Define('CM.Model',
+//"handy.data.Model"
+$Define('D.Model',
 [
-'CM.AbstractData',
-'CM.DataStore'
+'D.AbstractData',
+'D.DataStore'
 ],
 function(AbstractData){
 	
@@ -74,6 +74,7 @@ function(AbstractData){
    		each                  : fEach,               //遍历字段
    		hasChanged            : fHasChanged,         //判断自上次change事件后有没有修改，可以指定属性
    		changedAttrs          : fChangedAttrs,       //返回改变过的属性，可以指定需要判断的属性
+   		filterUnsave          : fFilterUnsave,       //过滤掉不需要保存的属性
    		previous              : fPrevious,           //返回修改前的值，如果没有修改过，则返回null
    		fetch                 : fFetch,              //获取模型数据
    		save                  : fSave,               //保存模型
@@ -576,6 +577,25 @@ function(AbstractData){
         }
         return changed;
     }
+    /**
+     * 过滤掉不需要保存的属性
+     * @param {object=}oAttrs 要处理的属性表，默认是模型属性表
+     * @return {object} 返回需要提交保存的属性表
+     */
+    function fFilterUnsave(oAttrs){
+    	var me=this;
+    	var oFields=me.fields;
+    	oAttrs=oAttrs||me._attributes;
+    	var oResult={};
+    	$H.each(oAttrs,function(k,val){
+	    	var bHas=oFields.hasOwnProperty(k);
+		    var bNeed=!bHas||(bHas&&$H.isSimple(val)&&!oFields[k].unsave);
+		    if(bNeed){
+		    	oResult[k]=val;
+		    }
+    	})
+    	return oResult;
+    }
 	/**
 	 * 返回修改前的值，如果没有修改过，则返回null
 	 * @param {string}sAttr 指定属性
@@ -720,12 +740,7 @@ function(AbstractData){
 	    	var oCurrent=$H.extend({},me._attributes);
 	    	oSaveAttrs = $H.extend(oCurrent,oAttrs);
 	    }
-	    //过滤掉嵌套集合和模型
-	    for(var key in oSaveAttrs){
-	    	if($H.isInstance(oSaveAttrs[key])){
-	    		delete oSaveAttrs[key];
-	    	}
-	    }
+	    oSaveAttrs=me.filterUnsave(oSaveAttrs);
 	    //额外属性
 	    if(oOptions.extAttrs){
 	    	$H.extend(oSaveAttrs,oOptions.extAttrs);

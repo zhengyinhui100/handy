@@ -117,16 +117,18 @@ module.exports = function(grunt) {
 					'src/js/effect/Draggable.js',
 					
 					'src/js/common/AbstractEvents.js',
-					'src/js/common/DataStore.js',
-					'src/js/common/AbstractDao.js',
-					'src/js/common/AbstractData.js',
-					'src/js/common/Model.js',
-					'src/js/common/Collection.js',
-					'src/js/common/AbstractManager.js',
-					'src/js/common/ViewManager.js',
-					'src/js/common/AbstractView.js',
-					'src/js/common/ModelView.js', 
-					'src/js/common/View.js',
+					
+					'src/js/data/DataStore.js',
+					'src/js/data/AbstractDao.js',
+					'src/js/data/AbstractData.js',
+					'src/js/data/Model.js',
+					'src/js/data/Collection.js',
+					
+					'src/js/view/AbstractManager.js',
+					'src/js/view/ViewManager.js',
+					'src/js/view/AbstractView.js',
+					'src/js/view/ModelView.js', 
+					'src/js/view/View.js',
 
 					'src/js/module/AbstractModule.js',
 					'src/js/module/AbstractNavigator.js',

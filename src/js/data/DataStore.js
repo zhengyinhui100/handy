@@ -2,8 +2,8 @@
  * 数据仓库类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-//"handy.common.DataStore"
-$Define('CM.DataStore',
+//"handy.data.DataStore"
+$Define('D.DataStore',
 function(){
 	var DataStore=$H.createClass();
 	

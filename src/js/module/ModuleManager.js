@@ -11,7 +11,7 @@
 //handy.module.ModuleManager
 $Define("M.ModuleManager",
 ["M.History",
-"CM.AbstractManager"],
+"V.AbstractManager"],
 function(History,AbstractManager){
 	
 	//TODO 使用AbstractManager的方法
@@ -24,7 +24,7 @@ function(History,AbstractManager){
 		//container        : null,   //默认模块容器
 		//navigator        : null,   //定制模块导航类
 		//defModPackage    : "com.xxx.module",  //默认模块所在包名
-		maxModNum          : 100,     //最大缓存模块数
+		maxModNum          : $H.mobile()?20:50,     //最大缓存模块数
 		
 //		requestMod         : '',     //正在请求的模块名
 //		currentMod         : '',     //当前模块名

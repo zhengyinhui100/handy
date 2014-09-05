@@ -3,8 +3,8 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-03-17
  */
-//"handy.common.ViewManager"
-$Define("CM.ViewManager", 'CM.AbstractManager',function(AbstractManager) {
+//"handy.view.ViewManager"
+$Define("V.ViewManager", 'V.AbstractManager',function(AbstractManager) {
 
 	var ViewManager = AbstractManager.derive({
 		type          : 'view',           //管理类型

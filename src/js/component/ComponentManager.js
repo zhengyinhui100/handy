@@ -5,8 +5,8 @@
  */
 //"handy.component.ComponentManager"
 $Define("C.ComponentManager", 
-['CM.AbstractManager',
-'CM.ViewManager'],
+['V.AbstractManager',
+'V.ViewManager'],
 function(AbstractManager,ViewManager) {
 
 	var ComponentManager = AbstractManager.derive({

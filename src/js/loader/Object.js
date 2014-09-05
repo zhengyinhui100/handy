@@ -11,7 +11,9 @@ handy.add('Object',function(){
 			'M'             : 'handy.module',
 			'U'             : 'handy.util',
 			'E'             : 'handy.effect',
-			'CM'            : 'handy.common'
+			'CM'            : 'handy.common',
+			'D'             : 'handy.data',
+			'V'             : 'handy.view'
 		},               
 		ns                  : fNamespace,       //创建或读取命名空间，可以传入用以初始化该命名空间的对象
 		alias               : fAlias,           //创建别名/读取实名

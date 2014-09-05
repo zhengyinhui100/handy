@@ -22,9 +22,9 @@ module.exports = function(grunt) {
 		//staticServerName:'http://192.168.0.209/',
 		environment:'test',
 		//native app版本号
-		appVersion:1.0,
+		appVersion:0.1,
 		//webapp(前端更新)版本号
-		version:1.0,
+		version:0.1,
 		//前端更新版本(时间)
 		staticVersion:sVersion
 	}
@@ -47,7 +47,7 @@ module.exports = function(grunt) {
 		},
 		copy:{
 			//local test build 把options改名即可忽略此替换过程
-			options : {
+			options2 : {
 				//二进制文件必须排除，否则会损坏文件
 				noProcess:['**/*.jpg','**/*.png','**/*.jpeg','**/*.gif','**/*.swf'],
 				process : function(content, srcpath) {
@@ -229,7 +229,7 @@ module.exports = function(grunt) {
 				command : [
 					'cd '+appDir,
 					'cp -R '+projectDir+'.cordova .cordova',
-					'phonegap local build android'
+					'phonegap local build ios'
 				].join('&&')
 			}
 		}
@@ -265,6 +265,6 @@ module.exports = function(grunt) {
 	
 	grunt.registerTask('bulidDevApk', ['shell:buildDevApk']);
 	
-	grunt.registerTask('default', ['testTar']);
+	grunt.registerTask('default', ['appTar']);
 	
 };

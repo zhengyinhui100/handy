@@ -2,11 +2,11 @@
  * 抽象数据类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-//"handy.common.AbstractData"
-$Define('CM.AbstractData',
-['CM.AbstractDao',
+//"handy.data.AbstractData"
+$Define('D.AbstractData',
+['D.AbstractDao',
 'CM.AbstractEvents',
-'CM.DataStore'],
+'D.DataStore'],
 function(AbstractDao,AbstractEvents){
 	
 	var AbstractData=AbstractEvents.derive({
@@ -56,7 +56,7 @@ function(AbstractDao,AbstractEvents){
 	/**
 	 * 同步数据，可以通过重写进行自定义
 	 * @param {string}sMethod 方法名
-	 * @param {CM.AbstractData}oData 数据对象
+	 * @param {D.AbstractData}oData 数据对象
 	 * @param {Object}oOptions 设置
 	 * @return {*} 返回同步方法的结果，如果是抓取远程数据，返回jQuery的xhr对象
 	 */

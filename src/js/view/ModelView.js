@@ -3,13 +3,13 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-05-11
  */
-//"handy.common.ModelView"
-$Define('CM.ModelView',
+//"handy.view.ModelView"
+$Define('V.ModelView',
 [
 'B.Template',
-'CM.AbstractView',
-'CM.Model',
-'CM.Collection'
+'V.AbstractView',
+'D.Model',
+'D.Collection'
 ],
 function(Template,AbstractView,Model,Collection){
 	

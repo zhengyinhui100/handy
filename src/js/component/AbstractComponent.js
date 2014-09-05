@@ -4,7 +4,7 @@
  * @created 2013-12-28
  */
 //"handy.component.AbstractComponent"
-$Define('C.AbstractComponent',["CM.ViewManager",'CM.View','C.ComponentManager'],function(ViewManager,View){
+$Define('C.AbstractComponent',["V.ViewManager",'V.View','C.ComponentManager'],function(ViewManager,View){
 	
 	//访问component包内容的快捷别名
 	$C=$H.ns('C');

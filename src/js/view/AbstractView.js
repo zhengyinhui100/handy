@@ -3,10 +3,10 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-05-17
  */
- //"handy.common.AbstractView"
-$Define('CM.AbstractView',
+ //"handy.view.AbstractView"
+$Define('V.AbstractView',
 [
-'CM.ViewManager',
+'V.ViewManager',
 'CM.AbstractEvents'
 ],
 function(ViewManager,AbstractEvents){

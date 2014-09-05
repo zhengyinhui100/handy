@@ -3,8 +3,8 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-01-10
  */
-//"handy.common.AbstractManager"
-$Define("CM.AbstractManager", function() {
+//"handy.view.AbstractManager"
+$Define("V.AbstractManager", function() {
 
 	var AbstractManager = $H.createClass();
 	
