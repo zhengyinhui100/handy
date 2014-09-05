@@ -24,7 +24,7 @@ function(AbstractData){
 	     *	普通形式：
 	     *	{string}name:{
 		 *	    {string|Class=}type:类型，可以是字符串(string/number/Date/Model/Collection),也可以是类,
-		 *		{boolean=}save:是否需要保存，自定义字段保存时默认不提交，仅当声明为true时提交
+		 *		{boolean=}unsave:是否不需要保存，嵌套属性都不提交，基本类型的自定义字段保存时默认提交，仅当声明为unsave:true时不提交
 		 *		{object=}options:新建模型/集合实例时的选项,
 		 *		{*=}def:默认值,
 		 *   	{Function=}parse:设置该属性时自定义解析操作,
@@ -561,7 +561,7 @@ function(AbstractData){
 	        	//bAll不为true时只检测需要保存的属性
 	        	if(!bAll){
 	        		var bHas=oFields.hasOwnProperty(sAttr);
-	        		bNeed=!bHas||(bHas&&($H.isSimple(val)||oFields[sAttr].save));
+	        		bNeed=!bHas||(bHas&&($H.isSimple(val)&&!oFields[sAttr].unsave));
 	        	}
 	            if (bNeed){
 	            	if(!oDiff||(oDiff&&!$H.equals(oOld[sAttr], val))){
