@@ -273,6 +273,27 @@ $Define('test','handy.All',function(){
 		
 		new Button({
 			renderTo:'#buttonDv',
+			text:'白色按钮',
+			theme:'white',
+			isInline:false
+		})
+		
+		new Button({
+			renderTo:'#buttonDv',
+			text:'绿色按钮',
+			theme:'green',
+			isInline:false
+		})
+		
+		new Button({
+			renderTo:'#buttonDv',
+			text:'黑色按钮',
+			theme:'black',
+			isInline:false
+		})
+		
+		new Button({
+			renderTo:'#buttonDv',
 			text:'黑色标记按钮',
 			iconPos:'left',
 			markType:'black',
@@ -285,6 +306,14 @@ $Define('test','handy.All',function(){
 			iconPos:'left',
 			isInline:false,
 			markType:'red'
+		})
+		
+		new Button({
+			renderTo:'#buttonDv',
+			text:'渐变效果按钮',
+			isInline:false,
+			gradient:true,
+			shadow:true
 		})
 		
 		new Panel({

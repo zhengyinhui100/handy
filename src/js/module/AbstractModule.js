@@ -13,14 +13,17 @@ $Define("M.AbstractModule","V.View",function (View) {
 	var AbstractModule = View.derive({
 		
 		xtype          : 'Module',
+//		renderTo       : null,           //自定义模块容器，{jQuery}对象或选择器
+		
+		//模块管理相关属性
+//		_forceExit     : false,          //true表示下一次退出操作不调用exit方法，直接退出
 //		isLoaded       : false,          //{boolean}模块是否已载入
 //		isActived      : false,          //{boolean}模块是否是当前活跃的
-//		renderTo       : null,           //自定义模块容器，{jQuery}对象或选择器
-		                                 //模块初始化后以_container为准，获取需用getEl方法
 //		notCache       : false,          //{boolean}是否不使用cache，默认使用,仅当配置成true时不使用
 //      clearCache     : false,          //仅清除一次当前的缓存，下次进入模块时执行清除并恢复原先缓存设置
 //		name           : null,           //{string}模块名
 //		chName         : null,           //{string}模块的中文名称
+//		referer        : null,           //记录从哪个模块进入
 		
 //		getData        : null,           //{function()}获取该模块的初始化数据
 //		clone          : null,           //{function()}克隆接口

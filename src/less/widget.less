@@ -116,18 +116,31 @@
 		background-color:red;
 	}
 }
+//白色按钮
+.hui-btn-white{
+	border: 1px solid #ccc;
+	background: #fff;
+	color: #555;
+	&:hover{
+		border: 1px solid #bbb ;
+		background: #eee ;
+		color: #222 ;
+	}
+}
 //灰色按钮
 .hui-btn-gray{
 	border: 1px solid #ccc;
-	background: #eee;
+	background: #f9f9f9;
 	color: #555;
-	text-shadow: 0 1px 0 #fff;
-	.fn_linear_gradient_top(#fff,#f1f1f1);
 	&:hover{
 		border: 1px solid #bbb ;
-		background: #dfdfdf ;
+		background: #eee ;
 		color: #222 ;
-		text-shadow: 0 1px 0 #fff;
+	}
+}
+.hui-btn-gray.hui-gradient{
+	.fn_linear_gradient_top(#fff,#f1f1f1);
+	&:hover{
 		.fn_linear_gradient_top(#f6f6f6,#e0e0e0);
 	}
 }
@@ -143,31 +156,35 @@
 	border: 1px solid #111;
 	background: #333;
 	color: #fff;
-	text-shadow: 0 1px 0 #111;
-	.fn_linear_gradient_top(#444,#2d2d2d);
 	&:hover{
 		border: 1px solid #000;
 		background: #444;
 		font-weight: bold;
 		color: #fff;
-		text-shadow: 0 1px 0 #111;
-		.fn_linear_gradient_top(#555,#383838);
 	}
 	
+}
+.hui-btn-black.hui-gradient{
+	.fn_linear_gradient_top(#444,#2d2d2d);
+	&:hover{
+		.fn_linear_gradient_top(#555,#383838);
+	}
 }
 //蓝色按钮
 .hui-btn-blue{
 	border: 1px solid #044062;
 	background: #396b9e;
 	color: #fff;
-	text-shadow: 0 1px 0 #194b7e;
-	.fn_linear_gradient_top(#5f9cc5,#396b9e);
 	&:hover{
 		border: 1px solid #00415e ;
 		background: #4b88b6;
 		font-weight: bold;
 		color: #fff;
-		text-shadow: 0 1px 0 #194b7e;
+	}
+}
+.hui-btn-blue.hui-gradient{
+	.fn_linear_gradient_top(#5f9cc5,#396b9e);
+	&:hover{
 		.fn_linear_gradient_top(#6facd5,#4272a4);
 	}
 }
@@ -176,14 +193,16 @@
 	border: 1px solid #37AD2D;
 	background: #1fa745;
 	color: #fff;
-	text-shadow: 0 1px 0 #197E2D;
-	.fn_linear_gradient_top(#0FE978, #1fa745);
 	&:hover{
 		border: 1px solid #37AD2D ;
 		background: #24B44D;
 		font-weight: bold;
 		color: #fff;
-		text-shadow: 0 1px 0 #197E2D;
+	}
+}
+.hui-btn-green.hui-gradient{
+	.fn_linear_gradient_top(#0FE978, #1fa745);
+	&:hover{
 		.fn_linear_gradient_top(#34e589,#24B44D);
 	}
 }
@@ -193,8 +212,9 @@
 	background: #5393c5;
 	color: #fff;
 	cursor: pointer;
-	text-shadow: 0 1px 0 #3373a5;
 	text-decoration: none;
+}
+.hui-btn-active.hui-gradient{
 	.fn_linear_gradient_top(#5f9cc5,#6facd5);
 }
 .hui-btn-active:hover{
@@ -218,7 +238,8 @@
 	color:#73bf00;
 	background: #444;
 	font-weight: bold;
-	text-shadow: 0 1px 0 #111;
+}
+.hui-btn-black.hui-btn-active-c.hui-gradient{
 	.fn_linear_gradient_top(#555,#383838);
 }
 //后退箭头按钮
@@ -243,7 +264,6 @@
 	.hui-btn-back.hui-shadow-surround:before{
 		left:-0.75em;
 		top:0.313em;
-		//.fn_box_shadow(~"1px 0 0 rgba(255,255,255,.3),inset 0 -1px 0 rgba(255,255,255,.3)");
 	}
 	//小号后退按钮
 	.hui-btn-back.hui-btn-black.hui-size-mini:before{
@@ -258,10 +278,14 @@
 		border-right: 1px solid #ccc;
 		border-bottom: 1px solid #ccc;
 		background-color:#eee;
+	}
+	.hui-btn-back.hui-btn-gray.hui-gradient:before{
 		.fn_linear_gradient_deg45(#fff,#f1f1f1);
 	}
 	.hui-btn-back.hui-btn-gray:hover:before{
 		background-color:#dfdfdf;
+	}
+	.hui-btn-back.hui-btn-gray.hui-gradient:hover:before{
 		.fn_linear_gradient_deg45(#f6f6f6,#e0e0e0);
 	}
 	//黑色按钮
@@ -269,10 +293,14 @@
 		border-right: 1px solid #111;
 		border-bottom: 1px solid #111;
 		background-color:#333;
+	}
+	.hui-btn-back.hui-btn-black.hui-gradient:before{
 		.fn_linear_gradient_deg45(#444,#2d2d2d);
 	}
 	.hui-btn-back.hui-btn-black:hover:before{
 		background-color:#444;
+	}
+	.hui-btn-back.hui-btn-black.hui-gradient:hover:before{
 		.fn_linear_gradient_deg45(#555,#383838);
 	}
 	//蓝色按钮
@@ -280,10 +308,14 @@
 		border-right: 1px solid #044062;
 		border-bottom: 1px solid #044062;
 		background-color:#396b9e;
+	}
+	.hui-btn-back.hui-btn-blue.hui-gradient:before{
 		.fn_linear_gradient_deg45(#5f9cc5,#396b9e);
 	}
 	.hui-btn-back.hui-btn-blue:hover:before{
 		background-color:#4b88b6;
+	}
+	.hui-btn-back.hui-btn-blue.hui-gradient:hover:before{
 		.fn_linear_gradient_deg45(#6facd5,#4272a4);
 	}
 }
@@ -570,7 +602,6 @@
 	position: relative;
 	border: 1px solid #aaa;
 	color: #333;
-	text-shadow: 0 1px 0 #fff;
 	background: #f9f9f9;
 	.hui-input-txt,textarea{
 		border: 0;
@@ -762,7 +793,6 @@
 	background: #444;
 	color: #fff;
 	font-weight: 700;
-	text-shadow: 0 -1px 0 #000;
 	.hui-tbar-title{
 		min-height: 1.063em;
 		text-align: center;
@@ -813,8 +843,6 @@
 	border: 1px solid #bbb;
 	background: #bbb;
 	color: #333;
-	text-shadow: 0 1px 0 #eee;
-	.fn_linear_gradient_top(#ddd,#bbb);
 }
 .hui-header,.hui-footer{
 	position:fixed;
@@ -924,13 +952,11 @@
 .hui-tips-white{
 	background: #fff;
 	color: #333;
-	text-shadow: 0 1px 0 #f3f3f3;
 }
 .hui-tips-arrow{
 	background: #fff;
 	border:1px solid #ccc;
 	color: #333;
-	text-shadow: 0 1px 0 #f3f3f3;
 	.hui-triangle{
 		border-left-width:0.5em;
 		border-right-width:0.5em;
@@ -947,7 +973,6 @@
 .hui-tips-black{
 	background: #111;
 	color: #fff;
-	text-shadow: 0 -1px 0 #000;
 }
 .hui-tips-error{
 	background: #eee;
@@ -971,7 +996,6 @@
 	}
 	.hui-dialog-body{
 		color: #333;
-		text-shadow: 0 1px 0 #fff;
 		background: #f9f9f9;
 		display: block;
 		position: relative;
@@ -981,7 +1005,7 @@
 		overflow: visible;
 		overflow-x: hidden;
 		//.fn_border_radius_bottom(inherit);
-		.fn_linear_gradient_top(#f9f9f9,#eee);
+		//.fn_linear_gradient_top(#f9f9f9,#eee);
 	}
 	.hui-body-content{
 		padding:0.938em;
@@ -1540,16 +1564,39 @@
 	.fn_opacity(0.5);
 }
 //动画
-.hui-slide-right{
-	.fn_transition(all 0s linear);
-	.fn_transform(translate3d(300%,0,0));
+//没动画的模块独立渲染
+.hui-mod-independent{
+	position:absolute;
+	top:0;
+	left:0;
+	width:100%;
 }
-.hui-slide-show{
-	.fn_transition(all 0.1s linear);
+//动画模块独立渲染，并上浮
+.hui-mod-zindex{
+	position:absolute;
+	top:0;
+	left:0;
+	width:100%;
+	z-index:1;
+}
+.hui-goto-left{
+	.fn_transition(all 0s linear);
+	.fn_transform(translate3d(-100%,0,0));
+}
+.hui-goto-right{
+	.fn_transition(all 0s linear);
+	.fn_transform(translate3d(100%,0,0));
+}
+.hui-slide-center{
+	.fn_transition(all 0.3s linear);
 	.fn_transform(translate3d(0,0,0));
 }
-.hui-slide-hide{
-	.fn_transition(all 0.05s linear);
-	.fn_transform(translateX(-300%));
+.hui-slide-left{
+	.fn_transition(all 0.3s linear);
+	.fn_transform(translate3d(-100%,0,0));
+}
+.hui-slide-right{
+	.fn_transition(all 0.5s linear);
+	.fn_transform(translate3d(100%,0,0));
 }
 

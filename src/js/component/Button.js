@@ -23,7 +23,7 @@ function(AC){
 			activeCls       : 'hui-btn-active',    //激活样式
 			isBack          : false,               //是否是后退按钮
 			radius          : 'little',            //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
-			shadow          : true,        	       //外阴影
+			gradient        : false,               //渐变效果
 			isInline        : true,                //宽度自适应
 			noTxtCls        : {
 				depends : ['text','tType'],
@@ -55,7 +55,7 @@ function(AC){
 			xtype       : 'Icon'
 		},
 		
-		tmpl            : ['<a href="javascript:;" hidefocus="true" {{bindAttr class="noTxtCls isBack?hui-btn-back markCls iconPosCls"}}>',
+		tmpl            : ['<a href="javascript:;" hidefocus="true" {{bindAttr class="noTxtCls isBack?hui-btn-back gradient?hui-gradient markCls iconPosCls"}}>',
 								'<span class="hui-btn-txt">{{text}}</span>',
 								'<span class="hui-btn-ext">{{extTxt}}</span>',
 								'{{placeItem}}',

@@ -58,47 +58,50 @@ function(History,AbstractManager){
 	/**
 	 * 新建模块
 	 * @method _createMod
-	 * @param 
+	 * @param {object}oParams 选项
+	 * @return {Module}返回新创建的模块
 	 */
 	function _fCreateMod(oParams){
 		var me=this;
 		var sModName=oParams.modName;
 		var sModId=oParams.modId;
-		//先标记为正在准备中，新建成功后赋值为模块对象
-		me.setModule({waiting:true},sModName,oParams.modelId);
-		//请求模块
-		$Require(sModName,function(Module){
-			var oOptions={
-				renderTo:me.container,
-				modName:sModName,
-				modId:sModId,
-				name:sModName,
-				xtype:sModName,
-				cid:sModId.replace(/\./g,'-'),
-				extCls:'js-module m-module '+sModName.replace(/\./g,'-'),
-				hidden:true
-			};
-			$H.extend(oOptions,oParams);
-			var oMod=new Module(oOptions);
-			me._modules[sModId]=oMod;
-			$H.trigger('afterRender',oMod.getEl());
-			oMod.entry(oParams);
-			//可能加载完时，已切换到其它模块了
-			if(me.requestMod==sModId){
-				me._showMod(oMod);
-			}
-		});
+		var Module=$Require(sModName);
+		var oOptions={
+			renderTo:me.container,
+			modName:sModName,
+			modId:sModId,
+			name:sModName,
+			xtype:sModName,
+			cid:sModId.replace(/\./g,'-'),
+			extCls:'js-module m-module '+sModName.replace(/\./g,'-'),
+			hidden:true
+		};
+		$H.extend(oOptions,oParams);
+		var oMod=new Module(oOptions);
+		
+		//异步模块在此标记referer
+		var oWaitting=me._modules[sModId];
+		oMod.referer=oWaitting.referer;
+		
+		me._modules[sModId]=oMod;
+		$H.trigger('afterRender',oMod.getEl());
+		oMod.entry(oParams);
+		//只有当前请求的模块恰好是本模块时才显示（可能加载完时，已切换到其它模块了）
+		if(me.requestMod==sModId){
+			me._showMod(oMod);
+		}
+		return oMod;
 	}
 	/**
 	 * 显示模块
 	 * @method _showMod
-	 * @param
+	 * @param {Module}oMod 要显示的模块
 	 */
 	function _fShowMod(oMod){
 		var me=this;
 		var oCurMod=me._modules[me.currentMod];
-		//如果导航类方法返回true，则不使用模块管理类的导航
-		if(!(me.navigator&&me.navigator.navigate(oMod,oCurMod,me))){
+		//如果导航类方法返回false，则不使用模块管理类的导航
+		if((me.navigator&&me.navigator.navigate(oMod,oCurMod,me))!==false){
 			if(oCurMod){
 				oCurMod.hide();
 			}
@@ -242,6 +245,8 @@ function(History,AbstractManager){
 		var oMod=oMods[sModId];
 		//如果模块有缓存
 		if(oMod){
+			oMod.referer=oCurrentMod;
+			//还在请求资源，直接返回
 			if(oMod.waiting){
 				return;
 			}
@@ -252,19 +257,26 @@ function(History,AbstractManager){
 				me._showMod(oMod);
 				oMod.cache(param);
 				oMod.entry(param);
-			}else if(!oMod.waiting){
+			}else{
 				//标记不使用缓存，销毁模块
 				me.destroy(oMod);
 				//重新标记当前模块
 //				me.currentMod=sModName;
 				//重新创建模块
-				me._createMod(param);
+				oMod=me._createMod(param);
+				oMod.referer=oCurrentMod;
 			}
 			//如果模块已在请求中，直接略过，等待新建模块的回调函数处理
 		}else{
 			//否则新建一个模块
-			me._createMod(param);
+			//先标记为正在准备中，新建成功后赋值为模块对象
+			me.setModule({waiting:true,referer:oCurrentMod},sModName,sModelId);
+			$Require(sModName,function(Module){
+				var oNewMod=me._createMod(param);
+			});
 		}
+		
+		
 		//主要是处理前进和后退hash变化引起的调用，不需要再保存历史记录
 		if(bNotSaveHistory!=true){
 			//保存状态
@@ -330,8 +342,9 @@ function(History,AbstractManager){
 	 */
 	function fBack(bForceExit){
 		var me=this;
+		var oCurMod=me._modules[me.currentMod];
 		if(bForceExit){
-			me._modules[me.currentMod]._forceExit=true;
+			oCurMod._forceExit=true;
 		}
 		history.back();
 	}
