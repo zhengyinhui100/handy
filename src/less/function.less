@@ -128,6 +128,17 @@
     -ms-transform: @transform;
     transform: @transform;
 }
+.fn_transform_orig(@orig){
+    -moz-transform-origin:@orig;
+    -webkit-transform-origin:@orig;
+    -o-transform-origin:@orig;
+    -ms-transform-origin:@orig;
+    transform-origin:@orig;
+}
+.fn_animation(@value){
+	animation:@value;
+	-webkit-animation:@value; /* Safari 和 Chrome */
+}
 .fn_box_sizing(@value:border-box){
 	-moz-box-sizing: @value;  /*Firefox3.5+*/
      -webkit-box-sizing: @value; /*Safari3.2+*/

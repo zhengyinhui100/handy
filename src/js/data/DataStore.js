@@ -4,6 +4,7 @@
  */
 //"handy.data.DataStore"
 $Define('D.DataStore',
+'B.Class',
 function(){
 	var DataStore=$H.createClass();
 	

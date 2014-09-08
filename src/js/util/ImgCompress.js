@@ -4,6 +4,7 @@
  */
 //"handy.util.ImgCompress"
 $Define('U.ImgCompress',
+'B.Class',
 function(){
 	var ImgCompress=$H.createClass();
 	

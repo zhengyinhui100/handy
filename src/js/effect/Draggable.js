@@ -4,6 +4,7 @@
  */
 //"handy.effect.Draggable"
 $Define('E.Draggable',
+'B.Class',
 function(){
 	
 	var Draggable=$H.createClass();

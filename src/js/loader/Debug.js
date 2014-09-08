@@ -20,6 +20,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 		warn        : fWarn,        //输出警告信息
 		error		: fError,		//输出错误信息
 		time        : fTime,        //输出统计时间,info级别
+		trace       : fTrace,       //追踪统计时间
 //		debugLog    : $H.noop,      //线上错误处理
 		debug		: fDebug		//出现调试断点
 	}
@@ -160,14 +161,47 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 		if(Debug.level>Debug.INFO_LEVEL){
 			return;
 		}
+		var nTime=window.performance?window.performance.now():(new Date().getTime());
 		if(bOut){
 			if(typeof sMsg=='boolean'){
 				bShowInPage=sMsg;
 				sMsg='';
 			}
-			Debug.out((sMsg||'')+(new Date().getTime()-(Debug.lastTime||0)),!!bShowInPage)
+			Debug.out((sMsg||'')+(nTime-(Debug.lastTime||0)),!!bShowInPage)
 		}else{
-			Debug.lastTime=new Date().getTime();
+			Debug.lastTime=nTime;
+		}
+	}
+	/**
+	 * 追踪统计时间
+	 * @param {object}oParams {
+	 * 		{string=}name:名称,
+	 * 		{boolean=}end:是否结束计时，默认是开始计时,
+	 * 		{boolean=}out:true表示输出结果,
+	 * 		{string=}method:输出使用的方法，默认是log
+	 * }
+	 */
+	function fTrace(oParams){
+		var bOut=oParams.out;
+		var oTimes=Debug._traceTimes||(Debug._traceTimes={});
+		if(bOut){
+			for(var sName in oTimes){
+				var oItem=oTimes[sName];
+				oItem.average=oItem.total/oItem.num;
+			}
+			var sMethod=oParams.method||'log';
+			Debug[sMethod](oTimes);
+			return;
+		}
+		var sName=oParams.name;
+		var bEnd=oParams.end;
+		var oItem=oTimes[sName]||(oTimes[sName]={});
+		var nTime=window.performance?window.performance.now():(new Date().getTime());
+		if(!bEnd){
+			oItem.num=(oItem.num||0)+1;
+			oItem.start=nTime;
+		}else{
+			oItem.total=(oItem.total||0)+nTime-oItem.start;
 		}
 	}
 	/**

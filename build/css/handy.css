@@ -1136,8 +1136,9 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   width: 2.75em;
   height: 2.75em;
   margin: 0 auto;
-  -moz-animation: spin .5s infinite linear;
-  -webkit-animation: spin .5s infinite linear;
+  animation: spin 0.5s infinite linear;
+  -webkit-animation: spin 0.5s infinite linear;
+  /* Safari 和 Chrome */
 }
 .hui-mi-csstransforms .hui-icon-loading-mini {
   width: 1em;
@@ -1147,22 +1148,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   -moz-border-radius: 1em;
   border-radius: 1em;
 }
-@-moz-keyframes spin {
-  0% {
-    -moz-transform: rotate(0deg);
-  }
-  100% {
-    -moz-transform: rotate(360deg);
-  }
-}
-@-moz-keyframes spinoff {
-  0% {
-    -moz-transform: rotate(0deg);
-  }
-  100% {
-    -moz-transform: rotate(-360deg);
-  }
-}
 @-webkit-keyframes spin {
   0% {
     -webkit-transform: rotate(0deg);
@@ -1171,12 +1156,36 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
     -webkit-transform: rotate(360deg);
   }
 }
-@-webkit-keyframes spinoff {
+@-moz-keyframes spin {
   0% {
-    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
   }
   100% {
-    -webkit-transform: rotate(-360deg);
+    -moz-transform: rotate(360deg);
+  }
+}
+@-ms-keyframes spin {
+  0% {
+    -ms-transform: rotate(0deg);
+  }
+  100% {
+    -ms-transform: rotate(360deg);
+  }
+}
+@-o-keyframes spin {
+  0% {
+    -o-transform: rotate(0deg);
+  }
+  100% {
+    -o-transform: rotate(360deg);
+  }
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
 .hui-btn {
@@ -1228,11 +1237,27 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   display: block;
   background-color: red;
 }
+.hui-btn-white {
+  border: 1px solid #ccc;
+  background: #fff;
+  color: #555;
+}
+.hui-btn-white:hover {
+  border: 1px solid #bbb ;
+  background: #eee ;
+  color: #222 ;
+}
 .hui-btn-gray {
   border: 1px solid #ccc;
-  background: #eee;
+  background: #f9f9f9;
   color: #555;
-  text-shadow: 0 1px 0 #fff;
+}
+.hui-btn-gray:hover {
+  border: 1px solid #bbb ;
+  background: #eee ;
+  color: #222 ;
+}
+.hui-btn-gray.hui-gradient {
   background-image: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#f1f1f1));
   /* old webkit,Saf4+, Chrome */
   background-image: -webkit-linear-gradient(#ffffff, #f1f1f1);
@@ -1245,11 +1270,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   /* Opera 11.10+ */
   background-image: linear-gradient(#ffffff, #f1f1f1);
 }
-.hui-btn-gray:hover {
-  border: 1px solid #bbb ;
-  background: #dfdfdf ;
-  color: #222 ;
-  text-shadow: 0 1px 0 #fff;
+.hui-btn-gray.hui-gradient:hover {
   background-image: -webkit-gradient(linear, left top, left bottom, from(#f6f6f6), to(#e0e0e0));
   /* old webkit,Saf4+, Chrome */
   background-image: -webkit-linear-gradient(#f6f6f6, #e0e0e0);
@@ -1272,7 +1293,14 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   border: 1px solid #111;
   background: #333;
   color: #fff;
-  text-shadow: 0 1px 0 #111;
+}
+.hui-btn-black:hover {
+  border: 1px solid #000;
+  background: #444;
+  font-weight: bold;
+  color: #fff;
+}
+.hui-btn-black.hui-gradient {
   background-image: -webkit-gradient(linear, left top, left bottom, from(#444444), to(#2d2d2d));
   /* old webkit,Saf4+, Chrome */
   background-image: -webkit-linear-gradient(#444444, #2d2d2d);
@@ -1285,12 +1313,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   /* Opera 11.10+ */
   background-image: linear-gradient(#444444, #2d2d2d);
 }
-.hui-btn-black:hover {
-  border: 1px solid #000;
-  background: #444;
-  font-weight: bold;
-  color: #fff;
-  text-shadow: 0 1px 0 #111;
+.hui-btn-black.hui-gradient:hover {
   background-image: -webkit-gradient(linear, left top, left bottom, from(#555555), to(#383838));
   /* old webkit,Saf4+, Chrome */
   background-image: -webkit-linear-gradient(#555555, #383838);
@@ -1307,7 +1330,14 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   border: 1px solid #044062;
   background: #396b9e;
   color: #fff;
-  text-shadow: 0 1px 0 #194b7e;
+}
+.hui-btn-blue:hover {
+  border: 1px solid #00415e ;
+  background: #4b88b6;
+  font-weight: bold;
+  color: #fff;
+}
+.hui-btn-blue.hui-gradient {
   background-image: -webkit-gradient(linear, left top, left bottom, from(#5f9cc5), to(#396b9e));
   /* old webkit,Saf4+, Chrome */
   background-image: -webkit-linear-gradient(#5f9cc5, #396b9e);
@@ -1320,12 +1350,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   /* Opera 11.10+ */
   background-image: linear-gradient(#5f9cc5, #396b9e);
 }
-.hui-btn-blue:hover {
-  border: 1px solid #00415e ;
-  background: #4b88b6;
-  font-weight: bold;
-  color: #fff;
-  text-shadow: 0 1px 0 #194b7e;
+.hui-btn-blue.hui-gradient:hover {
   background-image: -webkit-gradient(linear, left top, left bottom, from(#6facd5), to(#4272a4));
   /* old webkit,Saf4+, Chrome */
   background-image: -webkit-linear-gradient(#6facd5, #4272a4);
@@ -1342,7 +1367,14 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   border: 1px solid #37AD2D;
   background: #1fa745;
   color: #fff;
-  text-shadow: 0 1px 0 #197E2D;
+}
+.hui-btn-green:hover {
+  border: 1px solid #37AD2D ;
+  background: #24B44D;
+  font-weight: bold;
+  color: #fff;
+}
+.hui-btn-green.hui-gradient {
   background-image: -webkit-gradient(linear, left top, left bottom, from(#0fe978), to(#1fa745));
   /* old webkit,Saf4+, Chrome */
   background-image: -webkit-linear-gradient(#0fe978, #1fa745);
@@ -1355,12 +1387,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   /* Opera 11.10+ */
   background-image: linear-gradient(#0fe978, #1fa745);
 }
-.hui-btn-green:hover {
-  border: 1px solid #37AD2D ;
-  background: #24B44D;
-  font-weight: bold;
-  color: #fff;
-  text-shadow: 0 1px 0 #197E2D;
+.hui-btn-green.hui-gradient:hover {
   background-image: -webkit-gradient(linear, left top, left bottom, from(#34e589), to(#24b44d));
   /* old webkit,Saf4+, Chrome */
   background-image: -webkit-linear-gradient(#34e589, #24b44d);
@@ -1378,8 +1405,9 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   background: #5393c5;
   color: #fff;
   cursor: pointer;
-  text-shadow: 0 1px 0 #3373a5;
   text-decoration: none;
+}
+.hui-btn-active.hui-gradient {
   background-image: -webkit-gradient(linear, left top, left bottom, from(#5f9cc5), to(#6facd5));
   /* old webkit,Saf4+, Chrome */
   background-image: -webkit-linear-gradient(#5f9cc5, #6facd5);
@@ -1397,19 +1425,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   background: #5393c5;
   color: #fff;
   cursor: pointer;
-  text-shadow: 0 1px 0 #3373a5;
   text-decoration: none;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#5f9cc5), to(#6facd5));
-  /* old webkit,Saf4+, Chrome */
-  background-image: -webkit-linear-gradient(#5f9cc5, #6facd5);
-  /* Chrome 10+, Saf5.1+ */
-  background-image: -moz-linear-gradient(#5f9cc5, #6facd5);
-  /* FF3.6 */
-  background-image: -ms-linear-gradient(#5f9cc5, #6facd5);
-  /* IE10 */
-  background-image: -o-linear-gradient(#5f9cc5, #6facd5);
-  /* Opera 11.10+ */
-  background-image: linear-gradient(#5f9cc5, #6facd5);
 }
 .hui-btn.hui-btn-active-b {
   color: #548805;
@@ -1427,7 +1443,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   color: #73bf00;
   background: #444;
   font-weight: bold;
-  text-shadow: 0 1px 0 #111;
+}
+.hui-btn-black.hui-btn-active-c.hui-gradient {
   background-image: -webkit-gradient(linear, left top, left bottom, from(#555555), to(#383838));
   /* old webkit,Saf4+, Chrome */
   background-image: -webkit-linear-gradient(#555555, #383838);
@@ -1479,6 +1496,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   border-right: 1px solid #ccc;
   border-bottom: 1px solid #ccc;
   background-color: #eee;
+}
+.hui-mi-csstransforms .hui-btn-back.hui-btn-gray.hui-gradient:before {
   background-image: -webkit-gradient(linear, 0 100%, 100% 0%, from(#ffffff), to(#f1f1f1));
   background-image: -webkit-linear-gradient(45deg, #ffffff, #f1f1f1);
   background-image: -moz-linear-gradient(45deg, #ffffff, #f1f1f1);
@@ -1488,6 +1507,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-mi-csstransforms .hui-btn-back.hui-btn-gray:hover:before {
   background-color: #dfdfdf;
+}
+.hui-mi-csstransforms .hui-btn-back.hui-btn-gray.hui-gradient:hover:before {
   background-image: -webkit-gradient(linear, 0 100%, 100% 0%, from(#f6f6f6), to(#e0e0e0));
   background-image: -webkit-linear-gradient(45deg, #f6f6f6, #e0e0e0);
   background-image: -moz-linear-gradient(45deg, #f6f6f6, #e0e0e0);
@@ -1499,6 +1520,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   border-right: 1px solid #111;
   border-bottom: 1px solid #111;
   background-color: #333;
+}
+.hui-mi-csstransforms .hui-btn-back.hui-btn-black.hui-gradient:before {
   background-image: -webkit-gradient(linear, 0 100%, 100% 0%, from(#444444), to(#2d2d2d));
   background-image: -webkit-linear-gradient(45deg, #444444, #2d2d2d);
   background-image: -moz-linear-gradient(45deg, #444444, #2d2d2d);
@@ -1508,6 +1531,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-mi-csstransforms .hui-btn-back.hui-btn-black:hover:before {
   background-color: #444;
+}
+.hui-mi-csstransforms .hui-btn-back.hui-btn-black.hui-gradient:hover:before {
   background-image: -webkit-gradient(linear, 0 100%, 100% 0%, from(#555555), to(#383838));
   background-image: -webkit-linear-gradient(45deg, #555555, #383838);
   background-image: -moz-linear-gradient(45deg, #555555, #383838);
@@ -1519,6 +1544,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   border-right: 1px solid #044062;
   border-bottom: 1px solid #044062;
   background-color: #396b9e;
+}
+.hui-mi-csstransforms .hui-btn-back.hui-btn-blue.hui-gradient:before {
   background-image: -webkit-gradient(linear, 0 100%, 100% 0%, from(#5f9cc5), to(#396b9e));
   background-image: -webkit-linear-gradient(45deg, #5f9cc5, #396b9e);
   background-image: -moz-linear-gradient(45deg, #5f9cc5, #396b9e);
@@ -1528,6 +1555,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-mi-csstransforms .hui-btn-back.hui-btn-blue:hover:before {
   background-color: #4b88b6;
+}
+.hui-mi-csstransforms .hui-btn-back.hui-btn-blue.hui-gradient:hover:before {
   background-image: -webkit-gradient(linear, 0 100%, 100% 0%, from(#6facd5), to(#4272a4));
   background-image: -webkit-linear-gradient(45deg, #6facd5, #4272a4);
   background-image: -moz-linear-gradient(45deg, #6facd5, #4272a4);
@@ -1810,7 +1839,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   position: relative;
   border: 1px solid #aaa;
   color: #333;
-  text-shadow: 0 1px 0 #fff;
   background: #f9f9f9;
 }
 .hui-input .hui-input-txt,
@@ -2021,7 +2049,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   background: #444;
   color: #fff;
   font-weight: 700;
-  text-shadow: 0 -1px 0 #000000;
 }
 .hui-tbar .hui-tbar-title {
   min-height: 1.063em;
@@ -2073,18 +2100,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   border: 1px solid #bbb;
   background: #bbb;
   color: #333;
-  text-shadow: 0 1px 0 #eee;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#dddddd), to(#bbbbbb));
-  /* old webkit,Saf4+, Chrome */
-  background-image: -webkit-linear-gradient(#dddddd, #bbbbbb);
-  /* Chrome 10+, Saf5.1+ */
-  background-image: -moz-linear-gradient(#dddddd, #bbbbbb);
-  /* FF3.6 */
-  background-image: -ms-linear-gradient(#dddddd, #bbbbbb);
-  /* IE10 */
-  background-image: -o-linear-gradient(#dddddd, #bbbbbb);
-  /* Opera 11.10+ */
-  background-image: linear-gradient(#dddddd, #bbbbbb);
 }
 .hui-header,
 .hui-footer {
@@ -2189,13 +2204,11 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-tips-white {
   background: #fff;
   color: #333;
-  text-shadow: 0 1px 0 #f3f3f3;
 }
 .hui-tips-arrow {
   background: #fff;
   border: 1px solid #ccc;
   color: #333;
-  text-shadow: 0 1px 0 #f3f3f3;
 }
 .hui-tips-arrow .hui-triangle {
   border-left-width: 0.5em;
@@ -2212,7 +2225,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-tips-black {
   background: #111;
   color: #fff;
-  text-shadow: 0 -1px 0 #000000;
 }
 .hui-tips-error {
   background: #eee;
@@ -2233,7 +2245,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-dialog .hui-dialog-body {
   color: #333;
-  text-shadow: 0 1px 0 #fff;
   background: #f9f9f9;
   display: block;
   position: relative;
@@ -2242,17 +2253,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   border-width: 0;
   overflow: visible;
   overflow-x: hidden;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#f9f9f9), to(#eeeeee));
-  /* old webkit,Saf4+, Chrome */
-  background-image: -webkit-linear-gradient(#f9f9f9, #eeeeee);
-  /* Chrome 10+, Saf5.1+ */
-  background-image: -moz-linear-gradient(#f9f9f9, #eeeeee);
-  /* FF3.6 */
-  background-image: -ms-linear-gradient(#f9f9f9, #eeeeee);
-  /* IE10 */
-  background-image: -o-linear-gradient(#f9f9f9, #eeeeee);
-  /* Opera 11.10+ */
-  background-image: linear-gradient(#f9f9f9, #eeeeee);
 }
 .hui-dialog .hui-body-content {
   padding: 0.938em;
@@ -2801,36 +2801,318 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   filter: alpha(opacity= 50 );
   opacity: 0.5;
 }
-.hui-slide-right {
+.hui-mod-independent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+.hui-mod-zindex {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1;
+  /*（设置进行转换的元素的背面在面对用户时是否可见：隐藏）*/
+  /*设置内嵌的元素在 3D 空间如何呈现：保留 3D*/
+  /* -webkit-transform-style和-webkit-perspective会使子元素position:fixed失效（如：模块内工具栏） */
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  -ms-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+.hui .hui-goto-left {
   -moz-transition: all 0s linear;
   -webkit-transition: all 0s linear;
   -o-transition: all 0s linear;
   transition: all 0s linear;
-  -moz-transform: translate3d(300%, 0, 0);
-  -webkit-transform: translate3d(300%, 0, 0);
-  -o-transform: translate3d(300%, 0, 0);
-  -ms-transform: translate3d(300%, 0, 0);
-  transform: translate3d(300%, 0, 0);
+  -moz-transform: translate3d(-100%, 0, 0);
+  -webkit-transform: translate3d(-100%, 0, 0);
+  -o-transform: translate3d(-100%, 0, 0);
+  -ms-transform: translate3d(-100%, 0, 0);
+  transform: translate3d(-100%, 0, 0);
 }
-.hui-slide-show {
-  -moz-transition: all 0.1s linear;
-  -webkit-transition: all 0.1s linear;
-  -o-transition: all 0.1s linear;
-  transition: all 0.1s linear;
+.hui .hui-goto-right {
+  -moz-transition: all 0s linear;
+  -webkit-transition: all 0s linear;
+  -o-transition: all 0s linear;
+  transition: all 0s linear;
+  -moz-transform: translate3d(100%, 0, 0);
+  -webkit-transform: translate3d(100%, 0, 0);
+  -o-transform: translate3d(100%, 0, 0);
+  -ms-transform: translate3d(100%, 0, 0);
+  transform: translate3d(100%, 0, 0);
+}
+.hui .hui-slide-center {
+  -moz-transition: all 0.3s linear;
+  -webkit-transition: all 0.3s linear;
+  -o-transition: all 0.3s linear;
+  transition: all 0.3s linear;
   -moz-transform: translate3d(0, 0, 0);
   -webkit-transform: translate3d(0, 0, 0);
   -o-transform: translate3d(0, 0, 0);
   -ms-transform: translate3d(0, 0, 0);
   transform: translate3d(0, 0, 0);
 }
-.hui-slide-hide {
-  -moz-transition: all 0.05s linear;
-  -webkit-transition: all 0.05s linear;
-  -o-transition: all 0.05s linear;
-  transition: all 0.05s linear;
-  -moz-transform: translateX(-300%);
-  -webkit-transform: translateX(-300%);
-  -o-transform: translateX(-300%);
-  -ms-transform: translateX(-300%);
-  transform: translateX(-300%);
+.hui .hui-slide-left {
+  -moz-transition: all 0.3s linear;
+  -webkit-transition: all 0.3s linear;
+  -o-transition: all 0.3s linear;
+  transition: all 0.3s linear;
+  -moz-transform: translate3d(-100%, 0, 0);
+  -webkit-transform: translate3d(-100%, 0, 0);
+  -o-transform: translate3d(-100%, 0, 0);
+  -ms-transform: translate3d(-100%, 0, 0);
+  transform: translate3d(-100%, 0, 0);
+}
+.hui .hui-slide-right {
+  -moz-transition: all 0.5s linear;
+  -webkit-transition: all 0.5s linear;
+  -o-transition: all 0.5s linear;
+  transition: all 0.5s linear;
+  -moz-transform: translate3d(100%, 0, 0);
+  -webkit-transform: translate3d(100%, 0, 0);
+  -o-transform: translate3d(100%, 0, 0);
+  -ms-transform: translate3d(100%, 0, 0);
+  transform: translate3d(100%, 0, 0);
+}
+.hui .ani-show 0% {
+  -moz-transform: scale(0.5, 0.5);
+  -webkit-transform: scale(0.5, 0.5);
+  -o-transform: scale(0.5, 0.5);
+  -ms-transform: scale(0.5, 0.5);
+  transform: scale(0.5, 0.5);
+  filter: alpha(opacity= 0 );
+  opacity: 0;
+}
+.hui .ani-show 100% {
+  -moz-transform: scale(1, 1);
+  -webkit-transform: scale(1, 1);
+  -o-transform: scale(1, 1);
+  -ms-transform: scale(1, 1);
+  transform: scale(1, 1);
+}
+@-webkit-keyframes ani-show {
+  0% {
+    -moz-transform: scale(0.5, 0.5);
+    -webkit-transform: scale(0.5, 0.5);
+    -o-transform: scale(0.5, 0.5);
+    -ms-transform: scale(0.5, 0.5);
+    transform: scale(0.5, 0.5);
+    filter: alpha(opacity= 0 );
+    opacity: 0;
+  }
+  100% {
+    -moz-transform: scale(1, 1);
+    -webkit-transform: scale(1, 1);
+    -o-transform: scale(1, 1);
+    -ms-transform: scale(1, 1);
+    transform: scale(1, 1);
+  }
+}
+@-moz-keyframes ani-show {
+  0% {
+    -moz-transform: scale(0.5, 0.5);
+    -webkit-transform: scale(0.5, 0.5);
+    -o-transform: scale(0.5, 0.5);
+    -ms-transform: scale(0.5, 0.5);
+    transform: scale(0.5, 0.5);
+    filter: alpha(opacity= 0 );
+    opacity: 0;
+  }
+  100% {
+    -moz-transform: scale(1, 1);
+    -webkit-transform: scale(1, 1);
+    -o-transform: scale(1, 1);
+    -ms-transform: scale(1, 1);
+    transform: scale(1, 1);
+  }
+}
+@-ms-keyframes ani-show {
+  0% {
+    -moz-transform: scale(0.5, 0.5);
+    -webkit-transform: scale(0.5, 0.5);
+    -o-transform: scale(0.5, 0.5);
+    -ms-transform: scale(0.5, 0.5);
+    transform: scale(0.5, 0.5);
+    filter: alpha(opacity= 0 );
+    opacity: 0;
+  }
+  100% {
+    -moz-transform: scale(1, 1);
+    -webkit-transform: scale(1, 1);
+    -o-transform: scale(1, 1);
+    -ms-transform: scale(1, 1);
+    transform: scale(1, 1);
+  }
+}
+@-o-keyframes ani-show {
+  0% {
+    -moz-transform: scale(0.5, 0.5);
+    -webkit-transform: scale(0.5, 0.5);
+    -o-transform: scale(0.5, 0.5);
+    -ms-transform: scale(0.5, 0.5);
+    transform: scale(0.5, 0.5);
+    filter: alpha(opacity= 0 );
+    opacity: 0;
+  }
+  100% {
+    -moz-transform: scale(1, 1);
+    -webkit-transform: scale(1, 1);
+    -o-transform: scale(1, 1);
+    -ms-transform: scale(1, 1);
+    transform: scale(1, 1);
+  }
+}
+@keyframes ani-show {
+  0% {
+    -moz-transform: scale(0.5, 0.5);
+    -webkit-transform: scale(0.5, 0.5);
+    -o-transform: scale(0.5, 0.5);
+    -ms-transform: scale(0.5, 0.5);
+    transform: scale(0.5, 0.5);
+    filter: alpha(opacity= 0 );
+    opacity: 0;
+  }
+  100% {
+    -moz-transform: scale(1, 1);
+    -webkit-transform: scale(1, 1);
+    -o-transform: scale(1, 1);
+    -ms-transform: scale(1, 1);
+    transform: scale(1, 1);
+  }
+}
+.hui .ani-hide 0% {
+  -moz-transform: scale(1, 1);
+  -webkit-transform: scale(1, 1);
+  -o-transform: scale(1, 1);
+  -ms-transform: scale(1, 1);
+  transform: scale(1, 1);
+}
+.hui .ani-hide 100% {
+  -moz-transform: scale(0.5, 0.5);
+  -webkit-transform: scale(0.5, 0.5);
+  -o-transform: scale(0.5, 0.5);
+  -ms-transform: scale(0.5, 0.5);
+  transform: scale(0.5, 0.5);
+  filter: alpha(opacity= 0 );
+  opacity: 0;
+}
+@-webkit-keyframes ani-hide {
+  0% {
+    -moz-transform: scale(1, 1);
+    -webkit-transform: scale(1, 1);
+    -o-transform: scale(1, 1);
+    -ms-transform: scale(1, 1);
+    transform: scale(1, 1);
+  }
+  100% {
+    -moz-transform: scale(0.5, 0.5);
+    -webkit-transform: scale(0.5, 0.5);
+    -o-transform: scale(0.5, 0.5);
+    -ms-transform: scale(0.5, 0.5);
+    transform: scale(0.5, 0.5);
+    filter: alpha(opacity= 0 );
+    opacity: 0;
+  }
+}
+@-moz-keyframes ani-hide {
+  0% {
+    -moz-transform: scale(1, 1);
+    -webkit-transform: scale(1, 1);
+    -o-transform: scale(1, 1);
+    -ms-transform: scale(1, 1);
+    transform: scale(1, 1);
+  }
+  100% {
+    -moz-transform: scale(0.5, 0.5);
+    -webkit-transform: scale(0.5, 0.5);
+    -o-transform: scale(0.5, 0.5);
+    -ms-transform: scale(0.5, 0.5);
+    transform: scale(0.5, 0.5);
+    filter: alpha(opacity= 0 );
+    opacity: 0;
+  }
+}
+@-ms-keyframes ani-hide {
+  0% {
+    -moz-transform: scale(1, 1);
+    -webkit-transform: scale(1, 1);
+    -o-transform: scale(1, 1);
+    -ms-transform: scale(1, 1);
+    transform: scale(1, 1);
+  }
+  100% {
+    -moz-transform: scale(0.5, 0.5);
+    -webkit-transform: scale(0.5, 0.5);
+    -o-transform: scale(0.5, 0.5);
+    -ms-transform: scale(0.5, 0.5);
+    transform: scale(0.5, 0.5);
+    filter: alpha(opacity= 0 );
+    opacity: 0;
+  }
+}
+@-o-keyframes ani-hide {
+  0% {
+    -moz-transform: scale(1, 1);
+    -webkit-transform: scale(1, 1);
+    -o-transform: scale(1, 1);
+    -ms-transform: scale(1, 1);
+    transform: scale(1, 1);
+  }
+  100% {
+    -moz-transform: scale(0.5, 0.5);
+    -webkit-transform: scale(0.5, 0.5);
+    -o-transform: scale(0.5, 0.5);
+    -ms-transform: scale(0.5, 0.5);
+    transform: scale(0.5, 0.5);
+    filter: alpha(opacity= 0 );
+    opacity: 0;
+  }
+}
+@keyframes ani-hide {
+  0% {
+    -moz-transform: scale(1, 1);
+    -webkit-transform: scale(1, 1);
+    -o-transform: scale(1, 1);
+    -ms-transform: scale(1, 1);
+    transform: scale(1, 1);
+  }
+  100% {
+    -moz-transform: scale(0.5, 0.5);
+    -webkit-transform: scale(0.5, 0.5);
+    -o-transform: scale(0.5, 0.5);
+    -ms-transform: scale(0.5, 0.5);
+    transform: scale(0.5, 0.5);
+    filter: alpha(opacity= 0 );
+    opacity: 0;
+  }
+}
+.hui .hui-ani-show {
+  animation: ani-show 0.3s 1 linear;
+  -webkit-animation: ani-show 0.3s 1 linear;
+  /* Safari 和 Chrome */
+}
+.hui .hui-ani-hide {
+  animation: ani-hide 0.3s 1 linear;
+  -webkit-animation: ani-hide 0.3s 1 linear;
+  /* Safari 和 Chrome */
+}
+.hui-pc .hui-slide-center {
+  -moz-transition: all 0.1s linear;
+  -webkit-transition: all 0.1s linear;
+  -o-transition: all 0.1s linear;
+  transition: all 0.1s linear;
+}
+.hui-pc .hui-slide-left {
+  -moz-transition: all 0.1s linear;
+  -webkit-transition: all 0.1s linear;
+  -o-transition: all 0.1s linear;
+  transition: all 0.1s linear;
+}
+.hui-pc .hui-slide-right {
+  -moz-transition: all 0.2s linear;
+  -webkit-transition: all 0.2s linear;
+  -o-transition: all 0.2s linear;
+  transition: all 0.2s linear;
 }

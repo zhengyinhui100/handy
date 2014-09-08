@@ -8,7 +8,10 @@
  */
 //handy.data.AbstractDao
 $Define('D.AbstractDao',
+[
 'B.LocalStorage',
+'B.Class'
+],
 function(LS){
 	
 	var AbstractDao=$H.createClass();

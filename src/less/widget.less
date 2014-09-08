@@ -39,8 +39,7 @@
 		width:2.75em;
 		height:2.75em;
 		margin:0 auto;
-		-moz-animation:spin .5s infinite linear;
-		-webkit-animation:spin .5s infinite linear;
+		.fn_animation(spin .5s infinite linear);
 	}
 	.hui-icon-loading-mini{
 		width:1em;
@@ -49,22 +48,28 @@
 		.fn_border_radius(1em);
 	}
 }
-@-moz-keyframes spin {
-	0% { -moz-transform:rotate(0deg); }
-	100% { -moz-transform:rotate(360deg); }
-}
-@-moz-keyframes spinoff {
-	0% { -moz-transform:rotate(0deg); }
-	100% { -moz-transform:rotate(-360deg); }
-}
+
 @-webkit-keyframes spin {
-	0% { -webkit-transform:rotate(0deg); }
+    0% { -webkit-transform:rotate(0deg); }
 	100% { -webkit-transform:rotate(360deg); }
 }
-@-webkit-keyframes spinoff {
-	0% { -webkit-transform:rotate(0deg); }
-	100% { -webkit-transform:rotate(-360deg); }
+@-moz-keyframes spin {
+    0% { -moz-transform:rotate(0deg); }
+	100% { -moz-transform:rotate(360deg); }
 }
+@-ms-keyframes spin {
+    0% { -ms-transform:rotate(0deg); }
+	100% { -ms-transform:rotate(360deg); }
+}
+@-o-keyframes spin {
+    0% { -o-transform:rotate(0deg); }
+	100% { -o-transform:rotate(360deg); }
+}
+@keyframes spin {
+    0% { transform:rotate(0deg); }
+	100% { transform:rotate(360deg); }
+}
+
 //按钮btn
 .hui-btn{
 	position: relative;
@@ -1578,25 +1583,88 @@
 	left:0;
 	width:100%;
 	z-index:1;
+	//解决动画闪烁
+	//-webkit-backface-visibility:hidden; 
+	/*（设置进行转换的元素的背面在面对用户时是否可见：隐藏）*/
+	//-webkit-transform-style:preserve-3d;  
+	/*设置内嵌的元素在 3D 空间如何呈现：保留 3D*/
+	//-webkit-perspective: 1000;
+	/* -webkit-transform-style和-webkit-perspective会使子元素position:fixed失效（如：模块内工具栏） */ 
+	-webkit-backface-visibility: hidden;
+	-moz-backface-visibility: hidden;
+	-ms-backface-visibility: hidden;
+	backface-visibility: hidden;
 }
-.hui-goto-left{
-	.fn_transition(all 0s linear);
-	.fn_transform(translate3d(-100%,0,0));
-}
-.hui-goto-right{
-	.fn_transition(all 0s linear);
-	.fn_transform(translate3d(100%,0,0));
-}
-.hui-slide-center{
-	.fn_transition(all 0.3s linear);
-	.fn_transform(translate3d(0,0,0));
-}
-.hui-slide-left{
-	.fn_transition(all 0.3s linear);
-	.fn_transform(translate3d(-100%,0,0));
-}
-.hui-slide-right{
-	.fn_transition(all 0.5s linear);
-	.fn_transform(translate3d(100%,0,0));
-}
+//待证实：dom节点如果从trans3d到trans3d则加速明显；如果原来没有trans3d属性，改成有trans3d属性，则会卡一下，这点很重要。
+.hui{
+	.hui-goto-left{
+		.fn_transition(all 0s linear);
+		.fn_transform(translate3d(-100%,0,0));  //创建Layout,并且在GPU中 进行图层移动
+	}
+	.hui-goto-right{
+		.fn_transition(all 0s linear);
+		.fn_transform(translate3d(100%,0,0));
+	}
+	.hui-slide-center{
+		.fn_transition(all 0.3s linear);
+		.fn_transform(translate3d(0,0,0));
+	}
+	.hui-slide-left{
+		.fn_transition(all 0.3s linear);
+		.fn_transform(translate3d(-100%,0,0));
+	}
+	.hui-slide-right{
+		.fn_transition(all 0.5s linear);
+		.fn_transform(translate3d(100%,0,0));
+	}
+	
+	.ani-show {
+	    0% { 
+	    .fn_transform(scale(0.5,0.5));
+	    .fn_opacity(0);
+	    }
+		100% {
+		.fn_transform(scale(1,1));
+		}
+	}
+	@-webkit-keyframes ani-show {.ani-show;}
+	@-moz-keyframes ani-show {.ani-show;}
+	@-ms-keyframes ani-show {.ani-show;}
+	@-o-keyframes ani-show {.ani-show;}
+	@keyframes ani-show {.ani-show;}
+	
+	.ani-hide {
+	    0% { 
+	    .fn_transform(scale(1,1));
+	    }
+		100% {
+		.fn_transform(scale(0.5,0.5));
+		.fn_opacity(0);
+		//display:none;
+		}
+	}
+	@-webkit-keyframes ani-hide {.ani-hide;}
+	@-moz-keyframes ani-hide {.ani-hide;}
+	@-ms-keyframes ani-hide {.ani-hide;}
+	@-o-keyframes ani-hide {.ani-hide;}
+	@keyframes ani-hide {.ani-hide;}
 
+	.hui-ani-show{
+		.fn_animation(ani-show .3s 1 linear);
+	}
+	
+	.hui-ani-hide{
+		.fn_animation(ani-hide .3s 1 linear);
+	}
+}
+.hui-pc{
+	.hui-slide-center{
+		.fn_transition(all 0.1s linear);
+	}
+	.hui-slide-left{
+		.fn_transition(all 0.1s linear);
+	}
+	.hui-slide-right{
+		.fn_transition(all 0.2s linear);
+	}
+}

@@ -9,7 +9,8 @@
  */
 //handy.module.History
 $Define("M.History",
-'handy.base.HashChange',
+['handy.base.HashChange',
+'B.Class'],
 function(HashChange){
 
 	var History=$H.createClass();

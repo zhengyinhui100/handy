@@ -312,6 +312,9 @@ handy.add('Json',function(){
  */
 handy.add('Object',function(){
 	
+	var oWin=window;
+	var wObject=oWin.Object;
+	
 	var Object={
 		_alias              : {                 //存储别名，公共库建议大写，以便更好地与普通名称区别开，具体项目的别名建议小写
 			'B'             : 'handy.base',
@@ -351,8 +354,6 @@ handy.add('Object',function(){
 		generateMethod      : fGenerateMethod   //归纳生成类方法
 	}
 	
-	var wObject=window.Object;
-	
 	/**
     * 创建或读取命名空间
     * @method ns (sPath,obj=)
@@ -367,11 +368,10 @@ handy.add('Object',function(){
         aPath=sPath.split(".");  
         root = aPath[0]; 
         bIsCreate=arguments.length==2;
-        //改这里eval的代码须考虑压缩的因素
         if(!bIsCreate){
-        	oObject=eval('(function(){if (typeof ' + root + ' != "undefined")return ' + root + ';})()');
+        	oObject=oWin[root];
         }else{
-	        oObject=eval('(function(){if (typeof ' + root + ' == "undefined"){' + root + ' = {};}return ' + root + ';})()');  
+        	oObject=oWin[root]||(oWin[root]={});
         }
         //循环命名路径
         for (j=1,len=aPath.length; j<len; ++j) { 
@@ -700,12 +700,12 @@ handy.add('Object',function(){
 			return oFrom;
 		}else{
 			var Constructor = oFrom.constructor;
-			if (Constructor != wObject && Constructor != window.Array){
+			if (Constructor != wObject && Constructor != oWin.Array){
 				return oFrom;
 			}else{
 
-				if (Constructor == window.Date || Constructor == window.RegExp || Constructor == window.Function ||
-					Constructor == window.String || Constructor == window.Number || Constructor == window.Boolean){
+				if (Constructor == oWin.Date || Constructor == oWin.RegExp || Constructor == oWin.Function ||
+					Constructor == oWin.String || Constructor == oWin.Number || Constructor == oWin.Boolean){
 					return new Constructor(oFrom);
 				}else{
 					try{
@@ -898,7 +898,7 @@ handy.add('Object',function(){
     * @return {Array} 返回转换后的数组
     */
     function fToArray(){
-    	var aMatch=window.navigator.userAgent.match(/MSIE ([\d.]+)/);
+    	var aMatch=oWin.navigator.userAgent.match(/MSIE ([\d.]+)/);
     	if(aMatch&&parseInt(aMatch[0])<9){
     		//IE9以下，由于nodeList不是javascript对象，使用slice方法会抛异常，这里使用循环
     		return function(oParam,nStart,nEnd){
@@ -1153,6 +1153,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 		warn        : fWarn,        //输出警告信息
 		error		: fError,		//输出错误信息
 		time        : fTime,        //输出统计时间,info级别
+		trace       : fTrace,       //追踪统计时间
 //		debugLog    : $H.noop,      //线上错误处理
 		debug		: fDebug		//出现调试断点
 	}
@@ -1293,14 +1294,47 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 		if(Debug.level>Debug.INFO_LEVEL){
 			return;
 		}
+		var nTime=window.performance?window.performance.now():(new Date().getTime());
 		if(bOut){
 			if(typeof sMsg=='boolean'){
 				bShowInPage=sMsg;
 				sMsg='';
 			}
-			Debug.out((sMsg||'')+(new Date().getTime()-(Debug.lastTime||0)),!!bShowInPage)
+			Debug.out((sMsg||'')+(nTime-(Debug.lastTime||0)),!!bShowInPage)
 		}else{
-			Debug.lastTime=new Date().getTime();
+			Debug.lastTime=nTime;
+		}
+	}
+	/**
+	 * 追踪统计时间
+	 * @param {object}oParams {
+	 * 		{string=}name:名称,
+	 * 		{boolean=}end:是否结束计时，默认是开始计时,
+	 * 		{boolean=}out:true表示输出结果,
+	 * 		{string=}method:输出使用的方法，默认是log
+	 * }
+	 */
+	function fTrace(oParams){
+		var bOut=oParams.out;
+		var oTimes=Debug._traceTimes||(Debug._traceTimes={});
+		if(bOut){
+			for(var sName in oTimes){
+				var oItem=oTimes[sName];
+				oItem.average=oItem.total/oItem.num;
+			}
+			var sMethod=oParams.method||'log';
+			Debug[sMethod](oTimes);
+			return;
+		}
+		var sName=oParams.name;
+		var bEnd=oParams.end;
+		var oItem=oTimes[sName]||(oTimes[sName]={});
+		var nTime=window.performance?window.performance.now():(new Date().getTime());
+		if(!bEnd){
+			oItem.num=(oItem.num||0)+1;
+			oItem.start=nTime;
+		}else{
+			oItem.total=(oItem.total||0)+nTime-oItem.start;
 		}
 	}
 	/**
@@ -4645,7 +4679,7 @@ $Define('B.LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Even
 /**
  * 适配类库
  */
-$Define('B.Adapt',function(){
+$Define('B.Adapt','B.Function',function(){
 	
 	//框架全局变量
 	
@@ -4678,6 +4712,7 @@ $Define('B.Adapt',function(){
  */
 //"handy.util.ImgCompress"
 $Define('U.ImgCompress',
+'B.Class',
 function(){
 	var ImgCompress=$H.createClass();
 	
@@ -4854,6 +4889,7 @@ function(){
  */
 //"handy.effect.Draggable"
 $Define('E.Draggable',
+'B.Class',
 function(){
 	
 	var Draggable=$H.createClass();
@@ -4982,6 +5018,7 @@ function(){
  */
 //"handy.common.AbstractEvents"
 $Define('CM.AbstractEvents',
+'B.Class',
 function(){
 	
 	var AbstractEvents=$H.createClass();
@@ -5077,6 +5114,7 @@ function(){
  */
 //"handy.data.DataStore"
 $Define('D.DataStore',
+'B.Class',
 function(){
 	var DataStore=$H.createClass();
 	
@@ -5165,7 +5203,10 @@ function(){
  */
 //handy.data.AbstractDao
 $Define('D.AbstractDao',
+[
 'B.LocalStorage',
+'B.Class'
+],
 function(LS){
 	
 	var AbstractDao=$H.createClass();
@@ -6885,7 +6926,7 @@ function(AbstractData,Model){
  * @created 2014-01-10
  */
 //"handy.view.AbstractManager"
-$Define("V.AbstractManager", function() {
+$Define("V.AbstractManager", 'B.Class',function() {
 
 	var AbstractManager = $H.createClass();
 	
@@ -7043,7 +7084,7 @@ $Define("V.AbstractManager", function() {
  * @created 2014-03-17
  */
 //"handy.view.ViewManager"
-$Define("V.ViewManager", 'V.AbstractManager',function(AbstractManager) {
+$Define("V.ViewManager", ['V.AbstractManager','B.Events'],function(AbstractManager) {
 
 	var ViewManager = AbstractManager.derive({
 		type          : 'view',           //管理类型
@@ -9327,14 +9368,17 @@ $Define("M.AbstractModule","V.View",function (View) {
 	var AbstractModule = View.derive({
 		
 		xtype          : 'Module',
+//		renderTo       : null,           //自定义模块容器，{jQuery}对象或选择器
+		
+		//模块管理相关属性
+//		_forceExit     : false,          //true表示下一次退出操作不调用exit方法，直接退出
 //		isLoaded       : false,          //{boolean}模块是否已载入
 //		isActived      : false,          //{boolean}模块是否是当前活跃的
-//		renderTo       : null,           //自定义模块容器，{jQuery}对象或选择器
-		                                 //模块初始化后以_container为准，获取需用getEl方法
 //		notCache       : false,          //{boolean}是否不使用cache，默认使用,仅当配置成true时不使用
 //      clearCache     : false,          //仅清除一次当前的缓存，下次进入模块时执行清除并恢复原先缓存设置
 //		name           : null,           //{string}模块名
 //		chName         : null,           //{string}模块的中文名称
+//		referer        : null,           //记录从哪个模块进入
 		
 //		getData        : null,           //{function()}获取该模块的初始化数据
 //		clone          : null,           //{function()}克隆接口
@@ -9361,7 +9405,7 @@ $Define("M.AbstractModule","V.View",function (View) {
 * Created:		2013-12-20										*
 *****************************************************************/
 //handy.module.AbstractNavigator
-$Define("M.AbstractNavigator","handy.base.Object",function (Object) {
+$Define("M.AbstractNavigator",["handy.base.Object",'B.Class'],function (Object) {
 	/**
 	 * 模块导航效果基类
 	 * 
@@ -9386,7 +9430,8 @@ $Define("M.AbstractNavigator","handy.base.Object",function (Object) {
  */
 //handy.module.History
 $Define("M.History",
-'handy.base.HashChange',
+['handy.base.HashChange',
+'B.Class'],
 function(HashChange){
 
 	var History=$H.createClass();
@@ -9615,47 +9660,50 @@ function(History,AbstractManager){
 	/**
 	 * 新建模块
 	 * @method _createMod
-	 * @param 
+	 * @param {object}oParams 选项
+	 * @return {Module}返回新创建的模块
 	 */
 	function _fCreateMod(oParams){
 		var me=this;
 		var sModName=oParams.modName;
 		var sModId=oParams.modId;
-		//先标记为正在准备中，新建成功后赋值为模块对象
-		me.setModule({waiting:true},sModName,oParams.modelId);
-		//请求模块
-		$Require(sModName,function(Module){
-			var oOptions={
-				renderTo:me.container,
-				modName:sModName,
-				modId:sModId,
-				name:sModName,
-				xtype:sModName,
-				cid:sModId.replace(/\./g,'-'),
-				extCls:'js-module m-module '+sModName.replace(/\./g,'-'),
-				hidden:true
-			};
-			$H.extend(oOptions,oParams);
-			var oMod=new Module(oOptions);
-			me._modules[sModId]=oMod;
-			$H.trigger('afterRender',oMod.getEl());
-			oMod.entry(oParams);
-			//可能加载完时，已切换到其它模块了
-			if(me.requestMod==sModId){
-				me._showMod(oMod);
-			}
-		});
+		var Module=$Require(sModName);
+		var oOptions={
+			renderTo:me.container,
+			modName:sModName,
+			modId:sModId,
+			name:sModName,
+			xtype:sModName,
+			cid:sModId.replace(/\./g,'-'),
+			extCls:'js-module m-module '+sModName.replace(/\./g,'-'),
+			hidden:true
+		};
+		$H.extend(oOptions,oParams);
+		var oMod=new Module(oOptions);
+		
+		//异步模块在此标记referer
+		var oWaitting=me._modules[sModId];
+		oMod.referer=oWaitting.referer;
+		
+		me._modules[sModId]=oMod;
+		$H.trigger('afterRender',oMod.getEl());
+		oMod.entry(oParams);
+		//只有当前请求的模块恰好是本模块时才显示（可能加载完时，已切换到其它模块了）
+		if(me.requestMod==sModId){
+			me._showMod(oMod);
+		}
+		return oMod;
 	}
 	/**
 	 * 显示模块
 	 * @method _showMod
-	 * @param
+	 * @param {Module}oMod 要显示的模块
 	 */
 	function _fShowMod(oMod){
 		var me=this;
 		var oCurMod=me._modules[me.currentMod];
-		//如果导航类方法返回true，则不使用模块管理类的导航
-		if(!(me.navigator&&me.navigator.navigate(oMod,oCurMod,me))){
+		//如果导航类方法返回false，则不使用模块管理类的导航
+		if((me.navigator&&me.navigator.navigate(oMod,oCurMod,me))!==false){
 			if(oCurMod){
 				oCurMod.hide();
 			}
@@ -9799,6 +9847,8 @@ function(History,AbstractManager){
 		var oMod=oMods[sModId];
 		//如果模块有缓存
 		if(oMod){
+			oMod.referer=oCurrentMod;
+			//还在请求资源，直接返回
 			if(oMod.waiting){
 				return;
 			}
@@ -9809,19 +9859,26 @@ function(History,AbstractManager){
 				me._showMod(oMod);
 				oMod.cache(param);
 				oMod.entry(param);
-			}else if(!oMod.waiting){
+			}else{
 				//标记不使用缓存，销毁模块
 				me.destroy(oMod);
 				//重新标记当前模块
 //				me.currentMod=sModName;
 				//重新创建模块
-				me._createMod(param);
+				oMod=me._createMod(param);
+				oMod.referer=oCurrentMod;
 			}
 			//如果模块已在请求中，直接略过，等待新建模块的回调函数处理
 		}else{
 			//否则新建一个模块
-			me._createMod(param);
+			//先标记为正在准备中，新建成功后赋值为模块对象
+			me.setModule({waiting:true,referer:oCurrentMod},sModName,sModelId);
+			$Require(sModName,function(Module){
+				var oNewMod=me._createMod(param);
+			});
 		}
+		
+		
 		//主要是处理前进和后退hash变化引起的调用，不需要再保存历史记录
 		if(bNotSaveHistory!=true){
 			//保存状态
@@ -9887,8 +9944,9 @@ function(History,AbstractManager){
 	 */
 	function fBack(bForceExit){
 		var me=this;
+		var oCurMod=me._modules[me.currentMod];
 		if(bForceExit){
-			me._modules[me.currentMod]._forceExit=true;
+			oCurMod._forceExit=true;
 		}
 		history.back();
 	}
@@ -9933,7 +9991,7 @@ function(AbstractManager,ViewManager) {
  * @created 2013-12-28
  */
 //"handy.component.AbstractComponent"
-$Define('C.AbstractComponent',["V.ViewManager",'V.View','C.ComponentManager'],function(ViewManager,View){
+$Define('C.AbstractComponent',["V.ViewManager",'V.View','C.ComponentManager','B.Class'],function(ViewManager,View){
 	
 	//访问component包内容的快捷别名
 	$C=$H.ns('C');
@@ -10260,7 +10318,7 @@ function(AC){
 			activeCls       : 'hui-btn-active',    //激活样式
 			isBack          : false,               //是否是后退按钮
 			radius          : 'little',            //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
-			shadow          : true,        	       //外阴影
+			gradient        : false,               //渐变效果
 			isInline        : true,                //宽度自适应
 			noTxtCls        : {
 				depends : ['text','tType'],
@@ -10292,7 +10350,7 @@ function(AC){
 			xtype       : 'Icon'
 		},
 		
-		tmpl            : ['<a href="javascript:;" hidefocus="true" {{bindAttr class="noTxtCls isBack?hui-btn-back markCls iconPosCls"}}>',
+		tmpl            : ['<a href="javascript:;" hidefocus="true" {{bindAttr class="noTxtCls isBack?hui-btn-back gradient?hui-gradient markCls iconPosCls"}}>',
 								'<span class="hui-btn-txt">{{text}}</span>',
 								'<span class="hui-btn-ext">{{extTxt}}</span>',
 								'{{placeItem}}',

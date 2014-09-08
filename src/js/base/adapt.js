@@ -1,7 +1,7 @@
 /**
  * 适配类库
  */
-$Define('B.Adapt',function(){
+$Define('B.Adapt','B.Function',function(){
 	
 	//框架全局变量
 	

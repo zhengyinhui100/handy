@@ -4,22 +4,7 @@
  */
 $Define('handy.All',
 [
-'B.Class',
-'B.Function', 
-'B.Events',
-'B.Date', 
-'B.String',
-'B.Cookie', 
-'B.Util',
-'B.Url',
-'B.Array', 
-'B.Geo',
-'B.Template', 
-'B.HashChange',
-'B.Support', 
-'B.Validator',
-'B.LocalStorage', 
-'B.Adapt',
+'B.All',
 
 'U.ImgCompress',
 					

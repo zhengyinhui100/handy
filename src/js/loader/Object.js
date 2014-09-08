@@ -4,6 +4,9 @@
  */
 handy.add('Object',function(){
 	
+	var oWin=window;
+	var wObject=oWin.Object;
+	
 	var Object={
 		_alias              : {                 //存储别名，公共库建议大写，以便更好地与普通名称区别开，具体项目的别名建议小写
 			'B'             : 'handy.base',
@@ -43,8 +46,6 @@ handy.add('Object',function(){
 		generateMethod      : fGenerateMethod   //归纳生成类方法
 	}
 	
-	var wObject=window.Object;
-	
 	/**
     * 创建或读取命名空间
     * @method ns (sPath,obj=)
@@ -59,11 +60,10 @@ handy.add('Object',function(){
         aPath=sPath.split(".");  
         root = aPath[0]; 
         bIsCreate=arguments.length==2;
-        //改这里eval的代码须考虑压缩的因素
         if(!bIsCreate){
-        	oObject=eval('(function(){if (typeof ' + root + ' != "undefined")return ' + root + ';})()');
+        	oObject=oWin[root];
         }else{
-	        oObject=eval('(function(){if (typeof ' + root + ' == "undefined"){' + root + ' = {};}return ' + root + ';})()');  
+        	oObject=oWin[root]||(oWin[root]={});
         }
         //循环命名路径
         for (j=1,len=aPath.length; j<len; ++j) { 
@@ -392,12 +392,12 @@ handy.add('Object',function(){
 			return oFrom;
 		}else{
 			var Constructor = oFrom.constructor;
-			if (Constructor != wObject && Constructor != window.Array){
+			if (Constructor != wObject && Constructor != oWin.Array){
 				return oFrom;
 			}else{
 
-				if (Constructor == window.Date || Constructor == window.RegExp || Constructor == window.Function ||
-					Constructor == window.String || Constructor == window.Number || Constructor == window.Boolean){
+				if (Constructor == oWin.Date || Constructor == oWin.RegExp || Constructor == oWin.Function ||
+					Constructor == oWin.String || Constructor == oWin.Number || Constructor == oWin.Boolean){
 					return new Constructor(oFrom);
 				}else{
 					try{
@@ -590,7 +590,7 @@ handy.add('Object',function(){
     * @return {Array} 返回转换后的数组
     */
     function fToArray(){
-    	var aMatch=window.navigator.userAgent.match(/MSIE ([\d.]+)/);
+    	var aMatch=oWin.navigator.userAgent.match(/MSIE ([\d.]+)/);
     	if(aMatch&&parseInt(aMatch[0])<9){
     		//IE9以下，由于nodeList不是javascript对象，使用slice方法会抛异常，这里使用循环
     		return function(oParam,nStart,nEnd){
