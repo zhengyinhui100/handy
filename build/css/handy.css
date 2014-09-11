@@ -3088,6 +3088,19 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
     opacity: 0;
   }
 }
+.hui .hui-ani-show,
+.hui .hui-ani-hide {
+  -moz-transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  -o-transform: translate3d(0, 0, 0);
+  -ms-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  -moz-transform-origin: 50% 10em;
+  -webkit-transform-origin: 50% 10em;
+  -o-transform-origin: 50% 10em;
+  -ms-transform-origin: 50% 10em;
+  transform-origin: 50% 10em;
+}
 .hui .hui-ani-show {
   animation: ani-show 0.3s 1 linear;
   -webkit-animation: ani-show 0.3s 1 linear;

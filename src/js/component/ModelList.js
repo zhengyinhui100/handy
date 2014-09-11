@@ -63,7 +63,7 @@ function(AC){
 					'{{#if isEmpty}}',
 						'<div class="hui-list-empty js-empty">{{emptyTips}}</div>',
 					'{{/if}}',
-					'<div class="js-item-container">{{placeItem}}</div>',
+					'<div class="hui-list-container js-item-container">{{placeItem}}</div>',
 					'{{#if hasMoreBtn}}',
 						'<div {{bindAttr class="#hui-list-more showMoreBtn:hui-hidden"}}>',
 							'<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-shadow hui-inline hui-radius-little">',
@@ -119,6 +119,11 @@ function(AC){
 			},
 			'reset':function(){
 				me.removeListItem('emptyAll');
+			},
+			'sync':function(){
+				if(oListItems.size()===0){
+					me.set('isEmpty',true);
+				}
 			}
 		});
 		//下拉刷新
@@ -328,7 +333,7 @@ function(AC){
 		oScroller.scrollTo(0,0,200);
 		setTimeout(function(){
 			oScroller.minScrollY=tmp;
-		},250);
+		},1000);
 	}
 	/**
 	 * 销毁

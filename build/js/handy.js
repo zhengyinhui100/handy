@@ -9847,10 +9847,14 @@ function(History,AbstractManager){
 		var oMod=oMods[sModId];
 		//如果模块有缓存
 		if(oMod){
-			oMod.referer=oCurrentMod;
 			//还在请求资源，直接返回
 			if(oMod.waiting){
 				return;
+			}
+			var bIsBack=oCurrentMod.referer===oMod;
+			//回退时不能改变父模块的referer
+			if(!bIsBack){
+				oMod.referer=oCurrentMod;
 			}
 			//标记使用缓存，要调用cache方法
 			if(oMod.notCache!=true&&oMod.clearCache!=true&&oMod.useCache(param)!=false){
@@ -9866,7 +9870,9 @@ function(History,AbstractManager){
 //				me.currentMod=sModName;
 				//重新创建模块
 				oMod=me._createMod(param);
-				oMod.referer=oCurrentMod;
+				if(!bIsBack){
+					oMod.referer=oCurrentMod;
+				}
 			}
 			//如果模块已在请求中，直接略过，等待新建模块的回调函数处理
 		}else{
@@ -13816,7 +13822,7 @@ function(AC){
 					'{{#if isEmpty}}',
 						'<div class="hui-list-empty js-empty">{{emptyTips}}</div>',
 					'{{/if}}',
-					'<div class="js-item-container">{{placeItem}}</div>',
+					'<div class="hui-list-container js-item-container">{{placeItem}}</div>',
 					'{{#if hasMoreBtn}}',
 						'<div {{bindAttr class="#hui-list-more showMoreBtn:hui-hidden"}}>',
 							'<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-shadow hui-inline hui-radius-little">',

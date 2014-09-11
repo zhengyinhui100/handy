@@ -1649,6 +1649,11 @@
 	@-o-keyframes ani-hide {.ani-hide;}
 	@keyframes ani-hide {.ani-hide;}
 
+	.hui-ani-show,.hui-ani-hide{
+		.fn_transform(translate3d(0,0,0));
+		.fn_transform_orig(50% 10em);
+	}
+	
 	.hui-ani-show{
 		.fn_animation(ani-show .3s 1 linear);
 	}
