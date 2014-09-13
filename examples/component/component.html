@@ -619,6 +619,7 @@ $Define('test','handy.All',function(){
 								zInzex:1
 							},
 							height:50,
+							width:50,
 							imgSrc:'../../html/img.jpg'
 						}]
 					}
@@ -626,7 +627,20 @@ $Define('test','handy.All',function(){
 					xtype:'Field',
 					title:'用户名',
 					content:{
-						text:'{{username}}',
+						text:'{{username}}'
+					}
+				},{
+					xtype:'Field',
+					title:{
+						xtype:'Icon',
+						name:'delete',
+						tType:'big',
+						bgColor:'#fb83a5',
+						radius:'normal'
+					},
+					content:{
+						text:'附近的用户',
+						comment:'发现周围的用户',
 						click:function(){
 							alert('详情')
 						}
@@ -899,7 +913,7 @@ $Define('test','handy.All',function(){
 							items:{
 								xtype:'Icon',
 								size:'normal',
-								hasBg:false,
+								theme:null,
 								name:'home'
 							}
 						}
@@ -911,7 +925,7 @@ $Define('test','handy.All',function(){
 							items:{
 								xtype:'Icon',
 								size:'normal',
-								hasBg:false,
+								theme:null,
 								name:'eye'
 							}
 						}
@@ -923,7 +937,7 @@ $Define('test','handy.All',function(){
 							items:{
 								xtype:'Icon',
 								size:'normal',
-								hasBg:false,
+								theme:null,
 								name:'user'
 							}
 						}
@@ -935,7 +949,7 @@ $Define('test','handy.All',function(){
 							items:{
 								xtype:'Icon',
 								size:'normal',
-								hasBg:false,
+								theme:null,
 								name:'gear'
 							}
 						}

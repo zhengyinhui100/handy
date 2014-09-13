@@ -66,7 +66,7 @@ function(AC,Popup,ControlGroup){
 				items:{
 					xtype:'Icon',
 					name:'loading-mini',
-					hasBg:false
+					theme:null
 				}
 			});
 		}else if(oSettings.type=='topTips'){
@@ -99,7 +99,7 @@ function(AC,Popup,ControlGroup){
 				items:{
 					xtype:'Icon',
 					name:'loading-mini',
-					hasBg:false
+					theme:null
 				}
 			});
 		}

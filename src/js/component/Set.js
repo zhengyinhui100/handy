@@ -13,13 +13,16 @@ function(AC){
 	Set.extend({
 		xConfig         : {
 			cls         : 'set',
+			theme       : 'normal',
 			title       : ''      //标题
 		},
 		
 		tmpl            : [
 			'<div>',
 				'<div class="hui-set-title">',
-					'<h1 class="title">{{title}}</h1>',
+					'{{#if title}}',
+						'<h1 class="hui-title-txt">{{title}}</h1>',
+					'{{/if}}',
 					'{{placeItem > [xrole=title]}}',
 				'</div>',
 				'<div class="hui-set-content">',

@@ -205,7 +205,8 @@ function(AC,Popup){
 			me.add({
 				xtype:'Tab',
 				xrole:'dialog-action',
-				theme:'border-top',
+				theme:'no-border',
+				tType:'sep',
 				notSelect:true,
 				items:aActions
 			});

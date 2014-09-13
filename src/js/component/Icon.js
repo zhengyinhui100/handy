@@ -14,8 +14,9 @@ function(AC){
 		//初始配置
 		xConfig         : {
 			cls         : 'icon',
-			hasBg       : true,               //是否有背景
+			theme       : 'gray',             //颜色
 			isAlt       : false,              //是否使用深色图标
+			radius      : 'big',
 			name        : '',                 //图标名称
 			iconName    : {
 				depends : ['name'],
@@ -25,8 +26,10 @@ function(AC){
 			}
 		},
 		
+		bgColor         : '',                 //指定具体的背景颜色值
+		
 		tmpl            : 
-			'<span {{bindAttr class="isAlt?hui-alt-icon iconName hasBg?hui-icon-bg"}}></span>',
+			'<span {{bindAttr class="isAlt?hui-alt-icon iconName"}}></span>',
 		doConfig        : fDoConfig          //初始化配置
 		
 	});
@@ -39,6 +42,9 @@ function(AC){
 		var me=this;
 		if($H.isStr(oSettings)){
 			oSettings={name:oSettings};
+		}
+		if(oSettings.bgColor){
+			oSettings.style=$H.extend(oSettings.style,{backgroundColor:oSettings.bgColor})
 		}
 		me.callSuper([oSettings]);
 	}

@@ -1113,13 +1113,13 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-icon-minus {
   background-size: 1em auto;
 }
-.hui-icon-bg {
+.hui-icon-gray {
   background-color: #666;
   background-color: rgba(0, 0, 0, 0.4);
-  background-repeat: no-repeat;
-  -webkit-border-radius: 1em;
-  -moz-border-radius: 1em;
-  border-radius: 1em;
+}
+.hui-icon-big {
+  width: 2em;
+  height: 2em;
 }
 .hui-icon-loading {
   background-size: auto;
@@ -1683,6 +1683,9 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-panel {
   position: relative;
 }
+.hui-panel.hui-panel-gray {
+  background-color: #eee;
+}
 .hui-panel .hui-panel-loading {
   position: relative;
   position: absolute;
@@ -1902,6 +1905,18 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-input-btn-right .hui-btn-icon-notxt {
   margin-top: -0.938em;
 }
+.hui-editor {
+  position: relative;
+  border: 1px solid #aaa;
+  color: #333;
+  background: #f9f9f9;
+}
+.hui-editor .hui-editor-iframe {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  border: 0;
+}
 .hui-click-arrow {
   position: absolute;
   margin-top: -1.125em;
@@ -1941,8 +1956,14 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-rowitem {
   position: relative;
-  padding: 0.75em 0.563em 0.75em 0.375em;
   min-height: 2.75em;
+  background-color: #fff;
+}
+.hui-rowitem.hui-rowitem-padding-big {
+  padding: 0.75em 0.563em 0.75em 0.375em;
+}
+.hui-rowitem.hui-rowitem-padding-normal {
+  padding: 0.5em 0.563em 0.5em 0.375em;
 }
 .hui-rowitem.hui-rowitem-padding-right {
   padding-right: 1.5em;
@@ -1958,6 +1979,10 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   zoom: 1;
   *display: inline;
 }
+.hui-rowitem .hui-rowitem-comment {
+  color: #888;
+  font-size: 0.8em;
+}
 .hui-rowitem.hui-rowitem-underline {
   border-bottom: 1px solid #ddd;
 }
@@ -1967,9 +1992,15 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-field {
   position: relative;
   text-align: left;
-  padding-left: 2.5em;
+  padding-left: 3em;
+  background-color: #fff;
 }
 .hui-field .hui-field-left {
+  position: absolute;
+  left: 0.5em;
+  height: 100%;
+}
+.hui-field .hui-field-left .hui-label {
   position: absolute;
   left: 0;
   top: 50%;
@@ -1997,14 +2028,19 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-field .hui-field-nopadding {
   padding: 0;
 }
+.hui-field .hui-icon-big {
+  position: absolute;
+  top: 50%;
+  margin-top: -1em;
+}
 .hui-field-3-words .hui-field {
-  padding-left: 3.5em;
+  padding-left: 4em;
 }
 .hui-field-4-words .hui-field {
-  padding-left: 4.5em;
+  padding-left: 5em;
 }
 .hui-field-5-words .hui-field {
-  padding-left: 5.5em;
+  padding-left: 6em;
 }
 .hui-form .hui-form-tips {
   text-align: center;
@@ -2021,24 +2057,30 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-form .hui-form-action .hui-btn:nth-last-of-type(1) {
   margin-right: 0;
 }
-.hui-set .hui-set-title {
+.hui-set {
+  background-color: #fff;
+}
+.hui-set.hui-set-normal .hui-set-title {
+  border-bottom: 1px solid #ccc;
   padding: 0.375em;
+}
+.hui-set.hui-set-normal .hui-set-title .hui-btn {
+  margin: 0;
+}
+.hui-set.hui-set-normal .hui-title-txt {
   text-align: left;
   font-weight: normal;
-  border-bottom: 1px solid #ccc;
-}
-.hui-set .hui-set-title .title {
   display: -moz-inline-stack;
   display: inline-block;
   zoom: 1;
   *display: inline;
   margin-right: 2em;
 }
-.hui-set .hui-set-title .hui-btn {
-  margin: 0;
-}
-.hui-set .hui-set-content {
+.hui-set.hui-set-normal .hui-set-content {
   margin: 2em 0.688em;
+}
+.hui-set.hui-set-simple {
+  margin: 0.313em 0 1em;
 }
 .hui-tbar {
   position: relative;

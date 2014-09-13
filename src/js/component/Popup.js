@@ -96,7 +96,8 @@ function(AC){
 		oEl.css('z-index',_popupNum*1000+1000);
 		//如果未设置宽度，默认和父组件宽度一样
 		if(!me.width&&me.parent){
-			var width=me.width=me.parent.getEl().outerWidth();
+			var oParentEl=me.parent.getEl();
+			var width=me.width=oParentEl[0].clientWidth;
 			oEl.css('width',width);
 		}
 		//默认居中显示

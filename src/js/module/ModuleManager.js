@@ -192,6 +192,9 @@ function(History,AbstractManager){
 	 * @return {boolean} true表示成功，false表示失败
 	 */
 	function fGo(param,bNotSaveHistory){
+		if(!param){
+			return;
+		}
 		var me=this;
 		if(typeof param=="string"){
 			param={modName:param};
@@ -249,10 +252,13 @@ function(History,AbstractManager){
 			if(oMod.waiting){
 				return;
 			}
-			var bIsBack=oCurrentMod.referer===oMod;
-			//回退时不能改变父模块的referer
-			if(!bIsBack){
-				oMod.referer=oCurrentMod;
+			//这里oCurrentMod可能被用户调用了destroy而销毁
+			if(oCurrentMod){
+				var bIsBack=oCurrentMod.referer===oMod;
+				//回退时不能改变父模块的referer
+				if(!bIsBack){
+					oMod.referer=oCurrentMod;
+				}
 			}
 			//标记使用缓存，要调用cache方法
 			if(oMod.notCache!=true&&oMod.clearCache!=true&&oMod.useCache(param)!=false){

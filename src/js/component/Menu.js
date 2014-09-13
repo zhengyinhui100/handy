@@ -59,7 +59,7 @@ function(AC,Popup,ControlGroup){
 			oItem.items={
 				name:'check',
 				isAlt:true,
-				hasBg:false
+				theme:null
 			};
 			oItem.iconPos='left';
 			oItem.activeCls='hui-item-select';

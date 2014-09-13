@@ -52,7 +52,7 @@ function(AC,Model,Collection){
 				isAlt:true,
 				extCls:'hui-light',
 				size:'mini',
-				hasBg:false
+				theme:null
 			});
 		}
 	}

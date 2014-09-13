@@ -10240,8 +10240,9 @@ function(AC){
 		//初始配置
 		xConfig         : {
 			cls         : 'icon',
-			hasBg       : true,               //是否有背景
+			theme       : 'gray',             //颜色
 			isAlt       : false,              //是否使用深色图标
+			radius      : 'big',
 			name        : '',                 //图标名称
 			iconName    : {
 				depends : ['name'],
@@ -10251,8 +10252,10 @@ function(AC){
 			}
 		},
 		
+		bgColor         : '',                 //指定具体的背景颜色值
+		
 		tmpl            : 
-			'<span {{bindAttr class="isAlt?hui-alt-icon iconName hasBg?hui-icon-bg"}}></span>',
+			'<span {{bindAttr class="isAlt?hui-alt-icon iconName"}}></span>',
 		doConfig        : fDoConfig          //初始化配置
 		
 	});
@@ -10265,6 +10268,9 @@ function(AC){
 		var me=this;
 		if($H.isStr(oSettings)){
 			oSettings={name:oSettings};
+		}
+		if(oSettings.bgColor){
+			oSettings.style=$H.extend(oSettings.style,{backgroundColor:oSettings.bgColor})
 		}
 		me.callSuper([oSettings]);
 	}
@@ -10382,7 +10388,7 @@ function(AC){
 			if(typeof oSettings.icon==='string'){
 				oSettings.icon={
 					name:oSettings.icon,
-					hasBg:false
+					theme:null
 				}
 			}
 		}
@@ -10446,7 +10452,7 @@ function(AC,Model,Collection){
 				isAlt:true,
 				extCls:'hui-light',
 				size:'mini',
-				hasBg:false
+				theme:null
 			});
 		}
 	}
@@ -10598,7 +10604,8 @@ function(AC){
 		oEl.css('z-index',_popupNum*1000+1000);
 		//如果未设置宽度，默认和父组件宽度一样
 		if(!me.width&&me.parent){
-			var width=me.width=me.parent.getEl().outerWidth();
+			var oParentEl=me.parent.getEl();
+			var width=me.width=oParentEl[0].clientWidth;
 			oEl.css('width',width);
 		}
 		//默认居中显示
@@ -11499,9 +11506,18 @@ function(AC){
 		xConfig         : {
 			cls             : 'rowitem',
 			text            :'',             //文字
+			comment         : '',            //注解文字
 			underline       : false,         //右边下划线，文字域默认有下划线
 			hasArrow        : false,         //右边箭头，有click事件时默认有箭头
 			newsNum         : 0,             //新消息提示数目，大于9自动显示成"9+"
+			padding         : 'big',         //上下padding大小
+			paddingCls      : {
+				depends : ['padding'],
+				parse:function(){
+					var padding=this.get('padding');
+					return padding?'hui-rowitem-padding-'+padding:''
+				}
+			},
 			newsNumTxt      : {
 				depends : ['newsNum'],
 				parse:function(){
@@ -11512,9 +11528,10 @@ function(AC){
 		},
 		
 		tmpl            : [
-			'<div {{bindAttr class="underline?hui-rowitem-underline hasArrow?hui-rowitem-padding-right"}}>',
+			'<div {{bindAttr class="underline?hui-rowitem-underline paddingCls hasArrow?hui-rowitem-padding-right"}}>',
 				'{{placeItem}}',
 				'<div class="hui-rowitem-txt">{{text}}</div>',
+				'<div class="hui-rowitem-comment">{{comment}}</div>',
 				'{{#if newsNumTxt}}',
 					'<span class="hui-news-tips">{{newsNumTxt}}</span>',
 				'{{else}}',
@@ -11546,6 +11563,10 @@ function(AC){
 		if(oSettings.click&&!oSettings.hasOwnProperty('hasArrow')){
 			me.set('hasArrow',true);
 		}
+		//有注解
+		if(oSettings.comment&&oSettings.padding===undefined){
+			me.set('padding','normal');
+		}
 	}
 	
 	return RowItem;
@@ -11566,13 +11587,16 @@ function(AC){
 	Set.extend({
 		xConfig         : {
 			cls         : 'set',
+			theme       : 'normal',
 			title       : ''      //标题
 		},
 		
 		tmpl            : [
 			'<div>',
 				'<div class="hui-set-title">',
-					'<h1 class="title">{{title}}</h1>',
+					'{{#if title}}',
+						'<h1 class="hui-title-txt">{{title}}</h1>',
+					'{{/if}}',
 					'{{placeItem > [xrole=title]}}',
 				'</div>',
 				'<div class="hui-set-content">',
@@ -12081,7 +12105,7 @@ function(AC,Popup,ControlGroup){
 				items:{
 					xtype:'Icon',
 					name:'loading-mini',
-					hasBg:false
+					theme:null
 				}
 			});
 		}else if(oSettings.type=='topTips'){
@@ -12114,7 +12138,7 @@ function(AC,Popup,ControlGroup){
 				items:{
 					xtype:'Icon',
 					name:'loading-mini',
-					hasBg:false
+					theme:null
 				}
 			});
 		}
@@ -12402,7 +12426,7 @@ function(AC,Popup,ControlGroup){
 			oItem.items={
 				name:'check',
 				isAlt:true,
-				hasBg:false
+				theme:null
 			};
 			oItem.iconPos='left';
 			oItem.activeCls='hui-item-select';
@@ -13878,6 +13902,11 @@ function(AC){
 			},
 			'reset':function(){
 				me.removeListItem('emptyAll');
+			},
+			'sync':function(){
+				if(oListItems.size()===0){
+					me.set('isEmpty',true);
+				}
 			}
 		});
 		//下拉刷新
@@ -14087,7 +14116,7 @@ function(AC){
 		oScroller.scrollTo(0,0,200);
 		setTimeout(function(){
 			oScroller.minScrollY=tmp;
-		},250);
+		},1000);
 	}
 	/**
 	 * 销毁

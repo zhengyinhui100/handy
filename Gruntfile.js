@@ -170,7 +170,8 @@ module.exports = function(grunt) {
 					'src/js/component/Hcard.js',
 					'src/js/component/Vcard.js',
 					'src/js/component/Conversation.js',
-					'src/js/component/ModelList.js'
+					'src/js/component/ModelList.js',
+					'src/js/component/Editor.js'
 
 				],
 				// 合并后的JS文件的存放位置

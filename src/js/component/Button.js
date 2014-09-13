@@ -81,7 +81,7 @@ function(AC){
 			if(typeof oSettings.icon==='string'){
 				oSettings.icon={
 					name:oSettings.icon,
-					hasBg:false
+					theme:null
 				}
 			}
 		}

@@ -4,7 +4,22 @@
  */
 $Define('handy.All',
 [
-'B.All',
+'B.Class',
+'B.Function', 
+'B.Events',
+'B.Date', 
+'B.String',
+'B.Cookie', 
+'B.Util',
+'B.Url',
+'B.Array', 
+'B.Geo',
+'B.Template', 
+'B.HashChange',
+'B.Support', 
+'B.Validator',
+'B.LocalStorage', 
+'B.Adapt',
 
 'U.ImgCompress',
 					
@@ -64,7 +79,8 @@ $Define('handy.All',
 'C.Hcard',
 'C.Vcard',
 'C.Conversation',
-'C.ModelList'
+'C.ModelList',
+'C.Editor'
 ],
 function(){
 	
