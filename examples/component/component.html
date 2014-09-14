@@ -221,12 +221,18 @@ $Define('test','handy.All',function(){
 		 */
 		
 		
-		var aIcons=["action","arrow-d-l","arrow-d-r","arrow-d","arrow-l","arrow-r","arrow-u-l","arrow-u-r",
+		var aIcons=[
+		            //jquery mobile icons
+		            "action","arrow-d-l","arrow-d-r","arrow-d","arrow-l","arrow-r","arrow-u-l","arrow-u-r",
 		            "arrow-u","audio","calendar","camera","carat-d","carat-l","carat-r","carat-u","check",
 		            "clock","cloud","grid","mail","eye","gear","heart","home","info","bullets","bars",
 		            "navigation","lock","search","location","minus","forbidden","edit","user","phone",
 		            "plus","power","recycle","forward","refresh","shop","comment","star","tag","back",
-		            "video","alert","delete"];
+		            "video","alert","delete",
+		            //other icons
+		            "topic","activity","nearby-group","nearby-user","activity-notice","group-msg",
+		            "user-msg","user-topic","user-activity","user-info","system"
+		            ];
 		for(var i=0;i<aIcons.length;i++){
 			new Icon({
 				renderTo:'#iconsDv',

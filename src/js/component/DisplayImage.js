@@ -25,6 +25,7 @@ function(AC,Popup,AbstractImage){
 //		origSrc         : '',              //原图src
 		showPos         : null,
 		noMask          : true,
+		isFixed         : true,
 
 		listeners       : [{
 			name:'afterShow',

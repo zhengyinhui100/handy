@@ -64,6 +64,7 @@ function(AC){
 				+ me["fontFamily"]
 				+ ';line-height:1.7;padding:0.5em 0.625em;margin:0;\
 				background-color:#ffffff;}\
+				img{max-width:100%;}\
 				pre{\
 					white-space: pre-wrap; /* css-3 */\
 					white-space: -moz-pre-wrap; /* Mozilla, since 1999 */\

@@ -17,6 +17,7 @@ function(AC){
 		delayShow       : true,            //延迟显示
 		clickHide       : true,            //是否点击就隐藏
 //		timeout         : null,            //自动隐藏的时间(毫秒)，不指定此值则不自动隐藏
+		isFixed         : false,           //是否是position:fixed
 		showPos         : 'center',        //定位方法名:center(居中)、followEl(跟随指定元素)、top(顶部)，或者传入自定义定位函数
 //		offsetTop       : 0,               //顶部偏移量
 		destroyWhenHide : true,            //隐藏时保留对象，不自动销毁，默认弹出层会自动销毁
@@ -44,7 +45,7 @@ function(AC){
 	function fDoConfig(oParam){
 		var me=this;
 		me.callSuper();
-		me.extCls=(me.extCls||'')+' hui-popup';
+		me.extCls=(me.extCls||'')+' hui-popup'+(me.isFixed?' hui-popup-fixed':'');
 		//添加点击即隐藏事件
 		if(me.clickHide){
 			me.listeners.push({
@@ -171,7 +172,12 @@ function(AC){
 		var height=oEl[0].clientHeight;
 		var oDoc=document;
 		var x = ((oDoc.documentElement.offsetWidth || oDoc.body.offsetWidth) - width)/2;
-		var y = ((oDoc.documentElement.clientHeight || oDoc.body.clientHeight) - height)/2 + (oDoc.documentElement.scrollTop||oDoc.body.scrollTop);
+		var nClientHeight=oDoc.documentElement.clientHeight || oDoc.body.clientHeight;
+		//稍微偏上一些显示
+		var y = (nClientHeight - height)/2 -nClientHeight/6;
+		if(!me.isFixed){
+			y+= oDoc.documentElement.scrollTop||oDoc.body.scrollTop;
+		}
 		y = y < 10 ? window.screen.height/2-200 : y;
 		oEl.css({
 			left:x + "px",

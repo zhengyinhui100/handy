@@ -5,8 +5,35 @@
 $Define("B.Url",function(){
 	
 	var Url={
+		isUrl           : fIsUrl,           //是否是url
+		isAbsUrl        : fIsAbsUrl,        //是否是绝对路径url
+		isPic           : fIsPic,           //是否是图片
 		getParam        : fGetParam,        //获取url里的参数
 		addParam		: fAddParam		    // 在url后面增加get参数
+	}
+	/**
+	 * 是否是url
+	 * @param {string}sParam 参数字符串
+	 * @return {boolean} true表示是url
+	 */
+	function fIsUrl(sParam){
+		return /^(\w+:\/\/)?(\w+\.\w+)?[\w\/\.]+/.test(sParam);
+	}
+	/**
+	 * 是否是绝对路径url
+	 * @param {string}sParam 参数字符串
+	 * @return {boolean} true表示是绝对路径url
+	 */
+	function fIsAbsUrl(sParam){
+		return /^(\w+:\/\/)?\w+\.\w+/.test(sParam);
+	}
+	/**
+	 * 是否是图片
+	 * @param {string}sParam 参数字符串
+	 * @return {boolean} true表示是图片
+	 */
+	function fIsPic(sParam){
+		return /\.(jpg|jpeg|png|bmp|gif)$/.test(sParam);
 	}
 	/**
 	 * 获取url里的参数

@@ -561,8 +561,13 @@
 .hui-popup{
 	position:absolute;
 	z-index: 1000;
+	left:0;
+	top:0;
 	//fix android z-index失效
 	-webkit-transform:translateZ(0);
+}
+.hui-popup-fixed{
+	position:fixed;
 }
 
 //菜单
@@ -613,6 +618,7 @@
 	border: 1px solid #aaa;
 	color: #333;
 	background: #f9f9f9;
+	overflow:hidden;
 	.hui-input-txt,textarea{
 		border: 0;
 		width: 100%;
@@ -753,6 +759,9 @@
 	position:relative;
 	text-align:left;
 	padding-left:3em;
+	.hui-field-left{
+		width:3em;
+	}
 	background-color:#fff;
 	.hui-field-left{
 		position:absolute;
@@ -762,7 +771,9 @@
 			position:absolute;
 			left:0;
 			top:50%;
+			width:100%;
 			margin-top:-0.5em;
+			padding-right:0.5em;
 			vertical-align:middle;
 			.c-txt-light();
 			.fn_inline_block();
@@ -788,12 +799,21 @@
 }
 .hui-field-3-words .hui-field{
 	padding-left:4em;
+	.hui-field-left{
+		width:4em;
+	}
 }
 .hui-field-4-words .hui-field{
 	padding-left:5em;
+	.hui-field-left{
+		width:5em;
+	}
 }
 .hui-field-5-words .hui-field{
 	padding-left:6em;
+	.hui-field-left{
+		width:6em;
+	}
 }
 //普通表单
 .hui-form{
@@ -1516,6 +1536,9 @@
 	background-color:#2b2b2b;
 	&.hui-popup{
 		position:absolute;
+	}
+	&.hui-popup-fixed{
+		position:fixed;
 	}
 	.hui-icon-loading{
 		position:absolute;

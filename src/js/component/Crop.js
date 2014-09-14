@@ -199,6 +199,7 @@ function(AC,AbstractImage,Draggable){
 	function fZoomCrop(oPos){
 		var me=this;
 		var sDirection=me.zoomDirect;
+		
 		var nOffset=(sDirection==='n'||sDirection==='s')?oPos.offsetY:oPos.offsetX;
 		//向上或向左
 		if(sDirection==='n'||sDirection==='w'){
