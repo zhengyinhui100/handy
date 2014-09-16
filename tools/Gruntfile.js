@@ -170,7 +170,8 @@ module.exports = function(grunt) {
 				files : [{
 					expand:true,
 					cwd:buildVersionDir,
-					src:['js/**/*.js','lib/fastclick/*.js','lib/iscroll/*.js','lib/otherlib.js'],
+					src:['js/**/*.js','lib/fastclick/*.js','lib/iscroll/*.js','lib/otherlib.js',
+					'lib/kindeditor/kindeditor.js'],
 					dest:buildVersionDir,
 					ext:'.min.js'
 				}]

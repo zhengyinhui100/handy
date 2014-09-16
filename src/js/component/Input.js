@@ -50,7 +50,7 @@ function(AC){
 		'<div {{bindAttr class="iconPosCls btnPosCls"}}>',
 			'{{placeItem}}',
 			'{{#if isTextarea}}',
-				'{{textarea class="#js-input" name="name" placeholder="placeholder" value=value}}',
+				'{{textarea class="#js-input #hui-input-txt" name="name" placeholder="placeholder" value=value}}',
 			'{{else}}',
 				'{{input type="#text" class="#js-input #hui-input-txt" name="name" placeholder="placeholder" value="value"}}',
 			'{{/if}}',
@@ -74,8 +74,7 @@ function(AC){
 						});
 					}
 				}
-			},
-			{
+			},{
 				name : 'blur',
 				el : '.js-input',
 				handler : function(){

@@ -117,10 +117,10 @@ function(Debug,Object){
     			sUrl=sId.replace(/\./g,"/")+".js";
     		}
     		sUrl=sRoot.replace(/\/$/,'')+'/'+sUrl.replace(/^\//,'');
-    		if(Loader.isMin){
-    			sUrl=sUrl.replace(/\.(css|js)$/,'.min.$1');
-    		}
     	}
+		if(Loader.isMin){
+			sUrl=sUrl.replace(/\.(css|js)$/,'.min.$1');
+		}
 		return sUrl;
     }
 	/**

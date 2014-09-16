@@ -3,94 +3,10 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>test handy libraly</title>
-<script type="text/javascript"
-	src="../lib/jquery.js"></script>
-<script type="text/javascript"
-	src="../src/js/base/base.js"></script>
-<script type="text/javascript"
-	src="../src/js/base/Json.js"></script>
-<script type="text/javascript"
-	src="../src/js/base/Object.js"></script>
-<script type="text/javascript"
-	src="../src/js/base/Browser.js"></script>
-<script type="text/javascript"
-	src="../src/js/base/Debug.js"></script>
-<script type="text/javascript"
-	src="../src/js/base/Function.js"></script>
-<script type="text/javascript"
-	src="../src/js/base/Class.js"></script>
-<script type="text/javascript"
-	src="../src/js/base/Loader.js"></script>
-<script type="text/javascript"
-	src="../src/js/base/Date.js"></script>
-<script type="text/javascript"
-	src="../src/js/base/String.js"></script>
-<script type="text/javascript"
-	src="../src/js/base/Cookie.js"></script>
-<script type="text/javascript"
-	src="../src/js/base/Events.js"></script>
-<script type="text/javascript"
-	src="../src/js/base/Util.js"></script>
-<script type="text/javascript"
-	src="../src/js/base/Template.js"></script>
-<script type="text/javascript"
-	src="../src/js/base/HashChange.js"></script>
-<script type="text/javascript"
-	src="../src/js/base/LocalStorage.js"></script>
-<script type="text/javascript"
-	src="../src/js/base/adapt.js"></script>
-<script id="tmpl" type="text/html">
-
-</script>
+<link rel="stylesheet" type="text/css" href="./test.css">
 </head>
 <body>
-<div id="div"></div>
-<div class="div">
-	<div class="div2">
-		<span id="span1"></span>
-	</div>
+<div class="test">
 </div>
-<div><span id="span2"></span></div>
-<script type="text/javascript">
-function fDefine(obj,start,len){
-	for(var i=0;i<len;i++){
-		var num=start+i;
-		obj['attr'+num]=num;
-	}
-}
-
-var Base=$H.createClass();
-fDefine(Base.prototype,0,30);
-var Parent=Base.extend();
-fDefine(Parent.prototype,20,30);
-var Sub=Parent.extend();
-fDefine(Sub.prototype,40,30);
-var oBase=new Base();
-var oTest=new Sub();
-fDefine(oTest,60,30);
-
-var attr;
-$D.time();
-for(var i=0;i<1000000;i++){
-	attr=oTest['attr'+(60+i%30)];
-}
-$D.time(true,'读取自身属性时间：');
-$D.time();
-for(var i=0;i<1000000;i++){
-	attr=oTest['attr'+(i%30)];
-}
-$D.time(true,'读取继承属性时间：');
-$D.time();
-for(var i=0;i<1000000;i++){
-	attr=oTest['undefined'+i];
-}
-$D.time(true,'读取未定义属性时间：');
-
-$D.time();
-for(var i=0;i<1000000;i++){
-	attr=oBase['undefined'+i];
-}
-$D.time(true,'读取Base类未定义属性时间：');
-</script>
 </body>
 </html>
