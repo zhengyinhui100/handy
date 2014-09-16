@@ -20,7 +20,7 @@ function(AC,Popup,Crop){
 		},
 		
 		title           : '裁切图片',         //标题
-//		imgSrc          : '',                //图片src
+//		cropOptions    : {},                //Crop组件初始化参数
 //		success         : $H.noop,           //裁剪成功回调函数
 		
 		showPos         : null,
@@ -38,6 +38,10 @@ function(AC,Popup,Crop){
 	function fDoConfig(oSettings){
 		var me=this;
 		me.callSuper();
+		var oCrop={
+			xtype:'Crop'
+		};
+		$H.extend(oCrop,me.cropOptions);
 		me.add([{
 			xtype:'Toolbar',
 			title:me.title,
@@ -62,10 +66,7 @@ function(AC,Popup,Crop){
 					me.success&&me.success(oResult);
 				}
 			}]
-		},{
-			xtype:'Crop',
-			imgSrc:me.imgSrc
-		}]);
+		},oCrop]);
 	}
 	
 	return CropWindow;

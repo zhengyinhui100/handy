@@ -52,7 +52,9 @@ function(){
 		var me=this;
 		me.drag=true;
 		if($H.hasTouch()){
-			oEvt = oEvt.originalEvent.touches[0];
+			//zepto.js event对象就是原生事件对象
+			oEvt = oEvt.originalEvent||oEvt;
+			oEvt = oEvt.touches[0];
 		}
 		me.eventX=oEvt.clientX;
 		me.eventY=oEvt.clientY;
@@ -80,7 +82,7 @@ function(){
 		oEvt.preventDefault();
 		if(me.drag===true){
 			if($H.hasTouch()){
-				oEvt = oEvt.originalEvent;
+				oEvt = oEvt.originalEvent||oEvt;
 				oEvt = oEvt.touches[0];
 			}
 			var nOffsetX=oEvt.clientX-me.eventX;

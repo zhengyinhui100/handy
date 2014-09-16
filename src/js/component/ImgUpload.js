@@ -25,6 +25,7 @@ function(AC,ImgCompress){
 		crop                : true,      //是否需要剪切
 //		cropWinW            : 100,       //裁剪窗口宽度
 //		cropWinH            : 100,       //裁剪窗口高度
+//		cropOptions         : {},        //裁剪选项，参照Crop类
 //		compressOptions     : {}         //压缩选项，参照ImgCompress.compress方法
 		
 		listeners       : [{
@@ -184,9 +185,11 @@ function(AC,ImgCompress){
 	function fProcessImg(imgSrc){
 		var me=this;
 		if(me.crop){
+			var oCropOptions=me.cropOptions||{};
+			oCropOptions.imgSrc=imgSrc;
 			$Require('C.CropWindow',function(CropWindow){
 				var oWin=new CropWindow({
-					imgSrc:imgSrc,
+					cropOptions:oCropOptions,
 					width:me.cropWinW,
 					height:me.cropWinH,
 					success:function(oResult){

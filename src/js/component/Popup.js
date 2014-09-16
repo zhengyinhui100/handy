@@ -174,7 +174,8 @@ function(AC){
 		var x = ((oDoc.documentElement.offsetWidth || oDoc.body.offsetWidth) - width)/2;
 		var nClientHeight=oDoc.documentElement.clientHeight || oDoc.body.clientHeight;
 		//稍微偏上一些显示
-		var y = (nClientHeight - height)/2 -nClientHeight/6;
+		var nSpace=nClientHeight - height;
+		var y = nSpace/2 -nSpace/10;
 		if(!me.isFixed){
 			y+= oDoc.documentElement.scrollTop||oDoc.body.scrollTop;
 		}

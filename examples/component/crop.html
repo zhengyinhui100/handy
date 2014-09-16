@@ -61,7 +61,10 @@ $Define('test','handy.All',function(){
 	function example(){
 		
 		new CropWindow({
-			imgSrc:'../../html/img.jpg',
+			cropOptions:{
+				fixedScale:1,
+				imgSrc:'../../html/img.jpg'
+			},
 			success:function(oResult){
 				alert($H.stringify(oResult))
 			}

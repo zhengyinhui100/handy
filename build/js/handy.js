@@ -1483,10 +1483,10 @@ function(Debug,Object){
     			sUrl=sId.replace(/\./g,"/")+".js";
     		}
     		sUrl=sRoot.replace(/\/$/,'')+'/'+sUrl.replace(/^\//,'');
-    		if(Loader.isMin){
-    			sUrl=sUrl.replace(/\.(css|js)$/,'.min.$1');
-    		}
     	}
+		if(Loader.isMin){
+			sUrl=sUrl.replace(/\.(css|js)$/,'.min.$1');
+		}
 		return sUrl;
     }
 	/**
@@ -3118,8 +3118,35 @@ $Define('B.Util','B.Object',function(Object){
 $Define("B.Url",function(){
 	
 	var Url={
+		isUrl           : fIsUrl,           //是否是url
+		isAbsUrl        : fIsAbsUrl,        //是否是绝对路径url
+		isPic           : fIsPic,           //是否是图片
 		getParam        : fGetParam,        //获取url里的参数
 		addParam		: fAddParam		    // 在url后面增加get参数
+	}
+	/**
+	 * 是否是url
+	 * @param {string}sParam 参数字符串
+	 * @return {boolean} true表示是url
+	 */
+	function fIsUrl(sParam){
+		return /^(\w+:\/\/)?(\w+\.\w+)?[\w\/\.]+/.test(sParam);
+	}
+	/**
+	 * 是否是绝对路径url
+	 * @param {string}sParam 参数字符串
+	 * @return {boolean} true表示是绝对路径url
+	 */
+	function fIsAbsUrl(sParam){
+		return /^(\w+:\/\/)?\w+\.\w+/.test(sParam);
+	}
+	/**
+	 * 是否是图片
+	 * @param {string}sParam 参数字符串
+	 * @return {boolean} true表示是图片
+	 */
+	function fIsPic(sParam){
+		return /\.(jpg|jpeg|png|bmp|gif)$/.test(sParam);
 	}
 	/**
 	 * 获取url里的参数
@@ -4937,7 +4964,9 @@ function(){
 		var me=this;
 		me.drag=true;
 		if($H.hasTouch()){
-			oEvt = oEvt.originalEvent.touches[0];
+			//zepto.js event对象就是原生事件对象
+			oEvt = oEvt.originalEvent||oEvt;
+			oEvt = oEvt.touches[0];
 		}
 		me.eventX=oEvt.clientX;
 		me.eventY=oEvt.clientY;
@@ -4965,7 +4994,7 @@ function(){
 		oEvt.preventDefault();
 		if(me.drag===true){
 			if($H.hasTouch()){
-				oEvt = oEvt.originalEvent;
+				oEvt = oEvt.originalEvent||oEvt;
 				oEvt = oEvt.touches[0];
 			}
 			var nOffsetX=oEvt.clientX-me.eventX;
@@ -9794,6 +9823,9 @@ function(History,AbstractManager){
 	 * @return {boolean} true表示成功，false表示失败
 	 */
 	function fGo(param,bNotSaveHistory){
+		if(!param){
+			return;
+		}
 		var me=this;
 		if(typeof param=="string"){
 			param={modName:param};
@@ -9851,10 +9883,13 @@ function(History,AbstractManager){
 			if(oMod.waiting){
 				return;
 			}
-			var bIsBack=oCurrentMod.referer===oMod;
-			//回退时不能改变父模块的referer
-			if(!bIsBack){
-				oMod.referer=oCurrentMod;
+			//这里oCurrentMod可能被用户调用了destroy而销毁
+			if(oCurrentMod){
+				var bIsBack=oCurrentMod.referer===oMod;
+				//回退时不能改变父模块的referer
+				if(!bIsBack){
+					oMod.referer=oCurrentMod;
+				}
 			}
 			//标记使用缓存，要调用cache方法
 			if(oMod.notCache!=true&&oMod.clearCache!=true&&oMod.useCache(param)!=false){
@@ -10525,6 +10560,7 @@ function(AC){
 		delayShow       : true,            //延迟显示
 		clickHide       : true,            //是否点击就隐藏
 //		timeout         : null,            //自动隐藏的时间(毫秒)，不指定此值则不自动隐藏
+		isFixed         : false,           //是否是position:fixed
 		showPos         : 'center',        //定位方法名:center(居中)、followEl(跟随指定元素)、top(顶部)，或者传入自定义定位函数
 //		offsetTop       : 0,               //顶部偏移量
 		destroyWhenHide : true,            //隐藏时保留对象，不自动销毁，默认弹出层会自动销毁
@@ -10552,7 +10588,7 @@ function(AC){
 	function fDoConfig(oParam){
 		var me=this;
 		me.callSuper();
-		me.extCls=(me.extCls||'')+' hui-popup';
+		me.extCls=(me.extCls||'')+' hui-popup'+(me.isFixed?' hui-popup-fixed':'');
 		//添加点击即隐藏事件
 		if(me.clickHide){
 			me.listeners.push({
@@ -10679,7 +10715,13 @@ function(AC){
 		var height=oEl[0].clientHeight;
 		var oDoc=document;
 		var x = ((oDoc.documentElement.offsetWidth || oDoc.body.offsetWidth) - width)/2;
-		var y = ((oDoc.documentElement.clientHeight || oDoc.body.clientHeight) - height)/2 + (oDoc.documentElement.scrollTop||oDoc.body.scrollTop);
+		var nClientHeight=oDoc.documentElement.clientHeight || oDoc.body.clientHeight;
+		//稍微偏上一些显示
+		var nSpace=nClientHeight - height;
+		var y = nSpace/2 -nSpace/10;
+		if(!me.isFixed){
+			y+= oDoc.documentElement.scrollTop||oDoc.body.scrollTop;
+		}
 		y = y < 10 ? window.screen.height/2-200 : y;
 		oEl.css({
 			left:x + "px",
@@ -11305,7 +11347,7 @@ function(AC){
 		'<div {{bindAttr class="iconPosCls btnPosCls"}}>',
 			'{{placeItem}}',
 			'{{#if isTextarea}}',
-				'{{textarea class="#js-input" name="name" placeholder="placeholder" value=value}}',
+				'{{textarea class="#js-input #hui-input-txt" name="name" placeholder="placeholder" value=value}}',
 			'{{else}}',
 				'{{input type="#text" class="#js-input #hui-input-txt" name="name" placeholder="placeholder" value="value"}}',
 			'{{/if}}',
@@ -11329,8 +11371,7 @@ function(AC){
 						});
 					}
 				}
-			},
-			{
+			},{
 				name : 'blur',
 				el : '.js-input',
 				handler : function(){
@@ -12355,7 +12396,8 @@ function(AC,Popup){
 			me.add({
 				xtype:'Tab',
 				xrole:'dialog-action',
-				theme:'border-top',
+				theme:'no-border',
+				tType:'sep',
 				notSelect:true,
 				items:aActions
 			});
@@ -12913,6 +12955,7 @@ function(AC,ImgCompress){
 		crop                : true,      //是否需要剪切
 //		cropWinW            : 100,       //裁剪窗口宽度
 //		cropWinH            : 100,       //裁剪窗口高度
+//		cropOptions         : {},        //裁剪选项，参照Crop类
 //		compressOptions     : {}         //压缩选项，参照ImgCompress.compress方法
 		
 		listeners       : [{
@@ -13072,9 +13115,11 @@ function(AC,ImgCompress){
 	function fProcessImg(imgSrc){
 		var me=this;
 		if(me.crop){
+			var oCropOptions=me.cropOptions||{};
+			oCropOptions.imgSrc=imgSrc;
 			$Require('C.CropWindow',function(CropWindow){
 				var oWin=new CropWindow({
-					imgSrc:imgSrc,
+					cropOptions:oCropOptions,
 					width:me.cropWinW,
 					height:me.cropWinH,
 					success:function(oResult){
@@ -13125,6 +13170,7 @@ function(AC,Popup,AbstractImage){
 //		origSrc         : '',              //原图src
 		showPos         : null,
 		noMask          : true,
+		isFixed         : true,
 
 		listeners       : [{
 			name:'afterShow',
@@ -13258,6 +13304,8 @@ function(AC,AbstractImage,Draggable){
 		imgSrc          : '',                  //图片源
 		cropWidth       : '9.375em',           //剪切框宽度
 		cropHeight      : '9.375em',           //剪切框高度
+//		cropImgSize     : false,               //true时裁剪框跟图片一样大小，忽略cropWidth和cropHeight的值
+//		fixedScale      : 1,                   //固定宽高比
 		
 		tmpl            : [
 			'<div>',
@@ -13300,11 +13348,16 @@ function(AC,AbstractImage,Draggable){
 		me.origW=oSize.origW;
 		me.origH=oSize.origH;
 		//裁剪框大小
-		if($H.isStr(me.cropWidth)){
-			me.cropWidth=$H.em2px(me.cropWidth);
-		}
-		if($H.isStr(me.cropHeight)){
-			me.cropHeight=$H.em2px(me.cropHeight);
+		if(me.cropImgSize){
+			me.cropWidth=oSize.width;
+			me.cropHeight=oSize.height;
+		}else{
+			if($H.isStr(me.cropWidth)){
+				me.cropWidth=$H.em2px(me.cropWidth);
+			}
+			if($H.isStr(me.cropHeight)){
+				me.cropHeight=$H.em2px(me.cropHeight);
+			}
 		}
 		//图片居中显示的偏移量
 		var nLeftOffset=me.leftOffset=oSize.left;
@@ -13407,20 +13460,29 @@ function(AC,AbstractImage,Draggable){
 	function fZoomCrop(oPos){
 		var me=this;
 		var sDirection=me.zoomDirect;
-		var nOffset=(sDirection==='n'||sDirection==='s')?oPos.offsetY:oPos.offsetX;
+		var nFixedScale=me.fixedScale;
+		var nOffsetX,nOffsetY;
+		if(sDirection==='n'||sDirection==='s'){
+			nOffsetY=oPos.offsetY;
+			nOffsetX=nFixedScale?nOffsetY*nFixedScale:oPos.offsetX;
+		}else{
+			nOffsetX=oPos.offsetX;
+			nOffsetY=nFixedScale?nOffsetX/nFixedScale:oPos.offsetY;
+		}
 		//向上或向左
 		if(sDirection==='n'||sDirection==='w'){
 			me.dragCrop({
-				offsetX:nOffset,
-				offsetY:nOffset
+				offsetX:nOffsetX,
+				offsetY:nOffsetY
 			});
-			nOffset=-nOffset;
+			nOffsetX=-nOffsetX;
+			nOffsetY=-nOffsetY;
 		}
-		me.cropWidth=me.initCropWidth+nOffset;
-		me.cropHeight=me.initCropHeight+nOffset;
+		me.cropWidth=me.initCropWidth+nOffsetX;
+		me.cropHeight=me.initCropHeight+nOffsetY;
 		me.cropBox.css({
 			width:me.cropWidth,
-			height:me.cropWidth
+			height:me.cropHeight
 		});
 		return false;
 	}
@@ -13480,7 +13542,7 @@ function(AC,Popup,Crop){
 		},
 		
 		title           : '裁切图片',         //标题
-//		imgSrc          : '',                //图片src
+//		cropOptions    : {},                //Crop组件初始化参数
 //		success         : $H.noop,           //裁剪成功回调函数
 		
 		showPos         : null,
@@ -13498,6 +13560,10 @@ function(AC,Popup,Crop){
 	function fDoConfig(oSettings){
 		var me=this;
 		me.callSuper();
+		var oCrop={
+			xtype:'Crop'
+		};
+		$H.extend(oCrop,me.cropOptions);
 		me.add([{
 			xtype:'Toolbar',
 			title:me.title,
@@ -13522,10 +13588,7 @@ function(AC,Popup,Crop){
 					me.success&&me.success(oResult);
 				}
 			}]
-		},{
-			xtype:'Crop',
-			imgSrc:me.imgSrc
-		}]);
+		},oCrop]);
 	}
 	
 	return CropWindow;
@@ -14131,4 +14194,137 @@ function(AC){
 	}
 	
 	return ModelList;
+});
+/**
+ * 编辑器类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-09-11
+ */
+$Define('C.Editor',
+'C.AbstractComponent',
+function(AC){
+	
+	var Editor=AC.define('Editor');
+	
+	Editor.extend({
+		//初始配置
+		xConfig         : {
+			cls         : 'editor',
+			name        : '',
+			value       : ''                 //默认值
+		},
+		listeners       : [{
+			name:'afterRender',
+			custom:true,
+			handler:function(){
+				this.makeEditable();
+			}
+		}],
+		
+		color           : '#333',
+		fontSize        : '1em',
+		fontFamily      : 'tahoma,arial,sans-serif',
+		value           : '',
+		
+		tmpl            : [
+			'<div>',
+				'<iframe class="hui-editor-iframe" hideFocus=true frameborder=0></iframe>',
+				'{{textarea class="#hui-editor-textarea" name="name" placeholder="placeholder" value=value}}',
+			'</div>'].join(''),
+		
+		getInitHtml     : fGetInitHtml,       //获取初始化编辑框的html字符串
+		makeEditable    : fMakeEditable,      //使iframe可编辑
+		val             : fVal,               //设置/读取内容
+		sync            : fSync               //同步textarea
+	});
+	
+	/**
+	 * 获取初始化编辑框的html字符串
+	 * @param {object}oParams {
+	 * 				fontsize:默认文字大小,
+	 *              forecolor:默认文字颜色,
+	 *              fontname:默认字体,
+	 *              content:html内容
+	 *           }
+	 * @return {string}返回初始化编辑框的html字符串
+	 */
+	function fGetInitHtml() {
+		var me=this;
+		// 初始化时添加空div是为了解决ie默认的换行问题：默认情况下的换行是<p>，而把内容放在div里，默认换行是div
+		return '<head><style>\
+				html{word-wrap:break-word;}\
+				body{color:'
+				+ me["color"]
+				+ ';font-size:'
+				+ me["fontSize"]
+				+ ';font-family:'
+				+ me["fontFamily"]
+				+ ';line-height:1.7;padding:0.5em 0.625em;margin:0;\
+				background-color:#ffffff;}\
+				img{max-width:100%;}\
+				pre{\
+					white-space: pre-wrap; /* css-3 */\
+					white-space: -moz-pre-wrap; /* Mozilla, since 1999 */\
+					white-space: -pre-wrap; /* Opera 4-6 */\
+					white-space: -o-pre-wrap; /* Opera 7 */\
+					word-wrap: break-word; /* Internet Explorer 5.5+ */\
+					/* white-space : normal ;Internet Explorer 5.5+ */\
+					font-family:arial;\
+				}\
+				span.typoRed{border-bottom:0.125em dotted #ff0000;cursor:pointer;}\
+				</style></head><body>'+(me["value"]||'')+'</body>';
+	}
+	/**
+	 * 使iframe可编辑
+	 */
+	function fMakeEditable() {
+		var me=this;
+		var oIframe=me.findEl('iframe')[0];
+		var oWin = me.ifrWin=oIframe.contentWindow||oIframe.window;
+		var oDoc = me.ifrDoc=oWin.document;
+		var sHtml=me.getInitHtml();
+		oDoc.open("text/html", "replace");
+		oDoc.writeln(sHtml);
+		oDoc.close();
+		// that.win.document.charset = "gb2312";
+		// 打开编辑模式
+		if ($H.ie()) {
+			if (Browser.ie() == "5.0") {
+				oDoc.designMode = 'on';
+			} else {
+				oDoc.body.contentEditable = true;
+				//TODO ie7聚焦问题
+			}
+		} else {
+			oDoc.designMode = 'on';
+			oDoc.execCommand("useCSS", false, true);
+		}
+		me.ifrBody=oDoc.body;
+	}
+	/**
+	 * 获取/设置值
+	 * @method val
+	 * @param {string=}sValue 要设置的值，不传表示读取输入框的值
+	 * @return {string=} 如果是读取操作，返回当前值
+	 */
+	function fVal(sValue){
+		var me=this;
+		var oBody=me.ifrBody;
+		if(sValue===undefined){
+			return oBody.innerHTML;
+		}else{
+			oBody.innerHTML=sValue;
+		}
+	}
+	/**
+	 * 同步textarea
+	 */
+	function fSync(){
+		var me=this;
+		var sValue=me.val();
+		me.findEl('textarea').val(sValue);
+	}
+	
+	return Editor;
+	
 });

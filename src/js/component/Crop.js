@@ -50,6 +50,8 @@ function(AC,AbstractImage,Draggable){
 		imgSrc          : '',                  //图片源
 		cropWidth       : '9.375em',           //剪切框宽度
 		cropHeight      : '9.375em',           //剪切框高度
+//		cropImgSize     : false,               //true时裁剪框跟图片一样大小，忽略cropWidth和cropHeight的值
+//		fixedScale      : 1,                   //固定宽高比
 		
 		tmpl            : [
 			'<div>',
@@ -92,11 +94,16 @@ function(AC,AbstractImage,Draggable){
 		me.origW=oSize.origW;
 		me.origH=oSize.origH;
 		//裁剪框大小
-		if($H.isStr(me.cropWidth)){
-			me.cropWidth=$H.em2px(me.cropWidth);
-		}
-		if($H.isStr(me.cropHeight)){
-			me.cropHeight=$H.em2px(me.cropHeight);
+		if(me.cropImgSize){
+			me.cropWidth=oSize.width;
+			me.cropHeight=oSize.height;
+		}else{
+			if($H.isStr(me.cropWidth)){
+				me.cropWidth=$H.em2px(me.cropWidth);
+			}
+			if($H.isStr(me.cropHeight)){
+				me.cropHeight=$H.em2px(me.cropHeight);
+			}
 		}
 		//图片居中显示的偏移量
 		var nLeftOffset=me.leftOffset=oSize.left;
@@ -199,21 +206,29 @@ function(AC,AbstractImage,Draggable){
 	function fZoomCrop(oPos){
 		var me=this;
 		var sDirection=me.zoomDirect;
-		
-		var nOffset=(sDirection==='n'||sDirection==='s')?oPos.offsetY:oPos.offsetX;
+		var nFixedScale=me.fixedScale;
+		var nOffsetX,nOffsetY;
+		if(sDirection==='n'||sDirection==='s'){
+			nOffsetY=oPos.offsetY;
+			nOffsetX=nFixedScale?nOffsetY*nFixedScale:oPos.offsetX;
+		}else{
+			nOffsetX=oPos.offsetX;
+			nOffsetY=nFixedScale?nOffsetX/nFixedScale:oPos.offsetY;
+		}
 		//向上或向左
 		if(sDirection==='n'||sDirection==='w'){
 			me.dragCrop({
-				offsetX:nOffset,
-				offsetY:nOffset
+				offsetX:nOffsetX,
+				offsetY:nOffsetY
 			});
-			nOffset=-nOffset;
+			nOffsetX=-nOffsetX;
+			nOffsetY=-nOffsetY;
 		}
-		me.cropWidth=me.initCropWidth+nOffset;
-		me.cropHeight=me.initCropHeight+nOffset;
+		me.cropWidth=me.initCropWidth+nOffsetX;
+		me.cropHeight=me.initCropHeight+nOffsetY;
 		me.cropBox.css({
 			width:me.cropWidth,
-			height:me.cropWidth
+			height:me.cropHeight
 		});
 		return false;
 	}
