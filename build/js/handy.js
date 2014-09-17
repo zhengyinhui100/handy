@@ -5259,8 +5259,7 @@ function() {
 //}
 
 $Define("P.Geolocation", 
-'C.Tips',
-function(Tips) {
+function() {
 
 	var Geolocation = {
 		getCurrentPosition     : fGetCurrentPosition,     //获取当前位置
@@ -5280,7 +5279,7 @@ function(Tips) {
 		if(navigator.geolocation){
 			navigator.geolocation.getCurrentPosition(fSucc, fErr);
 		}else{
-			new Tips({
+			new $C.Tips({
 				showPos:'top',
 				size:'mini',
 				timeout:null,
@@ -5316,7 +5315,7 @@ function(Tips) {
 				sMsg = "未知错误"
 				break;
 		}
-		new Tips({
+		new $C.Tips({
 			showPos:'top',
 			size:'mini',
 			noMask:true,
