@@ -324,7 +324,8 @@ handy.add('Object',function(){
 			'E'             : 'handy.effect',
 			'CM'            : 'handy.common',
 			'D'             : 'handy.data',
-			'V'             : 'handy.view'
+			'V'             : 'handy.view',
+			'P'             : 'handy.plugin'
 		},               
 		ns                  : fNamespace,       //创建或读取命名空间，可以传入用以初始化该命名空间的对象
 		alias               : fAlias,           //创建别名/读取实名
@@ -5136,6 +5137,196 @@ function(){
 	}
 	
 	return AbstractEvents;
+});
+/**
+ * 设备基本插件模块，提供本地相关的基本功能
+ * 
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+
+$Define("P.Device", 
+function() {
+
+	var Device = {
+		isPhonegap     : fIsPhonegap,     //是否是phonegap环境
+		getNetType     : fGetNetType,     //获取网络类型
+		isWifi         : fIsWifi          //是否是wifi
+	}
+	/**
+	 * 是否是phonegap环境
+	 * @return {boolean} true表示是phonegap
+	 */
+	function fIsPhonegap(){
+		return !!window.cordova;
+	}
+	/**
+	 * 获取网络类型
+	 * @return {number} 返回类型代码:可与下列值相比较
+	 * Connection.UNKNOWN
+	 * Connection.ETHERNET
+	 * Connection.WIFI
+	 * Connection.CELL_2G
+	 * Connection.CELL_3G
+	 * Connection.CELL_4G
+	 * Connection.CELL
+	 * Connection.NONE
+	 */
+	function fGetNetType(){
+		var oConnection=navigator.connection;
+		return oConnection&&oConnection.type;
+	}
+	/**
+	 * 是否是wifi
+	 * @return{boolean} true 表示是wifi
+	 */
+	function fIsWifi(){
+		return Connection&&Device.getNetType()===Connection.WIFI;
+	}
+
+	return Device;
+
+});
+/**
+ * 相机插件模块，提供本地相关的基本功能
+ * 
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+
+$Define("P.Camera", 
+function() {
+
+	var Cam = {
+		getPicture     : fGetPicture     //获取照片
+	}
+	/**
+	 * 获取照片
+	 * @param {object}选项 {
+	 * 		{string}sourceType:照片源，'CAMERA'表示照相机,'PHOTOLIBRARY'表示本地图库
+	 * 		{function({string}picUri)}success:成功回调函数
+	 * 		{function({string}errCode)}error:失败回调函数
+	 * 		{number}quality:照片品质，默认是50
+	 * }
+	 */
+	function fGetPicture(oOptions){
+		var me=this;
+		var fSuccess=oOptions.success;
+		var fError=oOptions.error;
+		var sSourceType=oOptions.sourceType;
+		var nSourceType=Camera.PictureSourceType[sSourceType];
+		//phonegap
+		navigator.camera.getPicture(
+			function (imageData) {
+			    fSuccess&&fSuccess(imageData);
+			},
+			function onFail(message) {
+				//用户取消不提示
+				if(fError&&fError(message)!==false){
+					if(message!='no image selected'&&message.indexOf('cancel')<0){
+					    $C.Tips({text:'获取照片失败: ' + message,theme:'error'});
+					}
+				}
+			}, 
+			{ 
+				quality: oOptions.quality||50,
+				mediaType:Camera.MediaType.PICTURE,
+			    destinationType:Camera.DestinationType.FILE_URI,
+			    sourceType:nSourceType
+			}
+		);
+	}
+
+	return Cam;
+
+});
+/**
+ * PhonegapPlugin模块，提供phonegap功能
+ * 
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2013-12-25
+ */
+
+//var position = {
+//	"coords" : {
+//		"latitude" : 23.05027,
+//		"longitude" : 113.404926,
+//		"accuracy" : 27.5,
+//		"altitude" : null,
+//		"heading" : null,
+//		"speed" : 0,
+//		"altitudeAccuracy" : null
+//	},
+//	"timestamp" : "2013-12-25T17:18:18.663Z"
+//}
+
+$Define("P.Geolocation", 
+'C.Tips',
+function(Tips) {
+
+	var Geolocation = {
+		getCurrentPosition     : fGetCurrentPosition,     //获取当前位置
+		onSuccess              : fOnSuccess,              //成功回调函数
+		onError                : fOnError                 //错误回调函数
+	}
+
+	/**
+	 * 获取当前位置
+	 * @param {Function({Object}oPosition)}fOnSucc 成功回调函数
+	 * @param {Function=}fOnError 错误回调函数
+	 */
+	function fGetCurrentPosition(fOnSucc,fOnError) {
+		var me=this;
+	    var fSucc=$H.intercept(me.onSuccess,fOnSucc);
+	    var fErr=$H.intercept(me.onError,fOnError);
+		if(navigator.geolocation){
+			navigator.geolocation.getCurrentPosition(fSucc, fErr);
+		}else{
+			new Tips({
+				showPos:'top',
+				size:'mini',
+				timeout:null,
+				theme:'error',
+				noMask:true,
+				text:'当前设备不支持获取位置'
+			});
+		}
+	}
+	/**
+	 * 成功回调函数
+	 * @param {Object}oPos 当前位置信息
+	 */
+	function fOnSuccess(oPos){
+	}
+	/**
+	 * 错误回调函数
+	 * @param {Object}oError 错误信息
+	 */
+	function fOnError(oError) {
+		var sMsg;
+		switch (oError.code) {
+			case oError.PERMISSION_DENIED :
+				sMsg = "您拒绝了位置请求"
+				break;
+			case oError.POSITION_UNAVAILABLE :
+				sMsg = "位置不可用"
+				break;
+			case oError.TIMEOUT :
+				sMsg = "请求超时"
+				break;
+			case oError.UNKNOWN_ERROR :
+				sMsg = "未知错误"
+				break;
+		}
+		new Tips({
+			showPos:'top',
+			size:'mini',
+			noMask:true,
+			text:sMsg,
+			theme:'error'
+		});
+	}
+
+	return Geolocation;
+
 });
 /**
  * 数据仓库类
@@ -12937,9 +13128,11 @@ function(AC,AbstractImage){
 $Define('C.ImgUpload',
 [
 'C.AbstractComponent',
-'U.ImgCompress'
+'U.ImgCompress',
+'P.Device',
+'P.Camera'
 ],
-function(AC,ImgCompress){
+function(AC,ImgCompress,Device,Camera){
 	
 	var ImgUpload=AC.define('ImgUpload');
 	
@@ -13021,7 +13214,6 @@ function(AC,ImgCompress){
 		
 		doConfig         : fDoConfig,           //初始化配置
 		showSelDialog    : fShowSelDialog,      //显示选择照片源类型对话框
-		getPicture       : fGetPicture,         //获取照片
 		processImg       : fProcessImg,         //处理图片
 		cleanContent     : fCleanContent        //清除文件内容
 	});
@@ -13041,7 +13233,7 @@ function(AC,ImgCompress){
 			fSuccess&&fSuccess(oData);
 		}
 		if(oSettings.useFileInput===undefined){
-			me.set('useFileInput',!window.cordova);
+			me.set('useFileInput',!Device.isPhonegap());
 		}
 		if(!me.get('useFileInput')){
 			me.listen({
@@ -13070,44 +13262,30 @@ function(AC,ImgCompress){
 					text:'拍照',
 					isInline:false,
 					click:function(){
-						me.getPicture(Camera.PictureSourceType.CAMERA);
+						Camera.getPicture({
+							sourceType:'CAMERA',
+							success:function (imageData) {
+						   		me.processImg(imageData);
+							}
+						});
 					}
 				},{
 					xtype:'Button',
 					text:'相册',
 					isInline:false,
 					click:function(){
-						me.getPicture(Camera.PictureSourceType.PHOTOLIBRARY);
+						Camera.getPicture({
+							sourceType:'PHOTOLIBRARY',
+							success:function (imageData) {
+						    	me.processImg(imageData);
+							}
+						});
 					}
 				}]
 			}
 		})
 	}
-	/**
-	 * 获取照片
-	 * @param {number}nSourceType 照片源类型
-	 */
-	function fGetPicture(nSourceType){
-		var me=this;
-		//phonegap
-		navigator.camera.getPicture(
-			function (imageData) {
-			    me.processImg(imageData);
-			},
-			function onFail(message) {
-				//用户取消不提示
-				if(message!='no image selected'&&message.indexOf('cancel')<0){
-				    $C.Tips({text:'获取照片失败: ' + message,theme:'error'});
-				}
-			}, 
-			{ 
-				quality: 50,
-				mediaType:Camera.MediaType.PICTURE,
-			    destinationType:Camera.DestinationType.FILE_URI,
-			    sourceType:nSourceType
-			}
-		);
-	}
+	
 	/**
 	 * 处理图片
 	 * @param {object|string}imgSrc 图片源

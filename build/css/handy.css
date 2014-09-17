@@ -1274,7 +1274,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-icon-big {
   width: 2em;
   height: 2em;
-  background-size: 1.5em;
+  background-size: 1.25em;
 }
 .hui-icon-loading {
   background-size: auto;
@@ -2237,6 +2237,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-set {
   background-color: #fff;
+  padding: 0 0.625em;
 }
 .hui-set.hui-set-normal .hui-set-title {
   border-bottom: 1px solid #ccc;
@@ -3094,11 +3095,11 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   transform: translate3d(100%, 0, 0);
 }
 .hui .ani-show 0% {
-  -moz-transform: scale(0.5, 0.5);
-  -webkit-transform: scale(0.5, 0.5);
-  -o-transform: scale(0.5, 0.5);
-  -ms-transform: scale(0.5, 0.5);
-  transform: scale(0.5, 0.5);
+  -moz-transform: scale(0.6, 0.6);
+  -webkit-transform: scale(0.6, 0.6);
+  -o-transform: scale(0.6, 0.6);
+  -ms-transform: scale(0.6, 0.6);
+  transform: scale(0.6, 0.6);
   filter: alpha(opacity= 0 );
   opacity: 0;
 }
@@ -3111,11 +3112,11 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 @-webkit-keyframes ani-show {
   0% {
-    -moz-transform: scale(0.5, 0.5);
-    -webkit-transform: scale(0.5, 0.5);
-    -o-transform: scale(0.5, 0.5);
-    -ms-transform: scale(0.5, 0.5);
-    transform: scale(0.5, 0.5);
+    -moz-transform: scale(0.6, 0.6);
+    -webkit-transform: scale(0.6, 0.6);
+    -o-transform: scale(0.6, 0.6);
+    -ms-transform: scale(0.6, 0.6);
+    transform: scale(0.6, 0.6);
     filter: alpha(opacity= 0 );
     opacity: 0;
   }
@@ -3129,11 +3130,11 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 @-moz-keyframes ani-show {
   0% {
-    -moz-transform: scale(0.5, 0.5);
-    -webkit-transform: scale(0.5, 0.5);
-    -o-transform: scale(0.5, 0.5);
-    -ms-transform: scale(0.5, 0.5);
-    transform: scale(0.5, 0.5);
+    -moz-transform: scale(0.6, 0.6);
+    -webkit-transform: scale(0.6, 0.6);
+    -o-transform: scale(0.6, 0.6);
+    -ms-transform: scale(0.6, 0.6);
+    transform: scale(0.6, 0.6);
     filter: alpha(opacity= 0 );
     opacity: 0;
   }
@@ -3147,11 +3148,11 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 @-ms-keyframes ani-show {
   0% {
-    -moz-transform: scale(0.5, 0.5);
-    -webkit-transform: scale(0.5, 0.5);
-    -o-transform: scale(0.5, 0.5);
-    -ms-transform: scale(0.5, 0.5);
-    transform: scale(0.5, 0.5);
+    -moz-transform: scale(0.6, 0.6);
+    -webkit-transform: scale(0.6, 0.6);
+    -o-transform: scale(0.6, 0.6);
+    -ms-transform: scale(0.6, 0.6);
+    transform: scale(0.6, 0.6);
     filter: alpha(opacity= 0 );
     opacity: 0;
   }
@@ -3165,11 +3166,11 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 @-o-keyframes ani-show {
   0% {
-    -moz-transform: scale(0.5, 0.5);
-    -webkit-transform: scale(0.5, 0.5);
-    -o-transform: scale(0.5, 0.5);
-    -ms-transform: scale(0.5, 0.5);
-    transform: scale(0.5, 0.5);
+    -moz-transform: scale(0.6, 0.6);
+    -webkit-transform: scale(0.6, 0.6);
+    -o-transform: scale(0.6, 0.6);
+    -ms-transform: scale(0.6, 0.6);
+    transform: scale(0.6, 0.6);
     filter: alpha(opacity= 0 );
     opacity: 0;
   }
@@ -3183,11 +3184,11 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 @keyframes ani-show {
   0% {
-    -moz-transform: scale(0.5, 0.5);
-    -webkit-transform: scale(0.5, 0.5);
-    -o-transform: scale(0.5, 0.5);
-    -ms-transform: scale(0.5, 0.5);
-    transform: scale(0.5, 0.5);
+    -moz-transform: scale(0.6, 0.6);
+    -webkit-transform: scale(0.6, 0.6);
+    -o-transform: scale(0.6, 0.6);
+    -ms-transform: scale(0.6, 0.6);
+    transform: scale(0.6, 0.6);
     filter: alpha(opacity= 0 );
     opacity: 0;
   }
@@ -3207,11 +3208,11 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   transform: scale(1, 1);
 }
 .hui .ani-hide 100% {
-  -moz-transform: scale(0.5, 0.5);
-  -webkit-transform: scale(0.5, 0.5);
-  -o-transform: scale(0.5, 0.5);
-  -ms-transform: scale(0.5, 0.5);
-  transform: scale(0.5, 0.5);
+  -moz-transform: scale(0.6, 0.6);
+  -webkit-transform: scale(0.6, 0.6);
+  -o-transform: scale(0.6, 0.6);
+  -ms-transform: scale(0.6, 0.6);
+  transform: scale(0.6, 0.6);
   filter: alpha(opacity= 0 );
   opacity: 0;
 }
@@ -3224,11 +3225,11 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
     transform: scale(1, 1);
   }
   100% {
-    -moz-transform: scale(0.5, 0.5);
-    -webkit-transform: scale(0.5, 0.5);
-    -o-transform: scale(0.5, 0.5);
-    -ms-transform: scale(0.5, 0.5);
-    transform: scale(0.5, 0.5);
+    -moz-transform: scale(0.6, 0.6);
+    -webkit-transform: scale(0.6, 0.6);
+    -o-transform: scale(0.6, 0.6);
+    -ms-transform: scale(0.6, 0.6);
+    transform: scale(0.6, 0.6);
     filter: alpha(opacity= 0 );
     opacity: 0;
   }
@@ -3242,11 +3243,11 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
     transform: scale(1, 1);
   }
   100% {
-    -moz-transform: scale(0.5, 0.5);
-    -webkit-transform: scale(0.5, 0.5);
-    -o-transform: scale(0.5, 0.5);
-    -ms-transform: scale(0.5, 0.5);
-    transform: scale(0.5, 0.5);
+    -moz-transform: scale(0.6, 0.6);
+    -webkit-transform: scale(0.6, 0.6);
+    -o-transform: scale(0.6, 0.6);
+    -ms-transform: scale(0.6, 0.6);
+    transform: scale(0.6, 0.6);
     filter: alpha(opacity= 0 );
     opacity: 0;
   }
@@ -3260,11 +3261,11 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
     transform: scale(1, 1);
   }
   100% {
-    -moz-transform: scale(0.5, 0.5);
-    -webkit-transform: scale(0.5, 0.5);
-    -o-transform: scale(0.5, 0.5);
-    -ms-transform: scale(0.5, 0.5);
-    transform: scale(0.5, 0.5);
+    -moz-transform: scale(0.6, 0.6);
+    -webkit-transform: scale(0.6, 0.6);
+    -o-transform: scale(0.6, 0.6);
+    -ms-transform: scale(0.6, 0.6);
+    transform: scale(0.6, 0.6);
     filter: alpha(opacity= 0 );
     opacity: 0;
   }
@@ -3278,11 +3279,11 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
     transform: scale(1, 1);
   }
   100% {
-    -moz-transform: scale(0.5, 0.5);
-    -webkit-transform: scale(0.5, 0.5);
-    -o-transform: scale(0.5, 0.5);
-    -ms-transform: scale(0.5, 0.5);
-    transform: scale(0.5, 0.5);
+    -moz-transform: scale(0.6, 0.6);
+    -webkit-transform: scale(0.6, 0.6);
+    -o-transform: scale(0.6, 0.6);
+    -ms-transform: scale(0.6, 0.6);
+    transform: scale(0.6, 0.6);
     filter: alpha(opacity= 0 );
     opacity: 0;
   }
@@ -3296,11 +3297,11 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
     transform: scale(1, 1);
   }
   100% {
-    -moz-transform: scale(0.5, 0.5);
-    -webkit-transform: scale(0.5, 0.5);
-    -o-transform: scale(0.5, 0.5);
-    -ms-transform: scale(0.5, 0.5);
-    transform: scale(0.5, 0.5);
+    -moz-transform: scale(0.6, 0.6);
+    -webkit-transform: scale(0.6, 0.6);
+    -o-transform: scale(0.6, 0.6);
+    -ms-transform: scale(0.6, 0.6);
+    transform: scale(0.6, 0.6);
     filter: alpha(opacity= 0 );
     opacity: 0;
   }

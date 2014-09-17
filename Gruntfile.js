@@ -118,6 +118,10 @@ module.exports = function(grunt) {
 					
 					'src/js/common/AbstractEvents.js',
 					
+					'src/js/plugin/Device.js',
+					'src/js/plugin/Camera.js',
+					'src/js/plugin/Geolocation.js',
+					
 					'src/js/data/DataStore.js',
 					'src/js/data/AbstractDao.js',
 					'src/js/data/AbstractData.js',

@@ -7,9 +7,11 @@
 $Define('C.ImgUpload',
 [
 'C.AbstractComponent',
-'U.ImgCompress'
+'U.ImgCompress',
+'P.Device',
+'P.Camera'
 ],
-function(AC,ImgCompress){
+function(AC,ImgCompress,Device,Camera){
 	
 	var ImgUpload=AC.define('ImgUpload');
 	
@@ -91,7 +93,6 @@ function(AC,ImgCompress){
 		
 		doConfig         : fDoConfig,           //初始化配置
 		showSelDialog    : fShowSelDialog,      //显示选择照片源类型对话框
-		getPicture       : fGetPicture,         //获取照片
 		processImg       : fProcessImg,         //处理图片
 		cleanContent     : fCleanContent        //清除文件内容
 	});
@@ -111,7 +112,7 @@ function(AC,ImgCompress){
 			fSuccess&&fSuccess(oData);
 		}
 		if(oSettings.useFileInput===undefined){
-			me.set('useFileInput',!window.cordova);
+			me.set('useFileInput',!Device.isPhonegap());
 		}
 		if(!me.get('useFileInput')){
 			me.listen({
@@ -140,44 +141,30 @@ function(AC,ImgCompress){
 					text:'拍照',
 					isInline:false,
 					click:function(){
-						me.getPicture(Camera.PictureSourceType.CAMERA);
+						Camera.getPicture({
+							sourceType:'CAMERA',
+							success:function (imageData) {
+						   		me.processImg(imageData);
+							}
+						});
 					}
 				},{
 					xtype:'Button',
 					text:'相册',
 					isInline:false,
 					click:function(){
-						me.getPicture(Camera.PictureSourceType.PHOTOLIBRARY);
+						Camera.getPicture({
+							sourceType:'PHOTOLIBRARY',
+							success:function (imageData) {
+						    	me.processImg(imageData);
+							}
+						});
 					}
 				}]
 			}
 		})
 	}
-	/**
-	 * 获取照片
-	 * @param {number}nSourceType 照片源类型
-	 */
-	function fGetPicture(nSourceType){
-		var me=this;
-		//phonegap
-		navigator.camera.getPicture(
-			function (imageData) {
-			    me.processImg(imageData);
-			},
-			function onFail(message) {
-				//用户取消不提示
-				if(message!='no image selected'&&message.indexOf('cancel')<0){
-				    $C.Tips({text:'获取照片失败: ' + message,theme:'error'});
-				}
-			}, 
-			{ 
-				quality: 50,
-				mediaType:Camera.MediaType.PICTURE,
-			    destinationType:Camera.DestinationType.FILE_URI,
-			    sourceType:nSourceType
-			}
-		);
-	}
+	
 	/**
 	 * 处理图片
 	 * @param {object|string}imgSrc 图片源
