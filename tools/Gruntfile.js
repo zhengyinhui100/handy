@@ -22,9 +22,9 @@ module.exports = function(grunt) {
 		//staticServerName:'http://192.168.0.209/',
 		environment:'test',
 		//native app版本号
-		appVersion:0.1,
+		appVersion:0.11,
 		//webapp(前端更新)版本号
-		version:0.1,
+		version:0.11,
 		//前端更新版本(时间)
 		staticVersion:sVersion
 	}

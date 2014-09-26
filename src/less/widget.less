@@ -763,7 +763,6 @@
 	.hui-field-left{
 		width:3em;
 	}
-	background-color:#fff;
 	.hui-field-left{
 		position:absolute;
 		left:0.5em;
@@ -959,10 +958,7 @@
 		border-right-width:1px;
 	}
 }
-.hui-tab-border-top,.hui-tab-no-border{
-	.hui-btn{
-		border-bottom:0;
-	}
+.hui-tab-border-top,.hui-tab-border-bottom,.hui-tab-no-border{
 	.hui-tabitem{
 		&.hui-item-first .hui-btn{
 			border-left-width:0;
@@ -971,6 +967,12 @@
 			border-right-width:0;
 		}
 	}
+}
+.hui-tab-border-top .hui-btn{
+	border-bottom:0;
+}
+.hui-tab-border-bottom .hui-btn{
+	border-top:0;
 }
 .hui-tab-no-border{
 	.hui-btn{

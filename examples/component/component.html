@@ -230,7 +230,7 @@ $Define('test','handy.All',function(){
 		            "plus","power","recycle","forward","refresh","shop","comment","star","tag","back",
 		            "video","alert","delete",
 		            //other icons
-		            "topic","activity","nearby-group","nearby-user","activity-notice","group-msg",
+		            "logo", "topic","activity","nearby-group","nearby-user","activity-notice","group-msg",
 		            "user-msg","user-topic","user-activity","user-info","system"
 		            ];
 		for(var i=0;i<aIcons.length;i++){
@@ -320,6 +320,10 @@ $Define('test','handy.All',function(){
 			isInline:false,
 			gradient:true,
 			shadow:true
+		})
+		
+		new $C.Share({
+			renderTo:'#buttonDv'
 		})
 		
 		new Panel({

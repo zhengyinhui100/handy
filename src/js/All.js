@@ -80,7 +80,8 @@ $Define('handy.All',
 'C.Vcard',
 'C.Conversation',
 'C.ModelList',
-'C.Editor'
+'C.Editor',
+'C.Share'
 ],
 function(){
 	
