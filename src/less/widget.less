@@ -27,7 +27,7 @@
 .hui-icon-big{
 	width:2em;
 	height:2em;
-	background-size:1.25em;
+	background-size:1.5em;
 }
 .hui-icon-loading{
 	background-size:auto;
@@ -869,12 +869,17 @@
 	background: #444;
 	color: #fff;
 	font-weight: 700;
+	.hui-icon-adapt{
+		height:100%;
+		width:3em;
+		background-size:1.25em;
+	}
 	.hui-tbar-title{
 		min-height: 1.063em;
 		text-align: center;
 		font-size: 1em;
 		display: block;
-		padding: 0.625em 4em;
+		padding: 0.625em 2.5em;
 		text-overflow: ellipsis;
 		overflow: hidden;
 		white-space: nowrap;
@@ -914,6 +919,9 @@
 	.hui-tab{
 		margin:0;
 	}
+}
+.hui-tbar-align-left .hui-tbar-title{
+	text-align:left;
 }
 .hui-tbar-gray{
 	border: 1px solid #bbb;
@@ -994,7 +1002,7 @@
 		background-size:contain;
 	}
 	.hui-tips-txt{
-		margin-left:0.4em;
+		margin-left:0.375em;
 		.fn_word_break();
 	}
 	&.hui-size-mini{
@@ -1293,7 +1301,7 @@
 			margin:0;
 		}
 		.hui-inline{
-			margin:0.4em 1em 0.8em;
+			margin:0.375em 1em 0.8em;
 		}
 	}
 }

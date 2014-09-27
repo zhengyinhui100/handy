@@ -22,9 +22,9 @@ module.exports = function(grunt) {
 		//staticServerName:'http://192.168.0.209/',
 		environment:'test',
 		//native app版本号
-		appVersion:0.11,
+		appVersion:0.2,
 		//webapp(前端更新)版本号
-		version:0.11,
+		version:0.2,
 		//前端更新版本(时间)
 		staticVersion:sVersion
 	}
@@ -266,6 +266,6 @@ module.exports = function(grunt) {
 	
 	grunt.registerTask('bulidDevApk', ['shell:buildDevApk']);
 	
-	grunt.registerTask('default', ['testStaticTar']);
+	grunt.registerTask('default', ['appTar']);
 	
 };

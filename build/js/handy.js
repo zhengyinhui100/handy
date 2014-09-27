@@ -10888,7 +10888,7 @@ function(AC){
 		var me=this;
 		var oEl=me.getEl();
 		oEl.css({
-			left: $H.em2px(5),
+			left: '50%',
 			top:$H.em2px(0.5),
 			position:'fixed'
 		});
