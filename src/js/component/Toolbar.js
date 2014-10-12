@@ -20,7 +20,8 @@ function(AC){
 		},
 		defItem          : {
 			xtype        : 'Button',
-			theme        : 'black'
+			theme        : 'black',
+			xrole        : 'content'
 		},
 		
 		tmpl             : [
@@ -28,7 +29,7 @@ function(AC){
 				'<div class="hui-tbar-left">',
 					'{{placeItem > [xrole=left]}}',
 				'</div>',
-				'{{placeItem > [xrole!=left][xrole!=right]}}',
+				'{{placeItem > [xrole=content]}}',
 				'{{#if title}}<h1 class="hui-tbar-title js-tbar-txt">{{title}}</h1>{{/if}}',
 				'<div class="hui-tbar-right">',
 					'{{placeItem > [xrole=right]}}',

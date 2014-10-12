@@ -266,6 +266,6 @@ module.exports = function(grunt) {
 	
 	grunt.registerTask('bulidDevApk', ['shell:buildDevApk']);
 	
-	grunt.registerTask('default', ['appTar']);
+	grunt.registerTask('default', ['testStaticTar']);
 	
 };

@@ -2,7 +2,6 @@
 .ftppass
 src/.DS_Store
 node_modules/*
-src/css/*
 build/*
 !build/css/handy.css
 !build/css/handy.min.css

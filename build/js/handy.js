@@ -12324,13 +12324,16 @@ function(AC,Popup,ControlGroup){
 		}else if(oSettings.type=='miniLoading'){
 			//顶部小loading
 			$H.extend(me,{
-				showPos:'top',
+				showPos:{
+					left:$H.em2px(0.625),
+					top:$H.em2px(0.625)
+				},
 				clickHide:false,
 				destroyWhenHide:false,
 				timeout:null,
 				delayShow:false,
 				shadowOverlay:null,
-				theme:null,
+				theme:'tbar-black',
 				noMask:true,
 				tType:'mini',
 				items:{
