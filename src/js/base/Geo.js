@@ -22,6 +22,9 @@ $Define('B.Geo',function(){
 	 * @return {number} 返回两点间的距离
 	 */
 	function fDistance(oCoord1,oCoord2,bFormat){
+		if(!oCoord1||!oCoord2){
+			return;
+		}
 		/** 
          * 求某个经纬度的值的角度值 
          * @param {Object} degree 

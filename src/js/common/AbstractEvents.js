@@ -5,7 +5,7 @@
  */
 //"handy.common.AbstractEvents"
 $Define('CM.AbstractEvents',
-'B.Class',
+['B.Class','B.Events'],
 function(){
 	
 	var AbstractEvents=$H.createClass();

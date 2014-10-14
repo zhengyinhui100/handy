@@ -38,10 +38,11 @@ $Define("B.Url",function(){
 	/**
 	 * 获取url里的参数
 	 * @param {string=}sName 参数名，不传表示获取所有的参数表
+	 * @param {string=}sUrl 参数url，默认是当前地址栏url
 	 * @return {*} 返回参数值
 	 */
-	function fGetParam(sName){
-		var sUrl=location.href;
+	function fGetParam(sName,sUrl){
+		var sUrl=sUrl||location.href;
 		var m;
 		if(m=sUrl.match(/\?([^#]+)/)){
 			var sParams=m[1];

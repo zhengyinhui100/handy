@@ -90,6 +90,9 @@ function(Debug,Object){
 	 * @return {string}sUrl 实际url
 	 */
     function _fGetUrl(sId){
+    	if(/\/+/.test(sId)){
+    		return sId;
+    	}
     	var sUrl=Loader.sourceMap&&Loader.sourceMap[sId]&&Loader.sourceMap[sId].url;
     	if(!sUrl){
     		var sRoot='';

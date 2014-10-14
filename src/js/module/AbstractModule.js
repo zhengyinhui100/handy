@@ -33,8 +33,22 @@ $Define("M.AbstractModule","V.View",function (View) {
 		entry          : $H.noop,        //进入模块，new和cache后都会调用此方法
 		reset          : $H.noop,        //重置函数, 在该模块里进入该模块时调用
 		exit           : function(){return true},  //离开该模块前调用, 返回true允许离开, 否则不允许离开
+		initialize     : fInitialize,    //初始化
 		cleanCache     : fCleanCache     //清除模块缓存
 	});
+	/**
+	 * 初始化
+	 * @param{object}oParams 初始化参数
+	 */
+	function fInitialize(oParams){
+		var me=this;
+		//初始化模型
+		if(!oParams.model&&me.modCls){
+			me.model=new me.modCls();
+			me.model.id=oParams.modelId;
+		}
+		me.callSuper();
+	}
 	/**
 	 * 清除模块缓存
 	 */

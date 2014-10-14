@@ -14,18 +14,28 @@ function(AC){
 		xConfig         : {
 			cls         : 'share'
 		},
+		listeners       : [{
+			name:'afterRender',
+			custom:true,
+			handler:function(){
+				//jQuery append在WebKit下无法添加js
+				var eScript=document.createElement("script");
+		    	eScript.src='http://v3.jiathis.com/code/jia.js';
+		    	eScript.type="text/javascript";
+				this.getEl()[0].appendChild(eScript);
+			}
+		}],
 		
 		tmpl            : [
-		'<div class="jiathis_style">',
-			'<span class="jiathis_txt">分享到：</span>',
-			'<a class="jiathis_button_tools_1"></a>',
-			'<a class="jiathis_button_tools_2"></a>',
-			'<a class="jiathis_button_tools_3"></a>',
-			'<a class="jiathis_button_tools_4"></a>',
-			'<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>',
+			'<div class="jiathis_style"><span class="jiathis_txt">分享到：</span>',
+			'<a class="jiathis_button_tsina"></a>',
+			'<a class="jiathis_button_weixin"></a>',
+			'<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>',
 			'<a class="jiathis_counter_style"></a>',
-		'</div>',
-		'<script type="text/javascript" src="http://v3.jiathis.com/code_mini/jia.js" charset="utf-8"></script>'
+			'</div>',
+			'<script type="text/javascript" >',
+			'var jiathis_config={summary:"",shortUrl:false,hideMore:false}',
+			'</script>'
 		].join('')
 		
 	});

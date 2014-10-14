@@ -99,10 +99,10 @@ function(HashChange){
 		me.states.push(sHistoryKey);
 		me.states[sHistoryKey]=oState;
 		var oParam=oState.param;
-		me.saveHash({
-			hKey    : sHistoryKey,
-			modId   : oParam&&oParam.modId
-		});
+		var oHashParam=$H.extend({
+			hKey    : sHistoryKey
+		},oParam);
+		me.saveHash(oHashParam);
 	}
 	/**
 	 * 保存状态值到hash中
