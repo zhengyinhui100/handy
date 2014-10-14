@@ -807,15 +807,16 @@ $Define('test','handy.All',function(){
 		})
 		new Toolbar({
 			renderTo:'#toolbarDv',
-			title:'点击页面隐藏工具栏',
 			cClass:'fixCmp',
 			isHeader:true,
 			items:[{
 				xtype:'Button',
 				xrole:'left',
 				theme:'dark',
+				text:'点击页面隐藏工具栏',
 				tType:'adapt',
 				icon:'carat-l',
+				iconPos:'left',
 				click:function(){
 					$D.log(1);
 				}
@@ -832,7 +833,7 @@ $Define('test','handy.All',function(){
 			title:'header标题',
 			cClass:'fixCmp',
 			style:{
-				top:40
+				top:50
 			},
 			isHeader:true,
 			items:[{
@@ -1272,7 +1273,7 @@ $Define('test','handy.All',function(){
 				cClass:'fixCmp',
 				extCls:'hui-input-zone',
 				style:{
-					bottom:40
+					bottom:50
 				},
 				items:[{
 					xtype:'Input',

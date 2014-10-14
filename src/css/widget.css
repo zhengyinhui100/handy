@@ -196,6 +196,7 @@
 }
 .hui-btn-dark {
   background: #444;
+  color: #fff;
 }
 .hui-btn-dark:hover {
   background: #333;
@@ -1020,7 +1021,7 @@
   position: relative;
   zoom: 1;
   width: 100%;
-  min-height: 2em;
+  min-height: 2.438em;
   font-family: Helvetica, Arial, sans-serif;
   background: #444;
   color: #fff;
@@ -1064,14 +1065,14 @@
   margin-left: 0.5em;
   margin-top: 0.25em;
 }
-.hui-tbar .hui-size-mini {
+.hui-tbar .hui-size-mini.hui-btn {
   margin-top: 0.5em;
 }
 .hui-tbar .hui-btn-back {
   margin-left: 1.5em;
 }
 .hui-tbar .hui-btn-adapt {
-  padding-top: 0.5em;
+  padding-top: 0.625em;
   margin: 0;
 }
 .hui-tbar .hui-tab {

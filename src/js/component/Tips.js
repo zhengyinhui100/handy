@@ -55,7 +55,7 @@ function(AC,Popup,ControlGroup){
 			//顶部小loading
 			$H.extend(me,{
 				showPos:{
-					left:$H.em2px(0.625),
+					left:'50%',
 					top:$H.em2px(0.625)
 				},
 				clickHide:false,

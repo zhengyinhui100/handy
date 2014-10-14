@@ -30,7 +30,7 @@ function(AC){
 					'{{placeItem > [xrole=left]}}',
 				'</div>',
 				'{{placeItem > [xrole=content]}}',
-				'{{#if title}}<h1 class="hui-tbar-title js-tbar-txt">{{title}}</h1>{{/if}}',
+				'{{#if title}}<div class="hui-tbar-title js-tbar-txt">{{title}}</div>{{/if}}',
 				'<div class="hui-tbar-right">',
 					'{{placeItem > [xrole=right]}}',
 				'</div>',
