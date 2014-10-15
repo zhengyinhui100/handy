@@ -1192,6 +1192,7 @@
   background: #fff;
   border: 1px solid #ccc;
   color: #333;
+  top: initial;
 }
 .hui-tips-arrow .hui-triangle {
   border-left-width: 0.5em;

@@ -15,12 +15,9 @@
 <link rel="stylesheet" type="text/css"
 	href="../../src/css/widget.css" />
 <style type="text/css">
-	html,body{
-		overflow:auto;
-		height:auto;
-	}
 	body{
 		padding:60px 20px;
+		overflow:hidden;
 	}
 	h3{
 		margin:20px 0;
@@ -1048,6 +1045,20 @@ $Define('test','handy.All',function(){
 					shadowOverlay:null,
 					icon:'loading'
 				})
+			}
+		})
+		new Button({
+			renderTo:'#tipsDv',
+			text:'带箭头提示',
+			click:function(){
+				new Tips({
+					text:'从主屏幕打开可获得更好的体验（点击此处，然后选择添加至主屏幕，再从主频幕点击打开）',
+					hasArrow:true,
+					theme:'arrow',
+					width:'12.5em',
+					showPos:'bottom',
+					timeout:null
+				});
 			}
 		})
 		
