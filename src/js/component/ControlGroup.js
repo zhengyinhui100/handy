@@ -226,11 +226,13 @@ function(AC){
 	 * @param {number}nIndex 子项目索引
 	 */
 	function fOnItemClick(oEvt,nIndex){
-		var me=this;
-		me.select(nIndex);
+		var me=this,bResult;
 		if(me.itemClick){
 			var oCmp=me.children[nIndex];
-			me.itemClick(oCmp,nIndex);
+			bResult=me.itemClick(oCmp,nIndex);
+		}
+		if(bResult!==false){
+			me.select(nIndex);
 		}
 	}
 	

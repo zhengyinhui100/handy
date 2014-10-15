@@ -6,11 +6,12 @@
 //"handy.data.Collection"
 $Define('D.Collection',
 [
+'B.Array',
 'D.AbstractData',
 'D.Model',
 'D.DataStore'
 ],
-function(AbstractData,Model){
+function(Arr,AbstractData,Model){
 	
 	var Collection=AbstractData.derive({
 		//可扩展属性
@@ -62,8 +63,6 @@ function(AbstractData,Model){
 		
 	});
 	
-    var HA=$H.Array;
-    
 	//从base.Array生成方法
 	$H.each([
 		'map','some','every','find','filter','invoke','indexOf'
@@ -71,21 +70,21 @@ function(AbstractData,Model){
 	    Collection.prototype[sMethod] = function() {
 	      var aArgs = Array.prototype.slice.call(arguments);
 	      aArgs.unshift(this._models);
-	      return HA[sMethod].apply(HA, aArgs);
+	      return Arr[sMethod].apply(Arr, aArgs);
 	    };
 	});
 	
     Collection.prototype['sortedIndex'] = function(value, context,bDesc) {
         var iterator = this._getIterator(this.comparator);
         bDesc=this.desc||bDesc;
-        return HA['sortedIndex'](this._models, value,iterator, context,bDesc);
+        return Arr['sortedIndex'](this._models, value,iterator, context,bDesc);
     };
 	
 	$H.each(['sortBy','groupBy','countBy'], function(i,sMethod) {
 	    Collection.prototype[sMethod] = function(value, context,bDesc) {
 	        var iterator = this._getIterator(value);
 	        bDesc=this.desc||bDesc;
-	        return HA[sMethod](this._models, iterator, context,bDesc);
+	        return Arr[sMethod](this._models, iterator, context,bDesc);
         };
     });
 	
