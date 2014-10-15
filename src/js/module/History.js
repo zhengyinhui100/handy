@@ -155,7 +155,7 @@ function(HashChange){
 			var sHKey=oHashParam.hKey;
 			var aStates=me.states;
 			var nLen=aStates.length;
-			for(var i=0;i++;i<nLen){
+			for(var i=1;i<nLen;i++){
 				if(aStates[i]==sHKey){
 					return i>0?aStates[aStates[--i]]:null;
 				}
