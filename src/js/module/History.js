@@ -75,10 +75,10 @@ function(HashChange){
 		}
 		//如果调用不成功，则恢复原先的hashstate
 		if(bResult===false){
-			oHashParam={
-				hKey    : sCurKey,
-				modId   : oCurState.param&&oCurState.param.modId
-			};
+			var oParam=oCurState.param;
+			oHashParam=$H.extend({
+				hKey    : sCurKey
+			},oParam);
 			me.saveHash(oHashParam);
 		}else{
 			//改变当前hkey
