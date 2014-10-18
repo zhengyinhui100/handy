@@ -1419,7 +1419,7 @@ function(Debug,Object){
     function _fChkExisted(id){
     	function _fChk(sId){
     		//css和js文件只验证是否加载完
-    		if(/\.(css|js)$/.test(sId)){
+    		if(/\.(css|js)/.test(sId)){
     			return _oCache[sId]&&_oCache[sId].status=='loaded';
     		}else if(Loader.sourceMap&&Loader.sourceMap[sId]){
     			//自定义资源使用自定义方法验证
@@ -1477,9 +1477,9 @@ function(Debug,Object){
     			sRoot="";
     		}
     		//css文件
-    		if(/.css$/.test(sId)){
+    		if(/\.css$/.test(sId)){
     			sUrl=sId.indexOf('/')==0?sId:"/css/"+sId;
-    		}else if(/.js$/.test(sId)){
+    		}else if(/\.js$/.test(sId)){
     			//js文件
     			sUrl=sId;
     		}else{
@@ -1596,7 +1596,7 @@ function(Debug,Object){
 //					}
 //				}
 				// 移除标签
-				_eHead.removeChild(eNode);
+				//_eHead.removeChild(eNode);
 				eNode = null;
 				// IE10下新加载的script会在此之后才执行，所以此处需延迟执行
 				setTimeout(fCallback, 0);
@@ -1699,7 +1699,7 @@ function(Debug,Object){
 		    		if(Loader.traceLog){
 						Debug.log(_LOADER_PRE+"request:\n"+sUrl);
 			   		}
-		    		if(/.css$/.test(sUrl)){
+		    		if(/\.css/.test(sUrl)){
 		    			_fGetCss(sUrl,_fCallback);
 		    		}else{
 		    			_fGetScript(sUrl,_fCallback) ;
@@ -1710,7 +1710,7 @@ function(Debug,Object){
 					var host=sUrl.match(/([^:]+:\/\/)?[^/]+\/?/);
 					host=host&&host[0]||'';
 					var sUri=sUrl.substring(host.length);
-					if(/.css$/.test(sUrl)){
+					if(/\.css/.test(sUrl)){
 						var oCss=oCombineCss[host];
 		    			if(!oCss){
 							oCss=oCombineCss[host]={ids:[],uris:[]};
@@ -3155,10 +3155,11 @@ $Define("B.Url",function(){
 	/**
 	 * 获取url里的参数
 	 * @param {string=}sName 参数名，不传表示获取所有的参数表
+	 * @param {string=}sUrl 参数url，默认是当前地址栏url
 	 * @return {*} 返回参数值
 	 */
-	function fGetParam(sName){
-		var sUrl=location.href;
+	function fGetParam(sName,sUrl){
+		var sUrl=sUrl||location.href;
 		var m;
 		if(m=sUrl.match(/\?([^#]+)/)){
 			var sParams=m[1];
@@ -3584,6 +3585,9 @@ $Define('B.Geo',function(){
 	 * @return {number} 返回两点间的距离
 	 */
 	function fDistance(oCoord1,oCoord2,bFormat){
+		if(!oCoord1||!oCoord2){
+			return;
+		}
 		/** 
          * 求某个经纬度的值的角度值 
          * @param {Object} degree 
@@ -5051,7 +5055,7 @@ function(){
  */
 //"handy.common.AbstractEvents"
 $Define('CM.AbstractEvents',
-'B.Class',
+['B.Class','B.Events'],
 function(){
 	
 	var AbstractEvents=$H.createClass();
@@ -6488,11 +6492,12 @@ function(AbstractData){
 //"handy.data.Collection"
 $Define('D.Collection',
 [
+'B.Array',
 'D.AbstractData',
 'D.Model',
 'D.DataStore'
 ],
-function(AbstractData,Model){
+function(Arr,AbstractData,Model){
 	
 	var Collection=AbstractData.derive({
 		//可扩展属性
@@ -6544,8 +6549,6 @@ function(AbstractData,Model){
 		
 	});
 	
-    var HA=$H.Array;
-    
 	//从base.Array生成方法
 	$H.each([
 		'map','some','every','find','filter','invoke','indexOf'
@@ -6553,21 +6556,21 @@ function(AbstractData,Model){
 	    Collection.prototype[sMethod] = function() {
 	      var aArgs = Array.prototype.slice.call(arguments);
 	      aArgs.unshift(this._models);
-	      return HA[sMethod].apply(HA, aArgs);
+	      return Arr[sMethod].apply(Arr, aArgs);
 	    };
 	});
 	
     Collection.prototype['sortedIndex'] = function(value, context,bDesc) {
         var iterator = this._getIterator(this.comparator);
         bDesc=this.desc||bDesc;
-        return HA['sortedIndex'](this._models, value,iterator, context,bDesc);
+        return Arr['sortedIndex'](this._models, value,iterator, context,bDesc);
     };
 	
 	$H.each(['sortBy','groupBy','countBy'], function(i,sMethod) {
 	    Collection.prototype[sMethod] = function(value, context,bDesc) {
 	        var iterator = this._getIterator(value);
 	        bDesc=this.desc||bDesc;
-	        return HA[sMethod](this._models, iterator, context,bDesc);
+	        return Arr[sMethod](this._models, iterator, context,bDesc);
         };
     });
 	
@@ -9610,8 +9613,22 @@ $Define("M.AbstractModule","V.View",function (View) {
 		entry          : $H.noop,        //进入模块，new和cache后都会调用此方法
 		reset          : $H.noop,        //重置函数, 在该模块里进入该模块时调用
 		exit           : function(){return true},  //离开该模块前调用, 返回true允许离开, 否则不允许离开
+		initialize     : fInitialize,    //初始化
 		cleanCache     : fCleanCache     //清除模块缓存
 	});
+	/**
+	 * 初始化
+	 * @param{object}oParams 初始化参数
+	 */
+	function fInitialize(oParams){
+		var me=this;
+		//初始化模型
+		if(!oParams.model&&me.modCls){
+			me.model=new me.modCls();
+			me.model.id=oParams.modelId;
+		}
+		me.callSuper();
+	}
 	/**
 	 * 清除模块缓存
 	 */
@@ -9718,10 +9735,10 @@ function(HashChange){
 		}
 		//如果调用不成功，则恢复原先的hashstate
 		if(bResult===false){
-			oHashParam={
-				hKey    : sCurKey,
-				modId   : oCurState.param&&oCurState.param.modId
-			};
+			var oParam=oCurState.param;
+			oHashParam=$H.extend({
+				hKey    : sCurKey
+			},oParam);
 			me.saveHash(oHashParam);
 		}else{
 			//改变当前hkey
@@ -9742,10 +9759,10 @@ function(HashChange){
 		me.states.push(sHistoryKey);
 		me.states[sHistoryKey]=oState;
 		var oParam=oState.param;
-		me.saveHash({
-			hKey    : sHistoryKey,
-			modId   : oParam&&oParam.modId
-		});
+		var oHashParam=$H.extend({
+			hKey    : sHistoryKey
+		},oParam);
+		me.saveHash(oHashParam);
 	}
 	/**
 	 * 保存状态值到hash中
@@ -9798,7 +9815,7 @@ function(HashChange){
 			var sHKey=oHashParam.hKey;
 			var aStates=me.states;
 			var nLen=aStates.length;
-			for(var i=0;i++;i<nLen){
+			for(var i=1;i<nLen;i++){
 				if(aStates[i]==sHKey){
 					return i>0?aStates[aStates[--i]]:null;
 				}
@@ -9843,11 +9860,12 @@ function(History,AbstractManager){
 		
 		type               : 'module',
 		
-		//history          : null,   //历史记录
-		//conf             : null,   //配置参数
-		//container        : null,   //默认模块容器
-		//navigator        : null,   //定制模块导航类
-		//defModPackage    : "com.xxx.module",  //默认模块所在包名
+//		history          : null,   //历史记录
+//		conf             : null,   //配置参数
+//		container        : null,   //默认模块容器
+//		navigator        : null,   //定制模块导航类
+//		defEntry         : null,   //默认模块，当调用back方法而之前又没有历史模块时，进入该模块
+//		defModPackage    : "com.xxx.module",  //默认模块所在包名
 		maxModNum          : $H.mobile()?20:50,     //最大缓存模块数
 		
 //		requestMod         : '',     //正在请求的模块名
@@ -10118,7 +10136,10 @@ function(History,AbstractManager){
 			//保存状态
 			me.history.saveState({
 				onStateChange:$H.Function.bind(me.go,me),
-				param:param
+				param:{
+					modName:param.modName,
+					modelId:param.modelId
+				}
 			});
 		}
 		return true;
@@ -10182,7 +10203,11 @@ function(History,AbstractManager){
 		if(bForceExit){
 			oCurMod._forceExit=true;
 		}
-		history.back();
+		if(me.history.getPreState()){
+			history.back();
+		}else{
+			me.go(me.defEntry);
+		}
 	}
 	
 	return ModuleManager;
@@ -11209,11 +11234,13 @@ function(AC){
 	 * @param {number}nIndex 子项目索引
 	 */
 	function fOnItemClick(oEvt,nIndex){
-		var me=this;
-		me.select(nIndex);
+		var me=this,bResult;
 		if(me.itemClick){
 			var oCmp=me.children[nIndex];
-			me.itemClick(oCmp,nIndex);
+			bResult=me.itemClick(oCmp,nIndex);
+		}
+		if(bResult!==false){
+			me.select(nIndex);
 		}
 	}
 	
@@ -14510,5 +14537,77 @@ function(AC){
 	}
 	
 	return Editor;
+	
+});
+/**
+ * 社会化分享类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+
+$Define('C.Share',
+'C.AbstractComponent',
+function(AC){
+	
+	var Share=AC.define('Share');
+	
+	Share.extend({
+		//初始配置
+		xConfig         : {
+			cls         : 'share'
+//			title       : '',           //分析标题
+//			summary     : '',           //分享内容摘要
+		},
+		
+//		url             : '',           //分享
+		
+		listeners       : [{
+			name:'afterRender',
+			custom:true,
+			handler:function(){
+				var me=this;
+				$Require('http://static.bshare.cn/b/buttonLite.js#style=-1&amp;bp=weixin,sinaminiblog&amp;uuid=f19aa603-e8fa-437c-8069-f5a12dff7e4e&amp;pophcol=2&amp;lang=zh',
+				function(){
+					me.listen({
+						name:'click',
+						selector:'a',
+						method:'delegate',
+						handler:function(oEvt){
+							var oEntry={
+						        title:me.get('title')||document.title, // 获取文章标题
+						        url:me.url||location.href,	// 获取文章链接
+						        summary:me.get('summary')||''	// 从postBody中获取文章摘要
+						    };
+							if(me.getEntry){
+								var oEnt=me.getEntry();
+								$H.extend(oEntry,oEnt);
+							}
+							bShare.entries=[];
+							bShare.addEntry(oEntry);
+						    var sName=oEvt.currentTarget.className;
+						    bShare.share(oEvt.originalEvent,sName);
+						}
+					})
+				});
+			}
+		}],
+		
+		tmpl            : [
+			'<div>',
+				'<ul class="bshare c-clear">',
+					'<li>分享到:</li>',
+					'<li><a title="分享到微信" class="weixin" href="javascript:void(0);" ><img src="http://static.bshare.cn/frame/images/logos/s4/weixin.gif "/></a></li>',
+					'<li><a title="分享到新浪微博" class="sinaminiblog" href="javascript:void(0);" ><img src="http://static.bshare.cn/frame/images/logos/s4/sinaminiblog.gif "/></a></li>',
+					'<li><a title="分享到QQ空间" class="qzone" href="javascript:void(0);" ><img src="http://static.bshare.cn/frame/images/logos/s4/qzone.gif "/></a></li>',
+					'<li><a title="分享到人人网" class="renren" href="javascript:void(0);" ><img src="http://static.bshare.cn/frame/images/logos/s4/renren.gif "/></a></li>',
+					'<li><a title="分享到豆瓣"  class="douban" href="javascript:void(0);" ><img src="http://static.bshare.cn/frame/images/logos/s4/douban.gif "/></a></li>',
+					'<li><a title="分享到一键通" class="bsharesync" href="javascript:void(0);" ><img src="http://static.bshare.cn/frame/images/logos/s4/bsharesync.gif "/></a></li>',
+					'<li><a class="bshareDiv" href="http://www.bshare.cn/share"></a></li>',
+				'</ul>',
+			'</div>'
+		].join('')
+		
+	});
+	
+	return Share;
 	
 });

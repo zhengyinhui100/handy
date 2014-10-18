@@ -1706,8 +1706,15 @@
   top: 0;
 }
 .hui-share {
-  padding: 0.4em 0;
-  height: 1.8em;
+  padding: 0.438em 0;
+}
+.hui-share li {
+  float: left;
+  height: 1.75em;
+  line-height: 1.75em;
+}
+.hui-share li a {
+  padding: 0.375em 0.219em 0.219em;
 }
 .hui-border {
   border: 1px solid #eee;

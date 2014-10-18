@@ -13,29 +13,56 @@ function(AC){
 		//初始配置
 		xConfig         : {
 			cls         : 'share'
+//			title       : '',           //分析标题
+//			summary     : '',           //分享内容摘要
 		},
+		
+//		url             : '',           //分享
+		
 		listeners       : [{
 			name:'afterRender',
 			custom:true,
 			handler:function(){
-				//jQuery append在WebKit下无法添加js
-				var eScript=document.createElement("script");
-		    	eScript.src='http://v3.jiathis.com/code/jia.js';
-		    	eScript.type="text/javascript";
-				this.getEl()[0].appendChild(eScript);
+				var me=this;
+				$Require('http://static.bshare.cn/b/buttonLite.js#style=-1&amp;bp=weixin,sinaminiblog&amp;uuid=f19aa603-e8fa-437c-8069-f5a12dff7e4e&amp;pophcol=2&amp;lang=zh',
+				function(){
+					me.listen({
+						name:'click',
+						selector:'a',
+						method:'delegate',
+						handler:function(oEvt){
+							var oEntry={
+						        title:me.get('title')||document.title, // 获取文章标题
+						        url:me.url||location.href,	// 获取文章链接
+						        summary:me.get('summary')||''	// 从postBody中获取文章摘要
+						    };
+							if(me.getEntry){
+								var oEnt=me.getEntry();
+								$H.extend(oEntry,oEnt);
+							}
+							bShare.entries=[];
+							bShare.addEntry(oEntry);
+						    var sName=oEvt.currentTarget.className;
+						    bShare.share(oEvt.originalEvent,sName);
+						}
+					})
+				});
 			}
 		}],
 		
 		tmpl            : [
-			'<div class="jiathis_style"><span class="jiathis_txt">分享到：</span>',
-			'<a class="jiathis_button_tsina"></a>',
-			'<a class="jiathis_button_weixin"></a>',
-			'<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>',
-			'<a class="jiathis_counter_style"></a>',
-			'</div>',
-			'<script type="text/javascript" >',
-			'var jiathis_config={summary:"",shortUrl:false,hideMore:false}',
-			'</script>'
+			'<div>',
+				'<ul class="bshare c-clear">',
+					'<li>分享到:</li>',
+					'<li><a title="分享到微信" class="weixin" href="javascript:void(0);" ><img src="http://static.bshare.cn/frame/images/logos/s4/weixin.gif "/></a></li>',
+					'<li><a title="分享到新浪微博" class="sinaminiblog" href="javascript:void(0);" ><img src="http://static.bshare.cn/frame/images/logos/s4/sinaminiblog.gif "/></a></li>',
+					'<li><a title="分享到QQ空间" class="qzone" href="javascript:void(0);" ><img src="http://static.bshare.cn/frame/images/logos/s4/qzone.gif "/></a></li>',
+					'<li><a title="分享到人人网" class="renren" href="javascript:void(0);" ><img src="http://static.bshare.cn/frame/images/logos/s4/renren.gif "/></a></li>',
+					'<li><a title="分享到豆瓣"  class="douban" href="javascript:void(0);" ><img src="http://static.bshare.cn/frame/images/logos/s4/douban.gif "/></a></li>',
+					'<li><a title="分享到一键通" class="bsharesync" href="javascript:void(0);" ><img src="http://static.bshare.cn/frame/images/logos/s4/bsharesync.gif "/></a></li>',
+					'<li><a class="bshareDiv" href="http://www.bshare.cn/share"></a></li>',
+				'</ul>',
+			'</div>'
 		].join('')
 		
 	});

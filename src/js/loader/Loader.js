@@ -52,7 +52,7 @@ function(Debug,Object){
     function _fChkExisted(id){
     	function _fChk(sId){
     		//css和js文件只验证是否加载完
-    		if(/\.(css|js)$/.test(sId)){
+    		if(/\.(css|js)/.test(sId)){
     			return _oCache[sId]&&_oCache[sId].status=='loaded';
     		}else if(Loader.sourceMap&&Loader.sourceMap[sId]){
     			//自定义资源使用自定义方法验证
@@ -110,9 +110,9 @@ function(Debug,Object){
     			sRoot="";
     		}
     		//css文件
-    		if(/.css$/.test(sId)){
+    		if(/\.css$/.test(sId)){
     			sUrl=sId.indexOf('/')==0?sId:"/css/"+sId;
-    		}else if(/.js$/.test(sId)){
+    		}else if(/\.js$/.test(sId)){
     			//js文件
     			sUrl=sId;
     		}else{
@@ -229,7 +229,7 @@ function(Debug,Object){
 //					}
 //				}
 				// 移除标签
-				_eHead.removeChild(eNode);
+				//_eHead.removeChild(eNode);
 				eNode = null;
 				// IE10下新加载的script会在此之后才执行，所以此处需延迟执行
 				setTimeout(fCallback, 0);
@@ -332,7 +332,7 @@ function(Debug,Object){
 		    		if(Loader.traceLog){
 						Debug.log(_LOADER_PRE+"request:\n"+sUrl);
 			   		}
-		    		if(/.css$/.test(sUrl)){
+		    		if(/\.css/.test(sUrl)){
 		    			_fGetCss(sUrl,_fCallback);
 		    		}else{
 		    			_fGetScript(sUrl,_fCallback) ;
@@ -343,7 +343,7 @@ function(Debug,Object){
 					var host=sUrl.match(/([^:]+:\/\/)?[^/]+\/?/);
 					host=host&&host[0]||'';
 					var sUri=sUrl.substring(host.length);
-					if(/.css$/.test(sUrl)){
+					if(/\.css/.test(sUrl)){
 						var oCss=oCombineCss[host];
 		    			if(!oCss){
 							oCss=oCombineCss[host]={ids:[],uris:[]};
