@@ -7,5 +7,6 @@ handy
 <p>视图提供前端视图实现及管理、便于模块化封装及灵活组合，结合数据模型，实现模型视图(mvvm，数据视图双向绑定)。</p>
 <p>在视图基础上，实现了大部分前端开发需要的组件库，例如：按钮、弹窗、浮层、菜单、表单等等。</p>
 <p>模块管理实现OPOA（单页面web应用）。</p>
+<p>......</p>
 <p>具体可查看文档、示例及代码（注释详尽）。</p>
-<p>目前handy依赖于jQuery/zepto及modernizr（部分），目标是兼容IE8+、chrome、Firefox、Safari、opera、及移动端主流浏览器。</p>
+<p>目前handy依赖于jQuery/zepto及modernizr（部分），目标是兼容IE8及以上、chrome、Firefox、Safari、opera、及移动端主流浏览器。</p>
