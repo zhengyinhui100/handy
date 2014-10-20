@@ -161,13 +161,13 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 		if(Debug.level>Debug.INFO_LEVEL){
 			return;
 		}
-		var nTime=window.performance?window.performance.now():(new Date().getTime());
+		var nTime=window.performance&&window.performance.now?window.performance.now():(new Date().getTime());
 		if(bOut){
 			if(typeof sMsg=='boolean'){
 				bShowInPage=sMsg;
 				sMsg='';
 			}
-			Debug.out((sMsg||'')+(nTime-(Debug.lastTime||0)),!!bShowInPage)
+			Debug.out((sMsg||'')+(nTime-(Debug.lastTime||0)),!!bShowInPage);
 		}else{
 			Debug.lastTime=nTime;
 		}

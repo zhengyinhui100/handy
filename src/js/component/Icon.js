@@ -14,7 +14,7 @@ function(AC){
 		//初始配置
 		xConfig         : {
 			cls         : 'icon',
-			theme       : 'gray',             //颜色
+			theme       : 'bg-gray',             //颜色
 			isAlt       : false,              //是否使用深色图标
 			radius      : 'big',
 			name        : '',                 //图标名称

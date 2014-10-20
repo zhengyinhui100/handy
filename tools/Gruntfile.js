@@ -17,14 +17,16 @@ module.exports = function(grunt) {
 	}
 	var sVersion=''+oNow.getFullYear()+_fFix(oNow.getMonth() + 1)+_fFix(oNow.getDate())+_fFix(oNow.getHours())+_fFix(oNow.getMinutes())+_fFix(oNow.getSeconds());
 	var testConfig={
-		serverName:'http://115.28.151.237:8080/',
-		staticServerName:'http://115.28.151.237/',
+		server:'http://www.17lejia.com/',
+		staticServer:'http://www.handy-ui.com/',
+//		server:'http://115.28.151.237:8080/',
+//		staticServer:'http://115.28.151.237/',
 		//staticServerName:'http://192.168.0.209/',
 		environment:'test',
 		//native app版本号
-		appVersion:0.2,
+		appVersion:0.3,
 		//webapp(前端更新)版本号
-		version:0.2,
+		version:0.3,
 		//前端更新版本(时间)
 		staticVersion:sVersion
 	}
@@ -258,6 +260,7 @@ module.exports = function(grunt) {
 	
 	grunt.registerTask('appBuild', ['clean:appBuild','copy:app','copy:appLocal']);
 	
+	//phonegap online build
 	grunt.registerTask('appTar', ['testStaticBuild','appBuild','shell:appTar']);
 	
 	grunt.registerTask('testTar', ['testStaticBuild','shell:build','appBuild','shell:appTar']);
@@ -266,6 +269,6 @@ module.exports = function(grunt) {
 	
 	grunt.registerTask('bulidDevApk', ['shell:buildDevApk']);
 	
-	grunt.registerTask('default', ['testStaticTar']);
+	grunt.registerTask('default', ['appTar']);
 	
 };

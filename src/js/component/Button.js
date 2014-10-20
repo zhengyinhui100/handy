@@ -52,7 +52,9 @@ function(AC){
 //		icon            : null,                //图标名称
 		
 		defItem         : {
-			xtype       : 'Icon'
+			xtype       : 'Icon',
+			theme       : 'gray',
+			isAlt       : true
 		},
 		
 		tmpl            : ['<a href="javascript:;" hidefocus="true" {{bindAttr class="noTxtCls isBack?hui-btn-back gradient?hui-gradient markCls iconPosCls"}}>',
@@ -70,6 +72,13 @@ function(AC){
 	 */
 	function fDoConfig(oSettings){
 		var me=this;
+		if(oSettings.theme==='black'||oSettings.theme==='dark'){
+			me.defItem=$H.clone(me.defItem);
+			$H.extend(me.defItem,{
+				isAlt:false,
+				theme:null
+			})
+		}
 		if(oSettings.tType==='adapt'){
 			oSettings=$H.clone(oSettings);
 			$H.extend(oSettings,{

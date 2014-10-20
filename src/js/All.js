@@ -81,7 +81,9 @@ $Define('handy.All',
 'C.Conversation',
 'C.ModelList',
 'C.Editor',
-'C.Share'
+'C.Share',
+'C.PicCard',
+'C.Waterfall'
 ],
 function(){
 	

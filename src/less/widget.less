@@ -20,9 +20,12 @@
 .hui-icon-carat-u,.hui-icon-carat-d,.hui-icon-eye,.hui-icon-cloud,.hui-icon-mail,.hui-icon-minus{
 	background-size:1em auto;
 }
-.hui-icon-gray{
+.hui-icon-bg-gray{
 	background-color: #666;
 	background-color:rgba(0,0,0,.4);
+}
+.hui-icon-gray{
+	.hui-light();
 }
 .hui-icon-big{
 	width:2em;
@@ -1582,6 +1585,7 @@
 	}
 }
 
+//分享菜单
 .hui-share{
 	padding:0.438em 0;
 	li{
@@ -1591,6 +1595,111 @@
 		a{
 			padding:0.375em 0.219em 0.219em;
 		}
+	}
+}
+
+//瀑布流
+.hui-wfall{
+	position:relative;
+	.hui-picard{
+		position:absolute;
+		top:-100em;
+	}
+}
+//图片展示卡片
+.hui-picard{
+	border:1px solid #ccc;
+	width:13.75em;
+	overflow:hidden;
+	.hui-picard-header{
+		position:relative;
+		&.hui-hover .hui-header-op{
+			display:block;
+		}
+	}
+	.hui-header-img{
+		display:block;
+	}
+	.hui-header-img img{
+		width:100%;
+	}
+	.hui-header-op{
+		position:absolute;
+		left:0;
+		top:0;
+		bottom:0;
+		right:0;
+		display:none;
+		.hui-mask{
+			.fn_opacity(0.6);
+			top:0;
+		}
+		.hui-op-container{
+			position:absolute;
+			z-index:999;
+			top:50%;
+			margin-top:-1em;
+			width:100%;
+		}
+	}
+	.hui-picard-footer{
+		padding:0.625em 1em;
+		background:#fff;
+	}
+	.hui-picard-desc{
+		font-size:0.813em;
+		color:#666;
+	}
+	.hui-picard-op{
+		padding-top:0.625em;
+	}
+	.hui-op-avatar{
+		font-size:0.813em;
+		float:left;
+		height:3em;
+		line-height:3em;
+	}
+	.hui-avatar{
+		overflow:hidden;
+		width:3em;
+		height:3em;
+		float:left;
+		border:1px solid #ccc;
+		.hui-avatar-img{
+			width:2.5em;
+			height:2.5em;
+			overflow:hidden;
+			margin:0.188em 0 0 0.188em;
+		}
+		img{
+			width:100%;
+		}
+	}
+	.hui-op-link{
+		margin:0 0.5em;
+	}
+	.hui-op-desc{
+		font-size:0.813em;
+		float:left;
+		height:3em;
+		line-height:3em;
+		color:#888;
+	}
+	.hui-op-like{
+		font-size:0.813em;
+		float:right;
+		height:3em;
+		line-height:3em;
+		text-decoration:none;
+		color:#666;
+		.hui-icon{
+			margin-top:-0.188em;
+		}
+	}
+	.hui-op-num{
+		.fn_inline_block();
+		height:1.375em;
+		line-height:1.375;
 	}
 }
 
@@ -1622,6 +1731,11 @@
 }
 .hui-radius-big{
 	.fn_border_radius(1em);
+	-webkit-background-clip: padding;
+	background-clip: padding-box;
+}
+.hui-radius-large{
+	.fn_border_radius(5em);
 	-webkit-background-clip: padding;
 	background-clip: padding-box;
 }

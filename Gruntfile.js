@@ -176,7 +176,9 @@ module.exports = function(grunt) {
 					'src/js/component/Conversation.js',
 					'src/js/component/ModelList.js',
 					'src/js/component/Editor.js',
-					'src/js/component/Share.js'
+					'src/js/component/Share.js',
+					'src/js/component/PicCard.js',
+					'src/js/component/Waterfall.js'
 
 				],
 				// 合并后的JS文件的存放位置

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="viewport"
+	content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=320, height=device-height , target-densitydpi=142" />
+<title>瀑布流</title> 
+<link rel="stylesheet" type="text/css"
+	href="../../src/css/reset.css" />
+<link rel="stylesheet" type="text/css"
+	href="../../src/css/common.css" />
+<link rel="stylesheet" type="text/css"
+	href="../../src/css/icon.css" />
+<link rel="stylesheet" type="text/css"
+	href="../../src/css/widget.css" />
+<style type="text/css">
+	h3{
+		margin:20px 0;
+		padding:5px;
+		background:#ccc;
+	}
+</style>
+<script type="text/javascript">
+gEnv='dev';
+</script>
+</head>
+<body>
+</body>
+<script type="text/javascript"
+	src="../../src/lib/modernizr.js"></script>
+<script type="text/javascript"
+	src="../../src/lib/jquery.js"></script>
+<script type="text/javascript"
+	src="../../src/js/loader/base.js"></script>
+<script type="text/javascript"
+	src="../../src/js/loader/Json.js"></script>
+<script type="text/javascript"
+	src="../../src/js/loader/Object.js"></script>
+<script type="text/javascript"
+	src="../../src/js/loader/Browser.js"></script>
+<script type="text/javascript"
+	src="../../src/js/loader/Debug.js"></script>
+<script type="text/javascript"
+	src="../../src/js/loader/Loader.js"></script>
+<script type="text/javascript">
+$H.Loader.rootPath={
+	'handy'        : '../../src/js/'
+}
+$H.Loader.combine=false;
+$Define('test','handy.All',function(){
+	var Button=$Require('C.Button');
+	var Waterfall=$Require('C.Waterfall');
+	var PicCard=$Require('C.PicCard');
+	var img=[
+		'../../html/img.jpg',
+		'../../html/img2.jpg',
+		'../../html/img3.jpg'
+	];
+	
+	var bHasLogin=false;
+	function chkLogin(){
+		if(!bHasLogin){
+			alert('您未登录！点击确定即可登录');
+			bHasLogin=true;
+			return false;
+		}
+		return true;
+	}
+	
+	function getItems(){
+		var aItems=[];
+		for(var i=0;i<20;i++){
+			var oItem={
+				xtype:'PicCard',
+				headerImg:img[i%3],
+				desc:'独一无二的定制戒指彰显品位，戒指上的大象显得清新可爱，戴在手上绝对是一个亮点，快点入手这款...',
+				avatar:'../../html/img.jpg',
+				userName:'美女',
+				opDesc:'推荐',
+				opNum:5,
+				avatarClick:function(){
+					if(chkLogin()){
+						alert('点击了头像');
+					}
+				},
+				opClick:function(){
+					if(chkLogin()){
+						var me=this;
+						if(me.hasLike){
+							alert('您已经点击过了！');
+							return;
+						}
+						var num=me.get('opNum');
+						me.hasLike=true;
+						me.set('opNum',num+1);
+					}
+				},
+				items:[{
+					xtype:'Button',
+					xrole:'headerOp',
+					text:'收藏',
+					icon:'heart',
+					iconPos:'left',
+					click:function(){
+						if(chkLogin()){
+							alert('点击了收藏');
+						}
+					}
+				}],
+				listeners:[{
+					name:'load',
+					el:'.js-header-img',
+					handler:function(){
+						var me=this;
+						setTimeout(function(){
+							me.parent.range(0,true);
+						},0);
+					}
+				}]
+			};
+			aItems.push(oItem);
+		}
+		return aItems;
+	}
+	
+	function example(){
+		new Waterfall({
+			getMore:getItems,
+			items:getItems()
+		})
+	}
+	
+	$D.time()
+	for(var i=0;i<1;i++){
+		example();
+	}
+	
+	$D.time(true,'组件初始化时间：');
+	var num=0;
+	$CM.eachInEl($(document.body),function(){
+		num++;
+	})
+	$D.log('组件数目：'+num);
+	
+});
+</script>
+</html>

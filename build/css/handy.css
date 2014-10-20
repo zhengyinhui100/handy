@@ -1281,9 +1281,13 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-icon-minus {
   background-size: 1em auto;
 }
-.hui-icon-gray {
+.hui-icon-bg-gray {
   background-color: #666;
   background-color: rgba(0, 0, 0, 0.4);
+}
+.hui-icon-gray {
+  filter: alpha(opacity= 50 );
+  opacity: 0.5;
 }
 .hui-icon-big {
   width: 2em;
@@ -2974,6 +2978,112 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-share li a {
   padding: 0.375em 0.219em 0.219em;
 }
+.hui-wfall {
+  position: relative;
+}
+.hui-wfall .hui-picard {
+  position: absolute;
+  top: -100em;
+}
+.hui-picard {
+  border: 1px solid #ccc;
+  width: 13.75em;
+  overflow: hidden;
+}
+.hui-picard .hui-picard-header {
+  position: relative;
+}
+.hui-picard .hui-picard-header.hui-hover .hui-header-op {
+  display: block;
+}
+.hui-picard .hui-header-img {
+  display: block;
+}
+.hui-picard .hui-header-img img {
+  width: 100%;
+}
+.hui-picard .hui-header-op {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  display: none;
+}
+.hui-picard .hui-header-op .hui-mask {
+  filter: alpha(opacity= 60 );
+  opacity: 0.6;
+  top: 0;
+}
+.hui-picard .hui-header-op .hui-op-container {
+  position: absolute;
+  z-index: 999;
+  top: 50%;
+  margin-top: -1em;
+  width: 100%;
+}
+.hui-picard .hui-picard-footer {
+  padding: 0.625em 1em;
+  background: #fff;
+}
+.hui-picard .hui-picard-desc {
+  font-size: 0.813em;
+  color: #666;
+}
+.hui-picard .hui-picard-op {
+  padding-top: 0.625em;
+}
+.hui-picard .hui-op-avatar {
+  font-size: 0.813em;
+  float: left;
+  height: 3em;
+  line-height: 3em;
+}
+.hui-picard .hui-avatar {
+  overflow: hidden;
+  width: 3em;
+  height: 3em;
+  float: left;
+  border: 1px solid #ccc;
+}
+.hui-picard .hui-avatar .hui-avatar-img {
+  width: 2.5em;
+  height: 2.5em;
+  overflow: hidden;
+  margin: 0.188em 0 0 0.188em;
+}
+.hui-picard .hui-avatar img {
+  width: 100%;
+}
+.hui-picard .hui-op-link {
+  margin: 0 0.5em;
+}
+.hui-picard .hui-op-desc {
+  font-size: 0.813em;
+  float: left;
+  height: 3em;
+  line-height: 3em;
+  color: #888;
+}
+.hui-picard .hui-op-like {
+  font-size: 0.813em;
+  float: right;
+  height: 3em;
+  line-height: 3em;
+  text-decoration: none;
+  color: #666;
+}
+.hui-picard .hui-op-like .hui-icon {
+  margin-top: -0.188em;
+}
+.hui-picard .hui-op-num {
+  display: -moz-inline-stack;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
+  height: 1.375em;
+  line-height: 1.375;
+}
 .hui-border {
   border: 1px solid #eee;
 }
@@ -3007,6 +3117,13 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   -webkit-border-radius: 1em;
   -moz-border-radius: 1em;
   border-radius: 1em;
+  -webkit-background-clip: padding;
+  background-clip: padding-box;
+}
+.hui-radius-large {
+  -webkit-border-radius: 5em;
+  -moz-border-radius: 5em;
+  border-radius: 5em;
   -webkit-background-clip: padding;
   background-clip: padding-box;
 }
