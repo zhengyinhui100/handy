@@ -11,9 +11,9 @@ handy
 <p>具体可查看文档、示例及代码（注释详尽）。</p>
 <p>目前handy依赖于jQuery/zepto及modernizr（部分），目标是兼容IE8及以上、chrome、Firefox、Safari、opera、及移动端主流浏览器。</p>
 <p>组件(部分)预览：</p>
-<a href="http://htmlpreview.github.io/?https://rawgit.com/zhengyinhui100/handy/blob/master/examples/component/component.html" target="_blank">组件1</a>
+<a href="http://htmlpreview.github.io/?https://rawgit.com/zhengyinhui100/handy/blob/master/examples/component/component.html" target="_blank">组件库1</a>
 <br>
-<a href="http://htmlpreview.github.io/?https://rawgit.com/zhengyinhui100/handy/blob/master/examples/component/component2.html" target="_blank">组件2</a>
+<a href="http://htmlpreview.github.io/?https://rawgit.com/zhengyinhui100/handy/blob/master/examples/component/component2.html" target="_blank">组件库2</a>
 <br>
 <a href="http://htmlpreview.github.io/?https://rawgit.com/zhengyinhui100/handy/blob/master/examples/component/crop.html" target="_blank">图片裁剪</a>
 <br>
