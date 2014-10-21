@@ -409,6 +409,7 @@ $Define('B.Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		try{
 			var aParams = ["$T", "$helpers", "$data",sCode];
 			var fRender=window.Function.apply(null,aParams);
+			//Debug.log(fRender.toString());
 			return function($data,oContext){
 				return fRender.call(oContext||$data,T,oHelpers,$data);
 			}

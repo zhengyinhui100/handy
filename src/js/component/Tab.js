@@ -15,9 +15,9 @@ function(AC,TabItem,ControlGroup){
 	Tab.extend({
 		//初始配置
 		xConfig         : {
-			cls             : 'tab',
-			direction       : 'h'
-//			theme           : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
+			cls         : 'tab',
+			direction   : 'h'
+//			theme       : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
 		},
 //		activeType      : '',           //激活样式类型，
 		defItem         : {             //默认子组件是TabItem

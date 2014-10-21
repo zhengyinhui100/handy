@@ -5,7 +5,7 @@
 <meta name="format-detection" content="telephone=no" />
 <meta name="viewport"
 	content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=320, height=device-height , target-densitydpi=142" />
-<title>瀑布流</title>
+<title>组件2</title>
 <link rel="stylesheet" type="text/css" href="../src/css/reset.css" />
 <link rel="stylesheet" type="text/css" href="../src/css/common.css" />
 <link rel="stylesheet" type="text/css" href="../src/css/icon.css" />
@@ -29,56 +29,68 @@ h3 {
 </style>
 </head>
 <body class="">
-	<!-- S 瀑布流 -->
-	<div class="hui-wfall">
-		<!-- S 图片卡片 -->
-		<div class="hui-picard hui-radius-normal hui-shadow-overlay">
-			<div class="hui-picard-header hui-hover">
-				<a href="javascript:;" hidefocus="true" class="hui-header-img">
-					<img src="img.jpg"/>
-				</a>
-				<div class="hui-header-op">
-					<div class="hui-mask"></div>
-					<div class="hui-op-container c-h-middle-container">
-						<a href="javascript:;" hidefocus="true"
-							class="hui-btn hui-btn-gray hui-shadow hui-inline hui-btn-icon-left hui-radius-little">
-							<span class="hui-icon hui-icon-bg hui-alt-icon hui-light hui-icon-heart"></span> 
-							<span class="hui-btn-txt">收藏</span>
-						</a>
-					</div>
+	<h3>图片卡片：</h3>
+	<!-- S 图片卡片 -->
+	<div class="hui-picard hui-radius-normal hui-shadow-overlay" >
+		<div class="hui-picard-header hui-hover">
+			<a href="javascript:;" hidefocus="true" class="hui-header-img">
+				<img src="img.jpg"/>
+			</a>
+			<div class="hui-header-op">
+				<div class="hui-mask"></div>
+				<div class="hui-op-container c-h-middle-container">
+					<a href="javascript:;" hidefocus="true"
+						class="hui-btn hui-btn-gray hui-shadow hui-inline hui-btn-icon-left hui-radius-little">
+						<span class="hui-icon hui-icon-bg hui-alt-icon hui-light hui-icon-heart"></span> 
+						<span class="hui-btn-txt">收藏</span>
+					</a>
 				</div>
 			</div>
-			<div class="hui-picard-footer">
-				<div class="hui-picard-desc c-comment">独一无二的定制戒指彰显品位，戒指上的大象显得清新可爱，戴在手上绝对是一个亮点，快点入手这款...</div>
-				<div class="hui-picard-op c-clear">
-					<a class="hui-op-avatar" href="javascript:;" hidefocus="true">
-						<div class="hui-avatar hui-radius-large">
-							<div class="hui-avatar-img hui-radius-large">
-								<img src="img.jpg">
-							</div>
+		</div>
+		<div class="hui-picard-footer">
+			<div class="hui-picard-desc c-comment">独一无二的定制戒指彰显品位，戒指上的大象显得清新可爱，戴在手上绝对是一个亮点，快点入手这款...</div>
+			<div class="hui-picard-op c-clear">
+				<a class="hui-op-avatar" href="javascript:;" hidefocus="true">
+					<div class="hui-avatar hui-radius-large">
+						<div class="hui-avatar-img hui-radius-large">
+							<img src="img.jpg">
 						</div>
-						<span class="hui-op-link">美女</span>
-					</a>
-					<span class="hui-op-desc">推荐</span>
-					<a class="hui-op-like" href="javascript:;" hidefocus="true">
-						<span class="hui-op-num">2</span>
-						<span class="hui-icon hui-alt-icon hui-radius-big hui-icon-heart hui-light"></span>
-					</a>
-				</div>
+					</div>
+					<span class="hui-op-link">美女</span>
+				</a>
+				<span class="hui-op-desc">推荐</span>
+				<a class="hui-op-like" href="javascript:;" hidefocus="true">
+					<span class="hui-op-num">2</span>
+					<span class="hui-icon hui-alt-icon hui-radius-big hui-icon-heart hui-light"></span>
+				</a>
 			</div>
 		</div>
-		<!-- E 图片卡片 -->
 	</div>
-	<!-- E 瀑布流 -->
+	<!-- E 图片卡片 -->
 	
+	<h3>幻灯片：</h3>
+
 	<!-- S 幻灯片 -->
-	<div class="hui-slide">
+	<div class="hui-slide" style="width:30em;height:20em;">
 		<div class="hui-slide-cont">
-			<img src="img.jpg"/>
+			<div class="hui-cont-pic">
+				<img class="hui-pic-img" src="img3.jpg"/>
+				<h1 class="hui-pic-desc">独一无二的定制戒指彰显品位，戒指上的大象显得清新可爱，戴在手上绝对是一个亮点，快点入手这款</h1>
+			</div>
 		</div>
-		<div class="hui-slide-op"></div>
+		<div class="hui-slide-op">
+			<a href="javascript:;" hidefocus="true" class="hui-op-btn hui-active">
+			</a><a href="javascript:;" hidefocus="true" class="hui-op-btn">
+			</a><a href="javascript:;" hidefocus="true" class="hui-op-btn">
+			</a>
+		</div>
 	</div>
 	<!-- E 幻灯片 -->
+	
+	<br />
+	<br />
+	<br />
+	<br />
 	
 </body>
 </html>

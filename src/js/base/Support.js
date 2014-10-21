@@ -7,6 +7,7 @@ $Define('B.Support','B.Browser',function(Browser){
 	
 	var Support={
 //		testSvg               : fTestSvg          //检查是否支持svg
+		testPerf              : fTestPerf,        //测试硬件性能
 		mediaQuery            : fMediaQuery       //检查设备并添加class
 	}
 	
@@ -55,6 +56,18 @@ $Define('B.Support','B.Browser',function(Browser){
 	}
 	*/
 	
+	//TODO
+	/**
+	 * 测试硬件性能
+	 */	
+	function fTestPerf(){
+		var now = Date.now();
+		for(var i = 0; i < 1e9; i++) {
+			new Object().toString();
+		}
+		var performance = 1 / (Date.now() - now);
+		$D.log(performance);
+	}
 	/**
 	 * 检查设备并添加class
 	 * @method mediaQuery

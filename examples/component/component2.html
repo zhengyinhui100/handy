@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="viewport"
+	content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=320, height=device-height , target-densitydpi=142" />
+<title>组件2</title> 
+<link rel="stylesheet" type="text/css"
+	href="../../src/css/reset.css" />
+<link rel="stylesheet" type="text/css"
+	href="../../src/css/common.css" />
+<link rel="stylesheet" type="text/css"
+	href="../../src/css/icon.css" />
+<link rel="stylesheet" type="text/css"
+	href="../../src/css/widget.css" />
+<style type="text/css">
+	h3{
+		margin:20px 0;
+		padding:5px;
+		background:#ccc;
+	}
+</style>
+<script type="text/javascript">
+gEnv='dev';
+</script>
+</head>
+<body>
+</body>
+<script type="text/javascript"
+	src="../../src/lib/modernizr.js"></script>
+<script type="text/javascript"
+	src="../../src/lib/jquery.js"></script>
+<script type="text/javascript"
+	src="../../src/js/loader/base.js"></script>
+<script type="text/javascript"
+	src="../../src/js/loader/Json.js"></script>
+<script type="text/javascript"
+	src="../../src/js/loader/Object.js"></script>
+<script type="text/javascript"
+	src="../../src/js/loader/Browser.js"></script>
+<script type="text/javascript"
+	src="../../src/js/loader/Debug.js"></script>
+<script type="text/javascript"
+	src="../../src/js/loader/Loader.js"></script>
+<script type="text/javascript">
+$H.Loader.rootPath={
+	'handy'        : '../../src/js/'
+}
+$H.Loader.combine=false;
+$Define('test','handy.All',function(){
+	var Slide=$Require('C.Slide');
+	
+	function example(){
+		new Slide({
+			pics:[{
+				title:'独一无二的定制戒指彰显品位，戒指上的大象显得清新可爱，戴在手上绝对是一个亮点，快点入手这款',
+				img:'../../html/img3.jpg'
+			},{
+				title:'礼物',
+				img:'../../html/img2.jpg'
+			},{
+				title:'美女',
+				img:'../../html/img.jpg'
+			}]
+		})
+	}
+	
+	$D.time()
+	for(var i=0;i<1;i++){
+		example();
+	}
+	
+	$D.time(true,'组件初始化时间：');
+	var num=0;
+	$CM.eachInEl($(document.body),function(){
+		num++;
+	})
+	$D.log('组件数目：'+num);
+	
+});
+</script>
+</html>
