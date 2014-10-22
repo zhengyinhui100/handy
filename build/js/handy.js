@@ -4049,6 +4049,7 @@ $Define('B.Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
 		try{
 			var aParams = ["$T", "$helpers", "$data",sCode];
 			var fRender=window.Function.apply(null,aParams);
+			//Debug.log(fRender.toString());
 			return function($data,oContext){
 				return fRender.call(oContext||$data,T,oHelpers,$data);
 			}
@@ -4289,6 +4290,7 @@ $Define('B.Support','B.Browser',function(Browser){
 	
 	var Support={
 //		testSvg               : fTestSvg          //检查是否支持svg
+		testPerf              : fTestPerf,        //测试硬件性能
 		mediaQuery            : fMediaQuery       //检查设备并添加class
 	}
 	
@@ -4337,6 +4339,18 @@ $Define('B.Support','B.Browser',function(Browser){
 	}
 	*/
 	
+	//TODO
+	/**
+	 * 测试硬件性能
+	 */	
+	function fTestPerf(){
+		var now = Date.now();
+		for(var i = 0; i < 1e9; i++) {
+			new Object().toString();
+		}
+		var performance = 1 / (Date.now() - now);
+		$D.log(performance);
+	}
 	/**
 	 * 检查设备并添加class
 	 * @method mediaQuery
@@ -4741,6 +4755,7 @@ $Define('B.Adapt','B.Function',function(){
 	return 1;
 	
 });
+
 /**
  * 图片压缩类
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -12204,9 +12219,9 @@ function(AC,TabItem,ControlGroup){
 	Tab.extend({
 		//初始配置
 		xConfig         : {
-			cls             : 'tab',
-			direction       : 'h'
-//			theme           : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
+			cls         : 'tab',
+			direction   : 'h'
+//			theme       : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
 		},
 //		activeType      : '',           //激活样式类型，
 		defItem         : {             //默认子组件是TabItem
