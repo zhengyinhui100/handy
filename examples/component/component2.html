@@ -15,6 +15,10 @@
 <link rel="stylesheet" type="text/css"
 	href="../../src/css/widget.css" />
 <style type="text/css">
+	body{
+		padding:20px 20px;
+		overflow:hidden;
+	}
 	h3{
 		margin:20px 0;
 		padding:5px;
@@ -26,6 +30,10 @@ gEnv='dev';
 </script>
 </head>
 <body>
+	<h3>幻灯片：</h3>
+	<div id="slideDv"></div>
+	<br/><br/><br/><br/>
+	
 </body>
 <script type="text/javascript"
 	src="../../src/lib/modernizr.js"></script>
@@ -53,6 +61,7 @@ $Define('test','handy.All',function(){
 	
 	function example(){
 		new Slide({
+			renderTo:'#slideDv',
 			pics:[{
 				title:'独一无二的定制戒指彰显品位，戒指上的大象显得清新可爱，戴在手上绝对是一个亮点，快点入手这款',
 				img:'../../html/img3.jpg'

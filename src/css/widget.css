@@ -1834,10 +1834,14 @@
 .hui-slide .hui-slide-cont {
   position: relative;
   height: 100%;
+  width: 100%;
 }
 .hui-slide .hui-cont-pic {
   position: absolute;
   height: 100%;
+  width: 100%;
+  left: 0;
+  top: 0;
 }
 .hui-slide .hui-pic-img {
   width: 100%;
