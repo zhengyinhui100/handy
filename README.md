@@ -10,3 +10,16 @@ handy
 <p>......</p>
 <p>具体可查看文档、示例及代码（注释详尽）。</p>
 <p>目前handy依赖于jQuery/zepto及modernizr（部分），目标是兼容IE8及以上、chrome、Firefox、Safari、opera、及移动端主流浏览器。</p>
+<p>组件(部分)预览：</p>
+<a href="http://htmlpreview.github.io/?https://rawgit.com/zhengyinhui100/handy/blob/master/examples/component/component.html" target="_blank">组件库1</a>
+<br>
+<a href="http://htmlpreview.github.io/?https://rawgit.com/zhengyinhui100/handy/blob/master/examples/component/component2.html" target="_blank">组件库2</a>
+<br>
+<a href="http://htmlpreview.github.io/?https://rawgit.com/zhengyinhui100/handy/blob/master/examples/component/crop.html" target="_blank">图片裁剪</a>
+<br>
+<a href="http://htmlpreview.github.io/?https://rawgit.com/zhengyinhui100/handy/blob/master/examples/component/waterfall.html" target="_blank">瀑布流</a>
+<p>案例展示：</p>
+<div>乐加球友</div>
+<a target="_blank" href="http://115.28.151.237/">网页版</a>
+<br>
+<a target="_blank" href="http://115.28.151.237/app">app下载</a>
