@@ -23,4 +23,3 @@ handy
 <a target="_blank" href="http://115.28.151.237/">网页版</a>
 <br>
 <a target="_blank" href="http://115.28.151.237/app">app下载</a>
-<p style="text-align:right">dddd</p>
