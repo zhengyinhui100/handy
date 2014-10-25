@@ -40,7 +40,7 @@ function() {
 	 * @return{boolean} true 表示是wifi
 	 */
 	function fIsWifi(){
-		return Connection&&Device.getNetType()===Connection.WIFI;
+		return typeof Connection!='undefined'&&Device.getNetType()===Connection.WIFI;
 	}
 
 	return Device;

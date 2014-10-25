@@ -17,6 +17,7 @@ function(AC){
 			pics        : []
 		},
 		
+		height          : $H.em2px(20), 
 		timeout         : 3000,        //播放时间间隔
 		
 		listeners       : [{
@@ -51,7 +52,7 @@ function(AC){
 		}],
 		
 		tmpl            : [
-			'<div class="hui-slide" style="width:30em;height:20em;">',
+			'<div class="hui-slide">',
 				'<div class="hui-slide-cont">',
 					'{{#each pics}}',
 						'<div {{bindAttr class="#js-pic #hui-cont-pic active:hui-hidden"}}>',

@@ -83,7 +83,8 @@ $Define('handy.All',
 'C.Editor',
 'C.Share',
 'C.PicCard',
-'C.Waterfall'
+'C.Waterfall',
+'C.Slide'
 ],
 function(){
 	

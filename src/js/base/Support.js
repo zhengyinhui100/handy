@@ -73,7 +73,7 @@ $Define('B.Support','B.Browser',function(Browser){
 	 * @method mediaQuery
 	 */
 	function fMediaQuery(){
-		var sCls;
+		var sCls='';
 		if(Browser.mobile()){
 			sCls="hui-mobile";
 		}else{
@@ -82,6 +82,9 @@ $Define('B.Support','B.Browser',function(Browser){
 			if(ie){
 				sCls+=' ie'+ie;
 			}
+		}
+		if(Browser.ios()){
+			sCls+=' hui-ios'
 		}
 		document.documentElement.className+=" "+sCls+" hui";
 	}

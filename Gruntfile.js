@@ -178,7 +178,8 @@ module.exports = function(grunt) {
 					'src/js/component/Editor.js',
 					'src/js/component/Share.js',
 					'src/js/component/PicCard.js',
-					'src/js/component/Waterfall.js'
+					'src/js/component/Waterfall.js',
+					'src/js/component/Slide.js'
 
 				],
 				// 合并后的JS文件的存放位置

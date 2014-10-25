@@ -19,12 +19,12 @@ function(History,AbstractManager){
 		
 		type               : 'module',
 		
-//		history          : null,   //历史记录
-//		conf             : null,   //配置参数
-//		container        : null,   //默认模块容器
-//		navigator        : null,   //定制模块导航类
-//		defEntry         : null,   //默认模块，当调用back方法而之前又没有历史模块时，进入该模块
-//		defModPackage    : "com.xxx.module",  //默认模块所在包名
+//		history            : null,   //历史记录
+//		conf               : null,   //配置参数
+//		container          : null,   //默认模块容器
+//		navigator          : null,   //定制模块导航类
+//		defEntry           : null,   //默认模块，当调用back方法而之前又没有历史模块时，进入该模块
+//		defModPackage      : "com.xxx.module",  //默认模块所在包名
 		maxModNum          : $H.mobile()?20:50,     //最大缓存模块数
 		
 //		requestMod         : '',     //正在请求的模块名
@@ -102,7 +102,9 @@ function(History,AbstractManager){
 		var me=this;
 		var oCurMod=me._modules[me.currentMod];
 		//如果导航类方法返回false，则不使用模块管理类的导航
-		if((me.navigator&&me.navigator.navigate(oMod,oCurMod,me))!==false){
+		var r=me.navigator&&me.navigator.navigate(oMod,oCurMod,me);
+		//TODO:写成这样在iPad mini ios7下无效:if((me.navigator&&me.navigator.navigate(oMod,oCurMod,me))!==false){
+		if(r!==false){
 			if(oCurMod){
 				oCurMod.hide();
 			}

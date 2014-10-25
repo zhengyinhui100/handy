@@ -165,7 +165,7 @@ function(AC,Popup){
 						text:me.cancelTxt,
 						cClass:'cancelBtn',
 						click:function(){
-							if((me.cancelCall&&me.cancelCall())!=false){
+							if(!me.cancelCall||me.cancelCall()!=false){
 								me.hide();
 							}
 						}
@@ -180,7 +180,7 @@ function(AC,Popup){
 						text:me.ignoreTxt,
 						cClass:'ignoreBtn',
 						click:function(){
-							if((me.ignoreCall&&me.ignoreCall())!=false){
+							if(!me.ignoreCall||me.ignoreCall()!=false){
 								me.hide();
 							}
 						}
@@ -195,7 +195,7 @@ function(AC,Popup){
 						cClass:'okBtn',
 						isActive:me.activeBtn==2,
 						click:function(){
-							if((me.okCall&&me.okCall())!=false){
+							if(!me.okCall||me.okCall()!=false){
 								me.hide();
 							}
 						}

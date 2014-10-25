@@ -4356,7 +4356,7 @@ $Define('B.Support','B.Browser',function(Browser){
 	 * @method mediaQuery
 	 */
 	function fMediaQuery(){
-		var sCls;
+		var sCls='';
 		if(Browser.mobile()){
 			sCls="hui-mobile";
 		}else{
@@ -4365,6 +4365,9 @@ $Define('B.Support','B.Browser',function(Browser){
 			if(ie){
 				sCls+=' ie'+ie;
 			}
+		}
+		if(Browser.ios()){
+			sCls+=' hui-ios'
 		}
 		document.documentElement.className+=" "+sCls+" hui";
 	}
@@ -5202,7 +5205,7 @@ function() {
 	 * @return{boolean} true 表示是wifi
 	 */
 	function fIsWifi(){
-		return Connection&&Device.getNetType()===Connection.WIFI;
+		return typeof Connection!='undefined'&&Device.getNetType()===Connection.WIFI;
 	}
 
 	return Device;
@@ -9875,12 +9878,12 @@ function(History,AbstractManager){
 		
 		type               : 'module',
 		
-//		history          : null,   //历史记录
-//		conf             : null,   //配置参数
-//		container        : null,   //默认模块容器
-//		navigator        : null,   //定制模块导航类
-//		defEntry         : null,   //默认模块，当调用back方法而之前又没有历史模块时，进入该模块
-//		defModPackage    : "com.xxx.module",  //默认模块所在包名
+//		history            : null,   //历史记录
+//		conf               : null,   //配置参数
+//		container          : null,   //默认模块容器
+//		navigator          : null,   //定制模块导航类
+//		defEntry           : null,   //默认模块，当调用back方法而之前又没有历史模块时，进入该模块
+//		defModPackage      : "com.xxx.module",  //默认模块所在包名
 		maxModNum          : $H.mobile()?20:50,     //最大缓存模块数
 		
 //		requestMod         : '',     //正在请求的模块名
@@ -9958,7 +9961,9 @@ function(History,AbstractManager){
 		var me=this;
 		var oCurMod=me._modules[me.currentMod];
 		//如果导航类方法返回false，则不使用模块管理类的导航
-		if((me.navigator&&me.navigator.navigate(oMod,oCurMod,me))!==false){
+		var r=me.navigator&&me.navigator.navigate(oMod,oCurMod,me);
+		//TODO:写成这样在iPad mini ios7下无效:if((me.navigator&&me.navigator.navigate(oMod,oCurMod,me))!==false){
+		if(r!==false){
 			if(oCurMod){
 				oCurMod.hide();
 			}
@@ -12604,7 +12609,7 @@ function(AC,Popup){
 						text:me.cancelTxt,
 						cClass:'cancelBtn',
 						click:function(){
-							if((me.cancelCall&&me.cancelCall())!=false){
+							if(!me.cancelCall||me.cancelCall()!=false){
 								me.hide();
 							}
 						}
@@ -12619,7 +12624,7 @@ function(AC,Popup){
 						text:me.ignoreTxt,
 						cClass:'ignoreBtn',
 						click:function(){
-							if((me.ignoreCall&&me.ignoreCall())!=false){
+							if(!me.ignoreCall||me.ignoreCall()!=false){
 								me.hide();
 							}
 						}
@@ -12634,7 +12639,7 @@ function(AC,Popup){
 						cClass:'okBtn',
 						isActive:me.activeBtn==2,
 						click:function(){
-							if((me.okCall&&me.okCall())!=false){
+							if(!me.okCall||me.okCall()!=false){
 								me.hide();
 							}
 						}
@@ -14842,5 +14847,151 @@ function(AC){
 	}
 	
 	return Waterfall;
+	
+});
+/**
+ * 幻灯片类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2014-10-21
+ */
+
+$Define('C.Slide',
+'C.AbstractComponent',
+function(AC){
+	
+	var Slide=AC.define('Slide');
+	
+	Slide.extend({
+		//初始配置
+		xConfig         : {
+			cls         : 'slide',
+			pics        : []
+		},
+		
+		height          : $H.em2px(20), 
+		timeout         : 3000,        //播放时间间隔
+		
+		listeners       : [{
+			name        : 'afterRender',
+			handler     : function(){
+				this.autoSlide();
+			}
+		},{
+			name        : 'mouseover',
+			handler     : function(){
+				this.autoSlide(true);
+			}
+		},{
+			name        : 'mouseout',
+			handler     : function(){
+				this.autoSlide();
+			}
+		},{
+			name:'click',
+			selector:'.js-op',
+			method:'delegate',
+			handler:function(oEvt){
+				var me=this;
+				var oCur=oEvt.currentTarget;
+				me.findEl('.js-op').each(function(i,el){
+					if(el===oCur){
+						me.slide(i);
+						return false;
+					}
+				})
+			}
+		}],
+		
+		tmpl            : [
+			'<div class="hui-slide">',
+				'<div class="hui-slide-cont">',
+					'{{#each pics}}',
+						'<div {{bindAttr class="#js-pic #hui-cont-pic active:hui-hidden"}}>',
+							'<img class="hui-pic-img" {{bindAttr src="img"}}/>',
+							'<h1 class="hui-pic-desc">{{title}}</h1>',
+						'</div>',
+					'{{/each}}',
+				'</div>',
+				'<div class="hui-slide-op">',
+					'{{#each pics}}',
+						'<a href="javascript:;" hidefocus="true" {{bindAttr class="#js-op #hui-op-btn active?hui-active"}}></a>',
+					'{{/each}}',
+				'</div>',
+			'</div>'
+		].join(''),
+		
+		doConfig        : fDoConfig,          //初始化配置
+		slide           : fSlide,             //转换到指定页
+		autoSlide       : fAutoSlide,         //自动转换
+		destroy         : fDestroy            //销毁
+	});
+	
+	/**
+	 * 初始化配置
+	 * @param {Object}oSettings 参数配置
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		var aPics=oSettings.pics;
+		aPics[0].active=true;
+		me.callSuper([oSettings]);
+	}
+	/**
+	 * 转换到指定项
+	 * @param {number=}nIndex 指定要切换到的索引，默认为下一张
+	 */
+	function fSlide(nIndex){
+		var me=this;
+	 	var aPics=me.findEl('.js-pic');
+	 	var aOps=me.findEl('.js-op');
+ 		var sCls='hui-hidden';
+ 		var sActiveCls='hui-active';
+ 		var nWidth=me.getEl()[0].clientWidth;
+	 	aPics.each(function(i,el){
+	 		var jEl=$(el);
+	 		if(!jEl.hasClass(sCls)){
+	 			jEl.animate({
+	 				left:-nWidth
+	 			},function(){
+		 			$(aOps[i]).removeClass(sActiveCls);
+		 			jEl.addClass(sCls);
+	 			});
+	 			if(nIndex===undefined){
+	 				nIndex=i==aPics.length-1?0:i+1;
+	 			}
+	 		}
+	 	});
+	 	var oActive=$(aPics[nIndex]);
+	 	oActive.css({left:nWidth}).removeClass(sCls).animate({
+	 		left:0
+	 	},function(){
+			$(aOps[nIndex]).addClass(sActiveCls);
+	 	})
+	}
+	/**
+	 * 自动转换
+	 * @param{boolean=}bStop 仅当为true时停止自动播放
+	 */
+	function fAutoSlide(bStop){
+		var me=this;
+		if(bStop){
+			clearTimeout(me.slideTimer);
+			return;
+		}
+		me.slideTimer=setTimeout(function(){
+			me.slide();
+			me.autoSlide();
+		},me.timeout)
+	}
+	/**
+	 * 销毁
+	 */
+	function fDestroy(){
+		var me=this;
+		clearTimeout(me.slideTimer);
+		me.callSuper();
+	}
+	
+	return Slide;
 	
 });

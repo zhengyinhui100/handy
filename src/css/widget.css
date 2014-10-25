@@ -1720,6 +1720,9 @@
 .hui-share li a {
   padding: 0.375em 0.219em 0.219em;
 }
+.hui-mobile .hui-share li a {
+  padding: 0.375em 0.5em 0.219em;
+}
 .hui-wfall {
   position: relative;
 }
