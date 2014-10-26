@@ -2293,13 +2293,13 @@
   transform-origin: 50% 10em;
 }
 .hui .hui-ani-show {
-  animation: ani-show 0.3s 1 linear;
-  -webkit-animation: ani-show 0.3s 1 linear;
+  animation: ani-show 0.2s 1 linear;
+  -webkit-animation: ani-show 0.2s 1 linear;
   /* Safari 和 Chrome */
 }
 .hui .hui-ani-hide {
-  animation: ani-hide 0.3s 1 linear;
-  -webkit-animation: ani-hide 0.3s 1 linear;
+  animation: ani-hide 0.2s 1 linear;
+  -webkit-animation: ani-hide 0.2s 1 linear;
   /* Safari 和 Chrome */
 }
 .hui-pc .hui-slide-center {

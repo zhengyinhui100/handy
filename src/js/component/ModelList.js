@@ -274,6 +274,15 @@ function(AC){
 	 */
 	function fScrollTo(pos,pageY,nTime){
 		var me=this;
+		if(!me.scrollToTimer){
+			var aArgs=arguments;
+			//dom有改变时，不延迟的话，scrollTo无效
+			me.scrollToTimer=setTimeout(function(){
+				me.scrollTo.apply(me,aArgs);
+				me.scrollToTimer=null;
+			},0);
+			return;
+		}
 		var oScroller=me.scroller;
 		if($H.isStr(pos)){
 			if(pos=='top'){

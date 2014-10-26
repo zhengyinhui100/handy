@@ -1145,7 +1145,7 @@ function(ViewManager,ModelView,Model,Template){
 			}
 		})
 		if(bContain){
-			oXmodel.set(oOptions);
+			oXmodel.set(oXconf);
 			$H.each(oFast,function(k,v){
 				oFastUpdate[k].call(me,v);
 			})

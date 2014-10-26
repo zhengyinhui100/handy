@@ -14,7 +14,7 @@ $Define('V.ModelView',
 function(Template,AbstractView,Model,Collection){
 	
 	var ModelView=AbstractView.derive({
-		bindType            : 'model',                //绑定类型，‘el’表示绑定(监听)节点，‘model’表示绑定(监听)模型，‘both’表示双向绑定
+		bindType            : 'both',              //绑定类型，‘el’表示绑定(监听)节点，‘model’表示绑定(监听)模型，‘both’表示双向绑定
 //		model               : null,                //模型对象
 //		xmodel              : null,                //执行模板时使用的模型对象，本类中与model属性相同
 //		modelClass          : null,                //模型类

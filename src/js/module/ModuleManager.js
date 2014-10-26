@@ -203,23 +203,12 @@ function(History,AbstractManager){
 			param={modName:param};
 		}
 		var sModName=param.modName;
-		//刷新浏览器时，hash参数里没有modName
-		if(!sModName){
-			var sModId=param.modId;
-			//只有没有modId的模块可以进入
-			if($H.isStr(sModId)&&sModId.indexOf('-')<0){
-				sModName=param.modName=sModId;
-			}else{
-				return;
-			}
-		}
-		//模块id
-		var sModId=sModName;
+		//模块模型id
+		var sModelId=param.modelId;
 		if(param.model){
-			var sModelId=param.modelId=param.model.id;
-			sModId=me._getModId(sModName,sModelId);
-			
+			sModelId=param.modelId=param.model.id;
 		}
+		var sModId=me._getModId(sModName,sModelId);
 		param.modId=sModId;
 		//当前显示的模块名
 		var sCurrentMod=me.currentMod;
