@@ -7737,7 +7737,7 @@ $Define('V.ModelView',
 function(Template,AbstractView,Model,Collection){
 	
 	var ModelView=AbstractView.derive({
-		bindType            : 'model',                //绑定类型，‘el’表示绑定(监听)节点，‘model’表示绑定(监听)模型，‘both’表示双向绑定
+		bindType            : 'both',              //绑定类型，‘el’表示绑定(监听)节点，‘model’表示绑定(监听)模型，‘both’表示双向绑定
 //		model               : null,                //模型对象
 //		xmodel              : null,                //执行模板时使用的模型对象，本类中与model属性相同
 //		modelClass          : null,                //模型类
@@ -9464,7 +9464,7 @@ function(ViewManager,ModelView,Model,Template){
 			}
 		})
 		if(bContain){
-			oXmodel.set(oOptions);
+			oXmodel.set(oXconf);
 			$H.each(oFast,function(k,v){
 				oFastUpdate[k].call(me,v);
 			})
@@ -10062,23 +10062,12 @@ function(History,AbstractManager){
 			param={modName:param};
 		}
 		var sModName=param.modName;
-		//刷新浏览器时，hash参数里没有modName
-		if(!sModName){
-			var sModId=param.modId;
-			//只有没有modId的模块可以进入
-			if($H.isStr(sModId)&&sModId.indexOf('-')<0){
-				sModName=param.modName=sModId;
-			}else{
-				return;
-			}
-		}
-		//模块id
-		var sModId=sModName;
+		//模块模型id
+		var sModelId=param.modelId;
 		if(param.model){
-			var sModelId=param.modelId=param.model.id;
-			sModId=me._getModId(sModName,sModelId);
-			
+			sModelId=param.modelId=param.model.id;
 		}
+		var sModId=me._getModId(sModName,sModelId);
 		param.modId=sModId;
 		//当前显示的模块名
 		var sCurrentMod=me.currentMod;
@@ -14360,6 +14349,15 @@ function(AC){
 	 */
 	function fScrollTo(pos,pageY,nTime){
 		var me=this;
+		if(!me.scrollToTimer){
+			var aArgs=arguments;
+			//dom有改变时，不延迟的话，scrollTo无效
+			me.scrollToTimer=setTimeout(function(){
+				me.scrollTo.apply(me,aArgs);
+				me.scrollToTimer=null;
+			},0);
+			return;
+		}
 		var oScroller=me.scroller;
 		if($H.isStr(pos)){
 			if(pos=='top'){
