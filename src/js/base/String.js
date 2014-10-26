@@ -88,11 +88,11 @@ $Define("B.String",function(){
 	};
 	/**
 	 * html转换为纯文本
-	 * @param {string}sContent 参数html
+	 * @param {string}sHtml 参数html
 	 * @param {boolean}bIgnore 是否忽略换行
 	 * @return {string} 返回纯文本
 	 */
-	function fHtmlToTxt(sContent){
+	function fHtmlToTxt(sHtml,bIgnore){
 		sHtml = sHtml.replace(/\n/ig, "");
 		sHtml = sHtml.replace(/\\s+/ig, "");
 		if(!bIgnore){

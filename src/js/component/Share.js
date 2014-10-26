@@ -24,8 +24,9 @@ function(AC){
 			custom:true,
 			handler:function(){
 				var me=this;
-				$Require('http://static.bshare.cn/b/buttonLite.js#style=-1&amp;bp=weixin,sinaminiblog&amp;uuid=f19aa603-e8fa-437c-8069-f5a12dff7e4e&amp;pophcol=2&amp;lang=zh',
+				$Require('http://static.bshare.cn/b/buttonLite.js#style=-1&uuid=f19aa603-e8fa-437c-8069-f5a12dff7e4e',
 				function(){
+					bShare.init();
 					me.listen({
 						name:'click',
 						selector:'a',
@@ -43,7 +44,11 @@ function(AC){
 							bShare.entries=[];
 							bShare.addEntry(oEntry);
 						    var sName=oEvt.currentTarget.className;
-						    bShare.share(oEvt.originalEvent,sName);
+						    if(sName==='more'){
+						    	bShare.more();
+						    }else{
+							    bShare.share(oEvt.originalEvent,sName);
+						    }
 						}
 					})
 				});
@@ -59,7 +64,7 @@ function(AC){
 					'<li><a title="分享到QQ空间" class="qzone" href="javascript:void(0);" ><img src="http://static.bshare.cn/frame/images/logos/s4/qzone.gif "/></a></li>',
 					'<li><a title="分享到人人网" class="renren" href="javascript:void(0);" ><img src="http://static.bshare.cn/frame/images/logos/s4/renren.gif "/></a></li>',
 					'<li><a title="分享到豆瓣"  class="douban" href="javascript:void(0);" ><img src="http://static.bshare.cn/frame/images/logos/s4/douban.gif "/></a></li>',
-					'<li><a title="分享到一键通" class="bsharesync" href="javascript:void(0);" ><img src="http://static.bshare.cn/frame/images/logos/s4/bsharesync.gif "/></a></li>',
+					'<li><a title="更多" class="more" href="javascript:void(0);" ><img src="http://static.bshare.cn/frame/images/logos/s4/more-style-addthis.png"/></a></li>',
 					'<li><a class="bshareDiv" href="http://www.bshare.cn/share"></a></li>',
 				'</ul>',
 			'</div>'
