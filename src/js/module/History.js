@@ -112,6 +112,7 @@ function(HashChange){
 	function fSaveHash(param){
 		var sParam=$H.Json.stringify(param);
 		//这里主动设置之后还会触发hashchange，不能在hashchange里添加set方法屏蔽此次change，因为可能不止一个地方需要hashchange事件
+		//TODO:单页面应用SEO：http://isux.tencent.com/seo-for-single-page-applications.html
 		$H.setHash("#"+sParam);
 	}
 	/**
