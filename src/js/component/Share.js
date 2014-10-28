@@ -42,6 +42,7 @@ function(AC){
 								$H.extend(oEntry,oEnt);
 							}
 							bShare.entries=[];
+							//oEntry.url=encodeURIComponent(oEntry.url);
 							bShare.addEntry(oEntry);
 						    var sName=oEvt.currentTarget.className;
 						    if(sName==='more'){
