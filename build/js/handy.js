@@ -2749,11 +2749,11 @@ $Define("B.String",function(){
 	};
 	/**
 	 * html转换为纯文本
-	 * @param {string}sContent 参数html
+	 * @param {string}sHtml 参数html
 	 * @param {boolean}bIgnore 是否忽略换行
 	 * @return {string} 返回纯文本
 	 */
-	function fHtmlToTxt(sContent){
+	function fHtmlToTxt(sHtml,bIgnore){
 		sHtml = sHtml.replace(/\n/ig, "");
 		sHtml = sHtml.replace(/\\s+/ig, "");
 		if(!bIgnore){
@@ -4291,6 +4291,7 @@ $Define('B.Support','B.Browser',function(Browser){
 	var Support={
 //		testSvg               : fTestSvg          //检查是否支持svg
 		testPerf              : fTestPerf,        //测试硬件性能
+		ifSupportStyle        : fIfSupportStyle,  //检测样式是否支持
 		mediaQuery            : fMediaQuery       //检查设备并添加class
 	}
 	
@@ -4350,6 +4351,41 @@ $Define('B.Support','B.Browser',function(Browser){
 		}
 		var performance = 1 / (Date.now() - now);
 		$D.log(performance);
+	}
+	/**
+	 * 检测样式是否支持
+	 * @param{string}sName 样式名
+	 * @param{string}sValue 属性值
+	 * @return{boolean} true表示支持，false表示不支持
+	 */
+	function fIfSupportStyle(sName,sValue){
+		var oEl = document.createElement('div');
+		var sProp;
+		if(sName in oEl.style){
+			sProp=sName;
+		}else if ('-ms-' + sName in oEl.style){
+ 			sProp='-ms-' + sName;
+ 		}else{
+			var aVendors = 'Khtml O Moz Webkit'.split(' '),
+	 		len = aVendors.length;
+			sName = sName.replace(/^[a-z]/, function(val) {
+			    return val.toUpperCase();
+			});
+			while(len--) {
+				if ( aVendors[len] + sName in oEl.style ) {
+				    sProp=aVendors[len] + sName;
+				    break;
+				}
+			}
+ 		}
+		if(sProp){
+			if(sValue===undefined){
+				return true;
+			}
+		    oEl.style[sName] = sValue;
+		    return oEl.style[sName] === sValue;
+		}
+	    return false;
 	}
 	/**
 	 * 检查设备并添加class
@@ -9790,6 +9826,7 @@ function(HashChange){
 	function fSaveHash(param){
 		var sParam=$H.Json.stringify(param);
 		//这里主动设置之后还会触发hashchange，不能在hashchange里添加set方法屏蔽此次change，因为可能不止一个地方需要hashchange事件
+		//TODO:单页面应用SEO：http://isux.tencent.com/seo-for-single-page-applications.html
 		$H.setHash("#"+sParam);
 	}
 	/**
@@ -14592,8 +14629,9 @@ function(AC){
 			custom:true,
 			handler:function(){
 				var me=this;
-				$Require('http://static.bshare.cn/b/buttonLite.js#style=-1&amp;bp=weixin,sinaminiblog&amp;uuid=f19aa603-e8fa-437c-8069-f5a12dff7e4e&amp;pophcol=2&amp;lang=zh',
+				$Require('http://static.bshare.cn/b/buttonLite.js#style=-1&uuid=f19aa603-e8fa-437c-8069-f5a12dff7e4e',
 				function(){
+					bShare.init();
 					me.listen({
 						name:'click',
 						selector:'a',
@@ -14609,9 +14647,14 @@ function(AC){
 								$H.extend(oEntry,oEnt);
 							}
 							bShare.entries=[];
+							//oEntry.url=encodeURIComponent(oEntry.url);
 							bShare.addEntry(oEntry);
 						    var sName=oEvt.currentTarget.className;
-						    bShare.share(oEvt.originalEvent,sName);
+						    if(sName==='more'){
+						    	bShare.more();
+						    }else{
+							    bShare.share(oEvt.originalEvent,sName);
+						    }
 						}
 					})
 				});
@@ -14627,7 +14670,7 @@ function(AC){
 					'<li><a title="分享到QQ空间" class="qzone" href="javascript:void(0);" ><img src="http://static.bshare.cn/frame/images/logos/s4/qzone.gif "/></a></li>',
 					'<li><a title="分享到人人网" class="renren" href="javascript:void(0);" ><img src="http://static.bshare.cn/frame/images/logos/s4/renren.gif "/></a></li>',
 					'<li><a title="分享到豆瓣"  class="douban" href="javascript:void(0);" ><img src="http://static.bshare.cn/frame/images/logos/s4/douban.gif "/></a></li>',
-					'<li><a title="分享到一键通" class="bsharesync" href="javascript:void(0);" ><img src="http://static.bshare.cn/frame/images/logos/s4/bsharesync.gif "/></a></li>',
+					'<li><a title="更多" class="more" href="javascript:void(0);" ><img src="http://static.bshare.cn/frame/images/logos/s4/more-style-addthis.png"/></a></li>',
 					'<li><a class="bshareDiv" href="http://www.bshare.cn/share"></a></li>',
 				'</ul>',
 			'</div>'

@@ -2981,6 +2981,18 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-mobile .hui-share li a {
   padding: 0.375em 0.5em 0.219em;
 }
+.bsBox {
+  -moz-box-sizing: initial;
+  /*Firefox3.5+*/
+  -webkit-box-sizing: initial;
+  /*Safari3.2+*/
+  -o-box-sizing: initial;
+  /*Opera9.6*/
+  -ms-box-sizing: initial;
+  /*IE8*/
+  box-sizing: initial;
+  /*W3C标准(IE9+，Safari5.1+,Chrome10.0+,Opera10.6+都符合box-sizing的w3c标准语法)*/
+}
 .hui-wfall {
   position: relative;
 }

@@ -8,6 +8,7 @@ $Define('B.Support','B.Browser',function(Browser){
 	var Support={
 //		testSvg               : fTestSvg          //检查是否支持svg
 		testPerf              : fTestPerf,        //测试硬件性能
+		ifSupportStyle        : fIfSupportStyle,  //检测样式是否支持
 		mediaQuery            : fMediaQuery       //检查设备并添加class
 	}
 	
@@ -67,6 +68,41 @@ $Define('B.Support','B.Browser',function(Browser){
 		}
 		var performance = 1 / (Date.now() - now);
 		$D.log(performance);
+	}
+	/**
+	 * 检测样式是否支持
+	 * @param{string}sName 样式名
+	 * @param{string}sValue 属性值
+	 * @return{boolean} true表示支持，false表示不支持
+	 */
+	function fIfSupportStyle(sName,sValue){
+		var oEl = document.createElement('div');
+		var sProp;
+		if(sName in oEl.style){
+			sProp=sName;
+		}else if ('-ms-' + sName in oEl.style){
+ 			sProp='-ms-' + sName;
+ 		}else{
+			var aVendors = 'Khtml O Moz Webkit'.split(' '),
+	 		len = aVendors.length;
+			sName = sName.replace(/^[a-z]/, function(val) {
+			    return val.toUpperCase();
+			});
+			while(len--) {
+				if ( aVendors[len] + sName in oEl.style ) {
+				    sProp=aVendors[len] + sName;
+				    break;
+				}
+			}
+ 		}
+		if(sProp){
+			if(sValue===undefined){
+				return true;
+			}
+		    oEl.style[sName] = sValue;
+		    return oEl.style[sName] === sValue;
+		}
+	    return false;
 	}
 	/**
 	 * 检查设备并添加class
