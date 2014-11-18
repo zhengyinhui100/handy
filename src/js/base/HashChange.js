@@ -3,7 +3,6 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * 
  */
-//use jQuery
 $Define("B.HashChange",
 ['handy.base.Debug','handy.base.Util'],
 function(Debug,Util){
@@ -51,12 +50,12 @@ function(Debug,Util){
 				//创建一个隐藏的iframe，使用这博文提供的技术 http://www.paciellogroup.com/blog/?p=604.
 				_oIframe = $('<iframe id="fff" tabindex="-1" style="display:none" width=0 height=0 title="empty" />').appendTo( _oDoc.body )[0];
                 $(_oIframe).one("load",function(){
-                	_fSetIfrHash(Util.getHash());
+                	_fSetIfrHash(location.hash);
                 	setInterval(_fPoll,HashChange.delay);
                 });
 			}else{
 				$(window).on("hashchange",function(){
-					_fOnChange(Util.getHash());
+					_fOnChange(location.hash);
 				})
 			}
 		}
@@ -82,7 +81,7 @@ function(Debug,Util){
 		 * @method _fPoll
 		 */
 		function _fPoll() {
-			var sHash=Util.getHash();
+			var sHash=location.hash;
 			var sIfrHash = _oIframe.contentWindow.document.body.innerText;
 			//如果地址栏hash变化了，设置iframe的hash并处罚hashchange
 			if (sHash != _sLastHash) {
@@ -91,7 +90,7 @@ function(Debug,Util){
 			}else if(sIfrHash!=_sLastHash){
 				//iframe的hash发生了变化(点击前进/后退)，更新地址栏hash
 				Debug.log("update:"+_oIframe.contentWindow.document.body.innerText);
-				Util.setHash(sIfrHash);
+				location.hash=sIfrHash;
 			}
 		}
 		/**

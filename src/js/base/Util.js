@@ -7,8 +7,6 @@ $Define('B.Util','B.Object',function(Object){
 	var Util={
 		isWindow         : fIsWindow,          //检查是否是window对象
 		uuid             : fUuid,              //获取handy内部uuid
-		getHash          : fGetHash,           //获取hash，不包括“？”开头的query部分
-		setHash          : fSetHash,           //设置hash，不改变“？”开头的query部分
 		getDefFontSize   : fGetDefFontSize,    //获取默认字体大小
 		setDefFontSize   : fSetDefFontSize,    //设置默认字体大小
 		em2px            : fEm2px,             //em转化为px
@@ -36,27 +34,6 @@ $Define('B.Util','B.Object',function(Object){
 	 */
 	function fUuid(){
 		return ++_nUuid;
-	}
-	/**
-	 * 获取hash，不包括“？”开头的query部分
-	 * @method getHash
-	 * @return {?string} 返回hash
-	 */
-	function fGetHash(){
-		var sHash=top.location.hash;
-		return sHash.replace(/\?.*/,'');
-	}
-	/**
-	 * 设置hash，不改变“？”开头的query部分
-	 * @method setHash
-	 * @param {string} sHash要设置的hash
-	 */
-	function fSetHash(sHash){
-		var sOrgHash=top.location.hash;
-		if(sOrgHash.indexOf("#")>=0){
-			sHash=sOrgHash.replace(/#[^\?]*/,sHash);
-		}
-		top.location.hash=sHash;
 	}
 	/**
 	 * 获取默认字体大小

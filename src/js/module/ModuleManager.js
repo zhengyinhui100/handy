@@ -44,7 +44,8 @@ function(History,AbstractManager){
 		destroy            : fDestroy,         //销毁模块
 		update             : fUpdate,          //更新模块
 		clearCache         : fClearCache,      //清除缓存模块
-		back               : fBack             //后退一步
+		back               : fBack,            //后退一步
+		getSafeUrl         : fGetSafeUrl       //获取安全的url(hash有可能被分享组件等截断，所以转化为query:retPage=?)
 	});
 	
 	/**
@@ -119,9 +120,11 @@ function(History,AbstractManager){
 	/**
 	 * 初始化模块管理
 	 * @param {object}oConf {      //初始化配置参数
-	 * 			{string}defModPackage  : 默认模块所在包名
+	 * 			{string}defModPackage   : 默认模块所在包名
 	 * 			{string|element|jQuery}container  : 模块容器
-	 * 			{Navigator}navigator   : 定制导航类
+	 * 			{Navigator}navigator    : 定制导航类
+	 * 			{string|object}entry    : 初始模块
+	 * 			{string|object}defEntry : 默认入口，没有初始入口参数时进入该模块，或者后退但没有上一个模块时进入该模块
 	 * }
 	 */
 	function fInitialize(oConf){
@@ -138,6 +141,21 @@ function(History,AbstractManager){
 		me._modules={};
 		me._modStack=[];
 		me._modNum={};
+		
+		//解析url参数
+		var oUrlParam=me.history.getCurrentState();
+		//有返回页
+		if(!$H.isEmpty(oUrlParam)){
+			var fChk=oConf.chkEntry;
+			var bResult=fChk&&fChk(oUrlParam);
+			//开发模式下可以进入所有子模块，线上环境只允许进入指定模块
+			if(bResult!==false){
+				me.go(oUrlParam);
+				return;
+			}
+		}
+		var oDefEntry=oConf.entry||oConf.defEntry;
+		me.go(oDefEntry);
 	}
 	/**
 	 * 设置/缓存模块，当缓存的模块数量超过限制时，删除历史最久的超过模块各类型平均限制数的模块
@@ -283,13 +301,16 @@ function(History,AbstractManager){
 		
 		//主要是处理前进和后退hash变化引起的调用，不需要再保存历史记录
 		if(bNotSaveHistory!=true){
+			var o={
+				modName:param.modName
+			};
+			if(sModelId){
+				o.modelId=sModelId;
+			}
 			//保存状态
 			me.history.saveState({
 				onStateChange:$H.Function.bind(me.go,me),
-				param:{
-					modName:param.modName,
-					modelId:param.modelId
-				}
+				param:o
 			});
 		}
 		return true;
@@ -358,6 +379,13 @@ function(History,AbstractManager){
 		}else{
 			me.go(me.defEntry);
 		}
+	}
+	/**
+	 * 获取安全的url(hash有可能被分享组件等截断，所以转化为query:retPage=?)
+	 * @return {string} 返回安全的url
+	 */
+	function fGetSafeUrl(){
+		return this.history.getSafeUrl();
 	}
 	
 	return ModuleManager;

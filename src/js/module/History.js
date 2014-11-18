@@ -25,7 +25,8 @@ function(HashChange){
 		getHashParam       : fGetHashParam,    //获取当前hash参数
 		getCurrentState    : fGetCurrentState, //获取当前状态
 		getPreState        : fGetPreState,     //获取前一个状态
-		back               : fBack             //后退一步
+		back               : fBack,            //后退一步
+		getSafeUrl         : fGetSafeUrl       //获取安全的url(hash有可能被分享组件等截断，所以转化为query:retPage=?)
 	});
 	/**
 	 * 历史记录类初始化
@@ -110,10 +111,9 @@ function(HashChange){
 	 * @param {*}param 要保存到hash中的参数
 	 */
 	function fSaveHash(param){
-		var sParam=$H.Json.stringify(param);
 		//这里主动设置之后还会触发hashchange，不能在hashchange里添加set方法屏蔽此次change，因为可能不止一个地方需要hashchange事件
 		//TODO:单页面应用SEO：http://isux.tencent.com/seo-for-single-page-applications.html
-		$H.setHash("#"+sParam);
+		$H.setHashParam(null,param);
 	}
 	/**
 	 * 获取当前hash参数
@@ -121,14 +121,7 @@ function(HashChange){
 	 * @return {object} 返回当前hash参数
 	 */
 	function fGetHashParam(){
-		var me=this;
-		try{
-			var sHash=$H.getHash().replace("#","");
-			var oHashParam=$H.parseJson(sHash);
-			return oHashParam;
-		}catch(e){
-			$H.Debug.warn("History.getCurrentState:parse hash error:"+e.message);
-		}
+		return $H.getHashParam();
 	}
 	/**
 	 * 获取当前状态
@@ -137,12 +130,18 @@ function(HashChange){
 	 */
 	function fGetCurrentState(){
 		var me=this;
-		try{
-			var oHashParam=me.getHashParam();
-			return me.states[oHashParam.hKey];
-		}catch(e){
-			$H.Debug.warn("History.getCurrentState:parse hash error:"+e.message);
+		//获取url模块参数，hash优先级高于query中retPage
+		var oUrlParam=$H.getHashParam();
+		if($H.isEmpty(oUrlParam)){
+			var sRetPage=$H.getQueryParam(null,'retPage');
+			try {
+				oUrlParam=$H.parseJson(decodeURIComponent(sRetPage));
+			} catch (e) {
+				$D.log("parse retPage param from hash error:"
+						+ e.message);
+			}
 		}
+		return me.states&&me.states[oUrlParam.hKey]||oUrlParam;
 	}
 	/**
 	 * 获取前一个状态
@@ -175,6 +174,19 @@ function(HashChange){
 		if(oState){
 			oState.onStateChange(oState.param);
 		}
+	}
+	/**
+	 * 获取安全的url(hash有可能被分享组件等截断，所以转化为query:retPage=?)
+	 * @return {string} 返回安全的url
+	 */
+	function fGetSafeUrl(){
+		var oHashParam=$H.getHashParam();
+		delete oHashParam.hKey;
+		var oParam={
+			retPage:encodeURIComponent($H.stringify(oHashParam))
+		}
+		var sUrl=$H.setQueryParam(location.href,oParam);
+		return sUrl;
 	}
 	
 	return History;
