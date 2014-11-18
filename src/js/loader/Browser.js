@@ -11,7 +11,7 @@ handy.add("Browser","handy.base.Object",function(Object){
 	
 	//归纳生成方法，如：Browser.ie()返回ie的版本号(默认返回整型，传入true参数时返回实际版本号，如：'20.0.1132.43')，Browser.windows()返回是否是windows系统
 	Object.generateMethod(Browser,[
-			'ie','firefox','chrome','safari','opera',   //浏览器版本，@return{number|string}
+			'ie','firefox','chrome','safari','opera','weixin',  //浏览器版本，@return{number|string}
 			'windows','linux','mac',                    //操作系统，@return{boolean}
 			'trident','webkit','gecko','presto',        //浏览器内核类型，@return{boolean}
 			'sogou','maxthon','tt','theWorld','is360',  //浏览器壳类型，@return{boolean}
@@ -60,6 +60,7 @@ handy.add("Browser","handy.base.Object",function(Object){
 		(matcher = ua.match(/Firefox\/([\d.]+)/))? _oInfo.firefox = matcher[1]: 
 		(matcher = ua.match(/Chrome\/([\d.]+)/))? _oInfo.chrome = matcher[1]: 
 		(matcher = ua.match(/Opera.([\d.]+)/))? _oInfo.opera = matcher[1]: 
+		(matcher = ua.match(/MicroMessenger\/([\d.]+)/)) ? _oInfo.weixin = matcher[1] :
 		(matcher = ua.match(/Version\/([\d.]+).*Safari/))? _oInfo.safari = matcher[1]: 0;
 	}
 	/**
