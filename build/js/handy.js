@@ -961,7 +961,7 @@ handy.add("Browser","handy.base.Object",function(Object){
 	
 	//归纳生成方法，如：Browser.ie()返回ie的版本号(默认返回整型，传入true参数时返回实际版本号，如：'20.0.1132.43')，Browser.windows()返回是否是windows系统
 	Object.generateMethod(Browser,[
-			'ie','firefox','chrome','safari','opera',   //浏览器版本，@return{number|string}
+			'ie','firefox','chrome','safari','opera','weixin',  //浏览器版本，@return{number|string}
 			'windows','linux','mac',                    //操作系统，@return{boolean}
 			'trident','webkit','gecko','presto',        //浏览器内核类型，@return{boolean}
 			'sogou','maxthon','tt','theWorld','is360',  //浏览器壳类型，@return{boolean}
@@ -1010,6 +1010,7 @@ handy.add("Browser","handy.base.Object",function(Object){
 		(matcher = ua.match(/Firefox\/([\d.]+)/))? _oInfo.firefox = matcher[1]: 
 		(matcher = ua.match(/Chrome\/([\d.]+)/))? _oInfo.chrome = matcher[1]: 
 		(matcher = ua.match(/Opera.([\d.]+)/))? _oInfo.opera = matcher[1]: 
+		(matcher = ua.match(/MicroMessenger\/([\d.]+)/)) ? _oInfo.weixin = matcher[1] :
 		(matcher = ua.match(/Version\/([\d.]+).*Safari/))? _oInfo.safari = matcher[1]: 0;
 	}
 	/**
@@ -2970,8 +2971,6 @@ $Define('B.Util','B.Object',function(Object){
 	var Util={
 		isWindow         : fIsWindow,          //检查是否是window对象
 		uuid             : fUuid,              //获取handy内部uuid
-		getHash          : fGetHash,           //获取hash，不包括“？”开头的query部分
-		setHash          : fSetHash,           //设置hash，不改变“？”开头的query部分
 		getDefFontSize   : fGetDefFontSize,    //获取默认字体大小
 		setDefFontSize   : fSetDefFontSize,    //设置默认字体大小
 		em2px            : fEm2px,             //em转化为px
@@ -2999,27 +2998,6 @@ $Define('B.Util','B.Object',function(Object){
 	 */
 	function fUuid(){
 		return ++_nUuid;
-	}
-	/**
-	 * 获取hash，不包括“？”开头的query部分
-	 * @method getHash
-	 * @return {?string} 返回hash
-	 */
-	function fGetHash(){
-		var sHash=top.location.hash;
-		return sHash.replace(/\?.*/,'');
-	}
-	/**
-	 * 设置hash，不改变“？”开头的query部分
-	 * @method setHash
-	 * @param {string} sHash要设置的hash
-	 */
-	function fSetHash(sHash){
-		var sOrgHash=top.location.hash;
-		if(sOrgHash.indexOf("#")>=0){
-			sHash=sOrgHash.replace(/#[^\?]*/,sHash);
-		}
-		top.location.hash=sHash;
 	}
 	/**
 	 * 获取默认字体大小
@@ -3119,14 +3097,22 @@ $Define('B.Util','B.Object',function(Object){
  * Url工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-$Define("B.Url",function(){
+$Define("B.Url","B.Object",function(Object){
 	
 	var Url={
 		isUrl           : fIsUrl,           //是否是url
 		isAbsUrl        : fIsAbsUrl,        //是否是绝对路径url
 		isPic           : fIsPic,           //是否是图片
-		getParam        : fGetParam,        //获取url里的参数
-		addParam		: fAddParam		    // 在url后面增加get参数
+		paramToStr      : fParamToStr,      //将对象转化为url参数字符串
+		strToParam      : fStrToParam,      //将url参数字符串转化为对象
+		getQuery        : fGetQuery,        //获取query字符串
+		setQuery        : fSetQuery,        //设置query字符串
+		getQueryParam   : fGetQueryParam,   //获取url里的get参数
+		setQueryParam   : fSetQueryParam,   //设置url的get参数
+		getHash         : fGetHash,         //获取hash
+		setHash         : fSetHash,         //设置hash
+		getHashParam    : fGetHashParam,    //获取hash参数
+		setHashParam    : fSetHashParam     //设置hash参数
 	}
 	/**
 	 * 是否是url
@@ -3153,40 +3139,130 @@ $Define("B.Url",function(){
 		return /\.(jpg|jpeg|png|bmp|gif)$/.test(sParam);
 	}
 	/**
-	 * 获取url里的参数
-	 * @param {string=}sName 参数名，不传表示获取所有的参数表
-	 * @param {string=}sUrl 参数url，默认是当前地址栏url
-	 * @return {*} 返回参数值
+	 * 将对象转化为url参数字符串
+	 * @param {object}oParams 参数对象
+	 * @return {string} 返回字符串参数
 	 */
-	function fGetParam(sName,sUrl){
-		var sUrl=sUrl||location.href;
-		var m;
-		if(m=sUrl.match(/\?([^#]+)/)){
-			var sParams=m[1];
-			var aParams=sParams.split('&');
-			var oParams={};
-			for(var i=0,len=aParams.length;i<len;i++){
-				var o=aParams[i].split('=');
-				oParams[o[0]]=o[1];
-			}
-			if(sName){
-				return oParams[sName];
-			}
-			return oParams;
+	function fParamToStr(oParams){
+		var aUrl=[];
+		for(var k in oParams){
+			aUrl.push(k+'='+oParams[k]);
+		}
+		return aUrl.join('&');
+	}
+	/**
+	 * 将url参数字符串转化为对象
+	 * @param {string}sStr 字符串参数
+	 * @return {object}oParams 参数对象
+	 */
+	function fStrToParam(sStr){
+		if(!sStr){
+			return {};
+		}
+		var aParams=sStr.split('&');
+		var oParams={};
+		for(var i=0,len=aParams.length;i<len;i++){
+			var o=aParams[i].split('=');
+			oParams[o[0]]=o[1];
+		}
+		return oParams;
+	}
+	/**
+	 * 获取query字符串
+	 * @param {string}sUrl 参数url，传空值表示获取当前地址栏url
+	 * @return {string} 返回query(不带"?")
+	 */
+	function fGetQuery(sUrl){
+		var sQuery=sUrl?sUrl.substring(sUrl.indexOf('?')+1,sUrl.indexOf('#')):top.location.search.substring(1);
+		return sQuery;
+	}
+	/**
+	 * 设置query字符串
+	 * @param {string}sUrl 参数url，传空值表示设置当前地址栏url
+	 * @param {string}sQuery 要设置的query字符串(不带"?")
+	 * @return {string} 返回设置好的url
+	 */
+	function fSetQuery(sUrl,sQuery){
+		if(sUrl){
+			var nHashIndex=sUrl.indexOf('#');
+			sUrl=sUrl.substring(0,sUrl.indexOf('?')+1)+sQuery+(nHashIndex>0?sUrl.substring(nHashIndex):'');
+			return sUrl;
+		}else{
+			top.location.search="?"+sQuery;
+			return top.location.href;
 		}
 	}
 	/**
-	 * 在该字符串中增加get需要的参数，如果改字符串代表的url没有get的参数，需要在后面加?，如果有，需要在后面加&
-	 * @method  addParam
-	 * @param  {string} sStr 需要操作的字符串
-	 * @param  {string} sParam 需要添加到url中的参数
-	 * @return {string} sStr 新组成的字符串
+	 * 获取query参数
+	 * @param {string}sUrl null表示获取地址栏hash
+	 * @param {string=}sParam 不传表示获取所有参数
+	 * @return {string|object} 返回对应hash参数，sParam不传时返回object类型(所有参数)
 	 */
-	function fAddParam(sStr, sParam){
-		if(sParam){
-			sStr += (sStr.indexOf("?")>-1 ? "&" : "?")+sParam;
+	function fGetQueryParam(sUrl,sParam){
+		var sQuery=Url.getQuery(sUrl);
+		var oParams=Url.strToParam(sQuery);
+		return sParam?oParams[sParam]:oParams;
+	}
+	/**
+	 * 设置query参数
+	 * @param {string}sUrl null表示设置地址栏hash
+	 * @param {object} oHashParam要设置的hash参数
+	 * @return {string=} 传入sUrl时，返回设置过hash参数的url
+	 */
+	function fSetQueryParam(sUrl,oHashParam){
+		var sQuery=Url.getQuery(sUrl);
+		var oParams=Url.strToParam(sQuery);
+		Object.extend(oParams,oHashParam);
+		sQuery=Url.paramToStr(oParams);
+		return Url.setQuery(sUrl,sQuery);
+	}
+	/**
+	 * 获取hash字符串
+	 * @param {string}sUrl 参数url，传空值表示获取当前地址栏url
+	 * @return {string} 返回hash(不带"#")
+	 */
+	function fGetHash(sUrl){
+		var sHash=sUrl?sUrl.substring(sUrl.indexOf('#')+1):top.location.hash.substring(1);
+		return sHash;
+	}
+	/**
+	 * 设置hash字符串
+	 * @param {string}sUrl 参数url，传空值表示设置当前地址栏url
+	 * @param {string}sHash 要设置的hash字符串(不带"#")
+	 * @return {string} 返回设置好的url
+	 */
+	function fSetHash(sUrl,sHash){
+		if(sUrl){
+			sUrl=sUrl.substring(0,sUrl.indexOf('#')+1)+sHash;
+			return sUrl;
+		}else{
+			top.location.hash="#"+sHash;
+			return top.location.href;
 		}
-		return sStr;
+	}
+	/**
+	 * 获取hash参数
+	 * @param {string}sUrl 空值表示获取地址栏hash
+	 * @param {string=}sParam 不传表示获取所有参数
+	 * @return {string|object} 返回对应hash参数，sParam不传时返回object类型(所有参数)
+	 */
+	function fGetHashParam(sUrl,sParam){
+		var sHash=Url.getHash(sUrl);
+		var oParams=Url.strToParam(sHash);
+		return sParam?oParams[sParam]:oParams;
+	}
+	/**
+	 * 设置hash参数
+	 * @param {string}sUrl 空值表示设置地址栏hash
+	 * @param {object} oHashParam要设置的hash参数
+	 * @return {string=} 传入sUrl时，返回设置过hash参数的url
+	 */
+	function fSetHashParam(sUrl,oHashParam){
+		var sHash=Url.getHash(sUrl);
+		var oParams=Url.strToParam(sHash);
+		Object.extend(oParams,oHashParam);
+		sHash=Url.paramToStr(oParams);
+		return Url.setHash(sUrl,sHash);
 	}
 	
 	return Url;
@@ -4146,7 +4222,6 @@ $Define('B.Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * 
  */
-//use jQuery
 $Define("B.HashChange",
 ['handy.base.Debug','handy.base.Util'],
 function(Debug,Util){
@@ -4194,12 +4269,12 @@ function(Debug,Util){
 				//创建一个隐藏的iframe，使用这博文提供的技术 http://www.paciellogroup.com/blog/?p=604.
 				_oIframe = $('<iframe id="fff" tabindex="-1" style="display:none" width=0 height=0 title="empty" />').appendTo( _oDoc.body )[0];
                 $(_oIframe).one("load",function(){
-                	_fSetIfrHash(Util.getHash());
+                	_fSetIfrHash(location.hash);
                 	setInterval(_fPoll,HashChange.delay);
                 });
 			}else{
 				$(window).on("hashchange",function(){
-					_fOnChange(Util.getHash());
+					_fOnChange(location.hash);
 				})
 			}
 		}
@@ -4225,7 +4300,7 @@ function(Debug,Util){
 		 * @method _fPoll
 		 */
 		function _fPoll() {
-			var sHash=Util.getHash();
+			var sHash=location.hash;
 			var sIfrHash = _oIframe.contentWindow.document.body.innerText;
 			//如果地址栏hash变化了，设置iframe的hash并处罚hashchange
 			if (sHash != _sLastHash) {
@@ -4234,7 +4309,7 @@ function(Debug,Util){
 			}else if(sIfrHash!=_sLastHash){
 				//iframe的hash发生了变化(点击前进/后退)，更新地址栏hash
 				Debug.log("update:"+_oIframe.contentWindow.document.body.innerText);
-				Util.setHash(sIfrHash);
+				location.hash=sIfrHash;
 			}
 		}
 		/**
@@ -9739,7 +9814,8 @@ function(HashChange){
 		getHashParam       : fGetHashParam,    //获取当前hash参数
 		getCurrentState    : fGetCurrentState, //获取当前状态
 		getPreState        : fGetPreState,     //获取前一个状态
-		back               : fBack             //后退一步
+		back               : fBack,            //后退一步
+		getSafeUrl         : fGetSafeUrl       //获取安全的url(hash有可能被分享组件等截断，所以转化为query:retPage=?)
 	});
 	/**
 	 * 历史记录类初始化
@@ -9824,10 +9900,9 @@ function(HashChange){
 	 * @param {*}param 要保存到hash中的参数
 	 */
 	function fSaveHash(param){
-		var sParam=$H.Json.stringify(param);
 		//这里主动设置之后还会触发hashchange，不能在hashchange里添加set方法屏蔽此次change，因为可能不止一个地方需要hashchange事件
 		//TODO:单页面应用SEO：http://isux.tencent.com/seo-for-single-page-applications.html
-		$H.setHash("#"+sParam);
+		$H.setHashParam(null,param);
 	}
 	/**
 	 * 获取当前hash参数
@@ -9835,14 +9910,7 @@ function(HashChange){
 	 * @return {object} 返回当前hash参数
 	 */
 	function fGetHashParam(){
-		var me=this;
-		try{
-			var sHash=$H.getHash().replace("#","");
-			var oHashParam=$H.parseJson(sHash);
-			return oHashParam;
-		}catch(e){
-			$H.Debug.warn("History.getCurrentState:parse hash error:"+e.message);
-		}
+		return $H.getHashParam();
 	}
 	/**
 	 * 获取当前状态
@@ -9851,12 +9919,18 @@ function(HashChange){
 	 */
 	function fGetCurrentState(){
 		var me=this;
-		try{
-			var oHashParam=me.getHashParam();
-			return me.states[oHashParam.hKey];
-		}catch(e){
-			$H.Debug.warn("History.getCurrentState:parse hash error:"+e.message);
+		//获取url模块参数，hash优先级高于query中retPage
+		var oUrlParam=$H.getHashParam();
+		if($H.isEmpty(oUrlParam)){
+			var sRetPage=$H.getQueryParam(null,'retPage');
+			try {
+				oUrlParam=$H.parseJson(decodeURIComponent(sRetPage));
+			} catch (e) {
+				$D.log("parse retPage param from hash error:"
+						+ e.message);
+			}
 		}
+		return me.states&&me.states[oUrlParam.hKey]||oUrlParam;
 	}
 	/**
 	 * 获取前一个状态
@@ -9889,6 +9963,19 @@ function(HashChange){
 		if(oState){
 			oState.onStateChange(oState.param);
 		}
+	}
+	/**
+	 * 获取安全的url(hash有可能被分享组件等截断，所以转化为query:retPage=?)
+	 * @return {string} 返回安全的url
+	 */
+	function fGetSafeUrl(){
+		var oHashParam=$H.getHashParam();
+		delete oHashParam.hKey;
+		var oParam={
+			retPage:encodeURIComponent($H.stringify(oHashParam))
+		}
+		var sUrl=$H.setQueryParam(location.href,oParam);
+		return sUrl;
 	}
 	
 	return History;
@@ -9940,7 +10027,8 @@ function(History,AbstractManager){
 		destroy            : fDestroy,         //销毁模块
 		update             : fUpdate,          //更新模块
 		clearCache         : fClearCache,      //清除缓存模块
-		back               : fBack             //后退一步
+		back               : fBack,            //后退一步
+		getSafeUrl         : fGetSafeUrl       //获取安全的url(hash有可能被分享组件等截断，所以转化为query:retPage=?)
 	});
 	
 	/**
@@ -10015,9 +10103,11 @@ function(History,AbstractManager){
 	/**
 	 * 初始化模块管理
 	 * @param {object}oConf {      //初始化配置参数
-	 * 			{string}defModPackage  : 默认模块所在包名
+	 * 			{string}defModPackage   : 默认模块所在包名
 	 * 			{string|element|jQuery}container  : 模块容器
-	 * 			{Navigator}navigator   : 定制导航类
+	 * 			{Navigator}navigator    : 定制导航类
+	 * 			{string|object}entry    : 初始模块
+	 * 			{string|object}defEntry : 默认入口，没有初始入口参数时进入该模块，或者后退但没有上一个模块时进入该模块
 	 * }
 	 */
 	function fInitialize(oConf){
@@ -10034,6 +10124,21 @@ function(History,AbstractManager){
 		me._modules={};
 		me._modStack=[];
 		me._modNum={};
+		
+		//解析url参数
+		var oUrlParam=me.history.getCurrentState();
+		//有返回页
+		if(!$H.isEmpty(oUrlParam)){
+			var fChk=oConf.chkEntry;
+			var bResult=fChk&&fChk(oUrlParam);
+			//开发模式下可以进入所有子模块，线上环境只允许进入指定模块
+			if(bResult!==false){
+				me.go(oUrlParam);
+				return;
+			}
+		}
+		var oDefEntry=oConf.entry||oConf.defEntry;
+		me.go(oDefEntry);
 	}
 	/**
 	 * 设置/缓存模块，当缓存的模块数量超过限制时，删除历史最久的超过模块各类型平均限制数的模块
@@ -10179,13 +10284,16 @@ function(History,AbstractManager){
 		
 		//主要是处理前进和后退hash变化引起的调用，不需要再保存历史记录
 		if(bNotSaveHistory!=true){
+			var o={
+				modName:param.modName
+			};
+			if(sModelId){
+				o.modelId=sModelId;
+			}
 			//保存状态
 			me.history.saveState({
 				onStateChange:$H.Function.bind(me.go,me),
-				param:{
-					modName:param.modName,
-					modelId:param.modelId
-				}
+				param:o
 			});
 		}
 		return true;
@@ -10254,6 +10362,13 @@ function(History,AbstractManager){
 		}else{
 			me.go(me.defEntry);
 		}
+	}
+	/**
+	 * 获取安全的url(hash有可能被分享组件等截断，所以转化为query:retPage=?)
+	 * @return {string} 返回安全的url
+	 */
+	function fGetSafeUrl(){
+		return this.history.getSafeUrl();
 	}
 	
 	return ModuleManager;
