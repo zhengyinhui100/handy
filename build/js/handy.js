@@ -9741,7 +9741,7 @@ $Define("M.AbstractModule","V.View",function (View) {
 		init           : $H.noop,        //初始化函数, 在模块创建后调用（在所有模块动作之前）
 		entry          : $H.noop,        //进入模块，new和cache后都会调用此方法
 		reset          : $H.noop,        //重置函数, 在该模块里进入该模块时调用
-		exit           : function(){return true},  //离开该模块前调用, 返回true允许离开, 否则不允许离开
+		exit           : function(){return true},  //离开该模块前调用, 仅当返回false时不允许离开
 		initialize     : fInitialize,    //初始化
 		cleanCache     : fCleanCache     //清除模块缓存
 	});
@@ -10228,7 +10228,7 @@ function(History,AbstractManager){
 			if(oCurrentMod._forceExit){
 				//标记为强制退出的模块不调用exit方法，直接退出，并将_forceExit重置为false
 				oCurrentMod._forceExit=false;
-			}else if(oCurrentMod.exit()==false){
+			}else if(oCurrentMod.exit()===false){
 				//模块返回false，不允许退出
 				return false;
 			}
@@ -13225,8 +13225,9 @@ function(AC){
 	/**
 	 * 修正图片尺寸，及居中显示
 	 * @param {element}oImg 图片节点对象
+	 * @return {boolean=}bContain 是否把图片缩小以显示所有图片，默认是放大图片以覆盖父节点
 	 */
-	function fFixImgSize(oImg){
+	function fFixImgSize(oImg,bContain){
 		var me=this;
 		//先移除宽度和高度属性才能获取准确的图片尺寸
 		var jImg=$(oImg).removeAttr("width").removeAttr("height").css({width:'',height:''});
@@ -13243,30 +13244,58 @@ function(AC){
     	if(nFixH===undefined||($H.isStr(nFixH)&&nFixH.indexOf('em')>0)){
     		nFixH=oEl.clientHeight;
     	}
-        //适应大小
-        if(nFixW||nFixH){
-            if(nFixW&&w!=nFixW){
-            	w=nFixW;
-            	h = Math.ceil(w / scale);
-            }
-            if(nFixH&&h>nFixH){
-            	h=nFixH;
-            	w=Math.ceil(h*scale);
-            }
-            jImg.css({width:w,height:h});
-        }
-        //居中定位
-        var nLeft=0,nTop=0;
-        if(w<nFixW){
-        	nLeft=(nFixW-w)/2;
-        	nLeft=Math.ceil(nLeft);
-        }
-    	jImg.css('left',nLeft);
-        if(h<nFixH){
-        	nTop=(nFixH-h)/2;
-        	nTop=Math.ceil(nTop);
-        }
-    	jImg.css('top',nTop);
+    	if(bContain){
+    		//缩小以显示整个图片
+	        if(nFixW||nFixH){
+	            if(nFixW&&w!=nFixW){
+	            	w=nFixW;
+	            	h = Math.ceil(w / scale);
+	            }
+	            if(nFixH&&h>nFixH){
+	            	h=nFixH;
+	            	w=Math.ceil(h*scale);
+	            }
+	            jImg.css({width:w,height:h});
+	        }
+	        //居中定位
+	        var nLeft=0,nTop=0;
+	        if(w<nFixW){
+	        	nLeft=(nFixW-w)/2;
+	        	nLeft=Math.ceil(nLeft);
+	        }
+	    	jImg.css('left',nLeft);
+	        if(h<nFixH){
+	        	nTop=(nFixH-h)/2;
+	        	nTop=Math.ceil(nTop);
+	        }
+	    	jImg.css('top',nTop);
+    	}else{
+    		//放大以覆盖父节点
+	        if(nFixW||nFixH){
+	            if(nFixW&&w!=nFixW){
+	            	w=nFixW;
+	            	h = Math.ceil(w / scale);
+	            }
+	            if(nFixH&&h<nFixH){
+	            	h=nFixH;
+	            	w=Math.ceil(h*scale);
+	            }
+	            jImg.css({width:w,height:h});
+	        }
+	        //居中定位
+	        var nLeft=0,nTop=0;
+	        if(w>nFixW){
+	        	nLeft=(nFixW-w)/2;
+	        	nLeft=Math.ceil(nLeft);
+	        }
+	    	jImg.css('left',nLeft);
+	        if(h>nFixH){
+	        	nTop=(nFixH-h)/2;
+	        	nTop=Math.ceil(nTop);
+	        }
+	    	jImg.css('top',nTop);
+    	}
+    	
         //修正尺寸后才显示图片，避免出现图片大小变化过程
         jImg.removeClass('hui-unvisible');
 		me.trigger("imgFixed",jImg);
