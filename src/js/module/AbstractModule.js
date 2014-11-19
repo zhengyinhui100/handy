@@ -32,7 +32,7 @@ $Define("M.AbstractModule","V.View",function (View) {
 		init           : $H.noop,        //初始化函数, 在模块创建后调用（在所有模块动作之前）
 		entry          : $H.noop,        //进入模块，new和cache后都会调用此方法
 		reset          : $H.noop,        //重置函数, 在该模块里进入该模块时调用
-		exit           : function(){return true},  //离开该模块前调用, 返回true允许离开, 否则不允许离开
+		exit           : function(){return true},  //离开该模块前调用, 仅当返回false时不允许离开
 		initialize     : fInitialize,    //初始化
 		cleanCache     : fCleanCache     //清除模块缓存
 	});

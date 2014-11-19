@@ -245,7 +245,7 @@ function(History,AbstractManager){
 			if(oCurrentMod._forceExit){
 				//标记为强制退出的模块不调用exit方法，直接退出，并将_forceExit重置为false
 				oCurrentMod._forceExit=false;
-			}else if(oCurrentMod.exit()==false){
+			}else if(oCurrentMod.exit()===false){
 				//模块返回false，不允许退出
 				return false;
 			}
