@@ -25,7 +25,7 @@ function(History,AbstractManager){
 //		navigator          : null,   //定制模块导航类
 //		defEntry           : null,   //默认模块，当调用back方法而之前又没有历史模块时，进入该模块
 //		defModPackage      : "com.xxx.module",  //默认模块所在包名
-		maxModNum          : $H.mobile()?20:50,     //最大缓存模块数
+		maxModNum          : $H.mobile()?($H.android()>=4||$H.ios()>=7)?15:5:30,     //最大缓存模块数
 		
 //		requestMod         : '',     //正在请求的模块名
 //		currentMod         : '',     //当前模块名

@@ -10008,7 +10008,7 @@ function(History,AbstractManager){
 //		navigator          : null,   //定制模块导航类
 //		defEntry           : null,   //默认模块，当调用back方法而之前又没有历史模块时，进入该模块
 //		defModPackage      : "com.xxx.module",  //默认模块所在包名
-		maxModNum          : $H.mobile()?20:50,     //最大缓存模块数
+		maxModNum          : $H.mobile()?($H.android()>=4||$H.ios()>=7)?15:5:30,     //最大缓存模块数
 		
 //		requestMod         : '',     //正在请求的模块名
 //		currentMod         : '',     //当前模块名
@@ -13601,7 +13601,7 @@ function(AC,Popup,AbstractImage){
 			el:'.js-img',
 			handler:function(oEvt){
 				var me=this;
-			    me.fixImgSize(oEvt.target);
+			    me.fixImgSize(oEvt.target,true);
 			}
 		},{
 			name:'load',
@@ -13610,7 +13610,7 @@ function(AC,Popup,AbstractImage){
 				var me=this;
 				me.showLoading(false);
 			    me.findEl('.js-img').addClass('hui-hidden');
-				me.fixImgSize(oEvt.target);
+				me.fixImgSize(oEvt.target,true);
 			}
 		}],
 		tmpl        : [
@@ -13619,7 +13619,6 @@ function(AC,Popup,AbstractImage){
 				'<img class="js-img hui-unvisible"/>',
 				'<img class="js-orig hui-unvisible">',
 			'</div>'].join(""),
-//		fixImgSize  : fFixImgSize,       //调整图片大小以最大化适应模块大小
 		showLoading : fShowLoading       //显示/隐藏加载提示
 		
 	});
@@ -13754,7 +13753,7 @@ function(AC,AbstractImage,Draggable){
 		var me=this;
 		var oImg=me.origImg=me.findEl('.js-orig-img');
 		//修正图片大小
-		var oSize=me.fixImgSize(oImg[0]);
+		var oSize=me.fixImgSize(oImg[0],true);
 		me.origW=oSize.origW;
 		me.origH=oSize.origH;
 		//裁剪框大小
