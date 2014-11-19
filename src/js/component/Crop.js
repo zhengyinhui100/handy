@@ -90,7 +90,7 @@ function(AC,AbstractImage,Draggable){
 		var me=this;
 		var oImg=me.origImg=me.findEl('.js-orig-img');
 		//修正图片大小
-		var oSize=me.fixImgSize(oImg[0]);
+		var oSize=me.fixImgSize(oImg[0],true);
 		me.origW=oSize.origW;
 		me.origH=oSize.origH;
 		//裁剪框大小

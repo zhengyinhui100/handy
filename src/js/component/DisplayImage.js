@@ -46,7 +46,7 @@ function(AC,Popup,AbstractImage){
 			el:'.js-img',
 			handler:function(oEvt){
 				var me=this;
-			    me.fixImgSize(oEvt.target);
+			    me.fixImgSize(oEvt.target,true);
 			}
 		},{
 			name:'load',
@@ -55,7 +55,7 @@ function(AC,Popup,AbstractImage){
 				var me=this;
 				me.showLoading(false);
 			    me.findEl('.js-img').addClass('hui-hidden');
-				me.fixImgSize(oEvt.target);
+				me.fixImgSize(oEvt.target,true);
 			}
 		}],
 		tmpl        : [
@@ -64,7 +64,6 @@ function(AC,Popup,AbstractImage){
 				'<img class="js-img hui-unvisible"/>',
 				'<img class="js-orig hui-unvisible">',
 			'</div>'].join(""),
-//		fixImgSize  : fFixImgSize,       //调整图片大小以最大化适应模块大小
 		showLoading : fShowLoading       //显示/隐藏加载提示
 		
 	});
