@@ -977,6 +977,10 @@
 		position:absolute;
 		width:100%;
 	}
+	//动画
+	.hui-ani{
+		.fn_transition(left 0.15s linear);
+	}
 }
 .hui-tab-sep{
 	.hui-tabitem .hui-btn{
@@ -1868,6 +1872,12 @@
 	.fn_opacity(0.3);
 }
 //动画
+.hui-ani{
+	.fn_transition(all 0.1s linear);
+}
+.hui-ani-3d{
+	.fn_transform(translate3d(0,0,0));
+}
 //没动画的模块独立渲染
 .hui-mod-independent{
 	position:absolute;

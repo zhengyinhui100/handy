@@ -12414,26 +12414,38 @@ function(AC,TabItem,ControlGroup){
 		var me=this;
 		me.callSuper();
 		if(me.slidable){
+			var sContSel='.js-tab-content';
+			var oContEl;
+			me.listen({
+				name:'afterRender',
+				custom:true,
+				handler:function(){
+					oContEl=me.findEl(sContSel).addClass('hui-ani-3d');
+				}
+			});
 			me.listen({
 				name:'touchstart',
-				el:'.js-tab-content',
+				selector:sContSel,
+				method:'delegate',
 				handler:function(oEvt){
-					oEvt = oEvt.originalEvent||oEvt;
 					var oEl=oEvt.currentTarget;
+					oEvt = oEvt.originalEvent||oEvt;
 					me.contentWidth=oEl.clientWidth;
 					oEvt.preventDefault();
 					oEvt = oEvt.touches[0];
 					me.startX=oEvt.clientX;
 					me.startY=oEvt.clientY;
 					me.delX=0;
+					oContEl.removeClass('hui-ani');
 				}
 			});
 			me.listen({
 				name:'touchmove',
-				el:'.js-tab-content',
+				selector:sContSel,
+				method:'delegate',
 				handler:function(oEvt){
-					oEvt = oEvt.originalEvent||oEvt;
 					var oEl=oEvt.currentTarget;
+					oEvt = oEvt.originalEvent||oEvt;
 					oEvt = oEvt.touches[0];
 					var x=oEvt.clientX;
 					var y=oEvt.clientY;
@@ -12459,22 +12471,28 @@ function(AC,TabItem,ControlGroup){
 			});
 			me.listen({
 				name:'touchend',
-				el:'.js-tab-content',
+				selector:sContSel,
+				method:'delegate',
 				handler:function(oEvt){
-					oEvt = oEvt.originalEvent||oEvt;
 					var oEl=oEvt.currentTarget;
+					oEvt = oEvt.originalEvent||oEvt;
 					var nWidth=me.contentWidth;
 					var nMin=nWidth/4;
 					var nDelX=me.delX;
 					var nIndex=me.getSelected(true);
+					oContEl.addClass('hui-ani');
+					me.animating=true;
+					setTimeout(function(){
+						me.animating=false;
+					},150);
 					if(nDelX>nMin){
 						//向右滑动
-						me.onItemSelect(nIndex-1);
 						oEl.style.left=nWidth+'px';
+						me.onItemSelect(nIndex-1);
 					}else if(nDelX<-nMin){
 						//向左滑动
-						me.onItemSelect(nIndex+1);
 						oEl.style.left=-nWidth+'px';
+						me.onItemSelect(nIndex+1);
 					}else if(nDelX!==0){
 						//移动距离很短，恢复原样
 						oEl.style.left=0;
@@ -12529,13 +12547,21 @@ function(AC,TabItem,ControlGroup){
 	 * @param {boolean=}bSelect 仅当为false时表示移除选中效果
 	 */
 	function fSelectItem(oItem,bSelect){
+		var me=this;
 		bSelect=bSelect!=false;
 		if(bSelect&&oItem.contentCmp){
 			oItem.contentCmp.getEl().css({
 				left:0
 			});
 		}
-		this.callSuper();
+		//动画过程中创建dom节点会卡，这里延迟选中（选中事件中伴有初始化组件操作）
+		if(me.animating){
+			setTimeout(function(){
+				ControlGroup.prototype.selectItem.call(me,oItem,bSelect);
+			},150);
+		}else{
+			me.callSuper();
+		}
 	}
 	
 	return Tab;

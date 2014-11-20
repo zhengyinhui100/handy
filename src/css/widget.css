@@ -1136,6 +1136,12 @@
   position: absolute;
   width: 100%;
 }
+.hui-tab .hui-ani {
+  -moz-transition: left 0.15s linear;
+  -webkit-transition: left 0.15s linear;
+  -o-transition: left 0.15s linear;
+  transition: left 0.15s linear;
+}
 .hui-tab-sep .hui-tabitem .hui-btn {
   border-right-width: 1px;
 }
@@ -2018,6 +2024,19 @@
 .hui-lighter {
   filter: alpha(opacity= 30 );
   opacity: 0.3;
+}
+.hui-ani {
+  -moz-transition: all 0.1s linear;
+  -webkit-transition: all 0.1s linear;
+  -o-transition: all 0.1s linear;
+  transition: all 0.1s linear;
+}
+.hui-ani-3d {
+  -moz-transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  -o-transform: translate3d(0, 0, 0);
+  -ms-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
 }
 .hui-mod-independent {
   position: absolute;
