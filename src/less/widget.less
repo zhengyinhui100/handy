@@ -752,6 +752,14 @@
 		color:#888;
 		font-size:0.8em;
 	}
+	.hui-rowitem-ext{
+		position:absolute;
+		right:0.8em;
+		top:50%;
+		margin-top:-0.4em;
+		color:#888;
+		font-size:0.8em;
+	}
 	&.hui-rowitem-underline{
 		border-bottom:1px solid #ddd;
 	}
@@ -946,6 +954,7 @@
 }
 //标签栏
 .hui-tab{
+	position:relative;
 	.hui-tabitem{
 		float:left;
 		.hui-btn{
@@ -963,6 +972,10 @@
 		&.hui-item-last .hui-btn{
 			border-right-width:1px;
 		}
+	}
+	.hui-tab-content{
+		position:absolute;
+		width:100%;
 	}
 }
 .hui-tab-sep{

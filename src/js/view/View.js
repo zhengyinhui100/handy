@@ -65,13 +65,15 @@ function(ViewManager,ModelView,Model,Template){
 				value?this.disable():this.enable();
 			}
 		},
+		//TODO 首字母大写以便区分事件监听还是函数？
 		_customEvents       : [                  //自定义事件,可以通过参数属性的方式直接进行添加
 			'beforeRender','render','afterRender',
 			'beforeShow','show','afterShow',
 			'beforeHide','hide','afterHide',
 			'beforeUpdate','update','afterUpdate',
 			'beforeDestroy','destroy','afterDestroy',
-			'add','remove'
+			'add','remove',
+			'Select','Unselect'
 ////		'layout'    //保留事件
 		],  
 		_defaultEvents      : [                  //默认事件，可以通过参数属性的方式直接进行添加

@@ -35,6 +35,8 @@ function(AC){
 			isInline         : false
 		},
 		
+		_customEvents        : ['Select','Unselect'],
+		
 		tmpl                 : '<div {{bindAttr class="directionCls"}}>{{placeItem}}</div>',
 		
 		listeners       : [
@@ -49,7 +51,7 @@ function(AC){
 					var oCurCmp=me.find('> [_id='+oCurrentEl.attr("id")+']');
 					if(oCurCmp.length>0){
 						var nIndex=oCurCmp[0].index();
-						me.onItemClick(oEvt,nIndex);
+						me.onItemSelect(nIndex);
 					}
 				}
 			}
@@ -62,7 +64,7 @@ function(AC){
 		getSelected          : fGetSelected,         //获取选中项/索引
 		selectItem           : fSelectItem,          //选中/取消选中
 		val                  : fVal,                 //获取/设置值
-		onItemClick          : fOnItemClick          //子项点击事件处理
+		onItemSelect         : fOnItemSelect         //子项点击事件处理
 	});
 	
 	/**
@@ -183,6 +185,7 @@ function(AC){
 			}else{
 				oItem.active();
 			}
+			oItem.trigger('Select');
 		}else{
 			//优先使用子组件定义的接口
 			if(oItem.select){
@@ -190,6 +193,7 @@ function(AC){
 			}else{
 				oItem.unactive();
 			}
+			oItem.trigger('Unselect');
 		}
 	}
 	/**
@@ -221,11 +225,9 @@ function(AC){
 	}
 	/**
 	 * 子项点击事件处理
-	 * @method onItemClick
-	 * @param {jQ:Event}oEvt jQ事件对象
 	 * @param {number}nIndex 子项目索引
 	 */
-	function fOnItemClick(oEvt,nIndex){
+	function fOnItemSelect(nIndex){
 		var me=this,bResult;
 		if(me.itemClick){
 			var oCmp=me.children[nIndex];

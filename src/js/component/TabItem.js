@@ -77,7 +77,7 @@ function(AC,Panel){
 			$H.extend(content,{
 				xrole:'content',
 				hidden:!me.selected,
-				extCls:(content.extCls||'')+' js-content'
+				extCls:(content.extCls||'')+' hui-tab-content js-tab-content'
 			});
 			me.add(content);
 		}
