@@ -8495,13 +8495,15 @@ function(ViewManager,ModelView,Model,Template){
 				value?this.disable():this.enable();
 			}
 		},
+		//TODO 首字母大写以便区分事件监听还是函数？
 		_customEvents       : [                  //自定义事件,可以通过参数属性的方式直接进行添加
 			'beforeRender','render','afterRender',
 			'beforeShow','show','afterShow',
 			'beforeHide','hide','afterHide',
 			'beforeUpdate','update','afterUpdate',
 			'beforeDestroy','destroy','afterDestroy',
-			'add','remove'
+			'add','remove',
+			'Select','Unselect'
 ////		'layout'    //保留事件
 		],  
 		_defaultEvents      : [                  //默认事件，可以通过参数属性的方式直接进行添加
@@ -8514,7 +8516,7 @@ function(ViewManager,ModelView,Model,Template){
 			'contextmenu','change','submit'
 		],
 		
-		_applyArray         : _fApplyArray,         //在数组上依次执行方法
+		_applyArray         : _fApplyArray,      //在数组上依次执行方法
 		
 		//初始化相关
 		initialize          : fInitialize,       //初始化
@@ -11213,6 +11215,8 @@ function(AC){
 			isInline         : false
 		},
 		
+		_customEvents        : ['Select','Unselect'],
+		
 		tmpl                 : '<div {{bindAttr class="directionCls"}}>{{placeItem}}</div>',
 		
 		listeners       : [
@@ -11227,7 +11231,7 @@ function(AC){
 					var oCurCmp=me.find('> [_id='+oCurrentEl.attr("id")+']');
 					if(oCurCmp.length>0){
 						var nIndex=oCurCmp[0].index();
-						me.onItemClick(oEvt,nIndex);
+						me.onItemSelect(nIndex);
 					}
 				}
 			}
@@ -11240,7 +11244,7 @@ function(AC){
 		getSelected          : fGetSelected,         //获取选中项/索引
 		selectItem           : fSelectItem,          //选中/取消选中
 		val                  : fVal,                 //获取/设置值
-		onItemClick          : fOnItemClick          //子项点击事件处理
+		onItemSelect         : fOnItemSelect         //子项点击事件处理
 	});
 	
 	/**
@@ -11277,7 +11281,12 @@ function(AC){
 		if(me.rendered){
 			var nLen=me.children.length;
 			var width=Math.floor(100/nLen);
-			var oItems=me.getEl().children('.js-item');
+			var oItems;
+			if(me.getLayoutItems){
+				oItems=me.getLayoutItems();
+			}else{
+				oItems=me.getEl().children('.js-item');
+			}
 			var sFirstCls='hui-item-first';
 			var sLastCls='hui-item-last';
 			oItems.each(function(i,el){
@@ -11361,6 +11370,7 @@ function(AC){
 			}else{
 				oItem.active();
 			}
+			oItem.trigger('Select');
 		}else{
 			//优先使用子组件定义的接口
 			if(oItem.select){
@@ -11368,6 +11378,7 @@ function(AC){
 			}else{
 				oItem.unactive();
 			}
+			oItem.trigger('Unselect');
 		}
 	}
 	/**
@@ -11399,11 +11410,9 @@ function(AC){
 	}
 	/**
 	 * 子项点击事件处理
-	 * @method onItemClick
-	 * @param {jQ:Event}oEvt jQ事件对象
 	 * @param {number}nIndex 子项目索引
 	 */
-	function fOnItemClick(oEvt,nIndex){
+	function fOnItemSelect(nIndex){
 		var me=this,bResult;
 		if(me.itemClick){
 			var oCmp=me.children[nIndex];
@@ -11937,7 +11946,8 @@ function(AC){
 		xConfig         : {
 			cls             : 'rowitem',
 			text            :'',             //文字
-			comment         : '',            //注解文字
+			comment         : '',            //底部注解文字
+			extTxt          : '',            //右边说明文字
 			underline       : false,         //右边下划线，文字域默认有下划线
 			hasArrow        : false,         //右边箭头，有click事件时默认有箭头
 			newsNum         : 0,             //新消息提示数目，大于9自动显示成"9+"
@@ -11963,6 +11973,7 @@ function(AC){
 				'{{placeItem}}',
 				'<div class="hui-rowitem-txt">{{text}}</div>',
 				'<div class="hui-rowitem-comment">{{comment}}</div>',
+				'<div class="hui-rowitem-ext">{{extTxt}}</div>',
 				'{{#if newsNumTxt}}',
 					'<span class="hui-news-tips">{{newsNumTxt}}</span>',
 				'{{else}}',
@@ -12277,7 +12288,7 @@ function(AC,Panel){
 			$H.extend(content,{
 				xrole:'content',
 				hidden:!me.selected,
-				extCls:(content.extCls||'')+' js-content'
+				extCls:(content.extCls||'')+' hui-tab-content js-tab-content'
 			});
 			me.add(content);
 		}
@@ -12370,6 +12381,8 @@ function(AC,TabItem,ControlGroup){
 //			theme       : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
 		},
 //		activeType      : '',           //激活样式类型，
+		slidable        : $H.mobile(),
+		
 		defItem         : {             //默认子组件是TabItem
 //			content     : '',           //tab内容
 			xtype       : 'TabItem'
@@ -12377,15 +12390,100 @@ function(AC,TabItem,ControlGroup){
 		
 		tmpl            : [
 			'<div>',
-				'{{placeItem > TabItem}}',
-				'<div class="c-clear"></div>',
-				'{{placeItem > TabItem > [xrole=content]}}',
+				'<div class="hui-tab-titles js-titles c-clear">',
+					'{{placeItem > TabItem}}',
+				'</div>',
+				'<div class="hui-tab-contents js-contents">',
+					'{{placeItem > TabItem > [xrole=content]}}',
+				'</div>',
 			'</div>'
 		].join(''),
 		
+		doConfig        : fDoConfig,           //初始化配置
 		parseItem       : fParseItem,          //分析处理子组件 
-		setTabContent   : fSetTabContent       //设置标签页内容
+		getLayoutItems  : fGetLayoutItems,     //获取布局子元素
+		getSelectedItem : fGetSelectedItem,    //获取当前选中的TabItem组件
+		setTabContent   : fSetTabContent,      //设置标签页内容
+		selectItem      : fSelectItem          //选中/取消选中
 	});
+	/**
+	 * 初始化配置
+	 * @param {object}oSettings 配置
+	 */
+	function fDoConfig(oSettings){
+		var me=this;
+		me.callSuper();
+		if(me.slidable){
+			me.listen({
+				name:'touchstart',
+				el:'.js-tab-content',
+				handler:function(oEvt){
+					oEvt = oEvt.originalEvent||oEvt;
+					var oEl=oEvt.currentTarget;
+					me.contentWidth=oEl.clientWidth;
+					oEvt.preventDefault();
+					oEvt = oEvt.touches[0];
+					me.startX=oEvt.clientX;
+					me.startY=oEvt.clientY;
+					me.delX=0;
+				}
+			});
+			me.listen({
+				name:'touchmove',
+				el:'.js-tab-content',
+				handler:function(oEvt){
+					oEvt = oEvt.originalEvent||oEvt;
+					var oEl=oEvt.currentTarget;
+					oEvt = oEvt.touches[0];
+					var x=oEvt.clientX;
+					var y=oEvt.clientY;
+					var nDelX=x-me.startX;
+					var nDelY=y-me.startY;
+					//横向移动为主
+					if(Math.abs(nDelX)>Math.abs(nDelY)){
+						var nIndex=me.getSelected(true);
+						//第一项不能向右滑动，最后一项不能向左滑动
+						if(nIndex===0&&nDelX>0||nIndex===me.children.length-1&&nDelX<0){
+							return;
+						}
+						var oBrother=me.children[nDelX>0?nIndex-1:nIndex+1];
+						me.delX=nDelX;
+						var nWidth=me.contentWidth;
+						var oBrotherCmp=me.brotherCmp=oBrother.contentCmp;
+						oBrother=oBrotherCmp.getEl()[0];
+						oBrother.style.left=(nDelX>0?nDelX-nWidth:nWidth+nDelX)+'px';
+						oBrotherCmp.show();
+						oEl.style.left=nDelX+'px';
+					}
+				}
+			});
+			me.listen({
+				name:'touchend',
+				el:'.js-tab-content',
+				handler:function(oEvt){
+					oEvt = oEvt.originalEvent||oEvt;
+					var oEl=oEvt.currentTarget;
+					var nWidth=me.contentWidth;
+					var nMin=nWidth/4;
+					var nDelX=me.delX;
+					var nIndex=me.getSelected(true);
+					if(nDelX>nMin){
+						//向右滑动
+						me.onItemSelect(nIndex-1);
+						oEl.style.left=nWidth+'px';
+					}else if(nDelX<-nMin){
+						//向左滑动
+						me.onItemSelect(nIndex+1);
+						oEl.style.left=-nWidth+'px';
+					}else if(nDelX!==0){
+						//移动距离很短，恢复原样
+						oEl.style.left=0;
+						me.brotherCmp.hide();
+					}
+				}
+			});
+		}
+	}
 	/**
 	 * 分析处理子组件
 	 * @method parseItem
@@ -12400,6 +12498,22 @@ function(AC,TabItem,ControlGroup){
 		me.callSuper();
 	}
 	/**
+	 * 获取布局子元素
+	 * @return {object} 返回布局子元素
+	 */
+	function fGetLayoutItems(){
+		return this.getEl().children('.js-titles').children('.js-item');
+	}
+	/**
+	 * 获取当前选中的TabItem组件
+	 * @return {Component} 返回当前选中的TabItem组件
+	 */
+	function fGetSelectedItem(){
+		var me=this;
+		nIndex=nIndex||me.getSelected(true);
+		me.children[nIndex];
+	}
+	/**
 	 * 设置标签页内容
 	 * @param {String}sContent 内容
 	 * @param {number=}nIndex 索引，默认是当前选中的那个
@@ -12408,6 +12522,20 @@ function(AC,TabItem,ControlGroup){
 		var me=this;
 		nIndex=nIndex||me.getSelected(true);
 		me.findEl('.js-tab-content').index(nIndex).html(sContent);
+	}
+	/**
+	 * 选中/取消选中
+	 * @param {Component}oItem 要操作的组件
+	 * @param {boolean=}bSelect 仅当为false时表示移除选中效果
+	 */
+	function fSelectItem(oItem,bSelect){
+		bSelect=bSelect!=false;
+		if(bSelect&&oItem.contentCmp){
+			oItem.contentCmp.getEl().css({
+				left:0
+			});
+		}
+		this.callSuper();
 	}
 	
 	return Tab;

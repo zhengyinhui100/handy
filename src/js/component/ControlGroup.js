@@ -101,7 +101,12 @@ function(AC){
 		if(me.rendered){
 			var nLen=me.children.length;
 			var width=Math.floor(100/nLen);
-			var oItems=me.getEl().children('.js-item');
+			var oItems;
+			if(me.getLayoutItems){
+				oItems=me.getLayoutItems();
+			}else{
+				oItems=me.getEl().children('.js-item');
+			}
 			var sFirstCls='hui-item-first';
 			var sLastCls='hui-item-last';
 			oItems.each(function(i,el){

@@ -2166,6 +2166,14 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   color: #888;
   font-size: 0.8em;
 }
+.hui-rowitem .hui-rowitem-ext {
+  position: absolute;
+  right: 0.8em;
+  top: 50%;
+  margin-top: -0.4em;
+  color: #888;
+  font-size: 0.8em;
+}
 .hui-rowitem.hui-rowitem-underline {
   border-bottom: 1px solid #ddd;
 }
@@ -2361,6 +2369,9 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-footer {
   bottom: 0;
 }
+.hui-tab {
+  position: relative;
+}
 .hui-tab .hui-tabitem {
   float: left;
 }
@@ -2378,6 +2389,10 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-tab .hui-tabitem.hui-item-last .hui-btn {
   border-right-width: 1px;
+}
+.hui-tab .hui-tab-content {
+  position: absolute;
+  width: 100%;
 }
 .hui-tab-sep .hui-tabitem .hui-btn {
   border-right-width: 1px;

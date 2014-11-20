@@ -86,7 +86,7 @@ function(ViewManager,ModelView,Model,Template){
 			'contextmenu','change','submit'
 		],
 		
-		_applyArray         : _fApplyArray,         //在数组上依次执行方法
+		_applyArray         : _fApplyArray,      //在数组上依次执行方法
 		
 		//初始化相关
 		initialize          : fInitialize,       //初始化
