@@ -171,8 +171,8 @@ function(AC,TabItem,ControlGroup){
 	 */
 	function fGetSelectedItem(){
 		var me=this;
-		nIndex=nIndex||me.getSelected(true);
-		me.children[nIndex];
+		nIndex=me.getSelected(true);
+		return me.children[nIndex];
 	}
 	/**
 	 * 设置标签页内容
