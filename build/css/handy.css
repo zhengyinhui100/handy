@@ -2395,10 +2395,10 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   width: 100%;
 }
 .hui-tab .hui-ani {
-  -moz-transition: left 0.15s linear;
-  -webkit-transition: left 0.15s linear;
-  -o-transition: left 0.15s linear;
-  transition: left 0.15s linear;
+  -moz-transition: left 0.1s linear;
+  -webkit-transition: left 0.1s linear;
+  -o-transition: left 0.1s linear;
+  transition: left 0.1s linear;
 }
 .hui-tab-sep .hui-tabitem .hui-btn {
   border-right-width: 1px;

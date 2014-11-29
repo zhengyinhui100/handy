@@ -12428,6 +12428,7 @@ function(AC,TabItem,ControlGroup){
 				selector:sContSel,
 				method:'delegate',
 				handler:function(oEvt){
+					me.startTime=new Date().getTime();
 					var oEl=oEvt.currentTarget;
 					oEvt = oEvt.originalEvent||oEvt;
 					me.contentWidth=oEl.clientWidth;
@@ -12479,17 +12480,20 @@ function(AC,TabItem,ControlGroup){
 					var nWidth=me.contentWidth;
 					var nMin=nWidth/4;
 					var nDelX=me.delX;
+					var nTime=new Date().getTime()-me.startTime;
+					var nSpeed=nDelX/nTime;
+					var bChange=nTime<500&&Math.abs(nDelX)>20;
 					var nIndex=me.getSelected(true);
 					oContEl.addClass('hui-ani');
 					me.animating=true;
 					setTimeout(function(){
 						me.animating=false;
 					},150);
-					if(nDelX>nMin){
+					if(nDelX>nMin||bChange&&nDelX>0){
 						//向右滑动
 						oEl.style.left=nWidth+'px';
 						me.onItemSelect(nIndex-1);
-					}else if(nDelX<-nMin){
+					}else if(nDelX<-nMin||bChange&&nDelX<0){
 						//向左滑动
 						oEl.style.left=-nWidth+'px';
 						me.onItemSelect(nIndex+1);
@@ -12528,8 +12532,8 @@ function(AC,TabItem,ControlGroup){
 	 */
 	function fGetSelectedItem(){
 		var me=this;
-		nIndex=nIndex||me.getSelected(true);
-		me.children[nIndex];
+		nIndex=me.getSelected(true);
+		return me.children[nIndex];
 	}
 	/**
 	 * 设置标签页内容
