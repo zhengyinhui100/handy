@@ -1909,7 +1909,6 @@ function(Debug,Object){
     			aExisteds.push(oResult.exist[0]);
     		}
     	}
-    	
     	//没有需要加载的资源，直接执行回调或返回资源
     	if(aRequestIds.length==0){
     		fCallback&&fCallback.apply(null,aExisteds);
@@ -8513,7 +8512,9 @@ function(ViewManager,ModelView,Model,Template){
 			'keydown','keyup','keypress',
 			'click','dblclick',
 			'focus','focusin','focusout',
-			'contextmenu','change','submit'
+			'contextmenu','change','submit',
+			'swipe', 'swipeLeft', 'swipeRight', 'swipeUp', 'swipeDown',
+    		'doubleTap', 'tap', 'singleTap', 'longTap'
 		],
 		
 		_applyArray         : _fApplyArray,      //在数组上依次执行方法
@@ -9740,6 +9741,7 @@ $Define("M.AbstractModule","V.View",function (View) {
 //		clone          : null,           //{function()}克隆接口
 		useCache       : $H.noop,        //判断是否使用模块缓存
 		cache          : $H.noop,        //显示模块缓存时调用
+//		cacheNum       : 0,              //
 		init           : $H.noop,        //初始化函数, 在模块创建后调用（在所有模块动作之前）
 		entry          : $H.noop,        //进入模块，new和cache后都会调用此方法
 		reset          : $H.noop,        //重置函数, 在该模块里进入该模块时调用
@@ -10010,7 +10012,7 @@ function(History,AbstractManager){
 //		navigator          : null,   //定制模块导航类
 //		defEntry           : null,   //默认模块，当调用back方法而之前又没有历史模块时，进入该模块
 //		defModPackage      : "com.xxx.module",  //默认模块所在包名
-		maxModNum          : $H.mobile()?($H.android()>=4||$H.ios()>=7)?15:5:30,     //最大缓存模块数
+		maxCacheNum        : $H.mobile()?($H.android()>=4||$H.ios()>=7)?15:5:30,     //最大缓存模块数
 		
 //		requestMod         : '',     //正在请求的模块名
 //		currentMod         : '',     //当前模块名
@@ -10018,9 +10020,9 @@ function(History,AbstractManager){
 //		_modStack          : [],     //模块调度记录
 //		_modNum            : {},     //模块名数量统计
 		
-		_getModId          : _fGetModId,        //获取modId
-		_createMod         : _fCreateMod,       //新建模块
-		_showMod           : _fShowMod,         //显示模块
+		_getModId          : _fGetModId,       //获取modId
+		_createMod         : _fCreateMod,      //新建模块
+		_showMod           : _fShowMod,        //显示模块
 		
 		initialize         : fInitialize,      //初始化模块管理
 		setModule          : fSetModule,       //设置/缓存模块
@@ -10164,9 +10166,10 @@ function(History,AbstractManager){
 		}else{
 			oNum[sModName]++;
 		}
-		if(aStack.length>me.maxModNum){
+		//模块调度算法
+		if(aStack.length>me.maxCacheNum){
 			var nModTypeNum=$H.count(oNum);
-			var nAverage=me.maxModNum/nModTypeNum;
+			var nAverage=me.maxCacheNum/nModTypeNum;
 			for(var i=0,len=aStack.length;i<len;i++){
 				var oItem=aStack[i];
 				if(oNum[oItem.modName]>nAverage){
@@ -10235,7 +10238,6 @@ function(History,AbstractManager){
 				return false;
 			}
 		}
-		
 		//标记当前请求模块，主要用于异步请求模块回调时判断是否已经进了其它模块
 		me.requestMod=sModId;
 		
