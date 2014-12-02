@@ -83,7 +83,9 @@ function(ViewManager,ModelView,Model,Template){
 			'keydown','keyup','keypress',
 			'click','dblclick',
 			'focus','focusin','focusout',
-			'contextmenu','change','submit'
+			'contextmenu','change','submit',
+			'swipe', 'swipeLeft', 'swipeRight', 'swipeUp', 'swipeDown',
+    		'doubleTap', 'tap', 'singleTap', 'longTap'
 		],
 		
 		_applyArray         : _fApplyArray,      //在数组上依次执行方法

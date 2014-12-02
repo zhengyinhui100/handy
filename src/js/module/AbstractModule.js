@@ -29,6 +29,7 @@ $Define("M.AbstractModule","V.View",function (View) {
 //		clone          : null,           //{function()}克隆接口
 		useCache       : $H.noop,        //判断是否使用模块缓存
 		cache          : $H.noop,        //显示模块缓存时调用
+//		cacheNum       : 0,              //
 		init           : $H.noop,        //初始化函数, 在模块创建后调用（在所有模块动作之前）
 		entry          : $H.noop,        //进入模块，new和cache后都会调用此方法
 		reset          : $H.noop,        //重置函数, 在该模块里进入该模块时调用

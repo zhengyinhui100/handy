@@ -541,7 +541,6 @@ function(Debug,Object){
     			aExisteds.push(oResult.exist[0]);
     		}
     	}
-    	
     	//没有需要加载的资源，直接执行回调或返回资源
     	if(aRequestIds.length==0){
     		fCallback&&fCallback.apply(null,aExisteds);
