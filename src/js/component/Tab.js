@@ -71,7 +71,6 @@ function(AC,TabItem,ControlGroup){
 					var oEl=oEvt.currentTarget;
 					oEvt = oEvt.originalEvent||oEvt;
 					me.contentWidth=oEl.clientWidth;
-					oEvt.preventDefault();
 					oEvt = oEvt.touches[0];
 					me.startX=oEvt.clientX;
 					me.startY=oEvt.clientY;
@@ -86,13 +85,15 @@ function(AC,TabItem,ControlGroup){
 				handler:function(oEvt){
 					var oEl=oEvt.currentTarget;
 					oEvt = oEvt.originalEvent||oEvt;
-					oEvt = oEvt.touches[0];
-					var x=oEvt.clientX;
-					var y=oEvt.clientY;
+					oTouch = oEvt.touches[0];
+					var x=oTouch.clientX;
+					var y=oTouch.clientY;
 					var nDelX=x-me.startX;
 					var nDelY=y-me.startY;
 					//横向移动为主
 					if(Math.abs(nDelX)>Math.abs(nDelY)){
+						//不阻止默认事件的话，touchend不会触发，而是触发touchcancel
+					    oEvt.preventDefault();
 						var nIndex=me.getSelected(true);
 						//第一项不能向右滑动，最后一项不能向左滑动
 						if(nIndex===0&&nDelX>0||nIndex===me.children.length-1&&nDelX<0){
