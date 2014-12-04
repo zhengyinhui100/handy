@@ -1375,8 +1375,15 @@
 .hui-pc .hui-list .hui-list-item:active {
   background: #fbfaf8;
 }
+.hui-mlist {
+  position: relative;
+}
 .hui-mlist .hui-list-inner {
+  width: 100%;
   min-height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 .hui-desc {
   font-size: 0.75em;

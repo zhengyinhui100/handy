@@ -20,7 +20,7 @@ function(Arr,AbstractData,Model){
 //		comparator             : '',                  //比较属性名或比较函数
 //		desc                   : false,               //是否降序
 		
-//      fetching              : false,                //是否正在抓取数据，collection.fetching==true表示正在抓取
+//      fetching               : false,                //是否正在抓取数据，collection.fetching==true表示正在抓取
 		//内部属性
 //		_models                : [],                  //模型列表
 //		_byId                  : {},                  //根据id和cid索引

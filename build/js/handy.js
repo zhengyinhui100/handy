@@ -6634,7 +6634,7 @@ function(Arr,AbstractData,Model){
 //		comparator             : '',                  //比较属性名或比较函数
 //		desc                   : false,               //是否降序
 		
-//      fetching              : false,                //是否正在抓取数据，collection.fetching==true表示正在抓取
+//      fetching               : false,                //是否正在抓取数据，collection.fetching==true表示正在抓取
 		//内部属性
 //		_models                : [],                  //模型列表
 //		_byId                  : {},                  //根据id和cid索引
@@ -12434,7 +12434,6 @@ function(AC,TabItem,ControlGroup){
 					var oEl=oEvt.currentTarget;
 					oEvt = oEvt.originalEvent||oEvt;
 					me.contentWidth=oEl.clientWidth;
-					oEvt.preventDefault();
 					oEvt = oEvt.touches[0];
 					me.startX=oEvt.clientX;
 					me.startY=oEvt.clientY;
@@ -12449,13 +12448,15 @@ function(AC,TabItem,ControlGroup){
 				handler:function(oEvt){
 					var oEl=oEvt.currentTarget;
 					oEvt = oEvt.originalEvent||oEvt;
-					oEvt = oEvt.touches[0];
-					var x=oEvt.clientX;
-					var y=oEvt.clientY;
+					oTouch = oEvt.touches[0];
+					var x=oTouch.clientX;
+					var y=oTouch.clientY;
 					var nDelX=x-me.startX;
 					var nDelY=y-me.startY;
 					//横向移动为主
 					if(Math.abs(nDelX)>Math.abs(nDelY)){
+						//不阻止默认事件的话，touchend不会触发，而是触发touchcancel
+					    oEvt.preventDefault();
 						var nIndex=me.getSelected(true);
 						//第一项不能向右滑动，最后一项不能向左滑动
 						if(nIndex===0&&nDelX>0||nIndex===me.children.length-1&&nDelX<0){
@@ -14559,7 +14560,7 @@ function(AC){
 					me.scroller= new window.iScroll(oWrapper[0], {
 						useTransition: true,
 						topOffset: nStartY,
-						//bounce:false,
+						bounce:false,
 						//bounceLock:true,
 						mouseWheel:true,
 						vScrollbar:false,

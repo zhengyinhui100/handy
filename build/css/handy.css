@@ -190,10 +190,24 @@ http://www.w3cplus.com/content/css3-box-sizing
 	*height:0.938em; 
     *width: 0.938em;
 }
+
+//滚动条
+::-webkit-scrollbar {
+    width: 0.5em;
+}
+::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:window-inactive {
+    background-color: rgba(0, 0, 0, 0.6);
+}
 				
 */
 /*
 iPhone / iPod Touch
+
 @media only screen and (max-device-width: 480px) {}
 iPhone mit Retina Display
 @media only screen and (max-device-width: 480px) and (-webkit-min-device-pixel-ratio: 2) { }
@@ -2633,8 +2647,15 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-pc .hui-list .hui-list-item:active {
   background: #fbfaf8;
 }
+.hui-mlist {
+  position: relative;
+}
 .hui-mlist .hui-list-inner {
+  width: 100%;
   min-height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 .hui-desc {
   font-size: 0.75em;
