@@ -49,22 +49,29 @@ function(AC){
 	function fDoConfig(){
 		var me=this;
 		me.callSuper();
+		//随滚动自动隐藏
 		if(me.scrollHide){
 			me.listen({
 				name:'scroll',
 				el:$(window),
 				handler:function(){
 					var nScrollY=window.scrollY;
+					var nDel=nScrollY-me.lastScroll;
+					var bHide;
 					if(me.isHeader){
-						if(nScrollY-me.lastScroll>0){
-							me.hide();
-						}else{
+						if(nDel>0){
+							bHide=true;
+						}else if(nDel<0){
 							me.show();
 						}
-					}else if(nScrollY-me.lastScroll<0){
-						me.hide();
-					}else{
+					}else if(nDel<0){
+						bHide=true;
+					}else if(nDel>0){
 						me.show();
+					}
+					//TODO Android4.04中不触发layout，不会隐藏
+					if(bHide&&me.hide()!==false){
+						me.getEl()[0].offsetHeight;
 					}
 					me.lastScroll=nScrollY;
 				}

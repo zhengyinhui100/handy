@@ -566,7 +566,7 @@ function(ViewManager,ModelView,Model,Template){
 		if(me.displayMode=='visibility'){
 			oEl.css({visibility:"hidden"})
 		}else{
-			oEl.addClass('hui-hidden');;
+			oEl.addClass('hui-hidden');
 		}
 		if(bNotSetHidden!=true){
 			me.hidden=true;
