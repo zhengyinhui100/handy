@@ -503,9 +503,9 @@ function(ViewManager,ModelView,Model,Template){
 	 */
 	function fShow(bNotDelay,bParentCall){
 		var me=this;
-		if(me.beforeShow()==false
-			//已经显示，直接退回
-			||me.showed
+		//已经显示，直接退回
+		if(me.showed
+			||me.beforeShow()==false
 			//设置了hidden=true的组件不随父组件显示而显示
 			||(bParentCall&&me.hidden)){
 			return false;
@@ -557,9 +557,8 @@ function(ViewManager,ModelView,Model,Template){
 	 */
 	function fHide(bNotSetHidden){
 		var me=this;
-		if(me.beforeHide()==false
-			//已经隐藏，直接退回
-			||!me.showed){
+		//已经隐藏或被阻止隐藏，直接退回
+		if(!me.showed||me.beforeHide()==false){
 			return false;
 		}
 		me.showed=false;

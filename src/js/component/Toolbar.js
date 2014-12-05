@@ -18,6 +18,8 @@ function(AC){
 			isHeader         : false,
 			isFooter         : false           
 		},
+		
+//		scrollHide       : false,                  //是否在页面滚动时自动收起
 		defItem          : {
 			xtype        : 'Button',
 			theme        : 'black',
@@ -37,9 +39,38 @@ function(AC){
 			'</div>'
 		].join(''),
 		
+		doConfig         : fDoConfig,           //初始化配置
 		parseItem        : fParseItem           //处理子组件配置
 		
 	});
+	/**
+	 * 初始化配置
+	 */
+	function fDoConfig(){
+		var me=this;
+		me.callSuper();
+		if(me.scrollHide){
+			me.listen({
+				name:'scroll',
+				el:$(window),
+				handler:function(){
+					var nScrollY=window.scrollY;
+					if(me.isHeader){
+						if(nScrollY-me.lastScroll>0){
+							me.hide();
+						}else{
+							me.show();
+						}
+					}else if(nScrollY-me.lastScroll<0){
+						me.hide();
+					}else{
+						me.show();
+					}
+					me.lastScroll=nScrollY;
+				}
+			})
+		}
+	}
 	/**
 	 * 处理子组件配置
 	 * @method parseItem
