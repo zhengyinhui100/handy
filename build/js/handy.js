@@ -12490,7 +12490,7 @@ function(AC,TabItem,ControlGroup){
 					var nDelY=y-me.startY;
 					//横向移动为主
 					if(Math.abs(nDelX)>Math.abs(nDelY)){
-						//不阻止默认事件的话，touchend不会触发，而是触发touchcancel
+						//TODO 不阻止默认事件的话，touchend不会触发，而是触发touchcancel
 					    oEvt.preventDefault();
 						var nIndex=me.getSelected(true);
 						//第一项不能向右滑动，最后一项不能向左滑动
@@ -14595,7 +14595,7 @@ function(AC){
 					me.scroller= new window.iScroll(oWrapper[0], {
 						useTransition: true,
 						topOffset: nStartY,
-						bounce:false,
+						//bounce:false,
 						//bounceLock:true,
 						mouseWheel:true,
 						vScrollbar:false,
