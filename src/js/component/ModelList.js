@@ -15,7 +15,7 @@ function(AC){
 			cls             : 'mlist',
 			isEmpty         : false,             //列表是否为空
 			emptyTips       : '暂无',            //空列表提示
-			pdTxt           : '',               //下拉刷新提示文字
+			pdTxt           : '',                //下拉刷新提示文字
 			pdComment       : '上次刷新时间：',    //下拉刷新附加说明
 			pdTime          : '',                //上次刷新时间
 			hasMoreBtn      : true,              //是否有获取更多按钮
@@ -144,7 +144,7 @@ function(AC){
 					me.scroller= new window.iScroll(oWrapper[0], {
 						useTransition: true,
 						topOffset: nStartY,
-						bounce:false,
+						//bounce:false,
 						//bounceLock:true,
 						mouseWheel:true,
 						vScrollbar:false,
