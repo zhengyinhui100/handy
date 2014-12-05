@@ -9738,12 +9738,12 @@ $Define("M.AbstractModule","V.View",function (View) {
 //		referer        : null,           //记录从哪个模块进入
 		
 //		getData        : null,           //{function()}获取该模块的初始化数据
-//		clone          : null,           //{function()}克隆接口
-		useCache       : $H.noop,        //判断是否使用模块缓存
-		cache          : $H.noop,        //显示模块缓存时调用
-//		cacheNum       : 0,              //
 		init           : $H.noop,        //初始化函数, 在模块创建后调用（在所有模块动作之前）
 		entry          : $H.noop,        //进入模块，new和cache后都会调用此方法
+		useCache       : $H.noop,        //判断是否使用模块缓存
+//		cacheNum       : 0,              //最大缓存数目，超过此数时删除旧模块，不配置表示无限制
+		cacheLevel     : 0,              //缓存优先级，优先使用缓存的模块，级别越高越优先，默认无优先级
+		cache          : $H.noop,        //显示模块缓存时调用
 		reset          : $H.noop,        //重置函数, 在该模块里进入该模块时调用
 		exit           : function(){return true},  //离开该模块前调用, 仅当返回false时不允许离开
 		initialize     : fInitialize,    //初始化
@@ -10012,7 +10012,7 @@ function(History,AbstractManager){
 //		navigator          : null,   //定制模块导航类
 //		defEntry           : null,   //默认模块，当调用back方法而之前又没有历史模块时，进入该模块
 //		defModPackage      : "com.xxx.module",  //默认模块所在包名
-		maxCacheNum        : $H.mobile()?($H.android()>=4||$H.ios()>=7)?15:5:30,     //最大缓存模块数
+		maxCacheNum        : $H.mobile()?($H.android()>=4||$H.ios()>=7)?15:6:30,     //最大缓存模块数
 		
 //		requestMod         : '',     //正在请求的模块名
 //		currentMod         : '',     //当前模块名
@@ -10166,16 +10166,51 @@ function(History,AbstractManager){
 		}else{
 			oNum[sModName]++;
 		}
-		//模块调度算法
-		if(aStack.length>me.maxCacheNum){
-			var nModTypeNum=$H.count(oNum);
-			var nAverage=me.maxCacheNum/nModTypeNum;
-			for(var i=0,len=aStack.length;i<len;i++){
-				var oItem=aStack[i];
-				if(oNum[oItem.modName]>nAverage){
-					me.destroy(oMods[oItem.modId]);
-					break;
+		//模块缓存算法
+		var nStackLen=aStack.length;
+		var nModTypeNum=$H.count(oNum);
+		var nAverage=me.maxCacheNum/nModTypeNum;
+		nAverage=nAverage<1?1:nAverage;
+		//标记是否删除
+		var bDelete;
+		//当前最小的缓存优先级
+		var nMinLevel=-1;
+		for(var i=0,len=aStack.length;i<len;i++){
+			var oItem=aStack[i];
+			//大于模块最大缓存数，删除最久的模块
+			if(oModule.cacheNum&&sModName===oItem.modName&&oNum[sModName]>oModule.cacheNum){
+				bDelete=true;
+			}else if(nStackLen>me.maxCacheNum){
+				//大于最大缓存数，删掉一个模块
+				var nLevel=oMods[oItem.modId].cacheLevel;
+				//未定义缓存优先级，如果超过平均缓存数就删除
+				if(!nLevel){
+					if(oNum[oItem.modName]>nAverage){
+						bDelete=true;
+					}
+				}else{
+					//找出最低优先级，只需查找一次
+					if(nMinLevel===-1){
+						for(var mod in oNum){
+							var cModule=$H.ns(mod);
+							var nLev=cModule&&cModule.prototype.cacheLevel;
+							if(nMinLevel<0||nLev<nMinLevel){
+								nMinLevel=nLev;
+							}
+						}
+					}
+					if(nLevel<=nMinLevel){
+						bDelete=true;
+					}
 				}
+			}
+			if(bDelete){
+				//当前模块及其父模块不能删除，直接跳过
+				if(oItem.modId!=oModule.modId&&oItem.modId!=(oModule.referer&&oModule.referer.modId)){
+					me.destroy(oMods[oItem.modId]);
+//					$D.info('destroy:'+oItem.modId);
+				}
+				break;
 			}
 		}
 	}
