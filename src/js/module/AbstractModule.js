@@ -26,12 +26,12 @@ $Define("M.AbstractModule","V.View",function (View) {
 //		referer        : null,           //记录从哪个模块进入
 		
 //		getData        : null,           //{function()}获取该模块的初始化数据
-//		clone          : null,           //{function()}克隆接口
-		useCache       : $H.noop,        //判断是否使用模块缓存
-		cache          : $H.noop,        //显示模块缓存时调用
-//		cacheNum       : 0,              //
 		init           : $H.noop,        //初始化函数, 在模块创建后调用（在所有模块动作之前）
 		entry          : $H.noop,        //进入模块，new和cache后都会调用此方法
+		useCache       : $H.noop,        //判断是否使用模块缓存
+//		cacheNum       : 0,              //最大缓存数目，超过此数时删除旧模块，不配置表示无限制
+		cacheLevel     : 0,              //缓存优先级，优先使用缓存的模块，级别越高越优先，默认无优先级
+		cache          : $H.noop,        //显示模块缓存时调用
 		reset          : $H.noop,        //重置函数, 在该模块里进入该模块时调用
 		exit           : function(){return true},  //离开该模块前调用, 仅当返回false时不允许离开
 		initialize     : fInitialize,    //初始化
