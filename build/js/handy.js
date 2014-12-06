@@ -8932,9 +8932,9 @@ function(ViewManager,ModelView,Model,Template){
 	 */
 	function fShow(bNotDelay,bParentCall){
 		var me=this;
-		if(me.beforeShow()==false
-			//已经显示，直接退回
-			||me.showed
+		//已经显示，直接退回
+		if(me.showed
+			||me.beforeShow()==false
 			//设置了hidden=true的组件不随父组件显示而显示
 			||(bParentCall&&me.hidden)){
 			return false;
@@ -8986,9 +8986,8 @@ function(ViewManager,ModelView,Model,Template){
 	 */
 	function fHide(bNotSetHidden){
 		var me=this;
-		if(me.beforeHide()==false
-			//已经隐藏，直接退回
-			||!me.showed){
+		//已经隐藏或被阻止隐藏，直接退回
+		if(!me.showed||me.beforeHide()==false){
 			return false;
 		}
 		me.showed=false;
@@ -8996,7 +8995,7 @@ function(ViewManager,ModelView,Model,Template){
 		if(me.displayMode=='visibility'){
 			oEl.css({visibility:"hidden"})
 		}else{
-			oEl.addClass('hui-hidden');;
+			oEl.addClass('hui-hidden');
 		}
 		if(bNotSetHidden!=true){
 			me.hidden=true;
@@ -12629,6 +12628,8 @@ function(AC){
 			isHeader         : false,
 			isFooter         : false           
 		},
+		
+//		scrollHide       : false,                  //是否在页面滚动时自动收起
 		defItem          : {
 			xtype        : 'Button',
 			theme        : 'black',
@@ -12648,9 +12649,46 @@ function(AC){
 			'</div>'
 		].join(''),
 		
+		doConfig         : fDoConfig,           //初始化配置
 		parseItem        : fParseItem           //处理子组件配置
 		
 	});
+	/**
+	 * 初始化配置
+	 */
+	function fDoConfig(){
+		var me=this;
+		me.callSuper();
+		//随滚动自动隐藏
+		if(me.scrollHide){
+			me.listen({
+				name:'scroll',
+				el:$(window),
+				handler:function(){
+					var nScrollY=window.scrollY;
+					var nDel=nScrollY-me.lastScroll;
+					var bHide;
+					if(me.isHeader){
+						//滚动到页顶时会有些弹跳，所以加个nScrollY>10避免隐藏
+						if(nDel>0&&nScrollY>10){
+							bHide=true;
+						}else if(nDel<0){
+							me.show();
+						}
+					}else if(nDel<0){
+						bHide=true;
+					}else if(nDel>0){
+						me.show();
+					}
+					//TODO Android4.04中不触发layout，不会隐藏
+					if(bHide&&me.hide()!==false){
+						me.getEl()[0].offsetHeight;
+					}
+					me.lastScroll=nScrollY;
+				}
+			})
+		}
+	}
 	/**
 	 * 处理子组件配置
 	 * @method parseItem
@@ -14466,7 +14504,7 @@ function(AC){
 			cls             : 'mlist',
 			isEmpty         : false,             //列表是否为空
 			emptyTips       : '暂无',            //空列表提示
-			pdTxt           : '',               //下拉刷新提示文字
+			pdTxt           : '',                //下拉刷新提示文字
 			pdComment       : '上次刷新时间：',    //下拉刷新附加说明
 			pdTime          : '',                //上次刷新时间
 			hasMoreBtn      : true,              //是否有获取更多按钮
