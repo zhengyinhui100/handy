@@ -48,7 +48,7 @@ function(AC,Draggable){
 				'<div class="hui-list-inner">',
 					'{{#if hasPullRefresh}}',
 						'<div class="hui-list-pulldown hui-pd-pull c-h-middle-container">',
-							'<div class="c-h-middle">',
+							'<div class="c-h-middle hui-pull-container">',
 								'<span class="hui-icon hui-alt-icon hui-icon-arrow-d hui-light"></span>',
 								'<span class="hui-icon hui-alt-icon hui-icon-loading-mini"></span>',
 								'<div class="hui-pd-txt">',
@@ -78,10 +78,9 @@ function(AC,Draggable){
 			'</div>'
 		].join(''),
 		doConfig            : fDoconfig,           //初始化配置
+		initPdRefresh       : fInitPdRefresh,      //初始化下拉刷新功能
 		addListItem         : fAddListItem,        //添加列表项
 		removeListItem      : fRemoveListItem,     //删除列表项
-		refreshScroller     : fRefreshScroller,    //刷新iScroll
-		lazyRefresh         : fLazyRefreshScroller,//懒刷新iScroll
 		scrollTo            : fScrollTo,           //滚动到指定位置
 		loadMore            : fLoadMore,           //获取更多数据
 		pullLoading         : fPullLoading,        //显示正在刷新
@@ -133,84 +132,12 @@ function(AC,Draggable){
 				me.set('emptyTips','暂无');
 			}
 		});
+		
 		//下拉刷新
 		var bHasPd=me.hasPullRefresh;
 		me.set('hasPullRefresh',bHasPd);
 		if(bHasPd){
-			//如果在afterShow里初始化iScroll，会看见下拉刷新的元素，所以这里先初始化，afterShow时再调用refresh
-			me.draggable=new Draggable(me.getEl(),{
-				move:function(oPos){
-					var me=this;
-					var oWrapper=me.getEl();
-					var oPdEl=oWrapper.find('.hui-list-pulldown');
-					var nStartY=$H.em2px(3.125);
-					var nValve=$H.em2px(0.313);
-					var sRefreshCls='hui-pd-refresh';
-					var sReleaseCls='hui-pd-release';
-					var nScrollY=oPos.offsetY;
-					oPdEl.css({marginTop:-nStartY+nScrollY+'px'});
-					return false;
-				},
-				end:function(){
-					
-				}
-			});
-			0&&me.listen({
-				name : 'touchmove',
-				handler : function(){
-					var me=this;
-					var oWrapper=me.getEl();
-					var oPdEl=oWrapper.find('.hui-list-pulldown');
-					var nStartY=$H.em2px(3.125);
-					var nValve=$H.em2px(0.313);
-					var sRefreshCls='hui-pd-refresh';
-					var sReleaseCls='hui-pd-release';
-					var nScrollY
-					$D.info()
-					return
-					me.scroller= new window.iScroll(oWrapper[0], {
-						vScrollbar:false,
-						onRefresh: function () {
-							if(oPdEl.hasClass(sRefreshCls)){
-				                oPdEl.removeClass(sRefreshCls+' '+sReleaseCls);  
-				                me.set('pdTxt',me.pullTxt);  
-							}
-						},
-						onScrollMove: function () {
-							if (this.y > nValve && !oPdEl.hasClass(sReleaseCls)) {  
-				                oPdEl.addClass(sReleaseCls);  
-				                me.set('pdTxt',me.flipTxt);  
-								this.minScrollY = 0;
-				            } else if (this.y < nValve && oPdEl.hasClass(sReleaseCls)) {  
-				                oPdEl.removeClass(sReleaseCls);;  
-				                me.set('pdTxt',me.pullTxt); 
-								this.minScrollY = -nStartY;
-				            } 
-						},
-						onScrollEnd: function () {
-							if (oPdEl.hasClass(sReleaseCls)) {  
-				                oPdEl.addClass(sRefreshCls);  
-				                me.set('pdTxt',me.releaseTxt); 
-				                me.pulldownIsRefresh?me.refresh():me.loadMore();
-				            }
-						}
-					});
-				}
-			});
-			//同步数据后需要刷新
-			me.listenTo(me.model,'sync',function(){
-				me.set('pdTime',$H.formatDate($H.now(),'HH:mm'));
-			});
-			me.listen({
-				name:'afterShow',
-				handler:function(){
-					if(me.scrollPos=='bottom'){
-						setTimeout(function(){
-							me.scrollTo('bottom');
-						},0);
-					}
-				}
-			});
+			me.initPdRefresh();
 		}
 		
 		if(me.get('hasMoreBtn')){
@@ -223,6 +150,85 @@ function(AC,Draggable){
 				}
 			});
 		}
+	}
+	/**
+	 * 初始化下拉刷新功能
+	 */
+	function fInitPdRefresh(){
+		var me=this;
+		me.listen({
+			name : 'afterRender',
+			handler : function(){
+				var oWrapper=me.getEl();
+				var oInner=me.innerEl=oWrapper.find('.hui-list-inner');
+				var oPdEl=oWrapper.find('.hui-list-pulldown');
+				var nStartY=$H.em2px(3.125);
+				var nValve=$H.em2px(2.313);
+				var sRefreshCls='hui-pd-refresh';
+				var sReleaseCls='hui-pd-release';
+				
+				me.draggable=new Draggable(me.getEl(),{
+					preventDefault:false,
+					start:function(){
+						//记录初始滚动位置
+						me._scrollY=me.getEl()[0].scrollTop;
+					},
+					move:function(oPos,oOrigEvt){
+						//往下拉才计算
+						if(oPos.offsetY>0&&oPos.offsetY>Math.abs(oPos.offsetX)){
+							var nScrollY=me._scrollY-oPos.offsetY;
+							//到顶部临界点后才开始显示下拉刷新
+							if(nScrollY<0){
+								nScrollY=-nScrollY;
+								//不在这里阻止默认事件的话，Android下move只会触发一次
+								oOrigEvt.preventDefault();
+								//超过阀值后减速
+								nScrollY=nScrollY>nStartY?nStartY+(nScrollY-nStartY)/4:nScrollY>nValve?nValve+(nScrollY-nValve)/2:nScrollY;
+								oInner[0].style.marginTop=-nStartY+nScrollY+'px';
+								if (nScrollY > nValve && !oPdEl.hasClass(sReleaseCls)) {  
+					                oPdEl.addClass(sReleaseCls);  
+					                me.set('pdTxt',me.flipTxt);  
+					            } else if (nScrollY < nValve && oPdEl.hasClass(sReleaseCls)) {  
+					                oPdEl.removeClass(sReleaseCls);;  
+					                me.set('pdTxt',me.pullTxt); 
+					            }
+							}
+						}
+						return false;
+					},
+					end:function(){
+						if (oPdEl.hasClass(sReleaseCls)) {  
+			                oPdEl.addClass(sRefreshCls);  
+			                me.set('pdTxt',me.releaseTxt); 
+			                oInner.animate({marginTop:0},'fast',function(){
+				                me.pulldownIsRefresh?me.refresh():me.loadMore();
+			                });
+			            }else{
+			            	oInner.animate({marginTop:-nStartY});
+			            }
+					}
+				});
+				//同步数据后需要刷新
+				me.listenTo(me.model,'sync',function(){
+					me.set('pdTime',$H.formatDate($H.now(),'HH:mm'));
+					if(oPdEl.hasClass(sRefreshCls)){
+		                oPdEl.removeClass(sRefreshCls+' '+sReleaseCls);  
+		                me.set('pdTxt',me.pullTxt);
+						oInner.animate({marginTop:-nStartY});
+					}
+				});
+			}
+		});
+		me.listen({
+			name:'afterShow',
+			handler:function(){
+				if(me.scrollPos=='bottom'){
+					setTimeout(function(){
+						me.scrollTo('bottom');
+					},0);
+				}
+			}
+		});
 	}
 	/**
 	 * 添加列表项
@@ -241,7 +247,6 @@ function(AC,Draggable){
 		me.add({
 			model:oListItem
 		},nIndex);
-		me.lazyRefresh();
 	}
 	/**
 	 * 删除列表项
@@ -259,59 +264,22 @@ function(AC,Draggable){
 		if(me.children.length==0){
 			me.set('isEmpty',true);;
 		}
-		me.lazyRefresh();
-	}
-	/**
-	 * 刷新iScroll
-	 */
-	function fRefreshScroller(){
-		var me=this;
-		//仅在页面显示时才刷新，否则scroller会不可用
-		if(me.scroller&&me.getEl()[0].clientHeight){
-	    	me.scroller.refresh();
-		}
-	}
-	/**
-	 * 懒刷新iScroll，多次调用此方法只会执行一次实际刷新
-	 */
-	function fLazyRefreshScroller(){
-		var me=this;
-		if(me._toRefresh){
-			return;
-		}
-		me._toRefresh=1;
-		setTimeout(function(){
-			me._toRefresh=0;
-			me.refreshScroller();
-		},0);
 	}
 	/**
 	 * 滚动到指定位置
-	 * @param {string|number}pos 位置，字符串参数：'top'表示顶部，'bottom'表示底部，数字参数表示横坐标
-	 * @param {number=}pageY 纵坐标
-	 * @param {number=}nTime 动画时间
+	 * @param {string|number}pos 纵轴位置，字符串参数：'bottom'表示底部
 	 */
-	function fScrollTo(pos,pageY,nTime){
+	function fScrollTo(pos){
 		var me=this;
-		if(!me.scrollToTimer){
-			var aArgs=arguments;
-			//dom有改变时，不延迟的话，scrollTo无效
-			me.scrollToTimer=setTimeout(function(){
-				me.scrollTo.apply(me,aArgs);
-				me.scrollToTimer=null;
-			},0);
-			return;
-		}
-		var oScroller=me.scroller;
+		var oEl=me.getEl()[0];
 		if($H.isStr(pos)){
-			if(pos=='top'){
-				oScroller.scrollTo(0,-$H.em2px(3.125));
-			}else if(pos=='bottom'){
+			if(pos=='bottom'){
 				var nHeight=me.findEl('.hui-list-inner')[0].clientHeight;
-				oScroller.scrollTo(0,-nHeight);
+				oEl.scrollTop=nHeight;
 			}
 		}else{
-			oScroller.scrollTo(pos,pageY,nTime);
+			$D.info(pos);
+			oEl.scrollTop=pos;
 		}
 	}
 	/**
@@ -340,7 +308,6 @@ function(AC,Draggable){
 					}
 				});
 			}
-			me.lazyRefresh();
 		}else{
 			me.getMore();
 		}
@@ -351,26 +318,24 @@ function(AC,Draggable){
 	 */
 	function fPullLoading(bRefresh){
 		var me=this;
-		var oScroller=me.scroller;
-		var tmp=oScroller.minScrollY;
-		oScroller.minScrollY=$H.em2px(0.625);
+		me.scrollTo(0);
+		me.innerEl[0].style.marginTop=0;
 		if(bRefresh){
 			var oPdEl=me.findEl('.hui-list-pulldown');
-			oPdEl.addClass('hui-pd-release');
+			oPdEl.addClass('hui-pd-refresh');  
+            me.set('pdTxt',me.releaseTxt); 
+            me.pulldownIsRefresh?me.refresh():me.loadMore();
 		}
-		oScroller.scrollTo(0,0,200);
-		setTimeout(function(){
-			oScroller.minScrollY=tmp;
-		},1000);
 	}
 	/**
 	 * 销毁
 	 */
 	function fDestroy(){
 		var me=this;
-		if(me.scroller){
-			me.scroller.destroy();
-			me.scroller=null;
+		var oDrag=me.draggable;
+		if(oDrag){
+			oDrag.destroy();
+			me.draggable=null;
 		}
 		me.callSuper();
 	}

@@ -1005,7 +1005,7 @@
 }
 .hui-set {
   background-color: #fff;
-  padding: 0 0.625em;
+  padding: 0 0.25em;
 }
 .hui-set.hui-set-normal .hui-set-title {
   border-bottom: 1px solid #ccc;
@@ -1101,6 +1101,7 @@
 .hui-header,
 .hui-footer {
   position: fixed;
+  left: 0;
   z-index: 100;
   font-size: 1.1em;
 }
@@ -1154,13 +1155,13 @@
 .hui-tab-no-border .hui-tabitem.hui-item-last .hui-btn {
   border-right-width: 0;
 }
-.hui-tab-border-top .hui-btn {
+.hui-tab-border-top .hui-tab-titles .hui-btn {
   border-bottom: 0;
 }
-.hui-tab-border-bottom .hui-btn {
+.hui-tab-border-bottom .hui-tab-titles .hui-btn {
   border-top: 0;
 }
-.hui-tab-no-border .hui-btn {
+.hui-tab-no-border .hui-tab-titles .hui-btn {
   border-top: 0;
 }
 .hui-tips {
@@ -1361,6 +1362,20 @@
 .hui-list .hui-list-pulldown.hui-pd-refresh .hui-icon-loading-mini {
   display: inline-block;
 }
+.hui-list .hui-pull-container {
+  position: relative;
+  padding-left: 1.5em;
+  display: -moz-inline-stack;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
+}
+.hui-list .hui-pull-container .hui-icon {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  margin-top: -0.5em;
+}
 .hui-list .hui-list-more {
   text-align: center;
   padding-bottom: 1.25em;
@@ -1379,6 +1394,10 @@
 }
 .hui-mlist {
   position: relative;
+}
+.hui-mlist.hui-mlist-padding {
+  padding-left: 0.625em;
+  padding-right: 0.625em;
 }
 .hui-mlist .hui-list-inner {
   width: 100%;
@@ -2048,7 +2067,6 @@
 .hui-mod-independent {
   position: absolute;
   top: 0;
-  left: 0;
   width: 100%;
 }
 .hui-mod-zindex {

@@ -848,7 +848,7 @@
 //集合区域
 .hui-set{
 	background-color:#fff;
-	padding:0 0.625em;
+	padding:0 0.25em;
 	&.hui-set-normal{
 		.hui-set-title{
 			border-bottom:1px solid #ccc;
@@ -942,6 +942,7 @@
 }
 .hui-header,.hui-footer{
 	position:fixed;
+	left:0;
 	z-index:100;
 	font-size:1.1em;
 }
@@ -996,13 +997,13 @@
 		}
 	}
 }
-.hui-tab-border-top .hui-btn{
+.hui-tab-border-top .hui-tab-titles .hui-btn{
 	border-bottom:0;
 }
-.hui-tab-border-bottom .hui-btn{
+.hui-tab-border-bottom .hui-tab-titles .hui-btn{
 	border-top:0;
 }
-.hui-tab-no-border{
+.hui-tab-no-border .hui-tab-titles{
 	.hui-btn{
 		border-top:0;
 	}
@@ -1213,6 +1214,17 @@
 			}
 		}
 	}
+	.hui-pull-container{
+		position:relative;
+		padding-left:1.5em;
+		.fn_inline_block();
+		.hui-icon{
+			position:absolute;
+			left:0;
+			top:50%;
+			margin-top:-0.5em;
+		}
+	}
 	.hui-list-more{
 		text-align:center;
 		padding-bottom:1.25em;
@@ -1235,6 +1247,10 @@
 //模型列表
 .hui-mlist{
 	position:relative;
+	&.hui-mlist-padding{
+		padding-left:0.625em;
+		padding-right:0.625em;
+	}
 	.hui-list-inner{
 		width:100%;
 		min-height:100%;
@@ -1888,7 +1904,6 @@
 .hui-mod-independent{
 	position:absolute;
 	top:0;
-	left:0;
 	width:100%;
 }
 //动画模块独立渲染，并上浮
