@@ -171,13 +171,31 @@ function(AC){
 		var width=oEl[0].clientWidth;
 		var height=oEl[0].clientHeight;
 		var oDoc=document;
-		var x = ((oDoc.documentElement.offsetWidth || oDoc.body.offsetWidth) - width)/2;
-		var nClientHeight=oDoc.documentElement.clientHeight || oDoc.body.clientHeight;
+		var oDocEl=oDoc.documentElement;
+		var oBody=oDoc.body;
+		var nDocWidth;
+		//IE8下如果html节点设置了width，offsetWidth不准确
+		if($H.ie()<=8){
+			var nStyleW=oDocEl.currentStyle.width;
+			if(nStyleW){
+				if(nStyleW.indexOf('em')>0){
+					nDocWidth=$H.em2px(nStyleW);
+				}else{
+					nDocWidth=parseInt(nStyleW.replace('px',''));
+				}
+			}else{
+				nDocWidth=oDocEl.offsetWidth || oBody.offsetWidth;
+			}
+		}else{
+			nDocWidth=oDocEl.offsetWidth || oBody.offsetWidth;
+		}
+		var x = ( nDocWidth- width)/2;
+		var nClientHeight=oDocEl.clientHeight || oBody.clientHeight;
 		//稍微偏上一些显示
 		var nSpace=nClientHeight - height;
 		var y = nSpace/2 -nSpace/10;
 		if(!me.isFixed){
-			y+= oDoc.documentElement.scrollTop||oDoc.body.scrollTop;
+			y+= oDocEl.scrollTop||oBody.scrollTop;
 		}
 		y = y < 10 ? window.screen.height/2-200 : y;
 		oEl.css({
