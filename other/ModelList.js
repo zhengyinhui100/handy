@@ -5,11 +5,8 @@
  */
 
 $Define("C.ModelList",
-[
 'C.AbstractComponent',
-'E.Draggable'
-],
-function(AC,Draggable){
+function(AC){
 	
 	var ModelList=AC.define('ModelList');
 	
@@ -104,7 +101,7 @@ function(AC,Draggable){
 			me.loadMore();
 		}
 		if(oListItems.fetching){
-			me.set('emptyTips','加载中...');
+			me.set('emptyTips','正在加载中...');
 		}
 		me.listenTo(oListItems,{
 			'add':function(sEvt,oListItem){
@@ -134,29 +131,12 @@ function(AC,Draggable){
 			}
 		});
 		//下拉刷新
-		var bHasPd=me.hasPullRefresh;
+		var bHasPd=me.hasPullRefresh&&window.iScroll&&!$H.ie();
 		me.set('hasPullRefresh',bHasPd);
 		if(bHasPd){
 			//如果在afterShow里初始化iScroll，会看见下拉刷新的元素，所以这里先初始化，afterShow时再调用refresh
-			me.draggable=new Draggable(me.getEl(),{
-				move:function(oPos){
-					var me=this;
-					var oWrapper=me.getEl();
-					var oPdEl=oWrapper.find('.hui-list-pulldown');
-					var nStartY=$H.em2px(3.125);
-					var nValve=$H.em2px(0.313);
-					var sRefreshCls='hui-pd-refresh';
-					var sReleaseCls='hui-pd-release';
-					var nScrollY=oPos.offsetY;
-					oPdEl.css({marginTop:-nStartY+nScrollY+'px'});
-					return false;
-				},
-				end:function(){
-					
-				}
-			});
-			0&&me.listen({
-				name : 'touchmove',
+			me.listen({
+				name : 'afterRender',
 				handler : function(){
 					var me=this;
 					var oWrapper=me.getEl();
@@ -165,10 +145,12 @@ function(AC,Draggable){
 					var nValve=$H.em2px(0.313);
 					var sRefreshCls='hui-pd-refresh';
 					var sReleaseCls='hui-pd-release';
-					var nScrollY
-					$D.info()
-					return
 					me.scroller= new window.iScroll(oWrapper[0], {
+						useTransition: true,
+						topOffset: nStartY,
+						//bounce:false,
+						//bounceLock:true,
+						mouseWheel:true,
 						vScrollbar:false,
 						onRefresh: function () {
 							if(oPdEl.hasClass(sRefreshCls)){
@@ -200,10 +182,13 @@ function(AC,Draggable){
 			//同步数据后需要刷新
 			me.listenTo(me.model,'sync',function(){
 				me.set('pdTime',$H.formatDate($H.now(),'HH:mm'));
+				me.lazyRefresh();
 			});
+			//show后需要refresh下，否则无法滚动，iscroll需要浏览器渲染后才能正常初始化
 			me.listen({
 				name:'afterShow',
 				handler:function(){
+					me.lazyRefresh();
 					if(me.scrollPos=='bottom'){
 						setTimeout(function(){
 							me.scrollTo('bottom');

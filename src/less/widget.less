@@ -942,7 +942,6 @@
 }
 .hui-header,.hui-footer{
 	position:fixed;
-	left:0;
 	z-index:100;
 	font-size:1.1em;
 }
@@ -1176,6 +1175,8 @@
 
 //列表
 .hui-list{
+	overflow-x:hidden;
+	overflow-y:scroll;
 	.hui-list-empty{
 		text-align:center;
 		padding:2em 0;
@@ -1237,6 +1238,7 @@
 	.hui-list-inner{
 		width:100%;
 		min-height:100%;
+		margin-top:-3.125em;
 		//position:absolute;
 		//top:0;
 		//left:0;
