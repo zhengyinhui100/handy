@@ -91,7 +91,7 @@ function(AC,TabItem,ControlGroup){
 					var nDelX=x-me.startX;
 					var nDelY=y-me.startY;
 					//横向移动为主
-					if(Math.abs(nDelX)>Math.abs(nDelY)){
+					if(Math.abs(nDelX)>Math.abs(nDelY*5/4)){
 						//TODO 不阻止默认事件的话，touchend不会触发，而是触发touchcancel
 					    oEvt.preventDefault();
 						var nIndex=me.getSelected(true);
