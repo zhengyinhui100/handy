@@ -2277,7 +2277,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-set {
   background-color: #fff;
-  padding: 0 0.625em;
+  padding: 0 0.25em;
 }
 .hui-set.hui-set-normal .hui-set-title {
   border-bottom: 1px solid #ccc;
@@ -2427,13 +2427,13 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-tab-no-border .hui-tabitem.hui-item-last .hui-btn {
   border-right-width: 0;
 }
-.hui-tab-border-top .hui-btn {
+.hui-tab-border-top .hui-tab-titles .hui-btn {
   border-bottom: 0;
 }
-.hui-tab-border-bottom .hui-btn {
+.hui-tab-border-bottom .hui-tab-titles .hui-btn {
   border-top: 0;
 }
-.hui-tab-no-border .hui-btn {
+.hui-tab-no-border .hui-tab-titles .hui-btn {
   border-top: 0;
 }
 .hui-tips {
@@ -2589,6 +2589,10 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   max-height: 12.5em;
   max-width: 12.5em;
 }
+.hui-list {
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
 .hui-list .hui-list-empty {
   text-align: center;
   padding: 2em 0;
@@ -2630,6 +2634,20 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-list .hui-list-pulldown.hui-pd-refresh .hui-icon-loading-mini {
   display: inline-block;
 }
+.hui-list .hui-pull-container {
+  position: relative;
+  padding-left: 1.5em;
+  display: -moz-inline-stack;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
+}
+.hui-list .hui-pull-container .hui-icon {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  margin-top: -0.5em;
+}
 .hui-list .hui-list-more {
   text-align: center;
   padding-bottom: 1.25em;
@@ -2649,9 +2667,14 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-mlist {
   position: relative;
 }
+.hui-mlist.hui-mlist-padding {
+  padding-left: 0.625em;
+  padding-right: 0.625em;
+}
 .hui-mlist .hui-list-inner {
   width: 100%;
   min-height: 100%;
+  margin-top: -3.125em;
 }
 .hui-desc {
   font-size: 0.75em;
@@ -3316,7 +3339,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-mod-independent {
   position: absolute;
   top: 0;
-  left: 0;
   width: 100%;
 }
 .hui-mod-zindex {

@@ -5070,6 +5070,7 @@ function(){
 	 * 初始化
 	 * @param {string|element|jquery}el 需要拖拽效果的节点
 	 * @param {object}oOptions 选项{
+	 * 		{boolean=}preventDefault:true,false表示不阻止默认事件
 	 * 		{function(}start:开始移动时的回调函数
 	 * 		{function({object}oPos)}move:移动时的回调函数
 	 * 		{function(}end:结束移动时的回调函数
@@ -5118,20 +5119,24 @@ function(){
 		}
 		me.elY=top;
 		var oOptions=me.options;
-		oOptions.start&&oOptions.start();
+		oOptions.start&&oOptions.start.call(me);
 	}
 	/**
 	 * 移动
 	 * @param {jEvent}oEvt 事件对象
 	 */
-	function fMove(oEvt) {
+	function fMove(oOrigEvt) {
 		var me=this;
 		//阻止滚动页面或原生拖拽
-		oEvt.preventDefault();
+		if(me.options.preventDefault!==false){
+			oOrigEvt.preventDefault();
+		}
 		if(me.drag===true){
 			if($H.hasTouch()){
-				oEvt = oEvt.originalEvent||oEvt;
+				oEvt = oOrigEvt.originalEvent||oOrigEvt;
 				oEvt = oEvt.touches[0];
+			}else{
+				oEvt= oOrigEvt;
 			}
 			var nOffsetX=oEvt.clientX-me.eventX;
 			var nOffsetY=oEvt.clientY-me.eventY;
@@ -5146,7 +5151,7 @@ function(){
 				curY:top,
 				offsetX:nOffsetX,
 				offsetY:nOffsetY
-			});
+			},oOrigEvt);
 			if(result!==false){
 				oEl.style.left=(result&&result.curX||left)+'px';
 				oEl.style.top=(result&&result.curY||top)+'px';
@@ -11140,13 +11145,31 @@ function(AC){
 		var width=oEl[0].clientWidth;
 		var height=oEl[0].clientHeight;
 		var oDoc=document;
-		var x = ((oDoc.documentElement.offsetWidth || oDoc.body.offsetWidth) - width)/2;
-		var nClientHeight=oDoc.documentElement.clientHeight || oDoc.body.clientHeight;
+		var oDocEl=oDoc.documentElement;
+		var oBody=oDoc.body;
+		var nDocWidth;
+		//IE8下如果html节点设置了width，offsetWidth不准确
+		if($H.ie()<=8){
+			var nStyleW=oDocEl.currentStyle.width;
+			if(nStyleW){
+				if(nStyleW.indexOf('em')>0){
+					nDocWidth=$H.em2px(nStyleW);
+				}else{
+					nDocWidth=parseInt(nStyleW.replace('px',''));
+				}
+			}else{
+				nDocWidth=oDocEl.offsetWidth || oBody.offsetWidth;
+			}
+		}else{
+			nDocWidth=oDocEl.offsetWidth || oBody.offsetWidth;
+		}
+		var x = ( nDocWidth- width)/2;
+		var nClientHeight=oDocEl.clientHeight || oBody.clientHeight;
 		//稍微偏上一些显示
 		var nSpace=nClientHeight - height;
 		var y = nSpace/2 -nSpace/10;
 		if(!me.isFixed){
-			y+= oDoc.documentElement.scrollTop||oDoc.body.scrollTop;
+			y+= oDocEl.scrollTop||oBody.scrollTop;
 		}
 		y = y < 10 ? window.screen.height/2-200 : y;
 		oEl.css({
@@ -12488,7 +12511,7 @@ function(AC,TabItem,ControlGroup){
 					var nDelX=x-me.startX;
 					var nDelY=y-me.startY;
 					//横向移动为主
-					if(Math.abs(nDelX)>Math.abs(nDelY)){
+					if(Math.abs(nDelX)>Math.abs(nDelY*5/4)){
 						//TODO 不阻止默认事件的话，touchend不会触发，而是触发touchcancel
 					    oEvt.preventDefault();
 						var nIndex=me.getSelected(true);
@@ -14494,8 +14517,11 @@ function(AC){
  */
 
 $Define("C.ModelList",
+[
 'C.AbstractComponent',
-function(AC){
+'E.Draggable'
+],
+function(AC,Draggable){
 	
 	var ModelList=AC.define('ModelList');
 	
@@ -14534,7 +14560,7 @@ function(AC){
 				'<div class="hui-list-inner">',
 					'{{#if hasPullRefresh}}',
 						'<div class="hui-list-pulldown hui-pd-pull c-h-middle-container">',
-							'<div class="c-h-middle">',
+							'<div class="c-h-middle hui-pull-container">',
 								'<span class="hui-icon hui-alt-icon hui-icon-arrow-d hui-light"></span>',
 								'<span class="hui-icon hui-alt-icon hui-icon-loading-mini"></span>',
 								'<div class="hui-pd-txt">',
@@ -14564,10 +14590,9 @@ function(AC){
 			'</div>'
 		].join(''),
 		doConfig            : fDoconfig,           //初始化配置
+		initPdRefresh       : fInitPdRefresh,      //初始化下拉刷新功能
 		addListItem         : fAddListItem,        //添加列表项
 		removeListItem      : fRemoveListItem,     //删除列表项
-		refreshScroller     : fRefreshScroller,    //刷新iScroll
-		lazyRefresh         : fLazyRefreshScroller,//懒刷新iScroll
 		scrollTo            : fScrollTo,           //滚动到指定位置
 		loadMore            : fLoadMore,           //获取更多数据
 		pullLoading         : fPullLoading,        //显示正在刷新
@@ -14588,6 +14613,9 @@ function(AC){
 			me.set('isEmpty',true);
 		}else{
 			me.loadMore();
+		}
+		if(oListItems.fetching){
+			me.set('emptyTips','加载中...');
 		}
 		me.listenTo(oListItems,{
 			'add':function(sEvt,oListItem){
@@ -14613,74 +14641,15 @@ function(AC){
 				if(oListItems.size()===0){
 					me.set('isEmpty',true);
 				}
+				me.set('emptyTips','暂无');
 			}
 		});
+		
 		//下拉刷新
-		var bHasPd=me.hasPullRefresh&&window.iScroll&&!$H.ie();
+		var bHasPd=me.hasPullRefresh;
 		me.set('hasPullRefresh',bHasPd);
 		if(bHasPd){
-			//如果在afterShow里初始化iScroll，会看见下拉刷新的元素，所以这里先初始化，afterShow时再调用refresh
-			me.listen({
-				name : 'afterRender',
-				handler : function(){
-					var me=this;
-					var oWrapper=me.getEl();
-					var oPdEl=oWrapper.find('.hui-list-pulldown');
-					var nStartY=$H.em2px(3.125);
-					var nValve=$H.em2px(0.313);
-					var sRefreshCls='hui-pd-refresh';
-					var sReleaseCls='hui-pd-release';
-					me.scroller= new window.iScroll(oWrapper[0], {
-						useTransition: true,
-						topOffset: nStartY,
-						//bounce:false,
-						//bounceLock:true,
-						mouseWheel:true,
-						vScrollbar:false,
-						onRefresh: function () {
-							if(oPdEl.hasClass(sRefreshCls)){
-				                oPdEl.removeClass(sRefreshCls+' '+sReleaseCls);  
-				                me.set('pdTxt',me.pullTxt);  
-							}
-						},
-						onScrollMove: function () {
-							if (this.y > nValve && !oPdEl.hasClass(sReleaseCls)) {  
-				                oPdEl.addClass(sReleaseCls);  
-				                me.set('pdTxt',me.flipTxt);  
-								this.minScrollY = 0;
-				            } else if (this.y < nValve && oPdEl.hasClass(sReleaseCls)) {  
-				                oPdEl.removeClass(sReleaseCls);;  
-				                me.set('pdTxt',me.pullTxt); 
-								this.minScrollY = -nStartY;
-				            } 
-						},
-						onScrollEnd: function () {
-							if (oPdEl.hasClass(sReleaseCls)) {  
-				                oPdEl.addClass(sRefreshCls);  
-				                me.set('pdTxt',me.releaseTxt); 
-				                me.pulldownIsRefresh?me.refresh():me.loadMore();
-				            }
-						}
-					});
-				}
-			});
-			//同步数据后需要刷新
-			me.listenTo(me.model,'sync',function(){
-				me.set('pdTime',$H.formatDate($H.now(),'HH:mm'));
-				me.lazyRefresh();
-			});
-			//show后需要refresh下，否则无法滚动，iscroll需要浏览器渲染后才能正常初始化
-			me.listen({
-				name:'afterShow',
-				handler:function(){
-					me.lazyRefresh();
-					if(me.scrollPos=='bottom'){
-						setTimeout(function(){
-							me.scrollTo('bottom');
-						},0);
-					}
-				}
-			});
+			me.initPdRefresh();
 		}
 		
 		if(me.get('hasMoreBtn')){
@@ -14693,6 +14662,85 @@ function(AC){
 				}
 			});
 		}
+	}
+	/**
+	 * 初始化下拉刷新功能
+	 */
+	function fInitPdRefresh(){
+		var me=this;
+		me.listen({
+			name : 'afterRender',
+			handler : function(){
+				var oWrapper=me.getEl();
+				var oInner=me.innerEl=oWrapper.find('.hui-list-inner');
+				var oPdEl=oWrapper.find('.hui-list-pulldown');
+				var nStartY=$H.em2px(3.125);
+				var nValve=$H.em2px(2.313);
+				var sRefreshCls='hui-pd-refresh';
+				var sReleaseCls='hui-pd-release';
+				
+				me.draggable=new Draggable(me.getEl(),{
+					preventDefault:false,
+					start:function(){
+						//记录初始滚动位置
+						me._scrollY=me.getEl()[0].scrollTop;
+					},
+					move:function(oPos,oOrigEvt){
+						//往下拉才计算
+						if(oPos.offsetY>0&&oPos.offsetY>Math.abs(oPos.offsetX)){
+							var nScrollY=me._scrollY-oPos.offsetY;
+							//到顶部临界点后才开始显示下拉刷新
+							if(nScrollY<0){
+								nScrollY=-nScrollY;
+								//不在这里阻止默认事件的话，Android下move只会触发一次
+								oOrigEvt.preventDefault();
+								//超过阀值后减速
+								nScrollY=nScrollY>nStartY?nStartY+(nScrollY-nStartY)/4:nScrollY>nValve?nValve+(nScrollY-nValve)/2:nScrollY;
+								oInner[0].style.marginTop=-nStartY+nScrollY+'px';
+								if (nScrollY > nValve && !oPdEl.hasClass(sReleaseCls)) {  
+					                oPdEl.addClass(sReleaseCls);  
+					                me.set('pdTxt',me.flipTxt);  
+					            } else if (nScrollY < nValve && oPdEl.hasClass(sReleaseCls)) {  
+					                oPdEl.removeClass(sReleaseCls);;  
+					                me.set('pdTxt',me.pullTxt); 
+					            }
+							}
+						}
+						return false;
+					},
+					end:function(){
+						if (oPdEl.hasClass(sReleaseCls)) {  
+			                oPdEl.addClass(sRefreshCls);  
+			                me.set('pdTxt',me.releaseTxt); 
+			                oInner.animate({marginTop:0},'fast',function(){
+				                me.pulldownIsRefresh?me.refresh():me.loadMore();
+			                });
+			            }else{
+			            	oInner.animate({marginTop:-nStartY});
+			            }
+					}
+				});
+				//同步数据后需要刷新
+				me.listenTo(me.model,'sync',function(){
+					me.set('pdTime',$H.formatDate($H.now(),'HH:mm'));
+					if(oPdEl.hasClass(sRefreshCls)){
+		                oPdEl.removeClass(sRefreshCls+' '+sReleaseCls);  
+		                me.set('pdTxt',me.pullTxt);
+						oInner.animate({marginTop:-nStartY});
+					}
+				});
+			}
+		});
+		me.listen({
+			name:'afterShow',
+			handler:function(){
+				if(me.scrollPos=='bottom'){
+					setTimeout(function(){
+						me.scrollTo('bottom');
+					},0);
+				}
+			}
+		});
 	}
 	/**
 	 * 添加列表项
@@ -14711,7 +14759,6 @@ function(AC){
 		me.add({
 			model:oListItem
 		},nIndex);
-		me.lazyRefresh();
 	}
 	/**
 	 * 删除列表项
@@ -14729,59 +14776,22 @@ function(AC){
 		if(me.children.length==0){
 			me.set('isEmpty',true);;
 		}
-		me.lazyRefresh();
-	}
-	/**
-	 * 刷新iScroll
-	 */
-	function fRefreshScroller(){
-		var me=this;
-		//仅在页面显示时才刷新，否则scroller会不可用
-		if(me.scroller&&me.getEl()[0].clientHeight){
-	    	me.scroller.refresh();
-		}
-	}
-	/**
-	 * 懒刷新iScroll，多次调用此方法只会执行一次实际刷新
-	 */
-	function fLazyRefreshScroller(){
-		var me=this;
-		if(me._toRefresh){
-			return;
-		}
-		me._toRefresh=1;
-		setTimeout(function(){
-			me._toRefresh=0;
-			me.refreshScroller();
-		},0);
 	}
 	/**
 	 * 滚动到指定位置
-	 * @param {string|number}pos 位置，字符串参数：'top'表示顶部，'bottom'表示底部，数字参数表示横坐标
-	 * @param {number=}pageY 纵坐标
-	 * @param {number=}nTime 动画时间
+	 * @param {string|number}pos 纵轴位置，字符串参数：'bottom'表示底部
 	 */
-	function fScrollTo(pos,pageY,nTime){
+	function fScrollTo(pos){
 		var me=this;
-		if(!me.scrollToTimer){
-			var aArgs=arguments;
-			//dom有改变时，不延迟的话，scrollTo无效
-			me.scrollToTimer=setTimeout(function(){
-				me.scrollTo.apply(me,aArgs);
-				me.scrollToTimer=null;
-			},0);
-			return;
-		}
-		var oScroller=me.scroller;
+		var oEl=me.getEl()[0];
 		if($H.isStr(pos)){
-			if(pos=='top'){
-				oScroller.scrollTo(0,-$H.em2px(3.125));
-			}else if(pos=='bottom'){
+			if(pos=='bottom'){
 				var nHeight=me.findEl('.hui-list-inner')[0].clientHeight;
-				oScroller.scrollTo(0,-nHeight);
+				oEl.scrollTop=nHeight;
 			}
 		}else{
-			oScroller.scrollTo(pos,pageY,nTime);
+			$D.info(pos);
+			oEl.scrollTop=pos;
 		}
 	}
 	/**
@@ -14810,7 +14820,6 @@ function(AC){
 					}
 				});
 			}
-			me.lazyRefresh();
 		}else{
 			me.getMore();
 		}
@@ -14821,26 +14830,24 @@ function(AC){
 	 */
 	function fPullLoading(bRefresh){
 		var me=this;
-		var oScroller=me.scroller;
-		var tmp=oScroller.minScrollY;
-		oScroller.minScrollY=$H.em2px(0.625);
+		me.scrollTo(0);
+		me.innerEl[0].style.marginTop=0;
 		if(bRefresh){
 			var oPdEl=me.findEl('.hui-list-pulldown');
-			oPdEl.addClass('hui-pd-release');
+			oPdEl.addClass('hui-pd-refresh');  
+            me.set('pdTxt',me.releaseTxt); 
+            me.pulldownIsRefresh?me.refresh():me.loadMore();
 		}
-		oScroller.scrollTo(0,0,200);
-		setTimeout(function(){
-			oScroller.minScrollY=tmp;
-		},1000);
 	}
 	/**
 	 * 销毁
 	 */
 	function fDestroy(){
 		var me=this;
-		if(me.scroller){
-			me.scroller.destroy();
-			me.scroller=null;
+		var oDrag=me.draggable;
+		if(oDrag){
+			oDrag.destroy();
+			me.draggable=null;
 		}
 		me.callSuper();
 	}
