@@ -59,7 +59,8 @@ function(AC){
 					var nDel=nScrollY-me.lastScroll;
 					var bHide;
 					if(me.isHeader){
-						if(nDel>0){
+						//滚动到页顶时会有些弹跳，所以加个nScrollY>10避免隐藏
+						if(nDel>0&&nScrollY>10){
 							bHide=true;
 						}else if(nDel<0){
 							me.show();
