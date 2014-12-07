@@ -77,6 +77,7 @@ a:focus,a:active{border:none;outline:none;}
 	//-ms-user-select: none;
 	//-moz-user-select: -moz-none;
 }
+
 //input添加了-webkit-user-select: none;样式后，点击聚焦光标会自动跳到开始位置而不是现有文字后面
 input,textarea{
 	-webkit-user-select: text;
@@ -84,6 +85,13 @@ input,textarea{
 	-moz-user-select: text;
 }
 input[type="text"]{-webkit-appearance:none}/* ipad/iphone设备input有阴影 */
+
+//滚动条
+.hui-mobile{
+::-webkit-scrollbar {
+    display:none;
+}
+}
 /*
 http://www.w3cplus.com/content/css3-box-sizing
 .submit,
@@ -103,18 +111,6 @@ http://www.w3cplus.com/content/css3-box-sizing
     *width: 0.938em;
 }
 
-//滚动条
-::-webkit-scrollbar {
-    width: 0.5em;
-}
-::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:window-inactive {
-    background-color: rgba(0, 0, 0, 0.6);
-}
 				
 */
 /*

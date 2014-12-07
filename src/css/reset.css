@@ -172,6 +172,9 @@ input[type="text"] {
   -webkit-appearance: none;
 }
 /* ipad/iphone设备input有阴影 */
+.hui-mobile ::-webkit-scrollbar {
+  display: none;
+}
 /*
 http://www.w3cplus.com/content/css3-box-sizing
 .submit,
@@ -191,18 +194,6 @@ http://www.w3cplus.com/content/css3-box-sizing
     *width: 0.938em;
 }
 
-//滚动条
-::-webkit-scrollbar {
-    width: 0.5em;
-}
-::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:window-inactive {
-    background-color: rgba(0, 0, 0, 0.6);
-}
 				
 */
 /*

@@ -12518,6 +12518,7 @@ function(AC,TabItem,ControlGroup){
 					var y=oTouch.clientY;
 					var nDelX=x-me.startX;
 					var nDelY=y-me.startY;
+					console.log(nDelY)
 					//横向移动为主
 					if(Math.abs(nDelX)>Math.abs(nDelY*5/4)){
 						//TODO 不阻止默认事件的话，touchend不会触发，而是触发touchcancel
