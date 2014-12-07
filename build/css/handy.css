@@ -1384,7 +1384,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   font-size: 1em;
   font-weight: bold;
   margin: 0.5em 0;
-  padding: 0.375em 1em;
+  padding: 0.438em 1em;
   min-width: 0.75em;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -2319,7 +2319,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-tbar .hui-tbar-title {
   min-height: 1.063em;
   text-align: center;
-  font-size: 1em;
+  font-size: 1.125em;
   display: block;
   padding: 0.625em 2.5em;
   text-overflow: ellipsis;
@@ -2375,7 +2375,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   position: fixed;
   left: 0;
   z-index: 100;
-  font-size: 1.1em;
 }
 .hui-header {
   top: 0;

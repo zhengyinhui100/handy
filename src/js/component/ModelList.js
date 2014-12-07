@@ -278,7 +278,6 @@ function(AC,Draggable){
 				oEl.scrollTop=nHeight;
 			}
 		}else{
-			$D.info(pos);
 			oEl.scrollTop=pos;
 		}
 	}

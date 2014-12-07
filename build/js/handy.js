@@ -7720,6 +7720,14 @@ function(ViewManager,AbstractEvents){
 				oEl=oEl.call(me);
 			}
 			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
+			//TODO 暂时在这里统一转换移动事件
+			if($H.mobile()&&oEl.tap){
+				var oMap={
+					'click'    : 'tap',
+					'dblclick' : 'doubleTap'
+				}
+				sName=oMap[sName]||sName;
+			}
 			if(sSel){
 				if(oData){
 					oEl[sMethod](sSel,sName,oData,fFunc);
@@ -14694,8 +14702,8 @@ function(AC,Draggable){
 								nScrollY=-nScrollY;
 								//不在这里阻止默认事件的话，Android下move只会触发一次
 								oOrigEvt.preventDefault();
-								//超过阀值后减速
-								nScrollY=nScrollY>nStartY?nStartY+(nScrollY-nStartY)/4:nScrollY>nValve?nValve+(nScrollY-nValve)/2:nScrollY;
+								//逐渐减速
+								nScrollY=Math.pow(nScrollY,0.8);
 								oInner[0].style.marginTop=-nStartY+nScrollY+'px';
 								if (nScrollY > nValve && !oPdEl.hasClass(sReleaseCls)) {  
 					                oPdEl.addClass(sReleaseCls);  
@@ -14790,7 +14798,6 @@ function(AC,Draggable){
 				oEl.scrollTop=nHeight;
 			}
 		}else{
-			$D.info(pos);
 			oEl.scrollTop=pos;
 		}
 	}
