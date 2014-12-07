@@ -222,6 +222,14 @@ function(ViewManager,AbstractEvents){
 				oEl=oEl.call(me);
 			}
 			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
+			//TODO 暂时在这里统一转换移动事件
+			if($H.mobile()&&oEl.tap){
+				var oMap={
+					'click'    : 'tap',
+					'dblclick' : 'doubleTap'
+				}
+				sName=oMap[sName]||sName;
+			}
 			if(sSel){
 				if(oData){
 					oEl[sMethod](sSel,sName,oData,fFunc);
