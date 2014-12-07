@@ -135,12 +135,6 @@ module.exports = function(grunt) {
 				],
 				dest : buildLibDir+'crypto.min.js'
 			},
-			otherlib:{
-				src : [
-					buildLibDir+'fastclick/fastclick.js'
-				],
-				dest : buildLibDir+'otherlib.js'
-			},
 			sportapp : {
 				src : [
 					buildVersionDir+'js/Config.js',
@@ -171,7 +165,7 @@ module.exports = function(grunt) {
 				files : [{
 					expand:true,
 					cwd:buildVersionDir,
-					src:['js/**/*.js','lib/fastclick/*.js','lib/otherlib.js',
+					src:['js/**/*.js','lib/zepto/*.js',
 					'lib/kindeditor/kindeditor.js'],
 					dest:buildVersionDir,
 					ext:'.min.js'
