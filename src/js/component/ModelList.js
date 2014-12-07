@@ -182,8 +182,8 @@ function(AC,Draggable){
 								nScrollY=-nScrollY;
 								//不在这里阻止默认事件的话，Android下move只会触发一次
 								oOrigEvt.preventDefault();
-								//超过阀值后减速
-								nScrollY=nScrollY>nStartY?nStartY+(nScrollY-nStartY)/4:nScrollY>nValve?nValve+(nScrollY-nValve)/2:nScrollY;
+								//逐渐减速
+								nScrollY=Math.pow(nScrollY,0.8);
 								oInner[0].style.marginTop=-nStartY+nScrollY+'px';
 								if (nScrollY > nValve && !oPdEl.hasClass(sReleaseCls)) {  
 					                oPdEl.addClass(sReleaseCls);  
