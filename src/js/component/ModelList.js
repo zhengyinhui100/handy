@@ -183,7 +183,7 @@ function(AC,Draggable){
 								//不在这里阻止默认事件的话，Android下move只会触发一次
 								oOrigEvt.preventDefault();
 								//逐渐减速
-								nScrollY=Math.pow(nScrollY,0.8);
+								nScrollY=Math.pow(nScrollY,0.85);
 								oInner[0].style.marginTop=-nStartY+nScrollY+'px';
 								if (nScrollY > nValve && !oPdEl.hasClass(sReleaseCls)) {  
 					                oPdEl.addClass(sReleaseCls);  
