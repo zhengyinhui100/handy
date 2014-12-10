@@ -83,6 +83,7 @@ handy.add('Json',function(){
 	        	//无穷大的数字转换为null
 	            return isFinite(value) ? String(value) : 'null';
 	        case 'boolean':
+	        case 'function':
 	        case 'null':
 	        	//typeof null=='object'，而不是'null',这里只是为了将来可能修正的情况
 	            return String(value);
