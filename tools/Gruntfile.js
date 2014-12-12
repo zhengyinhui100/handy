@@ -72,7 +72,8 @@ module.exports = function(grunt) {
 				cwd:projectDir,
 				src : [
 					'**/*','!platforms/**/*','!plugins/**','!build/**','!htmlTmpl/**',
-					'!less/**','!www/img/**','!www/css/**','!www/js/**','!www/lib/**'
+					'!less/**','!www/img/**','!www/css/**','!www/js/**','!www/lib/**',
+					'plugins/org.hui.cordova.share/**'
 				],
 				dest :appDir
 			},
@@ -262,6 +263,6 @@ module.exports = function(grunt) {
 	
 	grunt.registerTask('bulidDevApk', ['shell:buildDevApk']);
 	
-	grunt.registerTask('default', ['testStaticTar']);
+	grunt.registerTask('default', ['appTar']);
 	
 };
