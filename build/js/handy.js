@@ -161,6 +161,7 @@ handy.add('Json',function(){
 	        	//无穷大的数字转换为null
 	            return isFinite(value) ? String(value) : 'null';
 	        case 'boolean':
+	        case 'function':
 	        case 'null':
 	        	//typeof null=='object'，而不是'null',这里只是为了将来可能修正的情况
 	            return String(value);
@@ -1204,7 +1205,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 			oVar=oVar instanceof Error?oVar.message:oVar;
 			//这里原生的JSON.stringify有问题(&nbsp;中最后的'p;'会丢失)，统一强制使用自定义方法
 			var sMsg=typeof oVar=='string'?oVar:$H.Json.stringify(oVar, null, '&nbsp;&nbsp;&nbsp;&nbsp;',true);
-			sMsg=sMsg.replace(/\n|\\n/g,'<br/>');
+			sMsg=sMsg&&sMsg.replace(/\n|\\n/g,'<br/>');
 			var sStyle;
 			if(sType=='log'){
 				sStyle='';
@@ -14682,6 +14683,7 @@ function(AC,Draggable){
 				var oWrapper=me.getEl();
 				var oInner=me.innerEl=oWrapper.find('.hui-list-inner');
 				var oPdEl=oWrapper.find('.hui-list-pulldown');
+				oInner.css({marginTop:'-3.125em'});
 				var nStartY=$H.em2px(3.125);
 				var nValve=$H.em2px(2.313);
 				var sRefreshCls='hui-pd-refresh';
@@ -14703,7 +14705,7 @@ function(AC,Draggable){
 								//不在这里阻止默认事件的话，Android下move只会触发一次
 								oOrigEvt.preventDefault();
 								//逐渐减速
-								nScrollY=Math.pow(nScrollY,0.8);
+								nScrollY=Math.pow(nScrollY,0.85);
 								oInner[0].style.marginTop=-nStartY+nScrollY+'px';
 								if (nScrollY > nValve && !oPdEl.hasClass(sReleaseCls)) {  
 					                oPdEl.addClass(sReleaseCls);  

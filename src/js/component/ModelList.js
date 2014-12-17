@@ -162,6 +162,7 @@ function(AC,Draggable){
 				var oWrapper=me.getEl();
 				var oInner=me.innerEl=oWrapper.find('.hui-list-inner');
 				var oPdEl=oWrapper.find('.hui-list-pulldown');
+				oInner.css({marginTop:'-3.125em'});
 				var nStartY=$H.em2px(3.125);
 				var nValve=$H.em2px(2.313);
 				var sRefreshCls='hui-pd-refresh';
