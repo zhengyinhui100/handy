@@ -78,7 +78,8 @@ $Define("B.Url","B.Object",function(Object){
 	 * @return {string} 返回query(不带"?")
 	 */
 	function fGetQuery(sUrl){
-		var sQuery=sUrl?sUrl.substring(sUrl.indexOf('?')+1,sUrl.indexOf('#')):top.location.search.substring(1);
+		var nIndex=sUrl.indexOf('?');
+		var sQuery=sUrl?nIndex>-1?sUrl.substring(nIndex+1,sUrl.indexOf('#')):'':top.location.search.substring(1);
 		return sQuery;
 	}
 	/**
@@ -90,7 +91,7 @@ $Define("B.Url","B.Object",function(Object){
 	function fSetQuery(sUrl,sQuery){
 		if(sUrl){
 			var nHashIndex=sUrl.indexOf('#');
-			sUrl=sUrl.substring(0,sUrl.indexOf('?')+1)+sQuery+(nHashIndex>0?sUrl.substring(nHashIndex):'');
+			sUrl=sUrl.match(/[^\?#]+/)[0]+'?'+sQuery+(nHashIndex>0?sUrl.substring(nHashIndex):'');
 			return sUrl;
 		}else{
 			top.location.search="?"+sQuery;
