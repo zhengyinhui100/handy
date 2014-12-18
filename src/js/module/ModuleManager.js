@@ -148,7 +148,6 @@ function(History,AbstractManager){
 		if(!$H.isEmpty(oUrlParam)){
 			var fChk=oConf.chkEntry;
 			var bResult=fChk&&fChk(oUrlParam);
-			//开发模式下可以进入所有子模块，线上环境只允许进入指定模块
 			if(bResult!==false){
 				me.go(oUrlParam);
 				return;

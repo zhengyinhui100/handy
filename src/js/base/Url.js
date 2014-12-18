@@ -78,7 +78,7 @@ $Define("B.Url","B.Object",function(Object){
 	 * @return {string} 返回query(不带"?")
 	 */
 	function fGetQuery(sUrl){
-		var nIndex=sUrl.indexOf('?');
+		var nIndex=sUrl&&sUrl.indexOf('?');
 		var sQuery=sUrl?nIndex>-1?sUrl.substring(nIndex+1,sUrl.indexOf('#')):'':top.location.search.substring(1);
 		return sQuery;
 	}

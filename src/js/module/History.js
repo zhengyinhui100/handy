@@ -137,7 +137,7 @@ function(HashChange){
 			try {
 				oUrlParam=$H.parseJson(decodeURIComponent(sRetPage));
 			} catch (e) {
-				$D.log("parse retPage param from hash error:"
+				$D.warn("parse retPage param from hash error:"
 						+ e.message);
 			}
 		}
