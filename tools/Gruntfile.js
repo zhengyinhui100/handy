@@ -16,22 +16,16 @@ module.exports = function(grunt) {
 		return nNum<10?'0'+nNum:nNum;
 	}
 	var sVersion=''+oNow.getFullYear()+_fFix(oNow.getMonth() + 1)+_fFix(oNow.getDate())+_fFix(oNow.getHours())+_fFix(oNow.getMinutes())+_fFix(oNow.getSeconds());
-	var testConfig={
-		server:'http://www.17lejia.com/',
-		staticServer:'http://www.handy-ui.com/',
-//		server:'http://115.28.151.237:8080/',
-//		staticServer:'http://115.28.151.237/',
-		//staticServerName:'http://192.168.0.209/',
-		environment:'test',
-		//native app版本号
-		appVersion:0.3,
-		//webapp(前端更新)版本号
-		version:0.3,
-		//前端更新版本(时间)
-		staticVersion:sVersion
-	}
 	
-	grunt.initConfig({
+	var sEnv=grunt.option('env')||'test';
+	var sCurTask=grunt.cli.tasks[0];
+	var fs=require('fs');
+	var oConfig=grunt.file.readJSON(projectDir+"/conf/config.json");
+	oConfig=oConfig[sEnv];
+	//前端更新版本(时间)
+	oConfig.staticVersion=sVersion;
+	
+	var oGruntConf={
 		pkg : grunt.file.readJSON('package.json'),
 		clean:{
 			options:{force:true},
@@ -48,19 +42,6 @@ module.exports = function(grunt) {
 			}
 		},
 		copy:{
-			//local test build 把options改名即可忽略此替换过程
-			options : {
-				//二进制文件必须排除，否则会损坏文件
-				noProcess:['**/*.jpg','**/*.png','**/*.jpeg','**/*.gif','**/*.swf'],
-				process : function(content, srcpath) {
-					if(/\.(js|html|ftl)$/.test(srcpath)){
-						return content.replace(/{%=(((?!%}).)+)%}/g, function(match,$1){
-							return testConfig[$1];
-						});
-					}
-					return content;
-				}
-			},
 			build:{
 				expand : true,
 				cwd:wwwDir,
@@ -230,7 +211,23 @@ module.exports = function(grunt) {
 				].join('&&')
 			}
 		}
-	});
+	};
+	
+	if(sCurTask===''){
+		oGruntConf.copy.options ={
+			//二进制文件必须排除，否则会损坏文件
+			noProcess:['**/*.jpg','**/*.png','**/*.jpeg','**/*.gif','**/*.swf'],
+			process : function(content, srcpath) {
+				if(/\.(js|html|ftl)$/.test(srcpath)){
+					return content.replace(/{%=(((?!%}).)+)%}/g, function(match,$1){
+						return oConfig[$1];
+					});
+				}
+				return content;
+			}
+		};
+	}
+	grunt.initConfig(oGruntConf);
 
 	grunt.loadNpmTasks('grunt-contrib-less');
 	grunt.loadNpmTasks('grunt-contrib-clean');
@@ -248,21 +245,21 @@ module.exports = function(grunt) {
 
 	
 	//local test build 把copy.options改名
-	grunt.registerTask('testStaticBuild', ['clean:build','less','copy:build','copy:ftl','handy_require','concat','cssmin','uglify']);
+	grunt.registerTask('staticBuild', ['clean:build','less','copy:build','copy:ftl','handy_require','concat','cssmin','uglify']);
 	
-	grunt.registerTask('testStaticTar', ['testStaticBuild','shell:build']);
+	grunt.registerTask('staticTar', ['staticBuild','shell:build']);
 	
 	grunt.registerTask('appBuild', ['clean:appBuild','copy:app','copy:appLocal']);
 	
 	//phonegap online build
-	grunt.registerTask('appTar', ['testStaticBuild','appBuild','shell:appTar']);
+	grunt.registerTask('appTar', ['staticBuild','appBuild','shell:appTar']);
 	
-	grunt.registerTask('testTar', ['testStaticBuild','shell:build','appBuild','shell:appTar']);
+	grunt.registerTask('testTar', ['staticBuild','shell:build','appBuild','shell:appTar']);
 	
 	grunt.registerTask('bulidTestApk', ['appBuild','shell:buildTestApk']);
 	
 	grunt.registerTask('bulidDevApk', ['shell:buildDevApk']);
 	
-	grunt.registerTask('default', ['testStaticTar']);
+	grunt.registerTask('default', ['staticTar']);
 	
 };

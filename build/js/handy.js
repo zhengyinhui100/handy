@@ -1184,7 +1184,7 @@ handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser
 					'<a href="javascript:void(0)" onclick="var oDv=this.parentNode.getElementsByTagName(\'div\')[0];if(this.innerHTML==\'底部\'){oDv.scrollTop=oDv.scrollHeight;this.innerHTML=\'顶部\';}else{oDv.scrollTop=0;this.innerHTML=\'底部\';}">顶部</a>',
 					'<a href="javascript:void(0)" onclick="location.reload();">刷新</a>',
 					'<a href="javascript:void(0)" onclick="history.back();">后退</a>'
-				].join('&nbsp;&nbsp;&nbsp;&nbsp;')+'<div style="padding-top:0.313;height:90%;overflow:auto;font-size:0.75em;"></div>';
+				].join('&nbsp;&nbsp;&nbsp;&nbsp;')+'<div style="padding-top:0.313;height:90%;overflow:auto;font-size:0.75em;word-wrap:break-word;word-break:break-all;"></div>';
 				oDebugDiv.style.position = 'fixed';
 				oDebugDiv.style.width = '100%';
 				oDebugDiv.style.left = 0;
@@ -3173,7 +3173,8 @@ $Define("B.Url","B.Object",function(Object){
 	 * @return {string} 返回query(不带"?")
 	 */
 	function fGetQuery(sUrl){
-		var sQuery=sUrl?sUrl.substring(sUrl.indexOf('?')+1,sUrl.indexOf('#')):top.location.search.substring(1);
+		var nIndex=sUrl&&sUrl.indexOf('?');
+		var sQuery=sUrl?nIndex>-1?sUrl.substring(nIndex+1,sUrl.indexOf('#')):'':top.location.search.substring(1);
 		return sQuery;
 	}
 	/**
@@ -3185,7 +3186,7 @@ $Define("B.Url","B.Object",function(Object){
 	function fSetQuery(sUrl,sQuery){
 		if(sUrl){
 			var nHashIndex=sUrl.indexOf('#');
-			sUrl=sUrl.substring(0,sUrl.indexOf('?')+1)+sQuery+(nHashIndex>0?sUrl.substring(nHashIndex):'');
+			sUrl=sUrl.match(/[^\?#]+/)[0]+'?'+sQuery+(nHashIndex>0?sUrl.substring(nHashIndex):'');
 			return sUrl;
 		}else{
 			top.location.search="?"+sQuery;
@@ -9943,7 +9944,7 @@ function(HashChange){
 			try {
 				oUrlParam=$H.parseJson(decodeURIComponent(sRetPage));
 			} catch (e) {
-				$D.log("parse retPage param from hash error:"
+				$D.warn("parse retPage param from hash error:"
 						+ e.message);
 			}
 		}
@@ -10148,7 +10149,6 @@ function(History,AbstractManager){
 		if(!$H.isEmpty(oUrlParam)){
 			var fChk=oConf.chkEntry;
 			var bResult=fChk&&fChk(oUrlParam);
-			//开发模式下可以进入所有子模块，线上环境只允许进入指定模块
 			if(bResult!==false){
 				me.go(oUrlParam);
 				return;
