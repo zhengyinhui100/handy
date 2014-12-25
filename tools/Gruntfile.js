@@ -20,7 +20,7 @@ module.exports = function(grunt) {
 	var sEnv=grunt.option('env')||'test';
 	var sCurTask=grunt.cli.tasks[0];
 	var fs=require('fs');
-	var oConfig=grunt.file.readJSON(projectDir+"/conf/config.json");
+	var oConfig=grunt.file.readJSON(projectDir+"/resources/config.json");
 	oConfig=oConfig[sEnv];
 	//前端更新版本(时间)
 	oConfig.staticVersion=sVersion;
@@ -213,7 +213,7 @@ module.exports = function(grunt) {
 		}
 	};
 	
-	if(sCurTask===''){
+	if(sEnv==='test'||sEnv==='online'){
 		oGruntConf.copy.options ={
 			//二进制文件必须排除，否则会损坏文件
 			noProcess:['**/*.jpg','**/*.png','**/*.jpeg','**/*.gif','**/*.swf'],
