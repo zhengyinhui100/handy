@@ -134,6 +134,9 @@ function(HashChange){
 		var oUrlParam=$H.getHashParam();
 		if($H.isEmpty(oUrlParam)){
 			var sRetPage=$H.getQueryParam(null,'retPage');
+			if(!sRetPage){
+				return;
+			}
 			try {
 				oUrlParam=$H.parseJson(decodeURIComponent(sRetPage));
 			} catch (e) {
