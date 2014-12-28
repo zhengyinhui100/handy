@@ -120,7 +120,13 @@ $Define('B.Support','B.Browser',function(Browser){
 			}
 		}
 		if(Browser.ios()){
-			sCls+=' hui-ios'
+			sCls+=' hui-ios';
+		}
+		if(Browser.phone()){
+			sCls+=' hui-phone';
+		}
+		if(Browser.tablet()){
+			sCls+=' hui-tablet';
 		}
 		document.documentElement.className+=" "+sCls+" hui";
 	}

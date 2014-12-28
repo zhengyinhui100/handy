@@ -122,7 +122,7 @@ handy.add("Browser","handy.base.Object",function(Object){
 				if (m && m[0]) {
 					_oInfo[m[0].toLowerCase()] = _oInfo.ios;
 				}
-				if(/ipad/.test(ua)){
+				if(/iPad/.test(ua)){
 					_oInfo.tablet='ios';
 				}else{
 					_oInfo.phone='ios';
