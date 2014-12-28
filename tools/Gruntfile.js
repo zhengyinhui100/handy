@@ -69,7 +69,7 @@ module.exports = function(grunt) {
 			ftl:{
 				expand : true,
 				cwd:ftlDir,
-				src : ['index.ftl','chkVersion.ftl'],
+				src : ['config.ftl'],
 				dest :deployDir
 			}
 		},
@@ -181,8 +181,8 @@ module.exports = function(grunt) {
 					'cp -R '+buildVersionDir+' '+deployDir+sVersion+'/'+'<%=pkg.name%>',
 					'cd '+deployDir,
 					'rm -f static.tar.gz',
-					'tar -cvzf static.tar.gz index.ftl chkVersion.ftl '+sVersion,
-					'rm -f index.ftl chkVersion.ftl',
+					'tar -cvzf static.tar.gz config.ftl '+sVersion,
+					'rm -f config.ftl',
 					'rm -rf '+sVersion
 				].join('&&')
 			},
@@ -213,15 +213,27 @@ module.exports = function(grunt) {
 		}
 	};
 	
+	function tmpl(content,config){
+		content=content.replace(/{%=(((?!%}).)+)%}/g, function(match,$1){
+			var result=config[$1];
+			if(result){
+				if(result.indexOf('{%=')>=0){
+					result=config[$1]=tmpl(result,config);
+				}
+				return result;
+			}
+			return match;
+		});
+		return content;
+	}
+
 	if(sEnv==='test'||sEnv==='online'){
 		oGruntConf.copy.options ={
 			//二进制文件必须排除，否则会损坏文件
 			noProcess:['**/*.jpg','**/*.png','**/*.jpeg','**/*.gif','**/*.swf'],
 			process : function(content, srcpath) {
 				if(/\.(js|html|ftl)$/.test(srcpath)){
-					return content.replace(/{%=(((?!%}).)+)%}/g, function(match,$1){
-						return oConfig[$1];
-					});
+					return tmpl(content,oConfig);
 				}
 				return content;
 			}
@@ -260,6 +272,6 @@ module.exports = function(grunt) {
 	
 	grunt.registerTask('bulidDevApk', ['shell:buildDevApk']);
 	
-	grunt.registerTask('default', ['staticTar']);
+	grunt.registerTask('default', ['copy:ftl']);
 	
 };
