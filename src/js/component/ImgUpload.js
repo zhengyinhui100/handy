@@ -138,6 +138,7 @@ function(AC,ImgCompress,Device,Camera){
 				xrole:'dialog-content',
 				items:[{
 					xtype:'Button',
+					theme:'green',
 					text:'拍照',
 					isInline:false,
 					click:function(){
@@ -151,6 +152,7 @@ function(AC,ImgCompress,Device,Camera){
 				},{
 					xtype:'Button',
 					text:'相册',
+					theme:'green',
 					isInline:false,
 					click:function(){
 						Camera.getPicture({

@@ -10493,6 +10493,7 @@ define('C.AbstractComponent',["V.ViewManager",'V.View','C.ComponentManager','B.C
 			radius          : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 			shadow          : false,        	 //外阴影
 			shadowInset     : false,        	 //内阴影
+			gradient        : false,             //渐变
 			shadowSurround  : false,             //外围亮阴影，主要用于黑色工具栏内的按钮
 			shadowOverlay   : false,             //遮罩层里组件的阴影效果，主要用于弹出层
 			size            : '',       	     //尺寸，normal:正常，mini:小号
@@ -10632,7 +10633,7 @@ define('C.AbstractComponent',["V.ViewManager",'V.View','C.ComponentManager','B.C
 	function fPreTmpl(){
 		var me=this;
 		me.callSuper();
-		me.tmpl=me.tmpl.replace(/(class=['"])/,'$1#js-component cmpCls tTypeCls themeCls radiusCls sizeCls shadow?hui-shadow shadowSurround?hui-shadow-surround '+
+		me.tmpl=me.tmpl.replace(/(class=['"])/,'$1#js-component cmpCls tTypeCls themeCls radiusCls sizeCls shadow?hui-shadow gradient?hui-gradient shadowSurround?hui-shadow-surround '+
 		'shadowOverlay?hui-shadow-overlay shadowInset?hui-shadow-inset activeClass isFocus?hui-focus isInline?hui-inline ');
 	}
 	/**
@@ -11645,6 +11646,7 @@ function(AC){
 			text            : '请选择...',          //为选择时的文字
 			value           : '',                  //默认值
 			radius          : 'little',
+			gradient        : true,
 			iconPos         : 'right',             //图标位置，"left"|"right"|"top"|"bottom"
 			iconPosCls      : {
 				depends : ['iconPos'],
@@ -13095,7 +13097,8 @@ function(AC,Popup,ControlGroup){
 	
 	Menu.extend({
 		xConfig         : {
-			cls              : 'menu'
+			cls              : 'menu',
+			radius           : 'little'
 		},
 		markType         : null,         //选中的标记类型，默认不带选中效果，'active'是组件active效果，'hook'是勾选效果
 		destroyWhenHide  : false,
@@ -13388,6 +13391,7 @@ function(AC,DatePicker){
 				}
 			},         
 			radius          : 'little',
+			gradient        : true,
 			iconPos         : 'right',             //图标位置，"left"|"right"|"top"|"bottom"
 			iconPosCls      : {
 				depends : ['iconPos'],
@@ -13766,6 +13770,7 @@ function(AC,ImgCompress,Device,Camera){
 				xrole:'dialog-content',
 				items:[{
 					xtype:'Button',
+					theme:'green',
 					text:'拍照',
 					isInline:false,
 					click:function(){
@@ -13779,6 +13784,7 @@ function(AC,ImgCompress,Device,Camera){
 				},{
 					xtype:'Button',
 					text:'相册',
+					theme:'green',
 					isInline:false,
 					click:function(){
 						Camera.getPicture({

@@ -18,6 +18,7 @@ function(AC){
 			text            : '请选择...',          //为选择时的文字
 			value           : '',                  //默认值
 			radius          : 'little',
+			gradient        : true,
 			iconPos         : 'right',             //图标位置，"left"|"right"|"top"|"bottom"
 			iconPosCls      : {
 				depends : ['iconPos'],

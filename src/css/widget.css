@@ -111,14 +111,14 @@
   text-align: center;
   font-size: 1em;
   font-weight: bold;
-  margin: 0.5em 0;
+  margin: 1em 0;
   padding: 0.438em 1em;
   min-width: 0.75em;
   text-overflow: ellipsis;
   white-space: nowrap;
   border: 1px solid #ccc;
   background: #fff;
-  color: #222;
+  color: #666;
   zoom: 1;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -155,22 +155,22 @@
 .hui-btn-white {
   border: 1px solid #ccc;
   background: #fff;
-  color: #555;
+  color: #666;
 }
 .hui-btn-white:hover {
   border: 1px solid #bbb ;
   background: #eee ;
-  color: #222 ;
+  color: #666 ;
 }
 .hui-btn-gray {
   border: 1px solid #ccc;
   background: #f9f9f9;
-  color: #555;
+  color: #666;
 }
 .hui-btn-gray:hover {
   border: 1px solid #bbb ;
   background: #eee ;
-  color: #222 ;
+  color: #666 ;
 }
 .hui-btn-gray.hui-gradient {
   background-image: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#f1f1f1));
@@ -728,6 +728,9 @@
 }
 .hui-menu .hui-icon-check {
   display: none;
+  background-size: 0.625em 0.625em;
+  filter: alpha(opacity= 50 );
+  opacity: 0.5;
 }
 .hui-menu .hui-item-select .hui-icon-check {
   display: -moz-inline-stack;
@@ -735,9 +738,21 @@
   zoom: 1;
   *display: inline;
 }
+.hui-menu .hui-btn {
+  color: #666;
+  font-weight: normal;
+}
+.hui-select,
+.hui-dsel {
+  font-weight: normal;
+}
 .hui-select input,
 .hui-dsel input {
   display: none;
+}
+.hui-select .hui-icon-carat-d,
+.hui-dsel .hui-icon-carat-d {
+  background-size: 0.625em auto;
 }
 .hui-slidesel {
   position: relative;

@@ -30,6 +30,7 @@ function(AC,DatePicker){
 				}
 			},         
 			radius          : 'little',
+			gradient        : true,
 			iconPos         : 'right',             //图标位置，"left"|"right"|"top"|"bottom"
 			iconPosCls      : {
 				depends : ['iconPos'],

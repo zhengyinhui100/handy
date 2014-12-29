@@ -17,7 +17,8 @@ function(AC,Popup,ControlGroup){
 	
 	Menu.extend({
 		xConfig         : {
-			cls              : 'menu'
+			cls              : 'menu',
+			radius           : 'little'
 		},
 		markType         : null,         //选中的标记类型，默认不带选中效果，'active'是组件active效果，'hook'是勾选效果
 		destroyWhenHide  : false,
