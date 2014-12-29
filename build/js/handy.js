@@ -1073,7 +1073,7 @@ handy.add("Browser","handy.base.Object",function(Object){
 				if (m && m[0]) {
 					_oInfo[m[0].toLowerCase()] = _oInfo.ios;
 				}
-				if(/ipad/.test(ua)){
+				if(/iPad/.test(ua)){
 					_oInfo.tablet='ios';
 				}else{
 					_oInfo.phone='ios';
@@ -4479,7 +4479,13 @@ $Define('B.Support','B.Browser',function(Browser){
 			}
 		}
 		if(Browser.ios()){
-			sCls+=' hui-ios'
+			sCls+=' hui-ios';
+		}
+		if(Browser.phone()){
+			sCls+=' hui-phone';
+		}
+		if(Browser.tablet()){
+			sCls+=' hui-tablet';
 		}
 		document.documentElement.className+=" "+sCls+" hui";
 	}
@@ -9941,6 +9947,9 @@ function(HashChange){
 		var oUrlParam=$H.getHashParam();
 		if($H.isEmpty(oUrlParam)){
 			var sRetPage=$H.getQueryParam(null,'retPage');
+			if(!sRetPage){
+				return;
+			}
 			try {
 				oUrlParam=$H.parseJson(decodeURIComponent(sRetPage));
 			} catch (e) {

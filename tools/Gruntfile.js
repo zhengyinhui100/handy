@@ -272,6 +272,6 @@ module.exports = function(grunt) {
 	
 	grunt.registerTask('bulidDevApk', ['shell:buildDevApk']);
 	
-	grunt.registerTask('default', ['copy:ftl']);
+	grunt.registerTask('default', ['staticTar']);
 	
 };
