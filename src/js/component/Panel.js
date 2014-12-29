@@ -4,7 +4,7 @@
  * @created 2014-01-01
  */
 
-$Define('C.Panel',
+define('C.Panel',
 'C.AbstractComponent',
 function(AC){
 	

@@ -56,8 +56,8 @@ $H.Loader.rootPath={
 	'handy'        : '../../src/js/'
 }
 $H.Loader.combine=false;
-$Define('test','handy.All',function(){
-	var Slide=$Require('C.Slide');
+define('test','handy.All',function(){
+	var Slide=require('C.Slide');
 	
 	function example(){
 		new Slide({

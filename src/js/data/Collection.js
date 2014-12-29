@@ -4,7 +4,7 @@
  * @created 2014-03-06
  */
 //"handy.data.Collection"
-$Define('D.Collection',
+define('D.Collection',
 [
 'B.Array',
 'D.AbstractData',

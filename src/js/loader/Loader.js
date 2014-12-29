@@ -37,8 +37,8 @@ function(Debug,Object){
 	    require                 : fRequire                  //获取所需资源后执行回调
 	}
 	
-	window.$Define=Loader.define;
-	window.$Require=Loader.require;
+	window.define=Loader.define;
+	window.require=Loader.require;
 	
      /**
 	 * 检查对应的资源是否已加载，只要检测到一个不存在的资源就立刻返回
@@ -461,10 +461,10 @@ function(Debug,Object){
 			deps=typeof deps=="string"?[deps]:deps;
 		}
 		
-		//检出factory方法内声明的$Require依赖，如：var m=$Require('m');
+		//检出factory方法内声明的require依赖，如：var m=require('m');
 		if(Object.isFunc(factory)){
 			var m,sFactoryStr=factory.toString();
-			var r=/\$Require\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
+			var r=/\require\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
 			while(m=r.exec(sFactoryStr)){
 				deps.push(m[1]);
 			}

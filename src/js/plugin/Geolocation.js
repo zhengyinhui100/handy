@@ -18,7 +18,7 @@
 //	"timestamp" : "2013-12-25T17:18:18.663Z"
 //}
 
-$Define("P.Geolocation", 
+define("P.Geolocation", 
 function() {
 
 	var Geolocation = {

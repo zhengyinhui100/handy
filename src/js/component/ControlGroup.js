@@ -4,7 +4,7 @@
  * @created 2014-01-31
  */
 
-$Define('C.ControlGroup',
+define('C.ControlGroup',
 'C.AbstractComponent',
 function(AC){
 	

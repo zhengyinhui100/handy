@@ -4,7 +4,7 @@
  * @created 2014-03-24
  */
 
-$Define('C.TabItem',
+define('C.TabItem',
 [
 'C.AbstractComponent',
 'C.Panel'

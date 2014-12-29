@@ -2,7 +2,7 @@
  * 面向对象支持类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-$Define("B.Class",["B.Object",'B.Debug'],function(Object,Debug){
+define("B.Class",["B.Object",'B.Debug'],function(Object,Debug){
 	
 	var Cls={
 		createClass         : fCreateClass,     //创建类

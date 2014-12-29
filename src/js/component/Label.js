@@ -3,7 +3,7 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define('C.Label',
+define('C.Label',
 'C.AbstractComponent',
 function(AC){
 	

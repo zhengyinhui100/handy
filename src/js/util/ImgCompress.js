@@ -3,7 +3,7 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 //"handy.util.ImgCompress"
-$Define('U.ImgCompress',
+define('U.ImgCompress',
 'B.Class',
 function(){
 	var ImgCompress=$H.createClass();

@@ -4,7 +4,7 @@
  * @created 2014-01-16
  */
 
-$Define('C.Tab',
+define('C.Tab',
 ['C.AbstractComponent',
 'C.TabItem',
 'C.ControlGroup'],

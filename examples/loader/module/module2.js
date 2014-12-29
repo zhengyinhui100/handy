@@ -1,9 +1,9 @@
 //模块测试
 
-$Define('module.Module2',function(){
+define('module.Module2',function(){
 	
-	var module1=$Require ( 'module.Module1');
-	var module3=$Require('module.Module3');
+	var module1=require ( 'module.Module1');
+	var module3=require('module.Module3');
 	
 	return {
 		name:"Module2",

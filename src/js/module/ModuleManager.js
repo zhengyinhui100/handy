@@ -9,7 +9,7 @@
  * @class ModuleManager
  */
 //handy.module.ModuleManager
-$Define("M.ModuleManager",
+define("M.ModuleManager",
 ["M.History",
 "V.AbstractManager"],
 function(History,AbstractManager){
@@ -67,7 +67,7 @@ function(History,AbstractManager){
 		var me=this;
 		var sModName=oParams.modName;
 		var sModId=oParams.modId;
-		var Module=$Require(sModName);
+		var Module=require(sModName);
 		var oOptions={
 			renderTo:me.container,
 			modName:sModName,
@@ -327,7 +327,7 @@ function(History,AbstractManager){
 			//否则新建一个模块
 			//先标记为正在准备中，新建成功后赋值为模块对象
 			me.setModule({waiting:true,referer:oCurrentMod},sModName,sModelId);
-			$Require(sModName,function(Module){
+			require(sModName,function(Module){
 				var oNewMod=me._createMod(param);
 			});
 		}

@@ -4,7 +4,7 @@
  * @created 2014-07-12
  */
 
-$Define('C.Image',
+define('C.Image',
 [
 'C.AbstractComponent',
 'C.AbstractImage'

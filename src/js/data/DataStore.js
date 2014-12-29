@@ -3,7 +3,7 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 //"handy.data.DataStore"
-$Define('D.DataStore',
+define('D.DataStore',
 'B.Class',
 function(){
 	var DataStore=$H.createClass();

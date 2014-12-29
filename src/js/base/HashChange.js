@@ -3,7 +3,7 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * 
  */
-$Define("B.HashChange",
+define("B.HashChange",
 ['handy.base.Debug','handy.base.Util'],
 function(Debug,Util){
 

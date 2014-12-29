@@ -4,7 +4,7 @@
  * @created 2014-01-31
  */
 
-$Define('C.Checkbox',
+define('C.Checkbox',
 'C.AbstractComponent',
 function(AC){
 	

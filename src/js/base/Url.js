@@ -2,7 +2,7 @@
  * Url工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-$Define("B.Url","B.Object",function(Object){
+define("B.Url","B.Object",function(Object){
 	
 	var Url={
 		isUrl           : fIsUrl,           //是否是url

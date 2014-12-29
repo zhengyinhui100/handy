@@ -3,7 +3,7 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define('C.Crop',
+define('C.Crop',
 [
 'C.AbstractComponent',
 'C.AbstractImage',

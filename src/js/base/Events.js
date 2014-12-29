@@ -3,7 +3,7 @@
  * 事件名称支持命名空间(".name")，如：change.one
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-$Define('B.Events',function(){
+define('B.Events',function(){
 	
 	var Events={
 		_eventCache        : {},                   //自定义事件池

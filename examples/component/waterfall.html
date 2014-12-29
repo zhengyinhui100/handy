@@ -48,10 +48,10 @@ $H.Loader.rootPath={
 	'handy'        : '../../src/js/'
 }
 $H.Loader.combine=false;
-$Define('test','handy.All',function(){
-	var Button=$Require('C.Button');
-	var Waterfall=$Require('C.Waterfall');
-	var PicCard=$Require('C.PicCard');
+define('test','handy.All',function(){
+	var Button=require('C.Button');
+	var Waterfall=require('C.Waterfall');
+	var PicCard=require('C.PicCard');
 	var img=[
 		'../../html/img.jpg',
 		'../../html/img2.jpg',

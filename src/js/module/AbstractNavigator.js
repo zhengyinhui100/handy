@@ -4,7 +4,7 @@
 * Created:		2013-12-20										*
 *****************************************************************/
 //handy.module.AbstractNavigator
-$Define("M.AbstractNavigator",["handy.base.Object",'B.Class'],function (Object) {
+define("M.AbstractNavigator",["handy.base.Object",'B.Class'],function (Object) {
 	/**
 	 * 模块导航效果基类
 	 * 

@@ -4,7 +4,7 @@
  * @created 2014-02-01
  */
 
-$Define('C.Select',
+define('C.Select',
 'C.AbstractComponent',
 function(AC){
 	

@@ -4,7 +4,7 @@
  * @created 2014-01-29
  */
 
-$Define('C.Radio',
+define('C.Radio',
 'C.AbstractComponent',
 function(AC){
 	

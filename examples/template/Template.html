@@ -105,11 +105,11 @@ gEnv='dev';
 $H.Loader.rootPath={
 	'handy'        : '../../src/js'
 }
-$Define('test','handy.All',function(){
-	var ModelView=$Require('CM.ModelView');
-	var Model=$Require('CM.Model');
-	var Collection=$Require('CM.Collection');
-	var Button=$Require('C.Button');
+define('test','handy.All',function(){
+	var ModelView=require('CM.ModelView');
+	var Model=require('CM.Model');
+	var Collection=require('CM.Collection');
+	var Button=require('C.Button');
 	
 function test(){
 	

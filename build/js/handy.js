@@ -1406,8 +1406,8 @@ function(Debug,Object){
 	    require                 : fRequire                  //获取所需资源后执行回调
 	}
 	
-	window.$Define=Loader.define;
-	window.$Require=Loader.require;
+	window.define=Loader.define;
+	window.require=Loader.require;
 	
      /**
 	 * 检查对应的资源是否已加载，只要检测到一个不存在的资源就立刻返回
@@ -1830,10 +1830,10 @@ function(Debug,Object){
 			deps=typeof deps=="string"?[deps]:deps;
 		}
 		
-		//检出factory方法内声明的$Require依赖，如：var m=$Require('m');
+		//检出factory方法内声明的require依赖，如：var m=require('m');
 		if(Object.isFunc(factory)){
 			var m,sFactoryStr=factory.toString();
-			var r=/\$Require\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
+			var r=/\require\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
 			while(m=r.exec(sFactoryStr)){
 				deps.push(m[1]);
 			}
@@ -1927,7 +1927,7 @@ function(Debug,Object){
  * 面向对象支持类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-$Define("B.Class",["B.Object",'B.Debug'],function(Object,Debug){
+define("B.Class",["B.Object",'B.Debug'],function(Object,Debug){
 	
 	var Cls={
 		createClass         : fCreateClass,     //创建类
@@ -2078,7 +2078,7 @@ $Define("B.Class",["B.Object",'B.Debug'],function(Object,Debug){
  * 函数类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-$Define('B.Function',function(){
+define('B.Function',function(){
 	
 	var Function={
 		bind                : fBind,              //函数bind方法
@@ -2136,7 +2136,7 @@ $Define('B.Function',function(){
  * 事件名称支持命名空间(".name")，如：change.one
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-$Define('B.Events',function(){
+define('B.Events',function(){
 	
 	var Events={
 		_eventCache        : {},                   //自定义事件池
@@ -2431,7 +2431,7 @@ $Define('B.Events',function(){
  * 日期扩展类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-$Define('B.Date',function(){
+define('B.Date',function(){
 	
 	var WDate=window.Date;
 	
@@ -2664,7 +2664,7 @@ $Define('B.Date',function(){
  * String工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-$Define("B.String",function(){
+define("B.String",function(){
 	
 	var String={
 		stripTags		: fStripTags,       // 删除标签
@@ -2881,7 +2881,7 @@ $Define("B.String",function(){
  * Cookie工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-$Define('B.Cookie',function(){
+define('B.Cookie',function(){
 	
 	var Cookie={
 		getCookie     : fGetCookie,    //获取cookie
@@ -2966,7 +2966,7 @@ $Define('B.Cookie',function(){
  * 工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-$Define('B.Util','B.Object',function(Object){
+define('B.Util','B.Object',function(Object){
 	
 	var Util={
 		isWindow         : fIsWindow,          //检查是否是window对象
@@ -3097,7 +3097,7 @@ $Define('B.Util','B.Object',function(Object){
  * Url工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-$Define("B.Url","B.Object",function(Object){
+define("B.Url","B.Object",function(Object){
 	
 	var Url={
 		isUrl           : fIsUrl,           //是否是url
@@ -3272,7 +3272,7 @@ $Define("B.Url","B.Object",function(Object){
  * 数组类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-$Define('B.Array','B.Object',function(Object){
+define('B.Array','B.Object',function(Object){
 	
 	var Arr={
 		map           : fMap,          //映射每一个值, 通过一个转换函数产生一个新的数组
@@ -3642,7 +3642,7 @@ $Define('B.Array','B.Object',function(Object){
  * 地理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-$Define('B.Geo',function(){
+define('B.Geo',function(){
 	
 	var Geo={
 		distance         : fDistance          //计算两点距离(单位为km，保留两位小数)
@@ -3719,7 +3719,7 @@ $Define('B.Geo',function(){
  * 模板类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-$Define('B.Template',['B.Object','B.String','B.Debug','B.Function'],function(Object,String,Debug,Function){
+define('B.Template',['B.Object','B.String','B.Debug','B.Function'],function(Object,String,Debug,Function){
 		
 	var T={
 		//配置
@@ -4223,7 +4223,7 @@ $Define('B.Template',['B.Object','B.String','B.Debug','B.Function'],function(Obj
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * 
  */
-$Define("B.HashChange",
+define("B.HashChange",
 ['handy.base.Debug','handy.base.Util'],
 function(Debug,Util){
 
@@ -4361,7 +4361,7 @@ function(Debug,Util){
  * 支持类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-$Define('B.Support','B.Browser',function(Browser){
+define('B.Support','B.Browser',function(Browser){
 	
 	
 	var Support={
@@ -4497,7 +4497,7 @@ $Define('B.Support','B.Browser',function(Browser){
  * 校验类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-$Define('B.Validator',['B.String','B.Object'],function(String,Object){
+define('B.Validator',['B.String','B.Object'],function(String,Object){
 	
 	var Validator={
 		messages: {
@@ -4745,7 +4745,7 @@ $Define('B.Validator',['B.String','B.Object'],function(String,Object){
  * LocalStorage类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-$Define('B.LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Events,Json){
+define('B.LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Events,Json){
 	
 	var LocalStorage={
 		_init           : _fInit,              //初始化
@@ -4849,7 +4849,7 @@ $Define('B.LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Even
 /**
  * 适配类库
  */
-$Define('B.Adapt','B.Function',function(){
+define('B.Adapt','B.Function',function(){
 	
 	//框架全局变量
 	
@@ -4882,7 +4882,7 @@ $Define('B.Adapt','B.Function',function(){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 //"handy.util.ImgCompress"
-$Define('U.ImgCompress',
+define('U.ImgCompress',
 'B.Class',
 function(){
 	var ImgCompress=$H.createClass();
@@ -5059,7 +5059,7 @@ function(){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 //"handy.effect.Draggable"
-$Define('E.Draggable',
+define('E.Draggable',
 'B.Class',
 function(){
 	
@@ -5195,7 +5195,7 @@ function(){
  * @created 2014-03-20
  */
 //"handy.common.AbstractEvents"
-$Define('CM.AbstractEvents',
+define('CM.AbstractEvents',
 ['B.Class','B.Events'],
 function(){
 	
@@ -5292,7 +5292,7 @@ function(){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define("P.Device", 
+define("P.Device", 
 function() {
 
 	var Device = {
@@ -5340,7 +5340,7 @@ function() {
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define("P.Camera", 
+define("P.Camera", 
 function() {
 
 	var Cam = {
@@ -5406,7 +5406,7 @@ function() {
 //	"timestamp" : "2013-12-25T17:18:18.663Z"
 //}
 
-$Define("P.Geolocation", 
+define("P.Geolocation", 
 function() {
 
 	var Geolocation = {
@@ -5480,7 +5480,7 @@ function() {
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 //"handy.data.DataStore"
-$Define('D.DataStore',
+define('D.DataStore',
 'B.Class',
 function(){
 	var DataStore=$H.createClass();
@@ -5569,7 +5569,7 @@ function(){
  * 数据访问对象抽象类，模块的dao都要继承此类，dao内的方法只可以使用此类的方法进行数据操作，以便进行统一的管理
  */
 //handy.data.AbstractDao
-$Define('D.AbstractDao',
+define('D.AbstractDao',
 [
 'B.LocalStorage',
 'B.Class'
@@ -5702,7 +5702,7 @@ function(LS){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 //"handy.data.AbstractData"
-$Define('D.AbstractData',
+define('D.AbstractData',
 ['D.AbstractDao',
 'CM.AbstractEvents',
 'D.DataStore'],
@@ -5792,7 +5792,7 @@ function(AbstractDao,AbstractEvents){
  * @created 2014-03-06
  */
 //"handy.data.Model"
-$Define('D.Model',
+define('D.Model',
 [
 'D.AbstractData',
 'D.DataStore'
@@ -6631,7 +6631,7 @@ function(AbstractData){
  * @created 2014-03-06
  */
 //"handy.data.Collection"
-$Define('D.Collection',
+define('D.Collection',
 [
 'B.Array',
 'D.AbstractData',
@@ -7292,7 +7292,7 @@ function(Arr,AbstractData,Model){
  * @created 2014-01-10
  */
 //"handy.view.AbstractManager"
-$Define("V.AbstractManager", 'B.Class',function() {
+define("V.AbstractManager", 'B.Class',function() {
 
 	var AbstractManager = $H.createClass();
 	
@@ -7450,7 +7450,7 @@ $Define("V.AbstractManager", 'B.Class',function() {
  * @created 2014-03-17
  */
 //"handy.view.ViewManager"
-$Define("V.ViewManager", ['V.AbstractManager','B.Events'],function(AbstractManager) {
+define("V.ViewManager", ['V.AbstractManager','B.Events'],function(AbstractManager) {
 
 	var ViewManager = AbstractManager.derive({
 		type          : 'view',           //管理类型
@@ -7510,7 +7510,7 @@ $Define("V.ViewManager", ['V.AbstractManager','B.Events'],function(AbstractManag
  * @created 2014-05-17
  */
  //"handy.view.AbstractView"
-$Define('V.AbstractView',
+define('V.AbstractView',
 [
 'V.ViewManager',
 'CM.AbstractEvents'
@@ -7858,7 +7858,7 @@ function(ViewManager,AbstractEvents){
  * @created 2014-05-11
  */
 //"handy.view.ModelView"
-$Define('V.ModelView',
+define('V.ModelView',
 [
 'B.Template',
 'V.AbstractView',
@@ -8459,7 +8459,7 @@ function(Template,AbstractView,Model,Collection){
  * @created 2014-02-17
  */
 //"handy.view.View"
-$Define('V.View',
+define('V.View',
 ['V.ViewManager',
 'V.ModelView',
 'D.Model',
@@ -9736,7 +9736,7 @@ function(ViewManager,ModelView,Model,Template){
 * Created:		2013-12-14										*
 *****************************************************************/
 //handy.module.AbstractModule
-$Define("M.AbstractModule","V.View",function (View) {
+define("M.AbstractModule","V.View",function (View) {
 	/**
 	 * 模块基类
 	 * 
@@ -9797,7 +9797,7 @@ $Define("M.AbstractModule","V.View",function (View) {
 * Created:		2013-12-20										*
 *****************************************************************/
 //handy.module.AbstractNavigator
-$Define("M.AbstractNavigator",["handy.base.Object",'B.Class'],function (Object) {
+define("M.AbstractNavigator",["handy.base.Object",'B.Class'],function (Object) {
 	/**
 	 * 模块导航效果基类
 	 * 
@@ -9821,7 +9821,7 @@ $Define("M.AbstractNavigator",["handy.base.Object",'B.Class'],function (Object) 
  * @class handy.module.History
  */
 //handy.module.History
-$Define("M.History",
+define("M.History",
 ['handy.base.HashChange',
 'B.Class'],
 function(HashChange){
@@ -10019,7 +10019,7 @@ function(HashChange){
  * @class ModuleManager
  */
 //handy.module.ModuleManager
-$Define("M.ModuleManager",
+define("M.ModuleManager",
 ["M.History",
 "V.AbstractManager"],
 function(History,AbstractManager){
@@ -10077,7 +10077,7 @@ function(History,AbstractManager){
 		var me=this;
 		var sModName=oParams.modName;
 		var sModId=oParams.modId;
-		var Module=$Require(sModName);
+		var Module=require(sModName);
 		var oOptions={
 			renderTo:me.container,
 			modName:sModName,
@@ -10337,7 +10337,7 @@ function(History,AbstractManager){
 			//否则新建一个模块
 			//先标记为正在准备中，新建成功后赋值为模块对象
 			me.setModule({waiting:true,referer:oCurrentMod},sModName,sModelId);
-			$Require(sModName,function(Module){
+			require(sModName,function(Module){
 				var oNewMod=me._createMod(param);
 			});
 		}
@@ -10441,7 +10441,7 @@ function(History,AbstractManager){
  * @created 2014-01-10
  */
 //"handy.component.ComponentManager"
-$Define("C.ComponentManager", 
+define("C.ComponentManager", 
 ['V.AbstractManager',
 'V.ViewManager'],
 function(AbstractManager,ViewManager) {
@@ -10472,7 +10472,7 @@ function(AbstractManager,ViewManager) {
  * @created 2013-12-28
  */
 //"handy.component.AbstractComponent"
-$Define('C.AbstractComponent',["V.ViewManager",'V.View','C.ComponentManager','B.Class'],function(ViewManager,View){
+define('C.AbstractComponent',["V.ViewManager",'V.View','C.ComponentManager','B.Class'],function(ViewManager,View){
 	
 	//访问component包内容的快捷别名
 	$C=$H.ns('C');
@@ -10705,7 +10705,7 @@ $Define('C.AbstractComponent',["V.ViewManager",'V.View','C.ComponentManager','B.
  * @created 2014-01-01
  */
 
-$Define('C.Icon',
+define('C.Icon',
 'C.AbstractComponent',
 function(AC){
 	
@@ -10759,7 +10759,7 @@ function(AC){
  * @created 2014-08-07
  */
 
-$Define('C.Link',
+define('C.Link',
 'C.AbstractComponent',
 function(AC){
 	
@@ -10786,7 +10786,7 @@ function(AC){
  * @created 2014-01-13
  */
 
-$Define('C.Button',
+define('C.Button',
 'C.AbstractComponent',
 function(AC){
 	
@@ -10887,7 +10887,7 @@ function(AC){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define('C.Desc',
+define('C.Desc',
 ['C.AbstractComponent',
 'D.Model',
 'D.Collection'],
@@ -10950,7 +10950,7 @@ function(AC,Model,Collection){
  * @created 2014-01-01
  */
 
-$Define('C.Panel',
+define('C.Panel',
 'C.AbstractComponent',
 function(AC){
 	
@@ -10996,7 +10996,7 @@ function(AC){
  * @created 2014-02-01
  */
 
-$Define('C.Popup',
+define('C.Popup',
 'C.AbstractComponent',
 function(AC){
 	
@@ -11261,7 +11261,7 @@ function(AC){
  * @created 2014-01-31
  */
 
-$Define('C.ControlGroup',
+define('C.ControlGroup',
 'C.AbstractComponent',
 function(AC){
 	
@@ -11510,7 +11510,7 @@ function(AC){
  * @created 2014-01-29
  */
 
-$Define('C.Radio',
+define('C.Radio',
 'C.AbstractComponent',
 function(AC){
 	
@@ -11570,7 +11570,7 @@ function(AC){
  * @created 2014-01-31
  */
 
-$Define('C.Checkbox',
+define('C.Checkbox',
 'C.AbstractComponent',
 function(AC){
 	
@@ -11631,7 +11631,7 @@ function(AC){
  * @created 2014-02-01
  */
 
-$Define('C.Select',
+define('C.Select',
 'C.AbstractComponent',
 function(AC){
 	
@@ -11777,7 +11777,7 @@ function(AC){
  * @created 2014-01-14
  */
 
-$Define('C.Input',
+define('C.Input',
 'C.AbstractComponent',
 function(AC){
 	
@@ -11966,7 +11966,7 @@ function(AC){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define('C.Label',
+define('C.Label',
 'C.AbstractComponent',
 function(AC){
 	
@@ -12012,7 +12012,7 @@ function(AC){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define('C.RowItem',
+define('C.RowItem',
 'C.AbstractComponent',
 function(AC){
 	
@@ -12097,7 +12097,7 @@ function(AC){
  * @created 2014-02-25
  */
 
-$Define('C.Set',
+define('C.Set',
 'C.AbstractComponent',
 function(AC){
 	
@@ -12135,7 +12135,7 @@ function(AC){
  * @created 2014-02-25
  */
 
-$Define('C.Field',
+define('C.Field',
 'C.AbstractComponent',
 function(AC){
 	
@@ -12219,7 +12219,7 @@ function(AC){
  * @created 2014-02-25
  */
 
-$Define('C.Form',
+define('C.Form',
 'C.AbstractComponent',
 function(AC){
 	
@@ -12292,7 +12292,7 @@ function(AC){
  * @created 2014-03-24
  */
 
-$Define('C.TabItem',
+define('C.TabItem',
 [
 'C.AbstractComponent',
 'C.Panel'
@@ -12442,7 +12442,7 @@ function(AC,Panel){
  * @created 2014-01-16
  */
 
-$Define('C.Tab',
+define('C.Tab',
 ['C.AbstractComponent',
 'C.TabItem',
 'C.ControlGroup'],
@@ -12655,7 +12655,7 @@ function(AC,TabItem,ControlGroup){
  * @created 2014-01-16
  */
 
-$Define('C.Toolbar',
+define('C.Toolbar',
 'C.AbstractComponent',
 function(AC){
 	
@@ -12750,7 +12750,7 @@ function(AC){
  * @created 2014-02-15
  */
 
-$Define('C.Tips',
+define('C.Tips',
 ['C.AbstractComponent',
 'C.Popup',
 'C.ControlGroup'],
@@ -12864,7 +12864,7 @@ function(AC,Popup,ControlGroup){
  * @created 2014-01-17
  */
 
-$Define('C.Dialog',
+define('C.Dialog',
 ['C.AbstractComponent',
 'C.Popup'],
 function(AC,Popup){
@@ -13082,7 +13082,7 @@ function(AC,Popup){
  * @created 2014-02-02
  */
 
-$Define('C.Menu',
+define('C.Menu',
 ['C.AbstractComponent',
 'C.Popup',
 'C.ControlGroup'],
@@ -13153,7 +13153,7 @@ function(AC,Popup,ControlGroup){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define('C.DatePicker',
+define('C.DatePicker',
 ['C.AbstractComponent',
 'C.Dialog'],
 function(AC,Dialog){
@@ -13361,7 +13361,7 @@ function(AC,Dialog){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define('C.DateSelect',
+define('C.DateSelect',
 [
 'C.AbstractComponent',
 'C.DatePicker'
@@ -13485,7 +13485,7 @@ function(AC,DatePicker){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define('C.AbstractImage',
+define('C.AbstractImage',
 'C.AbstractComponent',
 function(AC){
 	
@@ -13593,7 +13593,7 @@ function(AC){
  * @created 2014-07-12
  */
 
-$Define('C.Image',
+define('C.Image',
 [
 'C.AbstractComponent',
 'C.AbstractImage'
@@ -13632,7 +13632,7 @@ function(AC,AbstractImage){
  * @created 2014-07-11
  */
 
-$Define('C.ImgUpload',
+define('C.ImgUpload',
 [
 'C.AbstractComponent',
 'U.ImgCompress',
@@ -13802,7 +13802,7 @@ function(AC,ImgCompress,Device,Camera){
 		if(me.crop){
 			var oCropOptions=me.cropOptions||{};
 			oCropOptions.imgSrc=imgSrc;
-			$Require('C.CropWindow',function(CropWindow){
+			require('C.CropWindow',function(CropWindow){
 				var oWin=new CropWindow({
 					cropOptions:oCropOptions,
 					width:me.cropWinW,
@@ -13833,7 +13833,7 @@ function(AC,ImgCompress,Device,Camera){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define('C.DisplayImage',
+define('C.DisplayImage',
 [
 'C.AbstractComponent',
 'C.Popup',
@@ -13941,7 +13941,7 @@ function(AC,Popup,AbstractImage){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define('C.Crop',
+define('C.Crop',
 [
 'C.AbstractComponent',
 'C.AbstractImage',
@@ -14209,7 +14209,7 @@ function(AC,AbstractImage,Draggable){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define('C.CropWindow',
+define('C.CropWindow',
 [
 'C.AbstractComponent',
 'C.Popup',
@@ -14283,7 +14283,7 @@ function(AC,Popup,Crop){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define('C.Hcard',
+define('C.Hcard',
 'C.AbstractComponent',
 function(AC){
 	
@@ -14402,7 +14402,7 @@ function(AC){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define('C.Vcard',
+define('C.Vcard',
 'C.AbstractComponent',
 function(AC){
 	
@@ -14468,7 +14468,7 @@ function(AC){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define('C.Conversation',
+define('C.Conversation',
 'C.AbstractComponent',
 function(AC){
 	
@@ -14534,7 +14534,7 @@ function(AC){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define("C.ModelList",
+define("C.ModelList",
 [
 'C.AbstractComponent',
 'E.Draggable'
@@ -14877,7 +14877,7 @@ function(AC,Draggable){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-09-11
  */
-$Define('C.Editor',
+define('C.Editor',
 'C.AbstractComponent',
 function(AC){
 	
@@ -15010,7 +15010,7 @@ function(AC){
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define('C.Share',
+define('C.Share',
 'C.AbstractComponent',
 function(AC){
 	
@@ -15031,7 +15031,7 @@ function(AC){
 			custom:true,
 			handler:function(){
 				var me=this;
-				$Require('http://static.bshare.cn/b/buttonLite.js#style=-1&uuid=f19aa603-e8fa-437c-8069-f5a12dff7e4e',
+				require('http://static.bshare.cn/b/buttonLite.js#style=-1&uuid=f19aa603-e8fa-437c-8069-f5a12dff7e4e',
 				function(){
 					bShare.init();
 					me.listen({
@@ -15089,7 +15089,7 @@ function(AC){
  * @created 2014-10-20
  */
 
-$Define('C.PicCard',
+define('C.PicCard',
 'C.AbstractComponent',
 function(AC){
 	
@@ -15180,7 +15180,7 @@ function(AC){
  * @created 2014-10-20
  */
 
-$Define('C.Waterfall',
+define('C.Waterfall',
 'C.AbstractComponent',
 function(AC){
 	
@@ -15298,7 +15298,7 @@ function(AC){
  * @created 2014-10-21
  */
 
-$Define('C.Slide',
+define('C.Slide',
 'C.AbstractComponent',
 function(AC){
 	

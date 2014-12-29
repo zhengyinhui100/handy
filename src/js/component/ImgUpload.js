@@ -4,7 +4,7 @@
  * @created 2014-07-11
  */
 
-$Define('C.ImgUpload',
+define('C.ImgUpload',
 [
 'C.AbstractComponent',
 'U.ImgCompress',
@@ -174,7 +174,7 @@ function(AC,ImgCompress,Device,Camera){
 		if(me.crop){
 			var oCropOptions=me.cropOptions||{};
 			oCropOptions.imgSrc=imgSrc;
-			$Require('C.CropWindow',function(CropWindow){
+			require('C.CropWindow',function(CropWindow){
 				var oWin=new CropWindow({
 					cropOptions:oCropOptions,
 					width:me.cropWinW,

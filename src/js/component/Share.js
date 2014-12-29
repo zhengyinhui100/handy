@@ -3,7 +3,7 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define('C.Share',
+define('C.Share',
 'C.AbstractComponent',
 function(AC){
 	
@@ -24,7 +24,7 @@ function(AC){
 			custom:true,
 			handler:function(){
 				var me=this;
-				$Require('http://static.bshare.cn/b/buttonLite.js#style=-1&uuid=f19aa603-e8fa-437c-8069-f5a12dff7e4e',
+				require('http://static.bshare.cn/b/buttonLite.js#style=-1&uuid=f19aa603-e8fa-437c-8069-f5a12dff7e4e',
 				function(){
 					bShare.init();
 					me.listen({

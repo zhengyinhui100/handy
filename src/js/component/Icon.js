@@ -4,7 +4,7 @@
  * @created 2014-01-01
  */
 
-$Define('C.Icon',
+define('C.Icon',
 'C.AbstractComponent',
 function(AC){
 	

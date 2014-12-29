@@ -4,7 +4,7 @@
  * @created 2014-02-25
  */
 
-$Define('C.Field',
+define('C.Field',
 'C.AbstractComponent',
 function(AC){
 	

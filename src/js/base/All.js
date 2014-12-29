@@ -2,7 +2,7 @@
  * 定义引入base包，方便在开发环境下使用
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-$Define('B.All',
+define('B.All',
 [
 'B.Class',
 'B.Function', 

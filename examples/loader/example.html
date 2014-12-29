@@ -15,12 +15,12 @@
 
 $H.Loader.rootPath='./';
 
-$Require(['module.Module2','style.css'],function(){
-	var module2=$Require('module.Module2');
+require(['module.Module2','style.css'],function(){
+	var module2=require('module.Module2');
 	module2.init();
 })
 document.getElementById("button").onclick=function(){
-	$Require('module.Module3',function(module3){
+	require('module.Module3',function(module3){
 		module3.action();
 	})
 }

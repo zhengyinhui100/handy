@@ -4,7 +4,7 @@
  * @created 2014-02-25
  */
 
-$Define('C.Form',
+define('C.Form',
 'C.AbstractComponent',
 function(AC){
 	

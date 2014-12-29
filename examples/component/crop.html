@@ -51,12 +51,12 @@ $H.Loader.rootPath={
 	'handy'        : '../../src/js/'
 }
 $H.Loader.combine=false;
-$Define('test','handy.All',function(){
-	var Icon=$Require('C.Icon');
-	var Button=$Require('C.Button');
-	var Toolbar=$Require('C.Toolbar');
-	var Crop=$Require('C.Crop');
-	var CropWindow=$Require('C.CropWindow');
+define('test','handy.All',function(){
+	var Icon=require('C.Icon');
+	var Button=require('C.Button');
+	var Toolbar=require('C.Toolbar');
+	var Crop=require('C.Crop');
+	var CropWindow=require('C.CropWindow');
 	
 	function example(){
 		

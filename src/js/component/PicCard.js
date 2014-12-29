@@ -4,7 +4,7 @@
  * @created 2014-10-20
  */
 
-$Define('C.PicCard',
+define('C.PicCard',
 'C.AbstractComponent',
 function(AC){
 	

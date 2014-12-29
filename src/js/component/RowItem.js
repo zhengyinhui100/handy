@@ -3,7 +3,7 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define('C.RowItem',
+define('C.RowItem',
 'C.AbstractComponent',
 function(AC){
 	

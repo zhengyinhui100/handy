@@ -4,7 +4,7 @@
  * @created 2014-01-13
  */
 
-$Define('C.Button',
+define('C.Button',
 'C.AbstractComponent',
 function(AC){
 	

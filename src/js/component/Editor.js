@@ -3,7 +3,7 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  * @created 2014-09-11
  */
-$Define('C.Editor',
+define('C.Editor',
 'C.AbstractComponent',
 function(AC){
 	

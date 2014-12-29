@@ -4,7 +4,7 @@
  * @created 2014-02-02
  */
 
-$Define('C.Menu',
+define('C.Menu',
 ['C.AbstractComponent',
 'C.Popup',
 'C.ControlGroup'],

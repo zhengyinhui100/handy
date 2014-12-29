@@ -2,7 +2,7 @@
  * 模板类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-$Define('B.Template',['B.Object','B.String','B.Debug','B.Function'],function(Object,String,Debug,Function){
+define('B.Template',['B.Object','B.String','B.Debug','B.Function'],function(Object,String,Debug,Function){
 		
 	var T={
 		//配置

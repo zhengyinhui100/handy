@@ -2,7 +2,7 @@
  * 校验类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-$Define('B.Validator',['B.String','B.Object'],function(String,Object){
+define('B.Validator',['B.String','B.Object'],function(String,Object){
 	
 	var Validator={
 		messages: {

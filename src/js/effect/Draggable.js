@@ -3,7 +3,7 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 //"handy.effect.Draggable"
-$Define('E.Draggable',
+define('E.Draggable',
 'B.Class',
 function(){
 	

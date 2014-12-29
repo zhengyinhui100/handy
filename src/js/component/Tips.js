@@ -4,7 +4,7 @@
  * @created 2014-02-15
  */
 
-$Define('C.Tips',
+define('C.Tips',
 ['C.AbstractComponent',
 'C.Popup',
 'C.ControlGroup'],

@@ -4,7 +4,7 @@
  * @created 2014-01-10
  */
 //"handy.view.AbstractManager"
-$Define("V.AbstractManager", 'B.Class',function() {
+define("V.AbstractManager", 'B.Class',function() {
 
 	var AbstractManager = $H.createClass();
 	

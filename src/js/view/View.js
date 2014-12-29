@@ -9,7 +9,7 @@
  * @created 2014-02-17
  */
 //"handy.view.View"
-$Define('V.View',
+define('V.View',
 ['V.ViewManager',
 'V.ModelView',
 'D.Model',

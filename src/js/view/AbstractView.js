@@ -4,7 +4,7 @@
  * @created 2014-05-17
  */
  //"handy.view.AbstractView"
-$Define('V.AbstractView',
+define('V.AbstractView',
 [
 'V.ViewManager',
 'CM.AbstractEvents'

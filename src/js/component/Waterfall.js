@@ -4,7 +4,7 @@
  * @created 2014-10-20
  */
 
-$Define('C.Waterfall',
+define('C.Waterfall',
 'C.AbstractComponent',
 function(AC){
 	

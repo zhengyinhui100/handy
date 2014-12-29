@@ -4,7 +4,7 @@
  * @created 2014-01-17
  */
 
-$Define('C.Dialog',
+define('C.Dialog',
 ['C.AbstractComponent',
 'C.Popup'],
 function(AC,Popup){

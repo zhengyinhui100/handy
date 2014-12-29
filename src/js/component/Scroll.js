@@ -4,7 +4,7 @@
  * @created 2014-12-05
  */
 
-$Define('C.Scroll',
+define('C.Scroll',
 'C.AbstractComponent',
 function(AC){
 	

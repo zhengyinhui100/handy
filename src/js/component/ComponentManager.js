@@ -4,7 +4,7 @@
  * @created 2014-01-10
  */
 //"handy.component.ComponentManager"
-$Define("C.ComponentManager", 
+define("C.ComponentManager", 
 ['V.AbstractManager',
 'V.ViewManager'],
 function(AbstractManager,ViewManager) {

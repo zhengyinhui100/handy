@@ -4,7 +4,7 @@
  * @created 2014-01-14
  */
 
-$Define('C.Input',
+define('C.Input',
 'C.AbstractComponent',
 function(AC){
 	

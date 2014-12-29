@@ -3,7 +3,7 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 //"handy.data.AbstractData"
-$Define('D.AbstractData',
+define('D.AbstractData',
 ['D.AbstractDao',
 'CM.AbstractEvents',
 'D.DataStore'],

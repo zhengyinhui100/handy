@@ -3,7 +3,7 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define('C.DatePicker',
+define('C.DatePicker',
 ['C.AbstractComponent',
 'C.Dialog'],
 function(AC,Dialog){

@@ -3,7 +3,7 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define('C.Desc',
+define('C.Desc',
 ['C.AbstractComponent',
 'D.Model',
 'D.Collection'],

@@ -4,7 +4,7 @@
  * @created 2014-01-16
  */
 
-$Define('C.Toolbar',
+define('C.Toolbar',
 'C.AbstractComponent',
 function(AC){
 	

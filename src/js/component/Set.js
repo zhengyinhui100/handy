@@ -4,7 +4,7 @@
  * @created 2014-02-25
  */
 
-$Define('C.Set',
+define('C.Set',
 'C.AbstractComponent',
 function(AC){
 	

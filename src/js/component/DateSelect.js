@@ -3,7 +3,7 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define('C.DateSelect',
+define('C.DateSelect',
 [
 'C.AbstractComponent',
 'C.DatePicker'

@@ -4,7 +4,7 @@
  * @created 2014-10-21
  */
 
-$Define('C.Slide',
+define('C.Slide',
 'C.AbstractComponent',
 function(AC){
 	

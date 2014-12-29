@@ -1,6 +1,6 @@
 //模块测试
 
-$Define('module.Module1',function(){
+define('module.Module1',function(){
 	return {
 		name:"Module1",
 		action:function(caller){

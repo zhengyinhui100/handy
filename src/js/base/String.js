@@ -2,7 +2,7 @@
  * String工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-$Define("B.String",function(){
+define("B.String",function(){
 	
 	var String={
 		stripTags		: fStripTags,       // 删除标签

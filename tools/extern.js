@@ -21,5 +21,5 @@ $C,
 $M,
 $CM,
 $G,
-$Define,
-$Require;
+define,
+require;

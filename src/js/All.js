@@ -2,7 +2,7 @@
  * 定义引入所有类，方便在开发环境下使用
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-$Define('handy.All',
+define('handy.All',
 [
 'B.Class',
 'B.Function', 

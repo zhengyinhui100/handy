@@ -4,7 +4,7 @@
  * @created 2014-05-11
  */
 //"handy.view.ModelView"
-$Define('V.ModelView',
+define('V.ModelView',
 [
 'B.Template',
 'V.AbstractView',

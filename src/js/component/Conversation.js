@@ -3,7 +3,7 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define('C.Conversation',
+define('C.Conversation',
 'C.AbstractComponent',
 function(AC){
 	

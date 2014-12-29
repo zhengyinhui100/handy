@@ -4,7 +4,7 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define("C.ModelList",
+define("C.ModelList",
 'C.AbstractComponent',
 function(AC){
 	

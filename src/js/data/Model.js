@@ -9,7 +9,7 @@
  * @created 2014-03-06
  */
 //"handy.data.Model"
-$Define('D.Model',
+define('D.Model',
 [
 'D.AbstractData',
 'D.DataStore'

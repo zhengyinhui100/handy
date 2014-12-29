@@ -4,7 +4,7 @@
  * @created 2014-08-07
  */
 
-$Define('C.Link',
+define('C.Link',
 'C.AbstractComponent',
 function(AC){
 	

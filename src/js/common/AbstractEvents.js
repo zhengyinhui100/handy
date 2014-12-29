@@ -4,7 +4,7 @@
  * @created 2014-03-20
  */
 //"handy.common.AbstractEvents"
-$Define('CM.AbstractEvents',
+define('CM.AbstractEvents',
 ['B.Class','B.Events'],
 function(){
 	

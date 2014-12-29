@@ -4,7 +4,7 @@
  * @created 2014-03-17
  */
 //"handy.view.ViewManager"
-$Define("V.ViewManager", ['V.AbstractManager','B.Events'],function(AbstractManager) {
+define("V.ViewManager", ['V.AbstractManager','B.Events'],function(AbstractManager) {
 
 	var ViewManager = AbstractManager.derive({
 		type          : 'view',           //管理类型

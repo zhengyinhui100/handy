@@ -4,7 +4,7 @@
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 
-$Define("P.Camera", 
+define("P.Camera", 
 function() {
 
 	var Cam = {
