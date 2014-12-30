@@ -2,25 +2,12 @@
  * 对象扩展类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Object',function(){
+define('B.Object',function(){
 	
 	var oWin=window;
 	var wObject=oWin.Object;
 	
 	var Object={
-		_alias              : {                 //存储别名，公共库建议大写，以便更好地与普通名称区别开，具体项目的别名建议小写
-			'B'             : 'handy.base',
-			'C'             : 'handy.component',
-			'M'             : 'handy.module',
-			'U'             : 'handy.util',
-			'E'             : 'handy.effect',
-			'CM'            : 'handy.common',
-			'D'             : 'handy.data',
-			'V'             : 'handy.view',
-			'P'             : 'handy.plugin'
-		},               
-		ns                  : fNamespace,       //创建或读取命名空间，可以传入用以初始化该命名空间的对象
-		alias               : fAlias,           //创建别名/读取实名
 		extend              : fExtend,          //对象的属性扩展，可以自定义选项
 		extendIf            : fExtendIf,        //对象的属性扩展，不覆盖原有属性
 		mix                 : fMix,             //自定义的继承方式，可以继承object和prototype，prototype方式继承时，非原型链方式继承。
@@ -43,87 +30,9 @@ handy.add('Object',function(){
 		count				: fCount,			//计算对象长度
 		removeUndefined     : fRemoveUndefined, //移除undefined的元素或属性
 		toArray				: fToArray(),       //将类数组对象转换为数组，比如arguments, nodelist
-		fromArray           : fFromArray,       //将元素形如{name:n,value:v}的数组转换为对象
-		generateMethod      : fGenerateMethod   //归纳生成类方法
+		fromArray           : fFromArray        //将元素形如{name:n,value:v}的数组转换为对象
 	}
 	
-	/**
-    * 创建或读取命名空间
-    * @method ns (sPath,obj=)
-    * @param {string}sPath 命名空间路径字符串
-    * @param {*=}obj (可选)用以初始化该命名空间的对象，不传表示读取命名空间
-    * @return {?*} 返回该路径的命名空间，不存在则返回undefined
-    */
-	function fNamespace(sPath,obj){
-		var oObject=null, j, aPath, root,bIsCreate,len; 
-		//尝试转换别名
-		sPath=Object.alias(sPath);
-        aPath=sPath.split(".");  
-        root = aPath[0]; 
-        bIsCreate=arguments.length==2;
-        if(!bIsCreate){
-        	oObject=oWin[root];
-        }else{
-        	oObject=oWin[root]||(oWin[root]={});
-        }
-        //循环命名路径
-        for (j=1,len=aPath.length; j<len; ++j) { 
-        	//obj非空
-        	if(j==len-1&&bIsCreate){
-        		oObject[aPath[j]]=obj;
-        	}else if(bIsCreate||(oObject&&oObject[aPath[j]])){
-	            oObject[aPath[j]]=oObject[aPath[j]]||{};  
-        	}else{
-        		return;
-        	}
-            oObject=oObject[aPath[j]];  
-        } 
-        
-        //base库特殊处理，直接添加到handy下
-		var sBase='handy.base.';
-		if(bIsCreate&&sPath.indexOf(sBase)===0){
-			$H.add(sPath.replace(sBase,''),oObject);
-		}
-    	return oObject;
-	}
-	/**
-	 * 创建别名/读取实名，别名没有对应的存储空间，需要先转换为原始名字才能获取对应的存储空间，
-	 * Loader自动会优先尝试转换别名，因此，别名不能与现有的命名空间重叠
-	 * @method alias
-	 * @param {string||object=}sAlias 别名，如'B.Object'，为空时表示读取所有存储的别名，也可以传入hash对象,{sAlias:sOrig}
-	 * @param {string=}sOrig 原名，如'handy.base.Object'，为空时表示读取实名
-	 */
-	function fAlias(sAlias,sOrig){
-		if(typeof sAlias==='object'){
-			for(var k in sAlias){
-				Object.alias(k,sAlias[k]);
-			}
-			return;
-		}
-		var oAlias=Object._alias;
-		//创建别名
-		if(sOrig){
-			if(oAlias[sAlias]){
-				$D.error('别名已被使用'+sAlias+':'+oAlias[sAlias]);
-			}else{
-				oAlias[sAlias]=sOrig;
-			}
-		}else if(sAlias){
-			//转换别名
-			var sName=sAlias,nIndex=sAlias.length,sSuffix='';
-			do{
-				//找到别名返回实名
-				if(oAlias[sName]){
-					return oAlias[sName]+sAlias.substring(nIndex);
-				}
-				//截掉最后一截再尝试
-				nIndex=sName.lastIndexOf('.');
-			}while(nIndex>0&&(sName=sName.substring(0,nIndex)))
-			return sAlias;
-		}else{
-			return oAlias;
-		}
-	}
 	/**
     * 对象的属性扩展，可以自定义选项
     * @method extend(oDestination, oSource , oOptions=)
@@ -620,21 +529,6 @@ handy.add('Object',function(){
     		oResult[oItem.name]=oItem.value;
     	}
     	return oResult;
-    }
-    /**
-    * 归纳生成类方法
-    * @method generateMethod
-    * @param {Object}oTarget 需要生成方法的对象
-    * @param {string|Array.<string>}method 需要生成的方法列表，如果是字符串，用","作为分隔符
-    * @param {function()}fDefined 方法定义函数，该函数执行后返回方法定义
-    * @return {Array} 返回转换后的数组
-    */
-    function fGenerateMethod(oTarget,method,fDefined){
-    	var aMethod=Object.isArr(method)?method:method.split(",");
-    	for ( var i = 0; i < aMethod.length; i++ ){
-			var sMethod = aMethod[i];
-			oTarget[sMethod] = fDefined(sMethod);
-    	}
     }
 	
 	return Object;

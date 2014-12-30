@@ -84,7 +84,6 @@ module.exports = function(grunt) {
 				src:[
 					'src/js/loader/base.js',
 					'src/js/loader/Json.js', 
-					'src/js/loader/Object.js',
 					'src/js/loader/Browser.js', 
 					'src/js/loader/Debug.js',
 					'src/js/loader/Loader.js'
@@ -95,6 +94,7 @@ module.exports = function(grunt) {
 			jsOther : {
 				// 将要被合并的文件
 				src : [
+					'src/js/base/Object.js',
 					'src/js/base/Class.js',
 					'src/js/base/Function.js', 
 					'src/js/base/Events.js',

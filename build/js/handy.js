@@ -4,23 +4,143 @@
  */
 (function(){
 	
-	var _handy = window.handy,
-	_$ = window.$,
-	
-	handy=window.handy=window.$H=function(selector,context){
-		//return new handy.Element(selector,context);
+	var oWin=window,
+	_handy = oWin.handy,
+	_$ = oWin.$,
+	handy=oWin.handy=oWin.$H=function(selector,context){
+		//return new handy.base.Element(selector,context);
 	};
-	
 	
 	handy.version    = '1.0.0';    //版本号
 	handy.isDebug    = typeof gEnv=='undefined'?false:gEnv=='dev';     //是否是调试状态
 	handy.expando    = ("handy-" +  handy.version).replace(/\./g,'_');    //自定义属性名
 	handy.base={};
-	handy.add        = fAdd;            //添加子模块
 	handy.noConflict = fNoConflict;     //处理命名冲突
 	handy.noop       = function(){};    //空函数
+	handy._alias     = {                //存储别名，公共库建议大写，以便更好地与普通名称区别开，具体项目的别名建议小写
+		'B'             : 'handy.base',
+		'C'             : 'handy.component',
+		'M'             : 'handy.module',
+		'U'             : 'handy.util',
+		'E'             : 'handy.effect',
+		'CM'            : 'handy.common',
+		'D'             : 'handy.data',
+		'V'             : 'handy.view',
+		'P'             : 'handy.plugin'
+	};              
+	handy.ns         = fNamespace;    //创建或读取命名空间，可以传入用以初始化该命名空间的对象
+	handy.alias      = fAlias;        //创建别名/读取实名
+	handy.generateMethod = fGenerateMethod   //归纳生成方法
+	oWin.define=handy.add = fAdd;            //添加子模块
 	
-	
+	/**
+	 * 处理命名冲突
+	 * @method noConflict
+	 * @param {boolean}isDeep 是否处理window.handy冲突
+	 * @retrun {Object}handy 返回当前定义的handy对象
+	 */
+	function fNoConflict( isDeep ) {
+		if ( oWin.$ === handy ) {
+			oWin.$ = _$;
+		}
+
+		if ( isDeep && oWin.handy === handy ) {
+			oWin.handy = _handy;
+		}
+
+		return handy;
+	}
+	/**
+    * 创建或读取命名空间
+    * @method ns (sPath,obj=)
+    * @param {string}sPath 命名空间路径字符串
+    * @param {*=}obj (可选)用以初始化该命名空间的对象，不传表示读取命名空间
+    * @return {?*} 返回该路径的命名空间，不存在则返回undefined
+    */
+	function fNamespace(sPath,obj){
+		var oObject=null, j, aPath, root,bIsCreate,len; 
+		//尝试转换别名
+		sPath=handy.alias(sPath);
+        aPath=sPath.split(".");  
+        root = aPath[0]; 
+        bIsCreate=arguments.length==2;
+        if(!bIsCreate){
+        	oObject=oWin[root];
+        }else{
+        	oObject=oWin[root]||(oWin[root]={});
+        }
+        //循环命名路径
+        for (j=1,len=aPath.length; j<len; ++j) { 
+        	//obj非空
+        	if(j==len-1&&bIsCreate){
+        		oObject[aPath[j]]=obj;
+        	}else if(bIsCreate||(oObject&&oObject[aPath[j]])){
+	            oObject[aPath[j]]=oObject[aPath[j]]||{};  
+        	}else{
+        		return;
+        	}
+            oObject=oObject[aPath[j]];  
+        } 
+        
+        //base库特殊处理，直接添加到handy下
+		var sBase='handy.base.';
+		if(bIsCreate&&sPath.indexOf(sBase)===0){
+			$H.add(sPath.replace(sBase,''),oObject);
+		}
+    	return oObject;
+	}
+	/**
+	 * 创建别名/读取实名，别名没有对应的存储空间，需要先转换为原始名字才能获取对应的存储空间，
+	 * Loader自动会优先尝试转换别名，因此，别名不能与现有的命名空间重叠
+	 * @method alias
+	 * @param {string||object=}sAlias 别名，如'B.Namespace'，为空时表示读取所有存储的别名，也可以传入hash对象,{sAlias:sOrig}
+	 * @param {string=}sOrig 原名，如'handy.base.Object'，为空时表示读取实名
+	 */
+	function fAlias(sAlias,sOrig){
+		if(typeof sAlias==='object'){
+			for(var k in sAlias){
+				handy.alias(k,sAlias[k]);
+			}
+			return;
+		}
+		var oAlias=handy._alias;
+		//创建别名
+		if(sOrig){
+			if(oAlias[sAlias]){
+				$D.error('别名已被使用'+sAlias+':'+oAlias[sAlias]);
+			}else{
+				oAlias[sAlias]=sOrig;
+			}
+		}else if(sAlias){
+			//转换别名
+			var sName=sAlias,nIndex=sAlias.length,sSuffix='';
+			do{
+				//找到别名返回实名
+				if(oAlias[sName]){
+					return oAlias[sName]+sAlias.substring(nIndex);
+				}
+				//截掉最后一截再尝试
+				nIndex=sName.lastIndexOf('.');
+			}while(nIndex>0&&(sName=sName.substring(0,nIndex)))
+			return sAlias;
+		}else{
+			return oAlias;
+		}
+	}
+	/**
+    * 归纳生成类方法
+    * @method generateMethod
+    * @param {Object}oTarget 需要生成方法的对象
+    * @param {Array.<string>}aMethod 需要生成的方法列表
+    * @param {function()}fDefined 方法定义函数，该函数执行后返回方法定义
+    * @return {Array} 返回转换后的数组
+    */
+    function fGenerateMethod(oTarget,aMethod,fDefined){
+    	for ( var i = 0; i < aMethod.length; i++ ){
+			var sMethod = aMethod[i];
+			oTarget[sMethod] = fDefined(sMethod);
+    	}
+    }
 	/**
 	 * 添加子模块
 	 * @method add
@@ -38,41 +158,25 @@
 			var args=[];
 			if(aRequires){
 				if(typeof aRequires=="string"){
-					args.push(handy.base.Object.ns(aRequires));
+					args.push(handy.ns(aRequires));
 				}else{
 					for(var i=0;i<aRequires.length;i++){
-						args.push(handy.base.Object.ns(aRequires[i]));
+						args.push(handy.ns(aRequires[i]));
 					}
 				}
 			}
-			oModule=factory.apply(window,args);
+			args.push(handy);
+			oModule=factory.apply(oWin,args);
 		}
 		handy.base[sName]=handy[sName]=oModule;
 		for(var method in oModule){
 			//!Function[method]专为bind方法
-			if(handy.isDebug&&typeof handy[method]!="undefined"&&('console' in window)&&!Function[method]){
+			if(handy.isDebug&&typeof handy[method]!="undefined"&&('console' in oWin)&&!Function[method]){
 				console.log(handy[method]);
 				console.log(sName+"命名冲突:"+method);
 			}
 			handy[method]=oModule[method];
 		}
-	}
-	/**
-	 * 处理命名冲突
-	 * @method noConflict
-	 * @param {boolean}isDeep 是否处理window.handy冲突
-	 * @retrun {Object}handy 返回当前定义的handy对象
-	 */
-	function fNoConflict( isDeep ) {
-		if ( window.$ === handy ) {
-			window.$ = _$;
-		}
-
-		if ( isDeep && window.handy === handy ) {
-			window.handy = _handy;
-		}
-
-		return handy;
 	}
 	
 })();
@@ -82,7 +186,7 @@
  */
  //参考：https://github.com/douglascrockford/JSON-js/blob/master/json2.js
  //https://developer.mozilla.org/zh-CN/docs/JavaScript/Reference/Global_Objects/JSON
-handy.add('Json',function(){
+define('Json',function(){
 	
 	var Json={
 		stringify   : fStringify,    //序列化，将json对象转化为字符串
@@ -308,28 +412,995 @@ handy.add('Json',function(){
 	return Json;
 });
 /**
+ * 浏览器环境类，分析浏览器类型、版本号、操作系统、内核类型、壳类型、flash版本
+ * 浏览器版本，$H.Browser.ie/firefox/chrome/opera/safari(),如果浏览器是IE的，$H.Browser.ie()的值是浏览器的版本号，!$H.Browser.ie()表示非IE浏览器
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+define("Browser",function($H){
+
+	var _oInfo={};
+	
+	var Browser={};
+	
+	//归纳生成方法，如：Browser.ie()返回ie的版本号(默认返回整型，传入true参数时返回实际版本号，如：'20.0.1132.43')，Browser.windows()返回是否是windows系统
+	$H.generateMethod(Browser,[
+			'ie','firefox','chrome','safari','opera','weixin',  //浏览器版本，@return{number|string}
+			'windows','linux','mac',                    //操作系统，@return{boolean}
+			'trident','webkit','gecko','presto',        //浏览器内核类型，@return{boolean}
+			'sogou','maxthon','tt','theWorld','is360',  //浏览器壳类型，@return{boolean}
+			'mobile',                                   //移动设备类型，@return{string}'ios'|'android'|'nokian'|'webos'
+			'android','ios',                            //android或者ios版本，@return{string}
+			'iPhone','iPod','iPad',                     //ios设备版本，@return{string}
+			'tablet',                                   //是否是平板电脑
+			'phone',                                    //是否是手机
+			'hasTouch',                                 //是否是触摸设备
+			'flash'                                     //flash版本，@return{string}
+		],
+		function(sName){
+			return function(bNotInt){
+				var sValue=_oInfo[sName];
+				return !bNotInt&&typeof sValue==='string'&&/^[\d\.]+$/.test(sValue)?parseInt(sValue):sValue;
+			}
+		}
+	);
+		
+	/**
+	 * 初始化
+	 * @method _fInit
+	 */
+	function _fInit(){
+		var userAgent = window.navigator.userAgent;
+		_fParseBrowser(userAgent);
+		_fParseOs(userAgent);
+	    _fParseKernel(userAgent);
+		_fParseShell(userAgent);
+		_fParseMobile(userAgent);
+		_fParseFlash();
+		if("ontouchend" in document){
+			_oInfo.hasTouch=true;
+		}
+	}
+	/**
+	 * 分析浏览器类型及版本
+	 * @method _fParseBrowser
+	 * @param {string}userAgent 浏览器userAgent
+	 */
+	function _fParseBrowser(userAgent){
+		var ua =userAgent;
+		var matcher;
+		// 使用正则表达式在userAgent中提取浏览器版本信息
+		(matcher = ua.match(/MSIE ([\d.]+)/)) ? _oInfo.ie = matcher[1] :
+		(matcher = ua.match(/Firefox\/([\d.]+)/))? _oInfo.firefox = matcher[1]: 
+		(matcher = ua.match(/Chrome\/([\d.]+)/))? _oInfo.chrome = matcher[1]: 
+		(matcher = ua.match(/Opera.([\d.]+)/))? _oInfo.opera = matcher[1]: 
+		(matcher = ua.match(/MicroMessenger\/([\d.]+)/)) ? _oInfo.weixin = matcher[1] :
+		(matcher = ua.match(/Version\/([\d.]+).*Safari/))? _oInfo.safari = matcher[1]: 0;
+	}
+	/**
+	 * 分析浏览器类型及版本
+	 * @method _fParseOs
+	 * @param {string}userAgent 浏览器userAgent
+	 */
+	function _fParseOs(userAgent){
+		var os;
+		// 读取分析操作系统
+		/windows|win32/i.test(userAgent)?_oInfo.windows=true:
+		/linux/i.test(userAgent)?_oInfo.linux=true:
+		/macintosh/i.test(userAgent)?_oInfo.mac=true:0;
+	}
+	/**
+	 * 分析浏览器内核类型
+	 * @method _fParseKernel
+	 * @param {string}userAgent 浏览器userAgent
+	 */
+	function _fParseKernel(userAgent){
+		var ua =userAgent;
+		// 使用正则表达式在userAgent中提取浏览器版本信息
+		/trident/i.test(ua) ? _oInfo.trident = true :
+		/webkit/i.test(ua)? _oInfo.webkit = true: 
+		/gecko/i.test(ua)? _oInfo.gecko = true: 
+		/presto/i.test(ua)? _oInfo.presto = true: 0;
+	}
+	/**
+	 * 分析浏览器壳类型
+	 * @method _fParseShell
+	 * @param {string}userAgent 浏览器userAgent
+	 */
+	function _fParseShell(userAgent){
+		var ua=userAgent;
+		// 使用正则表达式在userAgent中提取浏览器壳信息
+		/MetaSr/i.test(ua) ? _oInfo.sogou = true :
+		/Maxthon/i.test(ua)? _oInfo.maxthon = true: 
+		/TencentTraveler/i.test(ua)? _oInfo.tt = true: 
+		/TheWorld/i.test(ua)? _oInfo.theWorld = true: 
+		/360[S|E]E/i.test(ua)? _oInfo.is360 = true: 0;
+	}
+	/**
+	 * 分析移动浏览器类型
+	 * @method _fParseMobile
+	 * @param {string}userAgent 浏览器userAgent
+	 */
+	function _fParseMobile(userAgent) {
+		var ua = userAgent,m;
+		if ((m = ua.match(/AppleWebKit\/?([\d.]*)/)) && m[1]){
+			if (/ Mobile\//.test(ua) && ua.match(/iPad|iPod|iPhone/)) {
+				_oInfo.mobile = 'ios'; // iPad, iPhone, iPod Touch
+	
+				//版本号
+				m = ua.match(/OS ([^\s]*)/);
+				if (m && m[1]) {
+					_oInfo.ios = m[1].replace('_', '.');
+				}
+				m = ua.match(/iPad|iPod|iPhone/);
+				if (m && m[0]) {
+					_oInfo[m[0].toLowerCase()] = _oInfo.ios;
+				}
+				if(/iPad/.test(ua)){
+					_oInfo.tablet='ios';
+				}else{
+					_oInfo.phone='ios';
+				}
+			} else if (/Android/i.test(ua)) {
+				_oInfo.mobile = 'android';
+				if (/Mobile/.test(ua)) {
+					_oInfo.phone='android';
+				}else{
+					_oInfo.tablet='android';
+				}
+				m = ua.match(/Android ([^\s]*);/);
+				if (m && m[1]) {
+					_oInfo.android = m[1];
+				}
+			} else if ((m = ua.match(/NokiaN[^\/]*|Android \d\.\d|webOS\/\d\.\d/))) {
+				_oInfo.mobile = m[0].toLowerCase(); // Nokia N-series, Android, webOS,
+												// ex: NokiaN95
+			}
+		}
+	}
+	/**
+	 * 分析浏览器flash版本
+	 * 
+	 * @method _fParseFlash
+	 */
+	function _fParseFlash(){
+		var flashVersion;
+		try{
+			// 如果是ie浏览器
+			if(_oInfo.ie){
+				// 创建一个activeobject
+				var oFlash = new ActiveXObject('ShockwaveFlash.ShockwaveFlash');
+				if(oFlash){
+					flashVersion = oFlash.getVariable("$version").split(" ")[1];
+				}
+			// 其他浏览器
+			}else{
+				if(navigator.plugins && navigator.plugins.length > 0){
+					var oFlash=navigator.plugins["Shockwave Flash"];
+					if(oFlash){
+						var aInfo = oFlash.description.split(" ");
+						for(var i=0,m=aInfo.length;i<m;i++){
+							if(parseInt(aInfo[i])>0){
+								flashVersion = aInfo[i];
+								break;
+							}
+						}
+					}
+				}
+			}
+		}catch(e){
+		}
+		_oInfo.flash = !!flashVersion?flashVersion:null;
+	}
+	
+	_fInit();
+	return Browser;
+	
+});
+/**
+ * 调试类，方便各浏览器下调试，在发布时统一删除调试代码，所有的输出和调试必须使用此类的方法，
+ * 不得使用console等原生方法，发布到线上时需要把除了需要反馈给服务器的方法外的方法统一过滤掉
+ * //TODO 快捷键切换调试等级
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+define("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser){
+	
+	var Debug=window.$D={
+		level	    : $H.isDebug?0:5,  //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
+		LOG_LEVEL	: 1,            //日志级别
+		DEBUG_LEVEL : 2,            //调试级别
+		INFO_LEVEL  : 3,            //信息级别
+		WARN_LEVEL  : 4,            //警告级别
+		ERROR_LEVEL	: 5,            //错误级别
+		showInPage  : !("console" in window)||!!Browser.mobile(),        //是否强制在页面上输出调试信息，主要用于不支持console的浏览器，如：IE6，或者ietester里面，或者移动浏览器
+		out         : fOut,         //直接输出日志
+		log			: fLog,		    //输出日志
+		info		: fInfo,		//输出信息
+		warn        : fWarn,        //输出警告信息
+		error		: fError,		//输出错误信息
+		time        : fTime,        //输出统计时间,info级别
+		trace       : fTrace,       //追踪统计时间
+//		debugLog    : $H.noop,      //线上错误处理
+		debug		: fDebug		//出现调试断点
+	}
+	/**
+	 * 输出信息
+	 * @method fOut
+	 * @param {Object} oVar	需要输出的变量
+	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
+	 * @param {string} sType 日志类型：log,info,error
+	 */
+	function fOut(oVar,bShowInPage,sType){
+		sType = sType||'log';
+		//输出到页面
+		if(bShowInPage||Debug.showInPage){
+			var sDivId = $H.expando+'debugDiv';
+			var oDocument = top.document;
+			var oDebugDiv = oDocument.getElementById(sDivId);
+			if(!oDebugDiv){
+				oDebugDiv = oDocument.createElement("DIV");
+				oDebugDiv.id = sDivId;
+				oDebugDiv.innerHTML = [
+					'<a href="javascript:void(0)" onclick="this.parentNode.style.display=\'none\'">关闭</a>',
+					'<a href="javascript:void(0)" onclick="this.parentNode.getElementsByTagName(\'DIV\')[0].innerHTML=\'\';">清空</a>',
+					'<a href="javascript:void(0)" onclick="if(this.innerHTML==\'全屏\'){this.parentNode.style.height=\''+oDocument.body.offsetHeight+'px\';this.innerHTML=\'收起\'}else{this.parentNode.style.height=\'6.25em\';this.innerHTML=\'全屏\';}">收起</a>',
+					'<a href="javascript:void(0)" onclick="var oDv=this.parentNode.getElementsByTagName(\'div\')[0];if(this.innerHTML==\'底部\'){oDv.scrollTop=oDv.scrollHeight;this.innerHTML=\'顶部\';}else{oDv.scrollTop=0;this.innerHTML=\'底部\';}">顶部</a>',
+					'<a href="javascript:void(0)" onclick="location.reload();">刷新</a>',
+					'<a href="javascript:void(0)" onclick="history.back();">后退</a>'
+				].join('&nbsp;&nbsp;&nbsp;&nbsp;')+'<div style="padding-top:0.313;height:90%;overflow:auto;font-size:0.75em;word-wrap:break-word;word-break:break-all;"></div>';
+				oDebugDiv.style.position = 'fixed';
+				oDebugDiv.style.width = '100%';
+				oDebugDiv.style.left = 0;
+				oDebugDiv.style.top = 0;
+				oDebugDiv.style.right = 0;
+				oDebugDiv.style.height = '100%';
+				oDebugDiv.style.backgroundColor = '#aaa';
+				oDebugDiv.style.fontSize = '1em';
+				oDebugDiv.style.padding = '0.625em';
+				oDebugDiv.style.zIndex = 9999999999;
+				oDebugDiv.style.opacity=0.95;
+				oDebugDiv.style.filter="alpha(opacity=95)";
+				oDocument.body.appendChild(oDebugDiv);
+			}else{
+				oDebugDiv.style.display = 'block';
+			}
+			var oAppender=oDebugDiv.getElementsByTagName('DIV')[0];
+			oVar=oVar instanceof Error?oVar.message:oVar;
+			//这里原生的JSON.stringify有问题(&nbsp;中最后的'p;'会丢失)，统一强制使用自定义方法
+			var sMsg=typeof oVar=='string'?oVar:$H.Json.stringify(oVar, null, '&nbsp;&nbsp;&nbsp;&nbsp;',true);
+			sMsg=sMsg&&sMsg.replace(/\n|\\n/g,'<br/>');
+			var sStyle;
+			if(sType=='log'){
+				sStyle='';
+			}else{
+				sStyle=' style="color:'+(sType=='error'?'red':sType=='info'?'green':'yellow');
+			}
+			oAppender.innerHTML += '<div'+sStyle+'">'+sType+":<br/>"+sMsg+"</div><br/><br/>";
+			oAppender.scrollTop=oAppender.scrollHeight;
+		}
+		//尝试获取调用位置
+		var fCaller=arguments.callee.caller;
+		if(!fCaller.$owner){
+			fCaller=fCaller.caller;
+		}
+		try{
+			//如果是类方法，输出方法定位信息
+			if(fCaller.$owner){
+				console[sType]('['+fCaller.$owner.$ns+'->'+fCaller.$name+']');
+			}
+			console[sType](oVar);
+		}catch(e){
+		}
+	}
+	/**
+	 * 输出日志
+	 * @method log
+	 * @param {Object} oVar	需要输出的变量
+	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
+	 */
+	function fLog(oVar,bShowInPage){
+		if(Debug.level>Debug.LOG_LEVEL){
+			return;
+		}
+		Debug.out(oVar,!!bShowInPage,'log');
+	}
+	/**
+	 * 输出信息
+	 * @method info
+	 * @param {Object} oVar	需要输出的变量
+	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
+	 */
+	function fInfo(oVar,bShowInPage){
+		if(this.level>Debug.INFO_LEVEL){
+			return;
+		}
+		Debug.out(oVar,!!bShowInPage,'info');
+	}
+	/**
+	 * 输出信息
+	 * @method warn
+	 * @param {Object} oVar	需要输出的变量
+	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
+	 */
+	function fWarn(oVar,bShowInPage){
+		if(Debug.level>Debug.WARN_LEVEL){
+			return;
+		}
+		Debug.out(oVar,!!bShowInPage,'warn');
+	}
+	/**
+	 * 输出错误
+	 * @method error
+	 * @param {Object}oVar	需要输出的变量
+	 * @param {boolean=}bShowInPage 是否需要创建一个DIV输出到页面
+	 */
+	function fError(oVar,bShowInPage){
+		if(Debug.level>Debug.ERROR_LEVEL){
+			return;
+		}
+		Debug.out(oVar,!!bShowInPage,"error");
+		if($H.isDebug){
+			if(oVar instanceof Error){
+				//抛出异常，主要是为了方便调试，如果异常被catch住的话，控制台不会输出具体错误位置
+				throw oVar;
+			}
+		}else{
+			//线上自行实现log接口
+			Debug.debugLog&&Debug.debugLog(oVar);
+		}
+	}
+	/**
+	 * 输出统计时间
+	 * @method time
+	 * @param {boolean=}bOut 为true时，计算时间并输出信息，只有此参数为true时，后面两个参数才有意义
+	 * @param {string=}sMsg 输出的信息
+	 * @param {boolean=}bShowInPage 是否需要创建一个DIV输出到页面
+	 */
+	function fTime(bOut,sMsg,bShowInPage){
+		if(Debug.level>Debug.INFO_LEVEL){
+			return;
+		}
+		var nTime=window.performance&&window.performance.now?window.performance.now():(new Date().getTime());
+		if(bOut){
+			if(typeof sMsg=='boolean'){
+				bShowInPage=sMsg;
+				sMsg='';
+			}
+			Debug.out((sMsg||'')+(nTime-(Debug.lastTime||0)),!!bShowInPage);
+		}else{
+			Debug.lastTime=nTime;
+		}
+	}
+	/**
+	 * 追踪统计时间
+	 * @param {object}oParams {
+	 * 		{string=}name:名称,
+	 * 		{boolean=}end:是否结束计时，默认是开始计时,
+	 * 		{boolean=}out:true表示输出结果,
+	 * 		{string=}method:输出使用的方法，默认是log
+	 * }
+	 */
+	function fTrace(oParams){
+		var bOut=oParams.out;
+		var oTimes=Debug._traceTimes||(Debug._traceTimes={});
+		if(bOut){
+			for(var sName in oTimes){
+				var oItem=oTimes[sName];
+				oItem.average=oItem.total/oItem.num;
+			}
+			var sMethod=oParams.method||'log';
+			Debug[sMethod](oTimes);
+			return;
+		}
+		var sName=oParams.name;
+		var bEnd=oParams.end;
+		var oItem=oTimes[sName]||(oTimes[sName]={});
+		var nTime=window.performance?window.performance.now():(new Date().getTime());
+		if(!bEnd){
+			oItem.num=(oItem.num||0)+1;
+			oItem.start=nTime;
+		}else{
+			oItem.total=(oItem.total||0)+nTime-oItem.start;
+		}
+	}
+	/**
+	 * 添加调试断点
+	 * @method debug
+	 * @param {boolean}isDebug	仅为false时不进入debug
+	 */
+	function fDebug(isDebug){
+		if(Debug.level>Debug.DEBUG_LEVEL){
+			return;
+		}
+		if(isDebug!==false){
+			debugger;
+		}
+	}
+	/**
+	 * 处理异常
+	 * @method throwExp
+	 * @param {Object}oExp 异常对象
+	 */
+	function fThrowExp(oExp){
+		if(Debug.level<=Debug.DEBUG_LEVEL){
+			throw oExp;
+		}
+	}
+	
+	return Debug;
+	
+});
+/**
+ * 资源加载类
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ */
+define("Loader",
+["B.Debug"],
+function(Debug,$H){
+	
+	var _LOADER_PRE='[Handy Loader] ',
+		_RESOURCE_NOT_FOUND= _LOADER_PRE+'not found: ',
+		_eHead=document.head ||document.getElementsByTagName('head')[0] ||document.documentElement,
+		_UA = navigator.userAgent,
+        _bIsWebKit = _UA.indexOf('AppleWebKit'),
+    	_aContext=[],         //请求上下文堆栈
+    	_requestingNum=0,     //正在请求(还未返回)的数量
+	    _oCache={};           //缓存
+	
+	var Loader= {
+		traceLog                : false,                     //是否打印跟踪信息
+		combine                 : $H.isDebug?false:true,     //是否合并请求
+		isMin                   : false,                     //是否请求*.min.css和*.min.js
+//		rootPath                : {
+//			'handy'        : 'http://localhost:8081/handy/src',
+//			'com.example'  : 'http://example.com:8082/js'
+//		},                       //根url，根据命名空间前缀匹配替换，如果没有匹配则是空字符串''；如果rootPath是字符串则直接使用
+		timeout                 : 15000,
+		skinName                : 'skin',                   //皮肤名称，皮肤css的url里包含的字符串片段，用于检查css是否是皮肤
+//		sourceMap               : {
+//			'example':{
+//				url       : 'http://url',     //url
+//				chkExist  : function(){return true}    //验证此资源是否存在的方法
+//			}
+//		},                       //自定义资源配置   
+		
+	    showLoading				: function(bIsLoading){},	//加载中的提示，由具体逻辑重写
+		define                  : fDefine,                  //定义资源资源
+	    require                 : fRequire                  //获取所需资源后执行回调
+	}
+	
+	window.define=Loader.define;
+	window.require=Loader.require;
+	
+     /**
+	 * 检查对应的资源是否已加载，只要检测到一个不存在的资源就立刻返回
+	 * @method _fChkExisted
+	 * @param {string|Array}id 被检查的资源id
+	 * @return {Object}  {
+	 * 		{Array}exist: 存在的资源列表
+	 * 		{string}notExist: 不存在的资源id
+	 * }
+	 */
+    function _fChkExisted(id){
+    	function _fChk(sId){
+    		//css和js文件只验证是否加载完
+    		if(/\.(css|js)/.test(sId)){
+    			return _oCache[sId]&&_oCache[sId].status=='loaded';
+    		}else if(Loader.sourceMap&&Loader.sourceMap[sId]){
+    			//自定义资源使用自定义方法验证
+    			return Loader.sourceMap[sId].chkExist();
+    		}else{
+    			//标准命名空间规则验证
+	    		return $H.ns(sId);
+    		}
+    	}
+    	var oResult={}
+    	var aExist=[];
+    	var aNotExist=[];
+    	if(typeof id=="string"){
+    		id=[id];
+    	}
+    	for(var i=0,nLen=id.length;i<nLen;i++){
+    		var sId=id[i];
+ 			sId=$H.alias(sId);
+    		var result=_fChk(sId);
+    		if(!result){
+    			aNotExist.push(sId);
+    		}else{
+    			aExist.push(result);
+    		}
+    	}
+    	oResult.exist=aExist;
+    	oResult.notExist=aNotExist;
+    	return oResult;
+    }
+    
+    /**
+	 * 通过id获取实际url
+	 * @method _fGetUrl
+	 * @param {string}sId 资源id，可以是命名空间，也可以是url
+	 * @return {string}sUrl 实际url
+	 */
+    function _fGetUrl(sId){
+    	if(/\/+/.test(sId)){
+    		return sId;
+    	}
+    	var sUrl=Loader.sourceMap&&Loader.sourceMap[sId]&&Loader.sourceMap[sId].url;
+    	if(!sUrl){
+    		var sRoot='';
+    		var rootPath=Loader.rootPath;
+    		if(typeof rootPath=='string'){
+    			sRoot=rootPath;
+    		}else if(typeof rootPath=="object"){
+	    		for(var prifix in rootPath){
+	    			if(sId.indexOf(prifix)==0){
+	    				sRoot=rootPath[prifix];
+	    				sId=sId.replace(prifix,'');
+	    			}
+	    		}
+    		}else{
+    			sRoot="";
+    		}
+    		//css文件
+    		if(/\.css$/.test(sId)){
+    			sUrl=sId.indexOf('/')==0?sId:"/css/"+sId;
+    		}else if(/\.js$/.test(sId)){
+    			//js文件
+    			sUrl=sId;
+    		}else{
+    			//命名空间
+    			sUrl=sId.replace(/\./g,"/")+".js";
+    		}
+    		sUrl=sRoot.replace(/\/$/,'')+'/'+sUrl.replace(/^\//,'');
+    	}
+		if(Loader.isMin){
+			sUrl=sUrl.replace(/\.(css|js)$/,'.min.$1');
+		}
+		return sUrl;
+    }
+	/**
+	 * 获取js脚本
+	 * @method _getScript
+	 * @param {string}sUrl 请求url
+	 * @param {function()}fCallback 回调函数
+	 */
+    function _fGetScript(sUrl,fCallback) {
+    	var eScript=document.createElement("script");
+    	//脚本相对于页面的其余部分异步地执行(当页面继续进行解析时，脚本将被执行)
+    	eScript.async = "async";
+    	eScript.src=sUrl;
+    	eScript.type="text/javascript";
+    	_fAddOnload(eScript,fCallback);
+		_eHead.appendChild(eScript);
+	}
+	/**
+	 * 获取css
+	 * @method _getCss
+	 * @param {string}sUrl 请求url
+	 * @param {function()}fCallback 回调函数
+	 */
+    function _fGetCss(sUrl,fCallback) {
+    	var aStyles=_eHead.getElementsByTagName("link");
+    	//检查是否已经加载，顺便获取皮肤节点
+    	for(var i=0;i<aStyles.length;i++){
+    		var sHref=aStyles[i].href;
+    		if(!Loader.skinNode&&sHref.indexOf(Loader.skinName)>=0){
+    			Loader.skinNode=aStyles[i];
+    		}
+    		//如果已经加载了，直接返回
+    		if(sHref.indexOf(sUrl)>=0||sUrl.indexOf(sHref)>=0){
+    			return;
+    		}
+    	}
+    	var eCssNode=document.createElement("link");
+    	eCssNode.rel="stylesheet";
+    	eCssNode.href=sUrl;
+    	_fAddOnload(eCssNode,fCallback);
+    	if(Loader.skinNode){
+	    	//插入到皮肤css之前
+	    	_eHead.insertBefore(eCssNode,Loader.skinNode);
+    	}else{
+    		//没有皮肤css，直接加到最后
+    		_eHead.appendChild(eCssNode);
+    	}
+	}
+	/**
+	 * 为css/script资源添加onload事件，包含超时处理
+	 * @method _fAddOnload
+	 * @param {element}eNode 节点
+	 * @param {function()}fCallback 回调函数
+	 */
+	function _fAddOnload(eNode,fCallback){
+		//onload回调函数
+	    function _fCallback() {
+	      if (!_fCallback.isCalled) {
+	        _fCallback.isCalled = true;
+	        clearTimeout(nTimer);
+	        fCallback();
+	      }
+	    }
+	    
+		if (eNode.nodeName === 'SCRIPT') {
+	       _fScriptOnload(eNode, _fCallback);
+	    } else {
+	       _fStyleOnload(eNode, _fCallback);
+	    }
+	
+	    //超时处理
+	    var nTimer = setTimeout(function() {
+	      Debug.error('Time is out:'+ eNode.src);
+	      _fCallback();
+	    }, Loader.timeout);
+	
+	}
+	/**
+	 * script资源onload函数
+	 * @method _fScriptOnload
+	 * @param {element}eNode 节点
+	 * @param {function()}fCallback 回调函数
+	 */
+	function _fScriptOnload(eNode, fCallback) {
+		var _fCall=function() {
+		if (/loaded|complete|undefined/.test(eNode.readyState)) {
+				// 保证只运行一次回调
+				eNode.onload = eNode.onerror = eNode.onreadystatechange = null;
+//				//TODO 防止内存泄露
+//				if (eNode.parentNode) {
+//					try {
+//						if (eNode.clearAttributes) {
+//							eNode.clearAttributes();
+//						} else {
+//							Chrome下这里执行后eNode回变为“TypeError”，原因暂不明
+//							for (var p in eNode){
+//								if(eNode=="TypeError")Debug.debug();
+//								delete eNode[p];
+//							}
+//						}
+//					} catch (e) {
+//						Debug.error("Loader script onload:"+e.message,e);
+//					}
+//				}
+				// 移除标签
+				//_eHead.removeChild(eNode);
+				eNode = null;
+				// IE10下新加载的script会在此之后才执行，所以此处需延迟执行
+				setTimeout(fCallback, 0);
+			}
+		};
+		eNode.onload  = eNode.onreadystatechange = _fCall;
+		eNode.onerror=function(){
+			Debug.error(_LOADER_PRE+'load script error:\n'+eNode.src);
+			_fCall();
+		}
+		// 注意:在opera下，当文件是404时，不会发生任何事件，回调函数会在超时的时候执行
+	}
+	/**
+	 * css资源onload函数
+	 * 
+	 * @method _fStyleOnload
+	 * @param {element}eNode
+	 *            节点
+	 * @param {function()}fCallback
+	 *            回调函数
+	 */
+	function _fStyleOnload(eNode, fCallback) {
+	    // IE6-9 和 Opera
+	    if (window.hasOwnProperty('attachEvent')) { // see #208
+		    eNode.attachEvent('onload', fCallback);
+		    // 注意:
+		    // 1. 在IE6-9下，当文件是404时，onload会被触发，但是在这种情况下，opera下不会被出发，只会出发超时处理；
+		    // 2. onerror事件在所有浏览器中均不会触发
+	    }else {
+	    //Firefox, Chrome, Safari下，采用轮询
+	    	//在eNode插入后开始
+	        setTimeout(function() {
+	        	_fPollStyle(eNode, fCallback);
+	      	}, 0); 
+	    }
+	
+	}
+	/**
+	 * css资源轮询检测
+	 * @method _fPollStyle
+	 * @param {element}eNode 节点
+	 * @param {function()}fCallback 回调函数
+	 */
+	function _fPollStyle(eNode, fCallback) {
+	    if (fCallback.isCalled) {
+	        return;
+	    }
+	    var bIsLoad;
+	    if (_bIsWebKit) {
+	        if (eNode['sheet']) {
+	        	bIsLoad = true;
+	        }
+	    } else if (eNode['sheet']) {
+	    // Firefox
+	        try {
+	            if (eNode['sheet'].cssRules) {
+	          		bIsLoad = true;
+	            }
+	        } catch (ex) {
+	            if (ex.name === 'SecurityError' || // firefox >= 13.0
+	                ex.name === 'NS_ERROR_DOM_SECURITY_ERR') { // 旧的firefox
+	         	    bIsLoad = true;
+	            }
+	        }
+	    }
+	
+	    setTimeout(function() {
+	        if (bIsLoad) {
+	            // 把callback放在这里是因为要给时间给渲染css
+	            fCallback();
+	        } else {
+	            _fPollStyle(eNode, fCallback);
+	        }
+	    }, 1);
+	}
+    /**
+	 * 请求资源
+	 * @method _fRequest
+	 * @param {Array}aRequestIds 需要加载的资源id数组
+	 */
+    function _fRequest(aRequestIds){
+    	var bNeedRequest=false;
+    	var bCombine=Loader.combine,
+    	oCombineJs={},
+    	oCombineCss={};
+    	for(var i=0,nLen=aRequestIds.length;i<nLen;i++){
+    		var sId=aRequestIds[i];
+    		//不处理已经在请求列表里的资源
+    		if(!_oCache[sId]){
+	    		var sUrl=_fGetUrl(sId);
+    			bNeedRequest=true;
+	    		_oCache[sId]={
+					id:sId,
+					status:'loading'
+				}
+				if(!bCombine){
+					var _fCallback=function(){
+						_fResponse(sId);
+					}
+		    		if(Loader.traceLog){
+						Debug.log(_LOADER_PRE+"request:\n"+sUrl);
+			   		}
+		    		if(/\.css/.test(sUrl)){
+		    			_fGetCss(sUrl,_fCallback);
+		    		}else{
+		    			_fGetScript(sUrl,_fCallback) ;
+		    		}
+		    		_requestingNum++;
+				}else{
+					//按照域名整理js和css
+					var host=sUrl.match(/([^:]+:\/\/)?[^/]+\/?/);
+					host=host&&host[0]||'';
+					var sUri=sUrl.substring(host.length);
+					if(/\.css/.test(sUrl)){
+						var oCss=oCombineCss[host];
+		    			if(!oCss){
+							oCss=oCombineCss[host]={ids:[],uris:[]};
+						}
+						oCss.ids.push(sId);
+						oCss.uris.push(sUri);
+		    		}else{
+		    			var oJs=oCombineJs[host];
+		    			if(!oJs){
+							oJs=oCombineJs[host]={ids:[],uris:[]};
+						}
+						oJs.ids.push(sId);
+						oJs.uris.push(sUri);
+		    		}
+				}
+    		}
+    	}
+    	//合并请求
+    	var _fCmbRequest=function(oCombine){
+    		for(var host in oCombine){
+				var oItem=oCombine[host];
+				var aUris=oItem.uris;
+    			var _fCallback=function(){
+    				_fResponse(oItem.ids);
+    			}
+    			var sUrl=host+(aUris.length>1?('??'+aUris.join(',')):aUris[0]);
+	    		if(Loader.traceLog){
+					Debug.log(_LOADER_PRE+"request:\n"+sUrl);
+		   		}
+		   		_fGetScript(sUrl,_fCallback) ;
+		   		_requestingNum++;
+			}
+    	}
+    	//提示loading
+    	if(bNeedRequest){
+    		if(bCombine){
+    			_fCmbRequest(oCombineJs);
+    			_fCmbRequest(oCombineCss);
+    		}
+    		Loader.showLoading(true);
+    	}
+    }
+    /**
+	 * 资源下载完成回调
+	 * @method _fResponse
+	 * @param {string|array}id 资源id或数组
+	 */
+    function _fResponse(id){
+    	Loader.showLoading(false);
+    	_requestingNum--;
+    	id=typeof id==='string'?[id]:id;
+    	//标记资源已加载
+    	for(var i=0;i<id.length;i++){
+	    	_oCache[id[i]].status='loaded';
+    	}
+    	if(Loader.traceLog){
+			Debug.log(_LOADER_PRE+"Response:\n"+id.join('\n'));
+   		}
+    	_fExecContext();
+    }
+    /**
+     * 执行上下文
+     * @method _fExecContext
+     */
+    function _fExecContext(){
+    	//每次回调都循环上下文列表
+   		for(var i=_aContext.length-1;i>=0;i--){
+	    	var oContext=_aContext[i];
+	    	var oResult=_fChkExisted(oContext.deps);
+	    	if(oResult.notExist.length===0){
+	    		_aContext.splice(i,1);
+	    		oContext.callback.apply(null,oResult.exist);
+	    		//定义成功后重新执行上下文
+	    		_fExecContext();
+	    		break;
+	    	}else if(i==0&&_requestingNum==0){
+	    		//输出错误分析
+	    		for(var i=_aContext.length-1;i>=0;i--){
+	    			var oContext=_aContext[i];
+	    			var oResult=_fChkExisted(oContext.deps);
+	    			var aNotExist=oResult.notExist;
+	    			var bHasDepds=false;
+	    			for(var j=_aContext.length-1;j>=0;j--){
+	    				var sId=_aContext[j].id;
+	    				for(var k=aNotExist.length-1;k>=0;k--){
+	    					if(aNotExist[k]===sId){
+		    					bHasDepds=true;
+		    					break;
+	    					}
+	    				}
+	    				if(bHasDepds){
+	    					break;
+	    				}
+	    			}
+	    			if(!bHasDepds){
+						Debug.error(_RESOURCE_NOT_FOUND+oContext.id);
+	    			}
+    				Debug.warn(oContext.id);
+    				Debug.warn("----notExist : "+oResult.notExist);
+	    		}
+	    		Debug.error(_RESOURCE_NOT_FOUND+oResult.notExist);
+	    	}
+   		}
+    }
+    /**
+	 * 定义loader资源
+	 * @method define(sId,deps=,factory)
+	 * @param {string}sId   资源id，可以是id、命名空间，也可以是url地址（如css）
+	 * @param {Array|string=}deps  依赖的资源
+	 * @param {*}factory  资源工厂，可以是函数，也可以是字符串模板
+	 * @return {number}nIndex 返回回调索引
+	 */
+	function fDefine(sId,deps,factory){
+		//读取实名
+		sId=$H.alias(sId);
+		var nLen=arguments.length;
+		if(nLen==2){
+			factory=deps;
+			deps=[];
+		}else{
+			deps=typeof deps=="string"?[deps]:deps;
+		}
+		
+		//检出factory方法内声明的require依赖，如：var m=require('m');
+		if(Object.prototype.toString.call(factory) === "[object Function]"){
+			var m,sFactoryStr=factory.toString();
+			var r=/\require\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
+			while(m=r.exec(sFactoryStr)){
+				deps.push(m[1]);
+			}
+		}
+		
+		Loader.require(deps,function(){
+			var resource;
+			if(typeof factory=="function"){
+				try{
+					if(Loader.traceLog){
+						Debug.log(_LOADER_PRE+"define:\n"+sId);
+					}
+					//考虑到传入依赖是数组，这里回调参数形式依然是数组
+					resource=factory.apply(null,arguments);
+				}catch(e){
+					//资源定义错误
+					e.message=_LOADER_PRE+sId+":\nfactory define error:\n"+e.message;
+					Debug.error(e);
+					return;
+				}
+			}else{
+				resource=factory;
+			}
+			
+			if(resource){
+				$H.ns(sId,resource);
+				//添加命名空间元数据
+				var sType=typeof resource;
+				if(sType=="object"||sType=="function"){
+					resource.$ns=sId;
+				}
+			}else{
+				Debug.warn(_LOADER_PRE+'factory no return:\n'+sId);
+			}
+		},sId);
+	}
+    /**
+	 * 加载所需的资源
+	 * @method require(id,fCallback=)
+	 * @param {string|array}id    资源id（数组）
+	 * @param {function()=}fCallback(可选) 回调函数
+	 * @param {string=}sDefineId 当前请求要定义的资源id，这里只是为了检查加载出错时使用，外部使用忽略此参数
+	 * @return {any}返回最后一个当前已加载的资源，通常用于className只有一个的情况，这样可以立即通过返回赋值
+	 */
+    function fRequire(id,fCallback,sDefineId){
+    	var aIds=typeof id=="string"?[id]:id;
+    	fCallback=fCallback||$H.noop;
+    	//此次required待请求资源数组
+    	var aRequestIds=[];
+    	//已加载的资源
+    	var aExisteds=[];
+    	//是否保存到上下文列表中，保证callback只执行一次
+    	var bNeedContext=true;
+    	for(var i=0,nLen=aIds.length;i<nLen;i++){
+    		var sId=aIds[i];
+			//读取实名
+			sId=$H.alias(sId);
+    		var oResult=_fChkExisted(sId);
+    		if(oResult.notExist.length>0){
+    			//未加载资源放进队列中
+    			aRequestIds.push(sId);
+    			if(bNeedContext){
+    				bNeedContext=false;
+	    			_aContext.push({
+	    				id        : sDefineId,
+	    				deps      : aIds,
+	    				callback  : fCallback
+	    			});
+    			}
+    			if(Loader.traceLog){
+					Debug.log(_RESOURCE_NOT_FOUND+sId);
+		   		}
+    		}else{
+    			aExisteds.push(oResult.exist[0]);
+    		}
+    	}
+    	//没有需要加载的资源，直接执行回调或返回资源
+    	if(aRequestIds.length==0){
+    		fCallback&&fCallback.apply(null,aExisteds);
+    		return aExisteds.length==1?aExisteds[0]:aExisteds;
+    	}else{
+    		//请求资源
+    		_fRequest(aRequestIds);
+    	}
+    }
+    
+    return Loader;
+	
+});
+/**
  * 对象扩展类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('Object',function(){
+define('B.Object',function(){
 	
 	var oWin=window;
 	var wObject=oWin.Object;
 	
 	var Object={
-		_alias              : {                 //存储别名，公共库建议大写，以便更好地与普通名称区别开，具体项目的别名建议小写
-			'B'             : 'handy.base',
-			'C'             : 'handy.component',
-			'M'             : 'handy.module',
-			'U'             : 'handy.util',
-			'E'             : 'handy.effect',
-			'CM'            : 'handy.common',
-			'D'             : 'handy.data',
-			'V'             : 'handy.view',
-			'P'             : 'handy.plugin'
-		},               
-		ns                  : fNamespace,       //创建或读取命名空间，可以传入用以初始化该命名空间的对象
-		alias               : fAlias,           //创建别名/读取实名
 		extend              : fExtend,          //对象的属性扩展，可以自定义选项
 		extendIf            : fExtendIf,        //对象的属性扩展，不覆盖原有属性
 		mix                 : fMix,             //自定义的继承方式，可以继承object和prototype，prototype方式继承时，非原型链方式继承。
@@ -352,87 +1423,9 @@ handy.add('Object',function(){
 		count				: fCount,			//计算对象长度
 		removeUndefined     : fRemoveUndefined, //移除undefined的元素或属性
 		toArray				: fToArray(),       //将类数组对象转换为数组，比如arguments, nodelist
-		fromArray           : fFromArray,       //将元素形如{name:n,value:v}的数组转换为对象
-		generateMethod      : fGenerateMethod   //归纳生成类方法
+		fromArray           : fFromArray        //将元素形如{name:n,value:v}的数组转换为对象
 	}
 	
-	/**
-    * 创建或读取命名空间
-    * @method ns (sPath,obj=)
-    * @param {string}sPath 命名空间路径字符串
-    * @param {*=}obj (可选)用以初始化该命名空间的对象，不传表示读取命名空间
-    * @return {?*} 返回该路径的命名空间，不存在则返回undefined
-    */
-	function fNamespace(sPath,obj){
-		var oObject=null, j, aPath, root,bIsCreate,len; 
-		//尝试转换别名
-		sPath=Object.alias(sPath);
-        aPath=sPath.split(".");  
-        root = aPath[0]; 
-        bIsCreate=arguments.length==2;
-        if(!bIsCreate){
-        	oObject=oWin[root];
-        }else{
-        	oObject=oWin[root]||(oWin[root]={});
-        }
-        //循环命名路径
-        for (j=1,len=aPath.length; j<len; ++j) { 
-        	//obj非空
-        	if(j==len-1&&bIsCreate){
-        		oObject[aPath[j]]=obj;
-        	}else if(bIsCreate||(oObject&&oObject[aPath[j]])){
-	            oObject[aPath[j]]=oObject[aPath[j]]||{};  
-        	}else{
-        		return;
-        	}
-            oObject=oObject[aPath[j]];  
-        } 
-        
-        //base库特殊处理，直接添加到handy下
-		var sBase='handy.base.';
-		if(bIsCreate&&sPath.indexOf(sBase)===0){
-			$H.add(sPath.replace(sBase,''),oObject);
-		}
-    	return oObject;
-	}
-	/**
-	 * 创建别名/读取实名，别名没有对应的存储空间，需要先转换为原始名字才能获取对应的存储空间，
-	 * Loader自动会优先尝试转换别名，因此，别名不能与现有的命名空间重叠
-	 * @method alias
-	 * @param {string||object=}sAlias 别名，如'B.Object'，为空时表示读取所有存储的别名，也可以传入hash对象,{sAlias:sOrig}
-	 * @param {string=}sOrig 原名，如'handy.base.Object'，为空时表示读取实名
-	 */
-	function fAlias(sAlias,sOrig){
-		if(typeof sAlias==='object'){
-			for(var k in sAlias){
-				Object.alias(k,sAlias[k]);
-			}
-			return;
-		}
-		var oAlias=Object._alias;
-		//创建别名
-		if(sOrig){
-			if(oAlias[sAlias]){
-				$D.error('别名已被使用'+sAlias+':'+oAlias[sAlias]);
-			}else{
-				oAlias[sAlias]=sOrig;
-			}
-		}else if(sAlias){
-			//转换别名
-			var sName=sAlias,nIndex=sAlias.length,sSuffix='';
-			do{
-				//找到别名返回实名
-				if(oAlias[sName]){
-					return oAlias[sName]+sAlias.substring(nIndex);
-				}
-				//截掉最后一截再尝试
-				nIndex=sName.lastIndexOf('.');
-			}while(nIndex>0&&(sName=sName.substring(0,nIndex)))
-			return sAlias;
-		}else{
-			return oAlias;
-		}
-	}
 	/**
     * 对象的属性扩展，可以自定义选项
     * @method extend(oDestination, oSource , oOptions=)
@@ -930,997 +1923,8 @@ handy.add('Object',function(){
     	}
     	return oResult;
     }
-    /**
-    * 归纳生成类方法
-    * @method generateMethod
-    * @param {Object}oTarget 需要生成方法的对象
-    * @param {string|Array.<string>}method 需要生成的方法列表，如果是字符串，用","作为分隔符
-    * @param {function()}fDefined 方法定义函数，该函数执行后返回方法定义
-    * @return {Array} 返回转换后的数组
-    */
-    function fGenerateMethod(oTarget,method,fDefined){
-    	var aMethod=Object.isArr(method)?method:method.split(",");
-    	for ( var i = 0; i < aMethod.length; i++ ){
-			var sMethod = aMethod[i];
-			oTarget[sMethod] = fDefined(sMethod);
-    	}
-    }
 	
 	return Object;
-	
-});
-/**
- * 浏览器环境类，分析浏览器类型、版本号、操作系统、内核类型、壳类型、flash版本
- * 浏览器版本，$H.Browser.ie/firefox/chrome/opera/safari(),如果浏览器是IE的，$H.Browser.ie()的值是浏览器的版本号，!$H.Browser.ie()表示非IE浏览器
- * @author 郑银辉(zhengyinhui100@gmail.com)
- */
-handy.add("Browser","handy.base.Object",function(Object){
-
-	var _oInfo={};
-	
-	var Browser={};
-	
-	//归纳生成方法，如：Browser.ie()返回ie的版本号(默认返回整型，传入true参数时返回实际版本号，如：'20.0.1132.43')，Browser.windows()返回是否是windows系统
-	Object.generateMethod(Browser,[
-			'ie','firefox','chrome','safari','opera','weixin',  //浏览器版本，@return{number|string}
-			'windows','linux','mac',                    //操作系统，@return{boolean}
-			'trident','webkit','gecko','presto',        //浏览器内核类型，@return{boolean}
-			'sogou','maxthon','tt','theWorld','is360',  //浏览器壳类型，@return{boolean}
-			'mobile',                                   //移动设备类型，@return{string}'ios'|'android'|'nokian'|'webos'
-			'android','ios',                            //android或者ios版本，@return{string}
-			'iPhone','iPod','iPad',                     //ios设备版本，@return{string}
-			'tablet',                                   //是否是平板电脑
-			'phone',                                    //是否是手机
-			'hasTouch',                                 //是否是触摸设备
-			'flash'                                     //flash版本，@return{string}
-		],
-		function(sName){
-			return function(bNotInt){
-				var sValue=_oInfo[sName];
-				return !bNotInt&&typeof sValue==='string'&&/^[\d\.]+$/.test(sValue)?parseInt(sValue):sValue;
-			}
-		}
-	);
-		
-	/**
-	 * 初始化
-	 * @method _fInit
-	 */
-	function _fInit(){
-		var userAgent = window.navigator.userAgent;
-		_fParseBrowser(userAgent);
-		_fParseOs(userAgent);
-	    _fParseKernel(userAgent);
-		_fParseShell(userAgent);
-		_fParseMobile(userAgent);
-		_fParseFlash();
-		if("ontouchend" in document){
-			_oInfo.hasTouch=true;
-		}
-	}
-	/**
-	 * 分析浏览器类型及版本
-	 * @method _fParseBrowser
-	 * @param {string}userAgent 浏览器userAgent
-	 */
-	function _fParseBrowser(userAgent){
-		var ua =userAgent;
-		var matcher;
-		// 使用正则表达式在userAgent中提取浏览器版本信息
-		(matcher = ua.match(/MSIE ([\d.]+)/)) ? _oInfo.ie = matcher[1] :
-		(matcher = ua.match(/Firefox\/([\d.]+)/))? _oInfo.firefox = matcher[1]: 
-		(matcher = ua.match(/Chrome\/([\d.]+)/))? _oInfo.chrome = matcher[1]: 
-		(matcher = ua.match(/Opera.([\d.]+)/))? _oInfo.opera = matcher[1]: 
-		(matcher = ua.match(/MicroMessenger\/([\d.]+)/)) ? _oInfo.weixin = matcher[1] :
-		(matcher = ua.match(/Version\/([\d.]+).*Safari/))? _oInfo.safari = matcher[1]: 0;
-	}
-	/**
-	 * 分析浏览器类型及版本
-	 * @method _fParseOs
-	 * @param {string}userAgent 浏览器userAgent
-	 */
-	function _fParseOs(userAgent){
-		var os;
-		// 读取分析操作系统
-		/windows|win32/i.test(userAgent)?_oInfo.windows=true:
-		/linux/i.test(userAgent)?_oInfo.linux=true:
-		/macintosh/i.test(userAgent)?_oInfo.mac=true:0;
-	}
-	/**
-	 * 分析浏览器内核类型
-	 * @method _fParseKernel
-	 * @param {string}userAgent 浏览器userAgent
-	 */
-	function _fParseKernel(userAgent){
-		var ua =userAgent;
-		// 使用正则表达式在userAgent中提取浏览器版本信息
-		/trident/i.test(ua) ? _oInfo.trident = true :
-		/webkit/i.test(ua)? _oInfo.webkit = true: 
-		/gecko/i.test(ua)? _oInfo.gecko = true: 
-		/presto/i.test(ua)? _oInfo.presto = true: 0;
-	}
-	/**
-	 * 分析浏览器壳类型
-	 * @method _fParseShell
-	 * @param {string}userAgent 浏览器userAgent
-	 */
-	function _fParseShell(userAgent){
-		var ua=userAgent;
-		// 使用正则表达式在userAgent中提取浏览器壳信息
-		/MetaSr/i.test(ua) ? _oInfo.sogou = true :
-		/Maxthon/i.test(ua)? _oInfo.maxthon = true: 
-		/TencentTraveler/i.test(ua)? _oInfo.tt = true: 
-		/TheWorld/i.test(ua)? _oInfo.theWorld = true: 
-		/360[S|E]E/i.test(ua)? _oInfo.is360 = true: 0;
-	}
-	/**
-	 * 分析移动浏览器类型
-	 * @method _fParseMobile
-	 * @param {string}userAgent 浏览器userAgent
-	 */
-	function _fParseMobile(userAgent) {
-		var ua = userAgent,m;
-		if ((m = ua.match(/AppleWebKit\/?([\d.]*)/)) && m[1]){
-			if (/ Mobile\//.test(ua) && ua.match(/iPad|iPod|iPhone/)) {
-				_oInfo.mobile = 'ios'; // iPad, iPhone, iPod Touch
-	
-				//版本号
-				m = ua.match(/OS ([^\s]*)/);
-				if (m && m[1]) {
-					_oInfo.ios = m[1].replace('_', '.');
-				}
-				m = ua.match(/iPad|iPod|iPhone/);
-				if (m && m[0]) {
-					_oInfo[m[0].toLowerCase()] = _oInfo.ios;
-				}
-				if(/iPad/.test(ua)){
-					_oInfo.tablet='ios';
-				}else{
-					_oInfo.phone='ios';
-				}
-			} else if (/Android/i.test(ua)) {
-				_oInfo.mobile = 'android';
-				if (/Mobile/.test(ua)) {
-					_oInfo.phone='android';
-				}else{
-					_oInfo.tablet='android';
-				}
-				m = ua.match(/Android ([^\s]*);/);
-				if (m && m[1]) {
-					_oInfo.android = m[1];
-				}
-			} else if ((m = ua.match(/NokiaN[^\/]*|Android \d\.\d|webOS\/\d\.\d/))) {
-				_oInfo.mobile = m[0].toLowerCase(); // Nokia N-series, Android, webOS,
-												// ex: NokiaN95
-			}
-		}
-	}
-	/**
-	 * 分析浏览器flash版本
-	 * 
-	 * @method _fParseFlash
-	 */
-	function _fParseFlash(){
-		var flashVersion;
-		try{
-			// 如果是ie浏览器
-			if(_oInfo.ie){
-				// 创建一个activeobject
-				var oFlash = new ActiveXObject('ShockwaveFlash.ShockwaveFlash');
-				if(oFlash){
-					flashVersion = oFlash.getVariable("$version").split(" ")[1];
-				}
-			// 其他浏览器
-			}else{
-				if(navigator.plugins && navigator.plugins.length > 0){
-					var oFlash=navigator.plugins["Shockwave Flash"];
-					if(oFlash){
-						var aInfo = oFlash.description.split(" ");
-						for(var i=0,m=aInfo.length;i<m;i++){
-							if(parseInt(aInfo[i])>0){
-								flashVersion = aInfo[i];
-								break;
-							}
-						}
-					}
-				}
-			}
-		}catch(e){
-		}
-		_oInfo.flash = !!flashVersion?flashVersion:null;
-	}
-	
-	_fInit();
-	return Browser;
-	
-});
-/**
- * 调试类，方便各浏览器下调试，在发布时统一删除调试代码，所有的输出和调试必须使用此类的方法，
- * 不得使用console等原生方法，发布到线上时需要把除了需要反馈给服务器的方法外的方法统一过滤掉
- * //TODO 快捷键切换调试等级
- * @author 郑银辉(zhengyinhui100@gmail.com)
- */
-handy.add("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser){
-	
-	var Debug=window.$D={
-		level	    : $H.isDebug?0:5,  //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
-		LOG_LEVEL	: 1,            //日志级别
-		DEBUG_LEVEL : 2,            //调试级别
-		INFO_LEVEL  : 3,            //信息级别
-		WARN_LEVEL  : 4,            //警告级别
-		ERROR_LEVEL	: 5,            //错误级别
-		showInPage  : !("console" in window)||!!Browser.mobile(),        //是否强制在页面上输出调试信息，主要用于不支持console的浏览器，如：IE6，或者ietester里面，或者移动浏览器
-		out         : fOut,         //直接输出日志
-		log			: fLog,		    //输出日志
-		info		: fInfo,		//输出信息
-		warn        : fWarn,        //输出警告信息
-		error		: fError,		//输出错误信息
-		time        : fTime,        //输出统计时间,info级别
-		trace       : fTrace,       //追踪统计时间
-//		debugLog    : $H.noop,      //线上错误处理
-		debug		: fDebug		//出现调试断点
-	}
-	/**
-	 * 输出信息
-	 * @method fOut
-	 * @param {Object} oVar	需要输出的变量
-	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
-	 * @param {string} sType 日志类型：log,info,error
-	 */
-	function fOut(oVar,bShowInPage,sType){
-		sType = sType||'log';
-		//输出到页面
-		if(bShowInPage||Debug.showInPage){
-			var sDivId = $H.expando+'debugDiv';
-			var oDocument = top.document;
-			var oDebugDiv = oDocument.getElementById(sDivId);
-			if(!oDebugDiv){
-				oDebugDiv = oDocument.createElement("DIV");
-				oDebugDiv.id = sDivId;
-				oDebugDiv.innerHTML = [
-					'<a href="javascript:void(0)" onclick="this.parentNode.style.display=\'none\'">关闭</a>',
-					'<a href="javascript:void(0)" onclick="this.parentNode.getElementsByTagName(\'DIV\')[0].innerHTML=\'\';">清空</a>',
-					'<a href="javascript:void(0)" onclick="if(this.innerHTML==\'全屏\'){this.parentNode.style.height=\''+oDocument.body.offsetHeight+'px\';this.innerHTML=\'收起\'}else{this.parentNode.style.height=\'6.25em\';this.innerHTML=\'全屏\';}">收起</a>',
-					'<a href="javascript:void(0)" onclick="var oDv=this.parentNode.getElementsByTagName(\'div\')[0];if(this.innerHTML==\'底部\'){oDv.scrollTop=oDv.scrollHeight;this.innerHTML=\'顶部\';}else{oDv.scrollTop=0;this.innerHTML=\'底部\';}">顶部</a>',
-					'<a href="javascript:void(0)" onclick="location.reload();">刷新</a>',
-					'<a href="javascript:void(0)" onclick="history.back();">后退</a>'
-				].join('&nbsp;&nbsp;&nbsp;&nbsp;')+'<div style="padding-top:0.313;height:90%;overflow:auto;font-size:0.75em;word-wrap:break-word;word-break:break-all;"></div>';
-				oDebugDiv.style.position = 'fixed';
-				oDebugDiv.style.width = '100%';
-				oDebugDiv.style.left = 0;
-				oDebugDiv.style.top = 0;
-				oDebugDiv.style.right = 0;
-				oDebugDiv.style.height = '100%';
-				oDebugDiv.style.backgroundColor = '#aaa';
-				oDebugDiv.style.fontSize = '1em';
-				oDebugDiv.style.padding = '0.625em';
-				oDebugDiv.style.zIndex = 9999999999;
-				oDebugDiv.style.opacity=0.95;
-				oDebugDiv.style.filter="alpha(opacity=95)";
-				oDocument.body.appendChild(oDebugDiv);
-			}else{
-				oDebugDiv.style.display = 'block';
-			}
-			var oAppender=oDebugDiv.getElementsByTagName('DIV')[0];
-			oVar=oVar instanceof Error?oVar.message:oVar;
-			//这里原生的JSON.stringify有问题(&nbsp;中最后的'p;'会丢失)，统一强制使用自定义方法
-			var sMsg=typeof oVar=='string'?oVar:$H.Json.stringify(oVar, null, '&nbsp;&nbsp;&nbsp;&nbsp;',true);
-			sMsg=sMsg&&sMsg.replace(/\n|\\n/g,'<br/>');
-			var sStyle;
-			if(sType=='log'){
-				sStyle='';
-			}else{
-				sStyle=' style="color:'+(sType=='error'?'red':sType=='info'?'green':'yellow');
-			}
-			oAppender.innerHTML += '<div'+sStyle+'">'+sType+":<br/>"+sMsg+"</div><br/><br/>";
-			oAppender.scrollTop=oAppender.scrollHeight;
-		}
-		//尝试获取调用位置
-		var fCaller=arguments.callee.caller;
-		if(!fCaller.$owner){
-			fCaller=fCaller.caller;
-		}
-		try{
-			//如果是类方法，输出方法定位信息
-			if(fCaller.$owner){
-				console[sType]('['+fCaller.$owner.$ns+'->'+fCaller.$name+']');
-			}
-			console[sType](oVar);
-		}catch(e){
-		}
-	}
-	/**
-	 * 输出日志
-	 * @method log
-	 * @param {Object} oVar	需要输出的变量
-	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
-	 */
-	function fLog(oVar,bShowInPage){
-		if(Debug.level>Debug.LOG_LEVEL){
-			return;
-		}
-		Debug.out(oVar,!!bShowInPage,'log');
-	}
-	/**
-	 * 输出信息
-	 * @method info
-	 * @param {Object} oVar	需要输出的变量
-	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
-	 */
-	function fInfo(oVar,bShowInPage){
-		if(this.level>Debug.INFO_LEVEL){
-			return;
-		}
-		Debug.out(oVar,!!bShowInPage,'info');
-	}
-	/**
-	 * 输出信息
-	 * @method warn
-	 * @param {Object} oVar	需要输出的变量
-	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
-	 */
-	function fWarn(oVar,bShowInPage){
-		if(Debug.level>Debug.WARN_LEVEL){
-			return;
-		}
-		Debug.out(oVar,!!bShowInPage,'warn');
-	}
-	/**
-	 * 输出错误
-	 * @method error
-	 * @param {Object}oVar	需要输出的变量
-	 * @param {boolean=}bShowInPage 是否需要创建一个DIV输出到页面
-	 */
-	function fError(oVar,bShowInPage){
-		if(Debug.level>Debug.ERROR_LEVEL){
-			return;
-		}
-		Debug.out(oVar,!!bShowInPage,"error");
-		if($H.isDebug){
-			if(oVar instanceof Error){
-				//抛出异常，主要是为了方便调试，如果异常被catch住的话，控制台不会输出具体错误位置
-				throw oVar;
-			}
-		}else{
-			//线上自行实现log接口
-			Debug.debugLog&&Debug.debugLog(oVar);
-		}
-	}
-	/**
-	 * 输出统计时间
-	 * @method time
-	 * @param {boolean=}bOut 为true时，计算时间并输出信息，只有此参数为true时，后面两个参数才有意义
-	 * @param {string=}sMsg 输出的信息
-	 * @param {boolean=}bShowInPage 是否需要创建一个DIV输出到页面
-	 */
-	function fTime(bOut,sMsg,bShowInPage){
-		if(Debug.level>Debug.INFO_LEVEL){
-			return;
-		}
-		var nTime=window.performance&&window.performance.now?window.performance.now():(new Date().getTime());
-		if(bOut){
-			if(typeof sMsg=='boolean'){
-				bShowInPage=sMsg;
-				sMsg='';
-			}
-			Debug.out((sMsg||'')+(nTime-(Debug.lastTime||0)),!!bShowInPage);
-		}else{
-			Debug.lastTime=nTime;
-		}
-	}
-	/**
-	 * 追踪统计时间
-	 * @param {object}oParams {
-	 * 		{string=}name:名称,
-	 * 		{boolean=}end:是否结束计时，默认是开始计时,
-	 * 		{boolean=}out:true表示输出结果,
-	 * 		{string=}method:输出使用的方法，默认是log
-	 * }
-	 */
-	function fTrace(oParams){
-		var bOut=oParams.out;
-		var oTimes=Debug._traceTimes||(Debug._traceTimes={});
-		if(bOut){
-			for(var sName in oTimes){
-				var oItem=oTimes[sName];
-				oItem.average=oItem.total/oItem.num;
-			}
-			var sMethod=oParams.method||'log';
-			Debug[sMethod](oTimes);
-			return;
-		}
-		var sName=oParams.name;
-		var bEnd=oParams.end;
-		var oItem=oTimes[sName]||(oTimes[sName]={});
-		var nTime=window.performance?window.performance.now():(new Date().getTime());
-		if(!bEnd){
-			oItem.num=(oItem.num||0)+1;
-			oItem.start=nTime;
-		}else{
-			oItem.total=(oItem.total||0)+nTime-oItem.start;
-		}
-	}
-	/**
-	 * 添加调试断点
-	 * @method debug
-	 * @param {boolean}isDebug	仅为false时不进入debug
-	 */
-	function fDebug(isDebug){
-		if(Debug.level>Debug.DEBUG_LEVEL){
-			return;
-		}
-		if(isDebug!==false){
-			debugger;
-		}
-	}
-	/**
-	 * 处理异常
-	 * @method throwExp
-	 * @param {Object}oExp 异常对象
-	 */
-	function fThrowExp(oExp){
-		if(Debug.level<=Debug.DEBUG_LEVEL){
-			throw oExp;
-		}
-	}
-	
-	return Debug;
-	
-});
-/**
- * 资源加载类
- * @author 郑银辉(zhengyinhui100@gmail.com)
- */
-handy.add("Loader",
-["B.Debug","B.Object"],
-function(Debug,Object){
-	
-	var _LOADER_PRE='[Handy Loader] ',
-		_RESOURCE_NOT_FOUND= _LOADER_PRE+'not found: ',
-		_eHead=document.head ||document.getElementsByTagName('head')[0] ||document.documentElement,
-		_UA = navigator.userAgent,
-        _bIsWebKit = _UA.indexOf('AppleWebKit'),
-    	_aContext=[],         //请求上下文堆栈
-    	_requestingNum=0,     //正在请求(还未返回)的数量
-	    _oCache={};           //缓存
-	
-	var Loader= {
-		traceLog                : false,                     //是否打印跟踪信息
-		combine                 : $H.isDebug?false:true,     //是否合并请求
-		isMin                   : false,                     //是否请求*.min.css和*.min.js
-//		rootPath                : {
-//			'handy'        : 'http://localhost:8081/handy/src',
-//			'com.example'  : 'http://example.com:8082/js'
-//		},                       //根url，根据命名空间前缀匹配替换，如果没有匹配则是空字符串''；如果rootPath是字符串则直接使用
-		timeout                 : 15000,
-		skinName                : 'skin',                   //皮肤名称，皮肤css的url里包含的字符串片段，用于检查css是否是皮肤
-//		sourceMap               : {
-//			'example':{
-//				url       : 'http://url',     //url
-//				chkExist  : function(){return true}    //验证此资源是否存在的方法
-//			}
-//		},                       //自定义资源配置   
-		
-	    showLoading				: function(bIsLoading){},	//加载中的提示，由具体逻辑重写
-		define                  : fDefine,                  //定义资源资源
-	    require                 : fRequire                  //获取所需资源后执行回调
-	}
-	
-	window.define=Loader.define;
-	window.require=Loader.require;
-	
-     /**
-	 * 检查对应的资源是否已加载，只要检测到一个不存在的资源就立刻返回
-	 * @method _fChkExisted
-	 * @param {string|Array}id 被检查的资源id
-	 * @return {Object}  {
-	 * 		{Array}exist: 存在的资源列表
-	 * 		{string}notExist: 不存在的资源id
-	 * }
-	 */
-    function _fChkExisted(id){
-    	function _fChk(sId){
-    		//css和js文件只验证是否加载完
-    		if(/\.(css|js)/.test(sId)){
-    			return _oCache[sId]&&_oCache[sId].status=='loaded';
-    		}else if(Loader.sourceMap&&Loader.sourceMap[sId]){
-    			//自定义资源使用自定义方法验证
-    			return Loader.sourceMap[sId].chkExist();
-    		}else{
-    			//标准命名空间规则验证
-	    		return Object.ns(sId);
-    		}
-    	}
-    	var oResult={}
-    	var aExist=[];
-    	var aNotExist=[];
-    	if(typeof id=="string"){
-    		id=[id];
-    	}
-    	for(var i=0,nLen=id.length;i<nLen;i++){
-    		var sId=id[i];
-    		sId=Object.alias(sId);
-    		var result=_fChk(sId);
-    		if(!result){
-    			aNotExist.push(sId);
-    		}else{
-    			aExist.push(result);
-    		}
-    	}
-    	oResult.exist=aExist;
-    	oResult.notExist=aNotExist;
-    	return oResult;
-    }
-    
-    /**
-	 * 通过id获取实际url
-	 * @method _fGetUrl
-	 * @param {string}sId 资源id，可以是命名空间，也可以是url
-	 * @return {string}sUrl 实际url
-	 */
-    function _fGetUrl(sId){
-    	if(/\/+/.test(sId)){
-    		return sId;
-    	}
-    	var sUrl=Loader.sourceMap&&Loader.sourceMap[sId]&&Loader.sourceMap[sId].url;
-    	if(!sUrl){
-    		var sRoot='';
-    		var rootPath=Loader.rootPath;
-    		if(typeof rootPath=='string'){
-    			sRoot=rootPath;
-    		}else if(typeof rootPath=="object"){
-	    		for(var prifix in rootPath){
-	    			if(sId.indexOf(prifix)==0){
-	    				sRoot=rootPath[prifix];
-	    				sId=sId.replace(prifix,'');
-	    			}
-	    		}
-    		}else{
-    			sRoot="";
-    		}
-    		//css文件
-    		if(/\.css$/.test(sId)){
-    			sUrl=sId.indexOf('/')==0?sId:"/css/"+sId;
-    		}else if(/\.js$/.test(sId)){
-    			//js文件
-    			sUrl=sId;
-    		}else{
-    			//命名空间
-    			sUrl=sId.replace(/\./g,"/")+".js";
-    		}
-    		sUrl=sRoot.replace(/\/$/,'')+'/'+sUrl.replace(/^\//,'');
-    	}
-		if(Loader.isMin){
-			sUrl=sUrl.replace(/\.(css|js)$/,'.min.$1');
-		}
-		return sUrl;
-    }
-	/**
-	 * 获取js脚本
-	 * @method _getScript
-	 * @param {string}sUrl 请求url
-	 * @param {function()}fCallback 回调函数
-	 */
-    function _fGetScript(sUrl,fCallback) {
-    	var eScript=document.createElement("script");
-    	//脚本相对于页面的其余部分异步地执行(当页面继续进行解析时，脚本将被执行)
-    	eScript.async = "async";
-    	eScript.src=sUrl;
-    	eScript.type="text/javascript";
-    	_fAddOnload(eScript,fCallback);
-		_eHead.appendChild(eScript);
-	}
-	/**
-	 * 获取css
-	 * @method _getCss
-	 * @param {string}sUrl 请求url
-	 * @param {function()}fCallback 回调函数
-	 */
-    function _fGetCss(sUrl,fCallback) {
-    	var aStyles=_eHead.getElementsByTagName("link");
-    	//检查是否已经加载，顺便获取皮肤节点
-    	for(var i=0;i<aStyles.length;i++){
-    		var sHref=aStyles[i].href;
-    		if(!Loader.skinNode&&sHref.indexOf(Loader.skinName)>=0){
-    			Loader.skinNode=aStyles[i];
-    		}
-    		//如果已经加载了，直接返回
-    		if(sHref.indexOf(sUrl)>=0||sUrl.indexOf(sHref)>=0){
-    			return;
-    		}
-    	}
-    	var eCssNode=document.createElement("link");
-    	eCssNode.rel="stylesheet";
-    	eCssNode.href=sUrl;
-    	_fAddOnload(eCssNode,fCallback);
-    	if(Loader.skinNode){
-	    	//插入到皮肤css之前
-	    	_eHead.insertBefore(eCssNode,Loader.skinNode);
-    	}else{
-    		//没有皮肤css，直接加到最后
-    		_eHead.appendChild(eCssNode);
-    	}
-	}
-	/**
-	 * 为css/script资源添加onload事件，包含超时处理
-	 * @method _fAddOnload
-	 * @param {element}eNode 节点
-	 * @param {function()}fCallback 回调函数
-	 */
-	function _fAddOnload(eNode,fCallback){
-		//onload回调函数
-	    function _fCallback() {
-	      if (!_fCallback.isCalled) {
-	        _fCallback.isCalled = true;
-	        clearTimeout(nTimer);
-	        fCallback();
-	      }
-	    }
-	    
-		if (eNode.nodeName === 'SCRIPT') {
-	       _fScriptOnload(eNode, _fCallback);
-	    } else {
-	       _fStyleOnload(eNode, _fCallback);
-	    }
-	
-	    //超时处理
-	    var nTimer = setTimeout(function() {
-	      Debug.error('Time is out:'+ eNode.src);
-	      _fCallback();
-	    }, Loader.timeout);
-	
-	}
-	/**
-	 * script资源onload函数
-	 * @method _fScriptOnload
-	 * @param {element}eNode 节点
-	 * @param {function()}fCallback 回调函数
-	 */
-	function _fScriptOnload(eNode, fCallback) {
-		var _fCall=function() {
-		if (/loaded|complete|undefined/.test(eNode.readyState)) {
-				// 保证只运行一次回调
-				eNode.onload = eNode.onerror = eNode.onreadystatechange = null;
-//				//TODO 防止内存泄露
-//				if (eNode.parentNode) {
-//					try {
-//						if (eNode.clearAttributes) {
-//							eNode.clearAttributes();
-//						} else {
-//							Chrome下这里执行后eNode回变为“TypeError”，原因暂不明
-//							for (var p in eNode){
-//								if(eNode=="TypeError")Debug.debug();
-//								delete eNode[p];
-//							}
-//						}
-//					} catch (e) {
-//						Debug.error("Loader script onload:"+e.message,e);
-//					}
-//				}
-				// 移除标签
-				//_eHead.removeChild(eNode);
-				eNode = null;
-				// IE10下新加载的script会在此之后才执行，所以此处需延迟执行
-				setTimeout(fCallback, 0);
-			}
-		};
-		eNode.onload  = eNode.onreadystatechange = _fCall;
-		eNode.onerror=function(){
-			Debug.error(_LOADER_PRE+'load script error:\n'+eNode.src);
-			_fCall();
-		}
-		// 注意:在opera下，当文件是404时，不会发生任何事件，回调函数会在超时的时候执行
-	}
-	/**
-	 * css资源onload函数
-	 * 
-	 * @method _fStyleOnload
-	 * @param {element}eNode
-	 *            节点
-	 * @param {function()}fCallback
-	 *            回调函数
-	 */
-	function _fStyleOnload(eNode, fCallback) {
-	    // IE6-9 和 Opera
-	    if (window.hasOwnProperty('attachEvent')) { // see #208
-		    eNode.attachEvent('onload', fCallback);
-		    // 注意:
-		    // 1. 在IE6-9下，当文件是404时，onload会被触发，但是在这种情况下，opera下不会被出发，只会出发超时处理；
-		    // 2. onerror事件在所有浏览器中均不会触发
-	    }else {
-	    //Firefox, Chrome, Safari下，采用轮询
-	    	//在eNode插入后开始
-	        setTimeout(function() {
-	        	_fPollStyle(eNode, fCallback);
-	      	}, 0); 
-	    }
-	
-	}
-	/**
-	 * css资源轮询检测
-	 * @method _fPollStyle
-	 * @param {element}eNode 节点
-	 * @param {function()}fCallback 回调函数
-	 */
-	function _fPollStyle(eNode, fCallback) {
-	    if (fCallback.isCalled) {
-	        return;
-	    }
-	    var bIsLoad;
-	    if (_bIsWebKit) {
-	        if (eNode['sheet']) {
-	        	bIsLoad = true;
-	        }
-	    } else if (eNode['sheet']) {
-	    // Firefox
-	        try {
-	            if (eNode['sheet'].cssRules) {
-	          		bIsLoad = true;
-	            }
-	        } catch (ex) {
-	            if (ex.name === 'SecurityError' || // firefox >= 13.0
-	                ex.name === 'NS_ERROR_DOM_SECURITY_ERR') { // 旧的firefox
-	         	    bIsLoad = true;
-	            }
-	        }
-	    }
-	
-	    setTimeout(function() {
-	        if (bIsLoad) {
-	            // 把callback放在这里是因为要给时间给渲染css
-	            fCallback();
-	        } else {
-	            _fPollStyle(eNode, fCallback);
-	        }
-	    }, 1);
-	}
-    /**
-	 * 请求资源
-	 * @method _fRequest
-	 * @param {Array}aRequestIds 需要加载的资源id数组
-	 */
-    function _fRequest(aRequestIds){
-    	var bNeedRequest=false;
-    	var bCombine=Loader.combine,
-    	oCombineJs={},
-    	oCombineCss={};
-    	for(var i=0,nLen=aRequestIds.length;i<nLen;i++){
-    		var sId=aRequestIds[i];
-    		//不处理已经在请求列表里的资源
-    		if(!_oCache[sId]){
-	    		var sUrl=_fGetUrl(sId);
-    			bNeedRequest=true;
-	    		_oCache[sId]={
-					id:sId,
-					status:'loading'
-				}
-				if(!bCombine){
-					var _fCallback=function(){
-						_fResponse(sId);
-					}
-		    		if(Loader.traceLog){
-						Debug.log(_LOADER_PRE+"request:\n"+sUrl);
-			   		}
-		    		if(/\.css/.test(sUrl)){
-		    			_fGetCss(sUrl,_fCallback);
-		    		}else{
-		    			_fGetScript(sUrl,_fCallback) ;
-		    		}
-		    		_requestingNum++;
-				}else{
-					//按照域名整理js和css
-					var host=sUrl.match(/([^:]+:\/\/)?[^/]+\/?/);
-					host=host&&host[0]||'';
-					var sUri=sUrl.substring(host.length);
-					if(/\.css/.test(sUrl)){
-						var oCss=oCombineCss[host];
-		    			if(!oCss){
-							oCss=oCombineCss[host]={ids:[],uris:[]};
-						}
-						oCss.ids.push(sId);
-						oCss.uris.push(sUri);
-		    		}else{
-		    			var oJs=oCombineJs[host];
-		    			if(!oJs){
-							oJs=oCombineJs[host]={ids:[],uris:[]};
-						}
-						oJs.ids.push(sId);
-						oJs.uris.push(sUri);
-		    		}
-				}
-    		}
-    	}
-    	//合并请求
-    	var _fCmbRequest=function(oCombine){
-    		for(var host in oCombine){
-				var oItem=oCombine[host];
-				var aUris=oItem.uris;
-    			var _fCallback=function(){
-    				_fResponse(oItem.ids);
-    			}
-    			var sUrl=host+(aUris.length>1?('??'+aUris.join(',')):aUris[0]);
-	    		if(Loader.traceLog){
-					Debug.log(_LOADER_PRE+"request:\n"+sUrl);
-		   		}
-		   		_fGetScript(sUrl,_fCallback) ;
-		   		_requestingNum++;
-			}
-    	}
-    	//提示loading
-    	if(bNeedRequest){
-    		if(bCombine){
-    			_fCmbRequest(oCombineJs);
-    			_fCmbRequest(oCombineCss);
-    		}
-    		Loader.showLoading(true);
-    	}
-    }
-    /**
-	 * 资源下载完成回调
-	 * @method _fResponse
-	 * @param {string|array}id 资源id或数组
-	 */
-    function _fResponse(id){
-    	Loader.showLoading(false);
-    	_requestingNum--;
-    	id=typeof id==='string'?[id]:id;
-    	//标记资源已加载
-    	for(var i=0;i<id.length;i++){
-	    	_oCache[id[i]].status='loaded';
-    	}
-    	if(Loader.traceLog){
-			Debug.log(_LOADER_PRE+"Response:\n"+id.join('\n'));
-   		}
-    	_fExecContext();
-    }
-    /**
-     * 执行上下文
-     * @method _fExecContext
-     */
-    function _fExecContext(){
-    	//每次回调都循环上下文列表
-   		for(var i=_aContext.length-1;i>=0;i--){
-	    	var oContext=_aContext[i];
-	    	var oResult=_fChkExisted(oContext.deps);
-	    	if(oResult.notExist.length===0){
-	    		_aContext.splice(i,1);
-	    		oContext.callback.apply(null,oResult.exist);
-	    		//定义成功后重新执行上下文
-	    		_fExecContext();
-	    		break;
-	    	}else if(i==0&&_requestingNum==0){
-	    		//输出错误分析
-	    		for(var i=_aContext.length-1;i>=0;i--){
-	    			var oContext=_aContext[i];
-	    			var oResult=_fChkExisted(oContext.deps);
-	    			var aNotExist=oResult.notExist;
-	    			var bHasDepds=false;
-	    			for(var j=_aContext.length-1;j>=0;j--){
-	    				if(Object.contains(aNotExist,_aContext[j].id)){
-	    					bHasDepds=true;
-	    					break;
-	    				}
-	    			}
-	    			if(!bHasDepds){
-						Debug.error(_RESOURCE_NOT_FOUND+oContext.id);
-	    			}
-    				Debug.warn(oContext.id);
-    				Debug.warn("----notExist : "+oResult.notExist);
-	    		}
-	    		Debug.error(_RESOURCE_NOT_FOUND+oResult.notExist);
-	    	}
-   		}
-    }
-    /**
-	 * 定义loader资源
-	 * @method define(sId,deps=,factory)
-	 * @param {string}sId   资源id，可以是id、命名空间，也可以是url地址（如css）
-	 * @param {Array|string=}deps  依赖的资源
-	 * @param {*}factory  资源工厂，可以是函数，也可以是字符串模板
-	 * @return {number}nIndex 返回回调索引
-	 */
-	function fDefine(sId,deps,factory){
-		//读取实名
-		sId=Object.alias(sId);
-		var nLen=arguments.length;
-		if(nLen==2){
-			factory=deps;
-			deps=[];
-		}else{
-			deps=typeof deps=="string"?[deps]:deps;
-		}
-		
-		//检出factory方法内声明的require依赖，如：var m=require('m');
-		if(Object.isFunc(factory)){
-			var m,sFactoryStr=factory.toString();
-			var r=/\require\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
-			while(m=r.exec(sFactoryStr)){
-				deps.push(m[1]);
-			}
-		}
-		
-		Loader.require(deps,function(){
-			var resource;
-			if(typeof factory=="function"){
-				try{
-					if(Loader.traceLog){
-						Debug.log(_LOADER_PRE+"define:\n"+sId);
-					}
-					//考虑到传入依赖是数组，这里回调参数形式依然是数组
-					resource=factory.apply(null,arguments);
-				}catch(e){
-					//资源定义错误
-					e.message=_LOADER_PRE+sId+":\nfactory define error:\n"+e.message;
-					Debug.error(e);
-					return;
-				}
-			}else{
-				resource=factory;
-			}
-			
-			if(resource){
-				Object.ns(sId,resource);
-				//添加命名空间元数据
-				var sType=typeof resource;
-				if(sType=="object"||sType=="function"){
-					resource.$ns=sId;
-				}
-			}else{
-				Debug.warn(_LOADER_PRE+'factory no return:\n'+sId);
-			}
-		},sId);
-	}
-    /**
-	 * 加载所需的资源
-	 * @method require(id,fCallback=)
-	 * @param {string|array}id    资源id（数组）
-	 * @param {function()=}fCallback(可选) 回调函数
-	 * @param {string=}sDefineId 当前请求要定义的资源id，这里只是为了检查加载出错时使用，外部使用忽略此参数
-	 * @return {any}返回最后一个当前已加载的资源，通常用于className只有一个的情况，这样可以立即通过返回赋值
-	 */
-    function fRequire(id,fCallback,sDefineId){
-    	var aIds=typeof id=="string"?[id]:id;
-    	fCallback=fCallback||$H.noop;
-    	//此次required待请求资源数组
-    	var aRequestIds=[];
-    	//已加载的资源
-    	var aExisteds=[];
-    	//是否保存到上下文列表中，保证callback只执行一次
-    	var bNeedContext=true;
-    	for(var i=0,nLen=aIds.length;i<nLen;i++){
-    		var sId=aIds[i];
-			//读取实名
-			sId=Object.alias(sId);
-    		var oResult=_fChkExisted(sId);
-    		if(oResult.notExist.length>0){
-    			//未加载资源放进队列中
-    			aRequestIds.push(sId);
-    			if(bNeedContext){
-    				bNeedContext=false;
-	    			_aContext.push({
-	    				id        : sDefineId,
-	    				deps      : aIds,
-	    				callback  : fCallback
-	    			});
-    			}
-    			if(Loader.traceLog){
-					Debug.log(_RESOURCE_NOT_FOUND+sId);
-		   		}
-    		}else{
-    			aExisteds.push(oResult.exist[0]);
-    		}
-    	}
-    	//没有需要加载的资源，直接执行回调或返回资源
-    	if(aRequestIds.length==0){
-    		fCallback&&fCallback.apply(null,aExisteds);
-    		return aExisteds.length==1?aExisteds[0]:aExisteds;
-    	}else{
-    		//请求资源
-    		_fRequest(aRequestIds);
-    	}
-    }
-    
-    return Loader;
 	
 });
 /**

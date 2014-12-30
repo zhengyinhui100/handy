@@ -4,7 +4,7 @@
  */
  //参考：https://github.com/douglascrockford/JSON-js/blob/master/json2.js
  //https://developer.mozilla.org/zh-CN/docs/JavaScript/Reference/Global_Objects/JSON
-handy.add('Json',function(){
+define('Json',function(){
 	
 	var Json={
 		stringify   : fStringify,    //序列化，将json对象转化为字符串

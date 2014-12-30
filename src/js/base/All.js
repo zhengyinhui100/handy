@@ -4,6 +4,7 @@
  */
 define('B.All',
 [
+'B.Object',
 'B.Class',
 'B.Function', 
 'B.Events',

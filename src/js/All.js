@@ -4,6 +4,7 @@
  */
 define('handy.All',
 [
+'B.Object',
 'B.Class',
 'B.Function', 
 'B.Events',

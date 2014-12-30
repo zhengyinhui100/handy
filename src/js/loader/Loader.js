@@ -2,9 +2,9 @@
  * 资源加载类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add("Loader",
-["B.Debug","B.Object"],
-function(Debug,Object){
+define("Loader",
+["B.Debug"],
+function(Debug,$H){
 	
 	var _LOADER_PRE='[Handy Loader] ',
 		_RESOURCE_NOT_FOUND= _LOADER_PRE+'not found: ',
@@ -59,7 +59,7 @@ function(Debug,Object){
     			return Loader.sourceMap[sId].chkExist();
     		}else{
     			//标准命名空间规则验证
-	    		return Object.ns(sId);
+	    		return $H.ns(sId);
     		}
     	}
     	var oResult={}
@@ -70,7 +70,7 @@ function(Debug,Object){
     	}
     	for(var i=0,nLen=id.length;i<nLen;i++){
     		var sId=id[i];
-    		sId=Object.alias(sId);
+ 			sId=$H.alias(sId);
     		var result=_fChk(sId);
     		if(!result){
     			aNotExist.push(sId);
@@ -427,8 +427,14 @@ function(Debug,Object){
 	    			var aNotExist=oResult.notExist;
 	    			var bHasDepds=false;
 	    			for(var j=_aContext.length-1;j>=0;j--){
-	    				if(Object.contains(aNotExist,_aContext[j].id)){
-	    					bHasDepds=true;
+	    				var sId=_aContext[j].id;
+	    				for(var k=aNotExist.length-1;k>=0;k--){
+	    					if(aNotExist[k]===sId){
+		    					bHasDepds=true;
+		    					break;
+	    					}
+	    				}
+	    				if(bHasDepds){
 	    					break;
 	    				}
 	    			}
@@ -452,7 +458,7 @@ function(Debug,Object){
 	 */
 	function fDefine(sId,deps,factory){
 		//读取实名
-		sId=Object.alias(sId);
+		sId=$H.alias(sId);
 		var nLen=arguments.length;
 		if(nLen==2){
 			factory=deps;
@@ -462,7 +468,7 @@ function(Debug,Object){
 		}
 		
 		//检出factory方法内声明的require依赖，如：var m=require('m');
-		if(Object.isFunc(factory)){
+		if(Object.prototype.toString.call(factory) === "[object Function]"){
 			var m,sFactoryStr=factory.toString();
 			var r=/\require\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
 			while(m=r.exec(sFactoryStr)){
@@ -490,7 +496,7 @@ function(Debug,Object){
 			}
 			
 			if(resource){
-				Object.ns(sId,resource);
+				$H.ns(sId,resource);
 				//添加命名空间元数据
 				var sType=typeof resource;
 				if(sType=="object"||sType=="function"){
@@ -521,7 +527,7 @@ function(Debug,Object){
     	for(var i=0,nLen=aIds.length;i<nLen;i++){
     		var sId=aIds[i];
 			//读取实名
-			sId=Object.alias(sId);
+			sId=$H.alias(sId);
     		var oResult=_fChkExisted(sId);
     		if(oResult.notExist.length>0){
     			//未加载资源放进队列中
