@@ -114,11 +114,14 @@
 			}
 		}else if(sAlias){
 			//转换别名
-			var sName=sAlias,nIndex=sAlias.length,sSuffix='';
+			var sName=sAlias,nIndex=sAlias.length,sResult;
 			do{
 				//找到别名返回实名
 				if(oAlias[sName]){
-					return oAlias[sName]+sAlias.substring(nIndex);
+					//缓存并返回找到的实名
+					sResult=oAlias[sName]+sAlias.substring(nIndex);
+					oAlias[sAlias]||(oAlias[sAlias]=sResult);
+					return sResult;
 				}
 				//截掉最后一截再尝试
 				nIndex=sName.lastIndexOf('.');
