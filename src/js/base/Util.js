@@ -2,7 +2,7 @@
  * 工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-define('B.Util','B.Object',function(Object){
+define('B.Util','B.Object',function(Obj){
 	
 	var Util={
 		isWindow         : fIsWindow,          //检查是否是window对象
@@ -119,7 +119,7 @@ define('B.Util','B.Object',function(Object){
 	 */
 	function fResult(oObj,sProp){
 		var value=oObj[sProp];
-		if(Object.isFunc(value)){
+		if(Obj.isFunc(value)){
 			return value();
 		}else{
 			return value;

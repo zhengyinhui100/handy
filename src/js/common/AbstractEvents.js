@@ -5,14 +5,14 @@
  */
 //"handy.common.AbstractEvents"
 define('CM.AbstractEvents',
-['B.Class','B.Events'],
-function(){
+['B.Object','B.Class','B.Event'],
+function(Obj,Class,Event){
 	
-	var AbstractEvents=$H.createClass();
+	var AbstractEvents=Class.createClass();
 	
-	$H.extend(AbstractEvents.prototype,$H.Events);
+	Obj.extend(AbstractEvents.prototype,Event);
 	
-	$H.extend(AbstractEvents.prototype,{
+	Obj.extend(AbstractEvents.prototype,{
 //		_eventCache          : {},                     //自定义事件池
 //		_execEvtCache        : [],                     //待执行事件队列
 //		_listenTo            : [],                     //存储对其它对象的监听
@@ -42,7 +42,7 @@ function(){
 	 */
 	function _fParseListenToEvents(sMethod,oTarget,name,param){
 		var me=this;
-		var aArgs=$H.toArray(arguments,3);
+		var aArgs=Obj.toArray(arguments,3);
 		return me._parseEvents(name,function(aParams){
 			aParams.unshift(oTarget);
 			me[sMethod].apply(me,aParams.concat(aArgs));
@@ -85,7 +85,7 @@ function(){
 		}
 		var aListenTo=me._listenTo;
 		var bAll=oTarget=='all';
-		$H.each(aListenTo,function(i,oListenTo){
+		Obj.each(aListenTo,function(i,oListenTo){
 			if(bAll||(oListenTo.name==name&&oListenTo.handler==fHandler&&oListenTo.target==oTarget)){
 				oListenTo.target.off(oListenTo.name,oListenTo.delegation);
 				aListenTo.splice(i,1);

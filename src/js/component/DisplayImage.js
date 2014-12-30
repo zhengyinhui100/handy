@@ -5,15 +5,17 @@
 
 define('C.DisplayImage',
 [
+'B.Object',
+'B.Util',
 'C.AbstractComponent',
 'C.Popup',
 'C.AbstractImage'
 ],
-function(AC,Popup,AbstractImage){
+function(Obj,Util,AC,Popup,AbstractImage){
 	
 	var DisplayImage=AC.define('DisplayImage',Popup);
 	
-	$H.extendIf(DisplayImage.prototype,AbstractImage.prototype);
+	Obj.extendIf(DisplayImage.prototype,AbstractImage.prototype);
 	
 	DisplayImage.extend({
 		//初始配置
@@ -34,8 +36,8 @@ function(AC,Popup,AbstractImage){
 				var me=this;
 				var oEl=me.getEl()[0];
 				me.findEl('.js-loading').css({
-					left:oEl.clientWidth/2-$H.em2px(1.375),
-					top:oEl.clientHeight/2-$H.em2px(1.375)
+					left:oEl.clientWidth/2-Util.em2px(1.375),
+					top:oEl.clientHeight/2-Util.em2px(1.375)
 				});
 				me.showLoading();
 				me.findEl('.js-img').attr('src',me.imgSrc);

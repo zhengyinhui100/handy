@@ -4,7 +4,7 @@
  * 
  */
 define("B.HashChange",
-['handy.base.Debug','handy.base.Util'],
+['L.Debug','B.Util'],
 function(Debug,Util){
 
 	/**

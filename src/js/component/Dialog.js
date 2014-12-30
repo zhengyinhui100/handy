@@ -5,14 +5,17 @@
  */
 
 define('C.Dialog',
-['C.AbstractComponent',
-'C.Popup'],
-function(AC,Popup){
+[
+'B.Object',
+'C.AbstractComponent',
+'C.Popup'
+],
+function(Obj,AC,Popup){
 	
 	var Dialog=AC.define('Dialog',Popup);
 	
 	//快捷静态方法
-	$H.extend(Dialog,{
+	Obj.extend(Dialog,{
 		alert           : fAlert,    //弹出警告框
 		confirm         : fConfirm,  //弹出确认框
 		prompt          : fPrompt    //弹出输入框

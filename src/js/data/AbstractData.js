@@ -4,10 +4,14 @@
  */
 //"handy.data.AbstractData"
 define('D.AbstractData',
-['D.AbstractDao',
+[
+'B.Util',
+'B.Date',
+'B.Class',
+'D.AbstractDao',
 'CM.AbstractEvents',
 'D.DataStore'],
-function(AbstractDao,AbstractEvents){
+function(Util,Date,Class,AbstractDao,AbstractEvents){
 	
 	var AbstractData=AbstractEvents.derive({
 		_isDirty        : true,
@@ -28,9 +32,9 @@ function(AbstractDao,AbstractEvents){
 	function fInitialize(){
 		var me=this;
 		me.callSuper();
-		me.uuid=$H.uuid();
+		me.uuid=Util.uuid();
 		//配置dao对象
-		me.dao=me.dao||$H.getSingleton(AbstractDao);
+		me.dao=me.dao||Class.getSingleton(AbstractDao);
 	}
 	/**
 	 * 返回是否是脏数据
@@ -41,7 +45,7 @@ function(AbstractDao,AbstractEvents){
 		var bDirty=me._isDirty;
 		if(!bDirty){
 			if(me.lastSyncTime){
-				var now=$H.now();
+				var now=Date.now();
 				bDirty=now.getTime()-me.lastSyncTime.getTime()>=me.dirtyTime;
 			}
 		}
@@ -62,7 +66,7 @@ function(AbstractDao,AbstractEvents){
 	 */
     function fSync(sMethod,oData,oOptions) {
     	var me=this;
-    	me.lastSyncTime=$H.now();
+    	me.lastSyncTime=Date.now();
     	this._isDirty=false;
         return me.dao.sync(sMethod,oData,oOptions);
     }

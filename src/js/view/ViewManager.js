@@ -4,7 +4,13 @@
  * @created 2014-03-17
  */
 //"handy.view.ViewManager"
-define("V.ViewManager", ['V.AbstractManager','B.Events'],function(AbstractManager) {
+define("V.ViewManager", 
+[
+'B.Event',
+'B.Class',
+'V.AbstractManager'
+],
+function(Evt,Class,AbstractManager) {
 
 	var ViewManager = AbstractManager.derive({
 		type          : 'view',           //管理类型
@@ -14,7 +20,7 @@ define("V.ViewManager", ['V.AbstractManager','B.Events'],function(AbstractManage
 	});
 	
 	//全局快捷别名
-	$V=$H.getSingleton(ViewManager);
+	$V=Class.getSingleton(ViewManager);
 	
 	/**
 	 * 初始化
@@ -24,12 +30,12 @@ define("V.ViewManager", ['V.AbstractManager','B.Events'],function(AbstractManage
 		var me=this;
 		me.callSuper();
 		//监听afterRender自定义事件，调用相关视图的afterRender方法
-		$H.on("afterRender",function(sEvt,oEl){
+		Evt.on("afterRender",function(sEvt,oEl){
 			//调用包含的视图的afterRender方法
 			me.afterRender(oEl);
 		})
 		//监听removeEl自定义事件，jQuery的remove方法被拦截(base/adapt.js)，执行时先触发此事件
-		$H.on('removeEl',function(sEvt,oEl){
+		Evt.on('removeEl',function(sEvt,oEl){
 			//销毁包含的视图
 			me.destroy(oEl);
 		})

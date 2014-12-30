@@ -9,14 +9,16 @@
 //handy.data.AbstractDao
 define('D.AbstractDao',
 [
+'B.Object',
+'B.Function',
 'B.LocalStorage',
 'B.Class'
 ],
-function(LS){
+function(Obj,Function,LocalStorage,Class){
 	
-	var AbstractDao=$H.createClass();
+	var AbstractDao=Class.createClass();
 	
-	$H.extend(AbstractDao.prototype,{
+	Obj.extend(AbstractDao.prototype,{
 		_ajaxMethodMap   : {
 			'create': 'POST',
 			'update': 'POST',
@@ -59,12 +61,12 @@ function(LS){
 		//处理参数
 		oParams=me.parseParam(oParams);
 		//包装回调函数
-		var fError=$H.intercept(oParams.error,me.error);
-		oParams.error=$H.intercept(fError,oParams.beforeErr);
-		var fSucc=$H.intercept(oParams.success,me.success);
-		oParams.success=$H.intercept(fSucc,oParams.beforeSucc);
-		oParams.beforeSend=$H.intercept($H.bind(me.beforeSend,me,oParams),oParams.beforeSend);
-		oParams.complete=$H.intercept($H.bind(me.complete,me,oParams),oParams.complete);
+		var fError=Function.intercept(oParams.error,me.error);
+		oParams.error=Function.intercept(fError,oParams.beforeErr);
+		var fSucc=Function.intercept(oParams.success,me.success);
+		oParams.success=Function.intercept(fSucc,oParams.beforeSucc);
+		oParams.beforeSend=Function.intercept(Function.bind(me.beforeSend,me,oParams),oParams.beforeSend);
+		oParams.complete=Function.intercept(Function.bind(me.complete,me,oParams),oParams.complete);
 		return $.ajax(oParams);
 	}
 	/**
@@ -122,11 +124,11 @@ function(LS){
 		if(sStoreType=='remote'){
 			//服务端存储
 			oParam.url+='/'+sMethod+'.do';
-			$H.extend(oParam,oOptions);
+			Obj.extend(oParam,oOptions);
 			result=me.ajax(oParam);
 		}else{
 			//本地存储
-			result=LS[me._localMethodMap[sMethod]](oParam);
+			result=LocalStorage[me._localMethodMap[sMethod]](oParam);
 		}
 		oModel.trigger('request', oModel, oOptions);
 		return result;

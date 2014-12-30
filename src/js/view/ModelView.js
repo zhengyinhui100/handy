@@ -6,12 +6,13 @@
 //"handy.view.ModelView"
 define('V.ModelView',
 [
+'B.Object',
 'B.Template',
 'V.AbstractView',
 'D.Model',
 'D.Collection'
 ],
-function(Template,AbstractView,Model,Collection){
+function(Obj,Template,AbstractView,Model,Collection){
 	
 	var ModelView=AbstractView.derive({
 		bindType            : 'both',              //绑定类型，‘el’表示绑定(监听)节点，‘model’表示绑定(监听)模型，‘both’表示双向绑定
@@ -69,7 +70,7 @@ function(Template,AbstractView,Model,Collection){
 		var me=oOptions.context;
 		var oData=oOptions.data;
 		var sExp=oOptions.exp;
-		if ($H.isFunc(condition)) { 
+		if (Obj.isFunc(condition)) { 
 			condition = condition.call(oData); 
 		}
 		var sHtml;
@@ -431,7 +432,7 @@ function(Template,AbstractView,Model,Collection){
 	function fPreTmpl(){
 		var me=this;
 		var tmpl=me.tmpl;
-		if($H.isArr(tmpl)){
+		if(Obj.isArr(tmpl)){
 			tmpl=tmpl.join('');
 		}
 		//添加视图固定的绑定属性
@@ -466,9 +467,9 @@ function(Template,AbstractView,Model,Collection){
 		var me=this;
 		//编译模板，固定模板的类只需执行一次
 		var tmpl=me.tmpl,oConstructor=me.constructor;
-		if(!$H.isFunc(tmpl)&&!$H.isFunc(tmpl=oConstructor.tmpl)){
+		if(!Obj.isFunc(tmpl)&&!Obj.isFunc(tmpl=oConstructor.tmpl)){
 			me.preTmpl();
-			tmpl=oConstructor.tmpl=$H.tmpl({
+			tmpl=oConstructor.tmpl=Template.tmpl({
 				tmpl:me.tmpl,
 				ns:'ModelView'
 			});

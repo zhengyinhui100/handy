@@ -19,7 +19,8 @@
 //}
 
 define("P.Geolocation", 
-function() {
+'B.Function',
+function(Func) {
 
 	var Geolocation = {
 		getCurrentPosition     : fGetCurrentPosition,     //获取当前位置
@@ -34,8 +35,8 @@ function() {
 	 */
 	function fGetCurrentPosition(fOnSucc,fOnError) {
 		var me=this;
-	    var fSucc=$H.intercept(me.onSuccess,fOnSucc);
-	    var fErr=$H.intercept(me.onError,fOnError);
+	    var fSucc=Func.intercept(me.onSuccess,fOnSucc);
+	    var fErr=Func.intercept(me.onError,fOnError);
 		if(navigator.geolocation){
 			navigator.geolocation.getCurrentPosition(fSucc, fErr);
 		}else{

@@ -9,15 +9,23 @@
  */
 //handy.module.History
 define("M.History",
-['handy.base.HashChange',
-'B.Class'],
-function(HashChange){
+[
+'L.Json',
+'L.Debug',
+'B.HashChange',
+'B.Class',
+'B.Object',
+'B.Function',
+'B.Event',
+'B.Url'
+],
+function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 
-	var History=$H.createClass();
+	var History=Class.createClass();
 	
 	var _nIndex=0;
 	
-	$H.extend(History.prototype,{
+	Obj.extend(History.prototype,{
 		initialize         : fInitialize,      //历史记录类初始化
 		stateChange        : fStateChange,     //历史状态改变
 		saveState          : fSaveState,       //保存当前状态
@@ -43,7 +51,7 @@ function(HashChange){
 		me.error=fError||$H.noop;
 		me.key=sKey||'handy';
 		me.states=[];
-		HashChange.listen($H.Function.bind(me.stateChange,me));
+		HashChange.listen(Func.bind(me.stateChange,me));
 	}
 	/**
 	 * 历史状态改变
@@ -59,13 +67,13 @@ function(HashChange){
 		 	aStates=me.states,
 		 	oCurState=aStates[sCurKey];
 		//跟当前状态一致，不需要调用stateChange，可能是saveState触发的hashchange
-		//&&$H.equals(oHashParam.param,oCurState.param)
+		//&&Obj.equals(oHashParam.param,oCurState.param)
 		if(sKey==sCurKey){
 			return false;
 		}
 		var oState=aStates[sKey];
 		//监听全局hisoryChange，返回false可阻止当前变化
-		var bResult=$H.trigger('hisoryChange',oState,oCurState);
+		var bResult=Evt.trigger('hisoryChange',oState,oCurState);
 		if(bResult!==false){
 			if(oState){
 				bResult=oState.onStateChange(oState.param,true);
@@ -77,7 +85,7 @@ function(HashChange){
 		//如果调用不成功，则恢复原先的hashstate
 		if(bResult===false){
 			var oParam=oCurState.param;
-			oHashParam=$H.extend({
+			oHashParam=Obj.extend({
 				hKey    : sCurKey
 			},oParam);
 			me.saveHash(oHashParam);
@@ -100,7 +108,7 @@ function(HashChange){
 		me.states.push(sHistoryKey);
 		me.states[sHistoryKey]=oState;
 		var oParam=oState.param;
-		var oHashParam=$H.extend({
+		var oHashParam=Obj.extend({
 			hKey    : sHistoryKey
 		},oParam);
 		me.saveHash(oHashParam);
@@ -113,7 +121,7 @@ function(HashChange){
 	function fSaveHash(param){
 		//这里主动设置之后还会触发hashchange，不能在hashchange里添加set方法屏蔽此次change，因为可能不止一个地方需要hashchange事件
 		//TODO:单页面应用SEO：http://isux.tencent.com/seo-for-single-page-applications.html
-		$H.setHashParam(null,param);
+		Url.setHashParam(null,param);
 	}
 	/**
 	 * 获取当前hash参数
@@ -121,7 +129,7 @@ function(HashChange){
 	 * @return {object} 返回当前hash参数
 	 */
 	function fGetHashParam(){
-		return $H.getHashParam();
+		return Url.getHashParam();
 	}
 	/**
 	 * 获取当前状态
@@ -131,14 +139,14 @@ function(HashChange){
 	function fGetCurrentState(){
 		var me=this;
 		//获取url模块参数，hash优先级高于query中retPage
-		var oUrlParam=$H.getHashParam();
-		if($H.isEmpty(oUrlParam)){
-			var sRetPage=$H.getQueryParam(null,'retPage');
+		var oUrlParam=Url.getHashParam();
+		if(Obj.isEmpty(oUrlParam)){
+			var sRetPage=Url.getQueryParam(null,'retPage');
 			if(!sRetPage){
 				return;
 			}
 			try {
-				oUrlParam=$H.parseJson(decodeURIComponent(sRetPage));
+				oUrlParam=Json.parseJson(decodeURIComponent(sRetPage));
 			} catch (e) {
 				$D.warn("parse retPage param from hash error:"
 						+ e.message);
@@ -164,7 +172,7 @@ function(HashChange){
 				}
 			}
 		}catch(e){
-			$H.Debug.error("History.getPreState error:"+e.message,e);
+			Debug.error("History.getPreState error:"+e.message,e);
 		}
 	}
 	/**
@@ -183,12 +191,12 @@ function(HashChange){
 	 * @return {string} 返回安全的url
 	 */
 	function fGetSafeUrl(){
-		var oHashParam=$H.getHashParam();
+		var oHashParam=Url.getHashParam();
 		delete oHashParam.hKey;
 		var oParam={
-			retPage:encodeURIComponent($H.stringify(oHashParam))
+			retPage:encodeURIComponent(Json.stringify(oHashParam))
 		}
-		var sUrl=$H.setQueryParam(location.href,oParam);
+		var sUrl=Url.setQueryParam(location.href,oParam);
 		return sUrl;
 	}
 	

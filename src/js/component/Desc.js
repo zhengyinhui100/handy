@@ -4,10 +4,13 @@
  */
 
 define('C.Desc',
-['C.AbstractComponent',
+[
+'B.Object',
+'C.AbstractComponent',
 'D.Model',
-'D.Collection'],
-function(AC,Model,Collection){
+'D.Collection'
+],
+function(Obj,AC,Model,Collection){
 	
 	var Desc=AC.define('Desc');
 	
@@ -47,7 +50,7 @@ function(AC,Model,Collection){
 	 */
 	function fParseItem(oItem){
 		if(oItem.xtype==='Icon'){
-			$H.extendIf(oItem,{
+			Obj.extendIf(oItem,{
 				xrole:'icon',
 				isAlt:true,
 				extCls:'hui-light',

@@ -5,8 +5,11 @@
  */
 
 define('C.ControlGroup',
-'C.AbstractComponent',
-function(AC){
+[
+'B.Object',
+'C.AbstractComponent'
+],
+function(Obj,AC){
 	
 	var ControlGroup=AC.define('ControlGroup');
 	
@@ -212,7 +215,7 @@ function(AC){
 		if(sValue!==undefined){
 			var aValues=(''+sValue).split(',');
 			me.each(function(i,oCmp){
-				if($H.contains(aValues,oCmp.get('value'))){
+				if(Obj.contains(aValues,oCmp.get('value'))){
 					me.selectItem(oCmp,true);
 				}else{
 					me.selectItem(oCmp,false);

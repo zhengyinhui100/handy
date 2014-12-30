@@ -5,8 +5,11 @@
  */
 
 define('C.Button',
-'C.AbstractComponent',
-function(AC){
+[
+'B.Object',
+'C.AbstractComponent'
+],
+function(Obj,AC){
 	
 	var Button=AC.define('Button');
 	
@@ -73,15 +76,15 @@ function(AC){
 	function fDoConfig(oSettings){
 		var me=this;
 		if(oSettings.theme==='black'||oSettings.theme==='dark'){
-			me.defItem=$H.clone(me.defItem);
-			$H.extend(me.defItem,{
+			me.defItem=Obj.clone(me.defItem);
+			Obj.extend(me.defItem,{
 				isAlt:false,
 				theme:null
 			})
 		}
 		if(oSettings.tType==='adapt'){
-			oSettings=$H.clone(oSettings);
-			$H.extend(oSettings,{
+			oSettings=Obj.clone(oSettings);
+			Obj.extend(oSettings,{
 				isInline:true,
 				radius:null,
 				shadow:null,

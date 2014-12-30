@@ -5,8 +5,12 @@
  */
 
 define('C.Select',
-'C.AbstractComponent',
-function(AC){
+[
+'L.Browser',
+'B.Object',
+'C.AbstractComponent'
+],
+function(Browser,Obj,AC){
 	
 	var Select=AC.define('Select');
 	
@@ -35,7 +39,7 @@ function(AC){
 			xtype       : 'Menu',
 			hidden      : true,
 			markType    : 'hook',
-			showPos     : $H.mobile()?'center':'followEl',
+			showPos     : Browser.mobile()?'center':'followEl',
 			renderTo    : "body"              //子组件须设置renderTo才会自动render
 		},
 		
@@ -72,7 +76,7 @@ function(AC){
 		var me=this;
 		me.callSuper();
 		//options配置成菜单
-		var oOptions=$H.clone(oParams.options);
+		var oOptions=Obj.clone(oParams.options);
 		me.defTxt=me.get('text');
 		var sValue=me.get('value');
 		//根据默认值设置默认文字

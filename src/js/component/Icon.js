@@ -5,8 +5,11 @@
  */
 
 define('C.Icon',
-'C.AbstractComponent',
-function(AC){
+[
+'B.Object',
+'C.AbstractComponent'
+],
+function(Obj,AC){
 	
 	var Icon=AC.define('Icon');
 	
@@ -40,11 +43,11 @@ function(AC){
 	 */
 	function fDoConfig(oSettings){
 		var me=this;
-		if($H.isStr(oSettings)){
+		if(Obj.isStr(oSettings)){
 			oSettings={name:oSettings};
 		}
 		if(oSettings.bgColor){
-			oSettings.style=$H.extend(oSettings.style,{backgroundColor:oSettings.bgColor})
+			oSettings.style=Obj.extend(oSettings.style,{backgroundColor:oSettings.bgColor})
 		}
 		me.callSuper([oSettings]);
 	}

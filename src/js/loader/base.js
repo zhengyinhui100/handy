@@ -18,6 +18,7 @@
 	handy.noConflict = fNoConflict;     //处理命名冲突
 	handy.noop       = function(){};    //空函数
 	handy._alias     = {                //存储别名，公共库建议大写，以便更好地与普通名称区别开，具体项目的别名建议小写
+		'L'             : 'handy.loader',
 		'B'             : 'handy.base',
 		'C'             : 'handy.component',
 		'M'             : 'handy.module',
@@ -85,7 +86,7 @@
         //base库特殊处理，直接添加到handy下
 		var sBase='handy.base.';
 		if(bIsCreate&&sPath.indexOf(sBase)===0){
-			$H.add(sPath.replace(sBase,''),oObject);
+			handy.add(sPath.replace(sBase,''),oObject);
 		}
     	return oObject;
 	}
@@ -168,7 +169,7 @@
 			args.push(handy);
 			oModule=factory.apply(oWin,args);
 		}
-		handy.base[sName]=handy[sName]=oModule;
+		handy.ns(sName,oModule);
 		for(var method in oModule){
 			//!Function[method]专为bind方法
 			if(handy.isDebug&&typeof handy[method]!="undefined"&&('console' in oWin)&&!Function[method]){

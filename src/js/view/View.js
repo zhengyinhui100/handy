@@ -1,6 +1,6 @@
 /**
  * 视图类
- * PS：注意，扩展视图类方法必须用本类的extend方法，扩展类的静态方法则可以使用$H.Object.extend方法，例如
+ * PS：注意，扩展视图类方法必须用本类的extend方法，扩展类的静态方法则可以使用Object.extend方法，例如
  * var ExampleCmp=AbstractComponent.define('ExampleCmp');
  * ExampleCmp.extend({
  * 	   test:''
@@ -10,11 +10,14 @@
  */
 //"handy.view.View"
 define('V.View',
-['V.ViewManager',
+[
+'B.Object',
+'B.Template',
+'V.ViewManager',
 'V.ModelView',
-'D.Model',
-'B.Template'],
-function(ViewManager,ModelView,Model,Template){
+'D.Model'
+],
+function(Obj,Template,ViewManager,ModelView,Model){
 	
 	var _oTagReg=/^(<[a-zA-Z]+)/;
 	var _oHasClsReg=/^[^>]+class=/;
@@ -191,7 +194,7 @@ function(ViewManager,ModelView,Model,Template){
 	 */
 	function fExtend(oExtend){
 		var oProt=this.prototype;
-		$H.extend(oProt, oExtend,{notCover:function(p){
+		Obj.extend(oProt, oExtend,{notCover:function(p){
 			//继承父类的事件
 			if(p=='_customEvents'||p=='listeners'){
 				//拼接数组
@@ -201,7 +204,7 @@ function(ViewManager,ModelView,Model,Template){
 				return true;
 			}else if(p=='xConfig'||p=='fastUpdateMethod'){
 				//继承父类配置
-				oProt[p]=$H.extendIf(oExtend[p],oProt[p]);
+				oProt[p]=Obj.extendIf(oExtend[p],oProt[p]);
 				return true;
 			}
 		}});
@@ -212,7 +215,7 @@ function(ViewManager,ModelView,Model,Template){
 	 * @param {object}oParams 初始化参数
 	 */
 	function fHtml(oParams){
-		var oView=new this($H.extend({autoRender:false},oParams));
+		var oView=new this(Obj.extend({autoRender:false},oParams));
 		return oView.getHtml();
 	}
 	/**
@@ -230,14 +233,14 @@ function(ViewManager,ModelView,Model,Template){
 		var oOwner=fCaller.$owner.prototype;
 		if(aArgs.length==0){
 			aArgs=fCaller.arguments;
-			aArgs=$H.toArray(aArgs);
+			aArgs=Obj.toArray(aArgs);
 			sMethod=fCaller.$name;
 			aParams=aArgs.shift();
 		}else{
-			aArgs=$H.toArray(aArgs,2);
+			aArgs=Obj.toArray(aArgs,2);
 		}
-		if($H.isArr(aParams)){
-			$H.each(aParams,function(i,oItem){
+		if(Obj.isArr(aParams)){
+			Obj.each(aParams,function(i,oItem){
 				oOwner[sMethod].apply(me,[oItem].concat(aArgs));
 			});
 			return true;
@@ -274,7 +277,7 @@ function(ViewManager,ModelView,Model,Template){
 		}
 		var oParams=oSettings||{};
 		
-		$H.extend(me,oParams,{notCover:function(p,val){
+		Obj.extend(me,oParams,{notCover:function(p,val){
 			//检测引用模型属性
 			var refAttr;
 			if(refAttr=/^{{(((?!}}).)+)}}$/.exec(val)){
@@ -283,8 +286,8 @@ function(ViewManager,ModelView,Model,Template){
 			}
 			var value=me[p];
 			//默认事件，可通过参数属性直接添加
-			var bIsCustEvt=$H.contains(me._customEvents,p);
-			var bIsDefEvt=$H.contains(me._defaultEvents,p);
+			var bIsCustEvt=Obj.contains(me._customEvents,p);
+			var bIsDefEvt=Obj.contains(me._defaultEvents,p);
 			
 			if(bIsDefEvt){
 				me.listeners.push({
@@ -296,10 +299,10 @@ function(ViewManager,ModelView,Model,Template){
 				me.on(p,oParams[p]);
 				return true;
 			}else if(p=='defItem'){
-				me[p]=$H.extend(me[p],val);
+				me[p]=Obj.extend(me[p],val);
 				return true;
 			}else if(p=='listener'){
-				me.listeners=me.listeners.concat($H.isArr(val)?val:[val]);
+				me.listeners=me.listeners.concat(Obj.isArr(val)?val:[val]);
 				return true;
 			}else if(p=='items'){
 				me.add(val);
@@ -316,9 +319,9 @@ function(ViewManager,ModelView,Model,Template){
 		}});
 		var renderTo;
 		if(renderTo=oParams.renderTo){
-			if($H.isFunc(renderTo)){
+			if(Obj.isFunc(renderTo)){
 				renderTo=renderTo.call(me);
-			}else if($H.isStr(renderTo)&&renderTo.indexOf('>')==0){
+			}else if(Obj.isStr(renderTo)&&renderTo.indexOf('>')==0){
 				var oParent=me.parent;
 				renderTo=oParent.inited&&oParent.findEl(renderTo.substring(1));
 			}else{
@@ -362,7 +365,7 @@ function(ViewManager,ModelView,Model,Template){
 		}
 		//初始化xmodel
 		var oAttrs={};
-		$H.each(oFields,function(k,v){
+		Obj.each(oFields,function(k,v){
 			var value=me[k];
 			if(value!==undefined){
 				oAttrs[k]=value;
@@ -876,13 +879,13 @@ function(ViewManager,ModelView,Model,Template){
 		var me=this,aResult=aResult||[];
 		if(!sel){
 			aResult=aResult.concat(me.children);
-		}else if($H.isNum(sel)){
+		}else if(Obj.isNum(sel)){
 			var oItem=me.children[sel];
 			aResult.push(oItem);
-		}else if($H.isStr(sel)){
+		}else if(Obj.isStr(sel)){
 			//多个选择器
 			if(sel.indexOf(",")>0){
-				$H.each(sel.split(","),function(i,val){
+				Obj.each(sel.split(","),function(i,val){
 					aResult=aResult.concat(me.find(val));
 				})
 				return aResult;
@@ -914,8 +917,8 @@ function(ViewManager,ModelView,Model,Template){
 					oChild.find(sel,aResult);
 				}
 			});
-		}else if($H.isFunc(sel)){
-			var bIsClass=$H.isClass(sel);
+		}else if(Obj.isFunc(sel)){
+			var bIsClass=Obj.isClass(sel);
 			//匹配子视图
 			me.each(function(i,oChild){
 				if((bIsClass&&oChild instanceof sel)||(!bIsClass&&sel(oChild))){
@@ -1020,7 +1023,7 @@ function(ViewManager,ModelView,Model,Template){
 		if(!(item instanceof View)){
 			//默认子视图配置
 			if(me.defItem){
-				$H.extend(item,me.defItem,{notCover:true});
+				Obj.extend(item,me.defItem,{notCover:true});
 			}
 			//具体视图类处理
 			me.parseItem(item);
@@ -1028,7 +1031,7 @@ function(ViewManager,ModelView,Model,Template){
 			if(Item){
 				var renderTo=item.renderTo;
 				//父组件未初始化，不能通过>选择器render
-				if(!me.inited&&$H.isStr(renderTo)&&renderTo.indexOf('>')==0){
+				if(!me.inited&&Obj.isStr(renderTo)&&renderTo.indexOf('>')==0){
 					renderTo=null;
 				}
 				if(!renderTo){
@@ -1066,10 +1069,10 @@ function(ViewManager,ModelView,Model,Template){
 		var aChildren=me.children;
 		var bResult=false;
 		var nIndex;
-		if($H.isNum(item)){
+		if(Obj.isNum(item)){
 			nIndex=item;
 			item=aChildren[nIndex];
-		}else if($H.isStr(item)||$H.isFunc(item)){
+		}else if(Obj.isStr(item)||Obj.isFunc(item)){
 			item=me.find(item);
 			for(var i=0,len=item.length;i<len;i++){
 				if(me.remove(item[i])==false){
@@ -1107,7 +1110,7 @@ function(ViewManager,ModelView,Model,Template){
 		if(!aItems){
 			return;
 		}
-		aItems=$H.isArr(aItems)?aItems:[aItems];
+		aItems=Obj.isArr(aItems)?aItems:[aItems];
 		//逐个初始化子视图
 		for(var i=0,len=aItems.length;i<len;i++){
 			me.add(aItems[i]);
@@ -1136,7 +1139,7 @@ function(ViewManager,ModelView,Model,Template){
 		var bContain=true;
 		var oXconf={},oFast={},oOther={};
 		//检查选项是否都是xmodel或fastUpdateMethod的字段，如果是，则只需要更新xmodel或调用fastUpdateMethod方法即可，ui自动更新
-		$H.each(oOptions,function(p,v){
+		Obj.each(oOptions,function(p,v){
 			//xConfig里没有的配置
 			if(oConfigs.hasOwnProperty(p)){
 				oXconf[p]=v;
@@ -1149,7 +1152,7 @@ function(ViewManager,ModelView,Model,Template){
 		})
 		if(bContain){
 			oXmodel.set(oXconf);
-			$H.each(oFast,function(k,v){
+			Obj.each(oFast,function(k,v){
 				oFastUpdate[k].call(me,v);
 			})
 			return true;
@@ -1181,10 +1184,10 @@ function(ViewManager,ModelView,Model,Template){
 				if(oOptions.autoRender===undefined){
 					oOptions.autoRender=true;
 				}
-				oOptions=$H.extend(oOptions,me.initParam,{notCover:true});
+				oOptions=Obj.extend(oOptions,me.initParam,{notCover:true});
 			}
 			//cid不同
-			oOptions=$H.extend(oOptions,{
+			oOptions=Obj.extend(oOptions,{
 				xtype:me.xtype,
 				renderBy:'replaceWith',
 				renderTo:oPlaceholder

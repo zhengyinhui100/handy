@@ -5,9 +5,12 @@
  */
 //"handy.component.ComponentManager"
 define("C.ComponentManager", 
-['V.AbstractManager',
-'V.ViewManager'],
-function(AbstractManager,ViewManager) {
+[
+'B.Class',
+'V.AbstractManager',
+'V.ViewManager'
+],
+function(Class,AbstractManager,ViewManager) {
 
 	var ComponentManager = AbstractManager.derive({
 		type          : 'component',      //管理类型
@@ -19,7 +22,7 @@ function(AbstractManager,ViewManager) {
 	 */
 	function fInitialize(){
 		var me=this;
-		var oVm=$H.getSingleton(ViewManager);
+		var oVm=Class.getSingleton(ViewManager);
 		me._types=oVm._types;
 		me._all=oVm._all;
 	}

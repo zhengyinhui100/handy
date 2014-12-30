@@ -2,7 +2,7 @@
  * 面向对象支持类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-define("B.Class",["B.Object",'B.Debug'],function(Object,Debug){
+define("B.Class",["B.Object",'L.Debug'],function(Obj,Debug){
 	
 	var Cls={
 		createClass         : fCreateClass,     //创建类
@@ -38,7 +38,7 @@ define("B.Class",["B.Object",'B.Debug'],function(Object,Debug){
             	//根据组件example页面118-11800个不同组件的测试，手机上大概会影响5-10%的性能，pc上不是很明显
 //            	for(var p in me){
 //            		if(typeof me[p]=="object"){
-//            			me[p]=Object.clone(me[p]);
+//            			me[p]=Obj.clone(me[p]);
 //            		}
 //            	}
                 // 返回当前class派生出来对象可以被定义
@@ -77,7 +77,7 @@ define("B.Class",["B.Object",'B.Debug'],function(Object,Debug){
         	var sMethod=fCaller.$name;
         	if(oSuper){
         		var fMethod=oSuper[sMethod];
-        		if(Object.isFunc(fMethod)){
+        		if(Obj.isFunc(fMethod)){
         			return fMethod.apply(me,aArgs);
         		}
         	}
@@ -108,7 +108,7 @@ define("B.Class",["B.Object",'B.Debug'],function(Object,Debug){
 			2.constructor需要重新覆盖
 		*/
         //继承静态方法
-        Object.extend(oChild, oParent,oExtendOptions);
+        Obj.extend(oChild, oParent,oExtendOptions);
         oChild.prototype = new Inheritance();
         //重新覆盖constructor
         oChild.prototype.constructor = oChild;
@@ -124,11 +124,11 @@ define("B.Class",["B.Object",'B.Debug'],function(Object,Debug){
         }
         //扩展静态属性
         if(oStaticExtend){
-            Object.extend(oChild, oStaticExtend);
+            Obj.extend(oChild, oStaticExtend);
         }
         //扩展prototype属性
         if(oProtoExtend){
-            Object.extend(oChild.prototype, oProtoExtend);
+            Obj.extend(oChild.prototype, oProtoExtend);
         }
     }
     /**
@@ -139,7 +139,7 @@ define("B.Class",["B.Object",'B.Debug'],function(Object,Debug){
     function fGetSingleton(clazz){
     	var cClass;
     	if(typeof clazz=='string'){
-    		cClass=Object.ns(clazz);
+    		cClass=$H.ns(clazz);
     	}else{
     		cClass=clazz;
     	}

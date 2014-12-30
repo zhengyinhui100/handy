@@ -7,7 +7,7 @@ define('B.Object',function(){
 	var oWin=window;
 	var wObject=oWin.Object;
 	
-	var Object={
+	var Obj={
 		extend              : fExtend,          //对象的属性扩展，可以自定义选项
 		extendIf            : fExtendIf,        //对象的属性扩展，不覆盖原有属性
 		mix                 : fMix,             //自定义的继承方式，可以继承object和prototype，prototype方式继承时，非原型链方式继承。
@@ -48,7 +48,7 @@ define('B.Object',function(){
     * @return {Object} 扩展后的对象
     */
     function fExtend(oDestination, oSource, oOptions) {
-    	if(!oSource||Object.isStr(oSource)||Object.isNum(oSource)){
+    	if(!oSource||Obj.isStr(oSource)||Obj.isNum(oSource)){
     		return oDestination;
     	}
     	var notCover=oOptions?oOptions.notCover:false;
@@ -62,22 +62,22 @@ define('B.Object',function(){
         for (var sProperty in oSource) {
         	value=oSource[sProperty];
         	//仅覆盖oOptions.cover中的属性
-        	if(!aCover||Object.contains(aCover,sProperty)){
+        	if(!aCover||Obj.contains(aCover,sProperty)){
 	        	//不复制深层prototype
 	        	if(oSource.hasOwnProperty(sProperty)){
 		        	var bHas=oDestination.hasOwnProperty(sProperty);
 		        	var bNotCover=notCover===true?bHas:false;
 		        	//当此参数为数组时，仅不覆盖数组中的原有属性
-		        	if(Object.isArr(notCover)){
-		        		bNotCover=Object.contains(notCover,sProperty)&&bHas;
-		        	}else if(Object.isFunc(notCover)){
+		        	if(Obj.isArr(notCover)){
+		        		bNotCover=Obj.contains(notCover,sProperty)&&bHas;
+		        	}else if(Obj.isFunc(notCover)){
 		        		//当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
 		        		bNotCover=notCover(sProperty,value);
 		        	}
 		            if (!bNotCover) {
-		            	var value=bIsClone?Object.clone(value):value;
+		            	var value=bIsClone?Obj.clone(value):value;
 		            	//为方法添加元数据：方法名和声明此方法的类
-						if(bAddMeta&&Object.isFunc(value)&&!value.$name){
+						if(bAddMeta&&Obj.isFunc(value)&&!value.$name){
 							value.$name=sProperty;
 							value.$owner=oConstructor;
 						}
@@ -94,11 +94,11 @@ define('B.Object',function(){
      * @param {Object} oSource 源对象
      */
     function fExtendIf(oDestination,oSource){
-    	return Object.extend(oDestination,oSource,{notCover:true});
+    	return Obj.extend(oDestination,oSource,{notCover:true});
     }
     /**
     * 自定义的继承方式，可以继承object和prototype，prototype方式继承时，非原型链方式继承。
-	* 如需原型链方式继承使用Object.inherit。
+	* 如需原型链方式继承使用Class.inherit。
 	* 此继承方式的继承的对象可以是对普通对象或者是prototype对象，并且可以实现多重继承
     * @param {Object} oChild 子对象
     * @param {Object} oParent 父对象
@@ -112,7 +112,7 @@ define('B.Object',function(){
             oChild.superProto = {};
         }
         for (var sProperty in oParent) {
-            if(Object.isFunc(oParent[sProperty])){// 如果是方法
+            if(Obj.isFunc(oParent[sProperty])){// 如果是方法
                 if(!oChild.superProto[sProperty]){// superProto里面没有对应的方法，直接指向父类方法
                     oChild.superProto[sProperty] = oParent[sProperty];
                 }else{// superProto里有对应方法，需要新建一个function依次调用
@@ -132,7 +132,7 @@ define('B.Object',function(){
             }
         }
         if (oExtend) {
-            Object.extend(oChild, oExtend);
+            Obj.extend(oChild, oExtend);
         }
         // toString 单独处理
         if (oParent.toString != oParent.constructor.prototype.toString) {
@@ -141,7 +141,7 @@ define('B.Object',function(){
             };
         }
         if (oPrototypeExtend && oChild.prototype && oParent.prototype) {
-            //Object.inherit(oChild, oParent,null, oPrototypeExtend);
+            //Class.inherit(oChild, oParent,null, oPrototypeExtend);
         }
         return oChild;
     };
@@ -175,7 +175,7 @@ define('B.Object',function(){
      * @return {boolean} true表示是基本类型
      */
     function fIsSimple(obj){
-    	return Object.isStr(obj)||Object.isNum(obj)||Object.isBool(obj);
+    	return Obj.isStr(obj)||Obj.isNum(obj)||Obj.isBool(obj);
     }
     /**
      * 是否未定义
@@ -209,7 +209,7 @@ define('B.Object',function(){
      * @return {boolean} true表示是对象类型
      */
     function fIsObj(obj){
-    	return typeof obj=='object'&&!Object.isArr(obj);
+    	return typeof obj=='object'&&!Obj.isArr(obj);
     }
     /**
      * 判断对象是否是类
@@ -217,7 +217,7 @@ define('B.Object',function(){
      * @return {boolean} true表示参数对象是类
      */
     function fIsClass(obj){
-    	return Object.isFunc(obj)&&obj.$isClass===true;
+    	return Obj.isFunc(obj)&&obj.$isClass===true;
     }
     /**
      * 判断对象是否是类的实例
@@ -251,28 +251,28 @@ define('B.Object',function(){
                     //两个对象引用不同，循环判断他们的值是否相同
                 } else {
                     //数组判断
-                    if (Object.isArr(o1) && Object.isArr(o2)) {
+                    if (Obj.isArr(o1) && Obj.isArr(o2)) {
                         //数组长度不相等，不相等
                         if (o1.length != o2.length) {
                             return false;
                         }
                         for (var i = 0, m = o1.length; i < m; i++) {
-                            if (!Object.equals(o1[i], o2[i])) {
+                            if (!Obj.equals(o1[i], o2[i])) {
                                 return false;
                             }
                         }
                         return true;
                         //对象判断
-                    } else if (!Object.isArr(o1) && !Object.isArr(o2)) {
+                    } else if (!Obj.isArr(o1) && !Obj.isArr(o2)) {
                     	//对象属性项不一样
-                    	if(Object.count(o1)!=Object.count(o2)){
+                    	if(Obj.count(o1)!=Obj.count(o2)){
                     		return false;
                     	}
                         for (var sKey in o1) {
                             if (o2[sKey] === undefined) {
                                 return false;
                             }
-                            if (!Object.equals(o1[sKey], o2[sKey])) {
+                            if (!Obj.equals(o1[sKey], o2[sKey])) {
                                 return false;
                             }
                         }
@@ -285,7 +285,7 @@ define('B.Object',function(){
             }
             //类型不一样，不相等
         } else {
-        	if(bStrict!==true&&Object.isSimple(o1)&&Object.isSimple(o2)&&(o1+''===o2+'')){
+        	if(bStrict!==true&&Obj.isSimple(o1)&&Obj.isSimple(o2)&&(o1+''===o2+'')){
         		return true;
         	}
             return false;
@@ -314,7 +314,7 @@ define('B.Object',function(){
 						var oTo = new Constructor(); // changed
 
 						for(var key in oFrom){
-							oTo[key] = Object.clone(oFrom[key]);
+							oTo[key] = Obj.clone(oFrom[key]);
 						}
 						return oTo;
 					}catch(exp){
@@ -331,7 +331,7 @@ define('B.Object',function(){
     * @return {boolean} 返回判断结果
     */
     function fIsEmpty(object) {
-        if (Object.isArr(object)) {
+        if (Obj.isArr(object)) {
             return object.length == 0;
         } else {
             for (var k in object) {
@@ -353,7 +353,7 @@ define('B.Object',function(){
     	}
     	var sName, i = 0,
 			nLength = object.length,len,
-			bIsObj = nLength === undefined || Object.isFunc( object );
+			bIsObj = nLength === undefined || Obj.isFunc( object );
 		if ( args ) {
 			if ( bIsObj ) {
 				for ( sName in object ) {
@@ -412,8 +412,8 @@ define('B.Object',function(){
     		return false;
     	}
     	var bIsContain=false;
-    	Object.each(obj,function(i,p){
-    		if(Object.equals(p,prop)){
+    	Obj.each(obj,function(i,p){
+    		if(Obj.equals(p,prop)){
     			bIsContain=true;
     			return false;
     		}
@@ -429,8 +429,8 @@ define('B.Object',function(){
     function fLargeThan(o1,o2){
     	if(typeof o1=='object'&&typeof o2=='object'){
     		var bResult=true;
-    		Object.each(o2,function(p,v){
-    			if(!Object.equals(o2[p],o1[p])){
+    		Obj.each(o2,function(p,v){
+    			if(!Obj.equals(o2[p],o1[p])){
     				return bResult=false;
     			}
     		});
@@ -444,7 +444,7 @@ define('B.Object',function(){
     * @return {number} 返回对象长度
     */
     function fCount(oParam) {
-        if (Object.isArr(oParam)) {
+        if (Obj.isArr(oParam)) {
             return oParam.length;
         } else {
 	        var nCount = 0;
@@ -461,25 +461,25 @@ define('B.Object',function(){
      * @param {Object|Array} 返回结果
      */
     function fRemoveUndefined(obj,bNew){
-    	var bIsArray=Object.isArr(obj);
+    	var bIsArray=Obj.isArr(obj);
     	if(bNew){
     		if(bIsArray){
     			var aResult=[];
-    			Object.each(obj,function(k,value){
+    			Obj.each(obj,function(k,value){
 		    		if(value!==undefined){
 		    			aResult.push(value);
 		    		}
 	    		});
 	    		return aResult;
     		}else{
-	    		return Object.extend({},obj,{
+	    		return Obj.extend({},obj,{
 	    			isClone:true,
 	    			notCover:function(k,value){
 	    				return value===undefined;
 	    		}});
     		}
     	}else{
-	    	Object.each(obj,function(k,value){
+	    	Obj.each(obj,function(k,value){
 	    		if(value===undefined){
 	    			if(bIsArray){
 	    				obj.splice(k,1);
@@ -531,6 +531,6 @@ define('B.Object',function(){
     	return oResult;
     }
 	
-	return Object;
+	return Obj;
 	
 });

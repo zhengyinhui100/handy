@@ -4,7 +4,15 @@
  * @created 2013-12-28
  */
 //"handy.component.AbstractComponent"
-define('C.AbstractComponent',["V.ViewManager",'V.View','C.ComponentManager','B.Class'],function(ViewManager,View){
+define('C.AbstractComponent',
+[
+'B.Class',
+'B.Object',
+'B.Validator',
+"V.ViewManager",
+'V.View',
+'C.ComponentManager'
+],function(Class,Obj,Validator,ViewManager,View,ComponentManager){
 	
 	//访问component包内容的快捷别名
 	$C=$H.ns('C');
@@ -101,12 +109,12 @@ define('C.AbstractComponent',["V.ViewManager",'V.View','C.ComponentManager','B.C
 	 * @return {class}组件类对象
 	 */
 	function fDefine(sXtype,oSuperCls){
-		var Component=$H.createClass();
+		var Component=Class.createClass();
 		var oSuper=oSuperCls||AC;
-		$H.inherit(Component,oSuper,null,null,{notCover:function(p){
+		Class.inherit(Component,oSuper,null,null,{notCover:function(p){
 			return p == 'define';
 		}});
-		$H.getSingleton(ViewManager).registerType(sXtype,Component);
+		Class.getSingleton(ViewManager).registerType(sXtype,Component);
 		//快捷别名
 		$C[sXtype]=Component;
 		return Component;
@@ -123,7 +131,7 @@ define('C.AbstractComponent',["V.ViewManager",'V.View','C.ComponentManager','B.C
 		if(!params){
 			return false;
 		}
-		if($H.isArr(params)){
+		if(Obj.isArr(params)){
 			for(var i=0,len=params.length;i<len;i++){
 				if(me.match(sSel,params[i])){
 					return true;
@@ -215,7 +223,7 @@ define('C.AbstractComponent',["V.ViewManager",'V.View','C.ComponentManager','B.C
 					});
 				}
 			}
-			var result=$H.Validator.valid(sValue,oValidator);
+			var result=Validator.valid(sValue,oValidator);
 			return result;
 		}else{
 			var aChildren=me.children;

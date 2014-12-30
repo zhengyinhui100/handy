@@ -2,7 +2,7 @@
  * 数组类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-define('B.Array','B.Object',function(Object){
+define('B.Array','B.Object',function(Obj){
 	
 	var Arr={
 		map           : fMap,          //映射每一个值, 通过一个转换函数产生一个新的数组
@@ -48,7 +48,7 @@ define('B.Array','B.Object',function(Object){
 	    if (value == null){
 	    	return _fIdentity;
 	    }
-	    if ($H.isFunc(value)){
+	    if (Obj.isFunc(value)){
 	    	return value;
 	    }
 	    return _fProperty(value);
@@ -80,7 +80,7 @@ define('B.Array','B.Object',function(Object){
 	    return function(obj, iterator, context) {
 	        var oResult = {};
 	        iterator = _fGetIterator(iterator);
-	        Object.each(obj, function(index,value) {
+	        Obj.each(obj, function(index,value) {
 	            var key = iterator.call(context, value, index, obj);
 	            fBehavior(oResult, key, value);
 	        });
@@ -103,7 +103,7 @@ define('B.Array','B.Object',function(Object){
 	    if (fNativeMap && obj.map === fNativeMap){
 	    	return obj.map(fIterator, context);
 	    }
-	    Object.each(obj, function(index,value) {
+	    Obj.each(obj, function(index,value) {
 	        aResults.push(fIterator.call(context, value, index));
 	    });
 	    return aResults;
@@ -135,7 +135,7 @@ define('B.Array','B.Object',function(Object){
 	    if (fNativeSome && obj.some === fNativeSome){
 	    	return obj.some(fPredicate, context);
 	    }
-	    $H.each(obj, function(index,value, obj) {
+	    Obj.each(obj, function(index,value, obj) {
 	        if (bResult || (bResult = fPredicate.call(context, value, index, obj))){
 	      	    return false;
 	        }
@@ -160,7 +160,7 @@ define('B.Array','B.Object',function(Object){
 	    if (fNativeEvery && obj.every === fNativeEvery){
 	    	return obj.every(fPredicate, context);
 	    }
-	    $H.each(obj, function(index,value, list) {
+	    Obj.each(obj, function(index,value, list) {
 	      if (!(result=fPredicate.call(context, value, index, list))){
 	      	  return false;
 	      }
@@ -238,7 +238,7 @@ define('B.Array','B.Object',function(Object){
 	    if (fNativeFilter && obj.filter === fNativeFilter){
 	    	return obj.filter(fPredicate, context);
 	    }
-	    $H.each(obj, function(index,value, list) {
+	    Obj.each(obj, function(index,value, list) {
 	        if (fPredicate.call(context, value, index, list)){
 	      	    results.push(value);
 	        }
@@ -271,7 +271,7 @@ define('B.Array','B.Object',function(Object){
 	 */
 	function fInvoke(obj,method){
 		var aArgs = Array.prototype.slice.call(arguments, 2);
-        var bIsFunc = Object.isFunc(method);
+        var bIsFunc = Obj.isFunc(method);
         return this.map(obj, function(value) {
             return (bIsFunc ? method : value[method]).apply(value, aArgs);
         });

@@ -2,7 +2,7 @@
  * 支持类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-define('B.Support','B.Browser',function(Browser){
+define('B.Support','L.Browser',function(Browser){
 	
 	
 	var Support={

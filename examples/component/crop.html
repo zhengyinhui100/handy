@@ -45,11 +45,11 @@ gEnv='dev';
 <script type="text/javascript"
 	src="../../src/js/loader/Loader.js"></script>
 <script type="text/javascript">
-$H.Loader.rootPath={
+$H.loader.Loader.rootPath={
 	'handy'        : '../../src/js/'
 }
-$H.Loader.combine=false;
-define('test','handy.All',function(){
+$H.loader.Loader.combine=false;
+define('test','L.Json',function(Json){
 	var Icon=require('C.Icon');
 	var Button=require('C.Button');
 	var Toolbar=require('C.Toolbar');
@@ -64,7 +64,7 @@ define('test','handy.All',function(){
 				imgSrc:'../../html/img.jpg'
 			},
 			success:function(oResult){
-				alert($H.stringify(oResult))
+				alert(Json.stringify(oResult))
 			}
 		});
 		

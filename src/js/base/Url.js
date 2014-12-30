@@ -2,7 +2,7 @@
  * Url工具类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-define("B.Url","B.Object",function(Object){
+define("B.Url","B.Object",function(Obj){
 	
 	var Url={
 		isUrl           : fIsUrl,           //是否是url
@@ -118,7 +118,7 @@ define("B.Url","B.Object",function(Object){
 	function fSetQueryParam(sUrl,oHashParam){
 		var sQuery=Url.getQuery(sUrl);
 		var oParams=Url.strToParam(sQuery);
-		Object.extend(oParams,oHashParam);
+		Obj.extend(oParams,oHashParam);
 		sQuery=Url.paramToStr(oParams);
 		return Url.setQuery(sUrl,sQuery);
 	}
@@ -166,7 +166,7 @@ define("B.Url","B.Object",function(Object){
 	function fSetHashParam(sUrl,oHashParam){
 		var sHash=Url.getHash(sUrl);
 		var oParams=Url.strToParam(sHash);
-		Object.extend(oParams,oHashParam);
+		Obj.extend(oParams,oHashParam);
 		sHash=Url.paramToStr(oParams);
 		return Url.setHash(sUrl,sHash);
 	}

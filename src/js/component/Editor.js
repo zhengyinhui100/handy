@@ -4,8 +4,11 @@
  * @created 2014-09-11
  */
 define('C.Editor',
-'C.AbstractComponent',
-function(AC){
+[
+'L.Browser',
+'C.AbstractComponent'
+],
+function(Browser,AC){
 	
 	var Editor=AC.define('Editor');
 	
@@ -91,7 +94,7 @@ function(AC){
 		oDoc.close();
 		// that.win.document.charset = "gb2312";
 		// 打开编辑模式
-		if ($H.ie()) {
+		if (Browser.ie()) {
 			if (Browser.ie() == "5.0") {
 				oDoc.designMode = 'on';
 			} else {

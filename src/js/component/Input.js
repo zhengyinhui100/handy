@@ -5,8 +5,13 @@
  */
 
 define('C.Input',
-'C.AbstractComponent',
-function(AC){
+[
+'L.Browser',
+'B.Util',
+'B.Event',
+'C.AbstractComponent'
+],
+function(Browser,Util,Event,AC){
 	
 	var Input=AC.define('Input');
 	
@@ -63,12 +68,12 @@ function(AC){
 					var me=this;
 					me.getEl().addClass('hui-focus');
 					me.focused=true;
-					if($H.mobile()){
+					if(Browser.mobile()){
 						//用户点击后退时先隐藏弹出层
-						$H.once('hisoryChange',function(){
+						Event.once('hisoryChange',function(){
 							if(me.focused&&!me.destroyed){
 								me.blur();
-								$H.stop();
+								Event.stop();
 								return false;
 							}
 						});
@@ -102,7 +107,7 @@ function(AC){
 			me.icon='search';
 		}
 		me.callSuper();
-		me.maxHeight=$H.em2px(me.maxHeight);
+		me.maxHeight=Util.em2px(me.maxHeight);
 		if(oSettings.isTextarea){
 			//textarea高度自适应，IE6、7、8支持propertychange事件，input被其他浏览器所支持
 			me.listeners.push({

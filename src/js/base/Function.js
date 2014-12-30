@@ -2,7 +2,7 @@
  * 函数类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-define('B.Function',function(){
+define('B.Function','B.Object',function(Obj){
 	
 	var Function={
 		bind                : fBind,              //函数bind方法
@@ -37,7 +37,7 @@ define('B.Function',function(){
 	 * @return  {function()}    返回新构造的函数
 	 */
 	function fIntercept(fExecFunc,fInterceptFunc,oExecScope,oInterceptScope) {
-		if($H.Object.isFunc(fExecFunc)&&$H.Object.isFunc(fInterceptFunc)){
+		if(Obj.isFunc(fExecFunc)&&Obj.isFunc(fInterceptFunc)){
 			return function() {
 						var oExScope=oExecScope||this;
 						var oInterScope={};

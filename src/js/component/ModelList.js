@@ -6,10 +6,13 @@
 
 define("C.ModelList",
 [
+'B.Util',
+'B.Object',
+'B.Date',
 'C.AbstractComponent',
 'E.Draggable'
 ],
-function(AC,Draggable){
+function(Util,Obj,Date,AC,Draggable){
 	
 	var ModelList=AC.define('ModelList');
 	
@@ -163,8 +166,8 @@ function(AC,Draggable){
 				var oInner=me.innerEl=oWrapper.find('.hui-list-inner');
 				var oPdEl=oWrapper.find('.hui-list-pulldown');
 				oInner.css({marginTop:'-3.125em'});
-				var nStartY=$H.em2px(3.125);
-				var nValve=$H.em2px(2.313);
+				var nStartY=Util.em2px(3.125);
+				var nValve=Util.em2px(2.313);
 				var sRefreshCls='hui-pd-refresh';
 				var sReleaseCls='hui-pd-release';
 				
@@ -211,7 +214,7 @@ function(AC,Draggable){
 				});
 				//同步数据后需要刷新
 				me.listenTo(me.model,'sync',function(){
-					me.set('pdTime',$H.formatDate($H.now(),'HH:mm'));
+					me.set('pdTime',Date.formatDate(Date.now(),'HH:mm'));
 					if(oPdEl.hasClass(sRefreshCls)){
 		                oPdEl.removeClass(sRefreshCls+' '+sReleaseCls);  
 		                me.set('pdTxt',me.pullTxt);
@@ -273,7 +276,7 @@ function(AC,Draggable){
 	function fScrollTo(pos){
 		var me=this;
 		var oEl=me.getEl()[0];
-		if($H.isStr(pos)){
+		if(Obj.isStr(pos)){
 			if(pos=='bottom'){
 				var nHeight=me.findEl('.hui-list-inner')[0].clientHeight;
 				oEl.scrollTop=nHeight;

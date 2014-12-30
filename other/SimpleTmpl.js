@@ -2,7 +2,7 @@
  * 简单模板类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-handy.add('SimpleTmpl',['B.String','B.Debug'],function(String,Debug,$H){
+handy.add('SimpleTmpl',['B.String','L.Debug'],function(String,Debug,$H){
 		
 	var T={
 		//配置

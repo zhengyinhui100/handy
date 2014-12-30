@@ -2,9 +2,9 @@
  * 资源加载类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-define("Loader",
-["B.Debug"],
-function(Debug,$H){
+define("L.Loader",
+["L.Debug"],
+function(Debug){
 	
 	var _LOADER_PRE='[Handy Loader] ',
 		_RESOURCE_NOT_FOUND= _LOADER_PRE+'not found: ',
@@ -470,7 +470,7 @@ function(Debug,$H){
 		//检出factory方法内声明的require依赖，如：var m=require('m');
 		if(Object.prototype.toString.call(factory) === "[object Function]"){
 			var m,sFactoryStr=factory.toString();
-			var r=/\require\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
+			var r=/require\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
 			while(m=r.exec(sFactoryStr)){
 				deps.push(m[1]);
 			}

@@ -6,12 +6,14 @@
 //"handy.data.Collection"
 define('D.Collection',
 [
+'B.Object',
 'B.Array',
+'B.Function',
 'D.AbstractData',
 'D.Model',
 'D.DataStore'
 ],
-function(Arr,AbstractData,Model){
+function(Obj,Arr,Function,AbstractData,Model){
 	
 	var Collection=AbstractData.derive({
 		//可扩展属性
@@ -64,7 +66,7 @@ function(Arr,AbstractData,Model){
 	});
 	
 	//从base.Array生成方法
-	$H.each([
+	Obj.each([
 		'map','some','every','find','filter','invoke','indexOf'
 	], function(i,sMethod) {
 	    Collection.prototype[sMethod] = function() {
@@ -80,7 +82,7 @@ function(Arr,AbstractData,Model){
         return Arr['sortedIndex'](this._models, value,iterator, context,bDesc);
     };
 	
-	$H.each(['sortBy','groupBy','countBy'], function(i,sMethod) {
+	Obj.each(['sortBy','groupBy','countBy'], function(i,sMethod) {
 	    Collection.prototype[sMethod] = function(value, context,bDesc) {
 	        var iterator = this._getIterator(value);
 	        bDesc=this.desc||bDesc;
@@ -94,7 +96,7 @@ function(Arr,AbstractData,Model){
 	 * @return {Function} 返回迭代函数
 	 */
 	function _fGetIterator(value) {
-	    if ($H.isFunc(value)){
+	    if (Obj.isFunc(value)){
 	    	return value;
 	    }
 	    return function(oModel) {
@@ -122,7 +124,7 @@ function(Arr,AbstractData,Model){
         if (oAttrs instanceof Model){
         	return oAttrs;
         }
-        oOptions = oOptions ? $H.clone(oOptions) : {};
+        oOptions = oOptions ? Obj.clone(oOptions) : {};
         oOptions.collection = me;
         var oModel = me.model.get(oAttrs, oOptions);
         if (!oModel.validationError){
@@ -197,15 +199,15 @@ function(Arr,AbstractData,Model){
 	    	me.model = oOptions.model;
 	    }
 	    if(oOptions.custom){
-			$H.extend(me,oOptions.custom);
+			Obj.extend(me,oOptions.custom);
 		}
 	    me._reset();
 	    if (aModels){
-	    	me.reset(aModels, $H.extend({silent: true}, oOptions));
+	    	me.reset(aModels, Obj.extend({silent: true}, oOptions));
 	    }
 	    //如果比较器是属性名，监听相应的事件进行必要的排序
 	    var comparator=me.comparator;
-	    if($H.isStr(comparator)){
+	    if(Obj.isStr(comparator)){
     		me.on('change:'+comparator,function(sEvt,oModel,sTime){
     			me.sortItem(oModel);
     		});
@@ -218,7 +220,7 @@ function(Arr,AbstractData,Model){
 	 */
     function fToJSON(oOptions) {
     	var me=this;
-        return $H.map(me._models,function(oModel){
+        return Arr.map(me._models,function(oModel){
         	return oModel.toJSON(oOptions); 
         });
     }
@@ -228,7 +230,7 @@ function(Arr,AbstractData,Model){
 	 * @return {Model}返回被添加的模型，如果是数组，返回第一个元素
 	 */
     function fAdd(models, oOptions) {
-    	oOptions=$H.extend({
+    	oOptions=Obj.extend({
     		add:true,
     		remove:false,
     		merge:false
@@ -242,8 +244,8 @@ function(Arr,AbstractData,Model){
      */
     function fRemove(models, oOptions) {
     	var me=this;
-        var bSingular = !$H.isArr(models);
-        models = bSingular ? [models] : $H.clone(models);
+        var bSingular = !Obj.isArr(models);
+        models = bSingular ? [models] : Obj.clone(models);
         oOptions || (oOptions = {});
         var i, l, index, oModel;
         for (i = 0, l = models.length; i < l; i++) {
@@ -285,7 +287,7 @@ function(Arr,AbstractData,Model){
     	if(!models){
     		return {result:me};
     	}
-    	oOptions = $H.extend({
+    	oOptions = Obj.extend({
     		add: true,
     		remove: false,
     		merge: true
@@ -296,8 +298,8 @@ function(Arr,AbstractData,Model){
         if (oOptions.parse){
         	models = me.parse(models, oOptions);
         }
-        var bSingular = !$H.isArr(models);
-        var aModels = bSingular ? (models ? [models] : []) : $H.clone(models);
+        var bSingular = !Obj.isArr(models);
+        var aModels = bSingular ? (models ? [models] : []) : Obj.clone(models);
         var aCurModels=me._models;
         var i, l, id, oModel, oAttrs, oExisting;
         var at = oOptions.at;
@@ -378,7 +380,7 @@ function(Arr,AbstractData,Model){
      * @param {function}fCall(nIndex,oModel) 回调函数
      */
     function fEach(fCall){
-    	$H.each(this._models,fCall);
+    	Obj.each(this._models,fCall);
     }
     /**
      * 降序遍历集合
@@ -404,7 +406,7 @@ function(Arr,AbstractData,Model){
         oOptions.previousModels = me._models;
         me._reset();
         if(models){
-	        models = me.add(models, $H.extend({silent: true}, oOptions)).result;
+	        models = me.add(models, Obj.extend({silent: true}, oOptions)).result;
         }
         if (!oOptions.silent){
         	me.trigger('reset', me, oOptions);
@@ -418,7 +420,7 @@ function(Arr,AbstractData,Model){
 	 */
     function fPush(oModel, oOptions) {
     	var me=this;
-        return me.add(oModel, $H.extend({at: me.length}, oOptions)).result;
+        return me.add(oModel, Obj.extend({at: me.length}, oOptions)).result;
     }
 	/**
 	 * 取出集合最后一个模型
@@ -437,7 +439,7 @@ function(Arr,AbstractData,Model){
 	 * @return {Model} 返回添加的模型
 	 */
     function fUnshift(oModel, oOptions) {
-        return this.add(oModel, $H.extend({at: 0}, oOptions)).result;
+        return this.add(oModel, Obj.extend({at: 0}, oOptions)).result;
     }
 	/**
 	 * 取出集合第一个模型
@@ -497,7 +499,7 @@ function(Arr,AbstractData,Model){
 	 */
     function fWhere(oAttrs, bFirst) {
     	var me=this;
-        if ($H.isEmpty(oAttrs)){
+        if (Obj.isEmpty(oAttrs)){
         	return bFirst ? void 0 : [];
         }
         return me[bFirst ? 'find' : 'filter'](function(oModel) {
@@ -534,7 +536,7 @@ function(Arr,AbstractData,Model){
         if (typeof me.comparator=='string' || me.comparator.length === 1) {
         	me._models = me.sortBy(me.comparator, me,oOptions.desc);
         } else {
-       		me._models.sort($H.Function.bind(me.comparator, me));
+       		me._models.sort(Function.bind(me.comparator, me));
         }
 
         if (!oOptions.silent){
@@ -564,7 +566,7 @@ function(Arr,AbstractData,Model){
 	 *  @return {Array} 返回集合对应属性的数组
      */
     function fPluck(sAttr) {
-      return $H.invoke(this._models, 'get', sAttr);
+      return Arr.invoke(this._models, 'get', sAttr);
     }
     /**
      * 获取url
@@ -584,7 +586,7 @@ function(Arr,AbstractData,Model){
 	 */
     function fFetch(oOptions) {
     	var me=this;
-        oOptions = oOptions ? $H.clone(oOptions) : {};
+        oOptions = oOptions ? Obj.clone(oOptions) : {};
         var fSuccess = oOptions.success;
         var fBeforeSet = oOptions.beforeSet;
         oOptions.success = function(resp) {
@@ -616,7 +618,7 @@ function(Arr,AbstractData,Model){
     // wait for the server to agree.
     function fCreate(oModel, oOptions) {
     	var me=this;
-        oOptions = oOptions ? $H.clone(oOptions) : {};
+        oOptions = oOptions ? Obj.clone(oOptions) : {};
         if (!(oModel = me._prepareModel(oModel, oOptions))){
         	return false;
         }

@@ -5,8 +5,13 @@
  */
 
 define('C.Popup',
-'C.AbstractComponent',
-function(AC){
+[
+'L.Browser',
+'B.Util',
+'B.Event',
+'C.AbstractComponent'
+],
+function(Browser,Util,Event,AC){
 	
 	var Popup=AC.define('Popup'),
 	_popupNum=0,
@@ -58,13 +63,13 @@ function(AC){
 		}
 		//Android下弹出遮罩层时，点击仍能聚焦到到输入框，暂时只能在弹出时disable掉，虽然能避免聚焦及弹出输入法，
 		//不过，仍旧会有光标竖线停留在点击的输入框里，要把延迟加到几秒之后才能避免，但又会影响使用
-		if($H.android()){
+		if(Browser.android()){
 			me.listeners.push({
 				name:'show',
 				custom:true,
 				handler:function(){
 					//外部可以通过监听器自行处理这个问题，只需要返回true即可不调用此处的方法
-					var bHasDone=$H.Events.trigger("component.popup.show");
+					var bHasDone=Event.trigger("component.popup.show");
 					if(bHasDone!=true){
 						$("input,textarea,select").attr("disabled","disabled");
 					}
@@ -75,7 +80,7 @@ function(AC){
 				custom:true,
 				handler:function(){
 					//外部可以通过监听器自行处理这个问题，只需要返回true即可不调用此处的方法
-					var bHasDone=$H.Events.trigger("component.popup.hide");
+					var bHasDone=Event.trigger("component.popup.hide");
 					if(bHasDone!=true){
 						//ps:这里延迟300ms执行还是有可能会有聚焦效果，所以设个保险的500ms
 						setTimeout(function(){
@@ -123,10 +128,10 @@ function(AC){
 			},me.timeout);
 		}
 		//用户点击后退时先隐藏弹出层
-		$H.once('hisoryChange',function(){
+		Event.once('hisoryChange',function(){
 			if(me.showed&&!me.destroyed){
 				me.hide();
-				$H.stop();
+				Event.stop();
 				return false;
 			}
 		});
@@ -156,7 +161,7 @@ function(AC){
 		var oEl=me.getEl();
 		oEl.css({
 			left: '50%',
-			top:$H.em2px(0.5),
+			top:Util.em2px(0.5),
 			position:'fixed'
 		});
 	}
@@ -175,11 +180,11 @@ function(AC){
 		var oBody=oDoc.body;
 		var nDocWidth;
 		//IE8下如果html节点设置了width，offsetWidth不准确
-		if($H.ie()<=8){
+		if(Browser.ie()<=8){
 			var nStyleW=oDocEl.currentStyle.width;
 			if(nStyleW){
 				if(nStyleW.indexOf('em')>0){
-					nDocWidth=$H.em2px(nStyleW);
+					nDocWidth=Util.em2px(nStyleW);
 				}else{
 					nDocWidth=parseInt(nStyleW.replace('px',''));
 				}
@@ -226,7 +231,7 @@ function(AC){
 	function fFollowEl(oEl){
 		var me=this;
 		var el=oEl||me.parent.getEl();
-		var oPos=$H.position(el[0]);
+		var oPos=Util.position(el[0]);
 		me.getEl().css(oPos);
 	}
 	/**

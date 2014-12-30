@@ -6,10 +6,11 @@
 
 define('C.TabItem',
 [
+'B.Object',
 'C.AbstractComponent',
 'C.Panel'
 ],
-function(AC,Panel){
+function(Obj,AC,Panel){
 	
 	var TabItem=AC.define('TabItem');
 	
@@ -74,7 +75,7 @@ function(AC,Panel){
 			}
 		}
 		if(typeof content=='object'){
-			$H.extend(content,{
+			Obj.extend(content,{
 				xrole:'content',
 				hidden:!me.selected,
 				extCls:(content.extCls||'')+' hui-tab-content js-tab-content'

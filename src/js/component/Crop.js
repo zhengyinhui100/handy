@@ -5,15 +5,18 @@
 
 define('C.Crop',
 [
+'L.Browser',
+'B.Object',
+'B.Util',
 'C.AbstractComponent',
 'C.AbstractImage',
 'E.Draggable'
 ],
-function(AC,AbstractImage,Draggable){
+function(Browser,Obj,Util,AC,AbstractImage,Draggable){
 	
 	var Crop=AC.define('Crop',AbstractImage);
 	
-	var _startEvent=$H.hasTouch()?'touchstart':'mousedown';
+	var _startEvent=Browser.hasTouch()?'touchstart':'mousedown';
 	
 	Crop.extend({
 		//初始配置
@@ -98,11 +101,11 @@ function(AC,AbstractImage,Draggable){
 			me.cropWidth=oSize.width;
 			me.cropHeight=oSize.height;
 		}else{
-			if($H.isStr(me.cropWidth)){
-				me.cropWidth=$H.em2px(me.cropWidth);
+			if(Obj.isStr(me.cropWidth)){
+				me.cropWidth=Util.em2px(me.cropWidth);
 			}
-			if($H.isStr(me.cropHeight)){
-				me.cropHeight=$H.em2px(me.cropHeight);
+			if(Obj.isStr(me.cropHeight)){
+				me.cropHeight=Util.em2px(me.cropHeight);
 			}
 		}
 		//图片居中显示的偏移量

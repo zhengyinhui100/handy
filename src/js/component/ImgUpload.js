@@ -6,12 +6,15 @@
 
 define('C.ImgUpload',
 [
+'L.Browser',
+'B.Object',
+'B.Util',
 'C.AbstractComponent',
 'U.ImgCompress',
 'P.Device',
 'P.Camera'
 ],
-function(AC,ImgCompress,Device,Camera){
+function(Browser,Obj,Util,AC,ImgCompress,Device,Camera){
 	
 	var ImgUpload=AC.define('ImgUpload');
 	
@@ -65,7 +68,7 @@ function(AC,ImgCompress,Device,Camera){
 			name:'click',
 			el:'.js-file-input',
 			handler:function(oEvt){
-				if($H.ie()<10){
+				if(Browser.ie()<10){
 					//ie本地图片预览，http://www.cnblogs.com/yansi/archive/2013/04/14/3021199.html
 					//网页端裁剪图片(FileAPI)，兼容谷歌火狐IE6/7/8，http://www.oschina.net/code/snippet_988397_33758
 					//Flash头像上传新浪微博破解加强版，https://github.com/zhushunqing/FaustCplus
@@ -106,7 +109,7 @@ function(AC,ImgCompress,Device,Camera){
 		me.callSuper();
 		var oCmprOptions=oSettings.compressOptions;
 		var fSuccess=oCmprOptions&&oCmprOptions.success;
-		me.compressOptions=$H.extend({},me.compressOptions);
+		me.compressOptions=Obj.extend({},me.compressOptions);
 		me.compressOptions.success=function(oData){
 			me.findEl('.js-file-content').val(oData.clearBase64);
 			fSuccess&&fSuccess(oData);
@@ -130,7 +133,7 @@ function(AC,ImgCompress,Device,Camera){
 		var me=this;
 		var oDialog=new $C.Dialog({
 			contentMsg:'上传照片',
-			width:$H.em2px(15.625),
+			width:Util.em2px(15.625),
 			noAction:true,
 			clickHide:true,
 			items:{
@@ -183,7 +186,7 @@ function(AC,ImgCompress,Device,Camera){
 					height:me.cropWinH,
 					success:function(oResult){
 						oWin.hide();
-						var oOptions=$H.extend(oResult,me.compressOptions);
+						var oOptions=Obj.extend(oResult,me.compressOptions);
 						ImgCompress.compress(imgSrc,oOptions);
 					}
 				});

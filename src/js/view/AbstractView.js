@@ -6,10 +6,13 @@
  //"handy.view.AbstractView"
 define('V.AbstractView',
 [
+'L.Browser',
+'B.Object',
+'B.Class',
 'V.ViewManager',
 'CM.AbstractEvents'
 ],
-function(ViewManager,AbstractEvents){
+function(Browser,Obj,Class,ViewManager,AbstractEvents){
 	
 	var AbstractView=AbstractEvents.derive({
 		xtype               : 'View',            //类型
@@ -60,7 +63,7 @@ function(ViewManager,AbstractEvents){
 		var me=this;
 		var name=oEvent.name;
 		return me._parseEvents(name,function(aParams){
-			var oEvt=$H.extend({},oEvent);
+			var oEvt=Obj.extend({},oEvent);
 			oEvt.name=aParams[0];
 			if(aParams.length==2){
 				oEvt.handler=aParams[1];
@@ -79,9 +82,9 @@ function(ViewManager,AbstractEvents){
 		oParams=oParams||{};
 		me.callSuper();
 		me._listeners=[];
-		me.listeners=$H.clone(me.listeners);
+		me.listeners=Obj.clone(me.listeners);
 		//注册视图管理
-		me.manager=me.constructor.manager||$H.getSingleton(ViewManager);
+		me.manager=me.constructor.manager||Class.getSingleton(ViewManager);
 		//注册视图，各继承类自行实现
 		me.manager.register(me,oParams);
 		//初始化配置
@@ -107,7 +110,7 @@ function(ViewManager,AbstractEvents){
 		me.initParam=oSettings;
 		var oParams=oSettings||{};
 		
-		$H.extend(me,oParams);
+		Obj.extend(me,oParams);
 		var renderTo;
 		if(renderTo=oParams.renderTo){
 			me.renderTo=$(renderTo);
@@ -196,14 +199,14 @@ function(ViewManager,AbstractEvents){
 			context=oEvent.context,
 			nTimes=oEvent.times,
 			oTarget=oEvent.target,
-			bIsCustom=oEvent.custom||oTarget||$H.contains(me._customEvents,sName),
+			bIsCustom=oEvent.custom||oTarget||Obj.contains(me._customEvents,sName),
 			fHandler=oEvent.handler;
-		if($H.isFunc(oTarget)){
+		if(Obj.isFunc(oTarget)){
 			oTarget=oTarget.call(me);
 		}
 		//自定义事件
 		if(bIsCustom){
-			var aArgs=$H.removeUndefined([oTarget,sName,fHandler,context,nTimes]);
+			var aArgs=Obj.removeUndefined([oTarget,sName,fHandler,context,nTimes]);
 			me[oTarget?'listenTo':'on'].apply(me,aArgs);
 		}else{
 			//没有初始化事件，直接放入队列中
@@ -218,12 +221,12 @@ function(ViewManager,AbstractEvents){
 				sSel=oEvent.selector,
 				oData=oEvent.data,
 				fFunc=oEvent.delegation=me._delegateHandler(fHandler,context);
-			if($H.isFunc(oEl)){
+			if(Obj.isFunc(oEl)){
 				oEl=oEl.call(me);
 			}
 			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
 			//TODO 暂时在这里统一转换移动事件
-			if($H.mobile()&&oEl.tap){
+			if(Browser.mobile()&&oEl.tap){
 				var oMap={
 					'click'    : 'tap',
 					'dblclick' : 'doubleTap'

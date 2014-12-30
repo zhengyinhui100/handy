@@ -5,8 +5,11 @@
  */
 
 define('C.Field',
-'C.AbstractComponent',
-function(AC){
+[
+'B.Object',
+'C.AbstractComponent'
+],
+function(Obj,AC){
 	
 	var Field=AC.define('Field');
 	
@@ -44,12 +47,12 @@ function(AC){
 	function fDoConfig(oSettings){
 		var me=this;
 		var title=oSettings.title;
-		if($H.isSimple(title)){
+		if(Obj.isSimple(title)){
 			title={
 				text:title
 			};
 		}
-		title=$H.extend({
+		title=Obj.extend({
 			xtype:'Label',
 			xrole:'title'
 		},title);
@@ -62,7 +65,7 @@ function(AC){
 			content='';
 		}
 		//包装文字内容
-		if($H.isSimple(content)){
+		if(Obj.isSimple(content)){
 			content=({
 				text:content,
 				//默认文字域有下划线

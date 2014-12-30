@@ -11,10 +11,15 @@
 //"handy.data.Model"
 define('D.Model',
 [
+'B.Object',
+'B.Date',
+'B.String',
+'B.Util',
+'B.Function',
 'D.AbstractData',
 'D.DataStore'
 ],
-function(AbstractData){
+function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	
 	var Model=AbstractData.derive({
 		//可扩展属性
@@ -140,12 +145,12 @@ function(AbstractData){
         if (!oOptions.validate || !me.validate){
         	return true;
         }
-        oAttrs = $H.extend({}, me._attributes, oAttrs);
+        oAttrs = Obj.extend({}, me._attributes, oAttrs);
         var error = me.validationError = me.validate(oAttrs, oOptions) || null;
         if (!error){
         	return true;
         }
-        me.trigger('invalid', me, error, $H.extend(oOptions, {validationError: error}));
+        me.trigger('invalid', me, error, Obj.extend(oOptions, {validationError: error}));
         return false;
     }
     /**
@@ -195,9 +200,9 @@ function(AbstractData){
 					val=fParse.apply(me,[val,oAttrs]);
 				}
 				//自定义类型，包括Model和Collection
-				if($H.isStr(type)){
+				if(Obj.isStr(type)){
 					if(type=='Date'){
-						val=$H.parseDate(val);
+						val=Dat.parseDate(val);
 					}else if(type=='string'||type=='str'){
 						val=val?''+val:'';
 					}else if(type=='number'||type=='num'){
@@ -208,7 +213,7 @@ function(AbstractData){
 						type=$H.ns(type);
 					}
 				}
-				if($H.isClass(type)&&!(val instanceof type)){
+				if(Obj.isClass(type)&&!(val instanceof type)){
 					//模型
 					if(type.get){
 						var oChange={};
@@ -244,12 +249,12 @@ function(AbstractData){
     		return;
     	}
     	//模型被添加事件无需处理，如果是集合add事件，oCollection是集合对象
-    	if(sEvent=='add'&&!$H.isInstance(oCollection)){
+    	if(sEvent=='add'&&!Obj.isInstance(oCollection)){
     		return;
     	}
     	var me=this;
     	var oVal=me.get(sAttr);
-    	var args=$H.toArray(arguments,1);
+    	var args=Obj.toArray(arguments,1);
     	me.trigger.apply(me,['change:'+sAttr,me,oVal].concat(args));
     	me.trigger.apply(me,['change',me].concat(args));
     	//me.trigger.apply(me, arguments);
@@ -273,11 +278,11 @@ function(AbstractData){
 		me.callSuper();
 		var oAttrs = oAttributes || {};
 		oOptions || (oOptions = {});
-		me.cid = 'md_'+$H.Util.uuid();
+		me.cid = 'md_'+Util.uuid();
 		me._attributes = {};
 		me._attrEvts={};
 		if(oOptions.custom){
-			$H.extend(me,oOptions.custom);
+			Obj.extend(me,oOptions.custom);
 		}
 		if (oOptions.collection){
 			me.collection = oOptions.collection;
@@ -285,7 +290,7 @@ function(AbstractData){
 		if (oOptions.parse){
 			oAttrs = me.parse(oAttrs, oOptions) || {};
 		}
-		oAttrs = $H.extendIf(oAttrs, me.getDefaults());
+		oAttrs = Obj.extendIf(oAttrs, me.getDefaults());
 		if(me.init){
 			me.init();
 		}
@@ -302,7 +307,7 @@ function(AbstractData){
 		if(oFields=me.fields){
 			for(var k in oFields){
 				var field=oFields[k];
-				oDefaults[k]=(field&&$H.isObj(field))?field.def:field;
+				oDefaults[k]=(field&&Obj.isObj(field))?field.def:field;
 			}
 		}
 		return oDefaults;
@@ -312,7 +317,7 @@ function(AbstractData){
 	 * @return {Object} 返回对象数据副本
 	 */
     function fToJSON() {
-        return $H.clone(this._attributes);
+        return Obj.clone(this._attributes);
     }
     /**
      * 获取指定属性值
@@ -328,7 +333,7 @@ function(AbstractData){
      * @return {*} 返回对应属性编码后的值
 	 */
     function fEscape(sAttr) {
-        return $H.String.escape(this.get(sAttr));
+        return Str.escape(this.get(sAttr));
     }
 	/**
 	 * 判断是否含有参数属性
@@ -384,7 +389,7 @@ function(AbstractData){
 	
 	    //开始改变前，先存储初始值
 	    if (!bChanging) {
-	        me._previousAttributes = $H.Object.clone(me._attributes);
+	        me._previousAttributes = Obj.clone(me._attributes);
 	    	me._changed = {};
 	    }
 	    var oCurrent = me._attributes, 
@@ -400,9 +405,9 @@ function(AbstractData){
 	   	    val = oAttrs[sAttr];
 	    	var curVal=oCurrent[sAttr];
 	    	//当前属性是否是嵌套属性
-	   	    var bCurNested=curVal&&$H.isInstance(curVal);
+	   	    var bCurNested=curVal&&Obj.isInstance(curVal);
 	   	    //新值是否是嵌套属性
-	   	    var bNewNested=val&&$H.isInstance(val);
+	   	    var bNewNested=val&&Obj.isInstance(val);
 	    	//嵌套属性设置，不需要在此触发相关事件，而是通过监听该属性上的事件触发事件，计算属性也是通过事件触发计算
 	    	if(bCurNested||bNewNested){
 	    		//删除旧值或更换嵌套属性，须移除原来在该属性上的事件
@@ -419,7 +424,7 @@ function(AbstractData){
 							//这里如果传入就是模型，_parseFields方法不进行处理，因此这里标记为已改变
 							val._changedTmp=true;
 							//新模型需要监听事件
-		    				me.listenTo(val,'all',$H.bind(me._onAttrEvent,me,sAttr));
+		    				me.listenTo(val,'all',Func.bind(me._onAttrEvent,me,sAttr));
 	    				}
 					}
 	    		}
@@ -430,11 +435,11 @@ function(AbstractData){
 				val&&delete val._changedTmp;
 	    	}else{
 		   	    //与当前值不相等，放入本次改变列表中
-		    	if (!$H.equals(oCurrent[sAttr], val)){
+		    	if (!Obj.equals(oCurrent[sAttr], val)){
 		    		oChanges[sAttr]=val;
 		    	}
 		    	//与初始值不相等，放入已经改变的hash对象中
-		    	if (!$H.equals(oPrev[sAttr], val)) {
+		    	if (!Obj.equals(oPrev[sAttr], val)) {
 		            me._changed[sAttr] = val;
 		    	} else {
 		    		//跟初始值相等，即没有变化
@@ -445,7 +450,7 @@ function(AbstractData){
 	    	}
 	    }
 	    
-		var bHasChange=!$H.isEmpty(oChanges);
+		var bHasChange=!Obj.isEmpty(oChanges);
 	    //触发对应属性change事件
 	    if (!bSilent) {
 	        if (bHasChange){
@@ -512,7 +517,7 @@ function(AbstractData){
      */
     function fEach(fCall){
     	var oAttrs=this._attributes;
-    	$H.each(oAttrs,fCall);
+    	Obj.each(oAttrs,fCall);
     }
 	/**
 	 * 判断自上次change事件后有没有修改，可以指定属性
@@ -521,22 +526,22 @@ function(AbstractData){
 	 * @return {boolean} true表示有修改
 	 */
     function fHasChanged(sAttr,bAll) {
-    	if($H.isBool(sAttr)){
+    	if(Obj.isBool(sAttr)){
     		bAll=sAttr;
     		sAttr=undefined;
     	}
     	if(bAll){
 	    	var oChanged=this._changed;
 	        if (sAttr == null){
-	        	return !$H.isEmpty(oChanged);
+	        	return !Obj.isEmpty(oChanged);
 	        }
-	        return $H.contains(oChanged, sAttr);
+	        return Obj.contains(oChanged, sAttr);
     	}else{
     		var oChanged=this.changedAttrs();
     		if(sAttr == null){
     			return !!oChanged;
     		}
-	    	return oChanged&&$H.contains(oChanged, sAttr);
+	    	return oChanged&&Obj.contains(oChanged, sAttr);
     	}
     }
 	/**
@@ -547,7 +552,7 @@ function(AbstractData){
 	 */
     function fChangedAttrs(oDiff,bAll) {
     	var me=this;
-    	if($H.isBool(oDiff)){
+    	if(Obj.isBool(oDiff)){
     		bAll=oDiff;
     		oDiff=undefined;
     	}
@@ -561,10 +566,10 @@ function(AbstractData){
 	        	//bAll不为true时只检测需要保存的属性
 	        	if(!bAll){
 	        		var bHas=oFields.hasOwnProperty(sAttr);
-	        		bNeed=!bHas||(bHas&&($H.isSimple(val)&&!oFields[sAttr].unsave));
+	        		bNeed=!bHas||(bHas&&(Obj.isSimple(val)&&!oFields[sAttr].unsave));
 	        	}
 	            if (bNeed){
-	            	if(!oDiff||(oDiff&&!$H.equals(oOld[sAttr], val))){
+	            	if(!oDiff||(oDiff&&!Obj.equals(oOld[sAttr], val))){
 			            (changed || (changed = {}))[sAttr] = val;
 	            	}
 	            }
@@ -587,9 +592,9 @@ function(AbstractData){
     	var oFields=me.fields;
     	oAttrs=oAttrs||me._attributes;
     	var oResult={};
-    	$H.each(oAttrs,function(k,val){
+    	Obj.each(oAttrs,function(k,val){
 	    	var bHas=oFields.hasOwnProperty(k);
-		    var bNeed=!bHas||(bHas&&$H.isSimple(val)&&!oFields[k].unsave);
+		    var bNeed=!bHas||(bHas&&Obj.isSimple(val)&&!oFields[k].unsave);
 		    if(bNeed){
 		    	oResult[k]=val;
 		    }
@@ -613,7 +618,7 @@ function(AbstractData){
 	 * @return {Object} 返回所有修改前的值
 	 */
     function fPreviousAttributes() {
-        return $H.clone(this._previousAttributes);
+        return Obj.clone(this._previousAttributes);
     }
 	/**
 	 * 获取模型数据
@@ -626,7 +631,7 @@ function(AbstractData){
 	 */
     function fFetch(oOptions) {
     	var me=this;
-        oOptions = oOptions ? $H.clone(oOptions) : {};
+        oOptions = oOptions ? Obj.clone(oOptions) : {};
         if (oOptions.parse === void 0) {
         	oOptions.parse = true;
         }
@@ -677,10 +682,10 @@ function(AbstractData){
         	(oAttrs = {})[sKey] = val;
         }
 
-        if($H.isFunc(oOptions)){
+        if(Obj.isFunc(oOptions)){
         	oOptions={success:oOptions};
         }
-        oOptions = $H.extend({validate: true}, oOptions);
+        oOptions = Obj.extend({validate: true}, oOptions);
 
         //now==true，立刻设置数据
         if (oAttrs && oOptions.now) {
@@ -703,10 +708,10 @@ function(AbstractData){
 	        var oServerAttrs = me.parse(resp, oOptions);
 	        //now!=true，确保更新相应数据(可能没有返回相应数据)
 	        if (!oOptions.now){
-	        	oServerAttrs = $H.extend(oAttrs || {}, oServerAttrs);
+	        	oServerAttrs = Obj.extend(oAttrs || {}, oServerAttrs);
 	        }
 	        //服务器返回的值可能跟现在不一样，还要根据返回值修改
-	        if ($H.isObj(oServerAttrs) && me.set(oServerAttrs, oOptions).invalid) {
+	        if (Obj.isObj(oServerAttrs) && me.set(oServerAttrs, oOptions).invalid) {
 	            return false;
 	        }
 	        if (fSuccess){
@@ -737,13 +742,13 @@ function(AbstractData){
 	    	oSaveAttrs = oChanged;
 	    }else{
 	    	//提交所有属性值
-	    	var oCurrent=$H.extend({},me._attributes);
-	    	oSaveAttrs = $H.extend(oCurrent,oAttrs);
+	    	var oCurrent=Obj.extend({},me._attributes);
+	    	oSaveAttrs = Obj.extend(oCurrent,oAttrs);
 	    }
 	    oSaveAttrs=me.filterUnsave(oSaveAttrs);
 	    //额外属性
 	    if(oOptions.extAttrs){
-	    	$H.extend(oSaveAttrs,oOptions.extAttrs);
+	    	Obj.extend(oSaveAttrs,oOptions.extAttrs);
 	    }
 	    oOptions.attrs=oSaveAttrs;
 	    me.saving=true;
@@ -757,7 +762,7 @@ function(AbstractData){
 	 */
     function fDestroy(oOptions) {
     	var me=this;
-        oOptions = oOptions ? $H.clone(oOptions) : {};
+        oOptions = oOptions ? Obj.clone(oOptions) : {};
         var fSuccess = oOptions.success;
 
         var destroy = function() {
@@ -794,7 +799,7 @@ function(AbstractData){
 	 */
     function fGetUrl() {
     	var me=this;
-        var sUrl =$H.result(me, 'url') ||$H.result(me.collection, 'url');
+        var sUrl =Util.result(me, 'url') ||Util.result(me.collection, 'url');
         if(!sUrl){
         	$D.error(new Error('必须设置一个url属性或者函数'));
         }
@@ -836,7 +841,7 @@ function(AbstractData){
 	 * @return {boolean} true表示合法
 	 */
     function fIsValid(oOptions) {
-        return this._validate({}, $H.extend(oOptions || {}, { validate: true }));
+        return this._validate({}, Obj.extend(oOptions || {}, { validate: true }));
     }
 	
 	return Model;

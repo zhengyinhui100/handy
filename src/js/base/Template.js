@@ -2,7 +2,7 @@
  * 模板类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-define('B.Template',['B.Object','B.String','B.Debug','B.Function'],function(Object,String,Debug,Function){
+define('B.Template',['B.Object','B.String','L.Debug','B.Function'],function(Obj,String,Debug,Function){
 		
 	var T={
 		//配置
@@ -76,7 +76,7 @@ define('B.Template',['B.Object','B.String','B.Debug','B.Function'],function(Obje
 	 */
 	function _fIf(condition,oOptions){
 		var data=oOptions.data;
-		if (Object.isFunc(condition)) { 
+		if (Obj.isFunc(condition)) { 
 			condition = condition.call(data); 
 		}
 		if((condition&&!oOptions.inverse)||(!condition&&oOptions.inverse)){
@@ -99,7 +99,7 @@ define('B.Template',['B.Object','B.String','B.Debug','B.Function'],function(Obje
 	 */
 	function _fEach(data,oOptions){
 		var fn=oOptions.fn,r='';
-		//这里为了优化性能，使用原生循环，比换成Object.each整体性能提升5~10%左右
+		//这里为了优化性能，使用原生循环，比换成Obj.each整体性能提升5~10%左右
 		if(!data){
 			return;
 		}
@@ -120,7 +120,7 @@ define('B.Template',['B.Object','B.String','B.Debug','B.Function'],function(Obje
 	 */
 	function _fEachOld(data,oOptions){
 		var fn=oOptions.fn,aResult=[];
-		//这里为了优化性能，使用原生循环，比换成Object.each整体性能提升5~10%左右
+		//这里为了优化性能，使用原生循环，比换成Obj.each整体性能提升5~10%左右
 		if(!data){
 			return;
 		}
@@ -392,8 +392,8 @@ define('B.Template',['B.Object','B.String','B.Debug','B.Function'],function(Obje
 		var oHelpers;
 		//有自定义辅助函数，覆盖默认函数
 		if(sNameSpace){
-			oHelpers=Object.extend({},_helpers['default']);
-			oHelpers=Object.extend(oHelpers,_helpers[sNameSpace]);
+			oHelpers=Obj.extend({},_helpers['default']);
+			oHelpers=Obj.extend(oHelpers,_helpers[sNameSpace]);
 		}else{
 			oHelpers=_helpers['default'];
 		}
@@ -432,11 +432,11 @@ define('B.Template',['B.Object','B.String','B.Debug','B.Function'],function(Obje
 	 * @param {Function}fHelper 辅助函数
 	 */
 	function fRegisterHelper(sNameSpace,sName,fHelper){
-		if(Object.isObj(sName)){
+		if(Obj.isObj(sName)){
 			if(!_helpers[sNameSpace]){
 				_helpers[sNameSpace]={};
 			}
-			Object.extend(_helpers[sNameSpace],sName);
+			Obj.extend(_helpers[sNameSpace],sName);
 		}else{
 			_helpers[sNameSpace][sName]=fHelper;
 		}

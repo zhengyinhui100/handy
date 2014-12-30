@@ -4,7 +4,7 @@
  * //TODO 快捷键切换调试等级
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-define("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser){
+define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	
 	var Debug=window.$D={
 		level	    : $H.isDebug?0:5,  //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
@@ -66,9 +66,9 @@ define("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser){
 				oDebugDiv.style.display = 'block';
 			}
 			var oAppender=oDebugDiv.getElementsByTagName('DIV')[0];
-			oVar=oVar instanceof Error?oVar.message:oVar;
+			oVar=oVar instanceof Error?(oVar.stack||oVar.message):oVar;
 			//这里原生的JSON.stringify有问题(&nbsp;中最后的'p;'会丢失)，统一强制使用自定义方法
-			var sMsg=typeof oVar=='string'?oVar:$H.Json.stringify(oVar, null, '&nbsp;&nbsp;&nbsp;&nbsp;',true);
+			var sMsg=typeof oVar=='string'?oVar:Json.stringify(oVar, null, '&nbsp;&nbsp;&nbsp;&nbsp;',true);
 			sMsg=sMsg&&sMsg.replace(/\n|\\n/g,'<br/>');
 			var sStyle;
 			if(sType=='log'){
@@ -143,6 +143,7 @@ define("Debug",['handy.base.Json','handy.base.Browser'],function(Json,Browser){
 		if($H.isDebug){
 			if(oVar instanceof Error){
 				//抛出异常，主要是为了方便调试，如果异常被catch住的话，控制台不会输出具体错误位置
+				typeof console!=='undefined'&&console.error(oVar.stack)
 				throw oVar;
 			}
 		}else{

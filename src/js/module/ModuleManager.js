@@ -10,9 +10,15 @@
  */
 //handy.module.ModuleManager
 define("M.ModuleManager",
-["M.History",
-"V.AbstractManager"],
-function(History,AbstractManager){
+[
+'L.Browser',
+'B.Event',
+'B.Object',
+'B.Function',
+"M.History",
+"V.AbstractManager"
+],
+function(Browser,Evt,Obj,Func,History,AbstractManager){
 	
 	//TODO 使用AbstractManager的方法
 	var ModuleManager=AbstractManager.derive({
@@ -25,7 +31,7 @@ function(History,AbstractManager){
 //		navigator          : null,   //定制模块导航类
 //		defEntry           : null,   //默认模块，当调用back方法而之前又没有历史模块时，进入该模块
 //		defModPackage      : "com.xxx.module",  //默认模块所在包名
-		maxCacheNum        : $H.mobile()?($H.android()>=4||$H.ios()>=7)?15:6:30,     //最大缓存模块数
+		maxCacheNum        : Browser.mobile()?(Browser.android()>=4||Browser.ios()>=7)?15:6:30,     //最大缓存模块数
 		
 //		requestMod         : '',     //正在请求的模块名
 //		currentMod         : '',     //当前模块名
@@ -78,7 +84,7 @@ function(History,AbstractManager){
 			extCls:'js-module m-module '+sModName.replace(/\./g,'-'),
 			hidden:true
 		};
-		$H.extend(oOptions,oParams);
+		Obj.extend(oOptions,oParams);
 		var oMod=new Module(oOptions);
 		
 		//异步模块在此标记referer
@@ -86,7 +92,7 @@ function(History,AbstractManager){
 		oMod.referer=oWaitting.referer;
 		
 		me._modules[sModId]=oMod;
-		$H.trigger('afterRender',oMod.getEl());
+		Evt.trigger('afterRender',oMod.getEl());
 		oMod.entry(oParams);
 		//只有当前请求的模块恰好是本模块时才显示（可能加载完时，已切换到其它模块了）
 		if(me.requestMod==sModId){
@@ -132,7 +138,7 @@ function(History,AbstractManager){
 		me.callSuper();
 		if(oConf){
 			me.conf=oConf;
-			$H.extend(me,oConf);
+			Obj.extend(me,oConf);
 			me.container=oConf.container?$(oConf.container):$(document.body);
 		}
 		me.history=new History(function(sCode,oParam){
@@ -145,7 +151,7 @@ function(History,AbstractManager){
 		//解析url参数
 		var oUrlParam=me.history.getCurrentState();
 		//有返回页
-		if(!$H.isEmpty(oUrlParam)){
+		if(!Obj.isEmpty(oUrlParam)){
 			var fChk=oConf.chkEntry;
 			var bResult=fChk&&fChk(oUrlParam);
 			if(bResult!==false){
@@ -180,7 +186,7 @@ function(History,AbstractManager){
 		}
 		//模块缓存算法
 		var nStackLen=aStack.length;
-		var nModTypeNum=$H.count(oNum);
+		var nModTypeNum=Obj.count(oNum);
 		var nAverage=me.maxCacheNum/nModTypeNum;
 		nAverage=nAverage<1?1:nAverage;
 		//标记是否删除
@@ -343,7 +349,7 @@ function(History,AbstractManager){
 			}
 			//保存状态
 			me.history.saveState({
-				onStateChange:$H.Function.bind(me.go,me),
+				onStateChange:Func.bind(me.go,me),
 				param:o
 			});
 		}
@@ -380,7 +386,7 @@ function(History,AbstractManager){
 		var oNew=oModule.update(oParams);
 		if(oNew){
 			this._modules[oModule.modId]=oNew;
-			$H.trigger('afterRender',oNew.getEl());
+			Evt.trigger('afterRender',oNew.getEl());
 		}
 		return oNew;
 	}
@@ -390,7 +396,7 @@ function(History,AbstractManager){
 	 * @param {number=|string=}modelId 模型id
 	 */
 	function fClearCache(module,modelId){
-		if($H.isStr(module)){
+		if(Obj.isStr(module)){
 			module=this.getModule(module,modelId);
 		}
 		if(module){

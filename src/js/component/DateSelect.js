@@ -5,10 +5,12 @@
 
 define('C.DateSelect',
 [
+'B.Object',
+'B.Date',
 'C.AbstractComponent',
 'C.DatePicker'
 ],
-function(AC,DatePicker){
+function(Obj,Date,AC,DatePicker){
 	
 	var DateSelect=AC.define('DateSelect');
 	
@@ -23,7 +25,7 @@ function(AC,DatePicker){
 				parse     : function(){
 					var sTxt=this.get('value');
 					if(sTxt){
-						return sTxt+' 星期'+$H.getWeek($H.parseDate(sTxt));
+						return sTxt+' 星期'+Date.getWeek(Date.parseDate(sTxt));
 					}else{
 						return '请选择...';
 					}
@@ -40,7 +42,7 @@ function(AC,DatePicker){
 				}
 			}
 		},
-//		date            : null,               //初始时间，Date对象，默认是当前($H.now()，默认分钟数清零)
+//		date            : null,               //初始时间，Date对象，默认是当前(Date.now()，默认分钟数清零)
 //		formator        : 'yyyy-MM-dd HH:mm', //格式因子
 		_customEvents   : ['change','confirm'],
 		
@@ -75,12 +77,12 @@ function(AC,DatePicker){
 		var me=this;
 		var oTime=oParams.date;
 		if(!oTime){
-			oTime=$H.now();
+			oTime=Date.now();
 			//不传时间默认分钟数清零
 			oTime.setMinutes(0);
 		}
 		me.date=oTime;
-		var sTime=$H.formatDate(oTime,oParams.formator||(oParams.formator='yyyy-MM-dd HH:mm'));
+		var sTime=Date.formatDate(oTime,oParams.formator||(oParams.formator='yyyy-MM-dd HH:mm'));
 		me.set('value',sTime);
 		me.callSuper();
 	}
@@ -108,11 +110,11 @@ function(AC,DatePicker){
 	 */
 	function fVal(value){
 		var me=this;
-		if(!value||$H.isBool(value)){
+		if(!value||Obj.isBool(value)){
 			var sTime=me.get('value');
-			return value?$H.parseDate(sTime):sTime;
+			return value?Date.parseDate(sTime):sTime;
 		}else{
-			value=$H.formatDate(value,me.formator);
+			value=Date.formatDate(value,me.formator);
 			if(me.get('value')!=value){
 				me.set('value',value);
 				me.trigger("change");

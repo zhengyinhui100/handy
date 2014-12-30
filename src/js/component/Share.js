@@ -4,8 +4,11 @@
  */
 
 define('C.Share',
-'C.AbstractComponent',
-function(AC){
+[
+'B.Object',
+'C.AbstractComponent'
+],
+function(Obj,AC){
 	
 	var Share=AC.define('Share');
 	
@@ -39,7 +42,7 @@ function(AC){
 						    };
 							if(me.getEntry){
 								var oEnt=me.getEntry();
-								$H.extend(oEntry,oEnt);
+								Obj.extend(oEntry,oEnt);
 							}
 							bShare.entries=[];
 							//oEntry.url=encodeURIComponent(oEntry.url);

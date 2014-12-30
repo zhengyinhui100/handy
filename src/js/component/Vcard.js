@@ -4,8 +4,11 @@
  */
 
 define('C.Vcard',
-'C.AbstractComponent',
-function(AC){
+[
+'B.Object',
+'C.AbstractComponent'
+],
+function(Obj,AC){
 	
 	var Vcard=AC.define('Vcard');
 	
@@ -51,7 +54,7 @@ function(AC){
 		me.callSuper();
 		var oAction=oSettings.action;
 		if(oAction){
-			oAction=$H.extend({
+			oAction=Obj.extend({
 				xtype:'Button',
 				radius:null,
 				isInline:false,

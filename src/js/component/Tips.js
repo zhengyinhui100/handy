@@ -5,10 +5,13 @@
  */
 
 define('C.Tips',
-['C.AbstractComponent',
+[
+'B.Object',
+'B.Util',
+'C.AbstractComponent',
 'C.Popup',
 'C.ControlGroup'],
-function(AC,Popup,ControlGroup){
+function(Obj,Util,AC,Popup,ControlGroup){
 	
 	var Tips=AC.define('Tips',Popup);
 	
@@ -45,7 +48,7 @@ function(AC,Popup,ControlGroup){
 		var me=this;
 		//普通居中loading提示
 		if(oSettings.type=='loading'){
-			$H.extend(me,{
+			Obj.extend(me,{
 				text:'正在加载中...',
 				timeout:null,
 				noMask:true,
@@ -53,10 +56,10 @@ function(AC,Popup,ControlGroup){
 			});
 		}else if(oSettings.type=='miniLoading'){
 			//顶部小loading
-			$H.extend(me,{
+			Obj.extend(me,{
 				showPos:{
 					left:'50%',
-					top:$H.em2px(0.625)
+					top:Util.em2px(0.625)
 				},
 				clickHide:false,
 				destroyWhenHide:false,
@@ -74,14 +77,14 @@ function(AC,Popup,ControlGroup){
 			});
 		}else if(oSettings.type=='topTips'){
 			//顶部提示默认配置
-			$H.extend(me,{
+			Obj.extend(me,{
 				showPos:'top',
 				noMask:true,
 				tType:'mini'
 			});
 		}else if(oSettings.type==='inlineLoading'){
 			//顶部提示默认配置
-			$H.extend(me,{
+			Obj.extend(me,{
 				noMask:true,
 				clickHide:false,
 				destroyWhenHide:false,
@@ -96,8 +99,8 @@ function(AC,Popup,ControlGroup){
 				},
 				theme:null,
 				showPos:{
-					left:$H.em2px(0.625),
-					top:$H.em2px(0.625)
+					left:Util.em2px(0.625),
+					top:Util.em2px(0.625)
 				},
 				items:{
 					xtype:'Icon',

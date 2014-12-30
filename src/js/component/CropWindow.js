@@ -5,11 +5,12 @@
 
 define('C.CropWindow',
 [
+'B.Object',
 'C.AbstractComponent',
 'C.Popup',
 'C.Crop'
 ],
-function(AC,Popup,Crop){
+function(Obj,AC,Popup,Crop){
 	
 	var CropWindow=AC.define('CropWindow',Popup);
 	
@@ -41,7 +42,7 @@ function(AC,Popup,Crop){
 		var oCrop={
 			xtype:'Crop'
 		};
-		$H.extend(oCrop,me.cropOptions);
+		Obj.extend(oCrop,me.cropOptions);
 		me.add([{
 			xtype:'Toolbar',
 			title:me.title,

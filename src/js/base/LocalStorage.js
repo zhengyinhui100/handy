@@ -2,7 +2,7 @@
  * LocalStorage类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-define('B.LocalStorage',['B.Browser','B.Events','B.Json'],function(Browser,Events,Json){
+define('B.LocalStorage',['L.Browser','B.Event','L.Json'],function(Browser,Event,Json){
 	
 	var LocalStorage={
 		_init           : _fInit,              //初始化

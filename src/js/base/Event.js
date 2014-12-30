@@ -3,9 +3,9 @@
  * 事件名称支持命名空间(".name")，如：change.one
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-define('B.Events',function(){
+define('B.Event','B.Object',function(Obj){
 	
-	var Events={
+	var Event={
 		_eventCache        : {},                   //自定义事件池
 		_execEvtCache      : [],                   //待执行事件队列
 //		_stopEvent         : false,                //是否停止(本次)事件
@@ -59,7 +59,7 @@ define('B.Events',function(){
 	 */
 	function _fParseCustomEvents(sMethod,name,param){
 		var me=this;
-		var aArgs=$H.toArray(arguments,2);
+		var aArgs=Obj.toArray(arguments,2);
 		return me._parseEvents(name,function(aParams){
 			me[sMethod].apply(me,aParams.concat(aArgs));
 		});
@@ -94,7 +94,7 @@ define('B.Events',function(){
 	function _fExecEvents(){
 		var me=this,result;
 		var aEvts=me._execEvtCache;
-		$H.each(aEvts,function(i,oEvent){
+		Obj.each(aEvts,function(i,oEvent){
 			aEvts.splice(i,1);
 			var fDelegation=oEvent.delegation;
 			//控制执行次数
@@ -155,7 +155,7 @@ define('B.Events',function(){
 	 */
 	 function fOnce(name,fHandler,context){
 	 	var me=this;
-	 	var aArgs=$H.toArray(arguments);
+	 	var aArgs=Obj.toArray(arguments);
 	 	aArgs.push(1);
 	 	me.on.apply(me,aArgs);
 	 }
@@ -223,13 +223,13 @@ define('B.Events',function(){
 	 */
 	function fTrigger(name,data){
 		var me=this;
-		var aNewArgs=$H.toArray(arguments);
+		var aNewArgs=Obj.toArray(arguments);
 		aNewArgs.unshift('trigger');
 		if(me._parseCustomEvents.apply(me,aNewArgs)){
 			return;
 		}
 		var oCache=me._eventCache;
-		var aArgs=$H.toArray(arguments);
+		var aArgs=Obj.toArray(arguments);
 		var aCache;
 		//内部函数，执行事件队列
 		function _fExec(aCache){
@@ -292,5 +292,5 @@ define('B.Events',function(){
 		me.isSuspend=false;
 	}
 	
-	return Events;
+	return Event;
 });

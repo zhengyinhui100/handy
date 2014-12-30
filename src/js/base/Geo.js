@@ -2,7 +2,7 @@
  * 地理类
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-define('B.Geo',function(){
+define('B.Geo','B.Object',function(Obj){
 	
 	var Geo={
 		distance         : fDistance          //计算两点距离(单位为km，保留两位小数)
@@ -38,7 +38,7 @@ define('B.Geo',function(){
         function _fFormatData(oCoord){
         	if(oCoord.get){
 	        	oCoord=[oCoord.get("latitude"),oCoord.get("longitude")];
-	        }else if($H.isObj(oCoord)){
+	        }else if(Obj.isObj(oCoord)){
 	        	oCoord=[oCoord.latitude,oCoord.longitude];
 	        }
 	        return oCoord;
@@ -61,7 +61,7 @@ define('B.Geo',function(){
 	    if(bFormat!=false){
 	    	if(isNaN(nDistance)){
 			    //TODO 可能是计算精度的原因，相同坐标计算结果是NaN
-	    		if(nLat1==nLat2&&nLng1==nLng2&&$H.isNum(nLat1)&&$H.isNum(nLng1)){
+	    		if(nLat1==nLat2&&nLng1==nLng2&&Obj.isNum(nLat1)&&Obj.isNum(nLng1)){
 	    			nDistance=0;
 	    		}else{
 		    		return '未知';

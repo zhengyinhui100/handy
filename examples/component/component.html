@@ -157,14 +157,15 @@ gEnv='dev';
 <script type="text/javascript"
 	src="../../src/js/loader/Loader.js"></script>
 <script type="text/javascript">
-$H.Loader.rootPath={
+$H.loader.Loader.rootPath={
 	'handy'        : '../../src/js/'
 }
-$H.Loader.combine=false;
-define('test','handy.All',function(){
+$H.loader.Loader.combine=false;
+define('test',['B.String','B.Date'],function(Str,Dat){
 	var Model=require('D.Model'),
 	Icon=require('C.Icon'),
 	Button=require('C.Button'),
+	Share=require('C.Share'),
 	Desc=require('C.Desc'),
 	Panel=require('C.Panel'),
 	ControlGroup=require('C.ControlGroup'),
@@ -318,7 +319,7 @@ define('test','handy.All',function(){
 			shadow:true
 		})
 		
-		new $C.Share({
+		new Share({
 			renderTo:'#buttonDv'
 		})
 		
@@ -1305,12 +1306,12 @@ define('test','handy.All',function(){
 					click:function(){
 						var oInput=oConvPanel.find('Input')[0];
 						if(oInput.valid()){
-							var sVal=$H.encodeHTML(oInput.val());
+							var sVal=Str.encodeHTML(oInput.val());
 							oConvPanel.find('.conversation')[0].add({
 								xtype:'Conversation',
 								theme:'right',
 								image:'../../html/img.jpg',
-								createTime:$H.now(true),
+								createTime:Dat.now(true),
 								content:sVal
 							});
 							oInput.update({

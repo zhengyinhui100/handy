@@ -4,11 +4,17 @@
  * @created 2014-01-10
  */
 //"handy.view.AbstractManager"
-define("V.AbstractManager", 'B.Class',function() {
+define("V.AbstractManager", 
+[
+'B.Class',
+'B.Object',
+'B.Util'
+],
+function(Class,Obj,Util) {
 
-	var AbstractManager = $H.createClass();
+	var AbstractManager = Class.createClass();
 	
-	$H.extend(AbstractManager.prototype, {
+	Obj.extend(AbstractManager.prototype, {
 //	    _types        : {},               //存储类
 //	    _all          : {},               //存储所有实例
 	    initialize    : fInitialize,      //初始化
@@ -49,7 +55,7 @@ define("V.AbstractManager", 'B.Class',function() {
 	 * @return {object} 返回对应的视图类
 	 */
 	function fGetClass(xtype){
-		if($H.isClass(xtype)){
+		if(Obj.isClass(xtype)){
 			return xtype;
 		}
 		return this._types[xtype]||$H.ns(xtype);
@@ -61,7 +67,7 @@ define("V.AbstractManager", 'B.Class',function() {
 	 */
 	function fRegister(oView,oParams){
 		var me=this;
-		var sCid=oView.cid=oParams.cid||$H.uuid();
+		var sCid=oView.cid=oParams.cid||Util.uuid();
 		var sId=oView._id=me.generateId(sCid,oView.xtype);
 		me._all[sId]=oView;
 		me._allForCid[sCid]=oView;
@@ -112,7 +118,7 @@ define("V.AbstractManager", 'B.Class',function() {
 	 */
 	function fGenerateId(sCid,sType){
 		var me=this;
-		var sId=$H.expando+"-"+me.type+"-"+sType+'-'+(sCid||$H.uuid());
+		var sId=$H.expando+"-"+me.type+"-"+sType+'-'+(sCid||Util.uuid());
 		if(me._all[sId]){
 			$D.error('id重复:'+sId);
 		}else{

@@ -1,9 +1,9 @@
 /**
  * 浏览器环境类，分析浏览器类型、版本号、操作系统、内核类型、壳类型、flash版本
- * 浏览器版本，$H.Browser.ie/firefox/chrome/opera/safari(),如果浏览器是IE的，$H.Browser.ie()的值是浏览器的版本号，!$H.Browser.ie()表示非IE浏览器
+ * 浏览器版本，Browser.ie/firefox/chrome/opera/safari(),如果浏览器是IE的，$H.Browser.ie()的值是浏览器的版本号，!$H.Browser.ie()表示非IE浏览器
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
-define("Browser",function($H){
+define("L.Browser",function(){
 
 	var _oInfo={};
 	

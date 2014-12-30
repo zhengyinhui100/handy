@@ -4,14 +4,18 @@
  */
 //"handy.effect.Draggable"
 define('E.Draggable',
+[
+'L.Browser',
 'B.Class',
-function(){
+'B.Object'
+],
+function(Browser,Class,Obj){
 	
-	var Draggable=$H.createClass();
+	var Draggable=Class.createClass();
 	
-	var _events=$H.hasTouch()?['touchstart','touchmove','touchend']:['mousedown','mousemove','mouseup'];
+	var _events=Browser.hasTouch()?['touchstart','touchmove','touchend']:['mousedown','mousemove','mouseup'];
 	
-	$H.extend(Draggable.prototype,{
+	Obj.extend(Draggable.prototype,{
 		initialize        : fInitialize,        //初始化
 		start             : fStart,             //开始
 		move              : fMove,              //移动
@@ -52,7 +56,7 @@ function(){
 	function fStart(oEvt) {
 		var me=this;
 		me.drag=true;
-		if($H.hasTouch()){
+		if(Browser.hasTouch()){
 			//zepto.js event对象就是原生事件对象
 			oEvt = oEvt.originalEvent||oEvt;
 			oEvt = oEvt.touches[0];
@@ -61,12 +65,12 @@ function(){
 		me.eventY=oEvt.clientY;
 		var oEl=me.el[0];
 		var left=oEl.style.left||0;
-		if($H.isStr(left)){
+		if(Obj.isStr(left)){
 			left=parseInt(left.replace('px',''));
 		}
 		me.elX=left;
 		var top=oEl.style.top||0;
-		if($H.isStr(top)){
+		if(Obj.isStr(top)){
 			top=parseInt(top.replace('px',''));
 		}
 		me.elY=top;
@@ -84,7 +88,7 @@ function(){
 			oOrigEvt.preventDefault();
 		}
 		if(me.drag===true){
-			if($H.hasTouch()){
+			if(Browser.hasTouch()){
 				oEvt = oOrigEvt.originalEvent||oOrigEvt;
 				oEvt = oEvt.touches[0];
 			}else{

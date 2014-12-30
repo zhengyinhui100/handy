@@ -5,10 +5,13 @@
  */
 
 define('C.Tab',
-['C.AbstractComponent',
+[
+'L.Browser',
+'C.AbstractComponent',
 'C.TabItem',
-'C.ControlGroup'],
-function(AC,TabItem,ControlGroup){
+'C.ControlGroup'
+],
+function(Browser,AC,TabItem,ControlGroup){
 	
 	var Tab=AC.define('Tab',ControlGroup);
 	
@@ -20,7 +23,7 @@ function(AC,TabItem,ControlGroup){
 //			theme       : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
 		},
 //		activeType      : '',           //激活样式类型，
-		slidable        : $H.mobile(),
+		slidable        : Browser.mobile(),
 		
 		defItem         : {             //默认子组件是TabItem
 //			content     : '',           //tab内容

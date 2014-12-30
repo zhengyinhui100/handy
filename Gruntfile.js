@@ -97,7 +97,7 @@ module.exports = function(grunt) {
 					'src/js/base/Object.js',
 					'src/js/base/Class.js',
 					'src/js/base/Function.js', 
-					'src/js/base/Events.js',
+					'src/js/base/Event.js',
 					'src/js/base/Date.js', 
 					'src/js/base/String.js',
 					'src/js/base/Cookie.js', 

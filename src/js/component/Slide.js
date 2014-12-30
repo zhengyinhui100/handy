@@ -5,8 +5,11 @@
  */
 
 define('C.Slide',
-'C.AbstractComponent',
-function(AC){
+[
+'B.Util',
+'C.AbstractComponent'
+],
+function(Util,AC){
 	
 	var Slide=AC.define('Slide');
 	
@@ -17,7 +20,7 @@ function(AC){
 			pics        : []
 		},
 		
-		height          : $H.em2px(20), 
+		height          : Util.em2px(20), 
 		timeout         : 3000,        //播放时间间隔
 		
 		listeners       : [{

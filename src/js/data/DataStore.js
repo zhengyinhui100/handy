@@ -4,11 +4,14 @@
  */
 //"handy.data.DataStore"
 define('D.DataStore',
-'B.Class',
-function(){
-	var DataStore=$H.createClass();
+[
+'B.Object',
+'B.Class'
+],
+function(Obj,Class){
+	var DataStore=Class.createClass();
 	
-	$H.extend(DataStore.prototype,{
+	Obj.extend(DataStore.prototype,{
 		get            : fGet,       //获取数据
 		find           : fFind,
 		push           : fPush       //放入仓库
@@ -19,7 +22,7 @@ function(){
 	};
 	
 	//全局快捷别名
-	$S=$H.getSingleton(DataStore);
+	$S=Class.getSingleton(DataStore);
 	
 	/**
 	 * 获取数据
@@ -29,9 +32,9 @@ function(){
 	 */
 	function fGet(sName,oOptions){
 		var oCache;
-		if($H.isClass(sName)){
+		if(Obj.isClass(sName)){
 			sName=sName.$ns;
-		}else if($H.isInstance(sName)){
+		}else if(Obj.isInstance(sName)){
 			sName=sName.constructor.$ns;
 		}else{
 			sName=$H.alias(sName);
@@ -40,13 +43,13 @@ function(){
 			if(oOptions===undefined){
 				return oCache;
 			}
-			if(!$H.isObj(oOptions)){
+			if(!Obj.isObj(oOptions)){
 				//根据id查找
 				oOptions={id:oOptions};
 			}
 			var aResult=[];
-			$H.each(oCache,function(k,obj){
-				if($H.largeThan(obj,oOptions)){
+			Obj.each(oCache,function(k,obj){
+				if(Obj.largeThan(obj,oOptions)){
 					aResult.push(obj);
 				}
 			});

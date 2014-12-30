@@ -4,11 +4,15 @@
  */
 //"handy.util.ImgCompress"
 define('U.ImgCompress',
-'B.Class',
-function(){
-	var ImgCompress=$H.createClass();
+[
+'L.Browser',
+'B.Object',
+'B.Class'
+],
+function(Browser,Obj,Class){
+	var ImgCompress=Class.createClass();
 	
-	$H.extend(ImgCompress,{
+	Obj.extend(ImgCompress,{
 		compress         : fCompress        //压缩
 	});
 	
@@ -91,7 +95,7 @@ function(){
         	var nCropH=oOptions.cropH;
         	var nCropX=oOptions.cropX;
         	var nCropY=oOptions.cropY;
-        	var bIOS=$H.ios();
+        	var bIOS=Browser.ios();
             //需要裁剪
             if(bCrop){
             	var oSize=_fFixSize(nCropW,nCropH);
@@ -145,7 +149,7 @@ function(){
                 	oCtx.putImageData(oData,0,0);
                 }
                 base64 = oCanvas.toDataURL('image/jpeg', nQuality);
-            }else if($H.android()) {
+            }else if(Browser.android()) {
 	            // 修复android
                 var encoder = new JPEGEncoder();
                 base64 = encoder.encode(oCtx.getImageData(0,0,w,h), nQuality * 100 );

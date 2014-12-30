@@ -4,9 +4,13 @@
  */
 
 define('C.DatePicker',
-['C.AbstractComponent',
+[
+'B.Object',
+'B.Util',
+'B.Date',
+'C.AbstractComponent',
 'C.Dialog'],
-function(AC,Dialog){
+function(Obj,Util,Date,AC,Dialog){
 	
 	var DatePicker=AC.define('DatePicker',Dialog);
 	
@@ -17,7 +21,7 @@ function(AC,Dialog){
 		xConfig         : {
 			cls         : 'dp'
 		},
-//		date            : null,               //初始时间，Date对象或日期字符串，默认是当前($H.now())
+//		date            : null,               //初始时间，Date对象或日期字符串，默认是当前(Date.now())
 //		formator        : 'yyyy-MM-dd HH:mm', //格式因子
 		extCls          : 'hui-dialog',
 		_customEvents   : [
@@ -50,7 +54,7 @@ function(AC,Dialog){
 			}
 			oPicker.show();
 		}else{
-			oPicker=oInstance[sFormator]=new DatePicker($H.extend(oParams,{destroyWhenHide:false}));
+			oPicker=oInstance[sFormator]=new DatePicker(Obj.extend(oParams,{destroyWhenHide:false}));
 		}
 		return oPicker;
 		
@@ -70,9 +74,9 @@ function(AC,Dialog){
 			xrole:'dialog-content',
 			name:'dialogSelect',
 			value:sValue,
-			width:$H.em2px(3.125),
+			width:Util.em2px(3.125),
 			cClass:sName,
-			optionWidth:$H.em2px(6.25),
+			optionWidth:Util.em2px(6.25),
 			iconPos:'bottom',
 			extCls:'hui-dp-'+sName,
 			options:[],
@@ -85,7 +89,7 @@ function(AC,Dialog){
 				var oTime=oDp.val(true);
 				//月份发生变化，要更新当月份的天数
 				if(me.cClass=='month'){
-					var nDay=$H.getDaysInMonth(oTime);
+					var nDay=Date.getDaysInMonth(oTime);
 					var oDateMenu=oDp.find('.date > Menu')[0];
 					var aMenuItems= oDateMenu.find();
 					if(oDateMenu.val()>nDay){
@@ -123,14 +127,14 @@ function(AC,Dialog){
 		var me=this;
 		oSettings=oSettings||{};
 		var oDate=oSettings.date;
-		if($H.isStr(oDate)){
-			oDate=$H.parseDate(oDate);
+		if(Obj.isStr(oDate)){
+			oDate=Date.parseDate(oDate);
 		}
-		var oDate=oDate||$H.now();
+		var oDate=oDate||Date.now();
 		var sFormator=oSettings.formator||(oSettings.formator='yyyy-MM-dd HH:mm');
-		var sTime=$H.formatDate(oDate,sFormator);
+		var sTime=Date.formatDate(oDate,sFormator);
 		var aItems=[];
-		var nMaxDay=$H.getDaysInMonth(oDate);
+		var nMaxDay=Date.getDaysInMonth(oDate);
 		var aFormatorMatches=sFormator.match(/[a-zA-Z]+/g);
 		var aNumMatches=sTime.match(/\d+/g);
 		for(var i=0;i<aFormatorMatches.length;i++){
@@ -154,8 +158,8 @@ function(AC,Dialog){
 					break;
 			}
 		}
-		$H.extend(oSettings,{
-			contentTitle:sTime+' 星期'+$H.getWeek(oDate),
+		Obj.extend(oSettings,{
+			contentTitle:sTime+' 星期'+Date.getWeek(oDate),
 			items:aItems,
 			okCall:function(){
 				return me.trigger('confirm');
@@ -173,7 +177,7 @@ function(AC,Dialog){
 		var aSel=me.find('Select');
 		var sFormator=me.formator;
 		//读取
-		if(!value||$H.isBool(value)){
+		if(!value||Obj.isBool(value)){
 			var sTime='';
 			for(var i=0;i<aSel.length;i++){
 				if(i==1||i==2){
@@ -185,21 +189,21 @@ function(AC,Dialog){
 				}
 				sTime+=aSel[i].val();
 			}
-			var oDate=$H.parseDate(sTime);
-			return value?oDate:$H.formatDate(oDate,sFormator);
+			var oDate=Date.parseDate(sTime);
+			return value?oDate:Date.formatDate(oDate,sFormator);
 		}else{
 			//设置
 			var sTime=value,oTime=value;
-			if($H.isStr(value)){
-				oTime=$H.parseDate(value,sFormator);
+			if(Obj.isStr(value)){
+				oTime=Date.parseDate(value,sFormator);
 			}else{
-				sTime=$H.formatDate(value,sFormator);
+				sTime=Date.formatDate(value,sFormator);
 			}
 			var aValues=sTime.match(/\d+/g);
 			for(var i=0;i<aSel.length;i++){
 				aSel[i].val(aValues[i]);
 			}
-			me.set('contentTitle',sTime+' 星期'+$H.getWeek(oTime));
+			me.set('contentTitle',sTime+' 星期'+Date.getWeek(oTime));
 		}
 	}
 	
