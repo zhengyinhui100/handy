@@ -3347,11 +3347,23 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   filter: alpha(opacity= 30 );
   opacity: 0.3;
 }
-.hui-ani {
+.hui-ani-100 {
   -moz-transition: all 0.1s linear;
   -webkit-transition: all 0.1s linear;
   -o-transition: all 0.1s linear;
   transition: all 0.1s linear;
+}
+.hui-ani-150 {
+  -moz-transition: all 0.15s linear;
+  -webkit-transition: all 0.15s linear;
+  -o-transition: all 0.15s linear;
+  transition: all 0.15s linear;
+}
+.hui-ani-200 {
+  -moz-transition: all 0.2s linear;
+  -webkit-transition: all 0.2s linear;
+  -o-transition: all 0.2s linear;
+  transition: all 0.2s linear;
 }
 .hui-ani-3d {
   -moz-transform: translate3d(0, 0, 0);

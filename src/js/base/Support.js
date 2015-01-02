@@ -73,7 +73,7 @@ define('B.Support','L.Browser',function(Browser){
 	 * 检测样式是否支持
 	 * @param{string}sName 样式名
 	 * @param{string}sValue 属性值
-	 * @return{boolean} true表示支持，false表示不支持
+	 * @return{boolean} false表示不支持，如果支持，返回对应的样式名（可能有前缀）
 	 */
 	function fIfSupportStyle(sName,sValue){
 		var oEl = document.createElement('div');
@@ -97,10 +97,12 @@ define('B.Support','L.Browser',function(Browser){
  		}
 		if(sProp){
 			if(sValue===undefined){
-				return true;
+				return sProp;
 			}
-		    oEl.style[sName] = sValue;
-		    return oEl.style[sName] === sValue;
+		    oEl.style[sProp] = sValue;
+			var sNew=oEl.style[sProp];
+			//一些样式设置后会带有空格，如：transform='translate3d(0px, 0px, 0px)'
+		    return  sNew.replace(/\s/g,'')=== sValue?sProp:false;
 		}
 	    return false;
 	}

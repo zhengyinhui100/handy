@@ -7,11 +7,12 @@
 define('C.Tab',
 [
 'L.Browser',
+'B.Support',
 'C.AbstractComponent',
 'C.TabItem',
 'C.ControlGroup'
 ],
-function(Browser,AC,TabItem,ControlGroup){
+function(Browser,Support,AC,TabItem,ControlGroup){
 	
 	var Tab=AC.define('Tab',ControlGroup);
 	
@@ -48,6 +49,7 @@ function(Browser,AC,TabItem,ControlGroup){
 		setTabContent   : fSetTabContent,      //设置标签页内容
 		selectItem      : fSelectItem          //选中/取消选中
 	});
+	
 	/**
 	 * 初始化配置
 	 * @param {object}oSettings 配置
@@ -55,7 +57,12 @@ function(Browser,AC,TabItem,ControlGroup){
 	function fDoConfig(oSettings){
 		var me=this;
 		me.callSuper();
-		if(me.slidable){
+		var aTrans3d=['translate3d(','px,0px,0px)'];
+		var sTransform;
+		if(me.slidable&&(sTransform=Support.ifSupportStyle('transform',aTrans3d[0]+0+aTrans3d[1]))){
+			var _fTran=function(oEl,nPos){
+				oEl.style[sTransform]=aTrans3d[0]+nPos+aTrans3d[1];
+			}
 			var sContSel='.js-tab-content';
 			var oContEl;
 			me.listen({
@@ -78,7 +85,7 @@ function(Browser,AC,TabItem,ControlGroup){
 					me.startX=oEvt.clientX;
 					me.startY=oEvt.clientY;
 					me.delX=0;
-					oContEl.removeClass('hui-ani');
+					oContEl.removeClass('hui-ani-150');
 				}
 			});
 			me.listen({
@@ -107,9 +114,9 @@ function(Browser,AC,TabItem,ControlGroup){
 						var nWidth=me.contentWidth;
 						var oBrotherCmp=me.brotherCmp=oBrother.contentCmp;
 						oBrother=oBrotherCmp.getEl()[0];
-						oBrother.style.left=(nDelX>0?nDelX-nWidth:nWidth+nDelX)+'px';
+						_fTran(oBrother,(nDelX>0?nDelX-nWidth:nWidth+nDelX));
 						oBrotherCmp.show();
-						oEl.style.left=nDelX+'px';
+						_fTran(oEl,nDelX);
 					}
 				}
 			});
@@ -127,22 +134,26 @@ function(Browser,AC,TabItem,ControlGroup){
 					var nSpeed=nDelX/nTime;
 					var bChange=nTime<500&&Math.abs(nDelX)>20;
 					var nIndex=me.getSelected(true);
-					oContEl.addClass('hui-ani');
+					oContEl.addClass('hui-ani-150');
 					me.animating=true;
 					setTimeout(function(){
 						me.animating=false;
 					},150);
+					var oBrother=me.brotherCmp.getEl()[0];
 					if(nDelX>nMin||bChange&&nDelX>0){
 						//向右滑动
-						oEl.style.left=nWidth+'px';
+						_fTran(oEl,nWidth);
+						_fTran(oBrother,0);
 						me.onItemSelect(nIndex-1);
 					}else if(nDelX<-nMin||bChange&&nDelX<0){
 						//向左滑动
-						oEl.style.left=-nWidth+'px';
+						_fTran(oEl,-nWidth);
+						_fTran(oBrother,0);
 						me.onItemSelect(nIndex+1);
 					}else if(nDelX!==0){
 						//移动距离很短，恢复原样
-						oEl.style.left=0;
+						_fTran(oEl,0);
+						_fTran(oBrother,0);
 						me.brotherCmp.hide();
 					}
 				}
@@ -196,11 +207,6 @@ function(Browser,AC,TabItem,ControlGroup){
 	function fSelectItem(oItem,bSelect){
 		var me=this;
 		bSelect=bSelect!=false;
-		if(bSelect&&oItem.contentCmp){
-			oItem.contentCmp.getEl().css({
-				left:0
-			});
-		}
 		//动画过程中创建dom节点会卡，这里延迟选中（选中事件中伴有初始化组件操作）
 		if(me.animating){
 			setTimeout(function(){
