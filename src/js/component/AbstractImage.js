@@ -13,7 +13,7 @@ function(Obj,AC){
 	var AbstractImage=AC.define('AbstractImage');
 	
 	AbstractImage.extend({
-		_customEvents   : ['imgFixed'], //自定义事件，图片已修正
+		_customEvents   : {imgFixed:1}, //自定义事件，图片已修正
 //		height          : 50,           //指定高度会自动修正图片高度，在不改变图片宽高比的前提下，最大化接近指定的高度
 //		width           : 50,           //指定宽度会自动修正图片宽度，在不改变图片宽高比的前提下，最大化接近指定的宽度
 		fixImgSize      : fFixImgSize   //修正图片尺寸，及居中显示

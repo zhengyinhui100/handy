@@ -24,10 +24,10 @@ function(Obj,Util,Date,AC,Dialog){
 //		date            : null,               //初始时间，Date对象或日期字符串，默认是当前(Date.now())
 //		formator        : 'yyyy-MM-dd HH:mm', //格式因子
 		extCls          : 'hui-dialog',
-		_customEvents   : [
-			'change',                         //用户操作导致值改变时触发
-			'confirm'                         //用户点击确认时触发
-		],
+		_customEvents   : {
+			change:1,                         //用户操作导致值改变时触发
+			confirm:1                         //用户点击确认时触发
+		},
 		doConfig        : fDoConfig,          //初始化配置
 		val             : fVal                //设置/读取值
 	});

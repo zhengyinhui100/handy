@@ -38,7 +38,7 @@ function(Obj,AC){
 			isInline         : false
 		},
 		
-		_customEvents        : ['Select','Unselect'],
+		_customEvents        : {Select:1,Unselect:1},
 		
 		tmpl                 : '<div {{bindAttr class="directionCls"}}>{{placeItem}}</div>',
 		

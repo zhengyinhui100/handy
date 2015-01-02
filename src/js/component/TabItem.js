@@ -30,7 +30,7 @@ function(Obj,AC,Panel){
 			isInline    : false,
 			shadow      : false
 		},
-		_customEvents   : ['selectchange'],
+		_customEvents   : {selectchange:1},
 		
 		//属性
 //		titleCmp        : null,         //标题组件

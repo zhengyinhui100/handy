@@ -22,6 +22,7 @@ function(Browser,Obj,Class,ViewManager,AbstractEvents){
 		renderBy            : 'append',          //默认渲染方式
 		autoRender          : true,              //是否默认就进行渲染
 //		manager             : null,              //视图管理对象
+		_customEvents       : {},                //自定义事件
 		listeners           : [],                //事件配置列表，初始参数可以是对象也可以是对象数组
 		//属性
 //		_config             : null,              //配置模型对象
@@ -199,7 +200,7 @@ function(Browser,Obj,Class,ViewManager,AbstractEvents){
 			context=oEvent.context,
 			nTimes=oEvent.times,
 			oTarget=oEvent.target,
-			bIsCustom=oEvent.custom||oTarget||Obj.contains(me._customEvents,sName),
+			bIsCustom=oEvent.custom||oTarget||me._customEvents[sName],
 			fHandler=oEvent.handler;
 		if(Obj.isFunc(oTarget)){
 			oTarget=oTarget.call(me);

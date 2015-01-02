@@ -69,27 +69,27 @@ function(Obj,Template,ViewManager,ModelView,Model){
 			}
 		},
 		//TODO 首字母大写以便区分事件监听还是函数？
-		_customEvents       : [                  //自定义事件,可以通过参数属性的方式直接进行添加
-			'beforeRender','render','afterRender',
-			'beforeShow','show','afterShow',
-			'beforeHide','hide','afterHide',
-			'beforeUpdate','update','afterUpdate',
-			'beforeDestroy','destroy','afterDestroy',
-			'add','remove',
-			'Select','Unselect'
-////		'layout'    //保留事件
-		],  
-		_defaultEvents      : [                  //默认事件，可以通过参数属性的方式直接进行添加
-			'mousedown','mouseup','mouseover','mousemove','mouseenter','mouseleave',
-			'dragstart','drag','dragenter','dragleave','dragover','drop','dragend',
-			'touchstart','touchmove','touchend','touchcancel',
-			'keydown','keyup','keypress',
-			'click','dblclick',
-			'focus','focusin','focusout',
-			'contextmenu','change','submit',
-			'swipe', 'swipeLeft', 'swipeRight', 'swipeUp', 'swipeDown',
-    		'doubleTap', 'tap', 'singleTap', 'longTap'
-		],
+		_customEvents       : {                  //自定义事件,可以通过参数属性的方式直接进行添加
+			beforeRender:1,render:1,afterRender:1,
+			beforeShow:1,show:1,afterShow:1,
+			beforeHide:1,hide:1,afterHide:1,
+			beforeUpdate:1,update:1,afterUpdate:1,
+			beforeDestroy:1,destroy:1,afterDestroy:1,
+			add:1,remove:1,
+			Select:1,Unselect:1
+////		layout    //保留事件
+		},  
+		_defaultEvents      : {                  //默认事件，可以通过参数属性的方式直接进行添加
+			mousedown:1,mouseup:1,mouseover:1,mousemove:1,mouseenter:1,mouseleave:1,
+			dragstart:1,drag:1,dragenter:1,dragleave:1,dragover:1,drop:1,dragend:1,
+			touchstart:1,touchmove:1,touchend:1,touchcancel:1,
+			keydown:1,keyup:1,keypress:1,
+			click:1,dblclick:1,
+			focus:1,focusin:1,focusout:1,
+			contextmenu:1,change:1,submit:1,
+			swipe:1,swipeLeft:1,swipeRight:1,swipeUp:1,swipeDown:1,
+    		doubleTap:1,tap:1,singleTap:1,longTap:1
+		},
 		
 		_applyArray         : _fApplyArray,      //在数组上依次执行方法
 		
@@ -196,13 +196,13 @@ function(Obj,Template,ViewManager,ModelView,Model){
 		var oProt=this.prototype;
 		Obj.extend(oProt, oExtend,{notCover:function(p){
 			//继承父类的事件
-			if(p=='_customEvents'||p=='listeners'){
+			if(p=='listeners'){
 				//拼接数组
 				oProt[p]=(oExtend[p]||[]).concat(oProt[p]||[]);
 				return true;
 			}else if(p=='xtype'||p=='constructor'){
 				return true;
-			}else if(p=='xConfig'||p=='fastUpdateMethod'){
+			}else if(p=='_customEvents'||p=='xConfig'||p=='fastUpdateMethod'){
 				//继承父类配置
 				oProt[p]=Obj.extendIf(oExtend[p],oProt[p]);
 				return true;
@@ -285,17 +285,15 @@ function(Obj,Template,ViewManager,ModelView,Model){
 				(me.refModelAttrs||(me.refModelAttrs={}))[p]=refAttr;
 			}
 			var value=me[p];
-			//默认事件，可通过参数属性直接添加
-			var bIsCustEvt=Obj.contains(me._customEvents,p);
-			var bIsDefEvt=Obj.contains(me._defaultEvents,p);
 			
-			if(bIsDefEvt){
+			//默认事件，可通过参数属性直接添加
+			if(me._defaultEvents[p]){
 				me.listeners.push({
 					name:p,
 					handler:oParams[p]
 				});
 				return true;
-			}else if(bIsCustEvt){
+			}else if(me._customEvents[p]){
 				me.on(p,oParams[p]);
 				return true;
 			}else if(p=='defItem'){
@@ -1021,6 +1019,8 @@ function(Obj,Template,ViewManager,ModelView,Model){
 		}
 		//开始初始化后，如果是配置，先创建子视图
 		if(!(item instanceof View)){
+			//继承父组件属性
+			
 			//默认子视图配置
 			if(me.defItem){
 				Obj.extend(item,me.defItem,{notCover:true});

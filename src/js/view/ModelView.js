@@ -15,7 +15,7 @@ define('V.ModelView',
 function(Obj,Template,AbstractView,Model,Collection){
 	
 	var ModelView=AbstractView.derive({
-		bindType            : 'both',              //绑定类型，‘el’表示绑定(监听)节点，‘model’表示绑定(监听)模型，‘both’表示双向绑定
+		bindType            : 'both',              //绑定类型，‘el’表示绑定(监听)节点，‘model’表示绑定(监听)模型，‘both’表示双向绑定，‘none’表示不绑定
 //		model               : null,                //模型对象
 //		xmodel              : null,                //执行模板时使用的模型对象，本类中与model属性相同
 //		modelClass          : null,                //模型类
@@ -499,7 +499,8 @@ function(Obj,Template,AbstractView,Model,Collection){
 	 */
 	function fIfBind(nNum,oData,bIsEl){
 		var me=this;
-		if((!bIsEl&&me.bindType=='el')||(bIsEl&&me.bindType=='model')){
+		var sBindType=me.bindType;
+		if(sBindType==='none'||(!bIsEl&&sBindType==='el')||(bIsEl&&sBindType==='model')){
 			return false;
 		}
 		var oNums=bIsEl?me._bindElNums:me._bindModelNums;
@@ -559,10 +560,13 @@ function(Obj,Template,AbstractView,Model,Collection){
 	 * @return {string} 返回包装好的html
 	 */
 	function fWrapMetaMorph(nId,sHtml){
-		var sStart='<script id="metamorph-';
-		var sEnd='" type="text/x-placeholder"></script>';
 		sHtml=sHtml===undefined?'':sHtml;
-		return sStart+nId+'-start'+sEnd+sHtml+sStart+nId+'-end'+sEnd;
+		if(this.bindType!=='none'){
+			var sStart='<script id="metamorph-';
+			var sEnd='" type="text/x-placeholder"></script>';
+			sHtml=sStart+nId+'-start'+sEnd+sHtml+sStart+nId+'-end'+sEnd;
+		}
+	    return sHtml;
 	}
 	/**
 	 * 读取配置属性

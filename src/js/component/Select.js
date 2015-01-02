@@ -43,7 +43,7 @@ function(Browser,Obj,AC){
 			renderTo    : "body"              //子组件须设置renderTo才会自动render
 		},
 		
-		_customEvents   : ['change'],
+		_customEvents   : {change:1},
 		tmpl            : [
 			'<div {{bindAttr class="#hui-btn #hui-btn-gray iconPosCls"}}>',
 				'<span class="hui-icon hui-alt-icon hui-icon-carat-d hui-light"></span>',

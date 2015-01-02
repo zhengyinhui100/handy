@@ -59,6 +59,7 @@ function(Obj,Util,AC,Popup,ControlGroup){
 			Obj.extend(me,{
 				showPos:{
 					left:'50%',
+					marginLeft:'-1em',
 					top:Util.em2px(0.625)
 				},
 				clickHide:false,

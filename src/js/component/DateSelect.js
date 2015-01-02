@@ -44,7 +44,7 @@ function(Obj,Date,AC,DatePicker){
 		},
 //		date            : null,               //初始时间，Date对象，默认是当前(Date.now()，默认分钟数清零)
 //		formator        : 'yyyy-MM-dd HH:mm', //格式因子
-		_customEvents   : ['change','confirm'],
+		_customEvents   : {change:1,confirm:1},
 		
 		tmpl            : [
 			'<div {{bindAttr class="#hui-btn #hui-btn-gray iconPosCls"}}>',
