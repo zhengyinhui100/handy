@@ -20,20 +20,15 @@ function(Util,Obj,Date,AC,Draggable){
 		xConfig     : {
 			cls             : 'mlist',
 			isEmpty         : false,             //列表是否为空
-			emptyTips       : '暂无',            //空列表提示
+			emptyTips       : '暂无',             //空列表提示
 			pdTxt           : '',                //下拉刷新提示文字
 			pdComment       : '上次刷新时间：',    //下拉刷新附加说明
 			pdTime          : '',                //上次刷新时间
 			hasMoreBtn      : true,              //是否有获取更多按钮
 			moreBtnTxt      : '查看更多',         //查看更多按钮的文字 
-			showBtnIfEmpty  : false,              //空列表时是否显示更多按钮，默认不显示
-			hasPullRefresh  : false,              //是否有下拉刷新
-			showMoreBtn     : {
-				depends : ['isEmpty','showBtnIfEmpty'],
-				parse   : function(){
-					return this.get('showBtnIfEmpty')||!this.get('isEmpty');
-				}
-			}
+			showBtnLimit    : 15,                //要显示更多按钮的最小行数
+			hasPullRefresh  : false,             //是否有下拉刷新
+			showMoreBtn     : false              //是否显示更多按钮
 		},
 		
 		pullTxt             : '下拉可刷新',       //下拉过程提示文字
@@ -102,7 +97,8 @@ function(Util,Obj,Date,AC,Draggable){
 		var oListItems=me.model;
 		if(oListItems.size()==0){
 			me.set('isEmpty',true);
-		}else{
+		}
+		if(!oListItems.fetching){
 			me.loadMore();
 		}
 		if(oListItems.fetching){
@@ -242,6 +238,9 @@ function(Util,Obj,Date,AC,Draggable){
 	function fAddListItem(oListItem,nIndex){
 		var me=this;
 		me.set('isEmpty',false);
+		if(me.model.size()===me.get('showBtnLimit')){
+			me.set('showMoreBtn',true);
+		}
 		if(nIndex===undefined){
 			nIndex=me.model.indexOf(oListItem);
 			//可能有缓存数据没有加载到视图中

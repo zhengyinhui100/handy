@@ -229,6 +229,7 @@ function(Browser,Obj,Class,ViewManager,AbstractEvents){
 			//TODO 暂时在这里统一转换移动事件
 			if(Browser.mobile()&&oEl.tap){
 				var oMap={
+					//tap事件待优化，用户点击有时会触发不了，如：点击时长比较长又有点滑动的情况
 					//'click'    : 'tap',
 					'dblclick' : 'doubleTap'
 				}

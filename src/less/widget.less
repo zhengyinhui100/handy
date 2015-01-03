@@ -1191,6 +1191,24 @@
 		text-align:center;
 		padding:2em 0;
 	}
+	.hui-list-item{
+		position:relative;
+		border-bottom:1px solid #d5d6d7;
+	}
+}
+.hui-pc .hui-list .hui-list-item{
+	&:hover,&:active{
+		background:#fbfaf8;
+	}
+}
+
+//模型列表
+.hui-mlist{
+	position:relative;
+	&.hui-mlist-padding{
+		padding-left:0.625em;
+		padding-right:0.625em;
+	}
 	.hui-list-pulldown{
 		padding:0.5em 0;
 		.hui-icon{
@@ -1234,38 +1252,20 @@
 			margin-top:-0.5em;
 		}
 	}
-	.hui-list-more{
-		text-align:center;
-		padding-bottom:1.25em;
-		.hui-btn{
-			margin-bottom:0;
-			width:9.375em;
-		}
-	}
-	.hui-list-item{
-		position:relative;
-		border-bottom:1px solid #d5d6d7;
-	}
-}
-.hui-pc .hui-list .hui-list-item{
-	&:hover,&:active{
-		background:#fbfaf8;
-	}
-}
-
-//模型列表
-.hui-mlist{
-	position:relative;
-	&.hui-mlist-padding{
-		padding-left:0.625em;
-		padding-right:0.625em;
-	}
 	.hui-list-inner{
 		width:100%;
 		min-height:100%;
 		position:absolute;
 		top:0;
 		left:0;
+		padding-bottom:3em;
+	}
+	.hui-list-more{
+		text-align:center;
+		.hui-btn{
+			width:9.375em;
+			margin-top:2em;
+		}
 	}
 }
 
