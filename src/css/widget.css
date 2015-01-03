@@ -1201,9 +1201,7 @@
 }
 .hui-tips.hui-size-mini {
   padding: 0.188em 0.5em;
-}
-.hui-tips.hui-size-mini .hui-tips-txt {
-  font-size: 0.75em;
+  font-size: 1em;
 }
 .hui-tips-notxt {
   padding: 0;

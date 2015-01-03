@@ -34,7 +34,8 @@ function(Obj,Template,AbstractView,Model,Collection){
 		get                 : fGet,                //获取配置属性
     	set                 : fSet,                //设置配置属性
 		update              : fUpdate,             //更新数据
-		getXmodel           : fGetXmodel           //获取配置对象
+		getXmodel           : fGetXmodel,          //获取配置对象
+		destroy             : fDestroy             //销毁
 	});
 	
 	//注册自定义辅助函数
@@ -595,6 +596,21 @@ function(Obj,Template,AbstractView,Model,Collection){
 	 */
 	function fGetXmodel(){
 		return this.xmodel;
+	}
+	/**
+	 * 销毁
+	 * @method destroy
+	 * @return {boolean=} 成功返回true，失败返回false，如果之前已经销毁返回空
+	 */
+	function fDestroy(){
+		var me=this;
+		if(me.destroyed){
+			return;
+		}
+		delete me.model;
+		delete me.xmodel;
+		me.callSuper();
+		return true;
 	}
 	
 	return ModelView;

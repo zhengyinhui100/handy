@@ -68,7 +68,11 @@ function(Obj,Template,ViewManager,ModelView,Model){
 				value?this.disable():this.enable();
 			}
 		},
-		//TODO 首字母大写以便区分事件监听还是函数？
+		//可继承属性列表，以下属性，子组件默认会继承父组件
+		_inheritAttrs       : {
+			bindType:1,bindRefType:1,model:1
+		},
+		//TODO 首字母大写以便区分事件监听还是函数？还是函数以on开头命名
 		_customEvents       : {                  //自定义事件,可以通过参数属性的方式直接进行添加
 			beforeRender:1,render:1,afterRender:1,
 			beforeShow:1,show:1,afterShow:1,
@@ -1019,8 +1023,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 		}
 		//开始初始化后，如果是配置，先创建子视图
 		if(!(item instanceof View)){
-			//继承父组件属性
-			
 			//默认子视图配置
 			if(me.defItem){
 				Obj.extend(item,me.defItem,{notCover:true});
@@ -1029,6 +1031,14 @@ function(Obj,Template,ViewManager,ModelView,Model){
 			me.parseItem(item);
 			var Item=me.manager.getClass(item.xtype);
 			if(Item){
+				//继承父组件属性
+				var oInherit=me._inheritAttrs;
+				for(var k in oInherit){
+					//子类里只有当前原型里的属性有优先级，继承的原型链里无优先级
+					if(item[k]===undefined&&!Item.prototype.hasOwnProperty(k)){
+						item[k]=me[k];
+					}
+				}
 				var renderTo=item.renderTo;
 				//父组件未初始化，不能通过>选择器render
 				if(!me.inited&&Obj.isStr(renderTo)&&renderTo.indexOf('>')==0){
@@ -1269,6 +1279,7 @@ function(Obj,Template,ViewManager,ModelView,Model){
 		delete me._listeners;
 		delete me.html;
 		delete me.xmodel;
+		delete me.model;
 		delete me.children;
 		me.afterDestroy();
 		return true;

@@ -84,7 +84,7 @@ function(Func) {
 			theme:'error'
 		});
 	}
-
+	
 	return Geolocation;
 
 });

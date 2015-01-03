@@ -229,7 +229,7 @@ function(Browser,Obj,Class,ViewManager,AbstractEvents){
 			//TODO 暂时在这里统一转换移动事件
 			if(Browser.mobile()&&oEl.tap){
 				var oMap={
-					'click'    : 'tap',
+					//'click'    : 'tap',
 					'dblclick' : 'doubleTap'
 				}
 				sName=oMap[sName]||sName;
