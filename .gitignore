@@ -2,7 +2,8 @@
 .ftppass
 src/.DS_Store
 node_modules/*
-build/*
+# build/*会导致后面的失效，应该是新版github的bug
+build/**/**
 !build/css/handy.css
 !build/css/handy.min.css
 !build/js/handy.js

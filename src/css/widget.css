@@ -1350,7 +1350,7 @@
 .hui-mlist {
   position: relative;
 }
-.hui-mlist.hui-mlist-padding {
+.hui-mlist.hui-mlist-padding .hui-list-inner {
   padding-left: 0.625em;
   padding-right: 0.625em;
 }

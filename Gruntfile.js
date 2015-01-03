@@ -114,6 +114,7 @@ module.exports = function(grunt) {
 					
 					'src/js/util/ImgCompress.js',
 					
+					'src/js/effect/Animate.js',
 					'src/js/effect/Draggable.js',
 					
 					'src/js/common/AbstractEvents.js',
