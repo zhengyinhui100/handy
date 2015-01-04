@@ -158,7 +158,7 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 					oContEl.removeClass('hui-ani-100');
 					Animate.slide(oContEl[0]);
 					var oBrotherEl=me.brotherEl;
-					oBrotherEl.style.left='0px';
+					oBrotherEl&&(oBrotherEl.style.left='0px');
 				}
 			})
 		}
