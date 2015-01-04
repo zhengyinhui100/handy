@@ -2658,9 +2658,11 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   position: relative;
   border-bottom: 1px solid #d5d6d7;
 }
-.hui-pc .hui-list .hui-list-item:hover,
-.hui-pc .hui-list .hui-list-item:active {
+.hui-pc .hui-list .hui-list-item:hover {
   background: #fbfaf8;
+}
+.hui-mobile .hui-list .hui-list-item:active {
+  background: #73bf00;
 }
 .hui-mlist {
   position: relative;
