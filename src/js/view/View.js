@@ -832,15 +832,18 @@ function(Obj,Template,ViewManager,ModelView,Model){
 		sSel=sSel.replace(/^\.([^\s,\[]+)/,'[cClass=$1]');
 		//'Button[attr=value]'=>'[xtype=Button][attr=value]'
 		sSel=sSel.replace(/^([^\[]+)/,'[xtype=$1]');
+		var _fGet=function(prop){
+			return oObj.get?oObj.get(prop):oObj[prop];
+		}
 		//循环检查
 		var r=/\[(\!?[^=|\!]+)(=|\!=)?([^=]*)?\]/g;
 		while(m=r.exec(sSel)){
 			prop=m[1];
-			viewVal=oObj.get?oObj.get(prop):oObj[prop];
 			//操作符：=|!=
 			op=m[2];
 			//三目运算
 			if(op){
+				viewVal=_fGet(prop);
 				value=m[3];
 				if(value==='false'){
 					value=false;
@@ -856,6 +859,7 @@ function(Obj,Template,ViewManager,ModelView,Model){
 				}
 			}else{
 				//简略表达式，如：!val、val
+				viewVal=_fGet(prop.replace('!',''));
 				if((prop.indexOf('!')==0&&viewVal)||(prop.indexOf('!')<0&&!viewVal)){
 					return false;
 				}
