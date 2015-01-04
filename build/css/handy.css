@@ -687,6 +687,27 @@ html .hui-alt-icon .hui-btn.hui-checkbox-on {
 .hui-chkbox-on.hui-icon-chkbox {
   background-image: url('data:image/svg+xml;charset=utf-8,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C%21--%20Generator%3A%20Adobe%20Illustrator%2017.0.0%2C%20SVG%20Export%20Plug-In%20.%20SVG%20Version%3A%206.00%20Build%200%29%20%20--%3E%0D%0A%3C%21DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22%E5%9B%BE%E5%B1%82_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2216px%22%20height%3D%2216px%22%20viewBox%3D%220%200%2016%2016%22%20enable-background%3D%22new%200%200%2016%2016%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M16%2C14c0%2C1.105-0.895%2C2-2%2C2H2c-1.105%2C0-2-0.895-2-2V2c0-1.105%2C0.895-2%2C2-2h12c1.105%2C0%2C2%2C0.895%2C2%2C2V14z%22%2F%3E%0D%0A%3Cpolygon%20fill%3D%22%23FFFFFF%22%20points%3D%2214.264%2C10.84%2014.264%2C10.84%2014.42%2C10.84%2014.42%2C10.84%2014.42%2C10.84%2014.42%2C10.84%2014.264%2C10.84%20%0D%0A%0914.264%2C10.84%20%22%2F%3E%0D%0A%3Cpath%20fill%3D%22%2336638F%22%20d%3D%22M16%2C14c0%2C1.105-0.895%2C2-2%2C2H2c-1.105%2C0-2-0.895-2-2V2c0-1.105%2C0.895-2%2C2-2h12c1.105%2C0%2C2%2C0.895%2C2%2C2V14z%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23FFFFFF%22%20stroke-width%3D%223%22%20stroke-miterlimit%3D%2210%22%20x1%3D%2213.054%22%20y1%3D%223.142%22%20x2%3D%226.276%22%20y2%3D%229.959%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23FFFFFF%22%20stroke-width%3D%223%22%20stroke-miterlimit%3D%2210%22%20x1%3D%222.688%22%20y1%3D%226.842%22%20x2%3D%227.105%22%20y2%3D%2211.258%22%2F%3E%0D%0A%3C%2Fsvg%3E');
 }
+.hui-chkbox-on.hui-chkbox-green .hui-icon-chkbox,
+.hui-chkbox-on.hui-chkbox-green.hui-icon-chkbox {
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNy4wLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IuWbvuWxgl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCINCgkgd2lkdGg9IjE2cHgiIGhlaWdodD0iMTZweCIgdmlld0JveD0iMCAwIDE2IDE2IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxNiAxNiIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQo8cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNMTYsMTRjMCwxLjEwNS0wLjg5NSwyLTIsMkgyYy0xLjEwNSwwLTItMC44OTUtMi0yVjJjMC0xLjEwNSwwLjg5NS0yLDItMmgxMmMxLjEwNSwwLDIsMC44OTUsMiwyVjE0eiIvPg0KPHBvbHlnb24gZmlsbD0iI0ZGRkZGRiIgcG9pbnRzPSIxNC4yNjQsMTAuODQgMTQuMjY0LDEwLjg0IDE0LjQyLDEwLjg0IDE0LjQyLDEwLjg0IDE0LjQyLDEwLjg0IDE0LjQyLDEwLjg0IDE0LjI2NCwxMC44NCANCgkxNC4yNjQsMTAuODQgIi8+DQo8cGF0aCBmaWxsPSIjMjRCNDREIiBkPSJNMTYsMTRjMCwxLjEwNS0wLjg5NSwyLTIsMkgyYy0xLjEwNSwwLTItMC44OTUtMi0yVjJjMC0xLjEwNSwwLjg5NS0yLDItMmgxMmMxLjEwNSwwLDIsMC44OTUsMiwyVjE0eiIvPg0KPGxpbmUgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgeDE9IjEzLjA1NCIgeTE9IjMuMTQyIiB4Mj0iNi4yNzYiIHkyPSI5Ljk1OSIvPg0KPGxpbmUgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgeDE9IjIuNjg4IiB5MT0iNi44NDIiIHgyPSI3LjEwNSIgeTI9IjExLjI1OCIvPg0KPC9zdmc+DQo=');
+}
+.hui-mi-no-svg .hui-icon-radio {
+  background-image: url(../img/icons-png/radio-off.png);
+}
+.hui-mi-no-svg .hui-radio-on .hui-icon-radio {
+  background-image: url(../img/icons-png/radio-on.png);
+}
+.hui-mi-no-svg .hui-icon-chkbox {
+  background-image: url(../img/icons-png/checkbox-off.png);
+}
+.hui-mi-no-svg .hui-chkbox-on .hui-icon-chkbox,
+.hui-mi-no-svg .hui-chkbox-on.hui-icon-chkbox {
+  background-image: url(../img/icons-png/checkbox-on.png);
+}
+.hui-mi-no-svg .hui-chkbox-on.hui-chkbox-green .hui-icon-chkbox,
+.hui-mi-no-svg .hui-chkbox-on.hui-chkbox-green.hui-icon-chkbox {
+  background-image: url(../img/icons-png/checkbox-on-green.png);
+}
 /* PNG icons */
 .hui-mi-no-svg .hui-icon-action {
   background-image: url(../img/icons-png/action-white.png);
@@ -1253,19 +1274,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-mi-no-svg .hui-btn-active-c .hui-icon-gear {
   background-image: url('../img/icons-png/gear-green.png');
 }
-.hui-mi-no-svg .hui-icon-radio {
-  background-image: url(../img/icons-png/radio-off.png);
-}
-.hui-mi-no-svg .hui-radio-on .hui-icon-radio {
-  background-image: url(../img/icons-png/radio-on.png);
-}
-.hui-mi-no-svg .hui-icon-chkbox {
-  background-image: url(../img/icons-png/checkbox-off.png);
-}
-.hui-mi-no-svg .hui-chkbox-on .hui-icon-chkbox,
-.hui-mi-no-svg .hui-chkbox-on.hui-icon-chkbox {
-  background-image: url(../img/icons-png/checkbox-on.png);
-}
 .hui-mi-no-csstransforms .hui-icon-loading {
   background-image: url(../img/loading.gif);
 }
@@ -1406,12 +1414,13 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   -ms-user-select: none;
   user-select: none;
 }
-.hui-btn:hover {
-  font-weight: bold;
-}
 .hui-btn .hui-btn-ext {
   color: #D10000;
   font-weight: normal;
+}
+.hui-pc .hui-btn:hover,
+.hui-mobile .hui-btn:active {
+  font-weight: bold;
 }
 .hui-btn-mark {
   display: none;
@@ -1438,7 +1447,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   background: #fff;
   color: #666;
 }
-.hui-btn-white:hover {
+.hui-pc .hui-btn-white:hover,
+.hui-mobile .hui-btn-white:active {
   border: 1px solid #bbb ;
   background: #eee ;
   color: #666 ;
@@ -1448,7 +1458,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   background: #f9f9f9;
   color: #666;
 }
-.hui-btn-gray:hover {
+.hui-pc .hui-btn-gray:hover,
+.hui-mobile .hui-btn-gray:active {
   border: 1px solid #bbb ;
   background: #eee ;
   color: #666 ;
@@ -1466,7 +1477,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   /* Opera 11.10+ */
   background-image: linear-gradient(#ffffff, #f1f1f1);
 }
-.hui-btn-gray.hui-gradient:hover {
+.hui-pc .hui-btn-gray.hui-gradient:hover,
+.hui-mobile .hui-btn-gray.hui-gradient:active {
   background-image: -webkit-gradient(linear, left top, left bottom, from(#f6f6f6), to(#e0e0e0));
   /* old webkit,Saf4+, Chrome */
   background-image: -webkit-linear-gradient(#f6f6f6, #e0e0e0);
@@ -1483,7 +1495,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   background: #444;
   color: #fff;
 }
-.hui-btn-dark:hover {
+.hui-pc .hui-btn-dark:hover,
+.hui-mobile .hui-btn-dark:active {
   background: #333;
 }
 .hui-btn-black {
@@ -1491,7 +1504,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   background: #333;
   color: #fff;
 }
-.hui-btn-black:hover {
+.hui-pc .hui-btn-black:hover,
+.hui-mobile .hui-btn-black:active {
   border: 1px solid #000;
   background: #444;
   font-weight: bold;
@@ -1510,7 +1524,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   /* Opera 11.10+ */
   background-image: linear-gradient(#444444, #2d2d2d);
 }
-.hui-btn-black.hui-gradient:hover {
+.hui-pc .hui-btn-black.hui-gradient:hover,
+.hui-mobile .hui-btn-black.hui-gradient:active {
   background-image: -webkit-gradient(linear, left top, left bottom, from(#555555), to(#383838));
   /* old webkit,Saf4+, Chrome */
   background-image: -webkit-linear-gradient(#555555, #383838);
@@ -1528,7 +1543,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   background: #396b9e;
   color: #fff;
 }
-.hui-btn-blue:hover {
+.hui-pc .hui-btn-blue:hover,
+.hui-mobile .hui-btn-blue:active {
   border: 1px solid #00415e ;
   background: #4b88b6;
   font-weight: bold;
@@ -1547,7 +1563,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   /* Opera 11.10+ */
   background-image: linear-gradient(#5f9cc5, #396b9e);
 }
-.hui-btn-blue.hui-gradient:hover {
+.hui-pc .hui-btn-blue.hui-gradient:hover,
+.hui-mobile .hui-btn-blue.hui-gradient:active {
   background-image: -webkit-gradient(linear, left top, left bottom, from(#6facd5), to(#4272a4));
   /* old webkit,Saf4+, Chrome */
   background-image: -webkit-linear-gradient(#6facd5, #4272a4);
@@ -1565,7 +1582,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   background: #1fa745;
   color: #fff;
 }
-.hui-btn-green:hover {
+.hui-pc .hui-btn-green:hover,
+.hui-mobile .hui-btn-green:active {
   border: 1px solid #37AD2D ;
   background: #24B44D;
   font-weight: bold;
@@ -1584,7 +1602,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   /* Opera 11.10+ */
   background-image: linear-gradient(#0fe978, #1fa745);
 }
-.hui-btn-green.hui-gradient:hover {
+.hui-pc .hui-btn-green.hui-gradient:hover,
+.hui-mobile .hui-btn-green.hui-gradient:active {
   background-image: -webkit-gradient(linear, left top, left bottom, from(#34e589), to(#24b44d));
   /* old webkit,Saf4+, Chrome */
   background-image: -webkit-linear-gradient(#34e589, #24b44d);
@@ -1628,12 +1647,19 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   color: #548805;
 }
 .hui-btn.hui-btn-active-b,
-.hui-btn.hui-btn-active-b:hover {
-  padding-bottom: 0.25em;
+.hui-pc .hui-btn.hui-btn-active-b:hover,
+.hui-mobile .hui-btn.hui-btn-active-b:active {
+  padding-bottom: 0.313em;
   border-bottom: 0.188em solid #73bf00;
 }
+.hui-btn.hui-btn-active-c,
+.hui-pc .hui-btn.hui-btn-active-c:hover,
+.hui-mobile .hui-btn.hui-btn-active-c:active {
+  color: #73bf00;
+}
 .hui-btn.hui-btn-active-c .hui-icon-bg,
-.hui-btn.hui-btn-active-c:hover .hui-icon-bg {
+.hui-pc .hui-btn.hui-btn-active-c:hover .hui-icon-bg,
+.hui-mobile .hui-btn.hui-btn-active-c:active .hui-icon-bg {
   background-color: #73bf00;
 }
 .hui-btn-black.hui-btn-active-c {
@@ -1864,7 +1890,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   height: 100%;
   border: none;
 }
-.hui-btn-adapt:hover {
+.hui-pc .hui-btn-adapt:hover,
+.hui-mobile .hui-btn-adapt:active {
   border: none;
 }
 .hui-image {
@@ -2429,9 +2456,16 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-tab .hui-tabitem.hui-item-last .hui-btn {
   border-right-width: 1px;
 }
+.hui-tab .hui-tab-contents {
+  position: absolute;
+  top: 2.125em;
+  bottom: 0;
+  width: 100%;
+}
 .hui-tab .hui-tab-content {
   position: absolute;
   width: 100%;
+  height: 100%;
 }
 .hui-tab .hui-ani {
   -moz-transition: left 0.1s linear;
@@ -2630,8 +2664,9 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-mlist {
   position: relative;
+  height: 100%;
 }
-.hui-mlist.hui-mlist-padding {
+.hui-mlist.hui-mlist-padding .hui-list-inner {
   padding-left: 0.625em;
   padding-right: 0.625em;
 }

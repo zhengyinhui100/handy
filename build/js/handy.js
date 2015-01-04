@@ -7860,7 +7860,7 @@ function(Browser,Obj,Class,ViewManager,AbstractEvents){
 			if(Browser.mobile()&&oEl.tap){
 				var oMap={
 					//tap事件待优化，用户点击有时会触发不了，如：点击时长比较长又有点滑动的情况
-					//'click'    : 'tap',
+					'click'    : 'tap',
 					'dblclick' : 'doubleTap'
 				}
 				sName=oMap[sName]||sName;
@@ -12679,6 +12679,7 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 		//初始配置
 		xConfig         : {
 			cls         : 'tab',
+			hasContent  : true,         //是否有内容
 			direction   : 'h'
 //			theme       : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
 		},
@@ -12695,9 +12696,11 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 				'<div class="hui-tab-titles js-titles c-clear">',
 					'{{placeItem > TabItem}}',
 				'</div>',
-				'<div class="hui-tab-contents js-contents">',
-					'{{placeItem > TabItem > [xrole=content]}}',
-				'</div>',
+				'{{#if hasContent}}',
+					'<div class="hui-tab-contents js-contents">',
+						'{{placeItem > TabItem > [xrole=content]}}',
+					'</div>',
+				'{{/if}}',
 			'</div>'
 		].join(''),
 		
@@ -12705,8 +12708,7 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 		parseItem       : fParseItem,          //分析处理子组件 
 		getLayoutItems  : fGetLayoutItems,     //获取布局子元素
 		getSelectedItem : fGetSelectedItem,    //获取当前选中的TabItem组件
-		setTabContent   : fSetTabContent,      //设置标签页内容
-		selectItem      : fSelectItem          //选中/取消选中
+		setTabContent   : fSetTabContent       //设置标签页内容
 	});
 	
 	/**
@@ -12717,7 +12719,7 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 		var me=this;
 		me.callSuper();
 		if(me.slidable&&Animate.support3d()){
-			var sContSel='.js-tab-content';
+			var sContSel='.js-contents';
 			var oContEl;
 			me.listen({
 				name:'afterRender',
@@ -12735,11 +12737,11 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 					var oEl=oEvt.currentTarget;
 					oEvt = oEvt.originalEvent||oEvt;
 					me.contentWidth=oEl.clientWidth;
+					me.selIndex=me.getSelected(true);
 					oEvt = oEvt.touches[0];
 					me.startX=oEvt.clientX;
 					me.startY=oEvt.clientY;
 					me.delX=0;
-					oContEl.removeClass('hui-ani-100');
 				}
 			});
 			me.listen({
@@ -12747,7 +12749,6 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 				selector:sContSel,
 				method:'delegate',
 				handler:function(oEvt){
-					var oEl=oEvt.currentTarget;
 					oEvt = oEvt.originalEvent||oEvt;
 					oTouch = oEvt.touches[0];
 					var x=oTouch.clientX;
@@ -12758,19 +12759,21 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 					if(Math.abs(nDelX)>Math.abs(nDelY*5/4)){
 						//TODO 不阻止默认事件的话，touchend不会触发，而是触发touchcancel
 					    oEvt.preventDefault();
-						var nIndex=me.getSelected(true);
+						var nIndex=me.selIndex;
 						//第一项不能向右滑动，最后一项不能向左滑动
 						if(nIndex===0&&nDelX>0||nIndex===me.children.length-1&&nDelX<0){
 							return;
 						}
-						var oBrother=me.children[nDelX>0?nIndex-1:nIndex+1];
 						me.delX=nDelX;
 						var nWidth=me.contentWidth;
-						var oBrotherCmp=me.brotherCmp=oBrother.contentCmp;
-						oBrother=me.brotherEl=oBrotherCmp.getEl()[0];
-						Animate.slide(oBrother,{x:(nDelX>0?nDelX-nWidth:nWidth+nDelX)});
-						oBrotherCmp.show();
-						Animate.slide(oEl,{x:nDelX});
+						if(!me._sliding){
+							me._sliding=true;
+							var oBrotherCmp=me.brotherCmp=me.children[nDelX>0?nIndex-1:nIndex+1].contentCmp;
+							var oBrotherEl=me.brotherEl=oBrotherCmp.getEl()[0];
+							oBrotherEl.style.left=(nDelX>0?-nWidth:nWidth)+'px';
+							oBrotherCmp.show();
+						}
+						Animate.slide(oContEl[0],{x:nDelX});
 					}
 				}
 			});
@@ -12779,7 +12782,7 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 				selector:sContSel,
 				method:'delegate',
 				handler:function(oEvt){
-					var oEl=oEvt.currentTarget;
+					me._sliding=false;
 					oEvt = oEvt.originalEvent||oEvt;
 					var nWidth=me.contentWidth;
 					var nMin=nWidth/4;
@@ -12789,29 +12792,34 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 					var bChange=nTime<500&&Math.abs(nDelX)>20;
 					var nIndex=me.getSelected(true);
 					oContEl.addClass('hui-ani-100');
-					me.animating=true;
-					setTimeout(function(){
-						me.animating=false;
-					},150);
-					var oBrother=me.brotherEl;
+					me._slideIndex=null;
 					if(nDelX>nMin||bChange&&nDelX>0){
 						//向右滑动
-						Animate.slide(oEl,{x:nWidth});
-						Animate.slide(oBrother);
-						me.onItemSelect(nIndex-1);
+						Animate.slide(oContEl[0],{x:nWidth});
+						me._slideIndex=nIndex-1;
 					}else if(nDelX<-nMin||bChange&&nDelX<0){
 						//向左滑动
-						Animate.slide(oEl,{x:-nWidth});
-						Animate.slide(oBrother);
-						me.onItemSelect(nIndex+1);
+						Animate.slide(oContEl[0],{x:-nWidth});
+						me._slideIndex=nIndex+1;
 					}else if(nDelX!==0){
 						//移动距离很短，恢复原样
-						Animate.slide(oEl);
-						Animate.slide(oBrother);
+						Animate.slide(oContEl[0]);
 						me.brotherCmp.hide();
 					}
 				}
 			});
+			me.listen({
+				name:'webkitTransitionEnd',
+				el:oContEl,
+				handler:function(){
+					var nIndex=me._slideIndex;
+					nIndex>=0&&me.onItemSelect(nIndex);
+					oContEl.removeClass('hui-ani-100');
+					Animate.slide(oContEl[0]);
+					var oBrotherEl=me.brotherEl;
+					oBrotherEl.style.left='0px';
+				}
+			})
 		}
 	}
 	/**
@@ -12852,23 +12860,6 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 		var me=this;
 		nIndex=nIndex||me.getSelected(true);
 		me.findEl('.js-tab-content').index(nIndex).html(sContent);
-	}
-	/**
-	 * 选中/取消选中
-	 * @param {Component}oItem 要操作的组件
-	 * @param {boolean=}bSelect 仅当为false时表示移除选中效果
-	 */
-	function fSelectItem(oItem,bSelect){
-		var me=this;
-		bSelect=bSelect!=false;
-		//动画过程中创建dom节点会卡，这里延迟选中（选中事件中伴有初始化组件操作）
-		if(me.animating){
-			setTimeout(function(){
-				ControlGroup.prototype.selectItem.call(me,oItem,bSelect);
-			},150);
-		}else{
-			me.callSuper();
-		}
 	}
 	
 	return Tab;
