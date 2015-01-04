@@ -360,7 +360,7 @@
 .hui-btn.hui-btn-active-b,
 .hui-pc .hui-btn.hui-btn-active-b:hover,
 .hui-mobile .hui-btn.hui-btn-active-b:active {
-  padding-bottom: 0.25em;
+  padding-bottom: 0.313em;
   border-bottom: 0.188em solid #73bf00;
 }
 .hui-btn.hui-btn-active-c .hui-icon-bg,
@@ -1162,9 +1162,16 @@ hui-pc .hui-btn.hui-btn-active-c:hover .hui-icon-bg,
 .hui-tab .hui-tabitem.hui-item-last .hui-btn {
   border-right-width: 1px;
 }
+.hui-tab .hui-tab-contents {
+  position: absolute;
+  top: 2.125em;
+  bottom: 0;
+  width: 100%;
+}
 .hui-tab .hui-tab-content {
   position: absolute;
   width: 100%;
+  height: 100%;
 }
 .hui-tab .hui-ani {
   -moz-transition: left 0.1s linear;
@@ -1363,6 +1370,7 @@ hui-pc .hui-btn.hui-btn-active-c:hover .hui-icon-bg,
 }
 .hui-mlist {
   position: relative;
+  height: 100%;
 }
 .hui-mlist.hui-mlist-padding .hui-list-inner {
   padding-left: 0.625em;
