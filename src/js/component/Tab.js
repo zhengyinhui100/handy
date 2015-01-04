@@ -20,6 +20,7 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 		//初始配置
 		xConfig         : {
 			cls         : 'tab',
+			hasContent  : true,         //是否有内容
 			direction   : 'h'
 //			theme       : null,         //null:正常边框，"noborder":无边框，"border-top":仅有上边框
 		},
@@ -36,9 +37,11 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 				'<div class="hui-tab-titles js-titles c-clear">',
 					'{{placeItem > TabItem}}',
 				'</div>',
-				'<div class="hui-tab-contents js-contents">',
-					'{{placeItem > TabItem > [xrole=content]}}',
-				'</div>',
+				'{{#if hasContent}}',
+					'<div class="hui-tab-contents js-contents">',
+						'{{placeItem > TabItem > [xrole=content]}}',
+					'</div>',
+				'{{/if}}',
 			'</div>'
 		].join(''),
 		
