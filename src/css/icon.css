@@ -367,6 +367,27 @@ html .hui-alt-icon .hui-btn.hui-checkbox-on {
 .hui-chkbox-on.hui-icon-chkbox {
   background-image: url('data:image/svg+xml;charset=utf-8,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0D%0A%3C%21--%20Generator%3A%20Adobe%20Illustrator%2017.0.0%2C%20SVG%20Export%20Plug-In%20.%20SVG%20Version%3A%206.00%20Build%200%29%20%20--%3E%0D%0A%3C%21DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%0D%0A%3Csvg%20version%3D%221.1%22%20id%3D%22%E5%9B%BE%E5%B1%82_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%0D%0A%09%20width%3D%2216px%22%20height%3D%2216px%22%20viewBox%3D%220%200%2016%2016%22%20enable-background%3D%22new%200%200%2016%2016%22%20xml%3Aspace%3D%22preserve%22%3E%0D%0A%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M16%2C14c0%2C1.105-0.895%2C2-2%2C2H2c-1.105%2C0-2-0.895-2-2V2c0-1.105%2C0.895-2%2C2-2h12c1.105%2C0%2C2%2C0.895%2C2%2C2V14z%22%2F%3E%0D%0A%3Cpolygon%20fill%3D%22%23FFFFFF%22%20points%3D%2214.264%2C10.84%2014.264%2C10.84%2014.42%2C10.84%2014.42%2C10.84%2014.42%2C10.84%2014.42%2C10.84%2014.264%2C10.84%20%0D%0A%0914.264%2C10.84%20%22%2F%3E%0D%0A%3Cpath%20fill%3D%22%2336638F%22%20d%3D%22M16%2C14c0%2C1.105-0.895%2C2-2%2C2H2c-1.105%2C0-2-0.895-2-2V2c0-1.105%2C0.895-2%2C2-2h12c1.105%2C0%2C2%2C0.895%2C2%2C2V14z%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23FFFFFF%22%20stroke-width%3D%223%22%20stroke-miterlimit%3D%2210%22%20x1%3D%2213.054%22%20y1%3D%223.142%22%20x2%3D%226.276%22%20y2%3D%229.959%22%2F%3E%0D%0A%3Cline%20fill%3D%22none%22%20stroke%3D%22%23FFFFFF%22%20stroke-width%3D%223%22%20stroke-miterlimit%3D%2210%22%20x1%3D%222.688%22%20y1%3D%226.842%22%20x2%3D%227.105%22%20y2%3D%2211.258%22%2F%3E%0D%0A%3C%2Fsvg%3E');
 }
+.hui-chkbox-on.hui-chkbox-green .hui-icon-chkbox,
+.hui-chkbox-on.hui-chkbox-green.hui-icon-chkbox {
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNy4wLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IuWbvuWxgl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCINCgkgd2lkdGg9IjE2cHgiIGhlaWdodD0iMTZweCIgdmlld0JveD0iMCAwIDE2IDE2IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxNiAxNiIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQo8cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNMTYsMTRjMCwxLjEwNS0wLjg5NSwyLTIsMkgyYy0xLjEwNSwwLTItMC44OTUtMi0yVjJjMC0xLjEwNSwwLjg5NS0yLDItMmgxMmMxLjEwNSwwLDIsMC44OTUsMiwyVjE0eiIvPg0KPHBvbHlnb24gZmlsbD0iI0ZGRkZGRiIgcG9pbnRzPSIxNC4yNjQsMTAuODQgMTQuMjY0LDEwLjg0IDE0LjQyLDEwLjg0IDE0LjQyLDEwLjg0IDE0LjQyLDEwLjg0IDE0LjQyLDEwLjg0IDE0LjI2NCwxMC44NCANCgkxNC4yNjQsMTAuODQgIi8+DQo8cGF0aCBmaWxsPSIjMjRCNDREIiBkPSJNMTYsMTRjMCwxLjEwNS0wLjg5NSwyLTIsMkgyYy0xLjEwNSwwLTItMC44OTUtMi0yVjJjMC0xLjEwNSwwLjg5NS0yLDItMmgxMmMxLjEwNSwwLDIsMC44OTUsMiwyVjE0eiIvPg0KPGxpbmUgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgeDE9IjEzLjA1NCIgeTE9IjMuMTQyIiB4Mj0iNi4yNzYiIHkyPSI5Ljk1OSIvPg0KPGxpbmUgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgeDE9IjIuNjg4IiB5MT0iNi44NDIiIHgyPSI3LjEwNSIgeTI9IjExLjI1OCIvPg0KPC9zdmc+DQo=');
+}
+.hui-mi-no-svg .hui-icon-radio {
+  background-image: url(../img/icons-png/radio-off.png);
+}
+.hui-mi-no-svg .hui-radio-on .hui-icon-radio {
+  background-image: url(../img/icons-png/radio-on.png);
+}
+.hui-mi-no-svg .hui-icon-chkbox {
+  background-image: url(../img/icons-png/checkbox-off.png);
+}
+.hui-mi-no-svg .hui-chkbox-on .hui-icon-chkbox,
+.hui-mi-no-svg .hui-chkbox-on.hui-icon-chkbox {
+  background-image: url(../img/icons-png/checkbox-on.png);
+}
+.hui-mi-no-svg .hui-chkbox-on.hui-chkbox-green .hui-icon-chkbox,
+.hui-mi-no-svg .hui-chkbox-on.hui-chkbox-green.hui-icon-chkbox {
+  background-image: url(../img/icons-png/checkbox-on-green.png);
+}
 /* PNG icons */
 .hui-mi-no-svg .hui-icon-action {
   background-image: url(../img/icons-png/action-white.png);
@@ -932,19 +953,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-mi-no-svg .hui-btn-active-c .hui-icon-gear {
   background-image: url('../img/icons-png/gear-green.png');
-}
-.hui-mi-no-svg .hui-icon-radio {
-  background-image: url(../img/icons-png/radio-off.png);
-}
-.hui-mi-no-svg .hui-radio-on .hui-icon-radio {
-  background-image: url(../img/icons-png/radio-on.png);
-}
-.hui-mi-no-svg .hui-icon-chkbox {
-  background-image: url(../img/icons-png/checkbox-off.png);
-}
-.hui-mi-no-svg .hui-chkbox-on .hui-icon-chkbox,
-.hui-mi-no-svg .hui-chkbox-on.hui-icon-chkbox {
-  background-image: url(../img/icons-png/checkbox-on.png);
 }
 .hui-mi-no-csstransforms .hui-icon-loading {
   background-image: url(../img/loading.gif);

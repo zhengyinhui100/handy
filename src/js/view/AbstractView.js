@@ -230,7 +230,7 @@ function(Browser,Obj,Class,ViewManager,AbstractEvents){
 			if(Browser.mobile()&&oEl.tap){
 				var oMap={
 					//tap事件待优化，用户点击有时会触发不了，如：点击时长比较长又有点滑动的情况
-					//'click'    : 'tap',
+					'click'    : 'tap',
 					'dblclick' : 'doubleTap'
 				}
 				sName=oMap[sName]||sName;

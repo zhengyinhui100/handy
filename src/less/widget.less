@@ -96,13 +96,14 @@
 	//border: 1px solid #ccc;
 	zoom:1;
 	.fn_user_select();
-	&:hover{
-		font-weight: bold;
-	}
 	.hui-btn-ext{
 		color:#D10000;
 		font-weight:normal;
 	}
+}
+//移动设备上使用hover有时手指离开屏幕后hover效果不会消失
+.hui-pc .hui-btn:hover,.hui-mobile .hui-btn:active{
+	font-weight: bold;
 }
 //按钮标记
 .hui-btn-mark{
@@ -132,91 +133,90 @@
 	border: 1px solid #ccc;
 	background: #fff;
 	color: #666;
-	&:hover{
-		border: 1px solid #bbb ;
-		background: #eee ;
-		color: #666 ;
-	}
+}
+.hui-pc .hui-btn-white:hover,.hui-mobile .hui-btn-white:active{
+	border: 1px solid #bbb ;
+	background: #eee ;
+	color: #666 ;
 }
 //灰色按钮
 .hui-btn-gray{
 	border: 1px solid #ccc;
 	background: #f9f9f9;
 	color: #666;
-	&:hover{
-		border: 1px solid #bbb ;
-		background: #eee ;
-		color: #666 ;
-	}
+}
+.hui-pc .hui-btn-gray:hover,.hui-mobile .hui-btn-gray:active{
+	border: 1px solid #bbb ;
+	background: #eee ;
+	color: #666 ;
 }
 .hui-btn-gray.hui-gradient{
 	.fn_linear_gradient_top(#fff,#f1f1f1);
-	&:hover{
-		.fn_linear_gradient_top(#f6f6f6,#e0e0e0);
-	}
+}
+.hui-pc .hui-btn-gray.hui-gradient:hover,.hui-mobile .hui-btn-gray.hui-gradient:active{
+	.fn_linear_gradient_top(#f6f6f6,#e0e0e0);
 }
 //深灰色按钮，一般用于工具栏
 .hui-btn-dark{
 	background: #444;
 	color: #fff;
-	&:hover{
-		background: #333;
-	}
+}
+.hui-pc .hui-btn-dark:hover,.hui-mobile .hui-btn-dark:active{
+	background: #333;
 }
 //黑色按钮
 .hui-btn-black{
 	border: 1px solid #111;
 	background: #333;
 	color: #fff;
-	&:hover{
-		border: 1px solid #000;
-		background: #444;
-		font-weight: bold;
-		color: #fff;
-	}
-	
+}
+.hui-pc .hui-btn-black:hover,.hui-mobile .hui-btn-black:active{
+	border: 1px solid #000;
+	background: #444;
+	font-weight: bold;
+	color: #fff;
 }
 .hui-btn-black.hui-gradient{
 	.fn_linear_gradient_top(#444,#2d2d2d);
-	&:hover{
-		.fn_linear_gradient_top(#555,#383838);
-	}
+}
+.hui-pc .hui-btn-black.hui-gradient:hover,.hui-mobile .hui-btn-black.hui-gradient:active{
+	.fn_linear_gradient_top(#555,#383838);
 }
 //蓝色按钮
 .hui-btn-blue{
 	border: 1px solid #044062;
 	background: #396b9e;
 	color: #fff;
-	&:hover{
-		border: 1px solid #00415e ;
-		background: #4b88b6;
-		font-weight: bold;
-		color: #fff;
-	}
+}
+.hui-pc .hui-btn-blue:hover,.hui-mobile .hui-btn-blue:active{
+	border: 1px solid #00415e ;
+	background: #4b88b6;
+	font-weight: bold;
+	color: #fff;
 }
 .hui-btn-blue.hui-gradient{
 	.fn_linear_gradient_top(#5f9cc5,#396b9e);
-	&:hover{
-		.fn_linear_gradient_top(#6facd5,#4272a4);
-	}
+}
+.hui-pc .hui-btn-blue.hui-gradient:hover,.hui-mobile .hui-btn-blue.hui-gradient:active{
+	.fn_linear_gradient_top(#6facd5,#4272a4);
 }
 //绿色按钮
 .hui-btn-green{
 	border: 1px solid #37AD2D;
 	background: #1fa745;
 	color: #fff;
-	&:hover{
-		border: 1px solid #37AD2D ;
-		background: #24B44D;
-		font-weight: bold;
-		color: #fff;
-	}
+}
+.hui-pc .hui-btn-green:hover,.hui-mobile .hui-btn-green:active{
+	border: 1px solid #37AD2D ;
+	background: #24B44D;
+	font-weight: bold;
+	color: #fff;
 }
 .hui-btn-green.hui-gradient{
 	.fn_linear_gradient_top(#0FE978, #1fa745);
-	&:hover{
-		.fn_linear_gradient_top(#34e589,#24B44D);
-	}
+}
+.hui-pc .hui-btn-green.hui-gradient:hover,.hui-mobile .hui-btn-green.hui-gradient:active{
+	.fn_linear_gradient_top(#34e589,#24B44D);
 }
 //激活按钮
 .hui-btn-active {
@@ -234,16 +234,18 @@
 }
 .hui-btn.hui-btn-active-b{
 	color:#548805;
-	&,&:hover{
-		padding-bottom:0.25em;
-		border-bottom:0.188em solid #73bf00;
-	}
 }
-.hui-btn.hui-btn-active-c{
-	&,&:hover{
-		.hui-icon-bg{
-			background-color: #73bf00;
-		}
+.hui-btn.hui-btn-active-b,
+.hui-pc .hui-btn.hui-btn-active-b:hover,
+.hui-mobile .hui-btn.hui-btn-active-b:active{
+	padding-bottom:0.25em;
+	border-bottom:0.188em solid #73bf00;
+}
+.hui-btn.hui-btn-active-c,
+hui-pc .hui-btn.hui-btn-active-c:hover,
+.hui-mobile .hui-btn.hui-btn-active-c:active{
+	.hui-icon-bg{
+		background-color: #73bf00;
 	}
 }
 .hui-btn-black.hui-btn-active-c{
@@ -454,9 +456,9 @@
 .hui-btn-adapt{
 	height:100%;
 	border:none;
-	&:hover{
-		border:none;
-	}
+}
+.hui-pc .hui-btn-adapt:hover,.hui-mobile .hui-btn-adapt:active{
+	border:none;
 }
 
 //图片类
@@ -1199,6 +1201,7 @@
 .hui-pc .hui-list .hui-list-item{
 	&:hover,&:active{
 		background:#fbfaf8;
+		//background:#d0d0d0;
 	}
 }
 

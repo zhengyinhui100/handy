@@ -125,12 +125,13 @@
   -ms-user-select: none;
   user-select: none;
 }
-.hui-btn:hover {
-  font-weight: bold;
-}
 .hui-btn .hui-btn-ext {
   color: #D10000;
   font-weight: normal;
+}
+.hui-pc .hui-btn:hover,
+.hui-mobile .hui-btn:active {
+  font-weight: bold;
 }
 .hui-btn-mark {
   display: none;
@@ -157,7 +158,8 @@
   background: #fff;
   color: #666;
 }
-.hui-btn-white:hover {
+.hui-pc .hui-btn-white:hover,
+.hui-mobile .hui-btn-white:active {
   border: 1px solid #bbb ;
   background: #eee ;
   color: #666 ;
@@ -167,7 +169,8 @@
   background: #f9f9f9;
   color: #666;
 }
-.hui-btn-gray:hover {
+.hui-pc .hui-btn-gray:hover,
+.hui-mobile .hui-btn-gray:active {
   border: 1px solid #bbb ;
   background: #eee ;
   color: #666 ;
@@ -185,7 +188,8 @@
   /* Opera 11.10+ */
   background-image: linear-gradient(#ffffff, #f1f1f1);
 }
-.hui-btn-gray.hui-gradient:hover {
+.hui-pc .hui-btn-gray.hui-gradient:hover,
+.hui-mobile .hui-btn-gray.hui-gradient:active {
   background-image: -webkit-gradient(linear, left top, left bottom, from(#f6f6f6), to(#e0e0e0));
   /* old webkit,Saf4+, Chrome */
   background-image: -webkit-linear-gradient(#f6f6f6, #e0e0e0);
@@ -202,7 +206,8 @@
   background: #444;
   color: #fff;
 }
-.hui-btn-dark:hover {
+.hui-pc .hui-btn-dark:hover,
+.hui-mobile .hui-btn-dark:active {
   background: #333;
 }
 .hui-btn-black {
@@ -210,7 +215,8 @@
   background: #333;
   color: #fff;
 }
-.hui-btn-black:hover {
+.hui-pc .hui-btn-black:hover,
+.hui-mobile .hui-btn-black:active {
   border: 1px solid #000;
   background: #444;
   font-weight: bold;
@@ -229,7 +235,8 @@
   /* Opera 11.10+ */
   background-image: linear-gradient(#444444, #2d2d2d);
 }
-.hui-btn-black.hui-gradient:hover {
+.hui-pc .hui-btn-black.hui-gradient:hover,
+.hui-mobile .hui-btn-black.hui-gradient:active {
   background-image: -webkit-gradient(linear, left top, left bottom, from(#555555), to(#383838));
   /* old webkit,Saf4+, Chrome */
   background-image: -webkit-linear-gradient(#555555, #383838);
@@ -247,7 +254,8 @@
   background: #396b9e;
   color: #fff;
 }
-.hui-btn-blue:hover {
+.hui-pc .hui-btn-blue:hover,
+.hui-mobile .hui-btn-blue:active {
   border: 1px solid #00415e ;
   background: #4b88b6;
   font-weight: bold;
@@ -266,7 +274,8 @@
   /* Opera 11.10+ */
   background-image: linear-gradient(#5f9cc5, #396b9e);
 }
-.hui-btn-blue.hui-gradient:hover {
+.hui-pc .hui-btn-blue.hui-gradient:hover,
+.hui-mobile .hui-btn-blue.hui-gradient:active {
   background-image: -webkit-gradient(linear, left top, left bottom, from(#6facd5), to(#4272a4));
   /* old webkit,Saf4+, Chrome */
   background-image: -webkit-linear-gradient(#6facd5, #4272a4);
@@ -284,7 +293,8 @@
   background: #1fa745;
   color: #fff;
 }
-.hui-btn-green:hover {
+.hui-pc .hui-btn-green:hover,
+.hui-mobile .hui-btn-green:active {
   border: 1px solid #37AD2D ;
   background: #24B44D;
   font-weight: bold;
@@ -303,7 +313,8 @@
   /* Opera 11.10+ */
   background-image: linear-gradient(#0fe978, #1fa745);
 }
-.hui-btn-green.hui-gradient:hover {
+.hui-pc .hui-btn-green.hui-gradient:hover,
+.hui-mobile .hui-btn-green.hui-gradient:active {
   background-image: -webkit-gradient(linear, left top, left bottom, from(#34e589), to(#24b44d));
   /* old webkit,Saf4+, Chrome */
   background-image: -webkit-linear-gradient(#34e589, #24b44d);
@@ -347,12 +358,14 @@
   color: #548805;
 }
 .hui-btn.hui-btn-active-b,
-.hui-btn.hui-btn-active-b:hover {
+.hui-pc .hui-btn.hui-btn-active-b:hover,
+.hui-mobile .hui-btn.hui-btn-active-b:active {
   padding-bottom: 0.25em;
   border-bottom: 0.188em solid #73bf00;
 }
 .hui-btn.hui-btn-active-c .hui-icon-bg,
-.hui-btn.hui-btn-active-c:hover .hui-icon-bg {
+hui-pc .hui-btn.hui-btn-active-c:hover .hui-icon-bg,
+.hui-mobile .hui-btn.hui-btn-active-c:active .hui-icon-bg {
   background-color: #73bf00;
 }
 .hui-btn-black.hui-btn-active-c {
@@ -583,7 +596,8 @@
   height: 100%;
   border: none;
 }
-.hui-btn-adapt:hover {
+.hui-pc .hui-btn-adapt:hover,
+.hui-mobile .hui-btn-adapt:active {
   border: none;
 }
 .hui-image {
