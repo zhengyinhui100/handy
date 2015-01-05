@@ -221,11 +221,22 @@ function(Browser,Obj,Class,ViewManager,AbstractEvents){
 				sMethod=oEvent.method||"bind",
 				sSel=oEvent.selector,
 				oData=oEvent.data,
-				fFunc=oEvent.delegation=me._delegateHandler(fHandler,context);
+				nDelay=oEvent.delay;
+				
 			if(Obj.isFunc(oEl)){
 				oEl=oEl.call(me);
 			}
 			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
+			//mclick，延迟50ms执行click回调，这里主要是为了避免click事件太快执行而看不到active效果，
+			//不过这里延迟的话有个副作用，就是currentTarget会随着事件冒泡改变到最终为null，解决的办法只能
+			//是以后自己实现tap事件，并延迟触发事件
+			if(sName==='mclick'){
+				sName='click';
+				if(!Browser.mobile()&&nDelay===undefined){
+					nDelay=30;
+				}
+			}
+			var fFunc=oEvent.delegation=me._delegateHandler(fHandler,context,nDelay);
 			//TODO 暂时在这里统一转换移动事件
 			if(Browser.mobile()&&oEl.tap){
 				var oMap={

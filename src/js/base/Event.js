@@ -70,12 +70,19 @@ define('B.Event','B.Object',function(Obj){
 	 * @param {*=}context 事件函数执行上下文，默认是this
 	 * @return {Function} 返回代理函数
 	 */
-	function _fDelegateHandler(fHandler,context){
+	function _fDelegateHandler(fHandler,context,nDelay){
 		var me=this;
 		return function(evt){
 			//只屏蔽浏览器事件及自定义事件，模型事件不用屏蔽
 			if(me.isSuspend!=true||(typeof evt==='string'&&evt.indexOf(':')>0)){
-				return fHandler.apply(context||me,arguments);
+				if(nDelay===undefined){
+					return fHandler.apply(context||me,arguments);
+				}else{
+					var aArgs=arguments;
+					setTimeout(function(){
+						fHandler.apply(context||me,aArgs);
+					},nDelay)
+				}
 			}
 		};
 	}
