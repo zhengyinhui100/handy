@@ -62,6 +62,7 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 		if(me.slidable&&Animate.support3d()){
 			var sContSel='.js-contents';
 			var oContEl;
+			var sAniCls='hui-ani-100';
 			me.listen({
 				name:'afterRender',
 				custom:true,
@@ -110,8 +111,8 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 						if(!me._sliding){
 							me._sliding=true;
 							var oBrotherCmp=me.brotherCmp=me.children[nDelX>0?nIndex-1:nIndex+1].contentCmp;
-							var oBrotherEl=me.brotherEl=oBrotherCmp.getEl()[0];
-							oBrotherEl.style.left=(nDelX>0?-nWidth:nWidth)+'px';
+							var oBrotherEl=me.brotherEl=oBrotherCmp.getEl();
+							oBrotherEl[0].style.left=(nDelX>0?-nWidth:nWidth)+'px';
 							oBrotherCmp.show();
 						}
 						Animate.slide(oContEl[0],{x:nDelX});
@@ -132,20 +133,24 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 					var nSpeed=nDelX/nTime;
 					var bChange=nTime<500&&Math.abs(nDelX)>20;
 					var nIndex=me.getSelected(true);
-					oContEl.addClass('hui-ani-100');
+					oContEl.addClass(sAniCls);
 					me._slideIndex=null;
+					var nOffset;
 					if(nDelX>nMin||bChange&&nDelX>0){
 						//向右滑动
-						Animate.slide(oContEl[0],{x:nWidth});
+						nOffset=nWidth;
 						me._slideIndex=nIndex-1;
 					}else if(nDelX<-nMin||bChange&&nDelX<0){
 						//向左滑动
-						Animate.slide(oContEl[0],{x:-nWidth});
+						nOffset=-nWidth;
 						me._slideIndex=nIndex+1;
 					}else if(nDelX!==0){
 						//移动距离很短，恢复原样
 						Animate.slide(oContEl[0]);
 						me.brotherCmp.hide();
+					}
+					if(nOffset){
+						Animate.slide(oContEl[0],{x:nOffset});
 					}
 				}
 			});
@@ -155,10 +160,12 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 				handler:function(){
 					var nIndex=me._slideIndex;
 					nIndex>=0&&me.onItemSelect(nIndex);
-					oContEl.removeClass('hui-ani-100');
+					oContEl.removeClass(sAniCls);
 					Animate.slide(oContEl[0]);
 					var oBrotherEl=me.brotherEl;
-					oBrotherEl&&(oBrotherEl.style.left='0px');
+					if(oBrotherEl){
+						oBrotherEl[0].style.left='0px';
+					}
 				}
 			})
 		}
