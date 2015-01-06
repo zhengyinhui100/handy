@@ -2218,12 +2218,19 @@ define('B.Event','B.Object',function(Obj){
 	 * @param {*=}context 事件函数执行上下文，默认是this
 	 * @return {Function} 返回代理函数
 	 */
-	function _fDelegateHandler(fHandler,context){
+	function _fDelegateHandler(fHandler,context,nDelay){
 		var me=this;
 		return function(evt){
 			//只屏蔽浏览器事件及自定义事件，模型事件不用屏蔽
 			if(me.isSuspend!=true||(typeof evt==='string'&&evt.indexOf(':')>0)){
-				return fHandler.apply(context||me,arguments);
+				if(nDelay===undefined){
+					return fHandler.apply(context||me,arguments);
+				}else{
+					var aArgs=arguments;
+					setTimeout(function(){
+						fHandler.apply(context||me,aArgs);
+					},nDelay)
+				}
 			}
 		};
 	}
@@ -4381,11 +4388,14 @@ define('B.Support','L.Browser',function(Browser){
 	
 	var Support={
 //		testSvg               : fTestSvg          //检查是否支持svg
+		perf                  : fPerf,            //返回设备性能等级，用于移动设备，分为'low'，'middle'，'high'
 		testPerf              : fTestPerf,        //测试硬件性能
 		ifSupportStyle        : fIfSupportStyle,  //检测样式是否支持
 		mediaQuery            : fMediaQuery       //检查设备并添加class
 	}
 	
+	var _oDoc=document;
+	var _perf;
 	Support.mediaQuery();
 	
 //	var _supportSvg; //标记是否支持svg
@@ -4393,7 +4403,7 @@ define('B.Support','L.Browser',function(Browser){
 	//解决IE6下css背景图不缓存bug
 	if(Browser.ie()==6){   
 	    try{   
-	        document.execCommand("BackgroundImageCache", false, true);   
+	        _oDoc.execCommand("BackgroundImageCache", false, true);   
 	    }catch(e){}   
 	}  
 	/**
@@ -4410,7 +4420,7 @@ define('B.Support','L.Browser',function(Browser){
 		// Thanks Modernizr & Erik Dahlstrom
 		var w = window,
 		//opera 通过createElementNS方式检测的确不准
-			bSvg = !!w.document.createElementNS && !!w.document.createElementNS( "http://www.w3.org/2000/svg", "svg" ).createSVGRect && !( w.opera && navigator.userAgent.indexOf( "Chrome" ) === -1 ),
+			bSvg = !!w._oDoc.createElementNS && !!w._oDoc.createElementNS( "http://www.w3.org/2000/svg", "svg" ).createSVGRect && !( w.opera && navigator.userAgent.indexOf( "Chrome" ) === -1 ),
 			support = function( data ) {
 				if ( !( data && bSvg ) ) {
 					_supportSvg=false;
@@ -4430,7 +4440,25 @@ define('B.Support','L.Browser',function(Browser){
 		img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
 	}
 	*/
-	
+	/**
+	 * 返回设备性能等级，用于移动设备，分为'low'，'middle'，'high'
+	 * @return {string} low表示低性能设备，middle表示中等设备，high表示高性能设备
+	 */
+	function fPerf(){
+		if(_perf){
+			return _perf;
+		}
+		var nScreenWidth=Math.max(_oDoc.body?_oDoc.body.clientWidth:0,window.screen.width);
+		var sAndVersion=Browser.android();
+		if(Browser.ios()||nScreenWidth>600||(sAndVersion>4.2&&nScreenWidth>500)){
+			_perf= 'high';
+		}else if(sAndVersion>=4&&nScreenWidth>450){
+			_perf= 'middle';
+		}else{
+			_perf= 'low';
+		}
+		return _perf;
+	}
 	//TODO
 	/**
 	 * 测试硬件性能
@@ -4450,7 +4478,7 @@ define('B.Support','L.Browser',function(Browser){
 	 * @return{boolean} false表示不支持，如果支持，返回对应的样式名（可能有前缀）
 	 */
 	function fIfSupportStyle(sName,sValue){
-		var oEl = document.createElement('div');
+		var oEl = _oDoc.createElement('div');
 		var sProp;
 		if(sName in oEl.style){
 			sProp=sName;
@@ -4504,7 +4532,7 @@ define('B.Support','L.Browser',function(Browser){
 		if(Browser.tablet()){
 			sCls+=' hui-tablet';
 		}
-		document.documentElement.className+=" "+sCls+" hui";
+		_oDoc.documentElement.className+=" "+sCls+" hui";
 	}
 	
 	return Support;
@@ -7662,7 +7690,7 @@ function(Browser,Obj,Class,ViewManager,AbstractEvents){
 //		_container          : null,              //试图对象容器节点
 //		rendered            : false,             //是否已渲染
 //      listened            : false,             //是否已初始化事件
-//		_listeners          : [],                //实例事件池
+//		_listeners          : [],                //实例事件池(listen后存储在此，用于unlisten)
 		
 		_parseListenEvents  : _fParseListenEvents,  //处理对象类型或者空格相隔的多事件
 				
@@ -7713,7 +7741,7 @@ function(Browser,Obj,Class,ViewManager,AbstractEvents){
 		oParams=oParams||{};
 		me.callSuper();
 		me._listeners=[];
-		me.listeners=Obj.clone(me.listeners);
+		me.listeners=me.listeners.slice(0);
 		//注册视图管理
 		me.manager=me.constructor.manager||Class.getSingleton(ViewManager);
 		//注册视图，各继承类自行实现
@@ -7851,11 +7879,22 @@ function(Browser,Obj,Class,ViewManager,AbstractEvents){
 				sMethod=oEvent.method||"bind",
 				sSel=oEvent.selector,
 				oData=oEvent.data,
-				fFunc=oEvent.delegation=me._delegateHandler(fHandler,context);
+				nDelay=oEvent.delay;
+				
 			if(Obj.isFunc(oEl)){
 				oEl=oEl.call(me);
 			}
 			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
+			//mclick，延迟50ms执行click回调，这里主要是为了避免click事件太快执行而看不到active效果，
+			//不过这里延迟的话有个副作用，就是currentTarget会随着事件冒泡改变到最终为null，解决的办法只能
+			//是以后自己实现tap事件，并延迟触发事件
+			if(sName==='mclick'){
+				sName='click';
+				if(!Browser.mobile()&&nDelay===undefined){
+					nDelay=50;
+				}
+			}
+			var fFunc=oEvent.delegation=me._delegateHandler(fHandler,context,nDelay);
 			//TODO 暂时在这里统一转换移动事件
 			if(Browser.mobile()&&oEl.tap){
 				var oMap={
@@ -8903,7 +8942,7 @@ function(Obj,Template,ViewManager,ModelView,Model){
 			}else if(p=='defItem'){
 				me[p]=Obj.extend(me[p],val);
 				return true;
-			}else if(p=='listener'){
+			}else if(p=='listeners'){
 				me.listeners=me.listeners.concat(Obj.isArr(val)?val:[val]);
 				return true;
 			}else if(p=='items'){
@@ -12725,6 +12764,7 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 		if(me.slidable&&Animate.support3d()){
 			var sContSel='.js-contents';
 			var oContEl;
+			var sAniCls='hui-ani-100';
 			me.listen({
 				name:'afterRender',
 				custom:true,
@@ -12773,8 +12813,8 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 						if(!me._sliding){
 							me._sliding=true;
 							var oBrotherCmp=me.brotherCmp=me.children[nDelX>0?nIndex-1:nIndex+1].contentCmp;
-							var oBrotherEl=me.brotherEl=oBrotherCmp.getEl()[0];
-							oBrotherEl.style.left=(nDelX>0?-nWidth:nWidth)+'px';
+							var oBrotherEl=me.brotherEl=oBrotherCmp.getEl();
+							oBrotherEl[0].style.left=(nDelX>0?-nWidth:nWidth)+'px';
 							oBrotherCmp.show();
 						}
 						Animate.slide(oContEl[0],{x:nDelX});
@@ -12795,20 +12835,24 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 					var nSpeed=nDelX/nTime;
 					var bChange=nTime<500&&Math.abs(nDelX)>20;
 					var nIndex=me.getSelected(true);
-					oContEl.addClass('hui-ani-100');
+					oContEl.addClass(sAniCls);
 					me._slideIndex=null;
+					var nOffset;
 					if(nDelX>nMin||bChange&&nDelX>0){
 						//向右滑动
-						Animate.slide(oContEl[0],{x:nWidth});
+						nOffset=nWidth;
 						me._slideIndex=nIndex-1;
 					}else if(nDelX<-nMin||bChange&&nDelX<0){
 						//向左滑动
-						Animate.slide(oContEl[0],{x:-nWidth});
+						nOffset=-nWidth;
 						me._slideIndex=nIndex+1;
 					}else if(nDelX!==0){
 						//移动距离很短，恢复原样
 						Animate.slide(oContEl[0]);
 						me.brotherCmp.hide();
+					}
+					if(nOffset){
+						Animate.slide(oContEl[0],{x:nOffset});
 					}
 				}
 			});
@@ -12818,10 +12862,12 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 				handler:function(){
 					var nIndex=me._slideIndex;
 					nIndex>=0&&me.onItemSelect(nIndex);
-					oContEl.removeClass('hui-ani-100');
+					oContEl.removeClass(sAniCls);
 					Animate.slide(oContEl[0]);
 					var oBrotherEl=me.brotherEl;
-					oBrotherEl&&(oBrotherEl.style.left='0px');
+					if(oBrotherEl){
+						oBrotherEl[0].style.left='0px';
+					}
 				}
 			})
 		}
@@ -15373,13 +15419,13 @@ function(AC){
 			name:'mouseover',
 			el:'.js-header',
 			handler:function(oEvt){
-				$(oEvt.currentTarget).addClass('hui-hover');
+				$(oEvt.currentTarget).addClass('hui-header-hover');
 			}
 		},{
 			name:'mouseout',
 			el:'.js-header',
 			handler:function(oEvt){
-				$(oEvt.currentTarget).removeClass('hui-hover');
+				$(oEvt.currentTarget).removeClass('hui-header-hover');
 			}
 		},{
 			name:'click',
