@@ -303,7 +303,7 @@ function(Obj,Template,ViewManager,ModelView,Model){
 			}else if(p=='defItem'){
 				me[p]=Obj.extend(me[p],val);
 				return true;
-			}else if(p=='listener'){
+			}else if(p=='listeners'){
 				me.listeners=me.listeners.concat(Obj.isArr(val)?val:[val]);
 				return true;
 			}else if(p=='items'){
