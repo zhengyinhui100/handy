@@ -28,13 +28,13 @@ function(AC){
 			name:'mouseover',
 			el:'.js-header',
 			handler:function(oEvt){
-				$(oEvt.currentTarget).addClass('hui-hover');
+				$(oEvt.currentTarget).addClass('hui-header-hover');
 			}
 		},{
 			name:'mouseout',
 			el:'.js-header',
 			handler:function(oEvt){
-				$(oEvt.currentTarget).removeClass('hui-hover');
+				$(oEvt.currentTarget).removeClass('hui-header-hover');
 			}
 		},{
 			name:'click',

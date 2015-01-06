@@ -32,7 +32,7 @@ function(Browser,Obj,Class,ViewManager,AbstractEvents){
 //		_container          : null,              //试图对象容器节点
 //		rendered            : false,             //是否已渲染
 //      listened            : false,             //是否已初始化事件
-//		_listeners          : [],                //实例事件池
+//		_listeners          : [],                //实例事件池(listen后存储在此，用于unlisten)
 		
 		_parseListenEvents  : _fParseListenEvents,  //处理对象类型或者空格相隔的多事件
 				
@@ -83,7 +83,7 @@ function(Browser,Obj,Class,ViewManager,AbstractEvents){
 		oParams=oParams||{};
 		me.callSuper();
 		me._listeners=[];
-		me.listeners=Obj.clone(me.listeners);
+		me.listeners=me.listeners.slice(0);
 		//注册视图管理
 		me.manager=me.constructor.manager||Class.getSingleton(ViewManager);
 		//注册视图，各继承类自行实现
