@@ -7,11 +7,14 @@ define('B.Support','L.Browser',function(Browser){
 	
 	var Support={
 //		testSvg               : fTestSvg          //检查是否支持svg
+		perf                  : fPerf,            //返回设备性能等级，用于移动设备，分为'low'，'middle'，'high'
 		testPerf              : fTestPerf,        //测试硬件性能
 		ifSupportStyle        : fIfSupportStyle,  //检测样式是否支持
 		mediaQuery            : fMediaQuery       //检查设备并添加class
 	}
 	
+	var _oDoc=document;
+	var _perf;
 	Support.mediaQuery();
 	
 //	var _supportSvg; //标记是否支持svg
@@ -19,7 +22,7 @@ define('B.Support','L.Browser',function(Browser){
 	//解决IE6下css背景图不缓存bug
 	if(Browser.ie()==6){   
 	    try{   
-	        document.execCommand("BackgroundImageCache", false, true);   
+	        _oDoc.execCommand("BackgroundImageCache", false, true);   
 	    }catch(e){}   
 	}  
 	/**
@@ -36,7 +39,7 @@ define('B.Support','L.Browser',function(Browser){
 		// Thanks Modernizr & Erik Dahlstrom
 		var w = window,
 		//opera 通过createElementNS方式检测的确不准
-			bSvg = !!w.document.createElementNS && !!w.document.createElementNS( "http://www.w3.org/2000/svg", "svg" ).createSVGRect && !( w.opera && navigator.userAgent.indexOf( "Chrome" ) === -1 ),
+			bSvg = !!w._oDoc.createElementNS && !!w._oDoc.createElementNS( "http://www.w3.org/2000/svg", "svg" ).createSVGRect && !( w.opera && navigator.userAgent.indexOf( "Chrome" ) === -1 ),
 			support = function( data ) {
 				if ( !( data && bSvg ) ) {
 					_supportSvg=false;
@@ -56,7 +59,25 @@ define('B.Support','L.Browser',function(Browser){
 		img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
 	}
 	*/
-	
+	/**
+	 * 返回设备性能等级，用于移动设备，分为'low'，'middle'，'high'
+	 * @return {string} low表示低性能设备，middle表示中等设备，high表示高性能设备
+	 */
+	function fPerf(){
+		if(_perf){
+			return _perf;
+		}
+		var nScreenWidth=Math.max(_oDoc.body?_oDoc.body.clientWidth:0,window.screen.width);
+		var sAndVersion=Browser.android();
+		if(Browser.ios()||nScreenWidth>600||(sAndVersion>4.2&&nScreenWidth>500)){
+			_perf= 'high';
+		}else if(sAndVersion>=4&&nScreenWidth>450){
+			_perf= 'middle';
+		}else{
+			_perf= 'low';
+		}
+		return _perf;
+	}
 	//TODO
 	/**
 	 * 测试硬件性能
@@ -76,7 +97,7 @@ define('B.Support','L.Browser',function(Browser){
 	 * @return{boolean} false表示不支持，如果支持，返回对应的样式名（可能有前缀）
 	 */
 	function fIfSupportStyle(sName,sValue){
-		var oEl = document.createElement('div');
+		var oEl = _oDoc.createElement('div');
 		var sProp;
 		if(sName in oEl.style){
 			sProp=sName;
@@ -130,7 +151,7 @@ define('B.Support','L.Browser',function(Browser){
 		if(Browser.tablet()){
 			sCls+=' hui-tablet';
 		}
-		document.documentElement.className+=" "+sCls+" hui";
+		_oDoc.documentElement.className+=" "+sCls+" hui";
 	}
 	
 	return Support;
