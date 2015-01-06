@@ -780,6 +780,16 @@
 		padding:0.375em 0.563em 0.375em 0.375em;
 	}
 }
+.hui-pc .hui-rowitem{
+	&:hover{
+		.hui-hover-bg();
+	}
+}
+.hui-mobile .hui-rowitem{
+	&:active{
+		.hui-active-bg();
+	}
+}
 //域，左右两边的结构
 .hui-field{
 	position:relative;
@@ -838,6 +848,16 @@
 	padding-left:6em;
 	.hui-field-left{
 		width:6em;
+	}
+}
+.hui-pc .hui-field{
+	&:hover{
+		.hui-hover-bg();
+	}
+}
+.hui-mobile .hui-field{
+	&:active{
+		.hui-active-bg();
 	}
 }
 //普通表单
@@ -1206,14 +1226,14 @@
 		border-bottom:1px solid #d5d6d7;
 	}
 }
-.hui-pc .hui-list .hui-list-item{
+.hui-pc .hui-list-item{
 	&:hover{
-		background:#fbfaf8;
+		.hui-hover-bg();
 	}
 }
-.hui-mobile .hui-list .hui-list-item{
+.hui-mobile .hui-list-item{
 	&:active{
-		background:#e8e8e8;
+		.hui-active-bg();
 	}
 }
 
@@ -1683,7 +1703,7 @@
 	overflow:hidden;
 	.hui-picard-header{
 		position:relative;
-		&.hui-hover .hui-header-op{
+		&.hui-header-hover .hui-header-op{
 			display:block;
 		}
 	}
@@ -1828,7 +1848,6 @@
 		}
 	}
 }
-
 //公用效果
 //边框
 .hui-border{
@@ -1843,6 +1862,23 @@
 }
 .hui-unvisible{
 	visibility:hidden;
+}
+//hover和active效果
+.hui-hover-bg{
+	background:#f5f5f5;
+}
+.hui-active-bg{
+	background:#e8e8e8;
+}
+.hui-pc .hui-has-hover{
+	&:hover{
+		.hui-hover-bg();
+	}
+}
+.hui-mobile .hui-has-hover{
+	&:active{
+		.hui-active-bg();
+	}
 }
 //圆角
 .hui-radius-little{
