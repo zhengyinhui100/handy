@@ -233,7 +233,7 @@ function(Browser,Obj,Class,ViewManager,AbstractEvents){
 			if(sName==='mclick'){
 				sName='click';
 				if(!Browser.mobile()&&nDelay===undefined){
-					nDelay=30;
+					nDelay=50;
 				}
 			}
 			var fFunc=oEvent.delegation=me._delegateHandler(fHandler,context,nDelay);
