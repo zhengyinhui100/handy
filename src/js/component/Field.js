@@ -17,6 +17,7 @@ function(Obj,AC){
 		//初始配置
 		xConfig         : {
 			cls           : 'field',
+			clickable     : false,
 			noPadding     : false     //true表示没有上下间隙
 		},
 //		forName         : '',      //label标签for名字
@@ -29,13 +30,16 @@ function(Obj,AC){
 		},
 		
 		tmpl            : [
-			'<div>',
+			'<div {{bindAttr class="clickable?hui-clickable"}}>',
 				'<div class="hui-field-left">',
 					'{{placeItem > [xrole=title]}}',
 				'</div>',
 				'<div {{bindAttr class="#hui-field-right noPadding?hui-field-nopadding"}}>',
 					'{{placeItem > [xrole=content]}}',
 				'</div>',
+				'{{#if clickable}}',
+					'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情"><span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span></a>',
+				'{{/if}}',
 			'</div>'
 		].join(''),
 		doConfig       : fDoConfig    //初始化配置
@@ -79,6 +83,9 @@ function(Obj,AC){
 		var oSet=$.extend({},oSettings);
 		delete oSet.title;
 		delete oSet.content;
+		if(oSettings.click&&oSettings.clickable===undefined){
+			me.set('clickable',true);
+		}
 		me.callSuper([oSet]);
 	}
 	

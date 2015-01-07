@@ -744,7 +744,6 @@
 .hui-rowitem{
 	position:relative;
 	min-height:2.75em;
-	background-color:#fff;
 	&.hui-rowitem-padding-big{
 		padding:0.75em 0.563em 0.75em 0.375em;
 	}
@@ -780,16 +779,7 @@
 		padding:0.375em 0.563em 0.375em 0.375em;
 	}
 }
-.hui-pc .hui-rowitem{
-	&:hover{
-		.hui-hover-bg();
-	}
-}
-.hui-mobile .hui-rowitem{
-	&:active{
-		.hui-active-bg();
-	}
-}
+
 //域，左右两边的结构
 .hui-field{
 	position:relative;
@@ -848,16 +838,6 @@
 	padding-left:6em;
 	.hui-field-left{
 		width:6em;
-	}
-}
-.hui-pc .hui-field{
-	&:hover{
-		.hui-hover-bg();
-	}
-}
-.hui-mobile .hui-field{
-	&:active{
-		.hui-active-bg();
 	}
 }
 //普通表单
@@ -1205,6 +1185,7 @@
 		//IE(<=10)中，单击浏览按钮可以弹出窗口，双击文本框区域可以弹出窗口；其它主流浏览器中，单击input任何区域都可以弹出窗口；
     	//设置input字体大小，IE、火狐、Opera的浏览按钮都变大了，以此遮盖文本域，达到所有区域都能单击打开浏览的目的。
 		font-size:30em;
+		cursor:pointer;
 		.fn_opacity(0);
 	}
 	img{
@@ -1876,6 +1857,17 @@
 	}
 }
 .hui-mobile .hui-has-hover{
+	&:active{
+		.hui-active-bg();
+	}
+}
+.hui-pc .hui-clickable{
+	cursor:pointer;
+	&:hover{
+		.hui-hover-bg();
+	}
+}
+.hui-mobile .hui-clickable{
 	&:active{
 		.hui-active-bg();
 	}
