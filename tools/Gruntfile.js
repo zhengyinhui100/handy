@@ -69,7 +69,7 @@ module.exports = function(grunt) {
 			ftl:{
 				expand : true,
 				cwd:ftlDir,
-				src : ['config.ftl'],
+				src : ['config.ftl','chkVersion.ftl'],
 				dest :deployDir
 			}
 		},
@@ -181,8 +181,8 @@ module.exports = function(grunt) {
 					'cp -R '+buildVersionDir+' '+deployDir+sVersion+'/'+'<%=pkg.name%>',
 					'cd '+deployDir,
 					'rm -f static.tar.gz',
-					'tar -cvzf static.tar.gz config.ftl '+sVersion,
-					'rm -f config.ftl',
+					'tar -cvzf static.tar.gz config.ftl chkVersion.ftl'+sVersion,
+					'rm -f config.ftl chkVersion.ftl',
 					'rm -rf '+sVersion
 				].join('&&')
 			},

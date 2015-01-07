@@ -1501,7 +1501,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-btn-black {
   border: 1px solid #111;
-  background: #333;
+  background: #2a2a2a;
   color: #fff;
 }
 .hui-pc .hui-btn-black:hover,
@@ -1742,7 +1742,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-mi-csstransforms .hui-btn-back.hui-btn-black:before {
   border-right: 1px solid #111;
   border-bottom: 1px solid #111;
-  background-color: #333;
+  background-color: #2a2a2a;
 }
 .hui-mi-csstransforms .hui-btn-back.hui-btn-black.hui-gradient:before {
   background-image: -webkit-gradient(linear, 0 100%, 100% 0%, from(#444444), to(#2d2d2d));
@@ -2205,7 +2205,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-rowitem {
   position: relative;
   min-height: 2.75em;
-  background-color: #fff;
 }
 .hui-rowitem.hui-rowitem-padding-big {
   padding: 0.75em 0.563em 0.75em 0.375em;
@@ -2213,7 +2212,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-rowitem.hui-rowitem-padding-normal {
   padding: 0.5em 0.563em 0.5em 0.375em;
 }
-.hui-rowitem.hui-rowitem-padding-right {
+.hui-rowitem.hui-rowitem-padding-right,
+.hui-rowitem.hui-clickable {
   padding-right: 1.5em;
 }
 .hui-rowitem .hui-icon {
@@ -2244,12 +2244,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 }
 .hui-rowitem.hui-size-mini {
   padding: 0.375em 0.563em 0.375em 0.375em;
-}
-.hui-pc .hui-rowitem:hover {
-  background: #f5f5f5;
-}
-.hui-mobile .hui-rowitem:active {
-  background: #e8e8e8;
 }
 .hui-field {
   position: relative;
@@ -2317,12 +2311,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-field-5-words .hui-field .hui-field-left {
   width: 6em;
 }
-.hui-pc .hui-field:hover {
-  background: #f5f5f5;
-}
-.hui-mobile .hui-field:active {
-  background: #e8e8e8;
-}
 .hui-form .hui-form-tips {
   text-align: center;
 }
@@ -2370,7 +2358,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   width: 100%;
   min-height: 2.438em;
   font-family: Helvetica, Arial, sans-serif;
-  background: #444;
+  background: #2a2a2a;
   color: #fff;
   font-weight: 700;
 }
@@ -2421,10 +2409,17 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-tbar .hui-btn-adapt {
   padding-top: 0.625em;
   font-size: 1.125em;
+  background: #2a2a2a;
   margin: 0;
 }
 .hui-tbar .hui-tab {
   margin: 0;
+}
+.hui-pc .hui-tbar .hui-btn-adapt:hover {
+  background: #444;
+}
+.hui-mobile .hui-tbar .hui-btn-adapt:active {
+  background: #444;
 }
 .hui-tbar-align-left .hui-tbar-title {
   text-align: left;
@@ -2651,6 +2646,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   right: 0;
   bottom: 0;
   font-size: 30em;
+  cursor: pointer;
   filter: alpha(opacity= 0 );
   opacity: 0;
 }
@@ -2776,7 +2772,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-hcard.hui-hcard-hasimg {
   padding-left: 4.375em;
 }
-.hui-hcard.hui-hcard-padding-right {
+.hui-hcard.hui-hcard-padding-right,
+.hui-hcard.hui-clickable {
   padding-right: 1.5em;
 }
 .hui-hcard .hui-hcard-img {
@@ -3325,6 +3322,15 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-mobile .hui-has-hover:active {
   background: #e8e8e8;
 }
+.hui-pc .hui-clickable {
+  cursor: pointer;
+}
+.hui-pc .hui-clickable:hover {
+  background: #f5f5f5;
+}
+.hui-mobile .hui-clickable:active {
+  background: #e8e8e8;
+}
 .hui-radius-little {
   -webkit-border-radius: 0.188em;
   -moz-border-radius: 0.188em;
@@ -3453,7 +3459,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   -ms-backface-visibility: hidden;
   backface-visibility: hidden;
 }
-.hui .hui-goto-left {
+.hui-goto-left {
   -moz-transition: all 0s linear;
   -webkit-transition: all 0s linear;
   -o-transition: all 0s linear;
@@ -3464,7 +3470,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   -ms-transform: translate3d(-100%, 0, 0);
   transform: translate3d(-100%, 0, 0);
 }
-.hui .hui-goto-right {
+.hui-goto-right {
   -moz-transition: all 0s linear;
   -webkit-transition: all 0s linear;
   -o-transition: all 0s linear;
@@ -3475,7 +3481,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   -ms-transform: translate3d(100%, 0, 0);
   transform: translate3d(100%, 0, 0);
 }
-.hui .hui-slide-center {
+.hui-slide-center {
   -moz-transition: all 0.3s linear;
   -webkit-transition: all 0.3s linear;
   -o-transition: all 0.3s linear;
@@ -3486,7 +3492,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   -ms-transform: translate3d(0, 0, 0);
   transform: translate3d(0, 0, 0);
 }
-.hui .hui-slide-left {
+.hui-slide-left {
   -moz-transition: all 0.3s linear;
   -webkit-transition: all 0.3s linear;
   -o-transition: all 0.3s linear;
@@ -3497,7 +3503,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   -ms-transform: translate3d(-100%, 0, 0);
   transform: translate3d(-100%, 0, 0);
 }
-.hui .hui-slide-right {
+.hui-slide-right {
   -moz-transition: all 0.5s linear;
   -webkit-transition: all 0.5s linear;
   -o-transition: all 0.5s linear;
@@ -3508,7 +3514,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   -ms-transform: translate3d(100%, 0, 0);
   transform: translate3d(100%, 0, 0);
 }
-.hui .scale-fadein 0% {
+.scale-fadein 0% {
   -moz-transform: scale(0.8, 0.8);
   -webkit-transform: scale(0.8, 0.8);
   -o-transform: scale(0.8, 0.8);
@@ -3517,7 +3523,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   filter: alpha(opacity= 0 );
   opacity: 0;
 }
-.hui .scale-fadein 100% {
+.scale-fadein 100% {
   -moz-transform: scale(1, 1);
   -webkit-transform: scale(1, 1);
   -o-transform: scale(1, 1);
@@ -3614,14 +3620,14 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
     transform: scale(1, 1);
   }
 }
-.hui .scale-fadeout 0% {
+.scale-fadeout 0% {
   -moz-transform: scale(1, 1);
   -webkit-transform: scale(1, 1);
   -o-transform: scale(1, 1);
   -ms-transform: scale(1, 1);
   transform: scale(1, 1);
 }
-.hui .scale-fadeout 100% {
+.scale-fadeout 100% {
   -moz-transform: scale(0.8, 0.8);
   -webkit-transform: scale(0.8, 0.8);
   -o-transform: scale(0.8, 0.8);
@@ -3720,8 +3726,8 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
     opacity: 0;
   }
 }
-.hui .hui-scale-fadein,
-.hui .hui-scale-fadeout {
+.hui-scale-fadein,
+.hui-scale-fadeout {
   -moz-transform: translate3d(0, 0, 0);
   -webkit-transform: translate3d(0, 0, 0);
   -o-transform: translate3d(0, 0, 0);
@@ -3733,14 +3739,24 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   -ms-transform-origin: 50% 10em;
   transform-origin: 50% 10em;
 }
-.hui .hui-scale-fadein {
+.hui-scale-fadein {
   animation: scale-fadein 0.35s ease-in-out;
   -webkit-animation: scale-fadein 0.35s ease-in-out;
   /* Safari 和 Chrome */
 }
-.hui .hui-scale-fadeout {
+.hui-scale-fadeout {
   animation: scale-fadeout 0.35s ease-in-out;
   -webkit-animation: scale-fadeout 0.35s ease-in-out;
+  /* Safari 和 Chrome */
+}
+.hui-pc .hui-scale-fadein {
+  animation: scale-fadein 0.2s ease-in-out;
+  -webkit-animation: scale-fadein 0.2s ease-in-out;
+  /* Safari 和 Chrome */
+}
+.hui-pc .hui-scale-fadeout {
+  animation: scale-fadeout 0.2s ease-in-out;
+  -webkit-animation: scale-fadeout 0.2s ease-in-out;
   /* Safari 和 Chrome */
 }
 .hui-pc .hui-slide-center {
