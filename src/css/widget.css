@@ -212,7 +212,7 @@
 }
 .hui-btn-black {
   border: 1px solid #111;
-  background: #333;
+  background: #2a2a2a;
   color: #fff;
 }
 .hui-pc .hui-btn-black:hover,
@@ -453,7 +453,7 @@
 .hui-mi-csstransforms .hui-btn-back.hui-btn-black:before {
   border-right: 1px solid #111;
   border-bottom: 1px solid #111;
-  background-color: #333;
+  background-color: #2a2a2a;
 }
 .hui-mi-csstransforms .hui-btn-back.hui-btn-black.hui-gradient:before {
   background-image: -webkit-gradient(linear, 0 100%, 100% 0%, from(#444444), to(#2d2d2d));
@@ -1069,7 +1069,7 @@
   width: 100%;
   min-height: 2.438em;
   font-family: Helvetica, Arial, sans-serif;
-  background: #444;
+  background: #2a2a2a;
   color: #fff;
   font-weight: 700;
 }
@@ -1120,10 +1120,17 @@
 .hui-tbar .hui-btn-adapt {
   padding-top: 0.625em;
   font-size: 1.125em;
+  background: #2a2a2a;
   margin: 0;
 }
 .hui-tbar .hui-tab {
   margin: 0;
+}
+.hui-pc .hui-tbar .hui-btn-adapt:hover {
+  background: #444;
+}
+.hui-mobile .hui-tbar .hui-btn-adapt:active {
+  background: #444;
 }
 .hui-tbar-align-left .hui-tbar-title {
   text-align: left;
