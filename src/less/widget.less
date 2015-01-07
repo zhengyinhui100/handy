@@ -1992,70 +1992,77 @@
 	backface-visibility: hidden;
 }
 //待证实：dom节点如果从trans3d到trans3d则加速明显；如果原来没有trans3d属性，改成有trans3d属性，则会卡一下，这点很重要。
-.hui{
-	.hui-goto-left{
-		.fn_transition(all 0s linear);
-		.fn_transform(translate3d(-100%,0,0));  //创建Layout,并且在GPU中 进行图层移动
-	}
-	.hui-goto-right{
-		.fn_transition(all 0s linear);
-		.fn_transform(translate3d(100%,0,0));
-	}
-	.hui-slide-center{
-		.fn_transition(all 0.3s linear);
-		.fn_transform(translate3d(0,0,0));
-	}
-	.hui-slide-left{
-		.fn_transition(all 0.3s linear);
-		.fn_transform(translate3d(-100%,0,0));
-	}
-	.hui-slide-right{
-		.fn_transition(all 0.5s linear);
-		.fn_transform(translate3d(100%,0,0));
-	}
-	
-	.scale-fadein {
-	    0% { 
-	    .fn_transform(scale(0.8,0.8));
-	    .fn_opacity(0);
-	    }
-		100% {
-		.fn_transform(scale(1,1));
-		}
-	}
-	@-webkit-keyframes scale-fadein {.scale-fadein;}
-	@-moz-keyframes scale-fadein {.scale-fadein;}
-	@-ms-keyframes scale-fadein {.scale-fadein;}
-	@-o-keyframes scale-fadein {.scale-fadein;}
-	@keyframes scale-fadein {.scale-fadein;}
-	
-	.scale-fadeout {
-	    0% { 
-	    .fn_transform(scale(1,1));
-	    }
-		100% {
-		.fn_transform(scale(0.8,0.8));
-		.fn_opacity(0);
-		//display:none;
-		}
-	}
-	@-webkit-keyframes scale-fadeout {.scale-fadeout;}
-	@-moz-keyframes scale-fadeout {.scale-fadeout;}
-	@-ms-keyframes scale-fadeout {.scale-fadeout;}
-	@-o-keyframes scale-fadeout {.scale-fadeout;}
-	@keyframes scale-fadeout {.scale-fadeout;}
+.hui-goto-left{
+	.fn_transition(all 0s linear);
+	.fn_transform(translate3d(-100%,0,0));  //创建Layout,并且在GPU中 进行图层移动
+}
+.hui-goto-right{
+	.fn_transition(all 0s linear);
+	.fn_transform(translate3d(100%,0,0));
+}
+.hui-slide-center{
+	.fn_transition(all 0.3s linear);
+	.fn_transform(translate3d(0,0,0));
+}
+.hui-slide-left{
+	.fn_transition(all 0.3s linear);
+	.fn_transform(translate3d(-100%,0,0));
+}
+.hui-slide-right{
+	.fn_transition(all 0.5s linear);
+	.fn_transform(translate3d(100%,0,0));
+}
 
-	.hui-scale-fadein,.hui-scale-fadeout{
-		.fn_transform(translate3d(0,0,0));
-		.fn_transform_orig(50% 10em);
+.scale-fadein {
+    0% { 
+    .fn_transform(scale(0.8,0.8));
+    .fn_opacity(0);
+    }
+	100% {
+	.fn_transform(scale(1,1));
 	}
-	
+}
+@-webkit-keyframes scale-fadein {.scale-fadein;}
+@-moz-keyframes scale-fadein {.scale-fadein;}
+@-ms-keyframes scale-fadein {.scale-fadein;}
+@-o-keyframes scale-fadein {.scale-fadein;}
+@keyframes scale-fadein {.scale-fadein;}
+
+.scale-fadeout {
+    0% { 
+    .fn_transform(scale(1,1));
+    }
+	100% {
+	.fn_transform(scale(0.8,0.8));
+	.fn_opacity(0);
+	//display:none;
+	}
+}
+@-webkit-keyframes scale-fadeout {.scale-fadeout;}
+@-moz-keyframes scale-fadeout {.scale-fadeout;}
+@-ms-keyframes scale-fadeout {.scale-fadeout;}
+@-o-keyframes scale-fadeout {.scale-fadeout;}
+@keyframes scale-fadeout {.scale-fadeout;}
+
+.hui-scale-fadein,.hui-scale-fadeout{
+	.fn_transform(translate3d(0,0,0));
+	.fn_transform_orig(50% 10em);
+}
+
+.hui-scale-fadein{
+	.fn_animation(scale-fadein 0.35s ease-in-out);
+}
+
+.hui-scale-fadeout{
+	.fn_animation(scale-fadeout 0.35s ease-in-out);
+}
+.hui-pc{
 	.hui-scale-fadein{
-		.fn_animation(scale-fadein 0.35s ease-in-out);
+		.fn_animation(scale-fadein 0.2s ease-in-out);
 	}
 	
 	.hui-scale-fadeout{
-		.fn_animation(scale-fadeout 0.35s ease-in-out);
+		.fn_animation(scale-fadeout 0.2s ease-in-out);
 	}
 }
 .hui-pc{

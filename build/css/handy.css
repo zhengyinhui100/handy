@@ -3508,29 +3508,29 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   -ms-transform: translate3d(100%, 0, 0);
   transform: translate3d(100%, 0, 0);
 }
-.hui .ani-show 0% {
-  -moz-transform: scale(0.6, 0.6);
-  -webkit-transform: scale(0.6, 0.6);
-  -o-transform: scale(0.6, 0.6);
-  -ms-transform: scale(0.6, 0.6);
-  transform: scale(0.6, 0.6);
+.hui .scale-fadein 0% {
+  -moz-transform: scale(0.8, 0.8);
+  -webkit-transform: scale(0.8, 0.8);
+  -o-transform: scale(0.8, 0.8);
+  -ms-transform: scale(0.8, 0.8);
+  transform: scale(0.8, 0.8);
   filter: alpha(opacity= 0 );
   opacity: 0;
 }
-.hui .ani-show 100% {
+.hui .scale-fadein 100% {
   -moz-transform: scale(1, 1);
   -webkit-transform: scale(1, 1);
   -o-transform: scale(1, 1);
   -ms-transform: scale(1, 1);
   transform: scale(1, 1);
 }
-@-webkit-keyframes ani-show {
+@-webkit-keyframes scale-fadein {
   0% {
-    -moz-transform: scale(0.6, 0.6);
-    -webkit-transform: scale(0.6, 0.6);
-    -o-transform: scale(0.6, 0.6);
-    -ms-transform: scale(0.6, 0.6);
-    transform: scale(0.6, 0.6);
+    -moz-transform: scale(0.8, 0.8);
+    -webkit-transform: scale(0.8, 0.8);
+    -o-transform: scale(0.8, 0.8);
+    -ms-transform: scale(0.8, 0.8);
+    transform: scale(0.8, 0.8);
     filter: alpha(opacity= 0 );
     opacity: 0;
   }
@@ -3542,13 +3542,13 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
     transform: scale(1, 1);
   }
 }
-@-moz-keyframes ani-show {
+@-moz-keyframes scale-fadein {
   0% {
-    -moz-transform: scale(0.6, 0.6);
-    -webkit-transform: scale(0.6, 0.6);
-    -o-transform: scale(0.6, 0.6);
-    -ms-transform: scale(0.6, 0.6);
-    transform: scale(0.6, 0.6);
+    -moz-transform: scale(0.8, 0.8);
+    -webkit-transform: scale(0.8, 0.8);
+    -o-transform: scale(0.8, 0.8);
+    -ms-transform: scale(0.8, 0.8);
+    transform: scale(0.8, 0.8);
     filter: alpha(opacity= 0 );
     opacity: 0;
   }
@@ -3560,13 +3560,13 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
     transform: scale(1, 1);
   }
 }
-@-ms-keyframes ani-show {
+@-ms-keyframes scale-fadein {
   0% {
-    -moz-transform: scale(0.6, 0.6);
-    -webkit-transform: scale(0.6, 0.6);
-    -o-transform: scale(0.6, 0.6);
-    -ms-transform: scale(0.6, 0.6);
-    transform: scale(0.6, 0.6);
+    -moz-transform: scale(0.8, 0.8);
+    -webkit-transform: scale(0.8, 0.8);
+    -o-transform: scale(0.8, 0.8);
+    -ms-transform: scale(0.8, 0.8);
+    transform: scale(0.8, 0.8);
     filter: alpha(opacity= 0 );
     opacity: 0;
   }
@@ -3578,13 +3578,13 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
     transform: scale(1, 1);
   }
 }
-@-o-keyframes ani-show {
+@-o-keyframes scale-fadein {
   0% {
-    -moz-transform: scale(0.6, 0.6);
-    -webkit-transform: scale(0.6, 0.6);
-    -o-transform: scale(0.6, 0.6);
-    -ms-transform: scale(0.6, 0.6);
-    transform: scale(0.6, 0.6);
+    -moz-transform: scale(0.8, 0.8);
+    -webkit-transform: scale(0.8, 0.8);
+    -o-transform: scale(0.8, 0.8);
+    -ms-transform: scale(0.8, 0.8);
+    transform: scale(0.8, 0.8);
     filter: alpha(opacity= 0 );
     opacity: 0;
   }
@@ -3596,13 +3596,13 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
     transform: scale(1, 1);
   }
 }
-@keyframes ani-show {
+@keyframes scale-fadein {
   0% {
-    -moz-transform: scale(0.6, 0.6);
-    -webkit-transform: scale(0.6, 0.6);
-    -o-transform: scale(0.6, 0.6);
-    -ms-transform: scale(0.6, 0.6);
-    transform: scale(0.6, 0.6);
+    -moz-transform: scale(0.8, 0.8);
+    -webkit-transform: scale(0.8, 0.8);
+    -o-transform: scale(0.8, 0.8);
+    -ms-transform: scale(0.8, 0.8);
+    transform: scale(0.8, 0.8);
     filter: alpha(opacity= 0 );
     opacity: 0;
   }
@@ -3614,23 +3614,23 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
     transform: scale(1, 1);
   }
 }
-.hui .ani-hide 0% {
+.hui .scale-fadeout 0% {
   -moz-transform: scale(1, 1);
   -webkit-transform: scale(1, 1);
   -o-transform: scale(1, 1);
   -ms-transform: scale(1, 1);
   transform: scale(1, 1);
 }
-.hui .ani-hide 100% {
-  -moz-transform: scale(0.6, 0.6);
-  -webkit-transform: scale(0.6, 0.6);
-  -o-transform: scale(0.6, 0.6);
-  -ms-transform: scale(0.6, 0.6);
-  transform: scale(0.6, 0.6);
+.hui .scale-fadeout 100% {
+  -moz-transform: scale(0.8, 0.8);
+  -webkit-transform: scale(0.8, 0.8);
+  -o-transform: scale(0.8, 0.8);
+  -ms-transform: scale(0.8, 0.8);
+  transform: scale(0.8, 0.8);
   filter: alpha(opacity= 0 );
   opacity: 0;
 }
-@-webkit-keyframes ani-hide {
+@-webkit-keyframes scale-fadeout {
   0% {
     -moz-transform: scale(1, 1);
     -webkit-transform: scale(1, 1);
@@ -3639,16 +3639,16 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
     transform: scale(1, 1);
   }
   100% {
-    -moz-transform: scale(0.6, 0.6);
-    -webkit-transform: scale(0.6, 0.6);
-    -o-transform: scale(0.6, 0.6);
-    -ms-transform: scale(0.6, 0.6);
-    transform: scale(0.6, 0.6);
+    -moz-transform: scale(0.8, 0.8);
+    -webkit-transform: scale(0.8, 0.8);
+    -o-transform: scale(0.8, 0.8);
+    -ms-transform: scale(0.8, 0.8);
+    transform: scale(0.8, 0.8);
     filter: alpha(opacity= 0 );
     opacity: 0;
   }
 }
-@-moz-keyframes ani-hide {
+@-moz-keyframes scale-fadeout {
   0% {
     -moz-transform: scale(1, 1);
     -webkit-transform: scale(1, 1);
@@ -3657,16 +3657,16 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
     transform: scale(1, 1);
   }
   100% {
-    -moz-transform: scale(0.6, 0.6);
-    -webkit-transform: scale(0.6, 0.6);
-    -o-transform: scale(0.6, 0.6);
-    -ms-transform: scale(0.6, 0.6);
-    transform: scale(0.6, 0.6);
+    -moz-transform: scale(0.8, 0.8);
+    -webkit-transform: scale(0.8, 0.8);
+    -o-transform: scale(0.8, 0.8);
+    -ms-transform: scale(0.8, 0.8);
+    transform: scale(0.8, 0.8);
     filter: alpha(opacity= 0 );
     opacity: 0;
   }
 }
-@-ms-keyframes ani-hide {
+@-ms-keyframes scale-fadeout {
   0% {
     -moz-transform: scale(1, 1);
     -webkit-transform: scale(1, 1);
@@ -3675,16 +3675,16 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
     transform: scale(1, 1);
   }
   100% {
-    -moz-transform: scale(0.6, 0.6);
-    -webkit-transform: scale(0.6, 0.6);
-    -o-transform: scale(0.6, 0.6);
-    -ms-transform: scale(0.6, 0.6);
-    transform: scale(0.6, 0.6);
+    -moz-transform: scale(0.8, 0.8);
+    -webkit-transform: scale(0.8, 0.8);
+    -o-transform: scale(0.8, 0.8);
+    -ms-transform: scale(0.8, 0.8);
+    transform: scale(0.8, 0.8);
     filter: alpha(opacity= 0 );
     opacity: 0;
   }
 }
-@-o-keyframes ani-hide {
+@-o-keyframes scale-fadeout {
   0% {
     -moz-transform: scale(1, 1);
     -webkit-transform: scale(1, 1);
@@ -3693,16 +3693,16 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
     transform: scale(1, 1);
   }
   100% {
-    -moz-transform: scale(0.6, 0.6);
-    -webkit-transform: scale(0.6, 0.6);
-    -o-transform: scale(0.6, 0.6);
-    -ms-transform: scale(0.6, 0.6);
-    transform: scale(0.6, 0.6);
+    -moz-transform: scale(0.8, 0.8);
+    -webkit-transform: scale(0.8, 0.8);
+    -o-transform: scale(0.8, 0.8);
+    -ms-transform: scale(0.8, 0.8);
+    transform: scale(0.8, 0.8);
     filter: alpha(opacity= 0 );
     opacity: 0;
   }
 }
-@keyframes ani-hide {
+@keyframes scale-fadeout {
   0% {
     -moz-transform: scale(1, 1);
     -webkit-transform: scale(1, 1);
@@ -3711,17 +3711,17 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
     transform: scale(1, 1);
   }
   100% {
-    -moz-transform: scale(0.6, 0.6);
-    -webkit-transform: scale(0.6, 0.6);
-    -o-transform: scale(0.6, 0.6);
-    -ms-transform: scale(0.6, 0.6);
-    transform: scale(0.6, 0.6);
+    -moz-transform: scale(0.8, 0.8);
+    -webkit-transform: scale(0.8, 0.8);
+    -o-transform: scale(0.8, 0.8);
+    -ms-transform: scale(0.8, 0.8);
+    transform: scale(0.8, 0.8);
     filter: alpha(opacity= 0 );
     opacity: 0;
   }
 }
-.hui .hui-ani-show,
-.hui .hui-ani-hide {
+.hui .hui-scale-fadein,
+.hui .hui-scale-fadeout {
   -moz-transform: translate3d(0, 0, 0);
   -webkit-transform: translate3d(0, 0, 0);
   -o-transform: translate3d(0, 0, 0);
@@ -3733,14 +3733,14 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   -ms-transform-origin: 50% 10em;
   transform-origin: 50% 10em;
 }
-.hui .hui-ani-show {
-  animation: ani-show 0.2s 1 linear;
-  -webkit-animation: ani-show 0.2s 1 linear;
+.hui .hui-scale-fadein {
+  animation: scale-fadein 0.35s ease-in-out;
+  -webkit-animation: scale-fadein 0.35s ease-in-out;
   /* Safari 和 Chrome */
 }
-.hui .hui-ani-hide {
-  animation: ani-hide 0.2s 1 linear;
-  -webkit-animation: ani-hide 0.2s 1 linear;
+.hui .hui-scale-fadeout {
+  animation: scale-fadeout 0.35s ease-in-out;
+  -webkit-animation: scale-fadeout 0.35s ease-in-out;
   /* Safari 和 Chrome */
 }
 .hui-pc .hui-slide-center {

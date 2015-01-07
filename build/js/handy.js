@@ -4391,11 +4391,19 @@ define('B.Support','L.Browser',function(Browser){
 		perf                  : fPerf,            //返回设备性能等级，用于移动设备，分为'low'，'middle'，'high'
 		testPerf              : fTestPerf,        //测试硬件性能
 		ifSupportStyle        : fIfSupportStyle,  //检测样式是否支持
+		normalizeEvent        : fNormalizeEvent,  //获取前缀正确的事件名
 		mediaQuery            : fMediaQuery       //检查设备并添加class
 	}
 	
 	var _oDoc=document;
-	var _perf;
+	//性能级别
+	var _sPerf;
+	//准确的事件名称
+	var _oNormalizeEvents={
+		'animationEnd':1,
+		'transitionEnd':1
+	};
+	var _sPrifix;
 	Support.mediaQuery();
 	
 //	var _supportSvg; //标记是否支持svg
@@ -4445,19 +4453,19 @@ define('B.Support','L.Browser',function(Browser){
 	 * @return {string} low表示低性能设备，middle表示中等设备，high表示高性能设备
 	 */
 	function fPerf(){
-		if(_perf){
-			return _perf;
+		if(_sPerf){
+			return _sPerf;
 		}
 		var nScreenWidth=Math.max(_oDoc.body?_oDoc.body.clientWidth:0,window.screen.width);
 		var sAndVersion=Browser.android();
 		if(Browser.ios()||nScreenWidth>600||(sAndVersion>4.2&&nScreenWidth>500)){
-			_perf= 'high';
+			_sPerf= 'high';
 		}else if(sAndVersion>=4&&nScreenWidth>450){
-			_perf= 'middle';
+			_sPerf= 'middle';
 		}else{
-			_perf= 'low';
+			_sPerf= 'low';
 		}
-		return _perf;
+		return _sPerf;
 	}
 	//TODO
 	/**
@@ -4480,23 +4488,15 @@ define('B.Support','L.Browser',function(Browser){
 	function fIfSupportStyle(sName,sValue){
 		var oEl = _oDoc.createElement('div');
 		var sProp;
-		if(sName in oEl.style){
-			sProp=sName;
-		}else if ('-ms-' + sName in oEl.style){
- 			sProp='-ms-' + sName;
- 		}else{
-			var aVendors = 'Khtml O Moz Webkit'.split(' '),
-	 		len = aVendors.length;
-			sName = sName.replace(/^[a-z]/, function(val) {
-			    return val.toUpperCase();
-			});
-			while(len--) {
-				if ( aVendors[len] + sName in oEl.style ) {
-				    sProp=aVendors[len] + sName;
-				    break;
-				}
+		var aVendors = 'webkit ms Khtml O Moz '.split(' '),
+ 		len = aVendors.length;
+		sName = sName.substring(0,1).toUpperCase()+sName.substring(1);
+		while(len--) {
+			if ( aVendors[len] + sName in oEl.style ) {
+			    sProp=aVendors[len] + sName;
+			    break;
 			}
- 		}
+		}
 		if(sProp){
 			if(sValue===undefined){
 				return sProp;
@@ -4507,6 +4507,32 @@ define('B.Support','L.Browser',function(Browser){
 		    return  sNew.replace(/\s/g,'')=== sValue?sProp:false;
 		}
 	    return false;
+	}
+	/**
+	 * 获取前缀正确的事件名
+	 * @param {string}sEvent 事件名称
+	 * @return {string} 返回正确的名称
+	 */
+	function fNormalizeEvent(sEvent){
+		var sNormal=_oNormalizeEvents[sEvent];
+		if(!sNormal){
+			return sEvent;
+		}
+		if(sNormal==1){
+			if(_sPrifix===undefined){
+				var aVenders=['webkit','','o'];
+				var oEl = _oDoc.createElement('div');
+				var _sPrifix;
+				for(var i=0;i<aVenders.length;i++){
+					if(oEl.style[aVenders[i]+'TransitionProperty']!== undefined){
+						_sPrifix=aVenders[i];
+						break;
+					}
+				}
+			}
+			sNormal=_oNormalizeEvents[sEvent]=_sPrifix?(_sPrifix+sEvent.substring(0,1).toUpperCase()+sEvent.substring(1)):sEvent.toLowerCase();
+		}
+		return sNormal;
 	}
 	/**
 	 * 检查设备并添加class
@@ -7667,10 +7693,11 @@ define('V.AbstractView',
 'L.Browser',
 'B.Object',
 'B.Class',
+'B.Support',
 'V.ViewManager',
 'CM.AbstractEvents'
 ],
-function(Browser,Obj,Class,ViewManager,AbstractEvents){
+function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	
 	var AbstractView=AbstractEvents.derive({
 		xtype               : 'View',            //类型
@@ -7885,6 +7912,7 @@ function(Browser,Obj,Class,ViewManager,AbstractEvents){
 				oEl=oEl.call(me);
 			}
 			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
+			sName=Support.normalizeEvent(sName);
 			//mclick，延迟50ms执行click回调，这里主要是为了避免click事件太快执行而看不到active效果，
 			//不过这里延迟的话有个副作用，就是currentTarget会随着事件冒泡改变到最终为null，解决的办法只能
 			//是以后自己实现tap事件，并延迟触发事件
@@ -10017,6 +10045,100 @@ define("M.AbstractNavigator",["B.Object",'B.Class'],function (Obj,Class) {
 	});
 	
 	return AbstractNavigator;
+});
+/**
+ * 项目导航类，负责模块导航效果
+ * @author 郑银辉(zhengyinhui100@gmail.com)
+ * @created 2013-12-20
+ */
+ /**
+  * 模块配置属性
+  * hasFooter       : true,      //是否显示底部工具栏
+  */
+define('M.Navigator',
+[
+'L.Browser',
+'B.Support',
+'M.AbstractNavigator'
+],
+function(Browser,Support,AbstractNavigator){
+	
+	var Navigator=AbstractNavigator.derive({
+		navigate    : fNavigate  //
+	});
+	/**
+	 * 导航效果
+	 * @method navigate
+	 * @param {Object}oShowMod  当前要进入到模块
+	 * @param {Object}oHideMod 要离开的模块
+	 * @param {Object}oModManager 模块管理对象
+	 */
+	function fNavigate(oShowMod,oHideMod,oModManager){
+		var sModName=oShowMod.modName;
+		//控制底部工具栏
+		var oFooterTb=$V.get('mainFooterTb');
+		var bHasFooter=oShowMod.hasFooter;
+		if(bHasFooter){
+			oShowMod.getEl().addClass('has-footer');
+			oFooterTb.show();
+			oFooterTb.children[0].select('[dataMod='+sModName+']');
+		}else{
+			oFooterTb.hide();
+		}
+		//模块切换动画，只在高性能的环境中实现
+		if((Support.perf()==='high'||!Browser.mobile()&&Modernizr.csstransforms3d)){
+			//退出模块动画
+			var oShowEl=oShowMod.getEl();
+			var oHideEl=oHideMod&&oHideMod.getEl();
+			var sIndependCls='hui-mod-independent';
+			var sName='animationEnd';
+			var sAniEvt=Support.normalizeEvent(sName);
+			var oAniEl;
+			if(oHideMod&&!oHideMod.hasFooter&&oHideMod.referer===oShowMod){
+				if(oHideEl.length>0){
+					oHideEl.addClass('hui-mod-zindex hui-scale-fadeout');
+//					oShowEl.addClass(sIndependCls);
+					oShowMod.show();
+					//oHideEl.get(0).offsetWidth;
+					oHideEl.data('hideMod',oHideMod);
+				}
+				oAniEl=oHideEl;
+			}else if(!bHasFooter){
+				//进入模块动画，顶级模块不加动画效果
+				if(oShowEl.length>0){
+					//oShowEl.removeClass('hui-slide-center').addClass('hui-goto-right hui-mod-zindex');
+					oShowEl.addClass('hui-mod-zindex hui-scale-fadein');
+					if(oHideMod){
+//						oHideEl.addClass(sIndependCls);
+					}
+					oShowMod.show();
+					//setTimeout(function(){
+						//这里必须触发layout，否则第二次以后进入模块会没有动画效果
+						//TODO 为何第一次时不触发layout也会有动画效果，而如果去掉setTimeout会都没有效果？
+						//oShowEl.get(0).offsetWidth;
+						//oShowEl.removeClass('hui-goto-right').addClass('hui-slide-center');
+					//},0);
+				}
+				oAniEl=oShowEl;
+			}
+			if(oAniEl){
+				if(oAniEl.length>0){
+					oAniEl.one(sAniEvt,function(){
+						if(oHideMod){
+							oHideMod.hide();
+//								oHideEl.removeClass(sIndependCls);
+						}
+						//oShowEl.removeClass('hui-mod-zindex');
+						oAniEl.removeClass('hui-mod-zindex hui-scale-fadein hui-scale-fadeout');
+					})
+				}
+				return false;
+			}
+		}
+	}
+	
+	return Navigator;
+	
 });
 /****************************************************************
 * Author:		郑银辉											*
@@ -12857,7 +12979,7 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 				}
 			});
 			me.listen({
-				name:'webkitTransitionEnd',
+				name:'transitionEnd',
 				el:oContEl,
 				handler:function(){
 					var nIndex=me._slideIndex;

@@ -2164,7 +2164,7 @@
   -ms-backface-visibility: hidden;
   backface-visibility: hidden;
 }
-.hui .hui-goto-left {
+.hui-goto-left {
   -moz-transition: all 0s linear;
   -webkit-transition: all 0s linear;
   -o-transition: all 0s linear;
@@ -2175,7 +2175,7 @@
   -ms-transform: translate3d(-100%, 0, 0);
   transform: translate3d(-100%, 0, 0);
 }
-.hui .hui-goto-right {
+.hui-goto-right {
   -moz-transition: all 0s linear;
   -webkit-transition: all 0s linear;
   -o-transition: all 0s linear;
@@ -2186,7 +2186,7 @@
   -ms-transform: translate3d(100%, 0, 0);
   transform: translate3d(100%, 0, 0);
 }
-.hui .hui-slide-center {
+.hui-slide-center {
   -moz-transition: all 0.3s linear;
   -webkit-transition: all 0.3s linear;
   -o-transition: all 0.3s linear;
@@ -2197,7 +2197,7 @@
   -ms-transform: translate3d(0, 0, 0);
   transform: translate3d(0, 0, 0);
 }
-.hui .hui-slide-left {
+.hui-slide-left {
   -moz-transition: all 0.3s linear;
   -webkit-transition: all 0.3s linear;
   -o-transition: all 0.3s linear;
@@ -2208,7 +2208,7 @@
   -ms-transform: translate3d(-100%, 0, 0);
   transform: translate3d(-100%, 0, 0);
 }
-.hui .hui-slide-right {
+.hui-slide-right {
   -moz-transition: all 0.5s linear;
   -webkit-transition: all 0.5s linear;
   -o-transition: all 0.5s linear;
@@ -2219,7 +2219,7 @@
   -ms-transform: translate3d(100%, 0, 0);
   transform: translate3d(100%, 0, 0);
 }
-.hui .scale-fadein 0% {
+.scale-fadein 0% {
   -moz-transform: scale(0.8, 0.8);
   -webkit-transform: scale(0.8, 0.8);
   -o-transform: scale(0.8, 0.8);
@@ -2228,7 +2228,7 @@
   filter: alpha(opacity= 0 );
   opacity: 0;
 }
-.hui .scale-fadein 100% {
+.scale-fadein 100% {
   -moz-transform: scale(1, 1);
   -webkit-transform: scale(1, 1);
   -o-transform: scale(1, 1);
@@ -2325,14 +2325,14 @@
     transform: scale(1, 1);
   }
 }
-.hui .scale-fadeout 0% {
+.scale-fadeout 0% {
   -moz-transform: scale(1, 1);
   -webkit-transform: scale(1, 1);
   -o-transform: scale(1, 1);
   -ms-transform: scale(1, 1);
   transform: scale(1, 1);
 }
-.hui .scale-fadeout 100% {
+.scale-fadeout 100% {
   -moz-transform: scale(0.8, 0.8);
   -webkit-transform: scale(0.8, 0.8);
   -o-transform: scale(0.8, 0.8);
@@ -2431,8 +2431,8 @@
     opacity: 0;
   }
 }
-.hui .hui-scale-fadein,
-.hui .hui-scale-fadeout {
+.hui-scale-fadein,
+.hui-scale-fadeout {
   -moz-transform: translate3d(0, 0, 0);
   -webkit-transform: translate3d(0, 0, 0);
   -o-transform: translate3d(0, 0, 0);
@@ -2444,14 +2444,24 @@
   -ms-transform-origin: 50% 10em;
   transform-origin: 50% 10em;
 }
-.hui .hui-scale-fadein {
+.hui-scale-fadein {
   animation: scale-fadein 0.35s ease-in-out;
   -webkit-animation: scale-fadein 0.35s ease-in-out;
   /* Safari 和 Chrome */
 }
-.hui .hui-scale-fadeout {
+.hui-scale-fadeout {
   animation: scale-fadeout 0.35s ease-in-out;
   -webkit-animation: scale-fadeout 0.35s ease-in-out;
+  /* Safari 和 Chrome */
+}
+.hui-pc .hui-scale-fadein {
+  animation: scale-fadein 0.2s ease-in-out;
+  -webkit-animation: scale-fadein 0.2s ease-in-out;
+  /* Safari 和 Chrome */
+}
+.hui-pc .hui-scale-fadeout {
+  animation: scale-fadeout 0.2s ease-in-out;
+  -webkit-animation: scale-fadeout 0.2s ease-in-out;
   /* Safari 和 Chrome */
 }
 .hui-pc .hui-slide-center {

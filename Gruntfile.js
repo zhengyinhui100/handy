@@ -137,6 +137,7 @@ module.exports = function(grunt) {
 
 					'src/js/module/AbstractModule.js',
 					'src/js/module/AbstractNavigator.js',
+					'src/js/module/Navigator.js',
 					'src/js/module/History.js',
 					'src/js/module/ModuleManager.js',
 					
