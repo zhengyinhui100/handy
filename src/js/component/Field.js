@@ -17,7 +17,7 @@ function(Obj,AC){
 		//初始配置
 		xConfig         : {
 			cls           : 'field',
-			clickable     : false,
+			clickable     : false,    //可点击效果，有click事件时默认为true
 			noPadding     : false     //true表示没有上下间隙
 		},
 //		forName         : '',      //label标签for名字

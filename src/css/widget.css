@@ -923,7 +923,8 @@
 .hui-rowitem.hui-rowitem-padding-normal {
   padding: 0.5em 0.563em 0.5em 0.375em;
 }
-.hui-rowitem.hui-rowitem-padding-right {
+.hui-rowitem.hui-rowitem-padding-right,
+.hui-rowitem.hui-clickable {
   padding-right: 1.5em;
 }
 .hui-rowitem .hui-icon {
@@ -1475,7 +1476,8 @@
 .hui-hcard.hui-hcard-hasimg {
   padding-left: 4.375em;
 }
-.hui-hcard.hui-hcard-padding-right {
+.hui-hcard.hui-hcard-padding-right,
+.hui-hcard.hui-clickable {
   padding-right: 1.5em;
 }
 .hui-hcard .hui-hcard-img {
