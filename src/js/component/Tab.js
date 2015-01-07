@@ -155,7 +155,7 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 				}
 			});
 			me.listen({
-				name:'webkitTransitionEnd',
+				name:'transitionEnd',
 				el:oContEl,
 				handler:function(){
 					var nIndex=me._slideIndex;

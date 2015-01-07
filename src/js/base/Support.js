@@ -10,11 +10,19 @@ define('B.Support','L.Browser',function(Browser){
 		perf                  : fPerf,            //返回设备性能等级，用于移动设备，分为'low'，'middle'，'high'
 		testPerf              : fTestPerf,        //测试硬件性能
 		ifSupportStyle        : fIfSupportStyle,  //检测样式是否支持
+		normalizeEvent        : fNormalizeEvent,  //获取前缀正确的事件名
 		mediaQuery            : fMediaQuery       //检查设备并添加class
 	}
 	
 	var _oDoc=document;
-	var _perf;
+	//性能级别
+	var _sPerf;
+	//准确的事件名称
+	var _oNormalizeEvents={
+		'animationEnd':1,
+		'transitionEnd':1
+	};
+	var _sPrifix;
 	Support.mediaQuery();
 	
 //	var _supportSvg; //标记是否支持svg
@@ -64,19 +72,19 @@ define('B.Support','L.Browser',function(Browser){
 	 * @return {string} low表示低性能设备，middle表示中等设备，high表示高性能设备
 	 */
 	function fPerf(){
-		if(_perf){
-			return _perf;
+		if(_sPerf){
+			return _sPerf;
 		}
 		var nScreenWidth=Math.max(_oDoc.body?_oDoc.body.clientWidth:0,window.screen.width);
 		var sAndVersion=Browser.android();
 		if(Browser.ios()||nScreenWidth>600||(sAndVersion>4.2&&nScreenWidth>500)){
-			_perf= 'high';
+			_sPerf= 'high';
 		}else if(sAndVersion>=4&&nScreenWidth>450){
-			_perf= 'middle';
+			_sPerf= 'middle';
 		}else{
-			_perf= 'low';
+			_sPerf= 'low';
 		}
-		return _perf;
+		return _sPerf;
 	}
 	//TODO
 	/**
@@ -99,23 +107,15 @@ define('B.Support','L.Browser',function(Browser){
 	function fIfSupportStyle(sName,sValue){
 		var oEl = _oDoc.createElement('div');
 		var sProp;
-		if(sName in oEl.style){
-			sProp=sName;
-		}else if ('-ms-' + sName in oEl.style){
- 			sProp='-ms-' + sName;
- 		}else{
-			var aVendors = 'Khtml O Moz Webkit'.split(' '),
-	 		len = aVendors.length;
-			sName = sName.replace(/^[a-z]/, function(val) {
-			    return val.toUpperCase();
-			});
-			while(len--) {
-				if ( aVendors[len] + sName in oEl.style ) {
-				    sProp=aVendors[len] + sName;
-				    break;
-				}
+		var aVendors = 'webkit ms Khtml O Moz '.split(' '),
+ 		len = aVendors.length;
+		sName = sName.substring(0,1).toUpperCase()+sName.substring(1);
+		while(len--) {
+			if ( aVendors[len] + sName in oEl.style ) {
+			    sProp=aVendors[len] + sName;
+			    break;
 			}
- 		}
+		}
 		if(sProp){
 			if(sValue===undefined){
 				return sProp;
@@ -126,6 +126,32 @@ define('B.Support','L.Browser',function(Browser){
 		    return  sNew.replace(/\s/g,'')=== sValue?sProp:false;
 		}
 	    return false;
+	}
+	/**
+	 * 获取前缀正确的事件名
+	 * @param {string}sEvent 事件名称
+	 * @return {string} 返回正确的名称
+	 */
+	function fNormalizeEvent(sEvent){
+		var sNormal=_oNormalizeEvents[sEvent];
+		if(!sNormal){
+			return sEvent;
+		}
+		if(sNormal==1){
+			if(_sPrifix===undefined){
+				var aVenders=['webkit','','o'];
+				var oEl = _oDoc.createElement('div');
+				var _sPrifix;
+				for(var i=0;i<aVenders.length;i++){
+					if(oEl.style[aVenders[i]+'TransitionProperty']!== undefined){
+						_sPrifix=aVenders[i];
+						break;
+					}
+				}
+			}
+			sNormal=_oNormalizeEvents[sEvent]=_sPrifix?(_sPrifix+sEvent.substring(0,1).toUpperCase()+sEvent.substring(1)):sEvent.toLowerCase();
+		}
+		return sNormal;
 	}
 	/**
 	 * 检查设备并添加class

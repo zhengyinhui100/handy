@@ -9,10 +9,11 @@ define('V.AbstractView',
 'L.Browser',
 'B.Object',
 'B.Class',
+'B.Support',
 'V.ViewManager',
 'CM.AbstractEvents'
 ],
-function(Browser,Obj,Class,ViewManager,AbstractEvents){
+function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	
 	var AbstractView=AbstractEvents.derive({
 		xtype               : 'View',            //类型
@@ -227,6 +228,7 @@ function(Browser,Obj,Class,ViewManager,AbstractEvents){
 				oEl=oEl.call(me);
 			}
 			oEl=oEl?typeof oEl=='string'?me.findEl(oEl):oEl:me.getEl();
+			sName=Support.normalizeEvent(sName);
 			//mclick，延迟50ms执行click回调，这里主要是为了避免click事件太快执行而看不到active效果，
 			//不过这里延迟的话有个副作用，就是currentTarget会随着事件冒泡改变到最终为null，解决的办法只能
 			//是以后自己实现tap事件，并延迟触发事件
