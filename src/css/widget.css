@@ -2445,13 +2445,13 @@
   transform-origin: 50% 10em;
 }
 .hui .hui-scale-fadein {
-  animation: scale-fadein 0.2s ease-in;
-  -webkit-animation: scale-fadein 0.2s ease-in;
+  animation: scale-fadein 0.35s ease-in-out;
+  -webkit-animation: scale-fadein 0.35s ease-in-out;
   /* Safari 和 Chrome */
 }
 .hui .hui-scale-fadeout {
-  animation: scale-fadeout 0.2s ease-in;
-  -webkit-animation: scale-fadeout 0.2s ease-in;
+  animation: scale-fadeout 0.35s ease-in-out;
+  -webkit-animation: scale-fadeout 0.35s ease-in-out;
   /* Safari 和 Chrome */
 }
 .hui-pc .hui-slide-center {
