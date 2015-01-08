@@ -14996,6 +14996,7 @@ function(Util,Obj,Date,AC,Draggable){
 		pulldownIsRefresh   : true,              //true表示下拉式刷新，而按钮是获取更多，false表示相反
 //		itemXtype           : '',                //子组件默认xtype
 //		refresh             : null,              //刷新接口
+		autoFetch           : true,              //初始化时如果没有数据是否自动获取
 //		getMore             : null,              //获取更多接口
 		
 		tmpl        : [
@@ -15055,9 +15056,7 @@ function(Util,Obj,Date,AC,Draggable){
 		if(oListItems.size()==0){
 			me.set('isEmpty',true);
 		}
-		if(!oListItems.fetching){
-			me.loadMore();
-		}
+		me.loadMore(true);
 		if(oListItems.fetching){
 			me.set('emptyTips','加载中...');
 		}
@@ -15243,8 +15242,9 @@ function(Util,Obj,Date,AC,Draggable){
 	}
 	/**
 	 * 获取更多数据
+	 * @param {boolean=} bIsInit 是否是初始化时自动加载数据
 	 */
-	function fLoadMore(){
+	function fLoadMore(bIsInit){
 		var me=this;
 		var oListItems=me.model;
 		var nCurNum=me.children.length;
@@ -15267,7 +15267,7 @@ function(Util,Obj,Date,AC,Draggable){
 					}
 				});
 			}
-		}else{
+		}else if(!bIsInit||(!oListItems.fetching&&me.autoFetch)){
 			me.getMore();
 		}
 	}
