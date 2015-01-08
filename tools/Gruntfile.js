@@ -181,7 +181,7 @@ module.exports = function(grunt) {
 					'cp -R '+buildVersionDir+' '+deployDir+sVersion+'/'+'<%=pkg.name%>',
 					'cd '+deployDir,
 					'rm -f static.tar.gz',
-					'tar -cvzf static.tar.gz config.ftl chkVersion.ftl'+sVersion,
+					'tar -cvzf static.tar.gz config.ftl chkVersion.ftl '+sVersion,
 					'rm -f config.ftl chkVersion.ftl',
 					'rm -rf '+sVersion
 				].join('&&')
