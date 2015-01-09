@@ -17,6 +17,7 @@ module.exports = function(grunt) {
 	}
 	var sVersion=''+oNow.getFullYear()+_fFix(oNow.getMonth() + 1)+_fFix(oNow.getDate())+_fFix(oNow.getHours())+_fFix(oNow.getMinutes())+_fFix(oNow.getSeconds());
 	
+	//grunt --env=online
 	var sEnv=grunt.option('env')||'test';
 	var sCurTask=grunt.cli.tasks[0];
 	var fs=require('fs');
