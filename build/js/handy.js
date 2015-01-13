@@ -9546,9 +9546,10 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	 * 				如果是函数(参数是当前匹配的视图对象)，则将返回true的结果加入结果集，
 	 * 				如果是类，查找该类的实例
 	 * @param {Array=}aResult 用于存储结果集的数组
+	 * @param {boolean=}bOnlyChildren 是否只查找子节点
 	 * @return {Array} 返回匹配的结果，如果没找到匹配的子视图则返回空数组，ps:只有一个结果也返回数组，便于统一接口
 	 */
-	function fFind(sel,aResult){
+	function fFind(sel,aResult,bOnlyChildren){
 		var me=this,aResult=aResult||[];
 		if(!sel){
 			aResult=aResult.concat(me.children);
@@ -9564,7 +9565,7 @@ function(Obj,Template,ViewManager,ModelView,Model){
 				return aResult;
 			}
 			//查找视图
-			var bOnlyChildren=sel.indexOf('>')==0;
+			bOnlyChildren=sel.indexOf('>')==0;
 			var sCurSel=sel.replace(/^>?\s?/,'');
 			//分割当前选择器及后代选择器
 			var nIndex=sCurSel.search(/\s/);
@@ -9597,7 +9598,7 @@ function(Obj,Template,ViewManager,ModelView,Model){
 				if((bIsClass&&oChild instanceof sel)||(!bIsClass&&sel(oChild))){
 					aResult.push(oChild);
 				}
-				oChild.find(sel,aResult);
+				bOnlyChildren||oChild.find(sel,aResult);
 			});
 		}
 		return aResult;
@@ -9754,7 +9755,7 @@ function(Obj,Template,ViewManager,ModelView,Model){
 			nIndex=item;
 			item=aChildren[nIndex];
 		}else if(Obj.isStr(item)||Obj.isFunc(item)){
-			item=me.find(item);
+			item=me.find(item,null,true);
 			for(var i=0,len=item.length;i<len;i++){
 				if(me.remove(item[i])==false){
 					return false;
@@ -14966,10 +14967,11 @@ define("C.ModelList",
 'B.Util',
 'B.Object',
 'B.Date',
+'B.Support',
 'C.AbstractComponent',
 'E.Draggable'
 ],
-function(Util,Obj,Date,AC,Draggable){
+function(Util,Obj,Date,Support,AC,Draggable){
 	
 	var ModelList=AC.define('ModelList');
 	
@@ -15042,6 +15044,9 @@ function(Util,Obj,Date,AC,Draggable){
 		pullLoading         : fPullLoading,        //显示正在刷新
 		destroy             : fDestroy             //销毁
 	});
+	
+	var _sPosProp='marginTop';
+	
 	/**
 	 * 初始化配置
 	 */
@@ -15117,7 +15122,7 @@ function(Util,Obj,Date,AC,Draggable){
 				var oWrapper=me.getEl();
 				var oInner=me.innerEl=oWrapper.find('.hui-list-inner');
 				var oPdEl=oWrapper.find('.hui-list-pulldown');
-				oInner.css({top:'-3.125em'});
+				oInner[0].style[_sPosProp]='-3.125em';
 				var nStartY=Util.em2px(3.125);
 				var nValve=Util.em2px(2.313);
 				var sRefreshCls='hui-pd-refresh';
@@ -15140,7 +15145,7 @@ function(Util,Obj,Date,AC,Draggable){
 								oOrigEvt.preventDefault();
 								//逐渐减速
 								nScrollY=Math.pow(nScrollY,0.85);
-								oInner[0].style.top=-nStartY+nScrollY+'px';
+								oInner[0].style[_sPosProp]=-nStartY+nScrollY+'px';
 								if (nScrollY > nValve && !oPdEl.hasClass(sReleaseCls)) {  
 					                oPdEl.addClass(sReleaseCls);  
 					                me.set('pdTxt',me.flipTxt);  
@@ -15153,14 +15158,17 @@ function(Util,Obj,Date,AC,Draggable){
 						return false;
 					},
 					end:function(){
+		                var oPos={};
 						if (oPdEl.hasClass(sReleaseCls)) {  
 			                oPdEl.addClass(sRefreshCls);  
-			                me.set('pdTxt',me.releaseTxt); 
-			                oInner.animate({top:0},'fast',function(){
+			                me.set('pdTxt',me.releaseTxt);
+			                oPos[_sPosProp]=0;
+			                oInner.animate(oPos,'fast',function(){
 				                me.pulldownIsRefresh?me.refresh():me.loadMore();
 			                });
 			            }else{
-			            	oInner.animate({top:-nStartY});
+			            	oPos[_sPosProp]=-nStartY;
+			            	oInner.animate(oPos);
 			            }
 					}
 				});
@@ -15170,7 +15178,9 @@ function(Util,Obj,Date,AC,Draggable){
 					if(oPdEl.hasClass(sRefreshCls)){
 		                oPdEl.removeClass(sRefreshCls+' '+sReleaseCls);  
 		                me.set('pdTxt',me.pullTxt);
-						oInner.animate({top:-nStartY});
+		                var oPos={};
+		                oPos[_sPosProp]=-nStartY;
+						oInner.animate(oPos);
 					}
 				});
 			}
@@ -15278,7 +15288,7 @@ function(Util,Obj,Date,AC,Draggable){
 	function fPullLoading(bRefresh){
 		var me=this;
 		me.scrollTo(0);
-		me.innerEl[0].style.top=0;
+		me.innerEl[0].style[_sPosProp]=0;
 		if(bRefresh){
 			var oPdEl=me.findEl('.hui-list-pulldown');
 			oPdEl.addClass('hui-pd-refresh');  

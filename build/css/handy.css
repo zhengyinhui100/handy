@@ -2734,9 +2734,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-mlist .hui-list-inner {
   width: 100%;
   min-height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
   padding-bottom: 3em;
 }
 .hui-mlist .hui-list-more {
@@ -2760,7 +2757,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   float: left;
 }
 .hui-desc .hui-btn {
-  margin: 0 0 0 2em;
+  margin: 0.063em 0 0 2em;
 }
 .hui-desc .hui-desc-right {
   float: right;

@@ -879,9 +879,10 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	 * 				如果是函数(参数是当前匹配的视图对象)，则将返回true的结果加入结果集，
 	 * 				如果是类，查找该类的实例
 	 * @param {Array=}aResult 用于存储结果集的数组
+	 * @param {boolean=}bOnlyChildren 是否只查找子节点
 	 * @return {Array} 返回匹配的结果，如果没找到匹配的子视图则返回空数组，ps:只有一个结果也返回数组，便于统一接口
 	 */
-	function fFind(sel,aResult){
+	function fFind(sel,aResult,bOnlyChildren){
 		var me=this,aResult=aResult||[];
 		if(!sel){
 			aResult=aResult.concat(me.children);
@@ -897,7 +898,7 @@ function(Obj,Template,ViewManager,ModelView,Model){
 				return aResult;
 			}
 			//查找视图
-			var bOnlyChildren=sel.indexOf('>')==0;
+			bOnlyChildren=sel.indexOf('>')==0;
 			var sCurSel=sel.replace(/^>?\s?/,'');
 			//分割当前选择器及后代选择器
 			var nIndex=sCurSel.search(/\s/);
@@ -930,7 +931,7 @@ function(Obj,Template,ViewManager,ModelView,Model){
 				if((bIsClass&&oChild instanceof sel)||(!bIsClass&&sel(oChild))){
 					aResult.push(oChild);
 				}
-				oChild.find(sel,aResult);
+				bOnlyChildren||oChild.find(sel,aResult);
 			});
 		}
 		return aResult;
@@ -1087,7 +1088,7 @@ function(Obj,Template,ViewManager,ModelView,Model){
 			nIndex=item;
 			item=aChildren[nIndex];
 		}else if(Obj.isStr(item)||Obj.isFunc(item)){
-			item=me.find(item);
+			item=me.find(item,null,true);
 			for(var i=0,len=item.length;i<len;i++){
 				if(me.remove(item[i])==false){
 					return false;
