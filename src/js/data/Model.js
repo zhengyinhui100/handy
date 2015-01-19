@@ -32,7 +32,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 		 *		{boolean=}unsave:是否不需要保存，嵌套属性都不提交，基本类型的自定义字段保存时默认提交，仅当声明为unsave:true时不提交
 		 *		{object=}options:新建模型/集合实例时的选项,
 		 *		{*=}def:默认值,
-		 *   	{Function=}parse:设置该属性时自定义解析操作,
+		 *   	{Function({*}val,{object}oAttrs)=}parse:设置该属性时自定义解析操作,
 		 *   	{Array=}depends:依赖的属性，计算属性需要此配置检查和计算
 	     *	}
 	     *	简便形式:
@@ -168,7 +168,9 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 				for(var i=0;i<aDeps.length;i++){
 			    	//当依赖属性变化时，设置计算属性
 					if(oChanges.hasOwnProperty(aDeps[i])){
-						oSets[key]=undefined;
+						var tmp={};
+						tmp[key]=undefined;
+						oSets[key]=me._parseFields(tmp,true)[key];
 						bNeed=true;
 						break;
 					}
@@ -180,9 +182,11 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     /**
      * 属性预处理
      * @param {Object}oAttrs 属性表
+     * @param {boolean=}bGet 是否是获取操作，默认为设置，为设置操作时，对于当前属性表中有的属性，
+     * 						不执行field里的pase操作，如果是获取操作，则还要执行parse
      * @return {Object} 返回处理好的属性表
      */
-    function _fParseFields(oAttrs){
+    function _fParseFields(oAttrs,bIsGet){
     	var me=this;
     	var oFields;
     	if(!(oFields=me.fields)){
@@ -196,7 +200,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 				type=oField.type;
 				oOptions=oField.options;
 				//自定义解析
-				if(fParse=oField.parse){
+				if((fParse=oField.parse)&&bIsGet){
 					val=fParse.apply(me,[val,oAttrs]);
 				}
 				//自定义类型，包括Model和Collection
@@ -476,11 +480,11 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	        }
 	    }
 	    me._pending = false;
-	    me._changing = false;
 	    //处理依赖属性
 	    if(bHasChange){
 		    me._doDepends(oChanges,bSilent);
 	    }
+	    me._changing = false;
 	    oResult.changed=bHasChange;
 	    //重新清空属性事件标记
 	    me._attrEvts={};
@@ -546,7 +550,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     }
 	/**
 	 * 返回改变过的属性，可以指定需要判断的属性
-	 * @param {Object=}oDiff 参数属性，表示只判断传入的属性列表，返回跟参数属性不同的属性表
+	 * @param {Object=}oDiff 参数属性，表示只判断传入的属性列表，返回跟参数属性不同的属性表，不传表示检查全部属性
 	 * @param {boolean=}bAll 仅当为true时检测所有的属性，否则只检测需要提交的属性
 	 * @retur {boolean} 如果有改变，返回改变的属性，否则，返回false
 	 */
@@ -730,7 +734,8 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     	//patch只提交所有改变的值
 	    var oSaveAttrs;
 	    if (sMethod === 'patch'){
-	    	var oChanged=me.changedAttrs(oAttrs);
+	    	//设置不需要保存的属性可能导致需要保存的依赖属性变化，所以这里不能只检查当前设置的属性
+	    	var oChanged=me.changedAttrs();
 	    	//没有改变的属性，直接执行回调函数
 	    	if(!oChanged){
 	    		var fNoChange = oOptions.noChange;
