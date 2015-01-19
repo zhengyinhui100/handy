@@ -100,6 +100,7 @@ module.exports = function(grunt) {
 					'src/js/base/Event.js',
 					'src/js/base/Date.js', 
 					'src/js/base/String.js',
+					'src/js/base/Number.js',
 					'src/js/base/Cookie.js', 
 					'src/js/base/Util.js',
 					'src/js/base/Url.js',
