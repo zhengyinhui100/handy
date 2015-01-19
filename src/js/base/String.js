@@ -20,6 +20,7 @@ define("B.String",function(){
 		hasChn          : fHasChn,          // 字符是否包含中文
 		isChn           : fIsChn            // 字符是否是中文
 	}
+	
 	/**
 	 * 删除标签字符串
 	 * @method  stripTags
