@@ -37,9 +37,6 @@ function(Obj,AC){
 				'<div {{bindAttr class="#hui-field-right noPadding?hui-field-nopadding"}}>',
 					'{{placeItem > [xrole=content]}}',
 				'</div>',
-				'{{#if clickable}}',
-					'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情"><span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span></a>',
-				'{{/if}}',
 			'</div>'
 		].join(''),
 		doConfig       : fDoConfig    //初始化配置

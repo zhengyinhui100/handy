@@ -20,6 +20,7 @@ function(AC){
 			clickable       : false,         //可点击效果，有click事件时默认为true
 			newsNum         : 0,             //新消息提示数目，大于9自动显示成"9+"
 			padding         : 'big',         //上下padding大小
+			hasArrow        : false,         //是否有箭头
 			paddingCls      : {
 				depends : ['padding'],
 				parse:function(){
@@ -45,7 +46,7 @@ function(AC){
 				'{{#if newsNumTxt}}',
 					'<span class="hui-news-tips">{{newsNumTxt}}</span>',
 				'{{else}}',
-					'{{#if clickable}}',
+					'{{#if hasArrow}}',
 						'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情"><span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span></a>',
 					'{{/if}}',
 				'{{/if}}',
@@ -69,9 +70,13 @@ function(AC){
 		if(me.text!==undefined&&!oSettings.hasOwnProperty('underline')){
 			me.set('underline',true);
 		}
-		//有点击函数时默认有右箭头
+		//有点击函数时默认有可点击效果
 		if(oSettings.click&&!oSettings.hasOwnProperty('clickable')){
 			me.set('clickable',true);
+		}
+		//有可点击效果时默认有右箭头
+		if(me.get('clickable')&&!oSettings.hasOwnProperty('hasArrow')){
+			me.set('hasArrow',true);
 		}
 		//有注解
 		if(oSettings.comment&&oSettings.padding===undefined){

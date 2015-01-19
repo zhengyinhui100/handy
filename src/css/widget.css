@@ -133,7 +133,7 @@
 .hui-mobile .hui-btn:active {
   font-weight: bold;
 }
-.hui-btn-mark {
+.hui-btn.hui-btn-mark {
   display: none;
   position: absolute;
   height: 0.5em;
@@ -145,15 +145,15 @@
   -moz-border-radius: 0.25em;
   border-radius: 0.25em;
 }
-.hui-btn-mark-black .hui-btn-mark {
+.hui-btn.hui-btn-mark-black .hui-btn-mark {
   display: block;
   background-color: #000;
 }
-.hui-btn-mark-red .hui-btn-mark {
+.hui-btn.hui-btn-mark-red .hui-btn-mark {
   display: block;
   background-color: red;
 }
-.hui-btn-white {
+.hui-btn.hui-btn-white {
   border: 1px solid #ccc;
   background: #fff;
   color: #666;
@@ -164,7 +164,7 @@
   background: #eee ;
   color: #666 ;
 }
-.hui-btn-gray {
+.hui-btn.hui-btn-gray {
   border: 1px solid #ccc;
   background: #f9f9f9;
   color: #666;
@@ -202,7 +202,7 @@
   /* Opera 11.10+ */
   background-image: linear-gradient(#f6f6f6, #e0e0e0);
 }
-.hui-btn-dark {
+.hui-btn.hui-btn-dark {
   background: #444;
   color: #fff;
 }
@@ -210,7 +210,7 @@
 .hui-mobile .hui-btn-dark:active {
   background: #333;
 }
-.hui-btn-black {
+.hui-btn.hui-btn-black {
   border: 1px solid #111;
   background: #2a2a2a;
   color: #fff;
@@ -249,7 +249,7 @@
   /* Opera 11.10+ */
   background-image: linear-gradient(#555555, #383838);
 }
-.hui-btn-blue {
+.hui-btn.hui-btn-blue {
   border: 1px solid #044062;
   background: #396b9e;
   color: #fff;
@@ -288,7 +288,7 @@
   /* Opera 11.10+ */
   background-image: linear-gradient(#6facd5, #4272a4);
 }
-.hui-btn-green {
+.hui-btn.hui-btn-green {
   border: 1px solid #37AD2D;
   background: #1fa745;
   color: #fff;
@@ -327,7 +327,8 @@
   /* Opera 11.10+ */
   background-image: linear-gradient(#34e589, #24b44d);
 }
-.hui-btn-active {
+.hui-btn.hui-btn-active,
+.hui-btn-active:hover {
   border: 1px solid #2373a5;
   background: #5393c5;
   color: #fff;
@@ -346,13 +347,6 @@
   background-image: -o-linear-gradient(#5f9cc5, #6facd5);
   /* Opera 11.10+ */
   background-image: linear-gradient(#5f9cc5, #6facd5);
-}
-.hui-btn-active:hover {
-  border: 1px solid #2373a5;
-  background: #5393c5;
-  color: #fff;
-  cursor: pointer;
-  text-decoration: none;
 }
 .hui-btn.hui-btn-active-b {
   color: #548805;
@@ -908,7 +902,7 @@
   -webkit-border-radius: 0.5em;
   -moz-border-radius: 0.5em;
   border-radius: 0.5em;
-  right: 0.313em;
+  right: 0.5em;
 }
 .hui-label.hui-label-default {
   color: #222;
@@ -1375,6 +1369,7 @@
 }
 .hui-list .hui-list-item {
   position: relative;
+  cursor: pointer;
   border-bottom: 1px solid #d5d6d7;
 }
 .hui-pc .hui-list-item:hover {

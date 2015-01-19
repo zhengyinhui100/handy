@@ -106,7 +106,7 @@
 	font-weight: bold;
 }
 //按钮标记
-.hui-btn-mark{
+.hui-btn.hui-btn-mark{
 	display:none;
 	position:absolute;
 	height:0.5em;
@@ -116,20 +116,20 @@
 	margin-top:-0.25em;
 	.fn_border_radius(0.25em);
 }
-.hui-btn-mark-black{
+.hui-btn.hui-btn-mark-black{
 	.hui-btn-mark{
 		display:block;
 		background-color:#000;
 	}
 }
-.hui-btn-mark-red{
+.hui-btn.hui-btn-mark-red{
 	.hui-btn-mark{
 		display:block;
 		background-color:red;
 	}
 }
 //白色按钮
-.hui-btn-white{
+.hui-btn.hui-btn-white{
 	border: 1px solid #ccc;
 	background: #fff;
 	color: #666;
@@ -140,7 +140,7 @@
 	color: #666 ;
 }
 //灰色按钮
-.hui-btn-gray{
+.hui-btn.hui-btn-gray{
 	border: 1px solid #ccc;
 	background: #f9f9f9;
 	color: #666;
@@ -157,7 +157,7 @@
 	.fn_linear_gradient_top(#f6f6f6,#e0e0e0);
 }
 //深灰色按钮，一般用于工具栏
-.hui-btn-dark{
+.hui-btn.hui-btn-dark{
 	background: #444;
 	color: #fff;
 }
@@ -165,7 +165,7 @@
 	background: #333;
 }
 //黑色按钮
-.hui-btn-black{
+.hui-btn.hui-btn-black{
 	border: 1px solid #111;
 	background: #2a2a2a;
 	color: #fff;
@@ -183,7 +183,7 @@
 	.fn_linear_gradient_top(#555,#383838);
 }
 //蓝色按钮
-.hui-btn-blue{
+.hui-btn.hui-btn-blue{
 	border: 1px solid #044062;
 	background: #396b9e;
 	color: #fff;
@@ -201,7 +201,7 @@
 	.fn_linear_gradient_top(#6facd5,#4272a4);
 }
 //绿色按钮
-.hui-btn-green{
+.hui-btn.hui-btn-green{
 	border: 1px solid #37AD2D;
 	background: #1fa745;
 	color: #fff;
@@ -219,7 +219,7 @@
 	.fn_linear_gradient_top(#34e589,#24B44D);
 }
 //激活按钮
-.hui-btn-active {
+.hui-btn.hui-btn-active,.hui-btn-active:hover{
 	border: 1px solid #2373a5;
 	background: #5393c5;
 	color: #fff;
@@ -228,9 +228,6 @@
 }
 .hui-btn-active.hui-gradient{
 	.fn_linear_gradient_top(#5f9cc5,#6facd5);
-}
-.hui-btn-active:hover{
-	.hui-btn-active;
 }
 .hui-btn.hui-btn-active-b{
 	color:#548805;
@@ -733,7 +730,7 @@
 	font-size:0.5em;
 	color:#fff;
 	.fn_border_radius(0.5em);
-	right:0.313em;
+	right:0.5em;
 }
 .hui-label{
 	&.hui-label-default{
@@ -1211,6 +1208,7 @@
 	}
 	.hui-list-item{
 		position:relative;
+		cursor:pointer;
 		border-bottom:1px solid #d5d6d7;
 	}
 }
