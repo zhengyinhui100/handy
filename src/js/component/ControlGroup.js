@@ -115,8 +115,8 @@ function(Obj,AC){
 			oItems.each(function(i,el){
 				var jEl=$(el);
 				if(i==0){
-					jEl.removeClass(sLastCls);
 					jEl.addClass(sFirstCls);
+					nLen===1?jEl.addClass(sLastCls):jEl.removeClass(sLastCls);
 				}else if(i==nLen-1){
 					jEl.removeClass(sFirstCls);
 					jEl.addClass(sLastCls);

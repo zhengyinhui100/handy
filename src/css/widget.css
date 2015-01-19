@@ -1305,8 +1305,6 @@
   width: auto;
   margin: 0;
   border-width: 0;
-  overflow: visible;
-  overflow-x: hidden;
 }
 .hui-dialog .hui-body-content {
   padding: 0.938em;

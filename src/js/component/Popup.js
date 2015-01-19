@@ -192,7 +192,7 @@ function(Browser,Util,Event,AC){
 				nDocWidth=oDocEl.offsetWidth || oBody.offsetWidth;
 			}
 		}else{
-			nDocWidth=oDocEl.offsetWidth || oBody.offsetWidth;
+			nDocWidth=oBody.offsetWidth;
 		}
 		var x = ( nDocWidth- width)/2;
 		var nClientHeight=oDocEl.clientHeight || oBody.clientHeight;
