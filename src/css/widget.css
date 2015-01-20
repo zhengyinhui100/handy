@@ -1544,6 +1544,10 @@
 .hui-vcard .hui-vcard-action .hui-inline {
   margin: 0.375em 1em 0.8em;
 }
+.hui-comment {
+  background-color: #FCF8D1;
+  border: 1px solid #F3DDB3;
+}
 .hui-comment .hui-content-title {
   font-size: 0.8em;
 }
@@ -1555,12 +1559,15 @@
   color: #222;
   font-size: 1em;
 }
-.hui-comment .hui-comment-quote {
-  border-bottom: 1px solid #F3DDB3;
+.hui-comment-top {
+  margin-bottom: 2em;
 }
-.hui-comment .hui-comment {
+.hui-comment-quote {
+  border-bottom: 1px solid #F3DDB3;
+  margin-left: 1em;
+}
+.hui-comment-quote .hui-comment {
   background-color: #FFFEF4;
-  border: 1px solid #F3DDB3;
   border-bottom: 0;
 }
 .hui-triangle {
