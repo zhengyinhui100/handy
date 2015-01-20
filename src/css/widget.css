@@ -609,6 +609,12 @@
   left: 0;
   top: 0;
 }
+.hui-image-lc {
+  position: absolute;
+  left: 0.313em;
+  top: 50%;
+  margin-top: -1.688em;
+}
 .hui-panel {
   position: relative;
 }
@@ -1359,7 +1365,7 @@
 }
 .hui-list {
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 .hui-list .hui-list-empty {
   text-align: center;
@@ -1468,7 +1474,7 @@
 }
 .hui-hcard {
   position: relative;
-  padding: 0.313em;
+  padding: 0.5em;
 }
 .hui-hcard.hui-hcard-hasimg {
   padding-left: 4.375em;
@@ -1663,8 +1669,6 @@
   top: 1px;
   bottom: 0;
   right: 0;
-  width: 100%;
-  height: 100%;
   background: black;
   filter: alpha(opacity= 20 );
   opacity: 0.2;

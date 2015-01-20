@@ -38,7 +38,7 @@ function(Browser,Support,AbstractNavigator){
 			oFooterTb.hide();
 		}
 		//模块切换动画，只在高性能的环境中实现
-		if((Support.perf()==='high'||!Browser.mobile()&&Modernizr.csstransforms3d)){
+		if(((!Browser.mobile()||Support.perf()==='high')&&Modernizr.csstransforms3d)){
 			//退出模块动画
 			var oShowEl=oShowMod.getEl();
 			var oHideEl=oHideMod&&oHideMod.getEl();
@@ -49,27 +49,15 @@ function(Browser,Support,AbstractNavigator){
 			if(oHideMod&&!oHideMod.hasFooter&&oHideMod.referer===oShowMod){
 				if(oHideEl.length>0){
 					oHideEl.addClass('hui-mod-zindex hui-scale-fadeout');
-//					oShowEl.addClass(sIndependCls);
 					oShowMod.show();
-					//oHideEl.get(0).offsetWidth;
 					oHideEl.data('hideMod',oHideMod);
 				}
 				oAniEl=oHideEl;
 			}else if(!bHasFooter){
 				//进入模块动画，顶级模块不加动画效果
 				if(oShowEl.length>0){
-					//oShowEl.removeClass('hui-slide-center').addClass('hui-goto-right hui-mod-zindex');
 					oShowEl.addClass('hui-mod-zindex hui-scale-fadein');
-					if(oHideMod){
-//						oHideEl.addClass(sIndependCls);
-					}
 					oShowMod.show();
-					//setTimeout(function(){
-						//这里必须触发layout，否则第二次以后进入模块会没有动画效果
-						//TODO 为何第一次时不触发layout也会有动画效果，而如果去掉setTimeout会都没有效果？
-						//oShowEl.get(0).offsetWidth;
-						//oShowEl.removeClass('hui-goto-right').addClass('hui-slide-center');
-					//},0);
 				}
 				oAniEl=oShowEl;
 			}
@@ -78,9 +66,7 @@ function(Browser,Support,AbstractNavigator){
 					oAniEl.one(sAniEvt,function(){
 						if(oHideMod){
 							oHideMod.hide();
-//								oHideEl.removeClass(sIndependCls);
 						}
-						//oShowEl.removeClass('hui-mod-zindex');
 						oAniEl.removeClass('hui-mod-zindex hui-scale-fadein hui-scale-fadeout');
 					})
 				}

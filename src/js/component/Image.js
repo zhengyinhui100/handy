@@ -18,6 +18,7 @@ function(AC,AbstractImage){
 		xConfig         : {
 			cls         : 'image',
 			imgSrc      : '',          //图片地址
+//			theme       : '',          //位置，默认static，lc:左边居中
 			radius      : 'normal'     //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 		},
 		listeners       : [{

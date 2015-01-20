@@ -387,7 +387,7 @@ function(Obj,Template,ViewManager,ModelView,Model){
 		var me=this;
 		var sId=me.getId();
 		//添加隐藏style，调用show方法时才显示
-		var sStyle,sCls=me.extCls||'';
+		var sStyle,sCls=(me.extCls||'')+' '+me.constructor.$ns.replace(/\./g,'-');
  		if(me.displayMode=='visibility'){
 			sStyle='visibility:hidden;';
  		}else{

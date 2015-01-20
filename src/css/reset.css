@@ -168,6 +168,9 @@ textarea {
   -ms-user-select: auto;
   -moz-user-select: text;
 }
+textarea {
+  overflow: auto;
+}
 input[type="text"] {
   -webkit-appearance: none;
 }

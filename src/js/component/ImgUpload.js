@@ -73,7 +73,12 @@ function(Browser,Obj,Util,AC,ImgCompress,Device,Camera){
 					//网页端裁剪图片(FileAPI)，兼容谷歌火狐IE6/7/8，http://www.oschina.net/code/snippet_988397_33758
 					//Flash头像上传新浪微博破解加强版，https://github.com/zhushunqing/FaustCplus
 					oEvt.preventDefault();
-					$C.Tips('上传功能暂时不支持IE9及以下版本，请使用其它浏览器，推荐chrome浏览器。')
+					new $C.Dialog({
+						contentMsg:'上传功能暂时不支持IE9及以下版本，请使用其它浏览器，推荐chrome浏览器。',
+						noCancel:true,
+						width:'15.625em',
+						okTxt:'我知道了'
+					});
 				}
 			}
 		}],

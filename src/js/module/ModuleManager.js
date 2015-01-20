@@ -81,7 +81,7 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 			name:sModName,
 			xtype:sModName,
 			cid:sModId.replace(/\./g,'-'),
-			extCls:'js-module m-module '+sModName.replace(/\./g,'-'),
+			extCls:'js-module m-module',
 			hidden:true
 		};
 		Obj.extend(oOptions,oParams);

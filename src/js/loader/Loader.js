@@ -458,7 +458,7 @@ function(Debug){
 	 */
 	function fDefine(sId,deps,factory){
 		//读取实名
-		sId=$H.alias(sId);
+		var sRealId=$H.alias(sId);
 		var nLen=arguments.length;
 		if(nLen==2){
 			factory=deps;
@@ -496,16 +496,17 @@ function(Debug){
 			}
 			
 			if(resource){
-				$H.ns(sId,resource);
+				$H.ns(sRealId,resource);
 				//添加命名空间元数据
 				var sType=typeof resource;
 				if(sType=="object"||sType=="function"){
 					resource.$ns=sId;
+					resource.$rns=sRealId;
 				}
 			}else{
 				Debug.warn(_LOADER_PRE+'factory no return:\n'+sId);
 			}
-		},sId);
+		},sRealId);
 	}
     /**
 	 * 加载所需的资源

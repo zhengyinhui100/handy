@@ -1294,7 +1294,7 @@ function(Debug){
 	 */
 	function fDefine(sId,deps,factory){
 		//读取实名
-		sId=$H.alias(sId);
+		var sRealId=$H.alias(sId);
 		var nLen=arguments.length;
 		if(nLen==2){
 			factory=deps;
@@ -1332,16 +1332,17 @@ function(Debug){
 			}
 			
 			if(resource){
-				$H.ns(sId,resource);
+				$H.ns(sRealId,resource);
 				//添加命名空间元数据
 				var sType=typeof resource;
 				if(sType=="object"||sType=="function"){
 					resource.$ns=sId;
+					resource.$rns=sRealId;
 				}
 			}else{
 				Debug.warn(_LOADER_PRE+'factory no return:\n'+sId);
 			}
-		},sId);
+		},sRealId);
 	}
     /**
 	 * 加载所需的资源
@@ -2704,6 +2705,7 @@ define("B.String",function(){
 		hasChn          : fHasChn,          // 字符是否包含中文
 		isChn           : fIsChn            // 字符是否是中文
 	}
+	
 	/**
 	 * 删除标签字符串
 	 * @method  stripTags
@@ -5974,7 +5976,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 		 *		{boolean=}unsave:是否不需要保存，嵌套属性都不提交，基本类型的自定义字段保存时默认提交，仅当声明为unsave:true时不提交
 		 *		{object=}options:新建模型/集合实例时的选项,
 		 *		{*=}def:默认值,
-		 *   	{Function=}parse:设置该属性时自定义解析操作,
+		 *   	{Function({*}val,{object}oAttrs)=}parse:设置该属性时自定义解析操作,
 		 *   	{Array=}depends:依赖的属性，计算属性需要此配置检查和计算
 	     *	}
 	     *	简便形式:
@@ -6110,7 +6112,9 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 				for(var i=0;i<aDeps.length;i++){
 			    	//当依赖属性变化时，设置计算属性
 					if(oChanges.hasOwnProperty(aDeps[i])){
-						oSets[key]=undefined;
+						var tmp={};
+						tmp[key]=undefined;
+						oSets[key]=me._parseFields(tmp,true)[key];
 						bNeed=true;
 						break;
 					}
@@ -6122,9 +6126,11 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     /**
      * 属性预处理
      * @param {Object}oAttrs 属性表
+     * @param {boolean=}bGet 是否是获取操作，默认为设置，为设置操作时，对于当前属性表中有的属性，
+     * 						不执行field里的pase操作，如果是获取操作，则还要执行parse
      * @return {Object} 返回处理好的属性表
      */
-    function _fParseFields(oAttrs){
+    function _fParseFields(oAttrs,bIsGet){
     	var me=this;
     	var oFields;
     	if(!(oFields=me.fields)){
@@ -6138,7 +6144,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 				type=oField.type;
 				oOptions=oField.options;
 				//自定义解析
-				if(fParse=oField.parse){
+				if((fParse=oField.parse)&&bIsGet){
 					val=fParse.apply(me,[val,oAttrs]);
 				}
 				//自定义类型，包括Model和Collection
@@ -6418,11 +6424,11 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	        }
 	    }
 	    me._pending = false;
-	    me._changing = false;
 	    //处理依赖属性
 	    if(bHasChange){
 		    me._doDepends(oChanges,bSilent);
 	    }
+	    me._changing = false;
 	    oResult.changed=bHasChange;
 	    //重新清空属性事件标记
 	    me._attrEvts={};
@@ -6488,7 +6494,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     }
 	/**
 	 * 返回改变过的属性，可以指定需要判断的属性
-	 * @param {Object=}oDiff 参数属性，表示只判断传入的属性列表，返回跟参数属性不同的属性表
+	 * @param {Object=}oDiff 参数属性，表示只判断传入的属性列表，返回跟参数属性不同的属性表，不传表示检查全部属性
 	 * @param {boolean=}bAll 仅当为true时检测所有的属性，否则只检测需要提交的属性
 	 * @retur {boolean} 如果有改变，返回改变的属性，否则，返回false
 	 */
@@ -6672,7 +6678,8 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     	//patch只提交所有改变的值
 	    var oSaveAttrs;
 	    if (sMethod === 'patch'){
-	    	var oChanged=me.changedAttrs(oAttrs);
+	    	//设置不需要保存的属性可能导致需要保存的依赖属性变化，所以这里不能只检查当前设置的属性
+	    	var oChanged=me.changedAttrs();
 	    	//没有改变的属性，直接执行回调函数
 	    	if(!oChanged){
 	    		var fNoChange = oOptions.noChange;
@@ -9054,7 +9061,7 @@ function(Obj,Template,ViewManager,ModelView,Model){
 		var me=this;
 		var sId=me.getId();
 		//添加隐藏style，调用show方法时才显示
-		var sStyle,sCls=me.extCls||'';
+		var sStyle,sCls=(me.extCls||'')+' '+me.constructor.$ns.replace(/\./g,'-');
  		if(me.displayMode=='visibility'){
 			sStyle='visibility:hidden;';
  		}else{
@@ -10087,7 +10094,7 @@ function(Browser,Support,AbstractNavigator){
 			oFooterTb.hide();
 		}
 		//模块切换动画，只在高性能的环境中实现
-		if((Support.perf()==='high'||!Browser.mobile()&&Modernizr.csstransforms3d)){
+		if(((!Browser.mobile()||Support.perf()==='high')&&Modernizr.csstransforms3d)){
 			//退出模块动画
 			var oShowEl=oShowMod.getEl();
 			var oHideEl=oHideMod&&oHideMod.getEl();
@@ -10098,27 +10105,15 @@ function(Browser,Support,AbstractNavigator){
 			if(oHideMod&&!oHideMod.hasFooter&&oHideMod.referer===oShowMod){
 				if(oHideEl.length>0){
 					oHideEl.addClass('hui-mod-zindex hui-scale-fadeout');
-//					oShowEl.addClass(sIndependCls);
 					oShowMod.show();
-					//oHideEl.get(0).offsetWidth;
 					oHideEl.data('hideMod',oHideMod);
 				}
 				oAniEl=oHideEl;
 			}else if(!bHasFooter){
 				//进入模块动画，顶级模块不加动画效果
 				if(oShowEl.length>0){
-					//oShowEl.removeClass('hui-slide-center').addClass('hui-goto-right hui-mod-zindex');
 					oShowEl.addClass('hui-mod-zindex hui-scale-fadein');
-					if(oHideMod){
-//						oHideEl.addClass(sIndependCls);
-					}
 					oShowMod.show();
-					//setTimeout(function(){
-						//这里必须触发layout，否则第二次以后进入模块会没有动画效果
-						//TODO 为何第一次时不触发layout也会有动画效果，而如果去掉setTimeout会都没有效果？
-						//oShowEl.get(0).offsetWidth;
-						//oShowEl.removeClass('hui-goto-right').addClass('hui-slide-center');
-					//},0);
 				}
 				oAniEl=oShowEl;
 			}
@@ -10127,9 +10122,7 @@ function(Browser,Support,AbstractNavigator){
 					oAniEl.one(sAniEvt,function(){
 						if(oHideMod){
 							oHideMod.hide();
-//								oHideEl.removeClass(sIndependCls);
 						}
-						//oShowEl.removeClass('hui-mod-zindex');
 						oAniEl.removeClass('hui-mod-zindex hui-scale-fadein hui-scale-fadeout');
 					})
 				}
@@ -10429,7 +10422,7 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 			name:sModName,
 			xtype:sModName,
 			cid:sModId.replace(/\./g,'-'),
-			extCls:'js-module m-module '+sModName.replace(/\./g,'-'),
+			extCls:'js-module m-module',
 			hidden:true
 		};
 		Obj.extend(oOptions,oParams);
@@ -11549,7 +11542,7 @@ function(Browser,Util,Event,AC){
 				nDocWidth=oDocEl.offsetWidth || oBody.offsetWidth;
 			}
 		}else{
-			nDocWidth=oDocEl.offsetWidth || oBody.offsetWidth;
+			nDocWidth=oBody.offsetWidth;
 		}
 		var x = ( nDocWidth- width)/2;
 		var nClientHeight=oDocEl.clientHeight || oBody.clientHeight;
@@ -11742,8 +11735,8 @@ function(Obj,AC){
 			oItems.each(function(i,el){
 				var jEl=$(el);
 				if(i==0){
-					jEl.removeClass(sLastCls);
 					jEl.addClass(sFirstCls);
+					nLen===1?jEl.addClass(sLastCls):jEl.removeClass(sLastCls);
 				}else if(i==nLen-1){
 					jEl.removeClass(sFirstCls);
 					jEl.addClass(sLastCls);
@@ -12412,6 +12405,7 @@ function(AC){
 			clickable       : false,         //可点击效果，有click事件时默认为true
 			newsNum         : 0,             //新消息提示数目，大于9自动显示成"9+"
 			padding         : 'big',         //上下padding大小
+			hasArrow        : false,         //是否有箭头
 			paddingCls      : {
 				depends : ['padding'],
 				parse:function(){
@@ -12437,7 +12431,7 @@ function(AC){
 				'{{#if newsNumTxt}}',
 					'<span class="hui-news-tips">{{newsNumTxt}}</span>',
 				'{{else}}',
-					'{{#if clickable}}',
+					'{{#if hasArrow}}',
 						'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情"><span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span></a>',
 					'{{/if}}',
 				'{{/if}}',
@@ -12461,9 +12455,13 @@ function(AC){
 		if(me.text!==undefined&&!oSettings.hasOwnProperty('underline')){
 			me.set('underline',true);
 		}
-		//有点击函数时默认有右箭头
+		//有点击函数时默认有可点击效果
 		if(oSettings.click&&!oSettings.hasOwnProperty('clickable')){
 			me.set('clickable',true);
+		}
+		//有可点击效果时默认有右箭头
+		if(me.get('clickable')&&!oSettings.hasOwnProperty('hasArrow')){
+			me.set('hasArrow',true);
 		}
 		//有注解
 		if(oSettings.comment&&oSettings.padding===undefined){
@@ -12551,9 +12549,6 @@ function(Obj,AC){
 				'<div {{bindAttr class="#hui-field-right noPadding?hui-field-nopadding"}}>',
 					'{{placeItem > [xrole=content]}}',
 				'</div>',
-				'{{#if clickable}}',
-					'<a href="javascript:;" hidefocus="true" class="hui-click-arrow" title="详情"><span class="hui-icon hui-alt-icon hui-icon-carat-r hui-light"></span></a>',
-				'{{/if}}',
 			'</div>'
 		].join(''),
 		doConfig       : fDoConfig    //初始化配置
@@ -14021,6 +14016,7 @@ function(AC,AbstractImage){
 		xConfig         : {
 			cls         : 'image',
 			imgSrc      : '',          //图片地址
+//			theme       : '',          //位置，默认static，lc:左边居中
 			radius      : 'normal'     //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
 		},
 		listeners       : [{
@@ -14115,7 +14111,12 @@ function(Browser,Obj,Util,AC,ImgCompress,Device,Camera){
 					//网页端裁剪图片(FileAPI)，兼容谷歌火狐IE6/7/8，http://www.oschina.net/code/snippet_988397_33758
 					//Flash头像上传新浪微博破解加强版，https://github.com/zhushunqing/FaustCplus
 					oEvt.preventDefault();
-					$C.Tips('上传功能暂时不支持IE9及以下版本，请使用其它浏览器，推荐chrome浏览器。')
+					new $C.Dialog({
+						contentMsg:'上传功能暂时不支持IE9及以下版本，请使用其它浏览器，推荐chrome浏览器。',
+						noCancel:true,
+						width:'15.625em',
+						okTxt:'我知道了'
+					});
 				}
 			}
 		}],
@@ -14997,9 +14998,9 @@ function(Util,Obj,Date,Support,AC,Draggable){
 		scrollPos           : 'top',             //默认滚动到的位置，'top'顶部，'bottom'底部
 		pulldownIsRefresh   : true,              //true表示下拉式刷新，而按钮是获取更多，false表示相反
 //		itemXtype           : '',                //子组件默认xtype
-//		refresh             : null,              //刷新接口
+		refresh             : $H.noop,           //刷新接口
 		autoFetch           : true,              //初始化时如果没有数据是否自动获取
-//		getMore             : null,              //获取更多接口
+		getMore             : $H.noop,           //获取更多接口
 		
 		tmpl        : [
 			'<div class="hui-list">',

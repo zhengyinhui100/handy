@@ -227,7 +227,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 						//集合
 						var oCurrent=me.get(key);
 						if(oCurrent){
-							var tmp=oCurrent.set(val);
+							var tmp=oCurrent.set(val,oOptions);
 							val=oCurrent;
 							val._changedTmp=tmp.changed;
 							

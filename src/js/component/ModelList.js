@@ -39,9 +39,9 @@ function(Util,Obj,Date,Support,AC,Draggable){
 		scrollPos           : 'top',             //默认滚动到的位置，'top'顶部，'bottom'底部
 		pulldownIsRefresh   : true,              //true表示下拉式刷新，而按钮是获取更多，false表示相反
 //		itemXtype           : '',                //子组件默认xtype
-//		refresh             : null,              //刷新接口
+		refresh             : $H.noop,           //刷新接口
 		autoFetch           : true,              //初始化时如果没有数据是否自动获取
-//		getMore             : null,              //获取更多接口
+		getMore             : $H.noop,           //获取更多接口
 		
 		tmpl        : [
 			'<div class="hui-list">',
