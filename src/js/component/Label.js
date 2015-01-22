@@ -18,17 +18,15 @@ function(AC){
 			textAlign   : '',      //label文字对齐，默认左对齐
 			forName     : '',      //label的for属性
 			colorCls    : {
-				depends:['color'],
-				parseDeps:function(){
-					var s=this.get('color');
-					return s?'hui-label-'+s:'';
+				deps:['color'],
+				parseDeps:function(color){
+					return color?'hui-label-'+color:'';
 				}
 			},
 			textAlignCls    : {
-				depends:['textAlign'],
-				parseDeps:function(){
-					var s=this.get('textAlign');
-					return s?'c-txt-'+s:'';
+				deps:['textAlign'],
+				parseDeps:function(textAlign){
+					return textAlign?'c-txt-'+textAlign:'';
 				}
 			}
 		},

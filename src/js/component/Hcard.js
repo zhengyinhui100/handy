@@ -23,15 +23,14 @@ function(AC){
 			newsNum     : 0,     //新消息提示数目，大于9自动显示成"9+"
 			hasBorder   : false, //是否有边框
 			hasImgCls   : {      //是否有图片
-				depends : ['image','hasImg'],
-				parseDeps:function(val){
-					return (this.get('image')||this.get('hasImg'))?'hui-hcard-hasimg':'';
+				deps : ['image','hasImg'],
+				parseDeps:function(image,hasImg){
+					return (image||hasImg)?'hui-hcard-hasimg':'';
 				}
 			},  
 			newsNumTxt  : {
-				depends : ['newsNum'],
-				parseDeps:function(){
-					var newsNum=this.get('newsNum');
+				deps : ['newsNum'],
+				parseDeps:function(newsNum){
 					return newsNum?newsNum>9?'9+':newsNum:0
 				}
 			}

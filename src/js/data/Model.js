@@ -33,7 +33,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 		 *		{object=}options:新建模型/集合实例时的选项,
 		 *		{*=}def:默认值,
 		 *   	{Function({*}val,{object}oAttrs)=}parseDeps:设置该属性时自定义解析操作,
-		 *   	{Array=}depends:依赖的属性，计算属性需要此配置检查和计算
+		 *   	{Array=}deps:依赖的属性，计算属性需要此配置检查和计算
 	     *	}
 	     *	简便形式:
 	     *	{name:default}
@@ -161,16 +161,23 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     function _fDoDepends(oChanges,bSilent){
     	var me=this;
     	//处理计算属性
-	    var oFields=me.fields,oField,aDeps,oSets={},bNeed;
+	    var oFields=me.fields,oField,aDeps,oSets={},bNeed,fParseDeps;
 	    for(var key in oFields){
 	    	var oField=oFields[key];
-			if(oField&&(aDeps=oField.depends)){
+			if(oField&&(aDeps=oField.deps)){
 				for(var i=0;i<aDeps.length;i++){
 			    	//当依赖属性变化时，设置计算属性
 					if(oChanges.hasOwnProperty(aDeps[i])){
-						var tmp={};
-						tmp[key]=undefined;
-						oSets[key]=me._parseFields(tmp,true)[key];
+						var val;
+						//自定义解析
+						if(fParseDeps=oField.parseDeps){
+							var aParams=[];
+							for(var j=0;j<aDeps.length;j++){
+								aParams.push(me.get(aDeps[j]));
+							}
+							val=fParseDeps.apply(me,aParams);
+						}
+						oSets[key]=val;
 						bNeed=true;
 						break;
 					}
@@ -192,17 +199,13 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     	if(!(oFields=me.fields)){
     		return oAttrs;
     	}
-    	var oField,fParse,val,aDeps,type,oOptions;
+    	var oField,val,aDeps,type,oOptions;
     	var oResult={};
 		for(var key in oAttrs){
 			val=oAttrs[key];
 			if(oField=oFields[key]){
 				type=oField.type;
 				oOptions=oField.options;
-				//自定义解析
-				if((fParse=oField.parseDeps)&&bIsGet){
-					val=fParse.apply(me,[val,oAttrs]);
-				}
 				//自定义类型，包括Model和Collection
 				if(Obj.isStr(type)){
 					if(type=='Date'){

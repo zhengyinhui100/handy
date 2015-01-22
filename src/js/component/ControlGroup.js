@@ -19,9 +19,9 @@ function(Obj,AC){
 			cls              : 'ctrlgp',
 			direction        : 'v',                  //排列方向，'v'表示垂直方向，'h'表示水平方向
 			directionCls     : {
-				depends:['direction'],
-				parseDeps:function(){
-					return 'hui-ctrlgp-'+this.get('direction');
+				deps:['direction'],
+				parseDeps:function(direction){
+					return 'hui-ctrlgp-'+direction;
 				}
 			}
 		},

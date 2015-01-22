@@ -21,9 +21,8 @@ function(Obj,Date,AC,DatePicker){
 			name            : '',                  //选项名
 			value           : '',             //默认值
 			text            : {                    //选择框的文字
-				depends   : ['value'],
-				parseDeps     : function(){
-					var sTxt=this.get('value');
+				deps   : ['value'],
+				parseDeps     : function(sTxt){
 					if(sTxt){
 						return sTxt+' 星期'+Date.getWeek(Date.parseDate(sTxt));
 					}else{
@@ -35,9 +34,8 @@ function(Obj,Date,AC,DatePicker){
 			gradient        : true,
 			iconPos         : 'right',             //图标位置，"left"|"right"|"top"|"bottom"
 			iconPosCls      : {
-				depends : ['iconPos'],
-				parseDeps :function(){
-					var sPos=this.get('iconPos');
+				deps : ['iconPos'],
+				parseDeps :function(sPos){
 					return sPos?'hui-btn-icon-'+sPos:'';
 				}
 			}

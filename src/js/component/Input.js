@@ -27,16 +27,14 @@ function(Browser,Util,Event,AC){
 			iconPos         : '',                  //图标位置，'left'或'right'
 			btnPos          : '',                  //按钮位置，'left'或'right'
 			iconPosCls      : {
-				depends : ['iconPos'],
-				parseDeps :function(){
-					var sIconPos=this.get('iconPos');
+				deps : ['iconPos'],
+				parseDeps :function(sIconPos){
 					return sIconPos?'hui-input-icon-'+sIconPos:'';
 				}
 			},
 			btnPosCls       : {
-				depends : ['btnPos'],
-				parseDeps :function(){
-					var sBtnPos=this.get('btnPos');
+				deps : ['btnPos'],
+				parseDeps :function(sBtnPos){
 					return sBtnPos?'hui-input-btn-'+sBtnPos:'';
 				}
 			}

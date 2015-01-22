@@ -29,25 +29,22 @@ function(Obj,AC){
 			gradient        : false,               //渐变效果
 			isInline        : true,                //宽度自适应
 			noTxtCls        : {
-				depends : ['text','tType'],
-				parseDeps : function(){
-					var sTxt=this.get('text');
-					if(!(this.get('tType')=='adapt'||sTxt||sTxt===0)){
+				deps : ['text','tType'],
+				parseDeps : function(sTxt,tType){
+					if(!(tType=='adapt'||sTxt||sTxt===0)){
 						return 'hui-btn-icon-notxt';
 					}
 				}
 			},
 			iconPosCls      : {
-				depends : ['iconPos'],
-				parseDeps :function(){
-					var sPos=this.get('iconPos');
+				deps : ['iconPos'],
+				parseDeps :function(sPos){
 					return sPos?'hui-btn-icon-'+sPos:'';
 				}
 			},
 			markCls      : {
-				depends : ['markType'],
-				parseDeps :function(){
-					var markType=this.get('markType');
+				deps : ['markType'],
+				parseDeps :function(markType){
 					return markType?'hui-btn-mark-'+markType:'';
 				}
 			}

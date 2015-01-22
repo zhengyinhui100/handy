@@ -25,9 +25,8 @@ function(Browser,Obj,AC){
 			gradient        : true,
 			iconPos         : 'right',             //图标位置，"left"|"right"|"top"|"bottom"
 			iconPosCls      : {
-				depends : ['iconPos'],
-				parseDeps :function(){
-					var sPos=this.get('iconPos');
+				deps : ['iconPos'],
+				parseDeps :function(sPos){
 					return sPos?'hui-btn-icon-'+sPos:'';
 				}
 			}

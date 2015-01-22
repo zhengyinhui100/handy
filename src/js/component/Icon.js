@@ -22,9 +22,9 @@ function(Obj,AC){
 			radius      : 'big',
 			name        : '',                 //图标名称
 			iconName    : {
-				depends : ['name'],
-				parseDeps :function(){
-					return 'hui-icon-'+this.get('name');
+				deps : ['name'],
+				parseDeps :function(name){
+					return 'hui-icon-'+name;
 				}
 			}
 		},

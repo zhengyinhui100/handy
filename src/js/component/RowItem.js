@@ -22,16 +22,14 @@ function(AC){
 			padding         : 'big',         //上下padding大小
 			hasArrow        : false,         //是否有箭头
 			paddingCls      : {
-				depends : ['padding'],
-				parseDeps:function(){
-					var padding=this.get('padding');
+				deps : ['padding'],
+				parseDeps:function(padding){
 					return padding?'hui-rowitem-padding-'+padding:''
 				}
 			},
 			newsNumTxt      : {
-				depends : ['newsNum'],
-				parseDeps:function(){
-					var newsNum=this.get('newsNum');
+				deps : ['newsNum'],
+				parseDeps:function(newsNum){
 					return newsNum?newsNum>9?'9+':newsNum:0
 				}
 			}

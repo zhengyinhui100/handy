@@ -42,42 +42,38 @@ define('C.AbstractComponent',
 			isInline        : false,             //是否内联(宽度自适应)
 			activeCls       : 'hui-active',      //激活样式
 			cmpCls          : {
-				depends : ['cls'],
-				parseDeps :function(){
-					return 'hui-'+this.get("cls");
+				deps : ['cls'],
+				parseDeps :function(cls){
+					return 'hui-'+cls;
 				}
 			},
 			sizeCls          : {
-				depends : ['size'],
-				parseDeps :function(){
-					var size=this.get("size");
+				deps : ['size'],
+				parseDeps :function(size){
 					return size&&'hui-size-'+size;
 				}
 			},
 			tTypeCls        : {
-				depends : ['tType'],
-				parseDeps :function(){
-					var tType=this.get("tType");
+				deps : ['tType'],
+				parseDeps :function(tType){
 					return tType?'hui-'+this.get("cls")+'-'+tType:'';
 				}
 			},
 			themeCls        : {
-				depends : ['theme'],
-				parseDeps :function(){
-					var sTheme=this.get("theme");
-					return sTheme?'hui-'+this.get("cls")+'-'+this.get("theme"):'';
+				deps : ['theme'],
+				parseDeps :function(theme){
+					return theme?'hui-'+this.get("cls")+'-'+theme:'';
 				}
 			},
 			activeClass     : {
-				depends : ['isActive','activeCls'],
-				parseDeps :function(){
-					return this.get('isActive')?this.get('activeCls'):'';
+				deps : ['isActive','activeCls'],
+				parseDeps :function(isActive,activeCls){
+					return isActive?activeCls:'';
 				}
 			},
 			radiusCls       : {
-				depends : ['radius'],
-				parseDeps :function(){
-					var sRadius=this.get('radius');
+				deps : ['radius'],
+				parseDeps :function(sRadius){
 					return sRadius?'hui-radius-'+sRadius:'';
 				}
 			}
