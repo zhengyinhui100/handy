@@ -23,7 +23,7 @@ function(Obj,AC,Model,Collection){
 			txtOverflow : true,     //文字超出长度显示省略号
 			iconCls : {
 				depends:['icon'],
-				parse:function(){
+				parseDeps:function(){
 					var sIcon=this.get('icon');
 					return sIcon?'hui-icon-'+sIcon:'';
 				}

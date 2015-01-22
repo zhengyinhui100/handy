@@ -19,14 +19,14 @@ function(AC){
 			forName     : '',      //label的for属性
 			colorCls    : {
 				depends:['color'],
-				parse:function(){
+				parseDeps:function(){
 					var s=this.get('color');
 					return s?'hui-label-'+s:'';
 				}
 			},
 			textAlignCls    : {
 				depends:['textAlign'],
-				parse:function(){
+				parseDeps:function(){
 					var s=this.get('textAlign');
 					return s?'c-txt-'+s:'';
 				}

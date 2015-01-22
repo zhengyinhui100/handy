@@ -30,7 +30,7 @@ function(Obj,AC){
 			isInline        : true,                //宽度自适应
 			noTxtCls        : {
 				depends : ['text','tType'],
-				parse : function(){
+				parseDeps : function(){
 					var sTxt=this.get('text');
 					if(!(this.get('tType')=='adapt'||sTxt||sTxt===0)){
 						return 'hui-btn-icon-notxt';
@@ -39,14 +39,14 @@ function(Obj,AC){
 			},
 			iconPosCls      : {
 				depends : ['iconPos'],
-				parse :function(){
+				parseDeps :function(){
 					var sPos=this.get('iconPos');
 					return sPos?'hui-btn-icon-'+sPos:'';
 				}
 			},
 			markCls      : {
 				depends : ['markType'],
-				parse :function(){
+				parseDeps :function(){
 					var markType=this.get('markType');
 					return markType?'hui-btn-mark-'+markType:'';
 				}

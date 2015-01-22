@@ -20,7 +20,7 @@ function(Obj,AC){
 			direction        : 'v',                  //排列方向，'v'表示垂直方向，'h'表示水平方向
 			directionCls     : {
 				depends:['direction'],
-				parse:function(){
+				parseDeps:function(){
 					return 'hui-ctrlgp-'+this.get('direction');
 				}
 			}

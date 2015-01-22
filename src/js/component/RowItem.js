@@ -23,14 +23,14 @@ function(AC){
 			hasArrow        : false,         //是否有箭头
 			paddingCls      : {
 				depends : ['padding'],
-				parse:function(){
+				parseDeps:function(){
 					var padding=this.get('padding');
 					return padding?'hui-rowitem-padding-'+padding:''
 				}
 			},
 			newsNumTxt      : {
 				depends : ['newsNum'],
-				parse:function(){
+				parseDeps:function(){
 					var newsNum=this.get('newsNum');
 					return newsNum?newsNum>9?'9+':newsNum:0
 				}

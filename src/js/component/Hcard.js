@@ -24,13 +24,13 @@ function(AC){
 			hasBorder   : false, //是否有边框
 			hasImgCls   : {      //是否有图片
 				depends : ['image','hasImg'],
-				parse:function(val){
+				parseDeps:function(val){
 					return (this.get('image')||this.get('hasImg'))?'hui-hcard-hasimg':'';
 				}
 			},  
 			newsNumTxt  : {
 				depends : ['newsNum'],
-				parse:function(){
+				parseDeps:function(){
 					var newsNum=this.get('newsNum');
 					return newsNum?newsNum>9?'9+':newsNum:0
 				}

@@ -40,14 +40,16 @@ function(Func) {
 		if(navigator.geolocation){
 			navigator.geolocation.getCurrentPosition(fSucc, fErr);
 		}else{
-			new $C.Tips({
-				showPos:'top',
-				size:'mini',
-				timeout:null,
-				theme:'error',
-				noMask:true,
-				text:'当前设备不支持获取位置'
-			});
+			if(!fOnError||fOnError({code:'unsupport'})!==false){
+				new $C.Tips({
+					showPos:'top',
+					size:'mini',
+					timeout:null,
+					theme:'error',
+					noMask:true,
+					text:'当前设备不支持获取位置'
+				});
+			}
 		}
 	}
 	/**

@@ -28,14 +28,14 @@ function(Browser,Util,Event,AC){
 			btnPos          : '',                  //按钮位置，'left'或'right'
 			iconPosCls      : {
 				depends : ['iconPos'],
-				parse :function(){
+				parseDeps :function(){
 					var sIconPos=this.get('iconPos');
 					return sIconPos?'hui-input-icon-'+sIconPos:'';
 				}
 			},
 			btnPosCls       : {
 				depends : ['btnPos'],
-				parse :function(){
+				parseDeps :function(){
 					var sBtnPos=this.get('btnPos');
 					return sBtnPos?'hui-input-btn-'+sBtnPos:'';
 				}

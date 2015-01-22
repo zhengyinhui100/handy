@@ -32,7 +32,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 		 *		{boolean=}unsave:是否不需要保存，嵌套属性都不提交，基本类型的自定义字段保存时默认提交，仅当声明为unsave:true时不提交
 		 *		{object=}options:新建模型/集合实例时的选项,
 		 *		{*=}def:默认值,
-		 *   	{Function({*}val,{object}oAttrs)=}parse:设置该属性时自定义解析操作,
+		 *   	{Function({*}val,{object}oAttrs)=}parseDeps:设置该属性时自定义解析操作,
 		 *   	{Array=}depends:依赖的属性，计算属性需要此配置检查和计算
 	     *	}
 	     *	简便形式:
@@ -200,7 +200,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 				type=oField.type;
 				oOptions=oField.options;
 				//自定义解析
-				if((fParse=oField.parse)&&(!me._pending||bIsGet)){
+				if((fParse=oField.parseDeps)&&bIsGet){
 					val=fParse.apply(me,[val,oAttrs]);
 				}
 				//自定义类型，包括Model和Collection
@@ -468,9 +468,9 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	
 	    //触发模型对象change事件
 	    if (!bSilent) {
-	        while (me._pending) {
+	        if(me._pending) {
 	       		oOptions = me._pending;
-	            me._pending = false;
+//	            me._pending = false;
 	            me.trigger('change', me, oOptions);
 	        }
 	    }

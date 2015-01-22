@@ -43,40 +43,40 @@ define('C.AbstractComponent',
 			activeCls       : 'hui-active',      //激活样式
 			cmpCls          : {
 				depends : ['cls'],
-				parse :function(){
+				parseDeps :function(){
 					return 'hui-'+this.get("cls");
 				}
 			},
 			sizeCls          : {
 				depends : ['size'],
-				parse :function(){
+				parseDeps :function(){
 					var size=this.get("size");
 					return size&&'hui-size-'+size;
 				}
 			},
 			tTypeCls        : {
 				depends : ['tType'],
-				parse :function(){
+				parseDeps :function(){
 					var tType=this.get("tType");
 					return tType?'hui-'+this.get("cls")+'-'+tType:'';
 				}
 			},
 			themeCls        : {
 				depends : ['theme'],
-				parse :function(){
+				parseDeps :function(){
 					var sTheme=this.get("theme");
 					return sTheme?'hui-'+this.get("cls")+'-'+this.get("theme"):'';
 				}
 			},
 			activeClass     : {
 				depends : ['isActive','activeCls'],
-				parse :function(){
+				parseDeps :function(){
 					return this.get('isActive')?this.get('activeCls'):'';
 				}
 			},
 			radiusCls       : {
 				depends : ['radius'],
-				parse :function(){
+				parseDeps :function(){
 					var sRadius=this.get('radius');
 					return sRadius?'hui-radius-'+sRadius:'';
 				}

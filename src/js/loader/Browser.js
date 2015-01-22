@@ -15,6 +15,7 @@ define("L.Browser",function(){
 			'windows','linux','mac',                    //操作系统，@return{boolean}
 			'trident','webkit','gecko','presto',        //浏览器内核类型，@return{boolean}
 			'sogou','maxthon','tt','theWorld','is360',  //浏览器壳类型，@return{boolean}
+			'pc',                                       //是否是pc
 			'mobile',                                   //移动设备类型，@return{string}'ios'|'android'|'nokian'|'webos'
 			'android','ios',                            //android或者ios版本，@return{string}
 			'iPhone','iPod','iPad',                     //ios设备版本，@return{string}
@@ -143,6 +144,7 @@ define("L.Browser",function(){
 												// ex: NokiaN95
 			}
 		}
+		_oInfo.pc=!_oInfo.mobile;
 	}
 	/**
 	 * 分析浏览器flash版本

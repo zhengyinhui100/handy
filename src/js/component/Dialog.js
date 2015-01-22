@@ -153,7 +153,9 @@ function(Obj,AC,Popup){
 					theme:'gray',
 					xrole:'left',
 					click:function(){
-						me.hide();
+						if(!me.closeCall||me.closeCall()!=false){
+							me.hide();
+						}
 					}
 				}
 			})

@@ -23,7 +23,7 @@ function(Obj,AC){
 			name        : '',                 //图标名称
 			iconName    : {
 				depends : ['name'],
-				parse :function(){
+				parseDeps :function(){
 					return 'hui-icon-'+this.get('name');
 				}
 			}

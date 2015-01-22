@@ -22,7 +22,7 @@ function(Obj,Date,AC,DatePicker){
 			value           : '',             //默认值
 			text            : {                    //选择框的文字
 				depends   : ['value'],
-				parse     : function(){
+				parseDeps     : function(){
 					var sTxt=this.get('value');
 					if(sTxt){
 						return sTxt+' 星期'+Date.getWeek(Date.parseDate(sTxt));
@@ -36,7 +36,7 @@ function(Obj,Date,AC,DatePicker){
 			iconPos         : 'right',             //图标位置，"left"|"right"|"top"|"bottom"
 			iconPosCls      : {
 				depends : ['iconPos'],
-				parse :function(){
+				parseDeps :function(){
 					var sPos=this.get('iconPos');
 					return sPos?'hui-btn-icon-'+sPos:'';
 				}
