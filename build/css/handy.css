@@ -2065,6 +2065,12 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-dsel .hui-icon-carat-d {
   background-size: 0.625em auto;
 }
+.hui-pc .hui-select:hover,
+.hui-mobile .hui-select:hover,
+.hui-pc .hui-dsel:hover,
+.hui-mobile .hui-dsel:hover {
+  font-weight: normal;
+}
 .hui-slidesel {
   position: relative;
 }
@@ -2195,7 +2201,6 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   background-color: red;
   text-align: center;
   vertical-align: middle;
-  font-size: 0.5em;
   color: #fff;
   -webkit-border-radius: 0.5em;
   -moz-border-radius: 0.5em;
@@ -2836,6 +2841,10 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-vcard .hui-vcard-action .hui-inline {
   margin: 0.375em 1em 0.8em;
 }
+.hui-comment {
+  background-color: #FCF8D1;
+  border: 1px solid #F3DDB3;
+}
 .hui-comment .hui-content-title {
   font-size: 0.8em;
 }
@@ -2847,12 +2856,15 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   color: #222;
   font-size: 1em;
 }
-.hui-comment .hui-comment-quote {
-  border-bottom: 1px solid #F3DDB3;
+.hui-comment-top {
+  margin-bottom: 1em;
 }
-.hui-comment .hui-comment {
+.hui-comment-quote {
+  border-bottom: 1px solid #F3DDB3;
+  margin: .5em;
+}
+.hui-comment-quote .hui-comment {
   background-color: #FFFEF4;
-  border: 1px solid #F3DDB3;
   border-bottom: 0;
 }
 .hui-triangle {

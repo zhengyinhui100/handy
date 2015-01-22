@@ -200,7 +200,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 				type=oField.type;
 				oOptions=oField.options;
 				//自定义解析
-				if((fParse=oField.parse)&&bIsGet){
+				if((fParse=oField.parse)&&(!me._pending||bIsGet)){
 					val=fParse.apply(me,[val,oAttrs]);
 				}
 				//自定义类型，包括Model和Collection
@@ -388,11 +388,9 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	    var bUnset= oOptions.unset;
 	    var bSilent= oOptions.silent;
 	    var oChanges={};
-	    var bChanging= me._changing;
-	    me._changing  = true;
 	
 	    //开始改变前，先存储初始值
-	    if (!bChanging) {
+	    if (!me._pending) {
 	        me._previousAttributes = Obj.clone(me._attributes);
 	    	me._changed = {};
 	    }
@@ -468,9 +466,6 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	        }
 	    }
 	
-	    if (bChanging){
-	    	//return me;
-	    }
 	    //触发模型对象change事件
 	    if (!bSilent) {
 	        while (me._pending) {
@@ -479,12 +474,11 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	            me.trigger('change', me, oOptions);
 	        }
 	    }
-	    me._pending = false;
 	    //处理依赖属性
 	    if(bHasChange){
 		    me._doDepends(oChanges,bSilent);
 	    }
-	    me._changing = false;
+	    me._pending = false;
 	    oResult.changed=bHasChange;
 	    //重新清空属性事件标记
 	    me._attrEvts={};

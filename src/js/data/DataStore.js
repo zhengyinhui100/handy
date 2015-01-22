@@ -33,9 +33,9 @@ function(Obj,Class){
 	function fGet(sName,oOptions){
 		var oCache;
 		if(Obj.isClass(sName)){
-			sName=sName.$ns;
+			sName=sName.$rns;
 		}else if(Obj.isInstance(sName)){
-			sName=sName.constructor.$ns;
+			sName=sName.constructor.$rns;
 		}else{
 			sName=$H.alias(sName);
 		}
@@ -72,7 +72,7 @@ function(Obj,Class){
 			data=sCid;
 			sCid=null;
 		}
-		var sName=data.constructor.$ns;
+		var sName=data.constructor.$rns;
 		var aCache=_cache[sName]||(_cache[sName]={});
 		aCache[data.uuid]=data;
 		//快捷访问别名(客户id)

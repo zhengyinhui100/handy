@@ -5662,9 +5662,9 @@ function(Obj,Class){
 	function fGet(sName,oOptions){
 		var oCache;
 		if(Obj.isClass(sName)){
-			sName=sName.$ns;
+			sName=sName.$rns;
 		}else if(Obj.isInstance(sName)){
-			sName=sName.constructor.$ns;
+			sName=sName.constructor.$rns;
 		}else{
 			sName=$H.alias(sName);
 		}
@@ -5701,7 +5701,7 @@ function(Obj,Class){
 			data=sCid;
 			sCid=null;
 		}
-		var sName=data.constructor.$ns;
+		var sName=data.constructor.$rns;
 		var aCache=_cache[sName]||(_cache[sName]={});
 		aCache[data.uuid]=data;
 		//快捷访问别名(客户id)
@@ -6144,7 +6144,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 				type=oField.type;
 				oOptions=oField.options;
 				//自定义解析
-				if((fParse=oField.parse)&&bIsGet){
+				if((fParse=oField.parse)&&(!me._pending||bIsGet)){
 					val=fParse.apply(me,[val,oAttrs]);
 				}
 				//自定义类型，包括Model和Collection
@@ -6171,7 +6171,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 						//集合
 						var oCurrent=me.get(key);
 						if(oCurrent){
-							var tmp=oCurrent.set(val);
+							var tmp=oCurrent.set(val,oOptions);
 							val=oCurrent;
 							val._changedTmp=tmp.changed;
 							
@@ -6332,11 +6332,9 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	    var bUnset= oOptions.unset;
 	    var bSilent= oOptions.silent;
 	    var oChanges={};
-	    var bChanging= me._changing;
-	    me._changing  = true;
 	
 	    //开始改变前，先存储初始值
-	    if (!bChanging) {
+	    if (!me._pending) {
 	        me._previousAttributes = Obj.clone(me._attributes);
 	    	me._changed = {};
 	    }
@@ -6412,9 +6410,6 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	        }
 	    }
 	
-	    if (bChanging){
-	    	//return me;
-	    }
 	    //触发模型对象change事件
 	    if (!bSilent) {
 	        while (me._pending) {
@@ -6423,12 +6418,11 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	            me.trigger('change', me, oOptions);
 	        }
 	    }
-	    me._pending = false;
 	    //处理依赖属性
 	    if(bHasChange){
 		    me._doDepends(oChanges,bSilent);
 	    }
-	    me._changing = false;
+	    me._pending = false;
 	    oResult.changed=bHasChange;
 	    //重新清空属性事件标记
 	    me._attrEvts={};
@@ -13810,7 +13804,7 @@ function(Obj,Date,AC,DatePicker){
 		tmpl            : [
 			'<div {{bindAttr class="#hui-btn #hui-btn-gray iconPosCls"}}>',
 				'<span class="hui-icon hui-alt-icon hui-icon-carat-d hui-light"></span>',
-				'<input {{bindAttr value="value" name="name"}}/>',
+				'{{input type="#text" name="name" value="value"}}',
 				'<span class="hui-btn-txt">{{text}}</span>',
 			'</div>'
 		].join(''),

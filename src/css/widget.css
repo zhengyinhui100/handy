@@ -773,6 +773,12 @@
 .hui-dsel .hui-icon-carat-d {
   background-size: 0.625em auto;
 }
+.hui-pc .hui-select:hover,
+.hui-mobile .hui-select:hover,
+.hui-pc .hui-dsel:hover,
+.hui-mobile .hui-dsel:hover {
+  font-weight: normal;
+}
 .hui-slidesel {
   position: relative;
 }
@@ -903,7 +909,6 @@
   background-color: red;
   text-align: center;
   vertical-align: middle;
-  font-size: 0.5em;
   color: #fff;
   -webkit-border-radius: 0.5em;
   -moz-border-radius: 0.5em;
@@ -1560,11 +1565,11 @@
   font-size: 1em;
 }
 .hui-comment-top {
-  margin-bottom: 2em;
+  margin-bottom: 1em;
 }
 .hui-comment-quote {
   border-bottom: 1px solid #F3DDB3;
-  margin-left: 1em;
+  margin: .5em;
 }
 .hui-comment-quote .hui-comment {
   background-color: #FFFEF4;

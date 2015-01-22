@@ -49,7 +49,7 @@ function(Obj,Date,AC,DatePicker){
 		tmpl            : [
 			'<div {{bindAttr class="#hui-btn #hui-btn-gray iconPosCls"}}>',
 				'<span class="hui-icon hui-alt-icon hui-icon-carat-d hui-light"></span>',
-				'<input {{bindAttr value="value" name="name"}}/>',
+				'{{input type="#text" name="name" value="value"}}',
 				'<span class="hui-btn-txt">{{text}}</span>',
 			'</div>'
 		].join(''),
