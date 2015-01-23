@@ -432,6 +432,7 @@ define("L.Browser",function(){
 			'windows','linux','mac',                    //操作系统，@return{boolean}
 			'trident','webkit','gecko','presto',        //浏览器内核类型，@return{boolean}
 			'sogou','maxthon','tt','theWorld','is360',  //浏览器壳类型，@return{boolean}
+			'pc',                                       //是否是pc
 			'mobile',                                   //移动设备类型，@return{string}'ios'|'android'|'nokian'|'webos'
 			'android','ios',                            //android或者ios版本，@return{string}
 			'iPhone','iPod','iPad',                     //ios设备版本，@return{string}
@@ -560,6 +561,7 @@ define("L.Browser",function(){
 												// ex: NokiaN95
 			}
 		}
+		_oInfo.pc=!_oInfo.mobile;
 	}
 	/**
 	 * 分析浏览器flash版本
@@ -5579,14 +5581,16 @@ function(Func) {
 		if(navigator.geolocation){
 			navigator.geolocation.getCurrentPosition(fSucc, fErr);
 		}else{
-			new $C.Tips({
-				showPos:'top',
-				size:'mini',
-				timeout:null,
-				theme:'error',
-				noMask:true,
-				text:'当前设备不支持获取位置'
-			});
+			if(!fOnError||fOnError({code:'unsupport'})!==false){
+				new $C.Tips({
+					showPos:'top',
+					size:'mini',
+					timeout:null,
+					theme:'error',
+					noMask:true,
+					text:'当前设备不支持获取位置'
+				});
+			}
 		}
 	}
 	/**
@@ -5976,8 +5980,8 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 		 *		{boolean=}unsave:是否不需要保存，嵌套属性都不提交，基本类型的自定义字段保存时默认提交，仅当声明为unsave:true时不提交
 		 *		{object=}options:新建模型/集合实例时的选项,
 		 *		{*=}def:默认值,
-		 *   	{Function({*}val,{object}oAttrs)=}parse:设置该属性时自定义解析操作,
-		 *   	{Array=}depends:依赖的属性，计算属性需要此配置检查和计算
+		 *   	{Function({*}val,{object}oAttrs)=}parseDeps:设置该属性时自定义解析操作,
+		 *   	{Array=}deps:依赖的属性，计算属性需要此配置检查和计算
 	     *	}
 	     *	简便形式:
 	     *	{name:default}
@@ -6105,16 +6109,23 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     function _fDoDepends(oChanges,bSilent){
     	var me=this;
     	//处理计算属性
-	    var oFields=me.fields,oField,aDeps,oSets={},bNeed;
+	    var oFields=me.fields,oField,aDeps,oSets={},bNeed,fParseDeps;
 	    for(var key in oFields){
 	    	var oField=oFields[key];
-			if(oField&&(aDeps=oField.depends)){
+			if(oField&&(aDeps=oField.deps)){
 				for(var i=0;i<aDeps.length;i++){
 			    	//当依赖属性变化时，设置计算属性
 					if(oChanges.hasOwnProperty(aDeps[i])){
-						var tmp={};
-						tmp[key]=undefined;
-						oSets[key]=me._parseFields(tmp,true)[key];
+						var val;
+						//自定义解析
+						if(fParseDeps=oField.parseDeps){
+							var aParams=[];
+							for(var j=0;j<aDeps.length;j++){
+								aParams.push(me.get(aDeps[j]));
+							}
+							val=fParseDeps.apply(me,aParams);
+						}
+						oSets[key]=val;
 						bNeed=true;
 						break;
 					}
@@ -6136,17 +6147,13 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     	if(!(oFields=me.fields)){
     		return oAttrs;
     	}
-    	var oField,fParse,val,aDeps,type,oOptions;
+    	var oField,val,aDeps,type,oOptions;
     	var oResult={};
 		for(var key in oAttrs){
 			val=oAttrs[key];
 			if(oField=oFields[key]){
 				type=oField.type;
 				oOptions=oField.options;
-				//自定义解析
-				if((fParse=oField.parse)&&(!me._pending||bIsGet)){
-					val=fParse.apply(me,[val,oAttrs]);
-				}
 				//自定义类型，包括Model和Collection
 				if(Obj.isStr(type)){
 					if(type=='Date'){
@@ -6412,9 +6419,9 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	
 	    //触发模型对象change事件
 	    if (!bSilent) {
-	        while (me._pending) {
+	        if(me._pending) {
 	       		oOptions = me._pending;
-	            me._pending = false;
+//	            me._pending = false;
 	            me.trigger('change', me, oOptions);
 	        }
 	    }
@@ -10844,42 +10851,38 @@ define('C.AbstractComponent',
 			isInline        : false,             //是否内联(宽度自适应)
 			activeCls       : 'hui-active',      //激活样式
 			cmpCls          : {
-				depends : ['cls'],
-				parse :function(){
-					return 'hui-'+this.get("cls");
+				deps : ['cls'],
+				parseDeps :function(cls){
+					return 'hui-'+cls;
 				}
 			},
 			sizeCls          : {
-				depends : ['size'],
-				parse :function(){
-					var size=this.get("size");
+				deps : ['size'],
+				parseDeps :function(size){
 					return size&&'hui-size-'+size;
 				}
 			},
 			tTypeCls        : {
-				depends : ['tType'],
-				parse :function(){
-					var tType=this.get("tType");
+				deps : ['tType'],
+				parseDeps :function(tType){
 					return tType?'hui-'+this.get("cls")+'-'+tType:'';
 				}
 			},
 			themeCls        : {
-				depends : ['theme'],
-				parse :function(){
-					var sTheme=this.get("theme");
-					return sTheme?'hui-'+this.get("cls")+'-'+this.get("theme"):'';
+				deps : ['theme'],
+				parseDeps :function(theme){
+					return theme?'hui-'+this.get("cls")+'-'+theme:'';
 				}
 			},
 			activeClass     : {
-				depends : ['isActive','activeCls'],
-				parse :function(){
-					return this.get('isActive')?this.get('activeCls'):'';
+				deps : ['isActive','activeCls'],
+				parseDeps :function(isActive,activeCls){
+					return isActive?activeCls:'';
 				}
 			},
 			radiusCls       : {
-				depends : ['radius'],
-				parse :function(){
-					var sRadius=this.get('radius');
+				deps : ['radius'],
+				parseDeps :function(sRadius){
 					return sRadius?'hui-radius-'+sRadius:'';
 				}
 			}
@@ -11066,9 +11069,9 @@ function(Obj,AC){
 			radius      : 'big',
 			name        : '',                 //图标名称
 			iconName    : {
-				depends : ['name'],
-				parse :function(){
-					return 'hui-icon-'+this.get('name');
+				deps : ['name'],
+				parseDeps :function(name){
+					return 'hui-icon-'+name;
 				}
 			}
 		},
@@ -11157,25 +11160,22 @@ function(Obj,AC){
 			gradient        : false,               //渐变效果
 			isInline        : true,                //宽度自适应
 			noTxtCls        : {
-				depends : ['text','tType'],
-				parse : function(){
-					var sTxt=this.get('text');
-					if(!(this.get('tType')=='adapt'||sTxt||sTxt===0)){
+				deps : ['text','tType'],
+				parseDeps : function(sTxt,tType){
+					if(!(tType=='adapt'||sTxt||sTxt===0)){
 						return 'hui-btn-icon-notxt';
 					}
 				}
 			},
 			iconPosCls      : {
-				depends : ['iconPos'],
-				parse :function(){
-					var sPos=this.get('iconPos');
+				deps : ['iconPos'],
+				parseDeps :function(sPos){
 					return sPos?'hui-btn-icon-'+sPos:'';
 				}
 			},
 			markCls      : {
-				depends : ['markType'],
-				parse :function(){
-					var markType=this.get('markType');
+				deps : ['markType'],
+				parseDeps :function(markType){
 					return markType?'hui-btn-mark-'+markType:'';
 				}
 			}
@@ -11255,9 +11255,8 @@ function(Obj,AC,Model,Collection){
 			text     : '',
 			txtOverflow : true,     //文字超出长度显示省略号
 			iconCls : {
-				depends:['icon'],
-				parse:function(){
-					var sIcon=this.get('icon');
+				deps:['icon'],
+				parseDeps:function(sIcon){
 					return sIcon?'hui-icon-'+sIcon:'';
 				}
 			}
@@ -11633,9 +11632,9 @@ function(Obj,AC){
 			cls              : 'ctrlgp',
 			direction        : 'v',                  //排列方向，'v'表示垂直方向，'h'表示水平方向
 			directionCls     : {
-				depends:['direction'],
-				parse:function(){
-					return 'hui-ctrlgp-'+this.get('direction');
+				deps:['direction'],
+				parseDeps:function(direction){
+					return 'hui-ctrlgp-'+direction;
 				}
 			}
 		},
@@ -12012,9 +12011,8 @@ function(Browser,Obj,AC){
 			gradient        : true,
 			iconPos         : 'right',             //图标位置，"left"|"right"|"top"|"bottom"
 			iconPosCls      : {
-				depends : ['iconPos'],
-				parse :function(){
-					var sPos=this.get('iconPos');
+				deps : ['iconPos'],
+				parseDeps :function(sPos){
 					return sPos?'hui-btn-icon-'+sPos:'';
 				}
 			}
@@ -12165,16 +12163,14 @@ function(Browser,Util,Event,AC){
 			iconPos         : '',                  //图标位置，'left'或'right'
 			btnPos          : '',                  //按钮位置，'left'或'right'
 			iconPosCls      : {
-				depends : ['iconPos'],
-				parse :function(){
-					var sIconPos=this.get('iconPos');
+				deps : ['iconPos'],
+				parseDeps :function(sIconPos){
 					return sIconPos?'hui-input-icon-'+sIconPos:'';
 				}
 			},
 			btnPosCls       : {
-				depends : ['btnPos'],
-				parse :function(){
-					var sBtnPos=this.get('btnPos');
+				deps : ['btnPos'],
+				parseDeps :function(sBtnPos){
 					return sBtnPos?'hui-input-btn-'+sBtnPos:'';
 				}
 			}
@@ -12351,17 +12347,15 @@ function(AC){
 			textAlign   : '',      //label文字对齐，默认左对齐
 			forName     : '',      //label的for属性
 			colorCls    : {
-				depends:['color'],
-				parse:function(){
-					var s=this.get('color');
-					return s?'hui-label-'+s:'';
+				deps:['color'],
+				parseDeps:function(color){
+					return color?'hui-label-'+color:'';
 				}
 			},
 			textAlignCls    : {
-				depends:['textAlign'],
-				parse:function(){
-					var s=this.get('textAlign');
-					return s?'c-txt-'+s:'';
+				deps:['textAlign'],
+				parseDeps:function(textAlign){
+					return textAlign?'c-txt-'+textAlign:'';
 				}
 			}
 		},
@@ -12401,16 +12395,14 @@ function(AC){
 			padding         : 'big',         //上下padding大小
 			hasArrow        : false,         //是否有箭头
 			paddingCls      : {
-				depends : ['padding'],
-				parse:function(){
-					var padding=this.get('padding');
+				deps : ['padding'],
+				parseDeps:function(padding){
 					return padding?'hui-rowitem-padding-'+padding:''
 				}
 			},
 			newsNumTxt      : {
-				depends : ['newsNum'],
-				parse:function(){
-					var newsNum=this.get('newsNum');
+				deps : ['newsNum'],
+				parseDeps:function(newsNum){
 					return newsNum?newsNum>9?'9+':newsNum:0
 				}
 			}
@@ -13402,7 +13394,9 @@ function(Obj,AC,Popup){
 					theme:'gray',
 					xrole:'left',
 					click:function(){
-						me.hide();
+						if(!me.closeCall||me.closeCall()!=false){
+							me.hide();
+						}
 					}
 				}
 			})
@@ -13776,9 +13770,8 @@ function(Obj,Date,AC,DatePicker){
 			name            : '',                  //选项名
 			value           : '',             //默认值
 			text            : {                    //选择框的文字
-				depends   : ['value'],
-				parse     : function(){
-					var sTxt=this.get('value');
+				deps   : ['value'],
+				parseDeps     : function(sTxt){
 					if(sTxt){
 						return sTxt+' 星期'+Date.getWeek(Date.parseDate(sTxt));
 					}else{
@@ -13790,9 +13783,8 @@ function(Obj,Date,AC,DatePicker){
 			gradient        : true,
 			iconPos         : 'right',             //图标位置，"left"|"right"|"top"|"bottom"
 			iconPosCls      : {
-				depends : ['iconPos'],
-				parse :function(){
-					var sPos=this.get('iconPos');
+				deps : ['iconPos'],
+				parseDeps :function(sPos){
 					return sPos?'hui-btn-icon-'+sPos:'';
 				}
 			}
@@ -14723,15 +14715,14 @@ function(AC){
 			newsNum     : 0,     //新消息提示数目，大于9自动显示成"9+"
 			hasBorder   : false, //是否有边框
 			hasImgCls   : {      //是否有图片
-				depends : ['image','hasImg'],
-				parse:function(val){
-					return (this.get('image')||this.get('hasImg'))?'hui-hcard-hasimg':'';
+				deps : ['image','hasImg'],
+				parseDeps:function(image,hasImg){
+					return (image||hasImg)?'hui-hcard-hasimg':'';
 				}
 			},  
 			newsNumTxt  : {
-				depends : ['newsNum'],
-				parse:function(){
-					var newsNum=this.get('newsNum');
+				deps : ['newsNum'],
+				parseDeps:function(newsNum){
 					return newsNum?newsNum>9?'9+':newsNum:0
 				}
 			}

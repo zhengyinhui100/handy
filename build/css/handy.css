@@ -2600,6 +2600,9 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   padding: 0;
   overflow: hidden;
 }
+.hui-dialog .hui-dialog-header .hui-btn-icon-notxt {
+  border-color: #aaa;
+}
 .hui-dialog .hui-dialog-body {
   color: #333;
   background: #f9f9f9;
