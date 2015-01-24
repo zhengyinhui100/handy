@@ -11,7 +11,7 @@ define('C.Input',
 'B.Event',
 'C.AbstractComponent'
 ],
-function(Browser,Util,Event,AC){
+function(Browser,Util,Evt,AC){
 	
 	var Input=AC.define('Input');
 	
@@ -67,14 +67,20 @@ function(Browser,Util,Event,AC){
 					me.getEl().addClass('hui-focus');
 					me.focused=true;
 					if(Browser.mobile()){
-						//用户点击后退时先隐藏弹出层
-						Event.once('hisoryChange',function(){
-							if(me.focused&&!me.destroyed){
-								me.blur();
-								Event.stop();
-								return false;
+						//用户点击后退时先失去焦点，隐藏输入菜单，这里主要是考虑移动设备的操作习惯
+						me.listen({
+							name:'hisoryChange',
+							target:Evt,
+							times:1,
+							handler:function(){
+								if(me.focused){
+									me.blur();
+									//停止事件，不让其他组件hisoryChange事件函数执行
+									Evt.stop();
+									return false;
+								}
 							}
-						});
+						})
 					}
 				}
 			},{
@@ -140,6 +146,19 @@ function(Browser,Util,Event,AC){
 			me.on('afterRender',function(){
 				me.findEl('input,textarea').css('height',oSettings.inputHeight);
 			});
+		}
+		//ios设备中点击页面其他地方不会失去焦点，这里需要手动失去焦点
+		if(Browser.ios()){
+			me.listen({
+				name:'touchend',
+				el:$(document),
+				handler:function(oEvt){
+					//点击其他输入框输入焦点会转移，这里不需额外处理
+					if(me.focused&&!/(input|textarea)/.test(oEvt.target.nodeName)){
+						me.blur();
+					}
+				}
+			})
 		}
 	}
 	/**
