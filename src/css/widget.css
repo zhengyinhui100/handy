@@ -133,7 +133,7 @@
 .hui-mobile .hui-btn:active {
   font-weight: bold;
 }
-.hui-btn.hui-btn-mark {
+.hui-btn .hui-btn-mark {
   display: none;
   position: absolute;
   height: 0.5em;
@@ -328,12 +328,17 @@
   background-image: linear-gradient(#34e589, #24b44d);
 }
 .hui-btn.hui-btn-active,
-.hui-btn-active:hover {
+.hui-pc .hui-btn-active:hover,
+.hui-mobile .hui-btn-active:active {
   border: 1px solid #2373a5;
-  background: #5393c5;
+  background: #2987CF;
   color: #fff;
   cursor: pointer;
   text-decoration: none;
+}
+.hui-pc .hui-btn-active:hover,
+.hui-mobile .hui-btn-active:active {
+  background: #5393c5;
 }
 .hui-btn-active.hui-gradient {
   background-image: -webkit-gradient(linear, left top, left bottom, from(#5f9cc5), to(#6facd5));

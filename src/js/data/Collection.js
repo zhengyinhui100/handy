@@ -589,6 +589,7 @@ function(Obj,Arr,Function,AbstractData,Model){
         oOptions = oOptions ? Obj.clone(oOptions) : {};
         var fSuccess = oOptions.success;
         var fBeforeSet = oOptions.beforeSet;
+        oOptions.saved=true;
         oOptions.success = function(resp) {
         	me.fetching=false;
         	var oData=me.parse(resp, oOptions);

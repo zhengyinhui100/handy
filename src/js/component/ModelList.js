@@ -35,12 +35,13 @@ function(Util,Obj,Date,Support,AC,Draggable){
 		pullTxt             : '下拉可刷新',       //下拉过程提示文字
 		flipTxt             : '松开可刷新',       //到松开可以执行刷新操作时的提示
 		releaseTxt          : '正在刷新',         //松开时提示文字
-		maxNumFromCache     : 20,                //使用缓存数据时单次最大加载数目    
+		cachePageSize       : 15,                //使用缓存数据时一页的数目    
 		scrollPos           : 'top',             //默认滚动到的位置，'top'顶部，'bottom'底部
 		pulldownIsRefresh   : true,              //true表示下拉式刷新，而按钮是获取更多，false表示相反
 //		itemXtype           : '',                //子组件默认xtype
 		refresh             : $H.noop,           //刷新接口
 		autoFetch           : true,              //初始化时如果没有数据是否自动获取
+		stayBottom          : false,             //添加项目时自动保持滚动在底部，用户滚动到其它位置时会自动忽略此配置
 		getMore             : $H.noop,           //获取更多接口
 		
 		tmpl        : [
@@ -258,6 +259,9 @@ function(Util,Obj,Date,Support,AC,Draggable){
 		me.add({
 			model:oListItem
 		},nIndex);
+		if(me.stayBottom){
+			me.scrollTo('bottom');
+		}
 	}
 	/**
 	 * 删除列表项
@@ -282,7 +286,11 @@ function(Util,Obj,Date,Support,AC,Draggable){
 	 */
 	function fScrollTo(pos){
 		var me=this;
-		var oEl=me.getEl()[0];
+		var oEl=me.getEl();
+		if(!oEl){
+			return false;
+		}
+		oEl=oEl[0];
 		if(Obj.isStr(pos)){
 			if(pos=='bottom'){
 				var nHeight=me.findEl('.hui-list-inner')[0].clientHeight;
@@ -301,9 +309,10 @@ function(Util,Obj,Date,Support,AC,Draggable){
 		var oListItems=me.model;
 		var nCurNum=me.children.length;
 		var nSize=oListItems.size();
+		var nPageSize=me.cachePageSize;
 		if(nSize>nCurNum){
 			//先尝试从缓存中获取
-			var nMax=me.maxNumFromCache,nStart=nCurNum,nEnd=nCurNum+nMax;
+			var nStart=nCurNum,nEnd=nCurNum+nPageSize;
 			if(me.pulldownIsRefresh){
 				oListItems.each(function(i,item){
 					if(i>=nStart&&i<nEnd){
@@ -312,14 +321,16 @@ function(Util,Obj,Date,Support,AC,Draggable){
 				});
 			}else{
 				nEnd=nSize-nCurNum;
-				nStart=nEnd-nMax;
+				nStart=nEnd-nPageSize;
 				oListItems.eachDesc(function(i,item){
 					if(i>=nStart&&i<nEnd){
 						me.addListItem(item,0);
 					}
 				});
 			}
-		}else if(!bIsInit||(!oListItems.fetching&&me.autoFetch)){
+		}
+		//初始化时，可能缓存数据不足一页，尝试加载更多
+		if(nSize-nCurNum<nPageSize&&(!bIsInit||(!oListItems.fetching&&me.autoFetch))){
 			me.getMore();
 		}
 	}

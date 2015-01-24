@@ -55,9 +55,10 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
         //内部属性
 //		_changing             : false,               //是否正在改变，但未保存
 		_pending              : false,               //
-//		_previousAttributes   : {},                  //较早的值
+//		_savedAttrs           : {},                  //已保存的值
+//		_preAttrs             : {},                  //较早的值
 //		_attributes           : {},                  //属性对象
-//    	_changed              : {},                  //改变了的值
+//    	_changed              : {},                  //改变了的值，只存放基本类型，类类型的不存放
 //	    validationError       : {},                  //校验错误的值
         
         
@@ -157,6 +158,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
      * 处理计算/依赖属性
      * @param {object}oChanges 当前操作改变的属性
      * @param {boolean}bSilent 是否不触发事件
+     * @return {object=}如果需要改变，返回改变的属性列表，否则返回undefined
      */
     function _fDoDepends(oChanges,bSilent){
     	var me=this;
@@ -184,28 +186,30 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 				}
 			}
 	    }
-	    bNeed&&me.set(oSets,null,{silent:bSilent});
+	    if(bNeed){
+		    return me.set(oSets,null,{silent:bSilent}).changed;
+	    }
     }
     /**
      * 属性预处理
      * @param {Object}oAttrs 属性表
-     * @param {boolean=}bGet 是否是获取操作，默认为设置，为设置操作时，对于当前属性表中有的属性，
-     * 						不执行field里的pase操作，如果是获取操作，则还要执行parse
+     * @param {object=}oOptions 选项
      * @return {Object} 返回处理好的属性表
      */
-    function _fParseFields(oAttrs,bIsGet){
+    function _fParseFields(oAttrs,oOptions){
     	var me=this;
     	var oFields;
     	if(!(oFields=me.fields)){
     		return oAttrs;
     	}
-    	var oField,val,aDeps,type,oOptions;
+    	var oField,val,aDeps,type,oOpts;
     	var oResult={};
 		for(var key in oAttrs){
 			val=oAttrs[key];
 			if(oField=oFields[key]){
 				type=oField.type;
-				oOptions=oField.options;
+				oOpts=oField.options||{};
+				oOpts.saved=oOptions&&oOptions.saved;
 				//自定义类型，包括Model和Collection
 				if(Obj.isStr(type)){
 					if(type=='Date'){
@@ -224,18 +228,18 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 					//模型
 					if(type.get){
 						var oChange={};
-				        val=type.get(val,oOptions,oChange);
+				        val=type.get(val,oOpts,oChange);
 				        val&&(val._changedTmp=oChange.changed);
 					}else{
 						//集合
 						var oCurrent=me.get(key);
 						if(oCurrent){
-							var tmp=oCurrent.set(val,oOptions);
+							var tmp=oCurrent.set(val,oOpts);
 							val=oCurrent;
 							val._changedTmp=tmp.changed;
 							
 						}else{
-							val=new type(val,oOptions);
+							val=new type(val,oOpts);
 							val._changedTmp=true;
 						}
 					}
@@ -252,7 +256,8 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	 * @param {Model|Collection}obj 对象
 	 */
     function _fOnAttrEvent(sAttr,sEvent, oModel,oCollection) {
-    	if(sEvent=='invalid'||sEvent=='sync'||sEvent=='request'||sEvent.indexOf('change:')==0){
+    	//||sEvent.indexOf('change:')==0，子事件冒泡暂不屏蔽
+    	if(sEvent=='invalid'||sEvent=='sync'||sEvent=='request'){
     		return;
     	}
     	//模型被添加事件无需处理，如果是集合add事件，oCollection是集合对象
@@ -301,6 +306,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 		if(me.init){
 			me.init();
 		}
+		me._savedAttrs={};
 		me.set(oAttrs, oOptions);
 		me._changed = {};
 	}
@@ -356,11 +362,12 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	 * @param {String}sKey 属性
 	 * @param {*}val 值
 	 * @param {Object}oOptions 选项{
-	 * 		{boolean=}unset 是否清除设置
-	 * 		{boolean=}silent 是否不触发事件
+	 * 		{boolean=}unset: 是否清除设置
+	 * 		{boolean=}saved:是否是已保存的值
+	 * 		{boolean=}silent: 是否不触发事件
 	 * }
 	 * @return {object}{
-	 * 		{boolean}changed : true表示此次设置改变了模型，false表示未改变
+	 * 		{boolean}changed : 此次设置改变了的属性列表，false表示未改变
 	 * 		{boolean=}invalid : 仅当true时表示未通过校验
 	 * 		{Model}result:模型对象自身,
 	 * 		{boolean=}silent:true时不触发事件
@@ -381,7 +388,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	    	oAttrs=oAttrs._attributes;
 	    }
 	    //属性预处理
-	    oAttrs= me._parseFields(oAttrs);
+	    oAttrs= me._parseFields(oAttrs,oOptions);
 	    //先执行校验
 	    if (!me._validate(oAttrs, oOptions)){
 	    	oResult.invalid=true;
@@ -390,15 +397,16 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	
 	    var bUnset= oOptions.unset;
 	    var bSilent= oOptions.silent;
+	    //所以本次设置所改变的属性
 	    var oChanges={};
 	
 	    //开始改变前，先存储初始值
 	    if (!me._pending) {
-	        me._previousAttributes = Obj.clone(me._attributes);
+	        me._preAttrs = Obj.clone(me._attributes);
 	    	me._changed = {};
 	    }
 	    var oCurrent = me._attributes, 
-	    	oPrev = me._previousAttributes;
+	    	oPrev = me._preAttrs;
 	
 	    //id特殊处理
 	    if (me.idAttribute in oAttrs){
@@ -479,12 +487,16 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	    }
 	    //处理依赖属性
 	    if(bHasChange){
-		    me._doDepends(oChanges,bSilent);
+		    var oDepsResult=me._doDepends(oChanges,bSilent);
+		    oDepsResult&&Obj.extend(oChanges,oDepsResult);
 	    }
 	    me._pending = false;
-	    oResult.changed=bHasChange;
+	    oResult.changed=bHasChange?oChanges:null;
 	    //重新清空属性事件标记
 	    me._attrEvts={};
+	    if(oOptions.saved){
+	    	bHasChange&&Obj.extend(me._savedAttrs,oChanges);
+	    }
 	    return oResult;
     }
     /**
@@ -547,19 +559,24 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     }
 	/**
 	 * 返回改变过的属性，可以指定需要判断的属性
-	 * @param {Object=}oDiff 参数属性，表示只判断传入的属性列表，返回跟参数属性不同的属性表，不传表示检查全部属性
-	 * @param {boolean=}bAll 仅当为true时检测所有的属性，否则只检测需要提交的属性
+	 * @param {object=}oParams{
+	 * 		@param {Object=}diff 参数属性，表示只判断传入的属性列表，返回跟参数属性不同的属性表，不传表示检查全部属性
+	 * 		@param {boolean=}includeUnsave 仅当为true时检测所有的属性，否则只检测需要提交的属性
+	 * 		@param {boolean=}diffSaved 比较已保存的属性列表，不传表示比较上次set后改变的值
+	 * }
 	 * @retur {boolean} 如果有改变，返回改变的属性，否则，返回false
 	 */
-    function fChangedAttrs(oDiff,bAll) {
+    function fChangedAttrs(oParams) {
     	var me=this;
-    	if(Obj.isBool(oDiff)){
-    		bAll=oDiff;
-    		oDiff=undefined;
+    	oParams=oParams||{};
+    	oDiff=oParams.diff;
+    	if(!oDiff&&oParams.diffSaved){
+	    	oDiff=me._attributes;
     	}
+    	bAll=oParams.includeUnsave;
         var val, changed = false;
         var oFields=me.fields;
-        var oOld = me._changing ? me._previousAttributes : me._attributes;
+        var oOld = oParams.diffSaved?me._savedAttrs:me._changing ? me._preAttrs : me._attributes;
         var _fGet=function(oAttrs){
 	        for (var sAttr in oAttrs) {
 	        	var bNeed=true;
@@ -609,17 +626,17 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	 */
     function fPrevious(sAttr) {
     	var me=this;
-        if (sAttr == null || !me._previousAttributes){
+        if (sAttr == null || !me._preAttrs){
         	return null;
         }
-        return me._previousAttributes[sAttr];
+        return me._preAttrs[sAttr];
     }
 	/**
 	 * 返回所有修改前的值
 	 * @return {Object} 返回所有修改前的值
 	 */
     function fPreviousAttributes() {
-        return Obj.clone(this._previousAttributes);
+        return Obj.clone(this._preAttrs);
     }
 	/**
 	 * 获取模型数据
@@ -636,6 +653,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
         if (oOptions.parse === void 0) {
         	oOptions.parse = true;
         }
+        oOptions.saved=true;
         var fSuccess = oOptions.success;
         var fBeforeSet = oOptions.beforeSet;
         oOptions.success = function(resp) {
@@ -703,16 +721,17 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
         if (oOptions.parse === void 0){
         	oOptions.parse = true;
         }
+        oOptions.saved=true;
         var fSuccess = oOptions.success;
         oOptions.success = function(resp) {
         	me.saving=false;
-	        var oServerAttrs = me.parse(resp, oOptions);
+	        var oServerAttrs = me.parse(resp, oOptions)||{};
 	        //now!=true，确保更新相应数据(可能没有返回相应数据)
 	        if (!oOptions.now){
 	        	oServerAttrs = Obj.extend(oAttrs || {}, oServerAttrs);
 	        }
 	        //服务器返回的值可能跟现在不一样，还要根据返回值修改
-	        if (Obj.isObj(oServerAttrs) && me.set(oServerAttrs, oOptions).invalid) {
+	        if (me.set(oServerAttrs, oOptions).invalid) {
 	            return false;
 	        }
 	        if (fSuccess){
@@ -732,7 +751,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	    var oSaveAttrs;
 	    if (sMethod === 'patch'){
 	    	//设置不需要保存的属性可能导致需要保存的依赖属性变化，所以这里不能只检查当前设置的属性
-	    	var oChanged=me.changedAttrs();
+	    	var oChanged=me.changedAttrs({diff:oAttrs,diffSaved:true});
 	    	//没有改变的属性，直接执行回调函数
 	    	if(!oChanged){
 	    		var fNoChange = oOptions.noChange;
