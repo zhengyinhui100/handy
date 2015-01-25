@@ -72,8 +72,14 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 			return false;
 		}
 		var oState=aStates[sKey];
-		//监听全局hisoryChange，返回false可阻止当前变化
-		var bResult=Evt.trigger('hisoryChange',oState,oCurState);
+		var bResult;
+		//如果是ModuleManager调用history.back()，这里不触发自定义'hisoryChange'事件，避免不能退出模块
+		if(me._byManager){
+			me._byManager=false;
+		}else{
+			//监听全局hisoryChange，返回false可阻止当前变化
+			bResult=Evt.trigger('hisoryChange',oState,oCurState);
+		}
 		if(bResult!==false){
 			if(oState){
 				bResult=oState.onStateChange(oState.param,true);

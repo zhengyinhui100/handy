@@ -736,9 +736,10 @@
 	}
 }
 .hui-news-tips{
+	//ios下，如果是position:fixed，输入框聚焦时，会跑到页面中间
 	position:absolute;
 	top:50%;
-	margin-top:-0.313em;
+	margin-top:-0.565em;
 	padding-left:0.25em;
 	padding-right:0.25em;
 	background-color:red;
@@ -1355,6 +1356,11 @@
 		font-size:0.75em;
 		color:#6a6a6a;
 	}
+	.right-btn{
+		position: absolute;
+		right: 1.5em;
+		top: 2.688em;
+	}
 }
 //纵向卡片
 .hui-vcard{
@@ -1506,7 +1512,7 @@
 }
 //输入区
 .hui-input-zone{
-	position:fixed;
+	position:absolute;
 	bottom:0;
 	left:0;
 	width:100%;

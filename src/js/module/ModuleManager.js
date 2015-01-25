@@ -364,7 +364,7 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 		var aStack=me._modStack;
 		var sModId=oMod.modId;
 		if(me.currentMod===sModId){
-			$M.back();
+			me.back();
 		}
 		for(var i=0,len=aStack.length;i<len;i++){
 			if(aStack[i].modId===sModId){
@@ -415,8 +415,8 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 			oCurMod._forceExit=true;
 		}
 		if(me.history.getPreState()){
-			//这里要注意，组件可能会监听、阻止hisoryChange事件，导致这里不能后退，所以最好能确保调用此方法时,
-			//不会有影响hisoryChange事件的弹出层、输入框等(可将弹出层先隐藏、输入框先blur)
+			//这里要注意，组件可能会监听hisoryChange事件，阻止这里的后退，所以这里先通知history不要触发hisoryChange事件
+			me.history._byManager=true;
 			history.back();
 		}else{
 			me.go(me.defEntry);
