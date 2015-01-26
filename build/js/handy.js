@@ -3205,11 +3205,11 @@ define("B.Url","B.Object",function(Obj){
 	}
 	/**
 	 * 设置query字符串
-	 * @param {string}sUrl 参数url，传空值表示设置当前地址栏url
 	 * @param {string}sQuery 要设置的query字符串(不带"?")
+	 * @param {string=}sUrl 参数url，不传或空值表示设置当前地址栏url
 	 * @return {string} 返回设置好的url
 	 */
-	function fSetQuery(sUrl,sQuery){
+	function fSetQuery(sQuery,sUrl){
 		if(sUrl){
 			var nHashIndex=sUrl.indexOf('#');
 			sUrl=sUrl.match(/[^\?#]+/)[0]+'?'+sQuery+(nHashIndex>0?sUrl.substring(nHashIndex):'');
@@ -3232,16 +3232,22 @@ define("B.Url","B.Object",function(Obj){
 	}
 	/**
 	 * 设置query参数
-	 * @param {string}sUrl null表示设置地址栏hash
 	 * @param {object} oHashParam要设置的hash参数
+	 * @param {string=} sUrl 不传或空值表示设置地址栏hash
+	 * @param {boolean=} bReset 是否是重置，仅当true时重置，默认是extend
 	 * @return {string=} 传入sUrl时，返回设置过hash参数的url
 	 */
-	function fSetQueryParam(sUrl,oHashParam){
+	function fSetQueryParam(oHashParam,sUrl,bReset){
 		var sQuery=Url.getQuery(sUrl);
-		var oParams=Url.strToParam(sQuery);
-		Obj.extend(oParams,oHashParam);
+		var oParams;
+		if(bReset){
+			oParams=oHashParam;
+		}else{
+			oParams=Url.strToParam(sQuery);
+			Obj.extend(oParams,oHashParam);
+		}
 		sQuery=Url.paramToStr(oParams);
-		return Url.setQuery(sUrl,sQuery);
+		return Url.setQuery(sQuery,sUrl);
 	}
 	/**
 	 * 获取hash字符串
@@ -3254,11 +3260,11 @@ define("B.Url","B.Object",function(Obj){
 	}
 	/**
 	 * 设置hash字符串
-	 * @param {string}sUrl 参数url，传空值表示设置当前地址栏url
 	 * @param {string}sHash 要设置的hash字符串(不带"#")
+	 * @param {string=}sUrl 参数url，默认是当前地址栏url
 	 * @return {string} 返回设置好的url
 	 */
-	function fSetHash(sUrl,sHash){
+	function fSetHash(sHash,sUrl){
 		if(sUrl){
 			sUrl=sUrl.substring(0,sUrl.indexOf('#')+1)+sHash;
 			return sUrl;
@@ -3280,16 +3286,22 @@ define("B.Url","B.Object",function(Obj){
 	}
 	/**
 	 * 设置hash参数
-	 * @param {string}sUrl 空值表示设置地址栏hash
 	 * @param {object} oHashParam要设置的hash参数
+	 * @param {string=}sUrl 默认是地址栏hash
+	 * @param {boolean=} bReset 是否是重置，仅当true时重置，默认是extend
 	 * @return {string=} 传入sUrl时，返回设置过hash参数的url
 	 */
-	function fSetHashParam(sUrl,oHashParam){
+	function fSetHashParam(oHashParam,sUrl,bReset){
 		var sHash=Url.getHash(sUrl);
-		var oParams=Url.strToParam(sHash);
-		Obj.extend(oParams,oHashParam);
+		var oParams;
+		if(bReset){
+			oParams=oHashParam;
+		}else{
+			var oParams=Url.strToParam(sHash);
+			Obj.extend(oParams,oHashParam);
+		}
 		sHash=Url.paramToStr(oParams);
-		return Url.setHash(sUrl,sHash);
+		return Url.setHash(sHash,sUrl);
 	}
 	
 	return Url;
@@ -4307,7 +4319,6 @@ function(Debug,Util){
 		}
 		/**
 		 * 设置新的iframe的hash
-		 * @method setHash
 		 * @param {string} sHash要设置hash
 		 */
 		function _fSetIfrHash(sHash){
@@ -6003,9 +6014,10 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
         //内部属性
 //		_changing             : false,               //是否正在改变，但未保存
 		_pending              : false,               //
-//		_previousAttributes   : {},                  //较早的值
+//		_savedAttrs           : {},                  //已保存的值
+//		_preAttrs             : {},                  //较早的值
 //		_attributes           : {},                  //属性对象
-//    	_changed              : {},                  //改变了的值
+//    	_changed              : {},                  //改变了的值，只存放基本类型，类类型的不存放
 //	    validationError       : {},                  //校验错误的值
         
         
@@ -6038,9 +6050,37 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
    		isNew                 : fIsNew,              //判断是否是新模型(没有提交保存，并且缺少id属性)
    		isValid               : fIsValid             //校验当前是否是合法的状态
 	},{
+	    getId                 : fStaticGetId,        //传入属性表获取id
 		get                   : fStaticGet           //静态get方法，为了保证模型的一致性，新建模型实例必须使用此方法，而不能用new方式
 	});
 	
+	/**
+	 * 传入属性表获取id
+	 * @param {object} oAttrs 参数属性表
+	 * @return {number|string} 返回模型id
+	 */
+	function fStaticGetId(oAttrs){
+		var _Class=this,id,
+		sIdName=_Class.prototype['idAttribute'];
+		//如果有id，需要先查找是否有存在的模型，查询直接id效率高，所以先进行查询，查询不到id才通过new后，查询联合id
+		if(id=oAttrs[sIdName]){
+	        return id;
+        }
+        var oFields=_Class.prototype.fields;
+        if(oFields){
+        	var oIdFiled=oFields[sIdName];
+        	if(oIdFiled){
+	        	var aDeps=oIdFiled.deps;
+	        	var oVal={};
+	        	Obj.each(aDeps,function(i,k){
+	        		oVal[k]=oAttrs[k]
+	        	});
+		        //因为可能存在自定义联合主键，所以这里没有现存的模型而新建一个实例时，要把oVal传入，以便获取正确的主键
+		        var oModel=new _Class(oVal);
+		        return oModel.id;
+        	}
+        }
+	}
 	/**
 	 * 静态get方法，为了保证模型的一致性，新建模型实例必须使用此方法，而不能用new方式
 	 * @method get
@@ -6055,26 +6095,18 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 		}
 		var _Class=this;
 		var oModel;
-		var sIdName=_Class.prototype['idAttribute'];
-		var id;
+		var id=_Class.getId(oVal);
 		//是否改变了原有模型，new操作也表示改变了
 		var bHasChange=false;
 		//如果有id，需要先查找是否有存在的模型，查询直接id效率高，所以先进行查询，查询不到id才通过new后，查询联合id
-		if(id=oVal[sIdName]){
+		if(id){
 	        oModel=$S.get(_Class,{id:id});
         }
         if(!oModel){
-	        //因为可能存在自定义联合主键，所以这里没有现存的模型而新建一个实例时，要把val传入，以便获取正确的主键
-	        var oModel=new _Class(oVal,oOptions),tmp;
+	        var oModel=new _Class(oVal,oOptions);
 	        //放入数据仓库
-			if(!(tmp=$S.get(oModel,{id:oModel.id}))){
-				bHasChange=true;
-				$S.push(oModel);
-			}else{
-				//已存在的对应的模型，设置新值
-				bHasChange=tmp.set(oVal).changed;
-				oModel=tmp;
-			}
+			bHasChange=true;
+			$S.push(oModel);
         }else{
         	//已存在的对应的模型，设置新值
         	bHasChange=oModel.set(oVal).changed;
@@ -6105,6 +6137,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
      * 处理计算/依赖属性
      * @param {object}oChanges 当前操作改变的属性
      * @param {boolean}bSilent 是否不触发事件
+     * @return {object=}如果需要改变，返回改变的属性列表，否则返回undefined
      */
     function _fDoDepends(oChanges,bSilent){
     	var me=this;
@@ -6132,28 +6165,30 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 				}
 			}
 	    }
-	    bNeed&&me.set(oSets,null,{silent:bSilent});
+	    if(bNeed){
+		    return me.set(oSets,null,{silent:bSilent}).changed;
+	    }
     }
     /**
      * 属性预处理
      * @param {Object}oAttrs 属性表
-     * @param {boolean=}bGet 是否是获取操作，默认为设置，为设置操作时，对于当前属性表中有的属性，
-     * 						不执行field里的pase操作，如果是获取操作，则还要执行parse
+     * @param {object=}oOptions 选项
      * @return {Object} 返回处理好的属性表
      */
-    function _fParseFields(oAttrs,bIsGet){
+    function _fParseFields(oAttrs,oOptions){
     	var me=this;
     	var oFields;
     	if(!(oFields=me.fields)){
     		return oAttrs;
     	}
-    	var oField,val,aDeps,type,oOptions;
+    	var oField,val,aDeps,type,oOpts;
     	var oResult={};
 		for(var key in oAttrs){
 			val=oAttrs[key];
 			if(oField=oFields[key]){
 				type=oField.type;
-				oOptions=oField.options;
+				oOpts=oField.options||{};
+				oOpts.saved=oOptions&&oOptions.saved;
 				//自定义类型，包括Model和Collection
 				if(Obj.isStr(type)){
 					if(type=='Date'){
@@ -6172,18 +6207,18 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 					//模型
 					if(type.get){
 						var oChange={};
-				        val=type.get(val,oOptions,oChange);
+				        val=type.get(val,oOpts,oChange);
 				        val&&(val._changedTmp=oChange.changed);
 					}else{
 						//集合
 						var oCurrent=me.get(key);
 						if(oCurrent){
-							var tmp=oCurrent.set(val,oOptions);
+							var tmp=oCurrent.set(val,oOpts);
 							val=oCurrent;
 							val._changedTmp=tmp.changed;
 							
 						}else{
-							val=new type(val,oOptions);
+							val=new type(val,oOpts);
 							val._changedTmp=true;
 						}
 					}
@@ -6200,7 +6235,8 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	 * @param {Model|Collection}obj 对象
 	 */
     function _fOnAttrEvent(sAttr,sEvent, oModel,oCollection) {
-    	if(sEvent=='invalid'||sEvent=='sync'||sEvent=='request'||sEvent.indexOf('change:')==0){
+    	//||sEvent.indexOf('change:')==0，子事件冒泡暂不屏蔽
+    	if(sEvent=='invalid'||sEvent=='sync'||sEvent=='request'){
     		return;
     	}
     	//模型被添加事件无需处理，如果是集合add事件，oCollection是集合对象
@@ -6249,6 +6285,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 		if(me.init){
 			me.init();
 		}
+		me._savedAttrs={};
 		me.set(oAttrs, oOptions);
 		me._changed = {};
 	}
@@ -6304,11 +6341,12 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	 * @param {String}sKey 属性
 	 * @param {*}val 值
 	 * @param {Object}oOptions 选项{
-	 * 		{boolean=}unset 是否清除设置
-	 * 		{boolean=}silent 是否不触发事件
+	 * 		{boolean=}unset: 是否清除设置
+	 * 		{boolean=}saved:是否是已保存的值
+	 * 		{boolean=}silent: 是否不触发事件
 	 * }
 	 * @return {object}{
-	 * 		{boolean}changed : true表示此次设置改变了模型，false表示未改变
+	 * 		{boolean}changed : 此次设置改变了的属性列表，false表示未改变
 	 * 		{boolean=}invalid : 仅当true时表示未通过校验
 	 * 		{Model}result:模型对象自身,
 	 * 		{boolean=}silent:true时不触发事件
@@ -6329,7 +6367,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	    	oAttrs=oAttrs._attributes;
 	    }
 	    //属性预处理
-	    oAttrs= me._parseFields(oAttrs);
+	    oAttrs= me._parseFields(oAttrs,oOptions);
 	    //先执行校验
 	    if (!me._validate(oAttrs, oOptions)){
 	    	oResult.invalid=true;
@@ -6338,15 +6376,16 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	
 	    var bUnset= oOptions.unset;
 	    var bSilent= oOptions.silent;
+	    //所以本次设置所改变的属性
 	    var oChanges={};
 	
 	    //开始改变前，先存储初始值
 	    if (!me._pending) {
-	        me._previousAttributes = Obj.clone(me._attributes);
+	        me._preAttrs = Obj.clone(me._attributes);
 	    	me._changed = {};
 	    }
 	    var oCurrent = me._attributes, 
-	    	oPrev = me._previousAttributes;
+	    	oPrev = me._preAttrs;
 	
 	    //id特殊处理
 	    if (me.idAttribute in oAttrs){
@@ -6427,12 +6466,16 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	    }
 	    //处理依赖属性
 	    if(bHasChange){
-		    me._doDepends(oChanges,bSilent);
+		    var oDepsResult=me._doDepends(oChanges,bSilent);
+		    oDepsResult&&Obj.extend(oChanges,oDepsResult);
 	    }
 	    me._pending = false;
-	    oResult.changed=bHasChange;
+	    oResult.changed=bHasChange?oChanges:null;
 	    //重新清空属性事件标记
 	    me._attrEvts={};
+	    if(oOptions.saved){
+	    	bHasChange&&Obj.extend(me._savedAttrs,oChanges);
+	    }
 	    return oResult;
     }
     /**
@@ -6495,19 +6538,24 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     }
 	/**
 	 * 返回改变过的属性，可以指定需要判断的属性
-	 * @param {Object=}oDiff 参数属性，表示只判断传入的属性列表，返回跟参数属性不同的属性表，不传表示检查全部属性
-	 * @param {boolean=}bAll 仅当为true时检测所有的属性，否则只检测需要提交的属性
+	 * @param {object=}oParams{
+	 * 		@param {Object=}diff 参数属性，表示只判断传入的属性列表，返回跟参数属性不同的属性表，不传表示检查全部属性
+	 * 		@param {boolean=}includeUnsave 仅当为true时检测所有的属性，否则只检测需要提交的属性
+	 * 		@param {boolean=}diffSaved 比较已保存的属性列表，不传表示比较上次set后改变的值
+	 * }
 	 * @retur {boolean} 如果有改变，返回改变的属性，否则，返回false
 	 */
-    function fChangedAttrs(oDiff,bAll) {
+    function fChangedAttrs(oParams) {
     	var me=this;
-    	if(Obj.isBool(oDiff)){
-    		bAll=oDiff;
-    		oDiff=undefined;
+    	oParams=oParams||{};
+    	oDiff=oParams.diff;
+    	if(!oDiff&&oParams.diffSaved){
+	    	oDiff=me._attributes;
     	}
+    	bAll=oParams.includeUnsave;
         var val, changed = false;
         var oFields=me.fields;
-        var oOld = me._changing ? me._previousAttributes : me._attributes;
+        var oOld = oParams.diffSaved?me._savedAttrs:me._changing ? me._preAttrs : me._attributes;
         var _fGet=function(oAttrs){
 	        for (var sAttr in oAttrs) {
 	        	var bNeed=true;
@@ -6557,17 +6605,17 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	 */
     function fPrevious(sAttr) {
     	var me=this;
-        if (sAttr == null || !me._previousAttributes){
+        if (sAttr == null || !me._preAttrs){
         	return null;
         }
-        return me._previousAttributes[sAttr];
+        return me._preAttrs[sAttr];
     }
 	/**
 	 * 返回所有修改前的值
 	 * @return {Object} 返回所有修改前的值
 	 */
     function fPreviousAttributes() {
-        return Obj.clone(this._previousAttributes);
+        return Obj.clone(this._preAttrs);
     }
 	/**
 	 * 获取模型数据
@@ -6584,6 +6632,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
         if (oOptions.parse === void 0) {
         	oOptions.parse = true;
         }
+        oOptions.saved=true;
         var fSuccess = oOptions.success;
         var fBeforeSet = oOptions.beforeSet;
         oOptions.success = function(resp) {
@@ -6651,16 +6700,17 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
         if (oOptions.parse === void 0){
         	oOptions.parse = true;
         }
+        oOptions.saved=true;
         var fSuccess = oOptions.success;
         oOptions.success = function(resp) {
         	me.saving=false;
-	        var oServerAttrs = me.parse(resp, oOptions);
+	        var oServerAttrs = me.parse(resp, oOptions)||{};
 	        //now!=true，确保更新相应数据(可能没有返回相应数据)
 	        if (!oOptions.now){
 	        	oServerAttrs = Obj.extend(oAttrs || {}, oServerAttrs);
 	        }
 	        //服务器返回的值可能跟现在不一样，还要根据返回值修改
-	        if (Obj.isObj(oServerAttrs) && me.set(oServerAttrs, oOptions).invalid) {
+	        if (me.set(oServerAttrs, oOptions).invalid) {
 	            return false;
 	        }
 	        if (fSuccess){
@@ -6680,7 +6730,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	    var oSaveAttrs;
 	    if (sMethod === 'patch'){
 	    	//设置不需要保存的属性可能导致需要保存的依赖属性变化，所以这里不能只检查当前设置的属性
-	    	var oChanged=me.changedAttrs();
+	    	var oChanged=me.changedAttrs({diff:oAttrs,diffSaved:true});
 	    	//没有改变的属性，直接执行回调函数
 	    	if(!oChanged){
 	    		var fNoChange = oOptions.noChange;
@@ -6916,16 +6966,17 @@ function(Obj,Arr,Function,AbstractData,Model){
      * 初始化模型
      * @param {Object}oAttrs key-value组合
      * @param {Object}oOptions 选项，同Model初始化选项
+     * @param {object=}oChange 如果传入object，返回时，oChange.changed表示此次操作改变了原模型的值或者新建了模型实例
      * @return {Model|boolean} 返回初始化的模型，如果初始化失败，则返回false
      */
-    function _fPrepareModel(oAttrs, oOptions) {
+    function _fPrepareModel(oAttrs, oOptions,oChange) {
     	var me=this;
         if (oAttrs instanceof Model){
         	return oAttrs;
         }
         oOptions = oOptions ? Obj.clone(oOptions) : {};
         oOptions.collection = me;
-        var oModel = me.model.get(oAttrs, oOptions);
+        var oModel = me.model.get(oAttrs, oOptions,oChange);
         if (!oModel.validationError){
         	return oModel;
         }
@@ -7044,11 +7095,13 @@ function(Obj,Arr,Function,AbstractData,Model){
     function fRemove(models, oOptions) {
     	var me=this;
         var bSingular = !Obj.isArr(models);
-        models = bSingular ? [models] : Obj.clone(models);
+        models = bSingular ? [models] : models;
         oOptions || (oOptions = {});
         var i, l, index, oModel;
+        var aResult=[];
         for (i = 0, l = models.length; i < l; i++) {
-        	oModel = models[i] = me.get(models[i]);
+        	oModel=models[i];
+        	oModel = aResult[i] =Obj.isObj(oModel)?me.findWhere(oModel): me.get(oModel);
         	if (!oModel){
         		continue;
         	}
@@ -7063,7 +7116,7 @@ function(Obj,Arr,Function,AbstractData,Model){
         	}
         	me._removeReference(oModel, oOptions);
         }
-        return bSingular ? models[0] : models;
+        return bSingular ? aResult[0] : aResult;
     }
 	/**
 	 * 设置模型
@@ -7120,7 +7173,7 @@ function(Obj,Arr,Function,AbstractData,Model){
         	if (oAttrs instanceof Model) {
           		id = oModel = oAttrs;
         	} else {
-         		id = oAttrs[cTargetModel.prototype.idAttribute || 'id'];
+         		id = cTargetModel.getId(oAttrs);
         	}
 
         	//如果已经存在对应id的模型
@@ -7388,6 +7441,7 @@ function(Obj,Arr,Function,AbstractData,Model){
         oOptions = oOptions ? Obj.clone(oOptions) : {};
         var fSuccess = oOptions.success;
         var fBeforeSet = oOptions.beforeSet;
+        oOptions.saved=true;
         oOptions.success = function(resp) {
         	me.fetching=false;
         	var oData=me.parse(resp, oOptions);
@@ -10209,8 +10263,14 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 			return false;
 		}
 		var oState=aStates[sKey];
-		//监听全局hisoryChange，返回false可阻止当前变化
-		var bResult=Evt.trigger('hisoryChange',oState,oCurState);
+		var bResult;
+		//如果是ModuleManager调用history.back()，这里不触发自定义'hisoryChange'事件，避免不能退出模块
+		if(me._byManager){
+			me._byManager=false;
+		}else{
+			//监听全局hisoryChange，返回false可阻止当前变化
+			bResult=Evt.trigger('hisoryChange',oState,oCurState);
+		}
 		if(bResult!==false){
 			if(oState){
 				bResult=oState.onStateChange(oState.param,true);
@@ -10258,7 +10318,7 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 	function fSaveHash(param){
 		//这里主动设置之后还会触发hashchange，不能在hashchange里添加set方法屏蔽此次change，因为可能不止一个地方需要hashchange事件
 		//TODO:单页面应用SEO：http://isux.tencent.com/seo-for-single-page-applications.html
-		Url.setHashParam(null,param);
+		Url.setHashParam(param,null,true);
 	}
 	/**
 	 * 获取当前hash参数
@@ -10333,7 +10393,7 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 		var oParam={
 			retPage:encodeURIComponent(Json.stringify(oHashParam))
 		}
-		var sUrl=Url.setQueryParam(location.href,oParam);
+		var sUrl=Url.setQueryParam(oParam,location.href);
 		return sUrl;
 	}
 	
@@ -10706,7 +10766,7 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 		var aStack=me._modStack;
 		var sModId=oMod.modId;
 		if(me.currentMod===sModId){
-			$M.back();
+			me.back();
 		}
 		for(var i=0,len=aStack.length;i<len;i++){
 			if(aStack[i].modId===sModId){
@@ -10757,6 +10817,8 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 			oCurMod._forceExit=true;
 		}
 		if(me.history.getPreState()){
+			//这里要注意，组件可能会监听hisoryChange事件，阻止这里的后退，所以这里先通知history不要触发hisoryChange事件
+			me.history._byManager=true;
 			history.back();
 		}else{
 			me.go(me.defEntry);
@@ -12147,7 +12209,7 @@ define('C.Input',
 'B.Event',
 'C.AbstractComponent'
 ],
-function(Browser,Util,Event,AC){
+function(Browser,Util,Evt,AC){
 	
 	var Input=AC.define('Input');
 	
@@ -12203,14 +12265,20 @@ function(Browser,Util,Event,AC){
 					me.getEl().addClass('hui-focus');
 					me.focused=true;
 					if(Browser.mobile()){
-						//用户点击后退时先隐藏弹出层
-						Event.once('hisoryChange',function(){
-							if(me.focused&&!me.destroyed){
-								me.blur();
-								Event.stop();
-								return false;
+						//用户点击后退时先失去焦点，隐藏输入菜单，这里主要是考虑移动设备的操作习惯
+						me.listen({
+							name:'hisoryChange',
+							target:Evt,
+							times:1,
+							handler:function(){
+								if(me.focused){
+									me.blur();
+									//停止事件，不让其他组件hisoryChange事件函数执行
+									Evt.stop();
+									return false;
+								}
 							}
-						});
+						})
 					}
 				}
 			},{
@@ -12276,6 +12344,19 @@ function(Browser,Util,Event,AC){
 			me.on('afterRender',function(){
 				me.findEl('input,textarea').css('height',oSettings.inputHeight);
 			});
+		}
+		//ios设备中点击页面其他地方不会失去焦点，这里需要手动失去焦点
+		if(Browser.ios()){
+			me.listen({
+				name:'touchend',
+				el:$(document),
+				handler:function(oEvt){
+					//点击其他输入框输入焦点会转移，这里不需额外处理
+					if(me.focused&&!/(input|textarea)/.test(oEvt.target.nodeName)){
+						me.blur();
+					}
+				}
+			})
 		}
 	}
 	/**
@@ -13880,9 +13961,10 @@ function(Obj,Date,AC,DatePicker){
 define('C.AbstractImage',
 [
 'B.Object',
+'B.Util',
 'C.AbstractComponent'
 ],
-function(Obj,AC){
+function(Obj,Util,AC){
 	
 	var AbstractImage=AC.define('AbstractImage');
 	
@@ -13908,10 +13990,14 @@ function(Obj,AC){
             scale = w / h,
             nFixW=me.width,
             nFixH=me.height;
-    	if(nFixW===undefined||(Obj.isStr(nFixW)&&nFixW.indexOf('em')>0)){
+        if(Obj.isStr(nFixW)&&nFixW.indexOf('em')>0){
+        	nFixW=Util.em2px(nFixW);
+        }else if(nFixW===undefined){
     		nFixW=oEl.clientWidth;
     	}
-    	if(nFixH===undefined||(Obj.isStr(nFixH)&&nFixH.indexOf('em')>0)){
+    	if(Obj.isStr(nFixH)&&nFixH.indexOf('em')>0){
+        	nFixH=Util.em2px(nFixH);
+        }else if(nFixH===undefined){
     		nFixH=oEl.clientHeight;
     	}
     	if(bContain){
@@ -14979,12 +15065,13 @@ function(Util,Obj,Date,Support,AC,Draggable){
 		pullTxt             : '下拉可刷新',       //下拉过程提示文字
 		flipTxt             : '松开可刷新',       //到松开可以执行刷新操作时的提示
 		releaseTxt          : '正在刷新',         //松开时提示文字
-		maxNumFromCache     : 20,                //使用缓存数据时单次最大加载数目    
+		cachePageSize       : 15,                //使用缓存数据时一页的数目    
 		scrollPos           : 'top',             //默认滚动到的位置，'top'顶部，'bottom'底部
 		pulldownIsRefresh   : true,              //true表示下拉式刷新，而按钮是获取更多，false表示相反
 //		itemXtype           : '',                //子组件默认xtype
 		refresh             : $H.noop,           //刷新接口
 		autoFetch           : true,              //初始化时如果没有数据是否自动获取
+		stayBottom          : false,             //添加项目时自动保持滚动在底部，用户滚动到其它位置时会自动忽略此配置
 		getMore             : $H.noop,           //获取更多接口
 		
 		tmpl        : [
@@ -15202,6 +15289,9 @@ function(Util,Obj,Date,Support,AC,Draggable){
 		me.add({
 			model:oListItem
 		},nIndex);
+		if(me.stayBottom){
+			me.scrollTo('bottom');
+		}
 	}
 	/**
 	 * 删除列表项
@@ -15226,7 +15316,11 @@ function(Util,Obj,Date,Support,AC,Draggable){
 	 */
 	function fScrollTo(pos){
 		var me=this;
-		var oEl=me.getEl()[0];
+		var oEl=me.getEl();
+		if(!oEl){
+			return false;
+		}
+		oEl=oEl[0];
 		if(Obj.isStr(pos)){
 			if(pos=='bottom'){
 				var nHeight=me.findEl('.hui-list-inner')[0].clientHeight;
@@ -15245,9 +15339,10 @@ function(Util,Obj,Date,Support,AC,Draggable){
 		var oListItems=me.model;
 		var nCurNum=me.children.length;
 		var nSize=oListItems.size();
+		var nPageSize=me.cachePageSize;
 		if(nSize>nCurNum){
 			//先尝试从缓存中获取
-			var nMax=me.maxNumFromCache,nStart=nCurNum,nEnd=nCurNum+nMax;
+			var nStart=nCurNum,nEnd=nCurNum+nPageSize;
 			if(me.pulldownIsRefresh){
 				oListItems.each(function(i,item){
 					if(i>=nStart&&i<nEnd){
@@ -15256,14 +15351,16 @@ function(Util,Obj,Date,Support,AC,Draggable){
 				});
 			}else{
 				nEnd=nSize-nCurNum;
-				nStart=nEnd-nMax;
+				nStart=nEnd-nPageSize;
 				oListItems.eachDesc(function(i,item){
 					if(i>=nStart&&i<nEnd){
 						me.addListItem(item,0);
 					}
 				});
 			}
-		}else if(!bIsInit||(!oListItems.fetching&&me.autoFetch)){
+		}
+		//初始化时，可能缓存数据不足一页，尝试加载更多
+		if(nSize-nCurNum<nPageSize&&(!bIsInit||(!oListItems.fetching&&me.autoFetch))){
 			me.getMore();
 		}
 	}
