@@ -91,9 +91,37 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
    		isNew                 : fIsNew,              //判断是否是新模型(没有提交保存，并且缺少id属性)
    		isValid               : fIsValid             //校验当前是否是合法的状态
 	},{
+	    getId                 : fStaticGetId,        //传入属性表获取id
 		get                   : fStaticGet           //静态get方法，为了保证模型的一致性，新建模型实例必须使用此方法，而不能用new方式
 	});
 	
+	/**
+	 * 传入属性表获取id
+	 * @param {object} oAttrs 参数属性表
+	 * @return {number|string} 返回模型id
+	 */
+	function fStaticGetId(oAttrs){
+		var _Class=this,id,
+		sIdName=_Class.prototype['idAttribute'];
+		//如果有id，需要先查找是否有存在的模型，查询直接id效率高，所以先进行查询，查询不到id才通过new后，查询联合id
+		if(id=oAttrs[sIdName]){
+	        return id;
+        }
+        var oFields=_Class.prototype.fields;
+        if(oFields){
+        	var oIdFiled=oFields[sIdName];
+        	if(oIdFiled){
+	        	var aDeps=oIdFiled.deps;
+	        	var oVal={};
+	        	Obj.each(aDeps,function(i,k){
+	        		oVal[k]=oAttrs[k]
+	        	});
+		        //因为可能存在自定义联合主键，所以这里没有现存的模型而新建一个实例时，要把oVal传入，以便获取正确的主键
+		        var oModel=new _Class(oVal);
+		        return oModel.id;
+        	}
+        }
+	}
 	/**
 	 * 静态get方法，为了保证模型的一致性，新建模型实例必须使用此方法，而不能用new方式
 	 * @method get
@@ -108,26 +136,18 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 		}
 		var _Class=this;
 		var oModel;
-		var sIdName=_Class.prototype['idAttribute'];
-		var id;
+		var id=_Class.getId(oVal);
 		//是否改变了原有模型，new操作也表示改变了
 		var bHasChange=false;
 		//如果有id，需要先查找是否有存在的模型，查询直接id效率高，所以先进行查询，查询不到id才通过new后，查询联合id
-		if(id=oVal[sIdName]){
+		if(id){
 	        oModel=$S.get(_Class,{id:id});
         }
         if(!oModel){
-	        //因为可能存在自定义联合主键，所以这里没有现存的模型而新建一个实例时，要把val传入，以便获取正确的主键
-	        var oModel=new _Class(oVal,oOptions),tmp;
+	        var oModel=new _Class(oVal,oOptions);
 	        //放入数据仓库
-			if(!(tmp=$S.get(oModel,{id:oModel.id}))){
-				bHasChange=true;
-				$S.push(oModel);
-			}else{
-				//已存在的对应的模型，设置新值
-				bHasChange=tmp.set(oVal).changed;
-				oModel=tmp;
-			}
+			bHasChange=true;
+			$S.push(oModel);
         }else{
         	//已存在的对应的模型，设置新值
         	bHasChange=oModel.set(oVal).changed;

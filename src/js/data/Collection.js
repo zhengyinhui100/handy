@@ -117,16 +117,17 @@ function(Obj,Arr,Function,AbstractData,Model){
      * 初始化模型
      * @param {Object}oAttrs key-value组合
      * @param {Object}oOptions 选项，同Model初始化选项
+     * @param {object=}oChange 如果传入object，返回时，oChange.changed表示此次操作改变了原模型的值或者新建了模型实例
      * @return {Model|boolean} 返回初始化的模型，如果初始化失败，则返回false
      */
-    function _fPrepareModel(oAttrs, oOptions) {
+    function _fPrepareModel(oAttrs, oOptions,oChange) {
     	var me=this;
         if (oAttrs instanceof Model){
         	return oAttrs;
         }
         oOptions = oOptions ? Obj.clone(oOptions) : {};
         oOptions.collection = me;
-        var oModel = me.model.get(oAttrs, oOptions);
+        var oModel = me.model.get(oAttrs, oOptions,oChange);
         if (!oModel.validationError){
         	return oModel;
         }
@@ -245,11 +246,13 @@ function(Obj,Arr,Function,AbstractData,Model){
     function fRemove(models, oOptions) {
     	var me=this;
         var bSingular = !Obj.isArr(models);
-        models = bSingular ? [models] : Obj.clone(models);
+        models = bSingular ? [models] : models;
         oOptions || (oOptions = {});
         var i, l, index, oModel;
+        var aResult=[];
         for (i = 0, l = models.length; i < l; i++) {
-        	oModel = models[i] = me.get(models[i]);
+        	oModel=models[i];
+        	oModel = aResult[i] =Obj.isObj(oModel)?me.findWhere(oModel): me.get(oModel);
         	if (!oModel){
         		continue;
         	}
@@ -264,7 +267,7 @@ function(Obj,Arr,Function,AbstractData,Model){
         	}
         	me._removeReference(oModel, oOptions);
         }
-        return bSingular ? models[0] : models;
+        return bSingular ? aResult[0] : aResult;
     }
 	/**
 	 * 设置模型
@@ -321,7 +324,7 @@ function(Obj,Arr,Function,AbstractData,Model){
         	if (oAttrs instanceof Model) {
           		id = oModel = oAttrs;
         	} else {
-         		id = oAttrs[cTargetModel.prototype.idAttribute || 'id'];
+         		id = cTargetModel.getId(oAttrs);
         	}
 
         	//如果已经存在对应id的模型
