@@ -38,9 +38,9 @@ define("L.Browser",function(){
 	 */
 	function _fInit(){
 		var userAgent = window.navigator.userAgent;
+	    _fParseKernel(userAgent);
 		_fParseBrowser(userAgent);
 		_fParseOs(userAgent);
-	    _fParseKernel(userAgent);
 		_fParseShell(userAgent);
 		_fParseMobile(userAgent);
 		_fParseFlash();
@@ -57,7 +57,9 @@ define("L.Browser",function(){
 		var ua =userAgent;
 		var matcher;
 		// 使用正则表达式在userAgent中提取浏览器版本信息
+		//IE10及以下
 		(matcher = ua.match(/MSIE ([\d.]+)/)) ? _oInfo.ie = matcher[1] :
+		(matcher = ua.match(/trident.*rv\D+([\d.]+)/i)) ? _oInfo.ie = matcher[1] :
 		(matcher = ua.match(/Firefox\/([\d.]+)/))? _oInfo.firefox = matcher[1]: 
 		(matcher = ua.match(/Chrome\/([\d.]+)/))? _oInfo.chrome = matcher[1]: 
 		(matcher = ua.match(/Opera.([\d.]+)/))? _oInfo.opera = matcher[1]: 
