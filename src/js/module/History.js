@@ -127,7 +127,7 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 	function fSaveHash(param){
 		//这里主动设置之后还会触发hashchange，不能在hashchange里添加set方法屏蔽此次change，因为可能不止一个地方需要hashchange事件
 		//TODO:单页面应用SEO：http://isux.tencent.com/seo-for-single-page-applications.html
-		Url.setHashParam(null,param);
+		Url.setHashParam(param,null,true);
 	}
 	/**
 	 * 获取当前hash参数
@@ -202,7 +202,7 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 		var oParam={
 			retPage:encodeURIComponent(Json.stringify(oHashParam))
 		}
-		var sUrl=Url.setQueryParam(location.href,oParam);
+		var sUrl=Url.setQueryParam(oParam,location.href);
 		return sUrl;
 	}
 	

@@ -61,7 +61,6 @@ function(Debug,Util){
 		}
 		/**
 		 * 设置新的iframe的hash
-		 * @method setHash
 		 * @param {string} sHash要设置hash
 		 */
 		function _fSetIfrHash(sHash){

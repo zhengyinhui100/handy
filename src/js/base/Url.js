@@ -84,11 +84,11 @@ define("B.Url","B.Object",function(Obj){
 	}
 	/**
 	 * 设置query字符串
-	 * @param {string}sUrl 参数url，传空值表示设置当前地址栏url
 	 * @param {string}sQuery 要设置的query字符串(不带"?")
+	 * @param {string=}sUrl 参数url，不传或空值表示设置当前地址栏url
 	 * @return {string} 返回设置好的url
 	 */
-	function fSetQuery(sUrl,sQuery){
+	function fSetQuery(sQuery,sUrl){
 		if(sUrl){
 			var nHashIndex=sUrl.indexOf('#');
 			sUrl=sUrl.match(/[^\?#]+/)[0]+'?'+sQuery+(nHashIndex>0?sUrl.substring(nHashIndex):'');
@@ -111,16 +111,22 @@ define("B.Url","B.Object",function(Obj){
 	}
 	/**
 	 * 设置query参数
-	 * @param {string}sUrl null表示设置地址栏hash
 	 * @param {object} oHashParam要设置的hash参数
+	 * @param {string=} sUrl 不传或空值表示设置地址栏hash
+	 * @param {boolean=} bReset 是否是重置，仅当true时重置，默认是extend
 	 * @return {string=} 传入sUrl时，返回设置过hash参数的url
 	 */
-	function fSetQueryParam(sUrl,oHashParam){
+	function fSetQueryParam(oHashParam,sUrl,bReset){
 		var sQuery=Url.getQuery(sUrl);
-		var oParams=Url.strToParam(sQuery);
-		Obj.extend(oParams,oHashParam);
+		var oParams;
+		if(bReset){
+			oParams=oHashParam;
+		}else{
+			oParams=Url.strToParam(sQuery);
+			Obj.extend(oParams,oHashParam);
+		}
 		sQuery=Url.paramToStr(oParams);
-		return Url.setQuery(sUrl,sQuery);
+		return Url.setQuery(sQuery,sUrl);
 	}
 	/**
 	 * 获取hash字符串
@@ -133,11 +139,11 @@ define("B.Url","B.Object",function(Obj){
 	}
 	/**
 	 * 设置hash字符串
-	 * @param {string}sUrl 参数url，传空值表示设置当前地址栏url
 	 * @param {string}sHash 要设置的hash字符串(不带"#")
+	 * @param {string=}sUrl 参数url，默认是当前地址栏url
 	 * @return {string} 返回设置好的url
 	 */
-	function fSetHash(sUrl,sHash){
+	function fSetHash(sHash,sUrl){
 		if(sUrl){
 			sUrl=sUrl.substring(0,sUrl.indexOf('#')+1)+sHash;
 			return sUrl;
@@ -159,16 +165,22 @@ define("B.Url","B.Object",function(Obj){
 	}
 	/**
 	 * 设置hash参数
-	 * @param {string}sUrl 空值表示设置地址栏hash
 	 * @param {object} oHashParam要设置的hash参数
+	 * @param {string=}sUrl 默认是地址栏hash
+	 * @param {boolean=} bReset 是否是重置，仅当true时重置，默认是extend
 	 * @return {string=} 传入sUrl时，返回设置过hash参数的url
 	 */
-	function fSetHashParam(sUrl,oHashParam){
+	function fSetHashParam(oHashParam,sUrl,bReset){
 		var sHash=Url.getHash(sUrl);
-		var oParams=Url.strToParam(sHash);
-		Obj.extend(oParams,oHashParam);
+		var oParams;
+		if(bReset){
+			oParams=oHashParam;
+		}else{
+			var oParams=Url.strToParam(sHash);
+			Obj.extend(oParams,oHashParam);
+		}
 		sHash=Url.paramToStr(oParams);
-		return Url.setHash(sUrl,sHash);
+		return Url.setHash(sHash,sUrl);
 	}
 	
 	return Url;
