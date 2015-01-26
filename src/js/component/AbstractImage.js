@@ -6,9 +6,10 @@
 define('C.AbstractImage',
 [
 'B.Object',
+'B.Util',
 'C.AbstractComponent'
 ],
-function(Obj,AC){
+function(Obj,Util,AC){
 	
 	var AbstractImage=AC.define('AbstractImage');
 	
@@ -34,10 +35,14 @@ function(Obj,AC){
             scale = w / h,
             nFixW=me.width,
             nFixH=me.height;
-    	if(nFixW===undefined||(Obj.isStr(nFixW)&&nFixW.indexOf('em')>0)){
+        if(Obj.isStr(nFixW)&&nFixW.indexOf('em')>0){
+        	nFixW=Util.em2px(nFixW);
+        }else if(nFixW===undefined){
     		nFixW=oEl.clientWidth;
     	}
-    	if(nFixH===undefined||(Obj.isStr(nFixH)&&nFixH.indexOf('em')>0)){
+    	if(Obj.isStr(nFixH)&&nFixH.indexOf('em')>0){
+        	nFixH=Util.em2px(nFixH);
+        }else if(nFixH===undefined){
     		nFixH=oEl.clientHeight;
     	}
     	if(bContain){
