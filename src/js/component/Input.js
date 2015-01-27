@@ -48,6 +48,8 @@ function(Browser,Util,Evt,AC){
 		type            : '',                  //输入框类型，默认为普通输入框，'search':搜索框
 		maxHeight       : '5.313em',           //输入框最大高度，进对textarea有效
 		withClear       : false,               //带有清除按钮
+		enterKey        : '',                  //默认是ctrl+enter，设置为'enter'时表示只监听enter
+//		enterSubmit     : $H.noop,             //回车事件回调函数
 		
 		tmpl            : [
 		'<div {{bindAttr class="iconPosCls btnPosCls"}}>',
@@ -159,6 +161,19 @@ function(Browser,Util,Evt,AC){
 					}
 				}
 			})
+		}
+		//回车事件
+		if(oSettings.enterSubmit){
+			me.listen({
+				name:'keypress',
+				handler:function(oEvt){
+					var me=this;
+					if((me.enterKey=='enter'||oEvt.ctrlKey)&&oEvt.keyCode==13){
+						oSettings.enterSubmit.call(me);
+						oEvt.preventDefault();
+					}
+				}
+			});
 		}
 	}
 	/**

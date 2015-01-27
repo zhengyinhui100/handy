@@ -455,9 +455,9 @@ define("L.Browser",function(){
 	 */
 	function _fInit(){
 		var userAgent = window.navigator.userAgent;
+	    _fParseKernel(userAgent);
 		_fParseBrowser(userAgent);
 		_fParseOs(userAgent);
-	    _fParseKernel(userAgent);
 		_fParseShell(userAgent);
 		_fParseMobile(userAgent);
 		_fParseFlash();
@@ -474,7 +474,10 @@ define("L.Browser",function(){
 		var ua =userAgent;
 		var matcher;
 		// 使用正则表达式在userAgent中提取浏览器版本信息
+		//IE10及以下
 		(matcher = ua.match(/MSIE ([\d.]+)/)) ? _oInfo.ie = matcher[1] :
+		//IE11
+		(matcher = ua.match(/trident.*rv\D+([\d.]+)/i)) ? _oInfo.ie = matcher[1] :
 		(matcher = ua.match(/Firefox\/([\d.]+)/))? _oInfo.firefox = matcher[1]: 
 		(matcher = ua.match(/Chrome\/([\d.]+)/))? _oInfo.chrome = matcher[1]: 
 		(matcher = ua.match(/Opera.([\d.]+)/))? _oInfo.opera = matcher[1]: 
@@ -5301,7 +5304,8 @@ function(Browser,Class,Obj){
 		var me=this;
 		//阻止滚动页面或原生拖拽
 		if(me.options.preventDefault!==false){
-			oOrigEvt.preventDefault();
+			//默认只在移动端阻止，不阻止的话move事件无法连续触发
+			Browser.mobile()&&oOrigEvt.preventDefault();
 		}
 		if(me.drag===true){
 			if(Browser.hasTouch()){
@@ -12246,6 +12250,8 @@ function(Browser,Util,Evt,AC){
 		type            : '',                  //输入框类型，默认为普通输入框，'search':搜索框
 		maxHeight       : '5.313em',           //输入框最大高度，进对textarea有效
 		withClear       : false,               //带有清除按钮
+		enterKey        : '',                  //默认是ctrl+enter，设置为'enter'时表示只监听enter
+//		enterSubmit     : $H.noop,             //回车事件回调函数
 		
 		tmpl            : [
 		'<div {{bindAttr class="iconPosCls btnPosCls"}}>',
@@ -12357,6 +12363,19 @@ function(Browser,Util,Evt,AC){
 					}
 				}
 			})
+		}
+		//回车事件
+		if(oSettings.enterSubmit){
+			me.listen({
+				name:'keypress',
+				handler:function(oEvt){
+					var me=this;
+					if((me.enterKey=='enter'||oEvt.ctrlKey)&&oEvt.keyCode==13){
+						oSettings.enterSubmit.call(me);
+						oEvt.preventDefault();
+					}
+				}
+			});
 		}
 	}
 	/**
@@ -15036,6 +15055,7 @@ function(AC){
 
 define("C.ModelList",
 [
+'L.Browser',
 'B.Util',
 'B.Object',
 'B.Date',
@@ -15043,7 +15063,7 @@ define("C.ModelList",
 'C.AbstractComponent',
 'E.Draggable'
 ],
-function(Util,Obj,Date,Support,AC,Draggable){
+function(Browser,Util,Obj,Date,Support,AC,Draggable){
 	
 	var ModelList=AC.define('ModelList');
 	
@@ -15201,50 +15221,53 @@ function(Util,Obj,Date,Support,AC,Draggable){
 				var sRefreshCls='hui-pd-refresh';
 				var sReleaseCls='hui-pd-release';
 				
-				me.draggable=new Draggable(me.getEl(),{
-					preventDefault:false,
-					start:function(){
-						//记录初始滚动位置
-						me._scrollY=me.getEl()[0].scrollTop;
-					},
-					move:function(oPos,oOrigEvt){
-						//往下拉才计算
-						if(oPos.offsetY>0&&oPos.offsetY>Math.abs(oPos.offsetX)){
-							var nScrollY=me._scrollY-oPos.offsetY;
-							//到顶部临界点后才开始显示下拉刷新
-							if(nScrollY<0){
-								nScrollY=-nScrollY;
-								//不在这里阻止默认事件的话，Android下move只会触发一次
-								oOrigEvt.preventDefault();
-								//逐渐减速
-								nScrollY=Math.pow(nScrollY,0.85);
-								oInner[0].style[_sPosProp]=-nStartY+nScrollY+'px';
-								if (nScrollY > nValve && !oPdEl.hasClass(sReleaseCls)) {  
-					                oPdEl.addClass(sReleaseCls);  
-					                me.set('pdTxt',me.flipTxt);  
-					            } else if (nScrollY < nValve && oPdEl.hasClass(sReleaseCls)) {  
-					                oPdEl.removeClass(sReleaseCls);;  
-					                me.set('pdTxt',me.pullTxt); 
-					            }
+				var bIsMobile=Browser.mobile();
+				if(1||bIsMobile){
+					me.draggable=new Draggable(oInner,{
+						preventDefault:false,
+						start:function(){
+							//记录初始滚动位置
+							me._scrollY=me.getEl()[0].scrollTop;
+						},
+						move:function(oPos,oOrigEvt){
+							//往下拉才计算
+							if(oPos.offsetY>0&&oPos.offsetY>Math.abs(oPos.offsetX)){
+								var nScrollY=me._scrollY-oPos.offsetY;
+								//到顶部临界点后才开始显示下拉刷新
+								if(nScrollY<0){
+									nScrollY=-nScrollY;
+									//不在这里阻止默认事件的话，Android下move只会触发一次
+									bIsMobile&&oOrigEvt.preventDefault();
+									//逐渐减速
+									nScrollY=Math.pow(nScrollY,0.85);
+									oInner[0].style[_sPosProp]=-nStartY+nScrollY+'px';
+									if (nScrollY > nValve && !oPdEl.hasClass(sReleaseCls)) {  
+						                oPdEl.addClass(sReleaseCls);  
+						                me.set('pdTxt',me.flipTxt);  
+						            } else if (nScrollY < nValve && oPdEl.hasClass(sReleaseCls)) {  
+						                oPdEl.removeClass(sReleaseCls);;  
+						                me.set('pdTxt',me.pullTxt); 
+						            }
+								}
 							}
+							return false;
+						},
+						end:function(){
+			                var oPos={};
+							if (oPdEl.hasClass(sReleaseCls)) {  
+				                oPdEl.addClass(sRefreshCls);  
+				                me.set('pdTxt',me.releaseTxt);
+				                oPos[_sPosProp]=0;
+				                oInner.animate(oPos,'fast',function(){
+					                me.pulldownIsRefresh?me.refresh():me.loadMore();
+				                });
+				            }else{
+				            	oPos[_sPosProp]=-nStartY;
+				            	oInner.animate(oPos);
+				            }
 						}
-						return false;
-					},
-					end:function(){
-		                var oPos={};
-						if (oPdEl.hasClass(sReleaseCls)) {  
-			                oPdEl.addClass(sRefreshCls);  
-			                me.set('pdTxt',me.releaseTxt);
-			                oPos[_sPosProp]=0;
-			                oInner.animate(oPos,'fast',function(){
-				                me.pulldownIsRefresh?me.refresh():me.loadMore();
-			                });
-			            }else{
-			            	oPos[_sPosProp]=-nStartY;
-			            	oInner.animate(oPos);
-			            }
-					}
-				});
+					});
+				}
 				//同步数据后需要刷新
 				me.listenTo(me.model,'sync',function(){
 					me.set('pdTime',Date.formatDate(Date.now(),'HH:mm'));
