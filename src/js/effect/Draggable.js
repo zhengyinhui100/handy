@@ -85,7 +85,8 @@ function(Browser,Class,Obj){
 		var me=this;
 		//阻止滚动页面或原生拖拽
 		if(me.options.preventDefault!==false){
-			oOrigEvt.preventDefault();
+			//默认只在移动端阻止，不阻止的话move事件无法连续触发
+			Browser.mobile()&&oOrigEvt.preventDefault();
 		}
 		if(me.drag===true){
 			if(Browser.hasTouch()){

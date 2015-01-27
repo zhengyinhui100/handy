@@ -757,7 +757,6 @@
 //行，有右箭头、下划线
 .hui-rowitem{
 	position:relative;
-	min-height:2.75em;
 	&.hui-rowitem-padding-big{
 		padding:0.75em 0.563em 0.75em 0.375em;
 	}
@@ -1016,13 +1015,23 @@
 	}
 	.hui-tab-content{
 		position:absolute;
-		width:100%;
-		height:100%;
 	}
 	//动画
 	.hui-ani{
 		.fn_transition(left 0.1s linear);
 	}
+}
+.hui-pc .hui-tab-content{
+	//TODO:width:100%，在IE9下首页国际新闻右侧有空白，原因未明
+	left:0;
+	right:0;
+	top:0;
+	bottom:0;
+}
+.hui-mobile .hui-tab-content{
+	//移动端有滑动切换动画，这里必须设置宽度100%
+	width:100%;
+	height:100%;
 }
 .hui-tab-sep{
 	.hui-tabitem .hui-btn{
@@ -1220,6 +1229,9 @@
 	.hui-list-empty{
 		text-align:center;
 		padding:2em 0;
+	}
+	.hui-list-inner{
+		.fn_user_select_none();
 	}
 	.hui-list-item{
 		position:relative;

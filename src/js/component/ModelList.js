@@ -6,6 +6,7 @@
 
 define("C.ModelList",
 [
+'L.Browser',
 'B.Util',
 'B.Object',
 'B.Date',
@@ -13,7 +14,7 @@ define("C.ModelList",
 'C.AbstractComponent',
 'E.Draggable'
 ],
-function(Util,Obj,Date,Support,AC,Draggable){
+function(Browser,Util,Obj,Date,Support,AC,Draggable){
 	
 	var ModelList=AC.define('ModelList');
 	
@@ -171,50 +172,53 @@ function(Util,Obj,Date,Support,AC,Draggable){
 				var sRefreshCls='hui-pd-refresh';
 				var sReleaseCls='hui-pd-release';
 				
-				me.draggable=new Draggable(me.getEl(),{
-					preventDefault:false,
-					start:function(){
-						//记录初始滚动位置
-						me._scrollY=me.getEl()[0].scrollTop;
-					},
-					move:function(oPos,oOrigEvt){
-						//往下拉才计算
-						if(oPos.offsetY>0&&oPos.offsetY>Math.abs(oPos.offsetX)){
-							var nScrollY=me._scrollY-oPos.offsetY;
-							//到顶部临界点后才开始显示下拉刷新
-							if(nScrollY<0){
-								nScrollY=-nScrollY;
-								//不在这里阻止默认事件的话，Android下move只会触发一次
-								oOrigEvt.preventDefault();
-								//逐渐减速
-								nScrollY=Math.pow(nScrollY,0.85);
-								oInner[0].style[_sPosProp]=-nStartY+nScrollY+'px';
-								if (nScrollY > nValve && !oPdEl.hasClass(sReleaseCls)) {  
-					                oPdEl.addClass(sReleaseCls);  
-					                me.set('pdTxt',me.flipTxt);  
-					            } else if (nScrollY < nValve && oPdEl.hasClass(sReleaseCls)) {  
-					                oPdEl.removeClass(sReleaseCls);;  
-					                me.set('pdTxt',me.pullTxt); 
-					            }
+				var bIsMobile=Browser.mobile();
+				if(1||bIsMobile){
+					me.draggable=new Draggable(oInner,{
+						preventDefault:false,
+						start:function(){
+							//记录初始滚动位置
+							me._scrollY=me.getEl()[0].scrollTop;
+						},
+						move:function(oPos,oOrigEvt){
+							//往下拉才计算
+							if(oPos.offsetY>0&&oPos.offsetY>Math.abs(oPos.offsetX)){
+								var nScrollY=me._scrollY-oPos.offsetY;
+								//到顶部临界点后才开始显示下拉刷新
+								if(nScrollY<0){
+									nScrollY=-nScrollY;
+									//不在这里阻止默认事件的话，Android下move只会触发一次
+									bIsMobile&&oOrigEvt.preventDefault();
+									//逐渐减速
+									nScrollY=Math.pow(nScrollY,0.85);
+									oInner[0].style[_sPosProp]=-nStartY+nScrollY+'px';
+									if (nScrollY > nValve && !oPdEl.hasClass(sReleaseCls)) {  
+						                oPdEl.addClass(sReleaseCls);  
+						                me.set('pdTxt',me.flipTxt);  
+						            } else if (nScrollY < nValve && oPdEl.hasClass(sReleaseCls)) {  
+						                oPdEl.removeClass(sReleaseCls);;  
+						                me.set('pdTxt',me.pullTxt); 
+						            }
+								}
 							}
+							return false;
+						},
+						end:function(){
+			                var oPos={};
+							if (oPdEl.hasClass(sReleaseCls)) {  
+				                oPdEl.addClass(sRefreshCls);  
+				                me.set('pdTxt',me.releaseTxt);
+				                oPos[_sPosProp]=0;
+				                oInner.animate(oPos,'fast',function(){
+					                me.pulldownIsRefresh?me.refresh():me.loadMore();
+				                });
+				            }else{
+				            	oPos[_sPosProp]=-nStartY;
+				            	oInner.animate(oPos);
+				            }
 						}
-						return false;
-					},
-					end:function(){
-		                var oPos={};
-						if (oPdEl.hasClass(sReleaseCls)) {  
-			                oPdEl.addClass(sRefreshCls);  
-			                me.set('pdTxt',me.releaseTxt);
-			                oPos[_sPosProp]=0;
-			                oInner.animate(oPos,'fast',function(){
-				                me.pulldownIsRefresh?me.refresh():me.loadMore();
-			                });
-			            }else{
-			            	oPos[_sPosProp]=-nStartY;
-			            	oInner.animate(oPos);
-			            }
-					}
-				});
+					});
+				}
 				//同步数据后需要刷新
 				me.listenTo(me.model,'sync',function(){
 					me.set('pdTime',Date.formatDate(Date.now(),'HH:mm'));

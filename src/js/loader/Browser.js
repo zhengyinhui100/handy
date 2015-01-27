@@ -59,6 +59,7 @@ define("L.Browser",function(){
 		// 使用正则表达式在userAgent中提取浏览器版本信息
 		//IE10及以下
 		(matcher = ua.match(/MSIE ([\d.]+)/)) ? _oInfo.ie = matcher[1] :
+		//IE11
 		(matcher = ua.match(/trident.*rv\D+([\d.]+)/i)) ? _oInfo.ie = matcher[1] :
 		(matcher = ua.match(/Firefox\/([\d.]+)/))? _oInfo.firefox = matcher[1]: 
 		(matcher = ua.match(/Chrome\/([\d.]+)/))? _oInfo.chrome = matcher[1]: 
