@@ -699,7 +699,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	/**
 	 * 保存模型
 	 * @param {String}sKey 属性
-	 * @param {*}val 值
+	 * @param {*=}val 值，不传默认是当前key对应的值
 	 * @param {Object|Function=}oOptions 选项，如果传入的是函数，表示成功回调函数{
 	 * 		{boolean=}unset 是否取消设置
 	 * 		{boolean=}silent 是否不触发事件
@@ -717,7 +717,10 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
         if (sKey == null || typeof sKey === 'object') {
         	oAttrs = sKey;
         	oOptions = val;
-        } else {
+        } else if(typeof sKey==='string'){
+        	if(arguments.length===1){
+        		val=me.get(sKey);
+        	}
         	(oAttrs = {})[sKey] = val;
         }
 
