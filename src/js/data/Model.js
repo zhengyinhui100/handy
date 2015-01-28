@@ -72,6 +72,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 		getDefaults           : fGetDefaults,        //获取默认值
 		toJSON                : fToJSON,             //返回对象数据副本
    		get                   : fGet,                //获取指定属性值
+   		getSaved              : fGetSaved,           //获取指定的已保存的属性值
    		escape                : fEscape,             //获取html编码过的属性值 
    		has                   : fHas,                //判断是否含有参数属性
    		set                   : fSet,                //设置值
@@ -359,6 +360,14 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
      */
     function fGet(sAttr) {
         return this._attributes[sAttr];
+    }
+    /**
+     * 获取指定已保存的属性值
+     * @param {string}sAttr 参数属性名
+     * @return {*} 返回对应属性
+     */
+    function fGetSaved(sAttr) {
+        return this._savedAttrs[sAttr];
     }
 	/**
 	 * 获取html编码过的属性值
