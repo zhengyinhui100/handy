@@ -12,8 +12,10 @@
 	};
 	
 	handy.version    = '1.0.0';    //版本号
-	handy.isDebug    = typeof gEnv=='undefined'?false:gEnv=='dev';     //是否是调试状态
-	handy.expando    = ("handy-" +  handy.version).replace(/\./g,'_');    //自定义属性名
+	handy.env        = typeof gEnv=='undefined'?'online':gEnv         //默认是线上环境
+	handy.isDebug    = handy.env=='dev';                              //是否是开发环境
+	handy.isOnline   = handy.env=='online';                           //是否是线上环境
+	handy.expando    = ("handy-" +  handy.version).replace(/\./g,'_'); //自定义属性名
 	handy.base={};
 	handy.noConflict = fNoConflict;     //处理命名冲突
 	handy.noop       = function(){};    //空函数
@@ -36,7 +38,6 @@
 	
 	/**
 	 * 处理命名冲突
-	 * @method noConflict
 	 * @param {boolean}isDeep 是否处理window.handy冲突
 	 * @retrun {Object}handy 返回当前定义的handy对象
 	 */
@@ -93,7 +94,6 @@
 	/**
 	 * 创建别名/读取实名，别名没有对应的存储空间，需要先转换为原始名字才能获取对应的存储空间，
 	 * Loader自动会优先尝试转换别名，因此，别名不能与现有的命名空间重叠
-	 * @method alias
 	 * @param {string||object=}sAlias 别名，如'B.Namespace'，为空时表示读取所有存储的别名，也可以传入hash对象,{sAlias:sOrig}
 	 * @param {string=}sOrig 原名，如'handy.base.Object'，为空时表示读取实名
 	 */
@@ -133,7 +133,6 @@
 	}
 	/**
     * 归纳生成类方法
-    * @method generateMethod
     * @param {Object}oTarget 需要生成方法的对象
     * @param {Array.<string>}aMethod 需要生成的方法列表
     * @param {function()}fDefined 方法定义函数，该函数执行后返回方法定义
@@ -147,7 +146,6 @@
     }
 	/**
 	 * 添加子模块
-	 * @method add
 	 * @param {string}sName 模块名称
 	 * @param {Object=}aRequires 模块依赖资源
 	 * @param {function|object}factory 模块功能定义
@@ -451,7 +449,6 @@ define("L.Browser",function(){
 		
 	/**
 	 * 初始化
-	 * @method _fInit
 	 */
 	function _fInit(){
 		var userAgent = window.navigator.userAgent;
@@ -467,7 +464,6 @@ define("L.Browser",function(){
 	}
 	/**
 	 * 分析浏览器类型及版本
-	 * @method _fParseBrowser
 	 * @param {string}userAgent 浏览器userAgent
 	 */
 	function _fParseBrowser(userAgent){
@@ -486,7 +482,6 @@ define("L.Browser",function(){
 	}
 	/**
 	 * 分析浏览器类型及版本
-	 * @method _fParseOs
 	 * @param {string}userAgent 浏览器userAgent
 	 */
 	function _fParseOs(userAgent){
@@ -498,7 +493,6 @@ define("L.Browser",function(){
 	}
 	/**
 	 * 分析浏览器内核类型
-	 * @method _fParseKernel
 	 * @param {string}userAgent 浏览器userAgent
 	 */
 	function _fParseKernel(userAgent){
@@ -511,7 +505,6 @@ define("L.Browser",function(){
 	}
 	/**
 	 * 分析浏览器壳类型
-	 * @method _fParseShell
 	 * @param {string}userAgent 浏览器userAgent
 	 */
 	function _fParseShell(userAgent){
@@ -525,7 +518,6 @@ define("L.Browser",function(){
 	}
 	/**
 	 * 分析移动浏览器类型
-	 * @method _fParseMobile
 	 * @param {string}userAgent 浏览器userAgent
 	 */
 	function _fParseMobile(userAgent) {
@@ -569,7 +561,6 @@ define("L.Browser",function(){
 	/**
 	 * 分析浏览器flash版本
 	 * 
-	 * @method _fParseFlash
 	 */
 	function _fParseFlash(){
 		var flashVersion;
@@ -614,28 +605,36 @@ define("L.Browser",function(){
 define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	
 	var Debug=window.$D={
-		level	    : $H.isDebug?0:5,  //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
-		LOG_LEVEL	: 1,            //日志级别
-		DEBUG_LEVEL : 2,            //调试级别
-		INFO_LEVEL  : 3,            //信息级别
-		WARN_LEVEL  : 4,            //警告级别
-		ERROR_LEVEL	: 5,            //错误级别
-		showInPage  : !("console" in window)||!!Browser.mobile(),        //是否强制在页面上输出调试信息，主要用于不支持console的浏览器，如：IE6，或者ietester里面，或者移动浏览器
-		out         : fOut,         //直接输出日志
-		log			: fLog,		    //输出日志
-		info		: fInfo,		//输出信息
-		warn        : fWarn,        //输出警告信息
-		error		: fError,		//输出错误信息
-		time        : fTime,        //输出统计时间,info级别
-		trace       : fTrace,       //追踪统计时间
-//		debugLog    : $H.noop,      //线上错误处理
-		debug		: fDebug		//出现调试断点
+		level	            : $H.isDebug?0:5,  //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
+		LOG_LEVEL	        : 1,            //日志级别
+		DEBUG_LEVEL         : 2,            //调试级别
+		INFO_LEVEL          : 3,            //信息级别
+		WARN_LEVEL          : 4,            //警告级别
+		ERROR_LEVEL	        : 5,            //错误级别
+		//是否强制在页面上输出调试信息，true表示在页面中显示，'record'表示记录但不显示控制台面板，false表示既不显示也不记录
+		//主要用于不支持console的浏览器，如：IE6，或者ietester里面，或者移动浏览器
+		//开发环境下连续点击4次也可弹出控制面板
+		showInPage          : $H.isDebug?(!("console" in window)||!!Browser.mobile()?'record':false):false,        
+		out                 : fOut,         //直接输出日志
+		log			        : fLog,		    //输出日志
+		debug		        : fDebug,   	//输出调试
+		info		        : fInfo,		//输出信息
+		warn                : fWarn,        //输出警告信息
+		error		        : fError,		//输出错误信息
+		time                : fTime,        //输出统计时间,info级别
+		trace               : fTrace,       //追踪统计时间
+//		debugLog            : $H.noop,      //线上错误处理
+		throwExp            : fThrowExp,            //处理异常
+		listenCtrlEvts      : fListenCtrlEvts       //监听连续点击事件打开控制面板
 	}
+	
+	//暂时只能在非线上环境手动开启控制面板
+	!$H.isOnline&&Debug.listenCtrlEvts();
+	
 	/**
 	 * 输出信息
-	 * @method fOut
 	 * @param {Object} oVar	需要输出的变量
-	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
+	 * @param {boolean} bShowInPage 参照Debug.showInPage
 	 * @param {string} sType 日志类型：log,info,error
 	 */
 	function fOut(oVar,bShowInPage,sType){
@@ -656,6 +655,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 					'<a href="javascript:void(0)" onclick="location.reload();">刷新</a>',
 					'<a href="javascript:void(0)" onclick="history.back();">后退</a>'
 				].join('&nbsp;&nbsp;&nbsp;&nbsp;')+'<div style="padding-top:0.313;height:90%;overflow:auto;font-size:0.75em;word-wrap:break-word;word-break:break-all;"></div>';
+				oDebugDiv.style.display='none';
 				oDebugDiv.style.position = 'fixed';
 				oDebugDiv.style.width = '100%';
 				oDebugDiv.style.left = 0;
@@ -669,8 +669,9 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 				oDebugDiv.style.opacity=0.95;
 				oDebugDiv.style.filter="alpha(opacity=95)";
 				oDocument.body.appendChild(oDebugDiv);
-			}else{
-				oDebugDiv.style.display = 'block';
+			}
+			if((bShowInPage===true||Debug.showInPage===true)){
+				oDebugDiv.style.display ='block';
 			}
 			var oAppender=oDebugDiv.getElementsByTagName('DIV')[0];
 			oVar=oVar instanceof Error?(oVar.stack||oVar.message):oVar;
@@ -702,9 +703,8 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	}
 	/**
 	 * 输出日志
-	 * @method log
 	 * @param {Object} oVar	需要输出的变量
-	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
+	 * @param {boolean} bShowInPage 参照Debug.showInPage
 	 */
 	function fLog(oVar,bShowInPage){
 		if(Debug.level>Debug.LOG_LEVEL){
@@ -713,10 +713,20 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		Debug.out(oVar,!!bShowInPage,'log');
 	}
 	/**
-	 * 输出信息
-	 * @method info
+	 * 添加调试断点
 	 * @param {Object} oVar	需要输出的变量
-	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
+	 * @param {boolean} bShowInPage 参照Debug.showInPage
+	 */
+	function fDebug(oVar,bShowInPage){
+		if(Debug.level>Debug.DEBUG_LEVEL){
+			return;
+		}
+		Debug.out(oVar,!!bShowInPage,'log');
+	}
+	/**
+	 * 输出信息
+	 * @param {Object} oVar	需要输出的变量
+	 * @param {boolean} bShowInPage 参照Debug.showInPage
 	 */
 	function fInfo(oVar,bShowInPage){
 		if(this.level>Debug.INFO_LEVEL){
@@ -726,9 +736,8 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	}
 	/**
 	 * 输出信息
-	 * @method warn
 	 * @param {Object} oVar	需要输出的变量
-	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
+	 * @param {boolean} bShowInPage 参照Debug.showInPage
 	 */
 	function fWarn(oVar,bShowInPage){
 		if(Debug.level>Debug.WARN_LEVEL){
@@ -738,9 +747,8 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	}
 	/**
 	 * 输出错误
-	 * @method error
 	 * @param {Object}oVar	需要输出的变量
-	 * @param {boolean=}bShowInPage 是否需要创建一个DIV输出到页面
+	 * @param {boolean=}bShowInPage 参照Debug.showInPage
 	 */
 	function fError(oVar,bShowInPage){
 		if(Debug.level>Debug.ERROR_LEVEL){
@@ -760,10 +768,9 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	}
 	/**
 	 * 输出统计时间
-	 * @method time
 	 * @param {boolean=}bOut 为true时，计算时间并输出信息，只有此参数为true时，后面两个参数才有意义
 	 * @param {string=}sMsg 输出的信息
-	 * @param {boolean=}bShowInPage 是否需要创建一个DIV输出到页面
+	 * @param {boolean=}bShowInPage 参照Debug.showInPage
 	 */
 	function fTime(bOut,sMsg,bShowInPage){
 		if(Debug.level>Debug.INFO_LEVEL){
@@ -813,26 +820,39 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		}
 	}
 	/**
-	 * 添加调试断点
-	 * @method debug
-	 * @param {boolean}isDebug	仅为false时不进入debug
-	 */
-	function fDebug(isDebug){
-		if(Debug.level>Debug.DEBUG_LEVEL){
-			return;
-		}
-		if(isDebug!==false){
-			debugger;
-		}
-	}
-	/**
 	 * 处理异常
-	 * @method throwExp
 	 * @param {Object}oExp 异常对象
 	 */
 	function fThrowExp(oExp){
 		if(Debug.level<=Debug.DEBUG_LEVEL){
 			throw oExp;
+		}
+	}
+	/**
+	 * 监听连续点击事件打开控制面板
+	 */
+	function fListenCtrlEvts(){
+		var oDoc = top.document;
+		var sName=Browser.mobile()?'touchstart':'click';
+		var nTimes=0;
+		var nLast=0;
+		var _fEvt=function(){
+			var nNow=new Date().getTime();
+			if(nNow-nLast<500){
+				nTimes++;
+				//连续点击4次弹出控制面板
+				if(nTimes>2){
+					Debug.out('open console',true);
+				}
+			}else{
+				nTimes=0;
+			}
+			nLast=nNow;
+		}
+		if(oDoc.addEventListener){
+			oDoc.addEventListener(sName,_fEvt);
+		}else{
+			oDoc.attachEvent('on'+sName,_fEvt);
 		}
 	}
 	
@@ -883,7 +903,6 @@ function(Debug){
 	
      /**
 	 * 检查对应的资源是否已加载，只要检测到一个不存在的资源就立刻返回
-	 * @method _fChkExisted
 	 * @param {string|Array}id 被检查的资源id
 	 * @return {Object}  {
 	 * 		{Array}exist: 存在的资源列表
@@ -926,7 +945,6 @@ function(Debug){
     
     /**
 	 * 通过id获取实际url
-	 * @method _fGetUrl
 	 * @param {string}sId 资源id，可以是命名空间，也可以是url
 	 * @return {string}sUrl 实际url
 	 */
@@ -969,7 +987,6 @@ function(Debug){
     }
 	/**
 	 * 获取js脚本
-	 * @method _getScript
 	 * @param {string}sUrl 请求url
 	 * @param {function()}fCallback 回调函数
 	 */
@@ -984,7 +1001,6 @@ function(Debug){
 	}
 	/**
 	 * 获取css
-	 * @method _getCss
 	 * @param {string}sUrl 请求url
 	 * @param {function()}fCallback 回调函数
 	 */
@@ -1015,7 +1031,6 @@ function(Debug){
 	}
 	/**
 	 * 为css/script资源添加onload事件，包含超时处理
-	 * @method _fAddOnload
 	 * @param {element}eNode 节点
 	 * @param {function()}fCallback 回调函数
 	 */
@@ -1044,7 +1059,6 @@ function(Debug){
 	}
 	/**
 	 * script资源onload函数
-	 * @method _fScriptOnload
 	 * @param {element}eNode 节点
 	 * @param {function()}fCallback 回调函数
 	 */
@@ -1086,7 +1100,6 @@ function(Debug){
 	/**
 	 * css资源onload函数
 	 * 
-	 * @method _fStyleOnload
 	 * @param {element}eNode
 	 *            节点
 	 * @param {function()}fCallback
@@ -1110,7 +1123,6 @@ function(Debug){
 	}
 	/**
 	 * css资源轮询检测
-	 * @method _fPollStyle
 	 * @param {element}eNode 节点
 	 * @param {function()}fCallback 回调函数
 	 */
@@ -1148,7 +1160,6 @@ function(Debug){
 	}
     /**
 	 * 请求资源
-	 * @method _fRequest
 	 * @param {Array}aRequestIds 需要加载的资源id数组
 	 */
     function _fRequest(aRequestIds){
@@ -1229,7 +1240,6 @@ function(Debug){
     }
     /**
 	 * 资源下载完成回调
-	 * @method _fResponse
 	 * @param {string|array}id 资源id或数组
 	 */
     function _fResponse(id){
@@ -1247,7 +1257,6 @@ function(Debug){
     }
     /**
      * 执行上下文
-     * @method _fExecContext
      */
     function _fExecContext(){
     	//每次回调都循环上下文列表
@@ -1597,7 +1606,6 @@ define('B.Object',function(){
     }
     /**
     * 对象是否是函数类型
-    * @method isFunc
     * @param {Object} obj 对象
     * @return {boolean} 返回判断结果
     */
@@ -1606,7 +1614,6 @@ define('B.Object',function(){
     }
     /**
     * 对象是否是数组类型
-    * method isArr
     * @param {Object} obj 对象
     * @return {boolean} 返回判断结果
     */
@@ -1639,7 +1646,6 @@ define('B.Object',function(){
     }
     /**
     * 对比对象值是否相同
-    * @method equals
     * @param {Object} o1 对象1
     * @param {Object} o2 对象2
     * @param {boolean=}bStrict 仅当为true时表示严格对比，包括类型和值，
@@ -1703,7 +1709,6 @@ define('B.Object',function(){
     }
 	/**
     * clone一个对象
-    * @method clone
     * @param {Object} oFrom 需要clone的对象
     * @return {Object} 返回克隆的对象，如果对象属性不支持克隆，将原来的对象返回
     */
@@ -1736,7 +1741,6 @@ define('B.Object',function(){
 	}
     /**
     * 对象是否是空
-    * @method isEmpty
     * @param {Object}object 参数对象
     * @return {boolean} 返回判断结果
     */
@@ -1752,7 +1756,6 @@ define('B.Object',function(){
     }
     /**
     * 遍历对象
-    * @method each
     * @param {*}object 参数对象
     * @param {function}fCallback 回调函数:fCallback(property,value)|fCallback(args)this=value,返回false时退出遍历
     * @param {*}args  回调函数的参数
@@ -1812,7 +1815,6 @@ define('B.Object',function(){
     }
     /**
      * 是否包含指定属性/数组元素
-     * @method contains 
      * @param {*}obj 指定对象
      * @param {*}prop 指定属性/数组元素
      * @return {boolean} 包含则返回true
@@ -1832,7 +1834,6 @@ define('B.Object',function(){
     }
     /**
      * 是否大于另一个对象|数组（包含另一个对象的所有属性或包含另一个数组的所有元素）
-     * @method largeThan
      * @param {Object|Array}o1 要比较的对象
      * @param {Object|Array}o2 比较的对象
      */
@@ -1849,7 +1850,6 @@ define('B.Object',function(){
     }
     /**
     * 计算对象长度
-    * @method count
     * @param {Object}oParam 参数对象
     * @return {number} 返回对象长度
     */
@@ -1903,7 +1903,6 @@ define('B.Object',function(){
     }
     /**
     * 将类数组对象转换为数组，比如arguments, nodelist
-    * @method toArray(oParam,nStart=,nEnd=)
     * @param {Object}oParam 参数对象
     * @param {number=}nStart 起始位置
     * @param {number=}nEnd   结束位置
@@ -2110,7 +2109,6 @@ define('B.Function','B.Object',function(Obj){
 	
 	/**
 	 * 函数bind方法
-	 * @method  bind
 	 * @param {function()}fFunc 被绑定的函数
 	 * @param {Object}oScope  需要绑定的对象
 	 * @param {Object}args    需要绑定的参数
@@ -2428,7 +2426,6 @@ define('B.Event','B.Object',function(Obj){
 	}
 	/**
 	 * 挂起事件
-	 * @method suspend
 	 * @return {boolean=}如果已经挂起了，则直接返回false
 	 */
 	function fSuspend(){
@@ -2441,7 +2438,6 @@ define('B.Event','B.Object',function(Obj){
 	}
 	/**
 	 * 恢复事件
-	 * @method resume
 	 * @return {boolean=}如果已经恢复了，则直接返回false
 	 */
 	function fResume(){
@@ -2480,7 +2476,6 @@ define('B.Date',function(){
 	
 	/**
 	 * 返回周几
-	 * @method getWeek
 	 * @param  {Date} oDate 需要增减的日期对象
 	 * @param {number}nDiff	天偏移量-7~7
 	 * @return {string} 返回周几的中文
@@ -2496,7 +2491,6 @@ define('B.Date',function(){
 	}
 	/**
 	 * 是否周末
-	 * @method isWeeken
 	 * @param  {Date} oDate 参数日期对象
 	 * @return {boolean} 返回true表示是周末
 	 */
@@ -2505,7 +2499,6 @@ define('B.Date',function(){
 	}
 	/**
 	 * 返回该月总共有几天
-	 * @method getDaysInMonth
 	 * @param  {Date} oDate 参数日期对象
 	 * @return {number} 返回当该月的天数
 	 */
@@ -2515,7 +2508,6 @@ define('B.Date',function(){
 	}
 	/**
 	 * 返回该年总共有几天
-	 * @method getDaysInYear
 	 * @param  {Date} oDate 参数日期对象
 	 * @return {number} 返回当该年的天数
 	 */
@@ -2526,7 +2518,6 @@ define('B.Date',function(){
 	}
 	/**
 	 * 计算该天是该年的第几天
-	 * @method getDayIndexOfYear
 	 * @param  {Date} oDate 参数日期对象
 	 * @return {number} 返回该天是该年的第几天
 	 */
@@ -2713,7 +2704,6 @@ define("B.String",function(){
 	
 	/**
 	 * 删除标签字符串
-	 * @method  stripTags
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return {string} 删除标签后的字符串 
 	 */
@@ -2747,7 +2737,6 @@ define("B.String",function(){
 	};
 	/**
 	 * html编码，替换<>等为html编码
-	 * @method  encodeHTML
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return {string} sStr 编码后的html代码  
 	 */
@@ -2763,7 +2752,6 @@ define("B.String",function(){
 	};
 	/**
 	 * html解码，替换掉html编码
-	 * @method  decodeHTML
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return {string} sStr 解码后的html代码  
 	 */
@@ -2810,7 +2798,6 @@ define("B.String",function(){
 	}
 	/**
 	 * 去掉字符串两边的空格
-	 * @method  trim
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return {string} sStr 去掉两边空格后的字符串  
 	 */
@@ -2821,7 +2808,6 @@ define("B.String",function(){
 
 	/**
 	 * 检查字符串是否含有"% \' \" \\ \/ "的字符
-	 * @method  check
 	 * @param  {string} sStr 需要操作的字符串
 	 * @param   {Object}rKey 需要寻找的字符正则匹配	
 	 * @return  {boolean} 如果没有特殊字符返回false,否则返回true
@@ -2834,7 +2820,6 @@ define("B.String",function(){
 	};
 	/**
 	 * 计算字符串打印长度,一个中文字符长度为2
-	 * @method  len
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return {number} 字符串的长度    
 	 */
@@ -2843,7 +2828,6 @@ define("B.String",function(){
 	};
 	/**
 	 * 截取字符串左边n位
-	 * @method  left
 	 * @param  {string} sStr 需要操作的字符串
 	 * @param  {number} nLength	要截取的位数
 	 * @param  {number|boolean} nEllipsisLength	省略号长度
@@ -2878,7 +2862,6 @@ define("B.String",function(){
 	};
 	/**
 	 * 判断是否数字
-	 * @method  isNumStr
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return  {boolean} 返回是否数字   
 	 */
@@ -2887,7 +2870,6 @@ define("B.String",function(){
 	}
 	/**
 	 * 判断是否包含中文
-	 * @method  hasChn
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return  {boolean} 返回是否包含中文   
 	 */
@@ -2896,7 +2878,6 @@ define("B.String",function(){
 	}
 	/**
 	 * 判断是否是中文
-	 * @method  isChn
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return  {boolean} 返回是否是中文
 	 */
@@ -3013,7 +2994,6 @@ define('B.Util','B.Object',function(Obj){
 	
 	/**
 	 * 检查是否是window对象
-	 * @method  isWindow
 	 * @param {*}obj 参数对象
 	 * @return  {boolean}
 	 */
@@ -3022,7 +3002,6 @@ define('B.Util','B.Object',function(Obj){
 	}
 	/**
 	 * 获取handy内部uuid
-	 * @method  uuid
 	 * @return  {number}  返回uuid
 	 */
 	function fUuid(){
@@ -3105,7 +3084,6 @@ define('B.Util','B.Object',function(Obj){
 	}
 	/**
 	 * 如果对象中的指定属性是函数, 则调用它, 否则, 返回它
-	 * @method result
 	 * @param {Object}oObj 参数对象
 	 * @param {string}sProp
 	 * @return {*} 如果指定属性值是函数, 则返回该函数执行结果, 否则, 返回该值
@@ -3895,7 +3873,6 @@ define('B.Template',['B.Object','B.String','L.Debug','B.Function'],function(Obj,
 	}
 	/**
 	 * 结果函数添加一行字符串
-	 * @method _fAddLine
 	 * @param {string}sCode 要添加的代码
 	 * @return {string} 返回添加好的代码
 	 */
@@ -3905,7 +3882,6 @@ define('B.Template',['B.Object','B.String','L.Debug','B.Function'],function(Obj,
 	}
 	/**
 	 * 处理html
-	 * @method _fParseHtml
 	 * @param {string}sHtml html字符串
 	 * @return {string} 返回处理过的html
 	 */
@@ -3920,7 +3896,6 @@ define('B.Template',['B.Object','B.String','L.Debug','B.Function'],function(Obj,
 	}
 	/**
 	 * 处理脚本
-	 * @method _fParseScript
 	 * @param {object}oScript AST的script元素
 	 * @param {object=}oOptions 选项
 	 * @return {string} 返回处理过的脚本
@@ -4120,7 +4095,6 @@ define('B.Template',['B.Object','B.String','L.Debug','B.Function'],function(Obj,
 	}
 	/**
 	 * 编译模板
-	 * @method _fCompile
 	 * @param  {string}sTmpl 模板字符串
 	 * @param  {Object=}oOptions 选项{
 	 * 		{object}helpers:自定义辅助函数列表，这里传入不影响全局的辅助函数定义，只会在本次编译时extend全局的辅助函数
@@ -4201,7 +4175,6 @@ define('B.Template',['B.Object','B.String','L.Debug','B.Function'],function(Obj,
 	}
 	/**
 	 * 执行模板
-	 * @method tmpl
 	 * @param {object|string|Array}tmpl 当tmpl为字符串或字符串数组时，表示模板内容，为对象时如下：
 	 * {
 	 * 		{string}id : 模板的id，要使用缓存，就必须传入id
@@ -4434,7 +4407,6 @@ define('B.Support','L.Browser',function(Browser){
 	}  
 	/**
 	 * 检查是否支持svg
-	 * @method testSvg
 	 * @param {function(boolean)} fCall 回调函数，如果支持svg则回调参数为true，反之则为false
 	 
 	function fTestSvg(fCall) {
@@ -4554,7 +4526,6 @@ define('B.Support','L.Browser',function(Browser){
 	}
 	/**
 	 * 检查设备并添加class
-	 * @method mediaQuery
 	 */
 	function fMediaQuery(){
 		var sCls='';
@@ -4661,7 +4632,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 不为空
-	 * @method required
 	 * @param {String}sValue 待校验值
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
@@ -4670,7 +4640,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否是邮箱地址
-	 * @method email
 	 * @param {String}sValue 待校验值
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
@@ -4679,7 +4648,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否是url
-	 * @method url
 	 * @param {String}sValue 待校验值
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
@@ -4688,7 +4656,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否是日期
-	 * @method date
 	 * @param {String}sValue 待校验值
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
@@ -4697,7 +4664,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否是正确格式的日期(ISO)，例如：2009-06-23，1998/01/22 只验证格式，不验证有效性
-	 * @method dateISO
 	 * @param {String}sValue 待校验值
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
@@ -4706,7 +4672,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否是合法的数字(负数，小数)
-	 * @method number
 	 * @param {String}sValue 待校验值
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
@@ -4715,7 +4680,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否是整数
-	 * @method digits
 	 * @param {String}sValue 待校验值
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
@@ -4724,7 +4688,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否是合法的信用卡号
-	 * @method creditcard
 	 * @param {String}sValue 待校验值
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
@@ -4755,7 +4718,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否符合最小值
-	 * @method min
 	 * @param {String}sValue 待校验值
 	 * @param {number}nNum 指定的最小数值
 	 * @return {boolean} 符合规则返回true，否则返回false
@@ -4765,7 +4727,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否符合最大值
-	 * @method max
 	 * @param {String}sValue 待校验值
 	 * @param {number}nNum 指定的最大数值
 	 * @return {boolean} 符合规则返回true，否则返回false
@@ -4775,7 +4736,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 数值是否在指定区间内
-	 * @method range
 	 * @param {String}sValue 待校验值
 	 * @param {Array}aRange 区间数组
 	 * @return {boolean} 符合规则返回true，否则返回false
@@ -4785,7 +4745,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否符合最小长度
-	 * @method minlength
 	 * @param {String|Array}value 待校验值
 	 * @param {number}nLen 长度
 	 * @return {boolean} 符合规则返回true，否则返回false
@@ -4796,7 +4755,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否符合最大长度
-	 * @method maxlength
 	 * @param {String}value 待校验值
 	 * @param {number}nLen 长度
 	 * @return {boolean} 符合规则返回true，否则返回false
@@ -4807,7 +4765,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 长度是否在指定区间内
-	 * @method rangelength
 	 * @param {String}value 待校验值
 	 * @param {Array}aRange 长度区间，如[2,10]
 	 * @return {boolean} 符合规则返回true，否则返回false
@@ -4818,7 +4775,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否跟指定值相等(包括数据类型相等)
-	 * @method equalTo
 	 * @param {String}sValue 待校验值
 	 * @param {*}val 指定值
 	 * @return {boolean} 符合规则返回true，否则返回false
@@ -4909,7 +4865,6 @@ define('B.LocalStorage',['L.Browser','B.Event','L.Json'],function(Browser,Event,
 	 }
 	 /**
 	 * 删除值
-	 * @method removeItem
 	 * @param {string}sKey 键
 	 */
 	 function fRemoveItem(sKey){
@@ -6088,7 +6043,6 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	}
 	/**
 	 * 静态get方法，为了保证模型的一致性，新建模型实例必须使用此方法，而不能用new方式
-	 * @method get
 	 * @param {object}oVal
 	 * @param {object=}oOptions new模型实例时的选项
 	 * @param {object=}oChange 如果传入object，返回时，oChange.changed表示此次操作改变了原模型的值或者新建了模型实例
@@ -7571,7 +7525,6 @@ function(Class,Obj,Util) {
 	}
 	/**
 	 * 注册视图类型
-	 * @method registerType
 	 * @param {string}sXType 视图类型
 	 * @param {object}oClass 视图类
 	 */
@@ -7582,7 +7535,6 @@ function(Class,Obj,Util) {
 	}
 	/**
 	 * 根据xtype获取视图类
-	 * @method getClass
 	 * @param {string|Class}xtype 视图类型或命名空间或视图类
 	 * @return {object} 返回对应的视图类
 	 */
@@ -7594,7 +7546,6 @@ function(Class,Obj,Util) {
 	}
 	/**
 	 * 注册视图
-	 * @method register
 	 * @param {object}oView 视图对象
 	 */
 	function fRegister(oView,oParams){
@@ -7606,7 +7557,6 @@ function(Class,Obj,Util) {
 	}
 	/**
 	 * 注销视图
-	 * @method unRegister
 	 * @param {object}oView 视图对象
 	 */
 	function fUnRegister(oView){
@@ -7624,7 +7574,6 @@ function(Class,Obj,Util) {
 	}
 	/**
 	 * 遍历指定节点里的所有视图
-	 * @method eachInEl
 	 * @param {jQuery}oEl 指定的节点
 	 * @param {function(Component)}fCall
 	 */
@@ -7644,7 +7593,6 @@ function(Class,Obj,Util) {
 	}
 	/**
 	 * 生成视图的id
-	 * @method generateId
 	 * @param {string=}sCid cid
 	 * @param {string}sType 视图xtype
 	 */
@@ -7659,7 +7607,6 @@ function(Class,Obj,Util) {
 	}
 	/**
 	 * 根据id或cid查找视图
-	 * @method get
 	 * @param {string}sId 视图id或者cid
 	 * @return {View} 返回找到的视图
 	 */
@@ -7720,7 +7667,6 @@ function(Evt,Class,AbstractManager) {
 	
 	/**
 	 * 初始化
-	 * @method initialize
 	 */
 	function fInitialize(){
 		var me=this;
@@ -7738,7 +7684,6 @@ function(Evt,Class,AbstractManager) {
 	}
 	/**
 	 * 调用指定dom节点包含的视图的afterRender方法
-	 * @method afterRender
 	 * @param {jQuery}oEl 指定的节点
 	 */
 	function fAfterRender(oEl){
@@ -7748,7 +7693,6 @@ function(Evt,Class,AbstractManager) {
 	}
 	/**
 	 * 销毁视图，主要用于删除元素时调用
-	 * @method destroy
 	 * @param {jQuery}oRemoveEl 需要移除视图的节点
 	 */
 	function fDestroy(oRemoveEl){
@@ -7838,7 +7782,6 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	
 	/**
 	 * 初始化
-	 * @method initialize
 	 * @param {Object}oParams 初始化参数
 	 */
 	function fInitialize(oParams){
@@ -7865,7 +7808,6 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	}
 	/**
 	 * 初始化配置
-	 * @method doConfig
 	 * @param {Object}oSettings 初始化参数
 	 */
 	function fDoConfig(oSettings){
@@ -7884,7 +7826,6 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	}
 	/**
 	 * 获取id
-	 * @method getId
 	 * @return {string}返回id
 	 */
 	function fGetId(){
@@ -7892,7 +7833,6 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	}
 	/**
 	 * 获取cid
-	 * @method getCid
 	 * @return {string}返回id
 	 */
 	function fGetCid(){
@@ -7900,7 +7840,6 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	}
 	/**
 	 * 获取容器节点
-	 * @method getEl
 	 * @return {jQuery} 返回容器节点
 	 */
 	function fGetEl(){
@@ -7908,14 +7847,12 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	}
 	/**
 	 * 获取html
-	 * @method getHtml
 	 */
 	function fGetHtml(){
 		return this.html;
 	}
 	/**
 	 * 渲染
-	 * @method render
 	 * @return {boolean=} 仅当没有成功渲染时返回false
 	 */
 	function fRender(){
@@ -7936,7 +7873,6 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	}
 	/**
 	 * 绑定事件
-	 * @method listen
 	 * @param {object}事件对象{
 	 * 			{string}name      : 事件名
 	 * 			{function(Object[,fireParam..])}handler : 监听函数，第一个参数为事件对象oListener，其后的参数为fire时传入的参数
@@ -8028,7 +7964,6 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	}
 	/**
 	 * 解除事件
-	 * @method unlisten
 	 * @param {object}事件对象{
 	 * 			{string}name      : 事件名
 	 * 			{function}handler : 监听函数
@@ -8070,7 +8005,6 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	}
 	/**
 	 * 初始化所有事件
-	 * @method initListeners
 	 * @return {boolean=}如果已经初始化了，则直接返回false
 	 */
 	function fInitListeners(){
@@ -8088,7 +8022,6 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	}
 	/**
 	 * 清除所有事件
-	 * @method clearListeners
 	 */
 	function fClearListeners(){
 		var me=this;
@@ -8102,7 +8035,6 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	}
 	/**
 	 * 销毁
-	 * @method destroy
 	 * @return {boolean=} 成功返回true，失败返回false，如果之前已经销毁返回空
 	 */
 	function fDestroy(){
@@ -8525,7 +8457,6 @@ function(Obj,Template,AbstractView,Model,Collection){
 	
 	/**
 	 * 初始化
-	 * @method initialize
 	 * @param {Object}oParams 初始化参数
 	 */
 	function fInitialize(oParams){
@@ -8536,7 +8467,6 @@ function(Obj,Template,AbstractView,Model,Collection){
 	}
 	/**
 	 * 初始化配置
-	 * @method doConfig
 	 * @param {Object}oSettings 初始化参数
 	 */
 	function fDoConfig(oSettings){
@@ -8727,7 +8657,6 @@ function(Obj,Template,AbstractView,Model,Collection){
 	}
 	/**
 	 * 销毁
-	 * @method destroy
 	 * @return {boolean=} 成功返回true，失败返回false，如果之前已经销毁返回空
 	 */
 	function fDestroy(){
@@ -8938,7 +8867,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	
 	/**
 	 * 扩展原型定义
-	 * @method extend
 	 * @param {Object}oExtend 扩展源
 	 */
 	function fExtend(oExtend){
@@ -8960,7 +8888,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 静态初始化视图并生成html
-	 * @method html
 	 * @param {object}oParams 初始化参数
 	 */
 	function fHtml(oParams){
@@ -8998,7 +8925,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 初始化
-	 * @method initialize
 	 * @param {Object}oParams 初始化参数
 	 */
 	function fInitialize(oParams){
@@ -9009,7 +8935,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 初始化配置
-	 * @method doConfig
 	 * @param {Object}oSettings 初始化参数
 	 */
 	function fDoConfig(oSettings){
@@ -9126,7 +9051,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	var _oTagReg=/[^<]*(<[a-zA-Z]+)/;
 	/**
 	 * 获取html
-	 * @method getHtml
 	 */
 	function fGetHtml(){
 		var me=this;
@@ -9154,7 +9078,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 获取子视图html
-	 * @method findHtml
 	 * @param {string=}sSel 选择器，不传表示返回自身的html
 	 * @return {string} 返回对应html
 	 */
@@ -9169,7 +9092,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 初始化样式
-	 * @method initStyle
 	 */
 	function fInitStyle(){
 		var me=this;
@@ -9186,7 +9108,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 渲染前工作
-	 * @method beforeRender
 	 * @return {boolean=} 仅当返回false时阻止渲染
 	 */
 	function fBeforeRender(){
@@ -9194,7 +9115,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 渲染
-	 * @method render
 	 * @return {boolean=} 仅当没有成功渲染时返回false
 	 */
 	function fRender(){
@@ -9208,7 +9128,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 渲染后续工作
-	 * @method afterRender
 	 * @param {boolean=}bParentCall 是否是来自callChild的调用
 	 * @return {boolean=} 仅当已经完成过渲染时返回false
 	 */
@@ -9246,7 +9165,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 显示
-	 * @method show
 	 * @param {boolean=}bNotDelay 仅当为true时强制不延迟显示
 	 * @param {boolean=}bParentCall true表示是父组件通过callChild调用
 	 * @return {boolean=} 仅当不是正常成功显示时返回false
@@ -9283,7 +9201,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 显示后工作
-	 * @method afterShow
 	 */
 	function fAfterShow(){
 		var me=this;
@@ -9301,7 +9218,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 隐藏
-	 * @method hide
 	 * @param {boolean=}bNotSetHidden 仅当true时不设置hidden属性，设置hidden属性可以避免来自父视图的show调用导致显示，所以一般外部调用都默认设置
 	 * @return {boolean=} 仅当没有成功隐藏时返回false
 	 */
@@ -9333,7 +9249,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 启用
-	 * @method enable
 	 */
 	function fEnable(){
 		var me=this;
@@ -9342,7 +9257,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 禁用
-	 * @method disable
 	 */
 	function fDisable(){
 		var me=this;
@@ -9397,7 +9311,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 挂起事件
-	 * @method suspend
 	 */
 	function fSuspend(){
 		var me=this;
@@ -9410,7 +9323,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 恢复事件
-	 * @method resume
 	 */
 	function fResume(){
 		var me=this;
@@ -9531,7 +9443,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 遍历子视图
-	 * @method each
      * @param {function}fCallback 回调函数:fCallback(i,oChild)|fCallback(args)this=oChild,返回false时退出遍历
      * @param {Array=}aArgs  回调函数的参数
 	 */
@@ -9560,7 +9471,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 匹配选择器
-	 * @method match
 	 * @param {string}sSel 选择器，只支持一级选择器 xtype[attr=value]
 	 * @param {Object=}oObj 被匹配的对象，默认为视图对象本身
 	 * @return {boolean} 匹配则返回true
@@ -9614,7 +9524,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 查找子元素或子视图
-	 * @method find
 	 * @param {number|string=|Function(View)|Class}sel 不传表示获取子视图数组，数字表示子组件索引，
 	 * 				如果是字符串：多个选择器间用","隔开('sel1,sel2,...')，语法类似jQuery，
 	 * 				如：'xtype[attr=value]'、'ancestor descendant'、'parent > child'，
@@ -9683,7 +9592,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 查找祖先视图
-	 * @method parents
 	 * @param {string=}sSel 若此参数为空，直接返回最顶级祖先视图
 	 * @return {jQuery|Component|null} 返回匹配的结果，如果没找到匹配的视图则返回null
 	 */
@@ -9700,7 +9608,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 获取本身的索引，如果没有父视图则返回null
-	 * @method index
 	 * @return {number} 返回对应的索引，如果没有父视图(也就没有索引)，返回null
 	 */
 	function fIndex(){
@@ -9721,7 +9628,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 调用子视图方法
-	 * @method callChild
 	 * @param {string=}sMethod 方法名，不传则使用调用者同名函数
 	 * @param {Array=}aArgs 参数数组
 	 */
@@ -9746,7 +9652,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 添加子视图
-	 * @method add
 	 * @param {object|Array}item 视图对象或视图配置或数组，可以加上条件判断:item.condition(为假时忽略该配置项)
 	 * @param {number=}nIndex 指定添加的索引，默认添加到最后
 	 * @return {?Component} 添加的子视图只有一个时返回该视图对象，参数是数组时返回空
@@ -9817,7 +9722,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 删除子视图
-	 * @method remove
 	 * @param {object|number|string}item 视图对象或视图索引或选择器
 	 * @return {boolean} true表示删除成功
 	 */
@@ -9861,7 +9765,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 分析子视图列表
-	 * @method parseItems
 	 */
 	function fParseItems(){
 		var me=this;
@@ -9999,7 +9902,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 销毁
-	 * @method destroy
 	 * @param {boolean=} 仅当true时表示从remove里的调用，不需要再这里调用parent.remove
 	 * @return {boolean=} 成功返回true，失败返回false，如果之前已经销毁返回空
 	 */
@@ -10147,7 +10049,6 @@ function(Browser,Support,AbstractNavigator){
 	});
 	/**
 	 * 导航效果
-	 * @method navigate
 	 * @param {Object}oShowMod  当前要进入到模块
 	 * @param {Object}oHideMod 要离开的模块
 	 * @param {Object}oModManager 模块管理对象
@@ -10245,7 +10146,6 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 	});
 	/**
 	 * 历史记录类初始化
-	 * @method initialize
 	 * @param {string=}sKey 历史记录类的key，用于区分可能的多个history实例
 	 * @param {function=}fError 错误处理函数
 	 */
@@ -10262,7 +10162,6 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 	}
 	/**
 	 * 历史状态改变
-	 * @method stateChange
 	 */
 	function fStateChange(){
 		var me=this,oHashParam=me.getHashParam();
@@ -10309,7 +10208,6 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 	}
 	/**
 	 * 保存当前状态
-	 * @method saveState
 	 * @param {object} oState{
 	 * 				{object}param            : 进入模块的参数
 	 * 				{function}onStateChange  : 历史状态变化时的回调函数
@@ -10328,7 +10226,6 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 	}
 	/**
 	 * 保存状态值到hash中
-	 * @method saveHash
 	 * @param {*}param 要保存到hash中的参数
 	 */
 	function fSaveHash(param){
@@ -10338,7 +10235,6 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 	}
 	/**
 	 * 获取当前hash参数
-	 * @method getHashParam
 	 * @return {object} 返回当前hash参数
 	 */
 	function fGetHashParam(){
@@ -10346,7 +10242,6 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 	}
 	/**
 	 * 获取当前状态
-	 * @method getCurrentState
 	 * @return {object} 返回当前状态
 	 */
 	function fGetCurrentState(){
@@ -10369,7 +10264,6 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 	}
 	/**
 	 * 获取前一个状态
-	 * @method getPreState
 	 * @return {object} 返回前一个状态
 	 */
 	function fGetPreState(){
@@ -10390,7 +10284,6 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 	}
 	/**
 	 * 后退一步
-	 * @method back
 	 */
 	function fBack(){
 		var me=this;
@@ -10483,7 +10376,6 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 	}
 	/**
 	 * 新建模块
-	 * @method _createMod
 	 * @param {object}oParams 选项
 	 * @return {Module}返回新创建的模块
 	 */
@@ -10520,7 +10412,6 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 	}
 	/**
 	 * 显示模块
-	 * @method _showMod
 	 * @param {Module}oMod 要显示的模块
 	 */
 	function _fShowMod(oMod){
@@ -10663,7 +10554,6 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 	}
 	/**
 	 * 进入模块
-	 * @method go(oParams)
 	 * @param {Object|string}param  直接模块名字符串或者{  //传入参数
 	 * 		modName:模块名称
 	 * 		...
@@ -10823,7 +10713,6 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 	}
 	/**
 	 * 后退一步
-	 * @method back
 	 * @param {boolean=} 当传入true时，强制退出当前模块，即不调用模块的exit而直接退出
 	 */
 	function fBack(bForceExit){
@@ -10871,7 +10760,6 @@ function(Class,AbstractManager,ViewManager) {
 	});
 	/**
 	 * 初始化
-	 * @method initialize
 	 */
 	function fInitialize(){
 		var me=this;
@@ -10986,7 +10874,6 @@ define('C.AbstractComponent',
 	
 	/**
 	 * 定义组件
-	 * @method define
 	 * @param {string}sXtype 组件类型
 	 * @param {Component=}oSuperCls 父类，默认是AbstractComponent
 	 * @return {class}组件类对象
@@ -11004,7 +10891,6 @@ define('C.AbstractComponent',
 	}
 	/**
 	 * 检查是否已存在指定配置
-	 * @method hasConfig
 	 * @param {string}sSel 指定的配置
 	 * @param {Object|Array}params 配置对象
 	 * @return {boolean} true表示已存在配置
@@ -11029,7 +10915,6 @@ define('C.AbstractComponent',
 	}
 	/**
 	 * 初始化配置
-	 * @method doConfig
 	 * @param {object} oParams
 	 */
 	function fDoConfig(oParams){
@@ -11061,21 +10946,18 @@ define('C.AbstractComponent',
 	}
 	/**
 	 * 激活
-	 * @method active
 	 */
 	function fActive(){
 		this.update({isActive:true});
 	}
 	/**
 	 * 不激活
-	 * @method unactive
 	 */
 	function fUnactive(){
 		this.update({isActive:false});
 	}
 	/**
 	 * 设置/读取文字
-	 * @method txt
 	 * @param {string=}sTxt
 	 * @return {string} 
 	 */
@@ -11089,7 +10971,6 @@ define('C.AbstractComponent',
 	}
 	/**
 	 * 校验数据
-	 * @method valid
 	 * @return 符合校验规则返回true，否则返回false
 	 */
 	function fValid(){
@@ -11466,7 +11347,6 @@ function(Browser,Util,Event,AC){
 	});
 	/**
 	 * 初始化配置
-	 * @method doConfig
 	 */
 	function fDoConfig(oParam){
 		var me=this;
@@ -11514,7 +11394,6 @@ function(Browser,Util,Event,AC){
 	}
 	/**
 	 * 显示后工作
-	 * @method afterShow
 	 */
 	function fAfterShow(){
 		// 设置定位坐标
@@ -11560,7 +11439,6 @@ function(Browser,Util,Event,AC){
 	}
 	/**
 	 * 隐藏
-	 * @method hide
 	 */
 	function fHide(){
 		var me=this;
@@ -11588,7 +11466,6 @@ function(Browser,Util,Event,AC){
 	}
 	/**
 	 * 居中显示
-	 * @method center
 	 */
 	function fCenter(){
 		// 设置定位坐标
@@ -11646,7 +11523,6 @@ function(Browser,Util,Event,AC){
 	}
 	/**
 	 * 显示在指定元素显示
-	 * @method followEl
 	 * @param {jQuery}oEl 定位标准元素
 	 */
 	function fFollowEl(oEl){
@@ -11657,7 +11533,6 @@ function(Browser,Util,Event,AC){
 	}
 	/**
 	 * 显示遮罩层
-	 * @method mask
 	 */
 	function fMask(){
 		var me=this;
@@ -11674,7 +11549,6 @@ function(Browser,Util,Event,AC){
 	}
 	/**
 	 * 隐藏遮罩层
-	 * @method unmask
 	 */
 	function fUnmask(){
 		var me=this;
@@ -11825,7 +11699,6 @@ function(Obj,AC){
 	}
 	/**
 	 * 选中指定项
-	 * @method select
 	 * @param {number|string|Component}item number表示索引，string表示选择器，也可以传入组件对象
 	 */
 	function fSelect(item){
@@ -11855,7 +11728,6 @@ function(Obj,AC){
 	}
 	/**
 	 * 获取选中项/索引
-	 * @method getSelected
 	 * @param {boolean=}bIsIndex 仅当true时返回索引
 	 * @return {Component|number|Array} 返回当前选中的组件或索引，单选返回单个对象，复选返回数组(不管实际选中几个),
 	 * 									无选中则返回null
@@ -11871,7 +11743,6 @@ function(Obj,AC){
 	}
 	/**
 	 * 选中/取消选中
-	 * @method selectItem
 	 * @param {Component}oItem 要操作的组件
 	 * @param {boolean=}bSelect 仅当为false时表示移除选中效果
 	 */
@@ -11897,7 +11768,6 @@ function(Obj,AC){
 	}
 	/**
 	 * 获取/设置值
-	 * @method val
 	 * @param {string=}sValue 要设置的值，不传表示读取值，如果是多个值，用","隔开
 	 * @return {string=} 如果是读取操作，返回当前值
 	 */
@@ -11977,7 +11847,6 @@ function(AC){
 	
 	/**
 	 * 选中
-	 * @method select
 	 * @param {boolean}bSelect 仅当为false时取消选中
 	 */
 	function fSelect(bSelect){
@@ -11985,7 +11854,6 @@ function(AC){
 	}
 	/**
 	 * 获取/设置输入框的值
-	 * @method val
 	 * @param {string=}sValue 要设置的值，不传表示读取值
 	 * @return {string=} 如果是读取操作，返回当前值
 	 */
@@ -12038,7 +11906,6 @@ function(AC){
 	
 	/**
 	 * 选中
-	 * @method select
 	 * @param {boolean}bSelect 仅当为false时取消选中
 	 */
 	function fSelect(bSelect){
@@ -12046,7 +11913,6 @@ function(AC){
 	}
 	/**
 	 * 获取/设置输入框的值
-	 * @method val
 	 * @param {string=}sValue 要设置的值，不传表示读取值
 	 * @return {string=} 如果是读取操作，返回当前值
 	 */
@@ -12132,7 +11998,6 @@ function(Browser,Obj,AC){
 	
 	/**
 	 * 初始化配置
-	 * @method doConfig
 	 * @param {Object}oParams
 	 */
 	function fDoConfig(oParams){
@@ -12175,7 +12040,6 @@ function(Browser,Obj,AC){
 	}
 	/**
 	 * 获取/设置输入框的值
-	 * @method val
 	 * @param {string=}sValue 要设置的值，不传表示读取值
 	 * @return {string=} 如果是读取操作，返回当前值
 	 */
@@ -12318,7 +12182,6 @@ function(Browser,Util,Evt,AC){
 	
 	/**
 	 * 初始化配置
-	 * @method doConfig
 	 */
 	function fDoConfig(oSettings){
 		var me=this;
@@ -12377,12 +12240,14 @@ function(Browser,Util,Evt,AC){
 			})
 		}
 		//回车事件
+		
 		if(oSettings.enterSubmit){
 			me.listen({
 				name:'keypress',
 				handler:function(oEvt){
 					var me=this;
-					if((me.enterKey=='enter'||oEvt.ctrlKey)&&oEvt.keyCode==13){
+					//IE下回车的keypress是10
+					if((me.enterKey=='enter'||oEvt.ctrlKey)&&(oEvt.keyCode==13||oEvt.keyCode==10)){
 						oSettings.enterSubmit.call(me);
 						oEvt.preventDefault();
 					}
@@ -12392,7 +12257,6 @@ function(Browser,Util,Evt,AC){
 	}
 	/**
 	 * 分析处理子组件
-	 * @method parseItem
 	 */
 	function fParseItem(oItem){
 		var me=this;
@@ -12409,7 +12273,6 @@ function(Browser,Util,Evt,AC){
 	}
 	/**
 	 * 获取/设置输入框的值
-	 * @method val
 	 * @param {string=}sValue 要设置的值，不传表示读取输入框的值
 	 * @return {string=} 如果是读取操作，返回当前值
 	 */
@@ -12423,14 +12286,12 @@ function(Browser,Util,Evt,AC){
 	}
 	/**
 	 * 聚焦
-	 * @method focus
 	 */
 	function fFocus(){
 		this.findEl('.js-input').focus();
 	}
 	/**
 	 * 失焦
-	 * @method focus
 	 */
 	function fBlur(){
 		this.findEl('.js-input').blur();
@@ -13097,7 +12958,6 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 	}
 	/**
 	 * 分析处理子组件
-	 * @method parseItem
 	 * @param {object}oItem 子组件配置
 	 */
 	function fParseItem(oItem){
@@ -13221,7 +13081,6 @@ function(AC){
 	}
 	/**
 	 * 处理子组件配置
-	 * @method parseItem
 	 * @param {object}oItem 子组件配置
 	 */
 	function fParseItem(oItem){
@@ -13426,7 +13285,6 @@ function(Obj,AC,Popup){
 	
 	/**
 	 * 弹出警告框
-	 * @method alert
 	 * @param {string}sMsg 提示信息
 	 */
 	function fAlert(sMsg){
@@ -13438,7 +13296,6 @@ function(Obj,AC,Popup){
 	}
 	/**
 	 * 弹出确认框
-	 * @method confirm
 	 * @param {string}sMsg 提示信息
 	 * @param {function(boolean)}fCall 回调函数，参数为true表示点击的是"确定"按钮，false则为"取消"按钮
 	 */
@@ -13456,7 +13313,6 @@ function(Obj,AC,Popup){
 	}
 	/**
 	 * 弹出输入框
-	 * @method prompt
 	 * @param {string}sMsg 提示信息
 	 * @param {string=}sDefault 输入框默认值
 	 * @param {function(string)}fCall 回调函数，参数为输入框的值
@@ -13482,7 +13338,6 @@ function(Obj,AC,Popup){
 	}
 	/**
 	 * 处理配置
-	 * @method doConfig
 	 * @param {object}oSettings 设置参数
 	 */
 	function fDoConfig(oSettings){
@@ -13929,7 +13784,6 @@ function(Obj,Date,AC,DatePicker){
 	
 	/**
 	 * 初始化配置
-	 * @method doConfig
 	 * @param {Object}oParams
 	 */
 	function fDoConfig(oParams){
@@ -13963,7 +13817,6 @@ function(Obj,Date,AC,DatePicker){
 	}
 	/**
 	 * 获取/设置输入框的值
-	 * @method val
 	 * @param {string=|Date=|boolean}value 字符串或者日期值，表示设置操作，如果为空则表示读取操作，true表示读取Date类型时间
 	 * @return {string=} 如果是读取操作，返回当前值
 	 */
@@ -15540,7 +15393,6 @@ function(Browser,AC){
 	}
 	/**
 	 * 获取/设置值
-	 * @method val
 	 * @param {string=}sValue 要设置的值，不传表示读取输入框的值
 	 * @return {string=} 如果是读取操作，返回当前值
 	 */

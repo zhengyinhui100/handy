@@ -2393,6 +2393,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-tbar .hui-tbar-left,
 .hui-tbar .hui-tbar-right {
   position: absolute;
+  overflow: hidden;
   height: 100%;
   top: 0;
 }
