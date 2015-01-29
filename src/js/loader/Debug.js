@@ -13,7 +13,10 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		INFO_LEVEL  : 3,            //信息级别
 		WARN_LEVEL  : 4,            //警告级别
 		ERROR_LEVEL	: 5,            //错误级别
-		showInPage  : !("console" in window)||!!Browser.mobile(),        //是否强制在页面上输出调试信息，主要用于不支持console的浏览器，如：IE6，或者ietester里面，或者移动浏览器
+		logInPage   : true,
+		//是否强制在页面上输出调试信息，true表示在页面中显示，'record'表示记录但不显示控制台面板，false表示既不显示也不记录
+		//主要用于不支持console的浏览器，如：IE6，或者ietester里面，或者移动浏览器
+		showInPage  : $H.isDebug?(!("console" in window)||!!Browser.mobile()?'record':false):false,        
 		out         : fOut,         //直接输出日志
 		log			: fLog,		    //输出日志
 		info		: fInfo,		//输出信息
@@ -22,7 +25,9 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		time        : fTime,        //输出统计时间,info级别
 		trace       : fTrace,       //追踪统计时间
 //		debugLog    : $H.noop,      //线上错误处理
-		debug		: fDebug		//出现调试断点
+		debug		: fDebug,   	//出现调试断点
+		throwExp    : fThrowExp,    //处理异常
+		listen      : fListen       //监听连续点击事件打开控制面板
 	}
 	/**
 	 * 输出信息
@@ -49,6 +54,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 					'<a href="javascript:void(0)" onclick="location.reload();">刷新</a>',
 					'<a href="javascript:void(0)" onclick="history.back();">后退</a>'
 				].join('&nbsp;&nbsp;&nbsp;&nbsp;')+'<div style="padding-top:0.313;height:90%;overflow:auto;font-size:0.75em;word-wrap:break-word;word-break:break-all;"></div>';
+				oDebugDiv.style.display='none';
 				oDebugDiv.style.position = 'fixed';
 				oDebugDiv.style.width = '100%';
 				oDebugDiv.style.left = 0;
@@ -62,8 +68,9 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 				oDebugDiv.style.opacity=0.95;
 				oDebugDiv.style.filter="alpha(opacity=95)";
 				oDocument.body.appendChild(oDebugDiv);
-			}else{
-				oDebugDiv.style.display = 'block';
+			}
+			if((bShowInPage===true||Debug.showInPage===true)){
+				oDebugDiv.style.display ='block';
 			}
 			var oAppender=oDebugDiv.getElementsByTagName('DIV')[0];
 			oVar=oVar instanceof Error?(oVar.stack||oVar.message):oVar;
@@ -95,7 +102,6 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	}
 	/**
 	 * 输出日志
-	 * @method log
 	 * @param {Object} oVar	需要输出的变量
 	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
 	 */
@@ -107,7 +113,6 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	}
 	/**
 	 * 输出信息
-	 * @method info
 	 * @param {Object} oVar	需要输出的变量
 	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
 	 */
@@ -119,7 +124,6 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	}
 	/**
 	 * 输出信息
-	 * @method warn
 	 * @param {Object} oVar	需要输出的变量
 	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
 	 */
@@ -220,13 +224,18 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	}
 	/**
 	 * 处理异常
-	 * @method throwExp
 	 * @param {Object}oExp 异常对象
 	 */
 	function fThrowExp(oExp){
 		if(Debug.level<=Debug.DEBUG_LEVEL){
 			throw oExp;
 		}
+	}
+	/**
+	 * 监听连续点击事件打开控制面板
+	 */
+	function fListen(){
+		
 	}
 	
 	return Debug;
