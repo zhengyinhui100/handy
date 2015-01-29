@@ -7,32 +7,35 @@
 define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	
 	var Debug=window.$D={
-		level	    : $H.isDebug?0:5,  //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
-		LOG_LEVEL	: 1,            //日志级别
-		DEBUG_LEVEL : 2,            //调试级别
-		INFO_LEVEL  : 3,            //信息级别
-		WARN_LEVEL  : 4,            //警告级别
-		ERROR_LEVEL	: 5,            //错误级别
-		logInPage   : true,
+		level	            : $H.isDebug?0:5,  //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
+		LOG_LEVEL	        : 1,            //日志级别
+		DEBUG_LEVEL         : 2,            //调试级别
+		INFO_LEVEL          : 3,            //信息级别
+		WARN_LEVEL          : 4,            //警告级别
+		ERROR_LEVEL	        : 5,            //错误级别
+		logInPage           : true,
 		//是否强制在页面上输出调试信息，true表示在页面中显示，'record'表示记录但不显示控制台面板，false表示既不显示也不记录
 		//主要用于不支持console的浏览器，如：IE6，或者ietester里面，或者移动浏览器
-		showInPage  : $H.isDebug?(!("console" in window)||!!Browser.mobile()?'record':false):false,        
-		out         : fOut,         //直接输出日志
-		log			: fLog,		    //输出日志
-		info		: fInfo,		//输出信息
-		warn        : fWarn,        //输出警告信息
-		error		: fError,		//输出错误信息
-		time        : fTime,        //输出统计时间,info级别
-		trace       : fTrace,       //追踪统计时间
-//		debugLog    : $H.noop,      //线上错误处理
-		debug		: fDebug,   	//出现调试断点
-		throwExp    : fThrowExp,    //处理异常
-		listen      : fListen       //监听连续点击事件打开控制面板
+		showInPage          : $H.isDebug?(!("console" in window)||!!Browser.mobile()?'record':false):false,        
+		out                 : fOut,         //直接输出日志
+		log			        : fLog,		    //输出日志
+		debug		        : fDebug,   	//输出调试
+		info		        : fInfo,		//输出信息
+		warn                : fWarn,        //输出警告信息
+		error		        : fError,		//输出错误信息
+		time                : fTime,        //输出统计时间,info级别
+		trace               : fTrace,       //追踪统计时间
+//		debugLog            : $H.noop,      //线上错误处理
+		throwExp            : fThrowExp,            //处理异常
+		listenCtrlEvts      : fListenCtrlEvts       //监听连续点击事件打开控制面板
 	}
+	
+	$H.isDebug&&Debug.listenCtrlEvts();
+	
 	/**
 	 * 输出信息
 	 * @param {Object} oVar	需要输出的变量
-	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
+	 * @param {boolean} bShowInPage 参照Debug.showInPage
 	 * @param {string} sType 日志类型：log,info,error
 	 */
 	function fOut(oVar,bShowInPage,sType){
@@ -102,7 +105,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	/**
 	 * 输出日志
 	 * @param {Object} oVar	需要输出的变量
-	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
+	 * @param {boolean} bShowInPage 参照Debug.showInPage
 	 */
 	function fLog(oVar,bShowInPage){
 		if(Debug.level>Debug.LOG_LEVEL){
@@ -111,9 +114,20 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		Debug.out(oVar,!!bShowInPage,'log');
 	}
 	/**
+	 * 添加调试断点
+	 * @param {Object} oVar	需要输出的变量
+	 * @param {boolean} bShowInPage 参照Debug.showInPage
+	 */
+	function fDebug(oVar,bShowInPage){
+		if(Debug.level>Debug.DEBUG_LEVEL){
+			return;
+		}
+		Debug.out(oVar,!!bShowInPage,'log');
+	}
+	/**
 	 * 输出信息
 	 * @param {Object} oVar	需要输出的变量
-	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
+	 * @param {boolean} bShowInPage 参照Debug.showInPage
 	 */
 	function fInfo(oVar,bShowInPage){
 		if(this.level>Debug.INFO_LEVEL){
@@ -124,7 +138,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	/**
 	 * 输出信息
 	 * @param {Object} oVar	需要输出的变量
-	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
+	 * @param {boolean} bShowInPage 参照Debug.showInPage
 	 */
 	function fWarn(oVar,bShowInPage){
 		if(Debug.level>Debug.WARN_LEVEL){
@@ -135,7 +149,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	/**
 	 * 输出错误
 	 * @param {Object}oVar	需要输出的变量
-	 * @param {boolean=}bShowInPage 是否需要创建一个DIV输出到页面
+	 * @param {boolean=}bShowInPage 参照Debug.showInPage
 	 */
 	function fError(oVar,bShowInPage){
 		if(Debug.level>Debug.ERROR_LEVEL){
@@ -157,7 +171,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	 * 输出统计时间
 	 * @param {boolean=}bOut 为true时，计算时间并输出信息，只有此参数为true时，后面两个参数才有意义
 	 * @param {string=}sMsg 输出的信息
-	 * @param {boolean=}bShowInPage 是否需要创建一个DIV输出到页面
+	 * @param {boolean=}bShowInPage 参照Debug.showInPage
 	 */
 	function fTime(bOut,sMsg,bShowInPage){
 		if(Debug.level>Debug.INFO_LEVEL){
@@ -207,18 +221,6 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		}
 	}
 	/**
-	 * 添加调试断点
-	 * @param {boolean}isDebug	仅为false时不进入debug
-	 */
-	function fDebug(isDebug){
-		if(Debug.level>Debug.DEBUG_LEVEL){
-			return;
-		}
-		if(isDebug!==false){
-			debugger;
-		}
-	}
-	/**
 	 * 处理异常
 	 * @param {Object}oExp 异常对象
 	 */
@@ -230,8 +232,29 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	/**
 	 * 监听连续点击事件打开控制面板
 	 */
-	function fListen(){
-		
+	function fListenCtrlEvts(){
+		var oDoc = top.document;
+		var sName=Browser.mobile()?'touchstart':'click';
+		var nTimes=0;
+		var nLast=0;
+		var _fEvt=function(){
+			var nNow=new Date().getTime();
+			if(nNow-nLast<500){
+				nTimes++;
+				//连续点击4次弹出控制面板
+				if(nTimes>2){
+					Debug.out('open console',true);
+				}
+			}else{
+				nTimes=0;
+			}
+			nLast=nNow;
+		}
+		if(oDoc.addEventListener){
+			oDoc.addEventListener(sName,_fEvt);
+		}else{
+			oDoc.attachEvent('on'+sName,_fEvt);
+		}
 	}
 	
 	return Debug;
