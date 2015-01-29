@@ -16,7 +16,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		//是否强制在页面上输出调试信息，true表示在页面中显示，'record'表示记录但不显示控制台面板，false表示既不显示也不记录
 		//主要用于不支持console的浏览器，如：IE6，或者ietester里面，或者移动浏览器
 		//开发环境下连续点击4次也可弹出控制面板
-		showInPage          : $H.isDebug?(!("console" in window)||!!Browser.mobile()?'record':false):false,        
+		showInPage          : $H.isOnline?false:(!("console" in window)||!!Browser.mobile()?'record':false),        
 		out                 : fOut,         //直接输出日志
 		log			        : fLog,		    //输出日志
 		debug		        : fDebug,   	//输出调试
@@ -107,7 +107,8 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 					}
 				});
 			}
-			if((bShowInPage===true||Debug.showInPage===true)){
+			//record时要弹出error，方便观察bug
+			if((bShowInPage===true||Debug.showInPage===true)||sType=='error'){
 				oDebugDiv.style.display ='block';
 			}
 			var oAppender=oDebugDiv.getElementsByTagName('DIV')[0];
