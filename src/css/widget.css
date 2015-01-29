@@ -1101,6 +1101,7 @@
 .hui-tbar .hui-tbar-left,
 .hui-tbar .hui-tbar-right {
   position: absolute;
+  overflow: hidden;
   height: 100%;
   top: 0;
 }

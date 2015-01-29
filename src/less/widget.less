@@ -925,6 +925,8 @@
 	}
 	.hui-tbar-left,.hui-tbar-right{
 		position:absolute;
+		//TODO: Firefox、ie8、9下有连续两个按钮时有一个高度会超出，原因不明，暂时加上overflow:hidden
+		overflow:hidden;
 		height:100%;
 		top:0;
 	}
