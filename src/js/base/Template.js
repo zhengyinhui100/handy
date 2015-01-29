@@ -137,7 +137,6 @@ define('B.Template',['B.Object','B.String','L.Debug','B.Function'],function(Obj,
 	}
 	/**
 	 * 结果函数添加一行字符串
-	 * @method _fAddLine
 	 * @param {string}sCode 要添加的代码
 	 * @return {string} 返回添加好的代码
 	 */
@@ -147,7 +146,6 @@ define('B.Template',['B.Object','B.String','L.Debug','B.Function'],function(Obj,
 	}
 	/**
 	 * 处理html
-	 * @method _fParseHtml
 	 * @param {string}sHtml html字符串
 	 * @return {string} 返回处理过的html
 	 */
@@ -162,7 +160,6 @@ define('B.Template',['B.Object','B.String','L.Debug','B.Function'],function(Obj,
 	}
 	/**
 	 * 处理脚本
-	 * @method _fParseScript
 	 * @param {object}oScript AST的script元素
 	 * @param {object=}oOptions 选项
 	 * @return {string} 返回处理过的脚本
@@ -362,7 +359,6 @@ define('B.Template',['B.Object','B.String','L.Debug','B.Function'],function(Obj,
 	}
 	/**
 	 * 编译模板
-	 * @method _fCompile
 	 * @param  {string}sTmpl 模板字符串
 	 * @param  {Object=}oOptions 选项{
 	 * 		{object}helpers:自定义辅助函数列表，这里传入不影响全局的辅助函数定义，只会在本次编译时extend全局的辅助函数
@@ -443,7 +439,6 @@ define('B.Template',['B.Object','B.String','L.Debug','B.Function'],function(Obj,
 	}
 	/**
 	 * 执行模板
-	 * @method tmpl
 	 * @param {object|string|Array}tmpl 当tmpl为字符串或字符串数组时，表示模板内容，为对象时如下：
 	 * {
 	 * 		{string}id : 模板的id，要使用缓存，就必须传入id

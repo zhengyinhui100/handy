@@ -23,7 +23,6 @@ define("B.String",function(){
 	
 	/**
 	 * 删除标签字符串
-	 * @method  stripTags
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return {string} 删除标签后的字符串 
 	 */
@@ -57,7 +56,6 @@ define("B.String",function(){
 	};
 	/**
 	 * html编码，替换<>等为html编码
-	 * @method  encodeHTML
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return {string} sStr 编码后的html代码  
 	 */
@@ -73,7 +71,6 @@ define("B.String",function(){
 	};
 	/**
 	 * html解码，替换掉html编码
-	 * @method  decodeHTML
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return {string} sStr 解码后的html代码  
 	 */
@@ -120,7 +117,6 @@ define("B.String",function(){
 	}
 	/**
 	 * 去掉字符串两边的空格
-	 * @method  trim
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return {string} sStr 去掉两边空格后的字符串  
 	 */
@@ -131,7 +127,6 @@ define("B.String",function(){
 
 	/**
 	 * 检查字符串是否含有"% \' \" \\ \/ "的字符
-	 * @method  check
 	 * @param  {string} sStr 需要操作的字符串
 	 * @param   {Object}rKey 需要寻找的字符正则匹配	
 	 * @return  {boolean} 如果没有特殊字符返回false,否则返回true
@@ -144,7 +139,6 @@ define("B.String",function(){
 	};
 	/**
 	 * 计算字符串打印长度,一个中文字符长度为2
-	 * @method  len
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return {number} 字符串的长度    
 	 */
@@ -153,7 +147,6 @@ define("B.String",function(){
 	};
 	/**
 	 * 截取字符串左边n位
-	 * @method  left
 	 * @param  {string} sStr 需要操作的字符串
 	 * @param  {number} nLength	要截取的位数
 	 * @param  {number|boolean} nEllipsisLength	省略号长度
@@ -188,7 +181,6 @@ define("B.String",function(){
 	};
 	/**
 	 * 判断是否数字
-	 * @method  isNumStr
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return  {boolean} 返回是否数字   
 	 */
@@ -197,7 +189,6 @@ define("B.String",function(){
 	}
 	/**
 	 * 判断是否包含中文
-	 * @method  hasChn
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return  {boolean} 返回是否包含中文   
 	 */
@@ -206,7 +197,6 @@ define("B.String",function(){
 	}
 	/**
 	 * 判断是否是中文
-	 * @method  isChn
 	 * @param  {string} sStr 需要操作的字符串
 	 * @return  {boolean} 返回是否是中文
 	 */

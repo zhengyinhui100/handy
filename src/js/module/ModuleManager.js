@@ -65,7 +65,6 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 	}
 	/**
 	 * 新建模块
-	 * @method _createMod
 	 * @param {object}oParams 选项
 	 * @return {Module}返回新创建的模块
 	 */
@@ -102,7 +101,6 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 	}
 	/**
 	 * 显示模块
-	 * @method _showMod
 	 * @param {Module}oMod 要显示的模块
 	 */
 	function _fShowMod(oMod){
@@ -245,7 +243,6 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 	}
 	/**
 	 * 进入模块
-	 * @method go(oParams)
 	 * @param {Object|string}param  直接模块名字符串或者{  //传入参数
 	 * 		modName:模块名称
 	 * 		...
@@ -405,7 +402,6 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 	}
 	/**
 	 * 后退一步
-	 * @method back
 	 * @param {boolean=} 当传入true时，强制退出当前模块，即不调用模块的exit而直接退出
 	 */
 	function fBack(bForceExit){

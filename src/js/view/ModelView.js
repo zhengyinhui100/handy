@@ -397,7 +397,6 @@ function(Obj,Template,AbstractView,Model,Collection){
 	
 	/**
 	 * 初始化
-	 * @method initialize
 	 * @param {Object}oParams 初始化参数
 	 */
 	function fInitialize(oParams){
@@ -408,7 +407,6 @@ function(Obj,Template,AbstractView,Model,Collection){
 	}
 	/**
 	 * 初始化配置
-	 * @method doConfig
 	 * @param {Object}oSettings 初始化参数
 	 */
 	function fDoConfig(oSettings){
@@ -599,7 +597,6 @@ function(Obj,Template,AbstractView,Model,Collection){
 	}
 	/**
 	 * 销毁
-	 * @method destroy
 	 * @return {boolean=} 成功返回true，失败返回false，如果之前已经销毁返回空
 	 */
 	function fDestroy(){

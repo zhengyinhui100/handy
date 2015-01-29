@@ -34,7 +34,6 @@ function(AC){
 	
 	/**
 	 * 选中
-	 * @method select
 	 * @param {boolean}bSelect 仅当为false时取消选中
 	 */
 	function fSelect(bSelect){
@@ -42,7 +41,6 @@ function(AC){
 	}
 	/**
 	 * 获取/设置输入框的值
-	 * @method val
 	 * @param {string=}sValue 要设置的值，不传表示读取值
 	 * @return {string=} 如果是读取操作，返回当前值
 	 */

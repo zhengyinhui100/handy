@@ -193,7 +193,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	
 	/**
 	 * 扩展原型定义
-	 * @method extend
 	 * @param {Object}oExtend 扩展源
 	 */
 	function fExtend(oExtend){
@@ -215,7 +214,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 静态初始化视图并生成html
-	 * @method html
 	 * @param {object}oParams 初始化参数
 	 */
 	function fHtml(oParams){
@@ -253,7 +251,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 初始化
-	 * @method initialize
 	 * @param {Object}oParams 初始化参数
 	 */
 	function fInitialize(oParams){
@@ -264,7 +261,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 初始化配置
-	 * @method doConfig
 	 * @param {Object}oSettings 初始化参数
 	 */
 	function fDoConfig(oSettings){
@@ -381,7 +377,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	var _oTagReg=/[^<]*(<[a-zA-Z]+)/;
 	/**
 	 * 获取html
-	 * @method getHtml
 	 */
 	function fGetHtml(){
 		var me=this;
@@ -409,7 +404,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 获取子视图html
-	 * @method findHtml
 	 * @param {string=}sSel 选择器，不传表示返回自身的html
 	 * @return {string} 返回对应html
 	 */
@@ -424,7 +418,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 初始化样式
-	 * @method initStyle
 	 */
 	function fInitStyle(){
 		var me=this;
@@ -441,7 +434,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 渲染前工作
-	 * @method beforeRender
 	 * @return {boolean=} 仅当返回false时阻止渲染
 	 */
 	function fBeforeRender(){
@@ -449,7 +441,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 渲染
-	 * @method render
 	 * @return {boolean=} 仅当没有成功渲染时返回false
 	 */
 	function fRender(){
@@ -463,7 +454,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 渲染后续工作
-	 * @method afterRender
 	 * @param {boolean=}bParentCall 是否是来自callChild的调用
 	 * @return {boolean=} 仅当已经完成过渲染时返回false
 	 */
@@ -501,7 +491,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 显示
-	 * @method show
 	 * @param {boolean=}bNotDelay 仅当为true时强制不延迟显示
 	 * @param {boolean=}bParentCall true表示是父组件通过callChild调用
 	 * @return {boolean=} 仅当不是正常成功显示时返回false
@@ -538,7 +527,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 显示后工作
-	 * @method afterShow
 	 */
 	function fAfterShow(){
 		var me=this;
@@ -556,7 +544,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 隐藏
-	 * @method hide
 	 * @param {boolean=}bNotSetHidden 仅当true时不设置hidden属性，设置hidden属性可以避免来自父视图的show调用导致显示，所以一般外部调用都默认设置
 	 * @return {boolean=} 仅当没有成功隐藏时返回false
 	 */
@@ -588,7 +575,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 启用
-	 * @method enable
 	 */
 	function fEnable(){
 		var me=this;
@@ -597,7 +583,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 禁用
-	 * @method disable
 	 */
 	function fDisable(){
 		var me=this;
@@ -652,7 +637,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 挂起事件
-	 * @method suspend
 	 */
 	function fSuspend(){
 		var me=this;
@@ -665,7 +649,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 恢复事件
-	 * @method resume
 	 */
 	function fResume(){
 		var me=this;
@@ -786,7 +769,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 遍历子视图
-	 * @method each
      * @param {function}fCallback 回调函数:fCallback(i,oChild)|fCallback(args)this=oChild,返回false时退出遍历
      * @param {Array=}aArgs  回调函数的参数
 	 */
@@ -815,7 +797,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 匹配选择器
-	 * @method match
 	 * @param {string}sSel 选择器，只支持一级选择器 xtype[attr=value]
 	 * @param {Object=}oObj 被匹配的对象，默认为视图对象本身
 	 * @return {boolean} 匹配则返回true
@@ -869,7 +850,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 查找子元素或子视图
-	 * @method find
 	 * @param {number|string=|Function(View)|Class}sel 不传表示获取子视图数组，数字表示子组件索引，
 	 * 				如果是字符串：多个选择器间用","隔开('sel1,sel2,...')，语法类似jQuery，
 	 * 				如：'xtype[attr=value]'、'ancestor descendant'、'parent > child'，
@@ -938,7 +918,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 查找祖先视图
-	 * @method parents
 	 * @param {string=}sSel 若此参数为空，直接返回最顶级祖先视图
 	 * @return {jQuery|Component|null} 返回匹配的结果，如果没找到匹配的视图则返回null
 	 */
@@ -955,7 +934,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 获取本身的索引，如果没有父视图则返回null
-	 * @method index
 	 * @return {number} 返回对应的索引，如果没有父视图(也就没有索引)，返回null
 	 */
 	function fIndex(){
@@ -976,7 +954,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 调用子视图方法
-	 * @method callChild
 	 * @param {string=}sMethod 方法名，不传则使用调用者同名函数
 	 * @param {Array=}aArgs 参数数组
 	 */
@@ -1001,7 +978,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 添加子视图
-	 * @method add
 	 * @param {object|Array}item 视图对象或视图配置或数组，可以加上条件判断:item.condition(为假时忽略该配置项)
 	 * @param {number=}nIndex 指定添加的索引，默认添加到最后
 	 * @return {?Component} 添加的子视图只有一个时返回该视图对象，参数是数组时返回空
@@ -1072,7 +1048,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 删除子视图
-	 * @method remove
 	 * @param {object|number|string}item 视图对象或视图索引或选择器
 	 * @return {boolean} true表示删除成功
 	 */
@@ -1116,7 +1091,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 分析子视图列表
-	 * @method parseItems
 	 */
 	function fParseItems(){
 		var me=this;
@@ -1254,7 +1228,6 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 销毁
-	 * @method destroy
 	 * @param {boolean=} 仅当true时表示从remove里的调用，不需要再这里调用parent.remove
 	 * @return {boolean=} 成功返回true，失败返回false，如果之前已经销毁返回空
 	 */

@@ -23,7 +23,6 @@ define('B.Date',function(){
 	
 	/**
 	 * 返回周几
-	 * @method getWeek
 	 * @param  {Date} oDate 需要增减的日期对象
 	 * @param {number}nDiff	天偏移量-7~7
 	 * @return {string} 返回周几的中文
@@ -39,7 +38,6 @@ define('B.Date',function(){
 	}
 	/**
 	 * 是否周末
-	 * @method isWeeken
 	 * @param  {Date} oDate 参数日期对象
 	 * @return {boolean} 返回true表示是周末
 	 */
@@ -48,7 +46,6 @@ define('B.Date',function(){
 	}
 	/**
 	 * 返回该月总共有几天
-	 * @method getDaysInMonth
 	 * @param  {Date} oDate 参数日期对象
 	 * @return {number} 返回当该月的天数
 	 */
@@ -58,7 +55,6 @@ define('B.Date',function(){
 	}
 	/**
 	 * 返回该年总共有几天
-	 * @method getDaysInYear
 	 * @param  {Date} oDate 参数日期对象
 	 * @return {number} 返回当该年的天数
 	 */
@@ -69,7 +65,6 @@ define('B.Date',function(){
 	}
 	/**
 	 * 计算该天是该年的第几天
-	 * @method getDayIndexOfYear
 	 * @param  {Date} oDate 参数日期对象
 	 * @return {number} 返回该天是该年的第几天
 	 */

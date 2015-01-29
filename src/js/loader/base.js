@@ -36,7 +36,6 @@
 	
 	/**
 	 * 处理命名冲突
-	 * @method noConflict
 	 * @param {boolean}isDeep 是否处理window.handy冲突
 	 * @retrun {Object}handy 返回当前定义的handy对象
 	 */
@@ -93,7 +92,6 @@
 	/**
 	 * 创建别名/读取实名，别名没有对应的存储空间，需要先转换为原始名字才能获取对应的存储空间，
 	 * Loader自动会优先尝试转换别名，因此，别名不能与现有的命名空间重叠
-	 * @method alias
 	 * @param {string||object=}sAlias 别名，如'B.Namespace'，为空时表示读取所有存储的别名，也可以传入hash对象,{sAlias:sOrig}
 	 * @param {string=}sOrig 原名，如'handy.base.Object'，为空时表示读取实名
 	 */
@@ -133,7 +131,6 @@
 	}
 	/**
     * 归纳生成类方法
-    * @method generateMethod
     * @param {Object}oTarget 需要生成方法的对象
     * @param {Array.<string>}aMethod 需要生成的方法列表
     * @param {function()}fDefined 方法定义函数，该函数执行后返回方法定义
@@ -147,7 +144,6 @@
     }
 	/**
 	 * 添加子模块
-	 * @method add
 	 * @param {string}sName 模块名称
 	 * @param {Object=}aRequires 模块依赖资源
 	 * @param {function|object}factory 模块功能定义

@@ -99,7 +99,6 @@ define('C.AbstractComponent',
 	
 	/**
 	 * 定义组件
-	 * @method define
 	 * @param {string}sXtype 组件类型
 	 * @param {Component=}oSuperCls 父类，默认是AbstractComponent
 	 * @return {class}组件类对象
@@ -117,7 +116,6 @@ define('C.AbstractComponent',
 	}
 	/**
 	 * 检查是否已存在指定配置
-	 * @method hasConfig
 	 * @param {string}sSel 指定的配置
 	 * @param {Object|Array}params 配置对象
 	 * @return {boolean} true表示已存在配置
@@ -142,7 +140,6 @@ define('C.AbstractComponent',
 	}
 	/**
 	 * 初始化配置
-	 * @method doConfig
 	 * @param {object} oParams
 	 */
 	function fDoConfig(oParams){
@@ -174,21 +171,18 @@ define('C.AbstractComponent',
 	}
 	/**
 	 * 激活
-	 * @method active
 	 */
 	function fActive(){
 		this.update({isActive:true});
 	}
 	/**
 	 * 不激活
-	 * @method unactive
 	 */
 	function fUnactive(){
 		this.update({isActive:false});
 	}
 	/**
 	 * 设置/读取文字
-	 * @method txt
 	 * @param {string=}sTxt
 	 * @return {string} 
 	 */
@@ -202,7 +196,6 @@ define('C.AbstractComponent',
 	}
 	/**
 	 * 校验数据
-	 * @method valid
 	 * @return 符合校验规则返回true，否则返回false
 	 */
 	function fValid(){

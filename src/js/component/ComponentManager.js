@@ -18,7 +18,6 @@ function(Class,AbstractManager,ViewManager) {
 	});
 	/**
 	 * 初始化
-	 * @method initialize
 	 */
 	function fInitialize(){
 		var me=this;

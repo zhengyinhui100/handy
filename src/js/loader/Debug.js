@@ -31,7 +31,6 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	}
 	/**
 	 * 输出信息
-	 * @method fOut
 	 * @param {Object} oVar	需要输出的变量
 	 * @param {boolean} bShowInPage 是否需要创建一个DIV输出到页面
 	 * @param {string} sType 日志类型：log,info,error
@@ -135,7 +134,6 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	}
 	/**
 	 * 输出错误
-	 * @method error
 	 * @param {Object}oVar	需要输出的变量
 	 * @param {boolean=}bShowInPage 是否需要创建一个DIV输出到页面
 	 */
@@ -157,7 +155,6 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	}
 	/**
 	 * 输出统计时间
-	 * @method time
 	 * @param {boolean=}bOut 为true时，计算时间并输出信息，只有此参数为true时，后面两个参数才有意义
 	 * @param {string=}sMsg 输出的信息
 	 * @param {boolean=}bShowInPage 是否需要创建一个DIV输出到页面
@@ -211,7 +208,6 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	}
 	/**
 	 * 添加调试断点
-	 * @method debug
 	 * @param {boolean}isDebug	仅为false时不进入debug
 	 */
 	function fDebug(isDebug){

@@ -42,7 +42,6 @@ function(Debug){
 	
      /**
 	 * 检查对应的资源是否已加载，只要检测到一个不存在的资源就立刻返回
-	 * @method _fChkExisted
 	 * @param {string|Array}id 被检查的资源id
 	 * @return {Object}  {
 	 * 		{Array}exist: 存在的资源列表
@@ -85,7 +84,6 @@ function(Debug){
     
     /**
 	 * 通过id获取实际url
-	 * @method _fGetUrl
 	 * @param {string}sId 资源id，可以是命名空间，也可以是url
 	 * @return {string}sUrl 实际url
 	 */
@@ -128,7 +126,6 @@ function(Debug){
     }
 	/**
 	 * 获取js脚本
-	 * @method _getScript
 	 * @param {string}sUrl 请求url
 	 * @param {function()}fCallback 回调函数
 	 */
@@ -143,7 +140,6 @@ function(Debug){
 	}
 	/**
 	 * 获取css
-	 * @method _getCss
 	 * @param {string}sUrl 请求url
 	 * @param {function()}fCallback 回调函数
 	 */
@@ -174,7 +170,6 @@ function(Debug){
 	}
 	/**
 	 * 为css/script资源添加onload事件，包含超时处理
-	 * @method _fAddOnload
 	 * @param {element}eNode 节点
 	 * @param {function()}fCallback 回调函数
 	 */
@@ -203,7 +198,6 @@ function(Debug){
 	}
 	/**
 	 * script资源onload函数
-	 * @method _fScriptOnload
 	 * @param {element}eNode 节点
 	 * @param {function()}fCallback 回调函数
 	 */
@@ -245,7 +239,6 @@ function(Debug){
 	/**
 	 * css资源onload函数
 	 * 
-	 * @method _fStyleOnload
 	 * @param {element}eNode
 	 *            节点
 	 * @param {function()}fCallback
@@ -269,7 +262,6 @@ function(Debug){
 	}
 	/**
 	 * css资源轮询检测
-	 * @method _fPollStyle
 	 * @param {element}eNode 节点
 	 * @param {function()}fCallback 回调函数
 	 */
@@ -307,7 +299,6 @@ function(Debug){
 	}
     /**
 	 * 请求资源
-	 * @method _fRequest
 	 * @param {Array}aRequestIds 需要加载的资源id数组
 	 */
     function _fRequest(aRequestIds){
@@ -388,7 +379,6 @@ function(Debug){
     }
     /**
 	 * 资源下载完成回调
-	 * @method _fResponse
 	 * @param {string|array}id 资源id或数组
 	 */
     function _fResponse(id){
@@ -406,7 +396,6 @@ function(Debug){
     }
     /**
      * 执行上下文
-     * @method _fExecContext
      */
     function _fExecContext(){
     	//每次回调都循环上下文列表

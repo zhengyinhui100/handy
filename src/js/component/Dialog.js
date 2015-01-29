@@ -73,7 +73,6 @@ function(Obj,AC,Popup){
 	
 	/**
 	 * 弹出警告框
-	 * @method alert
 	 * @param {string}sMsg 提示信息
 	 */
 	function fAlert(sMsg){
@@ -85,7 +84,6 @@ function(Obj,AC,Popup){
 	}
 	/**
 	 * 弹出确认框
-	 * @method confirm
 	 * @param {string}sMsg 提示信息
 	 * @param {function(boolean)}fCall 回调函数，参数为true表示点击的是"确定"按钮，false则为"取消"按钮
 	 */
@@ -103,7 +101,6 @@ function(Obj,AC,Popup){
 	}
 	/**
 	 * 弹出输入框
-	 * @method prompt
 	 * @param {string}sMsg 提示信息
 	 * @param {string=}sDefault 输入框默认值
 	 * @param {function(string)}fCall 回调函数，参数为输入框的值
@@ -129,7 +126,6 @@ function(Obj,AC,Popup){
 	}
 	/**
 	 * 处理配置
-	 * @method doConfig
 	 * @param {object}oSettings 设置参数
 	 */
 	function fDoConfig(oSettings){

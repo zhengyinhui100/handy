@@ -81,7 +81,6 @@ function(AC){
 	}
 	/**
 	 * 处理子组件配置
-	 * @method parseItem
 	 * @param {object}oItem 子组件配置
 	 */
 	function fParseItem(oItem){

@@ -34,7 +34,6 @@ define("L.Browser",function(){
 		
 	/**
 	 * 初始化
-	 * @method _fInit
 	 */
 	function _fInit(){
 		var userAgent = window.navigator.userAgent;
@@ -50,7 +49,6 @@ define("L.Browser",function(){
 	}
 	/**
 	 * 分析浏览器类型及版本
-	 * @method _fParseBrowser
 	 * @param {string}userAgent 浏览器userAgent
 	 */
 	function _fParseBrowser(userAgent){
@@ -69,7 +67,6 @@ define("L.Browser",function(){
 	}
 	/**
 	 * 分析浏览器类型及版本
-	 * @method _fParseOs
 	 * @param {string}userAgent 浏览器userAgent
 	 */
 	function _fParseOs(userAgent){
@@ -81,7 +78,6 @@ define("L.Browser",function(){
 	}
 	/**
 	 * 分析浏览器内核类型
-	 * @method _fParseKernel
 	 * @param {string}userAgent 浏览器userAgent
 	 */
 	function _fParseKernel(userAgent){
@@ -94,7 +90,6 @@ define("L.Browser",function(){
 	}
 	/**
 	 * 分析浏览器壳类型
-	 * @method _fParseShell
 	 * @param {string}userAgent 浏览器userAgent
 	 */
 	function _fParseShell(userAgent){
@@ -108,7 +103,6 @@ define("L.Browser",function(){
 	}
 	/**
 	 * 分析移动浏览器类型
-	 * @method _fParseMobile
 	 * @param {string}userAgent 浏览器userAgent
 	 */
 	function _fParseMobile(userAgent) {
@@ -152,7 +146,6 @@ define("L.Browser",function(){
 	/**
 	 * 分析浏览器flash版本
 	 * 
-	 * @method _fParseFlash
 	 */
 	function _fParseFlash(){
 		var flashVersion;

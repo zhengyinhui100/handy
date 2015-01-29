@@ -77,7 +77,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 不为空
-	 * @method required
 	 * @param {String}sValue 待校验值
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
@@ -86,7 +85,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否是邮箱地址
-	 * @method email
 	 * @param {String}sValue 待校验值
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
@@ -95,7 +93,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否是url
-	 * @method url
 	 * @param {String}sValue 待校验值
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
@@ -104,7 +101,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否是日期
-	 * @method date
 	 * @param {String}sValue 待校验值
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
@@ -113,7 +109,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否是正确格式的日期(ISO)，例如：2009-06-23，1998/01/22 只验证格式，不验证有效性
-	 * @method dateISO
 	 * @param {String}sValue 待校验值
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
@@ -122,7 +117,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否是合法的数字(负数，小数)
-	 * @method number
 	 * @param {String}sValue 待校验值
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
@@ -131,7 +125,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否是整数
-	 * @method digits
 	 * @param {String}sValue 待校验值
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
@@ -140,7 +133,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否是合法的信用卡号
-	 * @method creditcard
 	 * @param {String}sValue 待校验值
 	 * @return {boolean} 符合规则返回true，否则返回false
 	 */
@@ -171,7 +163,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否符合最小值
-	 * @method min
 	 * @param {String}sValue 待校验值
 	 * @param {number}nNum 指定的最小数值
 	 * @return {boolean} 符合规则返回true，否则返回false
@@ -181,7 +172,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否符合最大值
-	 * @method max
 	 * @param {String}sValue 待校验值
 	 * @param {number}nNum 指定的最大数值
 	 * @return {boolean} 符合规则返回true，否则返回false
@@ -191,7 +181,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 数值是否在指定区间内
-	 * @method range
 	 * @param {String}sValue 待校验值
 	 * @param {Array}aRange 区间数组
 	 * @return {boolean} 符合规则返回true，否则返回false
@@ -201,7 +190,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否符合最小长度
-	 * @method minlength
 	 * @param {String|Array}value 待校验值
 	 * @param {number}nLen 长度
 	 * @return {boolean} 符合规则返回true，否则返回false
@@ -212,7 +200,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否符合最大长度
-	 * @method maxlength
 	 * @param {String}value 待校验值
 	 * @param {number}nLen 长度
 	 * @return {boolean} 符合规则返回true，否则返回false
@@ -223,7 +210,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 长度是否在指定区间内
-	 * @method rangelength
 	 * @param {String}value 待校验值
 	 * @param {Array}aRange 长度区间，如[2,10]
 	 * @return {boolean} 符合规则返回true，否则返回false
@@ -234,7 +220,6 @@ define('B.Validator',['B.String','B.Object'],function(String,Obj){
 	}
 	/**
 	 * 是否跟指定值相等(包括数据类型相等)
-	 * @method equalTo
 	 * @param {String}sValue 待校验值
 	 * @param {*}val 指定值
 	 * @return {boolean} 符合规则返回true，否则返回false

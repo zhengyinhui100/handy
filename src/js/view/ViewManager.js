@@ -24,7 +24,6 @@ function(Evt,Class,AbstractManager) {
 	
 	/**
 	 * 初始化
-	 * @method initialize
 	 */
 	function fInitialize(){
 		var me=this;
@@ -42,7 +41,6 @@ function(Evt,Class,AbstractManager) {
 	}
 	/**
 	 * 调用指定dom节点包含的视图的afterRender方法
-	 * @method afterRender
 	 * @param {jQuery}oEl 指定的节点
 	 */
 	function fAfterRender(oEl){
@@ -52,7 +50,6 @@ function(Evt,Class,AbstractManager) {
 	}
 	/**
 	 * 销毁视图，主要用于删除元素时调用
-	 * @method destroy
 	 * @param {jQuery}oRemoveEl 需要移除视图的节点
 	 */
 	function fDestroy(oRemoveEl){

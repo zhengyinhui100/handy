@@ -45,7 +45,6 @@ function(Browser,Util,Event,AC){
 	});
 	/**
 	 * 初始化配置
-	 * @method doConfig
 	 */
 	function fDoConfig(oParam){
 		var me=this;
@@ -93,7 +92,6 @@ function(Browser,Util,Event,AC){
 	}
 	/**
 	 * 显示后工作
-	 * @method afterShow
 	 */
 	function fAfterShow(){
 		// 设置定位坐标
@@ -139,7 +137,6 @@ function(Browser,Util,Event,AC){
 	}
 	/**
 	 * 隐藏
-	 * @method hide
 	 */
 	function fHide(){
 		var me=this;
@@ -167,7 +164,6 @@ function(Browser,Util,Event,AC){
 	}
 	/**
 	 * 居中显示
-	 * @method center
 	 */
 	function fCenter(){
 		// 设置定位坐标
@@ -225,7 +221,6 @@ function(Browser,Util,Event,AC){
 	}
 	/**
 	 * 显示在指定元素显示
-	 * @method followEl
 	 * @param {jQuery}oEl 定位标准元素
 	 */
 	function fFollowEl(oEl){
@@ -236,7 +231,6 @@ function(Browser,Util,Event,AC){
 	}
 	/**
 	 * 显示遮罩层
-	 * @method mask
 	 */
 	function fMask(){
 		var me=this;
@@ -253,7 +247,6 @@ function(Browser,Util,Event,AC){
 	}
 	/**
 	 * 隐藏遮罩层
-	 * @method unmask
 	 */
 	function fUnmask(){
 		var me=this;

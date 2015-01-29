@@ -172,7 +172,6 @@ function(Browser,Animate,AC,TabItem,ControlGroup){
 	}
 	/**
 	 * 分析处理子组件
-	 * @method parseItem
 	 * @param {object}oItem 子组件配置
 	 */
 	function fParseItem(oItem){

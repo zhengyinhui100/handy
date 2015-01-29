@@ -39,7 +39,6 @@ function(Class,Obj,Util) {
 	}
 	/**
 	 * 注册视图类型
-	 * @method registerType
 	 * @param {string}sXType 视图类型
 	 * @param {object}oClass 视图类
 	 */
@@ -50,7 +49,6 @@ function(Class,Obj,Util) {
 	}
 	/**
 	 * 根据xtype获取视图类
-	 * @method getClass
 	 * @param {string|Class}xtype 视图类型或命名空间或视图类
 	 * @return {object} 返回对应的视图类
 	 */
@@ -62,7 +60,6 @@ function(Class,Obj,Util) {
 	}
 	/**
 	 * 注册视图
-	 * @method register
 	 * @param {object}oView 视图对象
 	 */
 	function fRegister(oView,oParams){
@@ -74,7 +71,6 @@ function(Class,Obj,Util) {
 	}
 	/**
 	 * 注销视图
-	 * @method unRegister
 	 * @param {object}oView 视图对象
 	 */
 	function fUnRegister(oView){
@@ -92,7 +88,6 @@ function(Class,Obj,Util) {
 	}
 	/**
 	 * 遍历指定节点里的所有视图
-	 * @method eachInEl
 	 * @param {jQuery}oEl 指定的节点
 	 * @param {function(Component)}fCall
 	 */
@@ -112,7 +107,6 @@ function(Class,Obj,Util) {
 	}
 	/**
 	 * 生成视图的id
-	 * @method generateId
 	 * @param {string=}sCid cid
 	 * @param {string}sType 视图xtype
 	 */
@@ -127,7 +121,6 @@ function(Class,Obj,Util) {
 	}
 	/**
 	 * 根据id或cid查找视图
-	 * @method get
 	 * @param {string}sId 视图id或者cid
 	 * @return {View} 返回找到的视图
 	 */

@@ -13,7 +13,6 @@ define('B.Function','B.Object',function(Obj){
 	
 	/**
 	 * 函数bind方法
-	 * @method  bind
 	 * @param {function()}fFunc 被绑定的函数
 	 * @param {Object}oScope  需要绑定的对象
 	 * @param {Object}args    需要绑定的参数

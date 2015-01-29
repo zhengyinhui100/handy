@@ -68,7 +68,6 @@ function(Browser,Obj,AC){
 	
 	/**
 	 * 初始化配置
-	 * @method doConfig
 	 * @param {Object}oParams
 	 */
 	function fDoConfig(oParams){
@@ -111,7 +110,6 @@ function(Browser,Obj,AC){
 	}
 	/**
 	 * 获取/设置输入框的值
-	 * @method val
 	 * @param {string=}sValue 要设置的值，不传表示读取值
 	 * @return {string=} 如果是读取操作，返回当前值
 	 */

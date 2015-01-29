@@ -109,7 +109,6 @@ function(Browser,AC){
 	}
 	/**
 	 * 获取/设置值
-	 * @method val
 	 * @param {string=}sValue 要设置的值，不传表示读取输入框的值
 	 * @return {string=} 如果是读取操作，返回当前值
 	 */

@@ -76,7 +76,6 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	
 	/**
 	 * 初始化
-	 * @method initialize
 	 * @param {Object}oParams 初始化参数
 	 */
 	function fInitialize(oParams){
@@ -103,7 +102,6 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	}
 	/**
 	 * 初始化配置
-	 * @method doConfig
 	 * @param {Object}oSettings 初始化参数
 	 */
 	function fDoConfig(oSettings){
@@ -122,7 +120,6 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	}
 	/**
 	 * 获取id
-	 * @method getId
 	 * @return {string}返回id
 	 */
 	function fGetId(){
@@ -130,7 +127,6 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	}
 	/**
 	 * 获取cid
-	 * @method getCid
 	 * @return {string}返回id
 	 */
 	function fGetCid(){
@@ -138,7 +134,6 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	}
 	/**
 	 * 获取容器节点
-	 * @method getEl
 	 * @return {jQuery} 返回容器节点
 	 */
 	function fGetEl(){
@@ -146,14 +141,12 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	}
 	/**
 	 * 获取html
-	 * @method getHtml
 	 */
 	function fGetHtml(){
 		return this.html;
 	}
 	/**
 	 * 渲染
-	 * @method render
 	 * @return {boolean=} 仅当没有成功渲染时返回false
 	 */
 	function fRender(){
@@ -174,7 +167,6 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	}
 	/**
 	 * 绑定事件
-	 * @method listen
 	 * @param {object}事件对象{
 	 * 			{string}name      : 事件名
 	 * 			{function(Object[,fireParam..])}handler : 监听函数，第一个参数为事件对象oListener，其后的参数为fire时传入的参数
@@ -266,7 +258,6 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	}
 	/**
 	 * 解除事件
-	 * @method unlisten
 	 * @param {object}事件对象{
 	 * 			{string}name      : 事件名
 	 * 			{function}handler : 监听函数
@@ -308,7 +299,6 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	}
 	/**
 	 * 初始化所有事件
-	 * @method initListeners
 	 * @return {boolean=}如果已经初始化了，则直接返回false
 	 */
 	function fInitListeners(){
@@ -326,7 +316,6 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	}
 	/**
 	 * 清除所有事件
-	 * @method clearListeners
 	 */
 	function fClearListeners(){
 		var me=this;
@@ -340,7 +329,6 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 	}
 	/**
 	 * 销毁
-	 * @method destroy
 	 * @return {boolean=} 成功返回true，失败返回false，如果之前已经销毁返回空
 	 */
 	function fDestroy(){

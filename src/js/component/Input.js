@@ -104,7 +104,6 @@ function(Browser,Util,Evt,AC){
 	
 	/**
 	 * 初始化配置
-	 * @method doConfig
 	 */
 	function fDoConfig(oSettings){
 		var me=this;
@@ -180,7 +179,6 @@ function(Browser,Util,Evt,AC){
 	}
 	/**
 	 * 分析处理子组件
-	 * @method parseItem
 	 */
 	function fParseItem(oItem){
 		var me=this;
@@ -197,7 +195,6 @@ function(Browser,Util,Evt,AC){
 	}
 	/**
 	 * 获取/设置输入框的值
-	 * @method val
 	 * @param {string=}sValue 要设置的值，不传表示读取输入框的值
 	 * @return {string=} 如果是读取操作，返回当前值
 	 */
@@ -211,14 +208,12 @@ function(Browser,Util,Evt,AC){
 	}
 	/**
 	 * 聚焦
-	 * @method focus
 	 */
 	function fFocus(){
 		this.findEl('.js-input').focus();
 	}
 	/**
 	 * 失焦
-	 * @method focus
 	 */
 	function fBlur(){
 		this.findEl('.js-input').blur();

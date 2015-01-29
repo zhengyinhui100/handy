@@ -20,7 +20,6 @@ define('B.Util','B.Object',function(Obj){
 	
 	/**
 	 * 检查是否是window对象
-	 * @method  isWindow
 	 * @param {*}obj 参数对象
 	 * @return  {boolean}
 	 */
@@ -29,7 +28,6 @@ define('B.Util','B.Object',function(Obj){
 	}
 	/**
 	 * 获取handy内部uuid
-	 * @method  uuid
 	 * @return  {number}  返回uuid
 	 */
 	function fUuid(){
@@ -112,7 +110,6 @@ define('B.Util','B.Object',function(Obj){
 	}
 	/**
 	 * 如果对象中的指定属性是函数, 则调用它, 否则, 返回它
-	 * @method result
 	 * @param {Object}oObj 参数对象
 	 * @param {string}sProp
 	 * @return {*} 如果指定属性值是函数, 则返回该函数执行结果, 否则, 返回该值

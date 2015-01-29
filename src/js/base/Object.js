@@ -193,7 +193,6 @@ define('B.Object',function(){
     }
     /**
     * 对象是否是函数类型
-    * @method isFunc
     * @param {Object} obj 对象
     * @return {boolean} 返回判断结果
     */
@@ -202,7 +201,6 @@ define('B.Object',function(){
     }
     /**
     * 对象是否是数组类型
-    * method isArr
     * @param {Object} obj 对象
     * @return {boolean} 返回判断结果
     */
@@ -235,7 +233,6 @@ define('B.Object',function(){
     }
     /**
     * 对比对象值是否相同
-    * @method equals
     * @param {Object} o1 对象1
     * @param {Object} o2 对象2
     * @param {boolean=}bStrict 仅当为true时表示严格对比，包括类型和值，
@@ -299,7 +296,6 @@ define('B.Object',function(){
     }
 	/**
     * clone一个对象
-    * @method clone
     * @param {Object} oFrom 需要clone的对象
     * @return {Object} 返回克隆的对象，如果对象属性不支持克隆，将原来的对象返回
     */
@@ -332,7 +328,6 @@ define('B.Object',function(){
 	}
     /**
     * 对象是否是空
-    * @method isEmpty
     * @param {Object}object 参数对象
     * @return {boolean} 返回判断结果
     */
@@ -348,7 +343,6 @@ define('B.Object',function(){
     }
     /**
     * 遍历对象
-    * @method each
     * @param {*}object 参数对象
     * @param {function}fCallback 回调函数:fCallback(property,value)|fCallback(args)this=value,返回false时退出遍历
     * @param {*}args  回调函数的参数
@@ -408,7 +402,6 @@ define('B.Object',function(){
     }
     /**
      * 是否包含指定属性/数组元素
-     * @method contains 
      * @param {*}obj 指定对象
      * @param {*}prop 指定属性/数组元素
      * @return {boolean} 包含则返回true
@@ -428,7 +421,6 @@ define('B.Object',function(){
     }
     /**
      * 是否大于另一个对象|数组（包含另一个对象的所有属性或包含另一个数组的所有元素）
-     * @method largeThan
      * @param {Object|Array}o1 要比较的对象
      * @param {Object|Array}o2 比较的对象
      */
@@ -445,7 +437,6 @@ define('B.Object',function(){
     }
     /**
     * 计算对象长度
-    * @method count
     * @param {Object}oParam 参数对象
     * @return {number} 返回对象长度
     */
@@ -499,7 +490,6 @@ define('B.Object',function(){
     }
     /**
     * 将类数组对象转换为数组，比如arguments, nodelist
-    * @method toArray(oParam,nStart=,nEnd=)
     * @param {Object}oParam 参数对象
     * @param {number=}nStart 起始位置
     * @param {number=}nEnd   结束位置

@@ -68,7 +68,6 @@ function(Obj,Date,AC,DatePicker){
 	
 	/**
 	 * 初始化配置
-	 * @method doConfig
 	 * @param {Object}oParams
 	 */
 	function fDoConfig(oParams){
@@ -102,7 +101,6 @@ function(Obj,Date,AC,DatePicker){
 	}
 	/**
 	 * 获取/设置输入框的值
-	 * @method val
 	 * @param {string=|Date=|boolean}value 字符串或者日期值，表示设置操作，如果为空则表示读取操作，true表示读取Date类型时间
 	 * @return {string=} 如果是读取操作，返回当前值
 	 */

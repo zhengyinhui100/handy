@@ -134,7 +134,6 @@ function(Obj,AC){
 	}
 	/**
 	 * 选中指定项
-	 * @method select
 	 * @param {number|string|Component}item number表示索引，string表示选择器，也可以传入组件对象
 	 */
 	function fSelect(item){
@@ -164,7 +163,6 @@ function(Obj,AC){
 	}
 	/**
 	 * 获取选中项/索引
-	 * @method getSelected
 	 * @param {boolean=}bIsIndex 仅当true时返回索引
 	 * @return {Component|number|Array} 返回当前选中的组件或索引，单选返回单个对象，复选返回数组(不管实际选中几个),
 	 * 									无选中则返回null
@@ -180,7 +178,6 @@ function(Obj,AC){
 	}
 	/**
 	 * 选中/取消选中
-	 * @method selectItem
 	 * @param {Component}oItem 要操作的组件
 	 * @param {boolean=}bSelect 仅当为false时表示移除选中效果
 	 */
@@ -206,7 +203,6 @@ function(Obj,AC){
 	}
 	/**
 	 * 获取/设置值
-	 * @method val
 	 * @param {string=}sValue 要设置的值，不传表示读取值，如果是多个值，用","隔开
 	 * @return {string=} 如果是读取操作，返回当前值
 	 */

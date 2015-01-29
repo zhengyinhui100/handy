@@ -77,7 +77,6 @@ define('B.LocalStorage',['L.Browser','B.Event','L.Json'],function(Browser,Event,
 	 }
 	 /**
 	 * 删除值
-	 * @method removeItem
 	 * @param {string}sKey 键
 	 */
 	 function fRemoveItem(sKey){

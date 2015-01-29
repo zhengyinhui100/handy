@@ -125,7 +125,6 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	}
 	/**
 	 * 静态get方法，为了保证模型的一致性，新建模型实例必须使用此方法，而不能用new方式
-	 * @method get
 	 * @param {object}oVal
 	 * @param {object=}oOptions new模型实例时的选项
 	 * @param {object=}oChange 如果传入object，返回时，oChange.changed表示此次操作改变了原模型的值或者新建了模型实例

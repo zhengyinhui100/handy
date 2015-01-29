@@ -20,7 +20,6 @@ function(Browser,Support,AbstractNavigator){
 	});
 	/**
 	 * 导航效果
-	 * @method navigate
 	 * @param {Object}oShowMod  当前要进入到模块
 	 * @param {Object}oHideMod 要离开的模块
 	 * @param {Object}oModManager 模块管理对象

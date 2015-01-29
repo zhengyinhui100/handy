@@ -38,7 +38,6 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 	});
 	/**
 	 * 历史记录类初始化
-	 * @method initialize
 	 * @param {string=}sKey 历史记录类的key，用于区分可能的多个history实例
 	 * @param {function=}fError 错误处理函数
 	 */
@@ -55,7 +54,6 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 	}
 	/**
 	 * 历史状态改变
-	 * @method stateChange
 	 */
 	function fStateChange(){
 		var me=this,oHashParam=me.getHashParam();
@@ -102,7 +100,6 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 	}
 	/**
 	 * 保存当前状态
-	 * @method saveState
 	 * @param {object} oState{
 	 * 				{object}param            : 进入模块的参数
 	 * 				{function}onStateChange  : 历史状态变化时的回调函数
@@ -121,7 +118,6 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 	}
 	/**
 	 * 保存状态值到hash中
-	 * @method saveHash
 	 * @param {*}param 要保存到hash中的参数
 	 */
 	function fSaveHash(param){
@@ -131,7 +127,6 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 	}
 	/**
 	 * 获取当前hash参数
-	 * @method getHashParam
 	 * @return {object} 返回当前hash参数
 	 */
 	function fGetHashParam(){
@@ -139,7 +134,6 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 	}
 	/**
 	 * 获取当前状态
-	 * @method getCurrentState
 	 * @return {object} 返回当前状态
 	 */
 	function fGetCurrentState(){
@@ -162,7 +156,6 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 	}
 	/**
 	 * 获取前一个状态
-	 * @method getPreState
 	 * @return {object} 返回前一个状态
 	 */
 	function fGetPreState(){
@@ -183,7 +176,6 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 	}
 	/**
 	 * 后退一步
-	 * @method back
 	 */
 	function fBack(){
 		var me=this;

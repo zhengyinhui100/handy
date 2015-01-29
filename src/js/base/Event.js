@@ -274,7 +274,6 @@ define('B.Event','B.Object',function(Obj){
 	}
 	/**
 	 * 挂起事件
-	 * @method suspend
 	 * @return {boolean=}如果已经挂起了，则直接返回false
 	 */
 	function fSuspend(){
@@ -287,7 +286,6 @@ define('B.Event','B.Object',function(Obj){
 	}
 	/**
 	 * 恢复事件
-	 * @method resume
 	 * @return {boolean=}如果已经恢复了，则直接返回false
 	 */
 	function fResume(){

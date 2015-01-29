@@ -35,7 +35,6 @@ define('B.Support','L.Browser',function(Browser){
 	}  
 	/**
 	 * 检查是否支持svg
-	 * @method testSvg
 	 * @param {function(boolean)} fCall 回调函数，如果支持svg则回调参数为true，反之则为false
 	 
 	function fTestSvg(fCall) {
@@ -155,7 +154,6 @@ define('B.Support','L.Browser',function(Browser){
 	}
 	/**
 	 * 检查设备并添加class
-	 * @method mediaQuery
 	 */
 	function fMediaQuery(){
 		var sCls='';
