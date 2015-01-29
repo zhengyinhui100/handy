@@ -97,12 +97,12 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 					if(nKeyCode==10||nKeyCode==13){
 						var sValue=oInput.value;
 						try{
+							Debug.out(sValue,true,'cmd');
 							var result=eval(sValue);
 							oInput.value='';
-							Debug.out(sValue,true,'cmd');
 							Debug.out(result,true,'cmd');
 						}catch(e){
-							Debug.out(sValue,true,'error');
+							Debug.out(e,true,'error');
 						}
 					}
 				});
