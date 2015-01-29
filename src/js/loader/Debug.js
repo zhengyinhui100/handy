@@ -34,6 +34,19 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	!$H.isOnline&&Debug.listenCtrlEvts();
 	
 	/**
+	 * 监听事件
+	 * @param {element}oTarget 参数节点
+	 * @param {string}sName 事件名
+	 * @param {function}fHandler 事件函数
+	 */
+	function _fListen(oTarget,sName,fHandler){
+		if(oTarget.addEventListener){
+			oTarget.addEventListener(sName,fHandler);
+		}else{
+			oTarget.attachEvent('on'+sName,fHandler);
+		}
+	}
+	/**
 	 * 输出信息
 	 * @param {Object} oVar	需要输出的变量
 	 * @param {boolean} bShowInPage 参照Debug.showInPage
@@ -43,7 +56,9 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		sType = sType||'log';
 		//输出到页面
 		if(bShowInPage||Debug.showInPage){
-			var sDivId = $H.expando+'debugDiv';
+			var sExpando=$H.expando;
+			var sDivId = sExpando+'debugDiv';
+			var sInputId = sExpando+'debugInput';
 			var oDocument = top.document;
 			var oDebugDiv = oDocument.getElementById(sDivId);
 			if(!oDebugDiv){
@@ -56,7 +71,9 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 					'<a href="javascript:void(0)" onclick="var oDv=this.parentNode.getElementsByTagName(\'div\')[0];if(this.innerHTML==\'底部\'){oDv.scrollTop=oDv.scrollHeight;this.innerHTML=\'顶部\';}else{oDv.scrollTop=0;this.innerHTML=\'底部\';}">顶部</a>',
 					'<a href="javascript:void(0)" onclick="location.reload();">刷新</a>',
 					'<a href="javascript:void(0)" onclick="history.back();">后退</a>'
-				].join('&nbsp;&nbsp;&nbsp;&nbsp;')+'<div style="padding-top:0.313;height:90%;overflow:auto;font-size:0.75em;word-wrap:break-word;word-break:break-all;"></div>';
+				].join('&nbsp;&nbsp;&nbsp;&nbsp;')
+				+'<div style="padding-top:0.313;height:85%;overflow:auto;font-size:0.75em;word-wrap:break-word;word-break:break-all;"></div>'
+				+'<input id="'+sInputId+'" style="width:100%;padding:0.5em;" type="text"/>';
 				oDebugDiv.style.display='none';
 				oDebugDiv.style.position = 'fixed';
 				oDebugDiv.style.width = '100%';
@@ -71,6 +88,23 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 				oDebugDiv.style.opacity=0.95;
 				oDebugDiv.style.filter="alpha(opacity=95)";
 				oDocument.body.appendChild(oDebugDiv);
+				var oInput=oDocument.getElementById(sInputId);
+				_fListen(oInput,'keypress',function(oEvt){
+					oEvt=oEvt||window.event;
+					var nKeyCode=oEvt.keyCode;
+					//回车执行
+					if(nKeyCode==10||nKeyCode==13){
+						var sValue=oInput.value;
+						try{
+							var result=eval(sValue);
+							oInput.value='';
+							Debug.out(sValue,true,'cmd');
+							Debug.out(result,true,'cmd');
+						}catch(e){
+							Debug.out(sValue,true,'error');
+						}
+					}
+				});
 			}
 			if((bShowInPage===true||Debug.showInPage===true)){
 				oDebugDiv.style.display ='block';
@@ -84,7 +118,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 			if(sType=='log'){
 				sStyle='';
 			}else{
-				sStyle=' style="color:'+(sType=='error'?'red':sType=='info'?'green':'yellow');
+				sStyle=' style="color:'+(sType=='error'?'red':sType=='warn'?'yellow':'green');
 			}
 			oAppender.innerHTML += '<div'+sStyle+'">'+sType+":<br/>"+sMsg+"</div><br/><br/>";
 			oAppender.scrollTop=oAppender.scrollHeight;
@@ -238,24 +272,20 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		var sName=Browser.mobile()?'touchstart':'click';
 		var nTimes=0;
 		var nLast=0;
-		var _fEvt=function(){
+		_fListen(oDoc,sName,function(){
 			var nNow=new Date().getTime();
 			if(nNow-nLast<500){
 				nTimes++;
 				//连续点击4次弹出控制面板
 				if(nTimes>2){
 					Debug.out('open console',true);
+					nTimes=0;
 				}
 			}else{
 				nTimes=0;
 			}
 			nLast=nNow;
-		}
-		if(oDoc.addEventListener){
-			oDoc.addEventListener(sName,_fEvt);
-		}else{
-			oDoc.attachEvent('on'+sName,_fEvt);
-		}
+		});
 	}
 	
 	return Debug;
