@@ -30,8 +30,8 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		listenCtrlEvts      : fListenCtrlEvts       //监听连续点击事件打开控制面板
 	}
 	
-	//暂时只能在非线上环境手动开启控制面板
-	!$H.isOnline&&Debug.listenCtrlEvts();
+	//手动开启控制面板
+	Debug.listenCtrlEvts();
 	
 	/**
 	 * 监听事件
@@ -73,7 +73,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 					'<a href="javascript:void(0)" onclick="history.back();">后退</a>'
 				].join('&nbsp;&nbsp;&nbsp;&nbsp;')
 				+'<div style="padding-top:0.313;height:85%;overflow:auto;font-size:0.75em;word-wrap:break-word;word-break:break-all;"></div>'
-				+'<input id="'+sInputId+'" style="width:100%;padding:0.5em;" type="text"/>';
+				+'<input id="'+sInputId+'" style="width:100%;padding:0.5em;font-size:1em;" type="text"/>';
 				oDebugDiv.style.display='none';
 				oDebugDiv.style.position = 'fixed';
 				oDebugDiv.style.width = '100%';
@@ -88,6 +88,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 				oDebugDiv.style.opacity=0.95;
 				oDebugDiv.style.filter="alpha(opacity=95)";
 				oDocument.body.appendChild(oDebugDiv);
+				//命令行工具
 				var oInput=oDocument.getElementById(sInputId);
 				_fListen(oInput,'keypress',function(oEvt){
 					oEvt=oEvt||window.event;
