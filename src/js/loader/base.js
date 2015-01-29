@@ -12,8 +12,10 @@
 	};
 	
 	handy.version    = '1.0.0';    //版本号
-	handy.isDebug    = typeof gEnv=='undefined'?false:gEnv=='dev';     //是否是调试状态
-	handy.expando    = ("handy-" +  handy.version).replace(/\./g,'_');    //自定义属性名
+	handy.env        = typeof gEnv=='undefined'?'online':gEnv         //默认是线上环境
+	handy.isDebug    = handy.env=='dev';                              //是否是开发环境
+	handy.isOnline   = handy.env=='online';                           //是否是线上环境
+	handy.expando    = ("handy-" +  handy.version).replace(/\./g,'_'); //自定义属性名
 	handy.base={};
 	handy.noConflict = fNoConflict;     //处理命名冲突
 	handy.noop       = function(){};    //空函数

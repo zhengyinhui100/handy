@@ -13,9 +13,9 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		INFO_LEVEL          : 3,            //信息级别
 		WARN_LEVEL          : 4,            //警告级别
 		ERROR_LEVEL	        : 5,            //错误级别
-		logInPage           : true,
 		//是否强制在页面上输出调试信息，true表示在页面中显示，'record'表示记录但不显示控制台面板，false表示既不显示也不记录
 		//主要用于不支持console的浏览器，如：IE6，或者ietester里面，或者移动浏览器
+		//开发环境下连续点击4次也可弹出控制面板
 		showInPage          : $H.isDebug?(!("console" in window)||!!Browser.mobile()?'record':false):false,        
 		out                 : fOut,         //直接输出日志
 		log			        : fLog,		    //输出日志
@@ -30,7 +30,8 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		listenCtrlEvts      : fListenCtrlEvts       //监听连续点击事件打开控制面板
 	}
 	
-	$H.isDebug&&Debug.listenCtrlEvts();
+	//暂时只能在非线上环境手动开启控制面板
+	!$H.isOnline&&Debug.listenCtrlEvts();
 	
 	/**
 	 * 输出信息
