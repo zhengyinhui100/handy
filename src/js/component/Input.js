@@ -163,12 +163,14 @@ function(Browser,Util,Evt,AC){
 			})
 		}
 		//回车事件
+		
 		if(oSettings.enterSubmit){
 			me.listen({
 				name:'keypress',
 				handler:function(oEvt){
 					var me=this;
-					if((me.enterKey=='enter'||oEvt.ctrlKey)&&oEvt.keyCode==13){
+					//IE下回车的keypress是10
+					if((me.enterKey=='enter'||oEvt.ctrlKey)&&(oEvt.keyCode==13||oEvt.keyCode==10)){
 						oSettings.enterSubmit.call(me);
 						oEvt.preventDefault();
 					}
