@@ -6035,6 +6035,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 		getDefaults           : fGetDefaults,        //获取默认值
 		toJSON                : fToJSON,             //返回对象数据副本
    		get                   : fGet,                //获取指定属性值
+   		getSaved              : fGetSaved,           //获取指定的已保存的属性值
    		escape                : fEscape,             //获取html编码过的属性值 
    		has                   : fHas,                //判断是否含有参数属性
    		set                   : fSet,                //设置值
@@ -6322,6 +6323,14 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
      */
     function fGet(sAttr) {
         return this._attributes[sAttr];
+    }
+    /**
+     * 获取指定已保存的属性值
+     * @param {string}sAttr 参数属性名
+     * @return {*} 返回对应属性
+     */
+    function fGetSaved(sAttr) {
+        return this._savedAttrs[sAttr];
     }
 	/**
 	 * 获取html编码过的属性值
@@ -6662,7 +6671,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	/**
 	 * 保存模型
 	 * @param {String}sKey 属性
-	 * @param {*}val 值
+	 * @param {*=}val 值，不传默认是当前key对应的值
 	 * @param {Object|Function=}oOptions 选项，如果传入的是函数，表示成功回调函数{
 	 * 		{boolean=}unset 是否取消设置
 	 * 		{boolean=}silent 是否不触发事件
@@ -6680,7 +6689,10 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
         if (sKey == null || typeof sKey === 'object') {
         	oAttrs = sKey;
         	oOptions = val;
-        } else {
+        } else if(typeof sKey==='string'){
+        	if(arguments.length===1){
+        		val=me.get(sKey);
+        	}
         	(oAttrs = {})[sKey] = val;
         }
 
@@ -13248,7 +13260,7 @@ function(Obj,Util,AC,Popup,ControlGroup){
 			theme           : 'black'
 		},
 //		type            : 'miniLoading',            类型，‘loading’表示居中加载中提示，‘topTips’表示顶部简单提示，‘miniLoading’表示顶部无背景loading小提示
-		timeout         : 2000,
+		timeout         : 1500,
 		
 		tmpl            : [
 			'<div {{bindAttr class="text:hui-tips-notxt c-clear"}}>',
