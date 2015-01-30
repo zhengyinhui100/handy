@@ -252,7 +252,7 @@ function(Obj,Arr,Function,AbstractData,Model){
         var aResult=[];
         for (i = 0, l = models.length; i < l; i++) {
         	oModel=models[i];
-        	oModel = aResult[i] =Obj.isObj(oModel)?me.findWhere(oModel): me.get(oModel);
+        	oModel = aResult[i] =Obj.isObj(oModel)&&!oModel.$isModel?me.findWhere(oModel): me.get(oModel);
         	if (!oModel){
         		continue;
         	}
