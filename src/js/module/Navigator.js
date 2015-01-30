@@ -23,8 +23,10 @@ function(Browser,Support,AbstractNavigator){
 	 * @param {Object}oShowMod  当前要进入到模块
 	 * @param {Object}oHideMod 要离开的模块
 	 * @param {Object}oModManager 模块管理对象
+	 * @param {boolean}bIsOut 是否是退出模块操作（返回父模块）
+	 * @return {boolean=} 返回false屏蔽默认的模块切换动作
 	 */
-	function fNavigate(oShowMod,oHideMod,oModManager){
+	function fNavigate(oShowMod,oHideMod,oModManager,bIsOut){
 		var sModName=oShowMod.modName;
 		//控制底部工具栏
 		var oFooterTb=$V.get('mainFooterTb');
@@ -45,7 +47,7 @@ function(Browser,Support,AbstractNavigator){
 			var sName='animationEnd';
 			var sAniEvt=Support.normalizeEvent(sName);
 			var oAniEl;
-			if(oHideMod&&!oHideMod.hasFooter&&oHideMod.referer===oShowMod){
+			if(oHideMod&&!oHideMod.hasFooter&&bIsOut){
 				if(oHideEl.length>0){
 					oHideEl.addClass('hui-mod-zindex hui-scale-fadeout');
 					oShowMod.show();

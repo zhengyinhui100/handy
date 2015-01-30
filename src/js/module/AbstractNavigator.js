@@ -13,7 +13,15 @@ define("M.AbstractNavigator",["B.Object",'B.Class'],function (Obj,Class) {
 	var AbstractNavigator = Class.createClass();
 	
 	Obj.extend(AbstractNavigator.prototype, {
-		navigate      : function(){}      //显示导航效果，参数是当前进入的模块实例和模块管理类实例，此方法返回true表示不需要模块管理类的导航功能
+		/**
+		 * 导航效果
+		 * @param {Object}oShowMod  当前要进入到模块
+		 * @param {Object}oHideMod 要离开的模块
+		 * @param {Object}oModManager 模块管理对象
+		 * @param {boolean}bIsOut 是否是退出模块操作（返回父模块）
+		 * @return {boolean=} 返回false屏蔽默认的模块切换动作
+		 */
+		navigate      : $H.noop      
 	});
 	
 	return AbstractNavigator;

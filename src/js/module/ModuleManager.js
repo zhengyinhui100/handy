@@ -125,7 +125,7 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 		var me=this;
 		var oCurMod=me._modules[me.currentMod];
 		//如果导航类方法返回false，则不使用模块管理类的导航
-		var r=me.navigator&&me.navigator.navigate(oMod,oCurMod,me);
+		var r=me.navigator&&me.navigator.navigate(oMod,oCurMod,me,oCurMod&&oCurMod.referer===oMod);
 		//TODO:写成这样在iPad mini ios7下无效:if((me.navigator&&me.navigator.navigate(oMod,oCurMod,me))!==false){
 		if(r!==false){
 			if(oCurMod){
@@ -262,7 +262,9 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 	/**
 	 * 进入模块
 	 * @param {Object|string}param  直接模块名字符串或者{  //传入参数
-	 * 		modName:模块名称
+	 * 		{string}modName:模块名称,
+	 * 		{object=}model:模型,
+	 * 		{Module}referer:父模块，有时候会手动删除一些历史记录，会重新传入referer
 	 * 		...
 	 * }
 	 * @param {boolean=}bNotSaveHistory仅当为true时，不保存历史记录
@@ -288,6 +290,13 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 		var sCurrentMod=me.currentMod;
 		var oMods=me._modules;
 		var oCurrentMod=oMods[sCurrentMod];
+		var oReferer;
+		if(param.referer){
+			oReferer=param.referer;
+			delete param.referer;
+		}else{
+			oReferer=oCurrentMod;
+		}
 		//如果要进入的正好是当前显示模块，调用模块reset方法
 		if(sCurrentMod==sModId){
 			if(oCurrentMod&&!oCurrentMod.waiting){
@@ -322,7 +331,7 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 				var bIsBack=oCurrentMod.referer===oMod;
 				//回退时不能改变父模块的referer
 				if(!bIsBack){
-					oMod.referer=oCurrentMod;
+					oMod.referer=oReferer;
 				}
 			}
 			//标记使用缓存，要调用cache方法
@@ -340,14 +349,14 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 				//重新创建模块
 				oMod=me._createMod(param);
 				if(!bIsBack){
-					oMod.referer=oCurrentMod;
+					oMod.referer=oReferer;
 				}
 			}
 			//如果模块已在请求中，直接略过，等待新建模块的回调函数处理
 		}else{
 			//否则新建一个模块
 			//先标记为正在准备中，新建成功后赋值为模块对象
-			me.setModule({waiting:true,referer:oCurrentMod},sModName,sModelId);
+			me.setModule({waiting:true,referer:oReferer},sModName,sModelId);
 			require(sModName,function(Module){
 				var oNewMod=me._createMod(param);
 			});
