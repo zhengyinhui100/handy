@@ -47,7 +47,9 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 		setModule          : fSetModule,       //设置/缓存模块
 		getModule          : fGetModule,       //获取缓存的模块
 		go                 : fGo,              //进入模块
+		setModId           : fSetModId,        //设置模块modId，新建成功后才有modelId的情形，需要调用这个方法刷新modId
 		destroy            : fDestroy,         //销毁模块
+		removeState        : fRemoveState,     //删除历史记录
 		update             : fUpdate,          //更新模块
 		clearCache         : fClearCache,      //清除缓存模块
 		back               : fBack,            //后退一步
@@ -88,7 +90,7 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 		
 		//异步模块在此标记referer
 		var oWaitting=me._modules[sModId];
-		oMod.referer=oWaitting.referer;
+		oWaitting&&(oMod.referer=oWaitting.referer);
 		
 		me._modules[sModId]=oMod;
 		Evt.trigger('afterRender',oMod.getEl());
@@ -96,6 +98,22 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 		//只有当前请求的模块恰好是本模块时才显示（可能加载完时，已切换到其它模块了）
 		if(me.requestMod==sModId){
 			me._showMod(oMod);
+		}
+		//TODO:如果是新建的模型，需要在提交保存后自动更新模块id，暂时不处理，涉及到要更新视图cid，以后考虑history中hash与modelId解耦
+		if(0&&sModName==sModId){
+			var oModel=oMod.model;
+			if(oModel&&oModel.isNew()){
+				var sIdAttr=oModel.idAttribute;
+				oMod.listen({
+					target:oModel,
+					name:'change:'+sIdAttr,
+					times:1,
+					handler:function(){
+						var modelId=oModel.get(sIdAttr);
+						me.setModId(oMod,modelId);
+					}
+				});
+			}
 		}
 		return oMod;
 	}
@@ -272,7 +290,7 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 		var oCurrentMod=oMods[sCurrentMod];
 		//如果要进入的正好是当前显示模块，调用模块reset方法
 		if(sCurrentMod==sModId){
-			if(!oCurrentMod.waiting){
+			if(oCurrentMod&&!oCurrentMod.waiting){
 				oCurrentMod.reset();
 			}
 			return;
@@ -353,6 +371,35 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 		return true;
 	}
 	/**
+	 * 设置模块modId，新建成功后才有modelId的情形，需要调用这个方法刷新modId
+	 * @param {object}oModule 参数模块对象
+	 * @param {string|number}modelId 模型id
+	 */
+	function fSetModId(oModule,modelId){
+		var me=this;
+		var oMods=me._modules;
+		var aStack=me._modStack;
+		var sModName=oModule.modName;
+		var sNewModId=me._getModId(sModName,modelId);
+		for(var sModId in oMods){
+			var oMod=oMods[sModId];
+			if(oModule==oMod){
+				delete oMods[sModId];
+				oMods[sNewModId]=oModule;
+				oModule.modId=sNewModId;
+				if(me.currentMod===sModId){
+					me.currentMod=sNewModId;
+				}
+			}
+		}
+		for(var i=0,len=aStack;i<len;i++){
+			var oItem=aStack[i];
+			if(oItem.modName===sModName&&oItem.modId===undefined){
+				oItem.modId=sNewModId;
+			}
+		}
+	}
+	/**
 	 * 销毁模块
 	 * @param {Module}oMod 待销毁的模块
 	 */
@@ -372,6 +419,13 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 		}
 		oMod.destroy();
 		delete me._modules[sModId];
+	}
+	/**
+	 * 删除历史记录
+	 * @param {string=} sHkey hkey的值，默认是当前记录
+	 */
+	function fRemoveState(sHkey){
+		this.history.removeState(sHkey);
 	}
 	/**
 	 * 更新模块

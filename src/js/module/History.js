@@ -29,6 +29,7 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 		initialize         : fInitialize,      //历史记录类初始化
 		stateChange        : fStateChange,     //历史状态改变
 		saveState          : fSaveState,       //保存当前状态
+		removeState        : fRemoveState,     //移除指定记录
 		saveHash           : fSaveHash,        //保存参数到hash
 		getHashParam       : fGetHashParam,    //获取当前hash参数
 		getCurrentState    : fGetCurrentState, //获取当前状态
@@ -70,6 +71,11 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 			return false;
 		}
 		var oState=aStates[sKey];
+		//如果该记录被删除了，再往后退
+		if(!oState){
+			history.back();
+			return;
+		}
 		var bResult;
 		//如果是ModuleManager调用history.back()，这里不触发自定义'hisoryChange'事件，避免不能退出模块
 		if(me._byManager){
@@ -115,6 +121,24 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 			hKey    : sHistoryKey
 		},oParam);
 		me.saveHash(oHashParam);
+	}
+	/**
+	 * 移除指定记录
+	 * @param {string=} sHkey hkey的值，默认是当前记录
+	 */
+	function fRemoveState(sHkey){
+		var me=this;
+		if(sHkey===undefined){
+			sHkey=me.currentKey;
+		}
+		var aStates=me.states;
+		for(var i=0,len=aStates.length;i<len;i++){
+			if(aStates[i]===sHkey){
+				aStates.splice(i,1);
+				break;
+			}
+		}
+		delete aStates[sHkey];
 	}
 	/**
 	 * 保存状态值到hash中
