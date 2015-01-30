@@ -1,6 +1,6 @@
 /**
- * 调试类，方便各浏览器下调试，在发布时统一删除调试代码，所有的输出和调试必须使用此类的方法，
- * 不得使用console等原生方法，发布到线上时需要把除了需要反馈给服务器的方法外的方法统一过滤掉
+ * 调试类，方便各中环境下调试及测试，在发布时统一可以考虑删除调试代码，所有的输出和调试必须使用此类的方法，
+ * 不得使用console等原生方法
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
@@ -16,10 +16,11 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		//其它类型日志会记录在面板里但不显示面板，false表示既不显示也不记录
 		//开发环境下连续点击4次也可弹出控制面板
 		//默认情况：
-		//开发环境只有不能显示console的环境（如：IE6，或者ietester里面，或者移动浏览器）会打开record
+		//开发环境只有不能显示console的环境（如：IE6、ietester、移动浏览器等）会打开record
 		//测试环境统一为record
 		//线上环境统一为false
-		//PS：因为线上环境不会暴露给用户控制面板，为了收集错误，需要自行实现error日志的debugLog接口，可以想服务器发送错误信息
+		//PS：原则上开发环境和测试环境必须将所有的错误信息展示出来，而线上环境不能暴露给用户控制面板，
+		//所以为了收集错误，需要自行实现error日志的debugLog接口，可以想服务器发送错误信息
 		showInPage          : $H.isDebug?(!("console" in window)||!!Browser.mobile()?'record':false):$H.isOnline?false:'record',        
 		_out                : _fOut,        //直接输出日志，私有方法，不允许外部调用
 		log			        : fLog,		    //输出日志
