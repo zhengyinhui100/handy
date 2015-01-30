@@ -15,13 +15,9 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		//是否强制在页面上输出调试信息，true表示在页面中显示控制面板，'record'表示只有error日志会弹出控制面板，
 		//其它类型日志会记录在面板里但不显示面板，false表示既不显示也不记录
 		//开发环境下连续点击4次也可弹出控制面板
-		//默认情况：
-		//开发环境只有不能显示console的环境（如：IE6、ietester、移动浏览器等）会打开record
-		//测试环境统一为record
-		//线上环境统一为false
 		//PS：原则上开发环境和测试环境必须将所有的错误信息展示出来，而线上环境不能暴露给用户控制面板，
 		//所以为了收集错误，需要自行实现error日志的debugLog接口，可以想服务器发送错误信息
-		showInPage          : $H.isDebug?(!("console" in window)||!!Browser.mobile()?'record':false):$H.isOnline?false:'record',        
+		showInPage          : $H.isOnline?false:'record',        
 		_out                : _fOut,        //直接输出日志，私有方法，不允许外部调用
 		log			        : fLog,		    //输出日志
 		debug		        : fDebug,   	//输出调试
