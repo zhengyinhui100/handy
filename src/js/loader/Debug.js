@@ -1,7 +1,6 @@
 /**
  * 调试类，方便各浏览器下调试，在发布时统一删除调试代码，所有的输出和调试必须使用此类的方法，
  * 不得使用console等原生方法，发布到线上时需要把除了需要反馈给服务器的方法外的方法统一过滤掉
- * //TODO 快捷键切换调试等级
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
@@ -13,11 +12,16 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		INFO_LEVEL          : 3,            //信息级别
 		WARN_LEVEL          : 4,            //警告级别
 		ERROR_LEVEL	        : 5,            //错误级别
-		//是否强制在页面上输出调试信息，true表示在页面中显示，'record'表示记录但不显示控制台面板，false表示既不显示也不记录
-		//主要用于不支持console的浏览器，如：IE6，或者ietester里面，或者移动浏览器
+		//是否强制在页面上输出调试信息，true表示在页面中显示控制面板，'record'表示只有error日志会弹出控制面板，
+		//其它类型日志会记录在面板里但不显示面板，false表示既不显示也不记录
 		//开发环境下连续点击4次也可弹出控制面板
-		showInPage          : $H.isOnline?false:(!("console" in window)||!!Browser.mobile()?'record':false),        
-		out                 : fOut,         //直接输出日志
+		//默认情况：
+		//开发环境只有不能显示console的环境（如：IE6，或者ietester里面，或者移动浏览器）会打开record
+		//测试环境统一为record
+		//线上环境统一为false
+		//PS：因为线上环境不会暴露给用户控制面板，为了收集错误，需要自行实现error日志的debugLog接口，可以想服务器发送错误信息
+		showInPage          : $H.isDebug?(!("console" in window)||!!Browser.mobile()?'record':false):$H.isOnline?false:'record',        
+		_out                : _fOut,        //直接输出日志，私有方法，不允许外部调用
 		log			        : fLog,		    //输出日志
 		debug		        : fDebug,   	//输出调试
 		info		        : fInfo,		//输出信息
@@ -25,7 +29,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		error		        : fError,		//输出错误信息
 		time                : fTime,        //输出统计时间,info级别
 		trace               : fTrace,       //追踪统计时间
-//		debugLog            : $H.noop,      //线上错误处理
+		debugLog            : $H.noop,      //线上错误处理
 		throwExp            : fThrowExp,            //处理异常
 		listenCtrlEvts      : fListenCtrlEvts       //监听连续点击事件打开控制面板
 	}
@@ -52,7 +56,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	 * @param {boolean} bShowInPage 参照Debug.showInPage
 	 * @param {string} sType 日志类型：log,info,error
 	 */
-	function fOut(oVar,bShowInPage,sType){
+	function _fOut(oVar,bShowInPage,sType){
 		sType = sType||'log';
 		//输出到页面
 		if(bShowInPage||Debug.showInPage){
@@ -97,12 +101,12 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 					if(nKeyCode==10||nKeyCode==13){
 						var sValue=oInput.value;
 						try{
-							Debug.out(sValue,true,'cmd');
+							Debug._out(sValue,true,'cmd');
 							var result=eval(sValue);
 							oInput.value='';
-							Debug.out(result,true,'cmd');
+							Debug._out(result,true,'cmd');
 						}catch(e){
-							Debug.out(e,true,'error');
+							Debug._out(e,true,'error');
 						}
 					}
 				});
@@ -148,7 +152,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		if(Debug.level>Debug.LOG_LEVEL){
 			return;
 		}
-		Debug.out(oVar,!!bShowInPage,'log');
+		Debug._out(oVar,!!bShowInPage,'log');
 	}
 	/**
 	 * 添加调试断点
@@ -159,7 +163,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		if(Debug.level>Debug.DEBUG_LEVEL){
 			return;
 		}
-		Debug.out(oVar,!!bShowInPage,'log');
+		Debug._out(oVar,!!bShowInPage,'log');
 	}
 	/**
 	 * 输出信息
@@ -170,7 +174,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		if(this.level>Debug.INFO_LEVEL){
 			return;
 		}
-		Debug.out(oVar,!!bShowInPage,'info');
+		Debug._out(oVar,!!bShowInPage,'info');
 	}
 	/**
 	 * 输出信息
@@ -181,7 +185,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		if(Debug.level>Debug.WARN_LEVEL){
 			return;
 		}
-		Debug.out(oVar,!!bShowInPage,'warn');
+		Debug._out(oVar,!!bShowInPage,'warn');
 	}
 	/**
 	 * 输出错误
@@ -192,7 +196,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		if(Debug.level>Debug.ERROR_LEVEL){
 			return;
 		}
-		Debug.out(oVar,!!bShowInPage,"error");
+		Debug._out(oVar,!!bShowInPage,"error");
 		if($H.isDebug){
 			if(oVar instanceof Error){
 				//抛出异常，主要是为了方便调试，如果异常被catch住的话，控制台不会输出具体错误位置
@@ -201,7 +205,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 			}
 		}else{
 			//线上自行实现log接口
-			Debug.debugLog&&Debug.debugLog(oVar);
+			Debug.debugLog(oVar);
 		}
 	}
 	/**
@@ -220,7 +224,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 				bShowInPage=sMsg;
 				sMsg='';
 			}
-			Debug.out((sMsg||'')+(nTime-(Debug.lastTime||0)),!!bShowInPage);
+			Debug._out((sMsg||'')+(nTime-(Debug.lastTime||0)),!!bShowInPage);
 		}else{
 			Debug.lastTime=nTime;
 		}
@@ -280,7 +284,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 				nTimes++;
 				//连续点击4次弹出控制面板
 				if(nTimes>2){
-					Debug.out('open console',true);
+					Debug._out('open console',true);
 					nTimes=0;
 				}
 			}else{
