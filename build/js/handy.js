@@ -597,9 +597,8 @@ define("L.Browser",function(){
 	
 });
 /**
- * 调试类，方便各浏览器下调试，在发布时统一删除调试代码，所有的输出和调试必须使用此类的方法，
- * 不得使用console等原生方法，发布到线上时需要把除了需要反馈给服务器的方法外的方法统一过滤掉
- * //TODO 快捷键切换调试等级
+ * 调试类，方便各中环境下调试及测试，控制面板可以在不能显示控制台的环境下显示日志信息及执行代码，
+ * 在发布时统一可以考虑删除调试代码，所有的输出和调试必须使用此类的方法，不得使用console等原生方法
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
@@ -611,11 +610,13 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		INFO_LEVEL          : 3,            //信息级别
 		WARN_LEVEL          : 4,            //警告级别
 		ERROR_LEVEL	        : 5,            //错误级别
-		//是否强制在页面上输出调试信息，true表示在页面中显示，'record'表示记录但不显示控制台面板，false表示既不显示也不记录
-		//主要用于不支持console的浏览器，如：IE6，或者ietester里面，或者移动浏览器
+		//是否强制在页面上输出调试信息，true表示在页面中显示控制面板，'record'表示只有error日志会弹出控制面板，
+		//其它类型日志会记录在面板里但不显示面板，false表示既不显示也不记录
 		//开发环境下连续点击4次也可弹出控制面板
-		showInPage          : $H.isDebug?(!("console" in window)||!!Browser.mobile()?'record':false):false,        
-		out                 : fOut,         //直接输出日志
+		//PS：原则上开发环境和测试环境必须将所有的错误信息展示出来，而线上环境不能暴露给用户控制面板，
+		//所以为了收集错误，需要自行实现error日志的debugLog接口，可以想服务器发送错误信息
+		showInPage          : $H.isOnline?false:'record',        
+		_out                : _fOut,        //直接输出日志，私有方法，不允许外部调用
 		log			        : fLog,		    //输出日志
 		debug		        : fDebug,   	//输出调试
 		info		        : fInfo,		//输出信息
@@ -623,25 +624,40 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		error		        : fError,		//输出错误信息
 		time                : fTime,        //输出统计时间,info级别
 		trace               : fTrace,       //追踪统计时间
-//		debugLog            : $H.noop,      //线上错误处理
+		debugLog            : $H.noop,      //线上错误处理
 		throwExp            : fThrowExp,            //处理异常
 		listenCtrlEvts      : fListenCtrlEvts       //监听连续点击事件打开控制面板
 	}
 	
-	//暂时只能在非线上环境手动开启控制面板
-	!$H.isOnline&&Debug.listenCtrlEvts();
+	//手动开启控制面板
+	Debug.listenCtrlEvts();
 	
+	/**
+	 * 监听事件
+	 * @param {element}oTarget 参数节点
+	 * @param {string}sName 事件名
+	 * @param {function}fHandler 事件函数
+	 */
+	function _fListen(oTarget,sName,fHandler){
+		if(oTarget.addEventListener){
+			oTarget.addEventListener(sName,fHandler);
+		}else{
+			oTarget.attachEvent('on'+sName,fHandler);
+		}
+	}
 	/**
 	 * 输出信息
 	 * @param {Object} oVar	需要输出的变量
 	 * @param {boolean} bShowInPage 参照Debug.showInPage
 	 * @param {string} sType 日志类型：log,info,error
 	 */
-	function fOut(oVar,bShowInPage,sType){
+	function _fOut(oVar,bShowInPage,sType){
 		sType = sType||'log';
 		//输出到页面
 		if(bShowInPage||Debug.showInPage){
-			var sDivId = $H.expando+'debugDiv';
+			var sExpando=$H.expando;
+			var sDivId = sExpando+'debugDiv';
+			var sInputId = sExpando+'debugInput';
 			var oDocument = top.document;
 			var oDebugDiv = oDocument.getElementById(sDivId);
 			if(!oDebugDiv){
@@ -654,7 +670,9 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 					'<a href="javascript:void(0)" onclick="var oDv=this.parentNode.getElementsByTagName(\'div\')[0];if(this.innerHTML==\'底部\'){oDv.scrollTop=oDv.scrollHeight;this.innerHTML=\'顶部\';}else{oDv.scrollTop=0;this.innerHTML=\'底部\';}">顶部</a>',
 					'<a href="javascript:void(0)" onclick="location.reload();">刷新</a>',
 					'<a href="javascript:void(0)" onclick="history.back();">后退</a>'
-				].join('&nbsp;&nbsp;&nbsp;&nbsp;')+'<div style="padding-top:0.313;height:90%;overflow:auto;font-size:0.75em;word-wrap:break-word;word-break:break-all;"></div>';
+				].join('&nbsp;&nbsp;&nbsp;&nbsp;')
+				+'<div style="padding-top:0.313;height:85%;overflow:auto;font-size:0.75em;word-wrap:break-word;word-break:break-all;"></div>'
+				+'<input id="'+sInputId+'" style="width:100%;padding:0.5em;font-size:1em;" type="text"/>';
 				oDebugDiv.style.display='none';
 				oDebugDiv.style.position = 'fixed';
 				oDebugDiv.style.width = '100%';
@@ -669,8 +687,27 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 				oDebugDiv.style.opacity=0.95;
 				oDebugDiv.style.filter="alpha(opacity=95)";
 				oDocument.body.appendChild(oDebugDiv);
+				//命令行工具
+				var oInput=oDocument.getElementById(sInputId);
+				_fListen(oInput,'keypress',function(oEvt){
+					oEvt=oEvt||window.event;
+					var nKeyCode=oEvt.keyCode;
+					//回车执行
+					if(nKeyCode==10||nKeyCode==13){
+						var sValue=oInput.value;
+						try{
+							Debug._out(sValue,true,'cmd');
+							var result=eval(sValue);
+							oInput.value='';
+							Debug._out(result,true,'cmd');
+						}catch(e){
+							Debug._out(e,true,'error');
+						}
+					}
+				});
 			}
-			if((bShowInPage===true||Debug.showInPage===true)){
+			//record时要弹出error，方便观察bug
+			if((bShowInPage===true||Debug.showInPage===true)||sType=='error'){
 				oDebugDiv.style.display ='block';
 			}
 			var oAppender=oDebugDiv.getElementsByTagName('DIV')[0];
@@ -682,7 +719,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 			if(sType=='log'){
 				sStyle='';
 			}else{
-				sStyle=' style="color:'+(sType=='error'?'red':sType=='info'?'green':'yellow');
+				sStyle=' style="color:'+(sType=='error'?'red':sType=='warn'?'yellow':'green');
 			}
 			oAppender.innerHTML += '<div'+sStyle+'">'+sType+":<br/>"+sMsg+"</div><br/><br/>";
 			oAppender.scrollTop=oAppender.scrollHeight;
@@ -710,7 +747,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		if(Debug.level>Debug.LOG_LEVEL){
 			return;
 		}
-		Debug.out(oVar,!!bShowInPage,'log');
+		Debug._out(oVar,!!bShowInPage,'log');
 	}
 	/**
 	 * 添加调试断点
@@ -721,7 +758,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		if(Debug.level>Debug.DEBUG_LEVEL){
 			return;
 		}
-		Debug.out(oVar,!!bShowInPage,'log');
+		Debug._out(oVar,!!bShowInPage,'log');
 	}
 	/**
 	 * 输出信息
@@ -732,7 +769,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		if(this.level>Debug.INFO_LEVEL){
 			return;
 		}
-		Debug.out(oVar,!!bShowInPage,'info');
+		Debug._out(oVar,!!bShowInPage,'info');
 	}
 	/**
 	 * 输出信息
@@ -743,7 +780,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		if(Debug.level>Debug.WARN_LEVEL){
 			return;
 		}
-		Debug.out(oVar,!!bShowInPage,'warn');
+		Debug._out(oVar,!!bShowInPage,'warn');
 	}
 	/**
 	 * 输出错误
@@ -754,7 +791,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		if(Debug.level>Debug.ERROR_LEVEL){
 			return;
 		}
-		Debug.out(oVar,!!bShowInPage,"error");
+		Debug._out(oVar,!!bShowInPage,"error");
 		if($H.isDebug){
 			if(oVar instanceof Error){
 				//抛出异常，主要是为了方便调试，如果异常被catch住的话，控制台不会输出具体错误位置
@@ -763,7 +800,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 			}
 		}else{
 			//线上自行实现log接口
-			Debug.debugLog&&Debug.debugLog(oVar);
+			Debug.debugLog(oVar);
 		}
 	}
 	/**
@@ -782,7 +819,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 				bShowInPage=sMsg;
 				sMsg='';
 			}
-			Debug.out((sMsg||'')+(nTime-(Debug.lastTime||0)),!!bShowInPage);
+			Debug._out((sMsg||'')+(nTime-(Debug.lastTime||0)),!!bShowInPage);
 		}else{
 			Debug.lastTime=nTime;
 		}
@@ -836,24 +873,20 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		var sName=Browser.mobile()?'touchstart':'click';
 		var nTimes=0;
 		var nLast=0;
-		var _fEvt=function(){
+		_fListen(oDoc,sName,function(){
 			var nNow=new Date().getTime();
 			if(nNow-nLast<500){
 				nTimes++;
 				//连续点击4次弹出控制面板
 				if(nTimes>2){
-					Debug.out('open console',true);
+					Debug._out('open console',true);
+					nTimes=0;
 				}
 			}else{
 				nTimes=0;
 			}
 			nLast=nNow;
-		}
-		if(oDoc.addEventListener){
-			oDoc.addEventListener(sName,_fEvt);
-		}else{
-			oDoc.attachEvent('on'+sName,_fEvt);
-		}
+		});
 	}
 	
 	return Debug;
@@ -7071,7 +7104,7 @@ function(Obj,Arr,Function,AbstractData,Model){
         var aResult=[];
         for (i = 0, l = models.length; i < l; i++) {
         	oModel=models[i];
-        	oModel = aResult[i] =Obj.isObj(oModel)?me.findWhere(oModel): me.get(oModel);
+        	oModel = aResult[i] =Obj.isObj(oModel)&&!oModel.$isModel?me.findWhere(oModel): me.get(oModel);
         	if (!oModel){
         		continue;
         	}
@@ -10022,7 +10055,15 @@ define("M.AbstractNavigator",["B.Object",'B.Class'],function (Obj,Class) {
 	var AbstractNavigator = Class.createClass();
 	
 	Obj.extend(AbstractNavigator.prototype, {
-		navigate      : function(){}      //显示导航效果，参数是当前进入的模块实例和模块管理类实例，此方法返回true表示不需要模块管理类的导航功能
+		/**
+		 * 导航效果
+		 * @param {Object}oShowMod  当前要进入到模块
+		 * @param {Object}oHideMod 要离开的模块
+		 * @param {Object}oModManager 模块管理对象
+		 * @param {boolean}bIsOut 是否是退出模块操作（返回父模块）
+		 * @return {boolean=} 返回false屏蔽默认的模块切换动作
+		 */
+		navigate      : $H.noop      
 	});
 	
 	return AbstractNavigator;
@@ -10052,8 +10093,10 @@ function(Browser,Support,AbstractNavigator){
 	 * @param {Object}oShowMod  当前要进入到模块
 	 * @param {Object}oHideMod 要离开的模块
 	 * @param {Object}oModManager 模块管理对象
+	 * @param {boolean}bIsOut 是否是退出模块操作（返回父模块）
+	 * @return {boolean=} 返回false屏蔽默认的模块切换动作
 	 */
-	function fNavigate(oShowMod,oHideMod,oModManager){
+	function fNavigate(oShowMod,oHideMod,oModManager,bIsOut){
 		var sModName=oShowMod.modName;
 		//控制底部工具栏
 		var oFooterTb=$V.get('mainFooterTb');
@@ -10074,7 +10117,7 @@ function(Browser,Support,AbstractNavigator){
 			var sName='animationEnd';
 			var sAniEvt=Support.normalizeEvent(sName);
 			var oAniEl;
-			if(oHideMod&&!oHideMod.hasFooter&&oHideMod.referer===oShowMod){
+			if(oHideMod&&!oHideMod.hasFooter&&bIsOut){
 				if(oHideEl.length>0){
 					oHideEl.addClass('hui-mod-zindex hui-scale-fadeout');
 					oShowMod.show();
@@ -10137,6 +10180,7 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 		initialize         : fInitialize,      //历史记录类初始化
 		stateChange        : fStateChange,     //历史状态改变
 		saveState          : fSaveState,       //保存当前状态
+		removeState        : fRemoveState,     //移除指定记录
 		saveHash           : fSaveHash,        //保存参数到hash
 		getHashParam       : fGetHashParam,    //获取当前hash参数
 		getCurrentState    : fGetCurrentState, //获取当前状态
@@ -10178,6 +10222,11 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 			return false;
 		}
 		var oState=aStates[sKey];
+		//如果该记录被删除了，再往后退
+		if(!oState){
+			history.back();
+			return;
+		}
 		var bResult;
 		//如果是ModuleManager调用history.back()，这里不触发自定义'hisoryChange'事件，避免不能退出模块
 		if(me._byManager){
@@ -10223,6 +10272,24 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 			hKey    : sHistoryKey
 		},oParam);
 		me.saveHash(oHashParam);
+	}
+	/**
+	 * 移除指定记录
+	 * @param {string=} sHkey hkey的值，默认是当前记录
+	 */
+	function fRemoveState(sHkey){
+		var me=this;
+		if(sHkey===undefined){
+			sHkey=me.currentKey;
+		}
+		var aStates=me.states;
+		for(var i=0,len=aStates.length;i<len;i++){
+			if(aStates[i]===sHkey){
+				aStates.splice(i,1);
+				break;
+			}
+		}
+		delete aStates[sHkey];
 	}
 	/**
 	 * 保存状态值到hash中
@@ -10358,7 +10425,9 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 		setModule          : fSetModule,       //设置/缓存模块
 		getModule          : fGetModule,       //获取缓存的模块
 		go                 : fGo,              //进入模块
+		setModId           : fSetModId,        //设置模块modId，新建成功后才有modelId的情形，需要调用这个方法刷新modId
 		destroy            : fDestroy,         //销毁模块
+		removeState        : fRemoveState,     //删除历史记录
 		update             : fUpdate,          //更新模块
 		clearCache         : fClearCache,      //清除缓存模块
 		back               : fBack,            //后退一步
@@ -10399,7 +10468,7 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 		
 		//异步模块在此标记referer
 		var oWaitting=me._modules[sModId];
-		oMod.referer=oWaitting.referer;
+		oWaitting&&(oMod.referer=oWaitting.referer);
 		
 		me._modules[sModId]=oMod;
 		Evt.trigger('afterRender',oMod.getEl());
@@ -10407,6 +10476,22 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 		//只有当前请求的模块恰好是本模块时才显示（可能加载完时，已切换到其它模块了）
 		if(me.requestMod==sModId){
 			me._showMod(oMod);
+		}
+		//TODO:如果是新建的模型，需要在提交保存后自动更新模块id，暂时不处理，涉及到要更新视图cid，以后考虑history中hash与modelId解耦
+		if(0&&sModName==sModId){
+			var oModel=oMod.model;
+			if(oModel&&oModel.isNew()){
+				var sIdAttr=oModel.idAttribute;
+				oMod.listen({
+					target:oModel,
+					name:'change:'+sIdAttr,
+					times:1,
+					handler:function(){
+						var modelId=oModel.get(sIdAttr);
+						me.setModId(oMod,modelId);
+					}
+				});
+			}
 		}
 		return oMod;
 	}
@@ -10418,7 +10503,7 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 		var me=this;
 		var oCurMod=me._modules[me.currentMod];
 		//如果导航类方法返回false，则不使用模块管理类的导航
-		var r=me.navigator&&me.navigator.navigate(oMod,oCurMod,me);
+		var r=me.navigator&&me.navigator.navigate(oMod,oCurMod,me,oCurMod&&oCurMod.referer===oMod);
 		//TODO:写成这样在iPad mini ios7下无效:if((me.navigator&&me.navigator.navigate(oMod,oCurMod,me))!==false){
 		if(r!==false){
 			if(oCurMod){
@@ -10555,7 +10640,9 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 	/**
 	 * 进入模块
 	 * @param {Object|string}param  直接模块名字符串或者{  //传入参数
-	 * 		modName:模块名称
+	 * 		{string}modName:模块名称,
+	 * 		{object=}model:模型,
+	 * 		{Module}referer:父模块，有时候会手动删除一些历史记录，会重新传入referer
 	 * 		...
 	 * }
 	 * @param {boolean=}bNotSaveHistory仅当为true时，不保存历史记录
@@ -10581,9 +10668,16 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 		var sCurrentMod=me.currentMod;
 		var oMods=me._modules;
 		var oCurrentMod=oMods[sCurrentMod];
+		var oReferer;
+		if(param.referer){
+			oReferer=param.referer;
+			delete param.referer;
+		}else{
+			oReferer=oCurrentMod;
+		}
 		//如果要进入的正好是当前显示模块，调用模块reset方法
 		if(sCurrentMod==sModId){
-			if(!oCurrentMod.waiting){
+			if(oCurrentMod&&!oCurrentMod.waiting){
 				oCurrentMod.reset();
 			}
 			return;
@@ -10615,7 +10709,7 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 				var bIsBack=oCurrentMod.referer===oMod;
 				//回退时不能改变父模块的referer
 				if(!bIsBack){
-					oMod.referer=oCurrentMod;
+					oMod.referer=oReferer;
 				}
 			}
 			//标记使用缓存，要调用cache方法
@@ -10633,14 +10727,14 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 				//重新创建模块
 				oMod=me._createMod(param);
 				if(!bIsBack){
-					oMod.referer=oCurrentMod;
+					oMod.referer=oReferer;
 				}
 			}
 			//如果模块已在请求中，直接略过，等待新建模块的回调函数处理
 		}else{
 			//否则新建一个模块
 			//先标记为正在准备中，新建成功后赋值为模块对象
-			me.setModule({waiting:true,referer:oCurrentMod},sModName,sModelId);
+			me.setModule({waiting:true,referer:oReferer},sModName,sModelId);
 			require(sModName,function(Module){
 				var oNewMod=me._createMod(param);
 			});
@@ -10664,6 +10758,35 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 		return true;
 	}
 	/**
+	 * 设置模块modId，新建成功后才有modelId的情形，需要调用这个方法刷新modId
+	 * @param {object}oModule 参数模块对象
+	 * @param {string|number}modelId 模型id
+	 */
+	function fSetModId(oModule,modelId){
+		var me=this;
+		var oMods=me._modules;
+		var aStack=me._modStack;
+		var sModName=oModule.modName;
+		var sNewModId=me._getModId(sModName,modelId);
+		for(var sModId in oMods){
+			var oMod=oMods[sModId];
+			if(oModule==oMod){
+				delete oMods[sModId];
+				oMods[sNewModId]=oModule;
+				oModule.modId=sNewModId;
+				if(me.currentMod===sModId){
+					me.currentMod=sNewModId;
+				}
+			}
+		}
+		for(var i=0,len=aStack;i<len;i++){
+			var oItem=aStack[i];
+			if(oItem.modName===sModName&&oItem.modId===undefined){
+				oItem.modId=sNewModId;
+			}
+		}
+	}
+	/**
 	 * 销毁模块
 	 * @param {Module}oMod 待销毁的模块
 	 */
@@ -10683,6 +10806,13 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 		}
 		oMod.destroy();
 		delete me._modules[sModId];
+	}
+	/**
+	 * 删除历史记录
+	 * @param {string=} sHkey hkey的值，默认是当前记录
+	 */
+	function fRemoveState(sHkey){
+		this.history.removeState(sHkey);
 	}
 	/**
 	 * 更新模块
