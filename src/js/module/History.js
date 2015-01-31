@@ -58,7 +58,7 @@ function(Json,Debug,HashChange,Class,Obj,Func,Evt,Url){
 	 */
 	function fStateChange(){
 		var me=this,oHashParam=me.getHashParam();
-		if(!oHashParam){
+		if(!oHashParam||Obj.isEmpty(oHashParam)){
 			return;
 		}
 		var sKey=oHashParam.hKey,
