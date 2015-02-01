@@ -116,7 +116,13 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 			oVar=oVar instanceof Error?(oVar.stack||oVar.message):oVar;
 			//这里原生的JSON.stringify有问题(&nbsp;中最后的'p;'会丢失)，统一强制使用自定义方法
 			var sMsg=typeof oVar=='string'?oVar:Json.stringify(oVar, null, '&nbsp;&nbsp;&nbsp;&nbsp;',true);
-			sMsg=sMsg&&sMsg.replace(/\n|\\n/g,'<br/>');
+			sMsg=sMsg&&sMsg
+			.replace(/</gi,"&lt;")
+			.replace(/>/gi,"&gt;")
+			.replace(/\"/gi,"&quot;")
+            .replace(/\'/gi,"&apos;")
+            .replace(/ /gi,"&nbsp;")
+            .replace(/\n|\\n/g,'<br/>');
 			var sStyle;
 			if(sType=='log'){
 				sStyle='';
