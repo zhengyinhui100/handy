@@ -3018,6 +3018,7 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
   position: absolute;
   cursor: move;
   z-index: 1000;
+  border: 1px solid #247731;
 }
 .hui-crop .hui-box-img {
   position: absolute;
