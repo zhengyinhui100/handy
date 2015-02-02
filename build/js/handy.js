@@ -714,7 +714,13 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 			oVar=oVar instanceof Error?(oVar.stack||oVar.message):oVar;
 			//这里原生的JSON.stringify有问题(&nbsp;中最后的'p;'会丢失)，统一强制使用自定义方法
 			var sMsg=typeof oVar=='string'?oVar:Json.stringify(oVar, null, '&nbsp;&nbsp;&nbsp;&nbsp;',true);
-			sMsg=sMsg&&sMsg.replace(/\n|\\n/g,'<br/>');
+			sMsg=sMsg&&sMsg
+			.replace(/</gi,"&lt;")
+			.replace(/>/gi,"&gt;")
+			.replace(/\"/gi,"&quot;")
+            .replace(/\'/gi,"&apos;")
+            .replace(/ /gi,"&nbsp;")
+            .replace(/\n|\\n/g,'<br/>');
 			var sStyle;
 			if(sType=='log'){
 				sStyle='';
@@ -5979,7 +5985,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 		 * 属性声明列表，一般是需要额外处理的定制属性，基本类型的属性不需要在此声明，{
 	     *	普通形式：
 	     *	{string}name:{
-		 *	    {string|Class=}type:类型，可以是字符串(string/number/Date/Model/Collection),也可以是类,
+		 *	    {string|Class=}type:类型，可以是字符串表示基本类型(string/number/Date/boolean),也可以是类Model/Collection,
 		 *		{boolean=}unsave:是否不需要保存，嵌套属性都不提交，基本类型的自定义字段保存时默认提交，仅当声明为unsave:true时不提交
 		 *		{object=}options:新建模型/集合实例时的选项,
 		 *		{*=}def:默认值,
@@ -6163,62 +6169,56 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     }
     /**
      * 属性预处理
-     * @param {Object}oAttrs 属性表
+     * @param {string}sAttr 属性名
+     * @param {*}val 属性值
      * @param {object=}oOptions 选项
-     * @return {Object} 返回处理好的属性表
+     * @return {*} 返回处理好的属性值
      */
-    function _fParseFields(oAttrs,oOptions){
+    function _fParseFields(sAttr,val,oOptions){
     	var me=this;
     	var oFields;
     	if(!(oFields=me.fields)){
-    		return oAttrs;
+    		return val;
     	}
-    	var oField,val,aDeps,type,oOpts;
-    	var oResult={};
-		for(var key in oAttrs){
-			val=oAttrs[key];
-			if(oField=oFields[key]){
-				type=oField.type;
-				oOpts=oField.options||{};
-				oOpts.saved=oOptions&&oOptions.saved;
-				//自定义类型，包括Model和Collection
-				if(Obj.isStr(type)){
-					if(type=='Date'){
-						val=Dat.parseDate(val);
-					}else if(type=='string'||type=='str'){
-						val=val?''+val:'';
-					}else if(type=='number'||type=='num'){
-						val=val?parseFloat(val):0;
-					}else if(type=='boolean'||type=='bool'){
-						val=val&&val!=='false';
-					}else if(type.indexOf('.')>0){
-						type=$H.ns(type);
-					}
+    	var oField,aDeps,type,oOpts;
+		if(oField=oFields[sAttr]){
+			type=oField.type;
+			oOpts=oField.options||{};
+			oOpts.saved=oOptions&&oOptions.saved;
+			//自定义类型，包括Model和Collection
+			if(Obj.isStr(type)){
+				if(type=='Date'){
+					val=Dat.parseDate(val);
+				}else if(type=='string'||type=='str'){
+					val=val?''+val:'';
+				}else if(type=='number'||type=='num'){
+					val=val?parseFloat(val):0;
+				}else if(type=='boolean'||type=='bool'){
+					val=val&&val!=='false';
 				}
-				if(Obj.isClass(type)&&!(val instanceof type)){
-					//模型
-					if(type.get){
-						var oChange={};
-				        val=type.get(val,oOpts,oChange);
-				        val&&(val._changedTmp=oChange.changed);
+			}
+			if(Obj.isClass(type)&&!(val instanceof type)){
+				//模型
+				if(type.get){
+					var oChange={};
+			        val=type.get(val,oOpts,oChange);
+			        val&&(val._changedTmp=oChange.changed);
+				}else{
+					//集合
+					var oCurrent=me.get(sAttr);
+					if(oCurrent){
+						var tmp=oCurrent.set(val,oOpts);
+						val=oCurrent;
+						val._changedTmp=tmp.changed;
+						
 					}else{
-						//集合
-						var oCurrent=me.get(key);
-						if(oCurrent){
-							var tmp=oCurrent.set(val,oOpts);
-							val=oCurrent;
-							val._changedTmp=tmp.changed;
-							
-						}else{
-							val=new type(val,oOpts);
-							val._changedTmp=true;
-						}
+						val=new type(val,oOpts);
+						val._changedTmp=true;
 					}
 				}
 			}
-			oResult[key]=val;
 		}
-		return oResult;
+		return val;
     }
     /**
 	 * 处理属性模型和集合事件
@@ -6275,7 +6275,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 		}
 		oAttrs = Obj.extendIf(oAttrs, me.getDefaults());
 		if(me.init){
-			me.init();
+			me.init(oAttributes, oOptions);
 		}
 		me._savedAttrs={};
 		me.set(oAttrs, oOptions);
@@ -6366,8 +6366,6 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	    if(oAttrs instanceof Model){
 	    	oAttrs=oAttrs._attributes;
 	    }
-	    //属性预处理
-	    oAttrs= me._parseFields(oAttrs,oOptions);
 	    //先执行校验
 	    if (!me._validate(oAttrs, oOptions)){
 	    	oResult.invalid=true;
@@ -6392,9 +6390,25 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	  	    me.id = oAttrs[me.idAttribute];
 	    }
 	    
-	    //循环进行设置、更新、删除
+	    //TODO:循环进行设置、更新、删除，这里必须先设置基础类型属性，因为嵌套属性会触发复杂事件，情况比较难控制，
+	    //可能会在嵌套事件中又对当前模型进行设置，暂时解决方案是在监听函数里自行setTimeout处理，
+	    //以后考虑Model、Collection对嵌套事件延时触发？
+	    var aAttrs=[],oFields=me.fields||{},oField,type;
 	    for (var sAttr in oAttrs) {
-	   	    val = oAttrs[sAttr];
+	    	if(oField=oFields[sAttr]){
+	    		var type=oField.type;
+	    		//基本类型放在前面
+	    		if(type&&typeof type!=='string'){
+	    			aAttrs.push(sAttr);
+	    			continue;
+	    		}
+	    	}
+    		aAttrs.unshift(sAttr);
+	    }
+	    for (var i=0,len=aAttrs.length;i<len;i++) {
+	    	var sAttr=aAttrs[i];
+	    	//属性预处理
+	    	val= me._parseFields(sAttr,oAttrs[sAttr],oOptions);
 	    	var curVal=oCurrent[sAttr];
 	    	//当前属性是否是嵌套属性
 	   	    var bCurNested=curVal&&Obj.isInstance(curVal);
@@ -6408,6 +6422,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	    			//如果有旧值，需要清除相关事件
 	    			curVal&&me.unlistenTo(curVal,'all');
 	    		}else{
+	    			//
 					oCurrent[sAttr] = val;
 					if(!curVal||!val||curVal.id!=val.id){
 						//如果有旧值，需要清除相关事件
@@ -10628,13 +10643,13 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 	}
 	/**
 	 * 获取缓存的模块
-	 * @param {string}sModName 模块名
+	 * @param {string=}sModName 模块名，不传表示获取当前模块
 	 * @param {string|number=}modelId 模型/集合id
 	 * @return {?new:M.AbstractModule}返回对应的模块
 	 */
 	function fGetModule(sModName,modelId){
 		var me=this;
-		var sModId=me._getModId(sModName,modelId);
+		var sModId=sModName?me._getModId(sModName,modelId):me.currentMod;
 		return me._modules[sModId];
 	}
 	/**

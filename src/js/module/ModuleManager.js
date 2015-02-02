@@ -250,13 +250,13 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 	}
 	/**
 	 * 获取缓存的模块
-	 * @param {string}sModName 模块名
+	 * @param {string=}sModName 模块名，不传表示获取当前模块
 	 * @param {string|number=}modelId 模型/集合id
 	 * @return {?new:M.AbstractModule}返回对应的模块
 	 */
 	function fGetModule(sModName,modelId){
 		var me=this;
-		var sModId=me._getModId(sModName,modelId);
+		var sModId=sModName?me._getModId(sModName,modelId):me.currentMod;
 		return me._modules[sModId];
 	}
 	/**
