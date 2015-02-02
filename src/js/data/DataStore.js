@@ -26,12 +26,15 @@ function(Obj,Class){
 	
 	/**
 	 * 获取数据
-	 * @param {string}sName 模型名称或者cid
+	 * @param {string=}sName 模型名称或者cid，不传参数表示返回对象缓存池
 	 * @param {Object=}oOptions 用于匹配的键值对
 	 * @return {Model|Array} 如果通过cid或id获取，返回模型对象，否则返回匹配的模型数组
 	 */
 	function fGet(sName,oOptions){
 		var oCache;
+		if(arguments.length===0){
+			return _cache;
+		}
 		if(Obj.isClass(sName)){
 			sName=sName.$rns;
 		}else if(Obj.isInstance(sName)){

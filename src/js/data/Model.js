@@ -1,7 +1,7 @@
 /**
  * 模型类，负责数据封装，可监听事件：invalid、sync、destroy、change:attr、change
  * PS：
- * 1、为了保证模型的一致性，新建模型实例必须使用静态get方法，而不能用new方式；
+ * 1、为了保证模型的一致性，新建模型实例必须使用静态get方法，而不能用new方式，get方法会统一放进DateStore里处理；
  * 2、自定义属性默认不提交，需要提交需配置save:true
  * 3、嵌套属性（自定义属性中类型为模型或集合类型的属性）区别于普通属性，不可通过hasChanged、changedAttrs等方法获取改变，save时也不会提交
  *    只能通过相关委托事件(_onAttrEvent方法里)进行监测；
@@ -774,6 +774,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	            return false;
 	        }
 	        if (fSuccess){
+	        	//TODO 这里要不要统一先parse？像fetch一样添加beforeSet?
 	        	fSuccess(me, resp, oOptions);
 	        }
 	        me.trigger('sync', me, resp, oOptions);
