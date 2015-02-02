@@ -125,24 +125,23 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	}
 	/**
 	 * 静态get方法，为了保证模型的一致性，新建模型实例必须使用此方法，而不能用new方式
-	 * @param {object}oVal
+	 * @param {object=}oVal 不传是直接new，传了值会先在DataStore里查找
 	 * @param {object=}oOptions new模型实例时的选项
 	 * @param {object=}oChange 如果传入object，返回时，oChange.changed表示此次操作改变了原模型的值或者新建了模型实例
 	 * @return {Model} 返回模型实例
 	 */
 	function fStaticGet(oVal,oOptions,oChange){
-		if(!oVal){
-			return;
-		}
 		var _Class=this;
 		var oModel;
-		var id=_Class.getId(oVal);
 		//是否改变了原有模型，new操作也表示改变了
 		var bHasChange=false;
-		//如果有id，需要先查找是否有存在的模型，查询直接id效率高，所以先进行查询，查询不到id才通过new后，查询联合id
-		if(id){
-	        oModel=$S.get(_Class,{id:id});
-        }
+		if(oVal){
+			var id=_Class.getId(oVal);
+			//如果有id，需要先查找是否有存在的模型，查询直接id效率高，所以先进行查询，查询不到id才通过new后，查询联合id
+			if(id){
+		        oModel=$S.get(_Class,{id:id});
+	        }
+		}
         if(!oModel){
 	        var oModel=new _Class(oVal,oOptions);
 	        //放入数据仓库
