@@ -2203,7 +2203,6 @@ define('B.Event','B.Object',function(Obj){
 		_parseEvents       : _fParseEvents,        //分析事件对象
 		_parseCustomEvents : _fParseCustomEvents,  //处理对象类型或者空格相隔的多事件
 		_delegateHandler   : _fDelegateHandler,    //统一代理回调函数
-		_pushEvent         : _fPushEvent,          //将需要执行的事件放入执行队列
 		_execEvents        : _fExecEvents,         //执行事件队列
 		on                 : fOn,                  //添加事件
 		once               : fOnce,                //监听一次
@@ -2278,22 +2277,14 @@ define('B.Event','B.Object',function(Obj){
 		};
 	}
 	/**
-	 * 将需要执行的事件放入执行队列
-	 * @param {Object}oEvent 参数事件对象
-	 */
-	function _fPushEvent(oEvent){
-		var me=this;
-		me._execEvtCache.push(oEvent);
-	}
-	/**
-	 * 执行事件队列，统一执行周期中，同名的事件会被覆盖，只有最后一个事件有效
+	 * 执行事件队列
+	 * @param {array} 待执行的事件队列
 	 * @return {?} 只是返回最后一个函数的结果，返回结果在某些情况(一般是只有一个监听函数时)可以作为通知器使用
 	 */
-	function _fExecEvents(){
+	function _fExecEvents(aEvts){
 		var me=this,result;
-		var aEvts=me._execEvtCache;
-		Obj.each(aEvts,function(i,oEvent){
-			aEvts.splice(i,1);
+		while(aEvts.length){
+			oEvent=aEvts.shift();
 			var fDelegation=oEvent.delegation;
 			//控制执行次数
 			if(typeof oEvent.times=='number'){
@@ -2309,7 +2300,7 @@ define('B.Event','B.Object',function(Obj){
 				aEvts.splice(0,aEvts.length);
 				return false;
 			}
-		});
+		}
 		me._stopEvent=false;
 		return result;
 	}
@@ -2359,15 +2350,16 @@ define('B.Event','B.Object',function(Obj){
 	 }
 	/**
 	 * 移除事件
-	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}
+	 * @param {Object|string=}name 事件名称，'event1 event2'或{event1:func1,event:func2}
 	 * 							事件名称支持命名空间(".name")，如：change.one
+	 * 							不传表示移除所有事件
 	 * @param {function=}fHandler 事件函数，如果此参数为空，表示删除指定事件名下的所有函数
 	 * @param {boolean} true表示删除成功，false表示失败
 	 */
 	function fOff(name,fHandler){
 		var me=this;
 		//移除所有事件
-		if(name=="all"){
+		if(arguments.length===0){
 			me._eventCache={};
 			return true;
 		}
@@ -2429,18 +2421,19 @@ define('B.Event','B.Object',function(Obj){
 		var oCache=me._eventCache;
 		var aArgs=Obj.toArray(arguments);
 		var aCache;
+		var aExecEvts=[];
 		//内部函数，执行事件队列
 		function _fExec(aCache){
 			if(!aCache){
 				return;
 			}
 			for(var i=0,len=aCache.length;i<len;i++){
-				var oEvent=aCache[i];
+				var oEvent=Obj.extend({},aCache[i]);
 				oEvent.args=aArgs;
 				oEvent.name=name;
 				//这里立即执行，aCache可能会被改变（如update会删除并重新添加事件），所以先放入队列中
 				//另外，也考虑日后扩展事件队列，如优先级，去重等
-				me._pushEvent(oEvent);
+				aExecEvts.push(oEvent);
 			}
 		}
 		//带命名空间的事件只需执行自身事件
@@ -2461,7 +2454,7 @@ define('B.Event','B.Object',function(Obj){
 		}
 		//all事件
 		_fExec(oCache['all']);
-		return me._execEvents();
+		return me._execEvents(aExecEvts);
 	}
 	/**
 	 * 挂起事件
@@ -5427,8 +5420,8 @@ function(Obj,Class,Event){
 	}
 	/**
 	 * 移除对其它对象的监听
-	 * @param {CM.AbstractEvents|string}oTarget 参数对象，继承自AbstractEvents的实例对象，
-	 * 							也可以传入'all'，表示移除所有监听
+	 * @param {CM.AbstractEvents|string=}oTarget 参数对象，继承自AbstractEvents的实例对象，
+	 * 							不传参数表示移除所有监听
 	 * 其余参数同base.Events.off
 	 */
 	function fUnlistenTo(oTarget,name,fHandler){
@@ -5437,9 +5430,10 @@ function(Obj,Class,Event){
 			return;
 		}
 		var aListenTo=me._listenTo;
-		var bAll=oTarget=='all';
 		Obj.each(aListenTo,function(i,oListenTo){
-			if(bAll||(oListenTo.name==name&&oListenTo.handler==fHandler&&oListenTo.target==oTarget)){
+			if(((!name||oListenTo.name==name)
+			&&(!fHandler||oListenTo.handler==fHandler)
+			&&(!oTarget||oListenTo.target==oTarget))){
 				oListenTo.target.off(oListenTo.name,oListenTo.delegation);
 				aListenTo.splice(i,1);
 			}
@@ -5668,12 +5662,15 @@ function(Obj,Class){
 	
 	/**
 	 * 获取数据
-	 * @param {string}sName 模型名称或者cid
+	 * @param {string=}sName 模型名称或者cid，不传参数表示返回对象缓存池
 	 * @param {Object=}oOptions 用于匹配的键值对
 	 * @return {Model|Array} 如果通过cid或id获取，返回模型对象，否则返回匹配的模型数组
 	 */
 	function fGet(sName,oOptions){
 		var oCache;
+		if(arguments.length===0){
+			return _cache;
+		}
 		if(Obj.isClass(sName)){
 			sName=sName.$rns;
 		}else if(Obj.isInstance(sName)){
@@ -5958,7 +5955,7 @@ function(Util,Date,Class,AbstractDao,AbstractEvents){
 /**
  * 模型类，负责数据封装，可监听事件：invalid、sync、destroy、change:attr、change
  * PS：
- * 1、为了保证模型的一致性，新建模型实例必须使用静态get方法，而不能用new方式；
+ * 1、为了保证模型的一致性，新建模型实例必须使用静态get方法，而不能用new方式，get方法会统一放进DateStore里处理；
  * 2、自定义属性默认不提交，需要提交需配置save:true
  * 3、嵌套属性（自定义属性中类型为模型或集合类型的属性）区别于普通属性，不可通过hasChanged、changedAttrs等方法获取改变，save时也不会提交
  *    只能通过相关委托事件(_onAttrEvent方法里)进行监测；
@@ -6082,24 +6079,23 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	}
 	/**
 	 * 静态get方法，为了保证模型的一致性，新建模型实例必须使用此方法，而不能用new方式
-	 * @param {object}oVal
+	 * @param {object=}oVal 不传是直接new，传了值会先在DataStore里查找
 	 * @param {object=}oOptions new模型实例时的选项
 	 * @param {object=}oChange 如果传入object，返回时，oChange.changed表示此次操作改变了原模型的值或者新建了模型实例
 	 * @return {Model} 返回模型实例
 	 */
 	function fStaticGet(oVal,oOptions,oChange){
-		if(!oVal){
-			return;
-		}
 		var _Class=this;
 		var oModel;
-		var id=_Class.getId(oVal);
 		//是否改变了原有模型，new操作也表示改变了
 		var bHasChange=false;
-		//如果有id，需要先查找是否有存在的模型，查询直接id效率高，所以先进行查询，查询不到id才通过new后，查询联合id
-		if(id){
-	        oModel=$S.get(_Class,{id:id});
-        }
+		if(oVal){
+			var id=_Class.getId(oVal);
+			//如果有id，需要先查找是否有存在的模型，查询直接id效率高，所以先进行查询，查询不到id才通过new后，查询联合id
+			if(id){
+		        oModel=$S.get(_Class,{id:id});
+	        }
+		}
         if(!oModel){
 	        var oModel=new _Class(oVal,oOptions);
 	        //放入数据仓库
@@ -6267,33 +6263,55 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 		if(oOptions.custom){
 			Obj.extend(me,oOptions.custom);
 		}
-		if (oOptions.collection){
-			me.collection = oOptions.collection;
-		}
 		if (oOptions.parse){
 			oAttrs = me.parse(oAttrs, oOptions) || {};
 		}
 		oAttrs = Obj.extendIf(oAttrs, me.getDefaults());
 		if(me.init){
-			me.init(oAttributes, oOptions);
+			me.init(oAttrs, oOptions);
 		}
 		me._savedAttrs={};
 		me.set(oAttrs, oOptions);
 		me._changed = {};
 	}
 	/**
-	 * 获取默认值
+	 * 获取默认值，只需要分析一次
 	 * @return 返回默认值
 	 */
 	function fGetDefaults(){
 		var me=this;
-		var oDefaults={},oFields;
+		if(me._defaults){
+			return me._defaults;
+		}
+		var oDefaults={},oFields,oNestedFileds={};
 		if(oFields=me.fields){
 			for(var k in oFields){
 				var field=oFields[k];
-				oDefaults[k]=(field&&Obj.isObj(field))?field.def:field;
+				//自定义字段
+				if(field&&Obj.isObj(field)){
+					if(field.hasOwnProperty('def')){
+						oDefaults[k]=field.def;
+					}else{
+						var type=field.type;
+						if(type){
+							//对于嵌套类型，只有Collection默认会初始化，方便使用，模型由于可能自引用造成死循环，这里暂不自动初始化
+							if(type.prototype){
+								//标记嵌套属性
+								oNestedFileds[k]=1;
+								if(type.prototype.$isCollection){
+									oDefaults[k]=[];
+								}
+							}
+						}
+					}
+					continue;
+				}
+				oDefaults[k]=field;
 			}
 		}
+		//每个类只分析一次
+		me.constructor.prototype._defaults=oDefaults;
+		me.constructor.prototype._nestedFields=oNestedFileds;
 		return oDefaults;
 	}
 	/**
@@ -6393,17 +6411,13 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	    //TODO:循环进行设置、更新、删除，这里必须先设置基础类型属性，因为嵌套属性会触发复杂事件，情况比较难控制，
 	    //可能会在嵌套事件中又对当前模型进行设置，暂时解决方案是在监听函数里自行setTimeout处理，
 	    //以后考虑Model、Collection对嵌套事件延时触发？
-	    var aAttrs=[],oFields=me.fields||{},oField,type;
+	    var aAttrs=[],oNestedFields=me._nestedFields,oField,type;
 	    for (var sAttr in oAttrs) {
-	    	if(oField=oFields[sAttr]){
-	    		var type=oField.type;
-	    		//基本类型放在前面
-	    		if(type&&typeof type!=='string'){
-	    			aAttrs.push(sAttr);
-	    			continue;
-	    		}
+	    	if(oNestedFields[sAttr]){
+	    		aAttrs.push(sAttr);
+	    	}else{
+	    		aAttrs.unshift(sAttr);
 	    	}
-    		aAttrs.unshift(sAttr);
 	    }
 	    for (var i=0,len=aAttrs.length;i<len;i++) {
 	    	var sAttr=aAttrs[i];
@@ -6420,13 +6434,13 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	    		if(bUnset){
 	    			delete oCurrent[sAttr];
 	    			//如果有旧值，需要清除相关事件
-	    			curVal&&me.unlistenTo(curVal,'all');
+	    			curVal&&me.unlistenTo(curVal);
 	    		}else{
 	    			//
 					oCurrent[sAttr] = val;
 					if(!curVal||!val||curVal.id!=val.id){
 						//如果有旧值，需要清除相关事件
-	    				curVal&&me.unlistenTo(curVal,'all');
+	    				curVal&&me.unlistenTo(curVal);
 	    				if(val){
 							//这里如果传入就是模型，_parseFields方法不进行处理，因此这里标记为已改变
 							val._changedTmp=true;
@@ -6732,6 +6746,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	            return false;
 	        }
 	        if (fSuccess){
+	        	//TODO 这里要不要统一先parse？像fetch一样添加beforeSet?
 	        	fSuccess(me, resp, oOptions);
 	        }
 	        me.trigger('sync', me, resp, oOptions);
@@ -6784,8 +6799,8 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
         var fSuccess = oOptions.success;
 
         var destroy = function() {
-            me.trigger('destroy', me, me.collection, oOptions);
-            me.off('all');
+            me.trigger('destroy', me, oOptions);
+            me.off();
             me.destroyed=true;
         };
 
@@ -6817,7 +6832,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	 */
     function fGetUrl() {
     	var me=this;
-        var sUrl =Util.result(me, 'url') ||Util.result(me.collection, 'url');
+        var sUrl =Util.result(me, 'url');
         if(!sUrl){
         	$D.error(new Error('必须设置一个url属性或者函数'));
         }
@@ -6880,7 +6895,7 @@ define('D.Collection',
 'D.Model',
 'D.DataStore'
 ],
-function(Obj,Arr,Function,AbstractData,Model){
+function(Obj,Arr,Func,AbstractData,Model){
 	
 	var Collection=AbstractData.derive({
 		//可扩展属性
@@ -6993,7 +7008,6 @@ function(Obj,Arr,Function,AbstractData,Model){
         	return oAttrs;
         }
         oOptions = oOptions ? Obj.clone(oOptions) : {};
-        oOptions.collection = me;
         var oModel = me.model.get(oAttrs, oOptions,oChange);
         if (!oModel.validationError){
         	return oModel;
@@ -7011,10 +7025,8 @@ function(Obj,Arr,Function,AbstractData,Model){
         if (oModel.id != null){
         	me._byId[oModel.id] = oModel;
         }
-        if (!oModel.collection){
-        	oModel.collection = me;
-        }
-        oModel.on('all', me._onModelEvent, me);
+        //因为一个模型可能被多个集合使用，所以这里需要bind去生成不同的函数，而不能直接用me._onModelEvent
+        me.listenTo(oModel,'all', Func.bind(me._onModelEvent, me));
     }
     /**
      * 移除模型和集合关联关系
@@ -7022,10 +7034,7 @@ function(Obj,Arr,Function,AbstractData,Model){
      */
     function _fRemoveReference(oModel) {
     	var me=this;
-        if (me === oModel.collection){
-        	delete oModel.collection;
-        }
-        oModel.off('all', me._onModelEvent, me);
+        me.unlistenTo(oModel,'all');
     }
 	/**
 	 * 模型事件函数，当模型有事件发生时触发，主要是跟随模型进行更新和删除
@@ -7036,6 +7045,7 @@ function(Obj,Arr,Function,AbstractData,Model){
 	 */
     function _fOnModelEvent(sEvent, oModel, oCollection, oOptions) {
     	var me=this;
+    	//add和remove事件需要校验是不是为当前集合出发的，一个模型可能会被多个集合所有
         if ((sEvent === 'add' || sEvent === 'remove') && oCollection !== me){
         	return;
         }
@@ -7406,7 +7416,7 @@ function(Obj,Arr,Function,AbstractData,Model){
         if (typeof me.comparator=='string' || me.comparator.length === 1) {
         	me._models = me.sortBy(me.comparator, me,oOptions.desc);
         } else {
-       		me._models.sort(Function.bind(me.comparator, me));
+       		me._models.sort(Func.bind(me.comparator, me));
         }
 
         if (!oOptions.silent){
@@ -8077,8 +8087,8 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 		for(var i=aListeners.length-1;i>=0;i--){
 			me.unlisten(aListeners[i]);
 		}
-		me.off('all');
-		me.unlistenTo('all');
+		me.off();
+		me.unlistenTo();
 		me.callChild();
 	}
 	/**
@@ -8091,7 +8101,7 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 			return;
 		}
 		me.clearListeners();
-		me.unlistenTo('all');
+		me.unlistenTo();
 		me.getEl().remove();
 		me.destroyed=true;
 		

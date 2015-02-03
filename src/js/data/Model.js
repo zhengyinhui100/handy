@@ -312,7 +312,8 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 		if (oOptions.parse){
 			oAttrs = me.parse(oAttrs, oOptions) || {};
 		}
-		oAttrs = Obj.extendIf(oAttrs, me.getDefaults());
+		//默认值不触发事件，init前设置默认值方便监听嵌套类型事件
+		me.set(me.getDefaults(), {silent:true});
 		if(me.init){
 			me.init(oAttrs, oOptions);
 		}
@@ -340,7 +341,8 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 					}else{
 						var type=field.type;
 						if(type){
-							//对于嵌套类型，只有Collection默认会初始化，方便使用，模型由于可能自引用造成死循环，这里暂不自动初始化
+							//TODO:对于嵌套类型，只有Collection默认会初始化，方便使用，
+							//模型由于可能自引用造成死循环，这里暂不自动初始化，还是自定义不初始化？
 							if(type.prototype){
 								//标记嵌套属性
 								oNestedFileds[k]=1;
@@ -616,6 +618,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	 * @param {object=}oParams{
 	 * 		@param {Object=}diff 参数属性，表示只判断传入的属性列表，返回跟参数属性不同的属性表，不传表示检查全部属性
 	 * 		@param {boolean=}includeUnsave 仅当为true时检测所有的属性，否则只检测需要提交的属性
+	 * 		@param {boolean=}strictDiff 仅当为true时进行严格比对，默认是“==”进行比较
 	 * 		@param {boolean=}diffSaved 比较已保存的属性列表，不传表示比较上次set后改变的值
 	 * }
 	 * @retur {boolean} 如果有改变，返回改变的属性，否则，返回false
@@ -623,11 +626,12 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     function fChangedAttrs(oParams) {
     	var me=this;
     	oParams=oParams||{};
-    	oDiff=oParams.diff;
+    	var oDiff=oParams.diff;
     	if(!oDiff&&oParams.diffSaved){
 	    	oDiff=me._attributes;
     	}
-    	bAll=oParams.includeUnsave;
+    	var bStrict=oParams.strictDiff;
+    	var bAll=oParams.includeUnsave;
         var val, changed = false;
         var oFields=me.fields;
         var oOld = oParams.diffSaved?me._savedAttrs:me._changing ? me._preAttrs : me._attributes;
@@ -641,7 +645,9 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	        		bNeed=!bHas||(bHas&&(Obj.isSimple(val)&&!oFields[sAttr].unsave));
 	        	}
 	            if (bNeed){
-	            	if(!oDiff||(oDiff&&!Obj.equals(oOld[sAttr], val))){
+	            	var old=oOld[sAttr];
+	            	//默认非严格模式，用于一般场景，如填写表单时校验用户是否有修改，一般情况下表单里的""是可以不用提交的（跟model里的undefined是相等的）
+	            	if(!oDiff||(oDiff&&!(bStrict?(Obj.equals(old, val)):(old==val||(old===undefined&&val==''))))){
 			            (changed || (changed = {}))[sAttr] = val;
 	            	}
 	            }
