@@ -126,7 +126,6 @@ function(Obj,Arr,Function,AbstractData,Model){
         	return oAttrs;
         }
         oOptions = oOptions ? Obj.clone(oOptions) : {};
-        oOptions.collection = me;
         var oModel = me.model.get(oAttrs, oOptions,oChange);
         if (!oModel.validationError){
         	return oModel;
@@ -144,10 +143,7 @@ function(Obj,Arr,Function,AbstractData,Model){
         if (oModel.id != null){
         	me._byId[oModel.id] = oModel;
         }
-        if (!oModel.collection){
-        	oModel.collection = me;
-        }
-        oModel.on('all', me._onModelEvent, me);
+        me.listenTo(oModel,'all', me._onModelEvent, me);
     }
     /**
      * 移除模型和集合关联关系
@@ -155,10 +151,7 @@ function(Obj,Arr,Function,AbstractData,Model){
      */
     function _fRemoveReference(oModel) {
     	var me=this;
-        if (me === oModel.collection){
-        	delete oModel.collection;
-        }
-        oModel.off('all', me._onModelEvent, me);
+        me.unlistenTo(oModel,'all', me._onModelEvent);
     }
 	/**
 	 * 模型事件函数，当模型有事件发生时触发，主要是跟随模型进行更新和删除
@@ -169,6 +162,7 @@ function(Obj,Arr,Function,AbstractData,Model){
 	 */
     function _fOnModelEvent(sEvent, oModel, oCollection, oOptions) {
     	var me=this;
+    	//add和remove事件需要校验是不是为当前集合出发的，一个模型可能会被多个集合所有
         if ((sEvent === 'add' || sEvent === 'remove') && oCollection !== me){
         	return;
         }

@@ -323,8 +323,8 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 		for(var i=aListeners.length-1;i>=0;i--){
 			me.unlisten(aListeners[i]);
 		}
-		me.off('all');
-		me.unlistenTo('all');
+		me.off();
+		me.unlistenTo();
 		me.callChild();
 	}
 	/**
@@ -337,7 +337,7 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 			return;
 		}
 		me.clearListeners();
-		me.unlistenTo('all');
+		me.unlistenTo();
 		me.getEl().remove();
 		me.destroyed=true;
 		

@@ -309,33 +309,55 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 		if(oOptions.custom){
 			Obj.extend(me,oOptions.custom);
 		}
-		if (oOptions.collection){
-			me.collection = oOptions.collection;
-		}
 		if (oOptions.parse){
 			oAttrs = me.parse(oAttrs, oOptions) || {};
 		}
 		oAttrs = Obj.extendIf(oAttrs, me.getDefaults());
 		if(me.init){
-			me.init(oAttributes, oOptions);
+			me.init(oAttrs, oOptions);
 		}
 		me._savedAttrs={};
 		me.set(oAttrs, oOptions);
 		me._changed = {};
 	}
 	/**
-	 * 获取默认值
+	 * 获取默认值，只需要分析一次
 	 * @return 返回默认值
 	 */
 	function fGetDefaults(){
 		var me=this;
-		var oDefaults={},oFields;
+		if(me._defaults){
+			return me._defaults;
+		}
+		var oDefaults={},oFields,oNestedFileds={};
 		if(oFields=me.fields){
 			for(var k in oFields){
 				var field=oFields[k];
-				oDefaults[k]=(field&&Obj.isObj(field))?field.def:field;
+				//自定义字段
+				if(field&&Obj.isObj(field)){
+					if(field.hasOwnProperty('def')){
+						oDefaults[k]=field.def;
+					}else{
+						var type=field.type;
+						if(type){
+							//对于嵌套类型，只有Collection默认会初始化，方便使用，模型由于可能自引用造成死循环，这里暂不自动初始化
+							if(type.prototype){
+								//标记嵌套属性
+								oNestedFileds[k]=1;
+								if(type.prototype.$isCollection){
+									oDefaults[k]=[];
+								}
+							}
+						}
+					}
+					continue;
+				}
+				oDefaults[k]=field;
 			}
 		}
+		//每个类只分析一次
+		me.constructor.prototype._defaults=oDefaults;
+		me.constructor.prototype._nestedFields=oNestedFileds;
 		return oDefaults;
 	}
 	/**
@@ -435,17 +457,13 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	    //TODO:循环进行设置、更新、删除，这里必须先设置基础类型属性，因为嵌套属性会触发复杂事件，情况比较难控制，
 	    //可能会在嵌套事件中又对当前模型进行设置，暂时解决方案是在监听函数里自行setTimeout处理，
 	    //以后考虑Model、Collection对嵌套事件延时触发？
-	    var aAttrs=[],oFields=me.fields||{},oField,type;
+	    var aAttrs=[],oNestedFields=me._nestedFields,oField,type;
 	    for (var sAttr in oAttrs) {
-	    	if(oField=oFields[sAttr]){
-	    		var type=oField.type;
-	    		//基本类型放在前面
-	    		if(type&&typeof type!=='string'){
-	    			aAttrs.push(sAttr);
-	    			continue;
-	    		}
+	    	if(oNestedFields[sAttr]){
+	    		aAttrs.push(sAttr);
+	    	}else{
+	    		aAttrs.unshift(sAttr);
 	    	}
-    		aAttrs.unshift(sAttr);
 	    }
 	    for (var i=0,len=aAttrs.length;i<len;i++) {
 	    	var sAttr=aAttrs[i];
@@ -462,13 +480,13 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	    		if(bUnset){
 	    			delete oCurrent[sAttr];
 	    			//如果有旧值，需要清除相关事件
-	    			curVal&&me.unlistenTo(curVal,'all');
+	    			curVal&&me.unlistenTo(curVal);
 	    		}else{
 	    			//
 					oCurrent[sAttr] = val;
 					if(!curVal||!val||curVal.id!=val.id){
 						//如果有旧值，需要清除相关事件
-	    				curVal&&me.unlistenTo(curVal,'all');
+	    				curVal&&me.unlistenTo(curVal);
 	    				if(val){
 							//这里如果传入就是模型，_parseFields方法不进行处理，因此这里标记为已改变
 							val._changedTmp=true;
@@ -827,8 +845,8 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
         var fSuccess = oOptions.success;
 
         var destroy = function() {
-            me.trigger('destroy', me, me.collection, oOptions);
-            me.off('all');
+            me.trigger('destroy', me, oOptions);
+            me.off();
             me.destroyed=true;
         };
 
@@ -860,7 +878,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	 */
     function fGetUrl() {
     	var me=this;
-        var sUrl =Util.result(me, 'url') ||Util.result(me.collection, 'url');
+        var sUrl =Util.result(me, 'url');
         if(!sUrl){
         	$D.error(new Error('必须设置一个url属性或者函数'));
         }

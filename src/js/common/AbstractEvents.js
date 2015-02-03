@@ -74,8 +74,8 @@ function(Obj,Class,Event){
 	}
 	/**
 	 * 移除对其它对象的监听
-	 * @param {CM.AbstractEvents|string}oTarget 参数对象，继承自AbstractEvents的实例对象，
-	 * 							也可以传入'all'，表示移除所有监听
+	 * @param {CM.AbstractEvents|string=}oTarget 参数对象，继承自AbstractEvents的实例对象，
+	 * 							不传参数表示移除所有监听
 	 * 其余参数同base.Events.off
 	 */
 	function fUnlistenTo(oTarget,name,fHandler){
@@ -84,9 +84,10 @@ function(Obj,Class,Event){
 			return;
 		}
 		var aListenTo=me._listenTo;
-		var bAll=oTarget=='all';
 		Obj.each(aListenTo,function(i,oListenTo){
-			if(bAll||(oListenTo.name==name&&oListenTo.handler==fHandler&&oListenTo.target==oTarget)){
+			if(((!name||oListenTo.name==name)
+			&&(!fHandler||oListenTo.handler==fHandler)
+			&&(!oTarget||oListenTo.target==oTarget))){
 				oListenTo.target.off(oListenTo.name,oListenTo.delegation);
 				aListenTo.splice(i,1);
 			}
