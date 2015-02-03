@@ -13,7 +13,7 @@ define('D.Collection',
 'D.Model',
 'D.DataStore'
 ],
-function(Obj,Arr,Function,AbstractData,Model){
+function(Obj,Arr,Func,AbstractData,Model){
 	
 	var Collection=AbstractData.derive({
 		//可扩展属性
@@ -143,7 +143,8 @@ function(Obj,Arr,Function,AbstractData,Model){
         if (oModel.id != null){
         	me._byId[oModel.id] = oModel;
         }
-        me.listenTo(oModel,'all', me._onModelEvent, me);
+        //因为一个模型可能被多个集合使用，所以这里需要bind去生成不同的函数，而不能直接用me._onModelEvent
+        me.listenTo(oModel,'all', Func.bind(me._onModelEvent, me));
     }
     /**
      * 移除模型和集合关联关系
@@ -151,7 +152,7 @@ function(Obj,Arr,Function,AbstractData,Model){
      */
     function _fRemoveReference(oModel) {
     	var me=this;
-        me.unlistenTo(oModel,'all', me._onModelEvent);
+        me.unlistenTo(oModel,'all');
     }
 	/**
 	 * 模型事件函数，当模型有事件发生时触发，主要是跟随模型进行更新和删除
@@ -533,7 +534,7 @@ function(Obj,Arr,Function,AbstractData,Model){
         if (typeof me.comparator=='string' || me.comparator.length === 1) {
         	me._models = me.sortBy(me.comparator, me,oOptions.desc);
         } else {
-       		me._models.sort(Function.bind(me.comparator, me));
+       		me._models.sort(Func.bind(me.comparator, me));
         }
 
         if (!oOptions.silent){
