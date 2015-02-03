@@ -22,6 +22,7 @@ function(Browser,Obj,Util,AC,ImgCompress,Device,Camera){
 		//初始配置
 		xConfig             : {
 			cls             : 'img-upload',
+			inputName       : 'fileContent',
 			transparent     : false,      //是否透明
 			useFileInput    : true,       //是否使用file input获取文件
 			showImg         : true        //是否显示预览
@@ -32,6 +33,22 @@ function(Browser,Obj,Util,AC,ImgCompress,Device,Camera){
 //		cropWinH            : 100,       //裁剪窗口高度
 //		cropOptions         : {},        //裁剪选项，参照Crop类
 //		compressOptions     : {}         //压缩选项，参照ImgCompress.compress方法
+		
+		tmpl            : [
+			'<div {{bindAttr class="transparent?hui-transparent"}}>',
+				'{{#unless transparent}}',
+					'<div>',
+						'<img {{bindAttr class="#js-orig showImg?:hui-hide"}}/>',
+					'</div>',
+					'<div>',
+						'<img src="" class="js-preview">',
+					'</div>',
+				'{{/unless}}',
+				'<input type="hidden" class="js-file-content" {{bindAttr name="inputName"}}>',
+				'{{#if useFileInput}}',
+					'<input type="file" class="js-file-input hui-file-input">',
+				'{{/if}}',
+			'</div>'].join(''),
 		
 		listeners       : [{
 			el   : 'input',
@@ -82,22 +99,6 @@ function(Browser,Obj,Util,AC,ImgCompress,Device,Camera){
 				}
 			}
 		}],
-		
-		tmpl            : [
-			'<div {{bindAttr class="transparent?hui-transparent"}}>',
-				'{{#unless transparent}}',
-					'<div>',
-						'<img {{bindAttr class="#js-orig showImg?:hui-hide"}}/>',
-					'</div>',
-					'<div>',
-						'<img src="" class="js-preview">',
-					'</div>',
-				'{{/unless}}',
-				'<input type="hidden" class="js-file-content" name="fileContent">',
-				'{{#if useFileInput}}',
-					'<input type="file" class="js-file-input hui-file-input">',
-				'{{/if}}',
-			'</div>'].join(''),
 		
 		doConfig         : fDoConfig,           //初始化配置
 		showSelDialog    : fShowSelDialog,      //显示选择照片源类型对话框

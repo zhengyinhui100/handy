@@ -5,8 +5,11 @@
  */
 
 define('C.Form',
-'C.AbstractComponent',
-function(AC){
+[
+'B.Object',
+'C.AbstractComponent'
+],
+function(Obj,AC){
 	
 	var Form=AC.define('Form');
 	
@@ -25,10 +28,32 @@ function(AC){
 			'</div>'
 		].join(''),
 		
+		getFormData     : fGetFormData,    //获取表单数据
 		hasChanged      : fHasChanged      //检测是否有表单改变的域/值
 		
 	});
 	
+	/**
+	 * 获取表单数据
+	 * @return {object} 返回表单数据
+	 */
+	function fGetFormData(){
+		var me=this;
+		var oForm=me.findEl('form');
+		var oAttrs=Obj.fromArray(oForm.serializeArray());
+		//删除上传图片组件中的空值
+		var aImgs=me.find('ImgUpload');
+		for(var i=0,len=aImgs.length;i<len;i++){
+			var oImg=aImgs[i];
+			var sName=oImg.get('inputName');
+			if(oAttrs[sName]===''){
+				delete oAttrs[sName];
+			}
+		}
+		//zepto的结果中包含未定义name属性的input，形如："":value;
+		delete oAttrs[''];
+		return oAttrs;
+	}
 	/**
 	 * 检测是否有表单改变的域/值
 	 * @return {boolean} true表示有变化
