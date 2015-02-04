@@ -71,7 +71,7 @@ function(Browser,Util,Obj,Date,Support,AC,Draggable){
 					'<div class="hui-list-container js-item-container">{{placeItem}}</div>',
 					'{{#if hasMoreBtn}}',
 						'<div {{bindAttr class="#hui-list-more showMoreBtn:hui-hidden"}}>',
-							'<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-shadow hui-inline hui-radius-little">',
+							'<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-shadow hui-gradient hui-inline hui-radius-little">',
 								'<span class="hui-btn-txt">{{moreBtnTxt}}</span>',
 							'</a>',
 						'</div>',

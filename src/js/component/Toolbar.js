@@ -21,9 +21,9 @@ function(AC){
 		
 //		scrollHide       : false,                  //是否在页面滚动时自动收起
 		defItem          : {
-			xtype        : 'Button',
-			theme        : 'black',
-			xrole        : 'content'
+			xtype           : 'Button',
+			theme           : 'black',
+			xrole           : 'content'
 		},
 		
 		tmpl             : [

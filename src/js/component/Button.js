@@ -7,11 +7,14 @@
 define('C.Button',
 [
 'B.Object',
+'B.Support',
 'C.AbstractComponent'
 ],
-function(Obj,AC){
+function(Obj,Support,AC){
 	
 	var Button=AC.define('Button');
+	
+	var _bHighPerf=Support.perf()=='high';
 	
 	Button.extend({
 		//初始配置
@@ -26,7 +29,8 @@ function(Obj,AC){
 			activeCls       : 'hui-btn-active',    //激活样式
 			isBack          : false,               //是否是后退按钮
 			radius          : 'little',            //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
-			gradient        : false,               //渐变效果
+			shadow          : _bHighPerf,
+			gradient        : _bHighPerf,          //渐变效果
 			isInline        : true,                //宽度自适应
 			noTxtCls        : {
 				deps : ['text','tType'],

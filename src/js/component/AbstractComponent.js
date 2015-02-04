@@ -31,8 +31,8 @@ define('C.AbstractComponent',
 			theme           : '',                //主题
 			cls             : '',                //组件css命名前缀
 			radius          : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
-			shadow          : false,        	 //外阴影
-			shadowInset     : false,        	 //内阴影
+			shadow          : false,             //外阴影
+			shadowInset     : false,             //内阴影
 			gradient        : false,             //渐变
 			shadowSurround  : false,             //外围亮阴影，主要用于黑色工具栏内的按钮
 			shadowOverlay   : false,             //遮罩层里组件的阴影效果，主要用于弹出层
