@@ -326,40 +326,45 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	 * @return 返回默认值
 	 */
 	function fGetDefaults(){
-		var me=this;
-		if(me._defaults){
-			return me._defaults;
-		}
-		var oDefaults={},oFields,oNestedFileds={};
-		if(oFields=me.fields){
-			for(var k in oFields){
-				var field=oFields[k];
-				//自定义字段
-				if(field&&Obj.isObj(field)){
-					if(field.hasOwnProperty('def')){
-						oDefaults[k]=field.def;
-					}else{
-						var type=field.type;
-						if(type){
-							//TODO:对于嵌套类型，只有Collection默认会初始化，方便使用，
-							//模型由于可能自引用造成死循环，这里暂不自动初始化，还是自定义不初始化？
-							if(type.prototype){
-								//标记嵌套属性
-								oNestedFileds[k]=1;
-								if(type.prototype.$isCollection){
-									oDefaults[k]=[];
+		var me=this,
+		cClass=me.constructor,
+		oProto=cClass.prototype,
+		oDefaults=oProto._defaults;
+		//这里需要检查是否是继承自父类原型链的
+		if(!oDefaults||oDefaults===cClass.superProto._defaults){
+			var oFields,
+			oNestedFileds={};
+			oDefaults={};
+			if(oFields=me.fields){
+				for(var k in oFields){
+					var field=oFields[k];
+					//自定义字段
+					if(field&&Obj.isObj(field)){
+						if(field.hasOwnProperty('def')){
+							oDefaults[k]=field.def;
+						}else{
+							var type=field.type;
+							if(type){
+								//TODO:对于嵌套类型，只有Collection默认会初始化，方便使用，
+								//模型由于可能自引用造成死循环，这里暂不自动初始化，还是自定义不初始化？
+								if(type.prototype){
+									//标记嵌套属性
+									oNestedFileds[k]=1;
+									if(type.prototype.$isCollection){
+										oDefaults[k]=[];
+									}
 								}
 							}
 						}
+						continue;
 					}
-					continue;
+					oDefaults[k]=field;
 				}
-				oDefaults[k]=field;
 			}
+			//每个类只分析一次
+			oProto._defaults=oDefaults;
+			oProto._nestedFields=oNestedFileds;
 		}
-		//每个类只分析一次
-		me.constructor.prototype._defaults=oDefaults;
-		me.constructor.prototype._nestedFields=oNestedFileds;
 		return oDefaults;
 	}
 	/**
