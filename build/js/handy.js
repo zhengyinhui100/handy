@@ -6266,7 +6266,8 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 		if (oOptions.parse){
 			oAttrs = me.parse(oAttrs, oOptions) || {};
 		}
-		oAttrs = Obj.extendIf(oAttrs, me.getDefaults());
+		//默认值不触发事件，init前设置默认值方便监听嵌套类型事件
+		me.set(me.getDefaults(), {silent:true});
 		if(me.init){
 			me.init(oAttrs, oOptions);
 		}
@@ -6279,39 +6280,45 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	 * @return 返回默认值
 	 */
 	function fGetDefaults(){
-		var me=this;
-		if(me._defaults){
-			return me._defaults;
-		}
-		var oDefaults={},oFields,oNestedFileds={};
-		if(oFields=me.fields){
-			for(var k in oFields){
-				var field=oFields[k];
-				//自定义字段
-				if(field&&Obj.isObj(field)){
-					if(field.hasOwnProperty('def')){
-						oDefaults[k]=field.def;
-					}else{
-						var type=field.type;
-						if(type){
-							//对于嵌套类型，只有Collection默认会初始化，方便使用，模型由于可能自引用造成死循环，这里暂不自动初始化
-							if(type.prototype){
-								//标记嵌套属性
-								oNestedFileds[k]=1;
-								if(type.prototype.$isCollection){
-									oDefaults[k]=[];
+		var me=this,
+		cClass=me.constructor,
+		oProto=cClass.prototype,
+		oDefaults=oProto._defaults;
+		//这里需要检查是否是继承自父类原型链的
+		if(!oDefaults||oDefaults===cClass.superProto._defaults){
+			var oFields,
+			oNestedFileds={};
+			oDefaults={};
+			if(oFields=me.fields){
+				for(var k in oFields){
+					var field=oFields[k];
+					//自定义字段
+					if(field&&Obj.isObj(field)){
+						if(field.hasOwnProperty('def')){
+							oDefaults[k]=field.def;
+						}else{
+							var type=field.type;
+							if(type){
+								//TODO:对于嵌套类型，只有Collection默认会初始化，方便使用，
+								//模型由于可能自引用造成死循环，这里暂不自动初始化，还是自定义不初始化？
+								if(type.prototype){
+									//标记嵌套属性
+									oNestedFileds[k]=1;
+									if(type.prototype.$isCollection){
+										oDefaults[k]=[];
+									}
 								}
 							}
 						}
+						continue;
 					}
-					continue;
+					oDefaults[k]=field;
 				}
-				oDefaults[k]=field;
 			}
+			//每个类只分析一次
+			oProto._defaults=oDefaults;
+			oProto._nestedFields=oNestedFileds;
 		}
-		//每个类只分析一次
-		me.constructor.prototype._defaults=oDefaults;
-		me.constructor.prototype._nestedFields=oNestedFileds;
 		return oDefaults;
 	}
 	/**
@@ -6570,6 +6577,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	 * @param {object=}oParams{
 	 * 		@param {Object=}diff 参数属性，表示只判断传入的属性列表，返回跟参数属性不同的属性表，不传表示检查全部属性
 	 * 		@param {boolean=}includeUnsave 仅当为true时检测所有的属性，否则只检测需要提交的属性
+	 * 		@param {boolean=}strictDiff 仅当为true时进行严格比对，默认是“==”进行比较
 	 * 		@param {boolean=}diffSaved 比较已保存的属性列表，不传表示比较上次set后改变的值
 	 * }
 	 * @retur {boolean} 如果有改变，返回改变的属性，否则，返回false
@@ -6577,11 +6585,12 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     function fChangedAttrs(oParams) {
     	var me=this;
     	oParams=oParams||{};
-    	oDiff=oParams.diff;
+    	var oDiff=oParams.diff;
     	if(!oDiff&&oParams.diffSaved){
 	    	oDiff=me._attributes;
     	}
-    	bAll=oParams.includeUnsave;
+    	var bStrict=oParams.strictDiff;
+    	var bAll=oParams.includeUnsave;
         var val, changed = false;
         var oFields=me.fields;
         var oOld = oParams.diffSaved?me._savedAttrs:me._changing ? me._preAttrs : me._attributes;
@@ -6595,7 +6604,9 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	        		bNeed=!bHas||(bHas&&(Obj.isSimple(val)&&!oFields[sAttr].unsave));
 	        	}
 	            if (bNeed){
-	            	if(!oDiff||(oDiff&&!Obj.equals(oOld[sAttr], val))){
+	            	var old=oOld[sAttr];
+	            	//默认非严格模式，用于一般场景，如填写表单时校验用户是否有修改，一般情况下表单里的""是可以不用提交的（跟model里的undefined是相等的）
+	            	if(!oDiff||(oDiff&&!(bStrict?(Obj.equals(old, val)):(old==val||(old===undefined&&val==''))))){
 			            (changed || (changed = {}))[sAttr] = val;
 	            	}
 	            }
@@ -8583,10 +8594,11 @@ function(Obj,Template,AbstractView,Model,Collection){
 	function fGetTmplFn(){
 		var me=this;
 		//编译模板，固定模板的类只需执行一次
-		var tmpl=me.tmpl,oConstructor=me.constructor;
-		if(!Obj.isFunc(tmpl)&&!Obj.isFunc(tmpl=oConstructor.tmpl)){
+		var tmpl=me.tmpl;
+		if(!Obj.isFunc(tmpl)){
+			//预处理模板
 			me.preTmpl();
-			tmpl=oConstructor.tmpl=Template.tmpl({
+			tmpl=me.constructor.prototype.tmpl=Template.tmpl({
 				tmpl:me.tmpl,
 				ns:'ModelView'
 			});
@@ -9081,9 +9093,13 @@ function(Obj,Template,ViewManager,ModelView,Model){
 		}
 		
 		//生成modelclass
-		var oFields=me.xConfig,cModel=me.modelClass;
-		if(!cModel&&!(cModel=me.constructor.modelClass)){
-			var clazz
+		var oFields=me.xConfig,
+		cModel=me.modelClass,
+		cClass=me.constructor;
+		oProto=cClass.prototype;
+		//不能是继承的modelClass，必须是当前类的
+		if(!cModel||((cModel=oProto.modelClass)&&cModel===cClass.superProto.modelClass)){
+			var clazz;
 			if(oFields){
 				clazz=Model.derive({
 					fields:oFields
@@ -9091,7 +9107,7 @@ function(Obj,Template,ViewManager,ModelView,Model){
 			}else{
 				clazz=Model;
 			}
-			cModel=me.constructor.modelClass=clazz;
+			cModel=oProto.modelClass=clazz;
 		}
 		//初始化xmodel
 		var oAttrs={};
@@ -11678,13 +11694,28 @@ function(Browser,Util,Event,AC){
 	}
 	/**
 	 * 显示在指定元素显示
-	 * @param {jQuery}oEl 定位标准元素
+	 * @param {jQuery}oFollowEl 定位标准元素
 	 */
-	function fFollowEl(oEl){
+	function fFollowEl(oFollowEl){
 		var me=this;
-		var el=oEl||me.parent.getEl();
-		var oPos=Util.position(el[0]);
-		me.getEl().css(oPos);
+		oFollowEl=oFollowEl||me.parent.getEl();
+		var oPos=Util.position(oFollowEl[0]);
+		var oEl=me.getEl();
+		var oDoc=document;
+		var oDocEl=oDoc.documentElement;
+		var oBody=oDoc.body;
+		var nHeight=oEl[0].clientHeight;
+		var nClientHeight=oDocEl.clientHeight || oBody.clientHeight;
+		var nScrollTop= oDocEl.scrollTop||oBody.scrollTop;
+		//弹出层底部位置
+		var oElBotttom=oPos.top+nHeight;
+		//弹出层底部超出可视范围
+		var nOfffset=oElBotttom-nScrollTop-nClientHeight;
+		//网上调整以显示完整的弹出层
+		if(nOfffset>0){
+		    oPos.top=oPos.top-nOfffset;
+		}
+		oEl.css(oPos);
 	}
 	/**
 	 * 显示遮罩层
@@ -12722,8 +12753,11 @@ function(Obj,AC){
  */
 
 define('C.Form',
-'C.AbstractComponent',
-function(AC){
+[
+'B.Object',
+'C.AbstractComponent'
+],
+function(Obj,AC){
 	
 	var Form=AC.define('Form');
 	
@@ -12742,10 +12776,32 @@ function(AC){
 			'</div>'
 		].join(''),
 		
+		getFormData     : fGetFormData,    //获取表单数据
 		hasChanged      : fHasChanged      //检测是否有表单改变的域/值
 		
 	});
 	
+	/**
+	 * 获取表单数据
+	 * @return {object} 返回表单数据
+	 */
+	function fGetFormData(){
+		var me=this;
+		var oForm=me.findEl('form');
+		var oAttrs=Obj.fromArray(oForm.serializeArray());
+		//删除上传图片组件中的空值
+		var aImgs=me.find('ImgUpload');
+		for(var i=0,len=aImgs.length;i<len;i++){
+			var oImg=aImgs[i];
+			var sName=oImg.get('inputName');
+			if(oAttrs[sName]===''){
+				delete oAttrs[sName];
+			}
+		}
+		//zepto的结果中包含未定义name属性的input，形如："":value;
+		delete oAttrs[''];
+		return oAttrs;
+	}
 	/**
 	 * 检测是否有表单改变的域/值
 	 * @return {boolean} true表示有变化
@@ -14171,6 +14227,7 @@ function(Browser,Obj,Util,AC,ImgCompress,Device,Camera){
 		//初始配置
 		xConfig             : {
 			cls             : 'img-upload',
+			inputName       : 'fileContent',
 			transparent     : false,      //是否透明
 			useFileInput    : true,       //是否使用file input获取文件
 			showImg         : true        //是否显示预览
@@ -14181,6 +14238,22 @@ function(Browser,Obj,Util,AC,ImgCompress,Device,Camera){
 //		cropWinH            : 100,       //裁剪窗口高度
 //		cropOptions         : {},        //裁剪选项，参照Crop类
 //		compressOptions     : {}         //压缩选项，参照ImgCompress.compress方法
+		
+		tmpl            : [
+			'<div {{bindAttr class="transparent?hui-transparent"}}>',
+				'{{#unless transparent}}',
+					'<div>',
+						'<img {{bindAttr class="#js-orig showImg?:hui-hide"}}/>',
+					'</div>',
+					'<div>',
+						'<img src="" class="js-preview">',
+					'</div>',
+				'{{/unless}}',
+				'<input type="hidden" class="js-file-content" {{bindAttr name="inputName"}}>',
+				'{{#if useFileInput}}',
+					'<input type="file" class="js-file-input hui-file-input">',
+				'{{/if}}',
+			'</div>'].join(''),
 		
 		listeners       : [{
 			el   : 'input',
@@ -14231,22 +14304,6 @@ function(Browser,Obj,Util,AC,ImgCompress,Device,Camera){
 				}
 			}
 		}],
-		
-		tmpl            : [
-			'<div {{bindAttr class="transparent?hui-transparent"}}>',
-				'{{#unless transparent}}',
-					'<div>',
-						'<img {{bindAttr class="#js-orig showImg?:hui-hide"}}/>',
-					'</div>',
-					'<div>',
-						'<img src="" class="js-preview">',
-					'</div>',
-				'{{/unless}}',
-				'<input type="hidden" class="js-file-content" name="fileContent">',
-				'{{#if useFileInput}}',
-					'<input type="file" class="js-file-input hui-file-input">',
-				'{{/if}}',
-			'</div>'].join(''),
 		
 		doConfig         : fDoConfig,           //初始化配置
 		showSelDialog    : fShowSelDialog,      //显示选择照片源类型对话框

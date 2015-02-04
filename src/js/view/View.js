@@ -349,9 +349,13 @@ function(Obj,Template,ViewManager,ModelView,Model){
 		}
 		
 		//生成modelclass
-		var oFields=me.xConfig,cModel=me.modelClass;
-		if(!cModel&&!(cModel=me.constructor.modelClass)){
-			var clazz
+		var oFields=me.xConfig,
+		cModel=me.modelClass,
+		cClass=me.constructor;
+		oProto=cClass.prototype;
+		//不能是继承的modelClass，必须是当前类的
+		if(!cModel||((cModel=oProto.modelClass)&&cModel===cClass.superProto.modelClass)){
+			var clazz;
 			if(oFields){
 				clazz=Model.derive({
 					fields:oFields
@@ -359,7 +363,7 @@ function(Obj,Template,ViewManager,ModelView,Model){
 			}else{
 				clazz=Model;
 			}
-			cModel=me.constructor.modelClass=clazz;
+			cModel=oProto.modelClass=clazz;
 		}
 		//初始化xmodel
 		var oAttrs={};

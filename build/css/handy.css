@@ -2658,6 +2658,9 @@ html.hui-mi-no-svg .hui-btn.hui-checkbox-on {
 .hui-dp .hui-dp-hour {
   margin-left: 3.563em;
 }
+.hui-img-upload {
+  overflow: hidden;
+}
 .hui-img-upload.hui-transparent,
 .hui-img-upload.hui-transparent .hui-file-input {
   position: absolute;

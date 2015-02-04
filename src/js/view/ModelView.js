@@ -465,10 +465,11 @@ function(Obj,Template,AbstractView,Model,Collection){
 	function fGetTmplFn(){
 		var me=this;
 		//编译模板，固定模板的类只需执行一次
-		var tmpl=me.tmpl,oConstructor=me.constructor;
-		if(!Obj.isFunc(tmpl)&&!Obj.isFunc(tmpl=oConstructor.tmpl)){
+		var tmpl=me.tmpl;
+		if(!Obj.isFunc(tmpl)){
+			//预处理模板
 			me.preTmpl();
-			tmpl=oConstructor.tmpl=Template.tmpl({
+			tmpl=me.constructor.prototype.tmpl=Template.tmpl({
 				tmpl:me.tmpl,
 				ns:'ModelView'
 			});
