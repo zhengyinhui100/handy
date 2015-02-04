@@ -221,13 +221,28 @@ function(Browser,Util,Event,AC){
 	}
 	/**
 	 * 显示在指定元素显示
-	 * @param {jQuery}oEl 定位标准元素
+	 * @param {jQuery}oFollowEl 定位标准元素
 	 */
-	function fFollowEl(oEl){
+	function fFollowEl(oFollowEl){
 		var me=this;
-		var el=oEl||me.parent.getEl();
-		var oPos=Util.position(el[0]);
-		me.getEl().css(oPos);
+		oFollowEl=oFollowEl||me.parent.getEl();
+		var oPos=Util.position(oFollowEl[0]);
+		var oEl=me.getEl();
+		var oDoc=document;
+		var oDocEl=oDoc.documentElement;
+		var oBody=oDoc.body;
+		var nHeight=oEl[0].clientHeight;
+		var nClientHeight=oDocEl.clientHeight || oBody.clientHeight;
+		var nScrollTop= oDocEl.scrollTop||oBody.scrollTop;
+		//弹出层底部位置
+		var oElBotttom=oPos.top+nHeight;
+		//弹出层底部超出可视范围
+		var nOfffset=oElBotttom-nScrollTop-nClientHeight;
+		//网上调整以显示完整的弹出层
+		if(nOfffset>0){
+		    oPos.top=oPos.top-nOfffset;
+		}
+		oEl.css(oPos);
 	}
 	/**
 	 * 显示遮罩层
