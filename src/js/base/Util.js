@@ -12,6 +12,7 @@ define('B.Util','B.Object',function(Obj){
 		em2px            : fEm2px,             //em转化为px
 		px2em            : fPx2em,             //px转化为em
 		position         : fPosition,          //获取节点位置
+		scrollTop        : fScrollTop,         //获取节点scrollTop
 		result           : fResult             //如果对象中的指定属性是函数, 则调用它, 否则, 返回它
 	}
 	
@@ -107,6 +108,19 @@ define('B.Util','B.Object',function(Obj){
 			el = el.offsetParent;
 　　　　 }
 　　　　 return {top:nTop,left:nLeft};
+	}
+	/**
+	 * 获取节点scrollTop
+	 * @param {element}el
+	 * @return {number} 返回scrollTop
+	 */
+	function fScrollTop(el){
+		var nTop=0;
+　　　　 while(el){
+			nTop+=el.scrollTop||0;
+			el = el.parentNode;
+　　　　 }
+　　　　 return nTop;
 	}
 	/**
 	 * 如果对象中的指定属性是函数, 则调用它, 否则, 返回它

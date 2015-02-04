@@ -226,18 +226,20 @@ function(Browser,Util,Event,AC){
 	function fFollowEl(oFollowEl){
 		var me=this;
 		oFollowEl=oFollowEl||me.parent.getEl();
-		var oPos=Util.position(oFollowEl[0]);
+		oFollowEl=oFollowEl[0];
+		var oPos=Util.position(oFollowEl);
 		var oEl=me.getEl();
 		var oDoc=document;
 		var oDocEl=oDoc.documentElement;
 		var oBody=oDoc.body;
 		var nHeight=oEl[0].clientHeight;
 		var nClientHeight=oDocEl.clientHeight || oBody.clientHeight;
-		var nScrollTop= oDocEl.scrollTop||oBody.scrollTop;
+		var nScrollTop=Util.scrollTop(oFollowEl);
+		oPos.top-=nScrollTop;
 		//弹出层底部位置
 		var oElBotttom=oPos.top+nHeight;
 		//弹出层底部超出可视范围
-		var nOfffset=oElBotttom-nScrollTop-nClientHeight;
+		var nOfffset=oElBotttom-nClientHeight;
 		//网上调整以显示完整的弹出层
 		if(nOfffset>0){
 		    oPos.top=oPos.top-nOfffset;
