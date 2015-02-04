@@ -7,7 +7,7 @@ define('B.Support','L.Browser',function(Browser){
 	
 	var Support={
 //		testSvg               : fTestSvg          //检查是否支持svg
-		perf                  : fPerf,            //返回设备性能等级，用于移动设备，分为'low'，'middle'，'high'
+		perf                  : fPerf,            //返回设备性能等级，分为'low'，'middle'，'high'
 		testPerf              : fTestPerf,        //测试硬件性能
 		ifSupportStyle        : fIfSupportStyle,  //检测样式是否支持
 		normalizeEvent        : fNormalizeEvent,  //获取前缀正确的事件名
@@ -67,12 +67,15 @@ define('B.Support','L.Browser',function(Browser){
 	}
 	*/
 	/**
-	 * 返回设备性能等级，用于移动设备，分为'low'，'middle'，'high'
+	 * 返回设备性能等级，分为'low'，'middle'，'high'
 	 * @return {string} low表示低性能设备，middle表示中等设备，high表示高性能设备
 	 */
 	function fPerf(){
 		if(_sPerf){
 			return _sPerf;
+		}
+		if(Browser.pc()){
+			return _sPerf= 'high';
 		}
 		var nScreenWidth=Math.max(_oDoc.body?_oDoc.body.clientWidth:0,window.screen.width);
 		var sAndVersion=Browser.android();
