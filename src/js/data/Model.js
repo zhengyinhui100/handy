@@ -176,11 +176,15 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     /**
      * 处理计算/依赖属性
      * @param {object}oChanges 当前操作改变的属性
-     * @param {boolean}bSilent 是否不触发事件
+     * @param {object=}oOptions 选项{
+     * 		{boolean=}silent 是否不触发事件
+     * 		{object=}stack 调用堆栈，避免循环调用
+     * }
      * @return {object=}如果需要改变，返回改变的属性列表，否则返回undefined
      */
-    function _fDoDepends(oChanges,bSilent){
+    function _fDoDepends(oChanges,oOptions){
     	var me=this;
+    	oOptions=oOptions||{};
     	//处理计算属性
 	    var oFields=me.fields,oField,aDeps,oSets={},bNeed,fParseDeps;
 	    for(var key in oFields){
@@ -206,7 +210,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 			}
 	    }
 	    if(bNeed){
-		    return me.set(oSets,null,{silent:bSilent}).changed;
+		    return me.set(oSets,oOptions).changed;
 	    }
     }
     /**
@@ -302,9 +306,13 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	    	//标记已触发对应属性change事件，通知set方法不必再触发
 	    	me._attrEvts[sAttr]=1;
     	}
-    	var oChange={};
-    	oChange[sAttr]=oVal;
-    	me._doDepends(oChange);
+    	var sCurDepsUuid=sAttr+sCurUuid;
+    	if(sUuid.indexOf(sCurDepsUuid)<0){
+    		oStack.uuid+=sCurDepsUuid;
+	    	var oChange={};
+	    	oChange[sAttr]=oVal;
+	    	me._doDepends(oChange,{stack:oStack});
+    	}
     }
 	/**
 	 * 初始化
@@ -436,6 +444,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	 * 		{boolean=}unset: 是否清除设置
 	 * 		{boolean=}saved:是否是已保存的值
 	 * 		{boolean=}silent: 是否不触发事件
+	 * 		{object=}stack 调用堆栈，避免循环调用
 	 * }
 	 * @return {object}{
 	 * 		{boolean}changed : 此次设置改变了的属性列表，false表示未改变
@@ -466,6 +475,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	
 	    var bUnset= oOptions.unset;
 	    var bSilent= oOptions.silent;
+	    var oStack=oOptions.stack;
 	    //所以本次设置所改变的属性
 	    var oChanges={};
 	
@@ -554,17 +564,17 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	        for (var k in oChanges) {
 	        	//_onAttrEvent里触发过了的属性事件，这里不需要再触发
 	        	if(!me._attrEvts[k]){
-		      	    me.trigger('change:' + k, me, oCurrent[k], oOptions);
+		      	    me.trigger('change:' + k, me, oCurrent[k], oOptions,oStack);
 	        	}
 	        }
 	    }
 	
 	    //触发模型对象change事件
-	    if (!bSilent) {
+	    if (bHasChange&&!bSilent) {
 	        if(me._pending) {
 	       		oOptions = me._pending;
 //	            me._pending = false;
-	            me.trigger('change', me, oOptions);
+	            me.trigger('change', me, oOptions,oStack);
 	        }
 	    }
 	    //处理依赖属性
