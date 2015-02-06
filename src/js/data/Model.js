@@ -237,6 +237,8 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 					val=val?parseFloat(val):0;
 				}else if(type=='boolean'||type=='bool'){
 					val=val&&val!=='false';
+				}else if(type.indexOf('.')>0){
+					type=require(type);
 				}
 			}
 			if(Obj.isClass(type)&&!(val instanceof type)){
@@ -345,6 +347,10 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 						}else{
 							var type=field.type;
 							if(type){
+								//命名空间
+								if(typeof type=='string'&&type.indexOf('.')>0){
+									type=field.type=require(type);
+								}
 								//TODO:对于嵌套类型，只有Collection默认会初始化，方便使用，
 								//模型由于可能自引用造成死循环，这里暂不自动初始化，还是自定义不初始化？
 								if(type.prototype){
