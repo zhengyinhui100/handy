@@ -739,6 +739,7 @@ function(Obj,Template,ViewManager,ModelView,Model){
 		var oXmodel=me.xmodel;
 		function _fBind(sAttr,sRefAttr){
 			//嵌套属性
+			//TODO:多重嵌套？
 			var sNestedAttr;
 			if(sRefAttr.indexOf('.')>0){
 				var attrs=sRefAttr.split('.');

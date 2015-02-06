@@ -281,12 +281,27 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     	}
     	var me=this;
     	var oVal=me.get(sAttr);
-    	var args=Obj.toArray(arguments,1);
-    	me.trigger.apply(me,['change:'+sAttr,me,oVal].concat(args));
-    	me.trigger.apply(me,['change',me].concat(args));
-    	//me.trigger.apply(me, arguments);
-    	//标记已触发对应属性change事件，通知set方法不必再触发
-    	me._attrEvts[sAttr]=1;
+    	var aArgs=Obj.toArray(arguments,1);
+    	var oStack=aArgs[aArgs.length-1];
+    	if(!oStack||!oStack.$isStack){
+    		oStack={
+    			uuid:oModel.uuid+',',
+    			$isStack:true
+    		}
+    		aArgs.push(oStack);
+    	}
+    	var sUuid=oStack.uuid;
+    	var sCurUuid=me.uuid+',';
+    	//不是循环事件才触发
+    	if(sUuid.indexOf(sCurUuid)<0){
+    		//将当前uuid加上，到外层事件时检查是否是循环事件
+    		oStack.uuid+=sCurUuid;
+	    	me.trigger.apply(me,['change:'+sAttr,me,oVal].concat(aArgs));
+	    	me.trigger.apply(me,['change',me,oStack].concat(aArgs));
+	    	//me.trigger.apply(me, arguments);
+	    	//标记已触发对应属性change事件，通知set方法不必再触发
+	    	me._attrEvts[sAttr]=1;
+    	}
     	var oChange={};
     	oChange[sAttr]=oVal;
     	me._doDepends(oChange);

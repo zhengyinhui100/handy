@@ -177,7 +177,23 @@ function(Obj,Arr,Func,AbstractData,Model){
             	me._byId[oModel.id] = oModel;
             }
         }
-        me.trigger.apply(me, arguments);
+        var aArgs=Obj.toArray(arguments);
+    	var oStack=aArgs[aArgs.length-1];
+    	if(!oStack||!oStack.$isStack){
+    		oStack={
+    			uuid:oModel.uuid+',',
+    			$isStack:true
+    		}
+    		aArgs.push(oStack);
+    	}
+    	var sUuid=oStack.uuid;
+    	var sCurUuid=me.uuid+',';
+    	//不是循环事件才触发
+    	if(sUuid.indexOf(sCurUuid)<0){
+    		//将当前uuid加上，到外层事件时检查是否是循环事件
+    		oStack.uuid+=sCurUuid;
+        	me.trigger.apply(me, aArgs);
+    	}
     }
 	/**
 	 * 初始化
