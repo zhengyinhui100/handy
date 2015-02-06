@@ -1,19 +1,15 @@
 /**
  * 资源加载类
+ * PS：对于循环引用，这里的处理方式是把其中一个资源的循环依赖忽略掉，比如：
+ * 1、define('a',['b','c'],function(b,c){});
+ * 2、define('b',['a','d'],function(a,d){});
+ * Loader检测到循环依赖，会在第二句执行时忽略依赖项a是否已加载，直接以{}替换a，从而使代码继续执行下去，
+ * 这时候需要在b模块里异步require('a')来真正使用a模块，但是,我们应该尽量避免出现循环依赖
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 define("L.Loader",
 ["L.Debug"],
 function(Debug){
-	
-	var _LOADER_PRE='[Handy Loader] ',
-		_RESOURCE_NOT_FOUND= _LOADER_PRE+'not found: ',
-		_eHead=document.head ||document.getElementsByTagName('head')[0] ||document.documentElement,
-		_UA = navigator.userAgent,
-        _bIsWebKit = _UA.indexOf('AppleWebKit'),
-    	_aContext=[],         //请求上下文堆栈
-    	_requestingNum=0,     //正在请求(还未返回)的数量
-	    _oCache={};           //缓存
 	
 	var Loader= {
 		traceLog                : false,                     //是否打印跟踪信息
@@ -37,30 +33,72 @@ function(Debug){
 	    require                 : fRequire                  //获取所需资源后执行回调
 	}
 	
+	var _LOADER_PRE='[Handy Loader] ',
+		_RESOURCE_NOT_FOUND= _LOADER_PRE+'not found: ',
+		_eHead=document.head ||document.getElementsByTagName('head')[0] ||document.documentElement,
+		_UA = navigator.userAgent,
+        _bIsWebKit = _UA.indexOf('AppleWebKit'),
+    	_aContext=[],         //请求上下文堆栈
+    	_requestingNum=0,     //正在请求(还未返回)的数量
+	    _oCache={};           //缓存
+	    
 	window.define=Loader.define;
 	window.require=Loader.require;
 	
+	/**
+	 * 缓存请求上下文
+	 * @param {object}oContext 上下文参数{
+	 * 		{string} id: 模块id
+	 * 		{array} deps: 依赖资源
+	 * 		{function} callback: 回调
+	 * }
+	 */
+	function _fSaveContext(oContext){
+		var aDeps=oContext.deps;
+		_aContext[oContext.id]=oContext;
+	    _aContext.push(oContext);
+	}
+	/**
+	 * 检查是否有循环依赖
+	 * @param {string} sId 要检查的id
+	 * @param {string=}sDepId 被检查依赖的id，仅用于内部递归的时候
+	 * @param {object=}oChked 保存已递归检查的属性，避免死循环，仅用于内部递归的时候
+	 * @return {boolean=} 如果有循环依赖返回true
+	 */
+	function _fChkCycle(sId,sDepId,oChked){
+		var sCurId=sDepId||sId;
+		var oRefContext=_aContext[sCurId];
+		var aRefDeps=oRefContext&&oRefContext.deps;
+		if(!aRefDeps){
+			return;
+		}
+		oChked=oChked||{};
+		for(var i=0,len=aRefDeps.length;i<len;i++){
+			sDepId=aRefDeps[i];
+			if(sDepId==sId){
+				//有循环引用
+				Debug.warn(_LOADER_PRE+'cycle depend:'+sCurId+" <=> "+sId);
+				return true;
+			}else if(!oChked[sDepId]){
+				oChked[sDepId]=1;
+				//递归检查间接依赖
+				var result=_fChkCycle(sId,sDepId,oChked);
+				if(result){
+					return result;
+				}
+			}
+		}
+	}
      /**
 	 * 检查对应的资源是否已加载，只要检测到一个不存在的资源就立刻返回
 	 * @param {string|Array}id 被检查的资源id
+	 * @param {boolean=}bIgnoreCycle 仅当为true时忽略循环引用
 	 * @return {Object}  {
 	 * 		{Array}exist: 存在的资源列表
 	 * 		{string}notExist: 不存在的资源id
 	 * }
 	 */
-    function _fChkExisted(id){
-    	function _fChk(sId){
-    		//css和js文件只验证是否加载完
-    		if(/\.(css|js)/.test(sId)){
-    			return _oCache[sId]&&_oCache[sId].status=='loaded';
-    		}else if(Loader.sourceMap&&Loader.sourceMap[sId]){
-    			//自定义资源使用自定义方法验证
-    			return Loader.sourceMap[sId].chkExist();
-    		}else{
-    			//标准命名空间规则验证
-	    		return $H.ns(sId);
-    		}
-    	}
+    function _fChkExisted(id,bIgnoreCycle){
     	var oResult={}
     	var aExist=[];
     	var aNotExist=[];
@@ -70,7 +108,21 @@ function(Debug){
     	for(var i=0,nLen=id.length;i<nLen;i++){
     		var sId=id[i];
  			sId=$H.alias(sId);
-    		var result=_fChk(sId);
+    		var result;
+			//css和js文件只验证是否加载完
+			if(/\.(css|js)/.test(sId)){
+				result= _oCache[sId]&&_oCache[sId].status=='loaded';
+			}else if(Loader.sourceMap&&Loader.sourceMap[sId]){
+				//自定义资源使用自定义方法验证
+				result= Loader.sourceMap[sId].chkExist();
+			}else{
+				//标准命名空间规则验证
+	    		result= $H.ns(sId);
+			}
+			if(result===undefined&&bIgnoreCycle){
+				//如果有循环依赖，将当前资源放入已存在的结果中，避免执行不下去
+				result=_fChkCycle(sId);
+			}
     		if(!result){
     			aNotExist.push(sId);
     		}else{
@@ -401,7 +453,7 @@ function(Debug){
     	//每次回调都循环上下文列表
    		for(var i=_aContext.length-1;i>=0;i--){
 	    	var oContext=_aContext[i];
-	    	var oResult=_fChkExisted(oContext.deps);
+	    	var oResult=_fChkExisted(oContext.deps,true);
 	    	if(oResult.notExist.length===0){
 	    		_aContext.splice(i,1);
 	    		oContext.callback.apply(null,oResult.exist);
@@ -428,12 +480,12 @@ function(Debug){
 	    				}
 	    			}
 	    			if(!bHasDepds){
-						Debug.error(_RESOURCE_NOT_FOUND+oContext.id);
+						Debug.error(_LOADER_PRE+_RESOURCE_NOT_FOUND+oContext.id);
 	    			}
-    				Debug.warn(oContext.id);
-    				Debug.warn("----notExist : "+oResult.notExist);
+    				Debug.warn(_LOADER_PRE+oContext.id);
+    				Debug.warn(_LOADER_PRE+"----notExist : "+oResult.notExist);
 	    		}
-	    		Debug.error(_RESOURCE_NOT_FOUND+oResult.notExist);
+	    		Debug.error(_LOADER_PRE+_RESOURCE_NOT_FOUND+oResult.notExist);
 	    	}
    		}
     }
@@ -516,15 +568,19 @@ function(Debug){
     	var bNeedContext=true;
     	for(var i=0,nLen=aIds.length;i<nLen;i++){
     		var sId=aIds[i];
-			//读取实名
+			//替换为实名
 			sId=$H.alias(sId);
+			aIds.splice(i,1,sId);
+    	}
+    	for(var i=0,nLen=aIds.length;i<nLen;i++){
+    		var sId=aIds[i];
     		var oResult=_fChkExisted(sId);
     		if(oResult.notExist.length>0){
     			//未加载资源放进队列中
     			aRequestIds.push(sId);
     			if(bNeedContext){
     				bNeedContext=false;
-	    			_aContext.push({
+	    			_fSaveContext({
 	    				id        : sDefineId,
 	    				deps      : aIds,
 	    				callback  : fCallback

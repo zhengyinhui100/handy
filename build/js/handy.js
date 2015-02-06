@@ -11,31 +11,48 @@
 		//return new handy.base.Element(selector,context);
 	};
 	
-	handy.version    = '1.0.0';    //版本号
-	handy.env        = typeof gEnv=='undefined'?'online':gEnv         //默认是线上环境
-	handy.isDebug    = handy.env=='dev';                              //是否是开发环境
-	handy.isOnline   = handy.env=='online';                           //是否是线上环境
-	handy.expando    = ("handy-" +  handy.version).replace(/\./g,'_'); //自定义属性名
-	handy.base={};
-	handy.noConflict = fNoConflict;     //处理命名冲突
-	handy.noop       = function(){};    //空函数
-	handy._alias     = {                //存储别名，公共库建议大写，以便更好地与普通名称区别开，具体项目的别名建议小写
-		'L'             : 'handy.loader',
-		'B'             : 'handy.base',
-		'C'             : 'handy.component',
-		'M'             : 'handy.module',
-		'U'             : 'handy.util',
-		'E'             : 'handy.effect',
-		'CM'            : 'handy.common',
-		'D'             : 'handy.data',
-		'V'             : 'handy.view',
-		'P'             : 'handy.plugin'
-	};              
-	handy.ns         = fNamespace;    //创建或读取命名空间，可以传入用以初始化该命名空间的对象
-	handy.alias      = fAlias;        //创建别名/读取实名
-	handy.generateMethod = fGenerateMethod   //归纳生成方法
+	handy.extend = fExtend;
+	var sVersion='1.0.0';
+	var sEnv=typeof gEnv=='undefined'?'online':gEnv;
+	fExtend(handy,{
+		version    : sVersion,    //版本号
+		env        : sEnv,        //默认是线上环境
+		isDebug    : sEnv=='dev',                              //是否是开发环境
+		isTest     : sEnv=='test',                             //是否是测试环境
+		isOnline   : sEnv=='online',                           //是否是线上环境
+		expando    : ("handy-" +  sVersion).replace(/\./g,'_'), //自定义属性名
+		base       : {},
+		noConflict : fNoConflict,     //处理命名冲突
+		noop       : function(){},    //空函数
+		_alias     : {                //存储别名，公共库建议大写，以便更好地与普通名称区别开，具体项目的别名建议小写
+			'L'             : 'handy.loader',
+			'B'             : 'handy.base',
+			'C'             : 'handy.component',
+			'M'             : 'handy.module',
+			'U'             : 'handy.util',
+			'E'             : 'handy.effect',
+			'CM'            : 'handy.common',
+			'D'             : 'handy.data',
+			'V'             : 'handy.view',
+			'P'             : 'handy.plugin'
+		},              
+		ns         : fNamespace,    //创建或读取命名空间，可以传入用以初始化该命名空间的对象
+		alias      : fAlias,        //创建别名/读取实名
+		generateMethod : fGenerateMethod   //归纳生成方法
+	});
 	oWin.define=handy.add = fAdd;            //添加子模块
 	
+	/**
+	 * @param {Object} oDestination 目标对象
+	 * @param {Object} oSource 源对象
+	 * @return {Object} 扩展后的对象
+	*/
+	function fExtend(oDestination,oSource){
+		for(var k in oSource){
+			oDestination[k]=oSource[k];
+		}
+		return oDestination;
+	}
 	/**
 	 * 处理命名冲突
 	 * @param {boolean}isDeep 是否处理window.handy冲突
@@ -171,6 +188,8 @@
 			oModule=factory.apply(oWin,args);
 		}
 		handy.ns(sName,oModule);
+		return;
+		//将base库里的所有方法挂载到handy下方便使用
 		for(var method in oModule){
 			//!Function[method]专为bind方法
 			if(handy.isDebug&&typeof handy[method]!="undefined"&&('console' in oWin)&&!Function[method]){
@@ -900,20 +919,16 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 });
 /**
  * 资源加载类
+ * PS：对于循环引用，这里的处理方式是把其中一个资源的循环依赖忽略掉，比如：
+ * 1、define('a',['b','c'],function(b,c){});
+ * 2、define('b',['a','d'],function(a,d){});
+ * Loader检测到循环依赖，会在第二句执行时忽略依赖项a是否已加载，直接以{}替换a，从而使代码继续执行下去，
+ * 这时候需要在b模块里异步require('a')来真正使用a模块，但是,我们应该尽量避免出现循环依赖
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 define("L.Loader",
 ["L.Debug"],
 function(Debug){
-	
-	var _LOADER_PRE='[Handy Loader] ',
-		_RESOURCE_NOT_FOUND= _LOADER_PRE+'not found: ',
-		_eHead=document.head ||document.getElementsByTagName('head')[0] ||document.documentElement,
-		_UA = navigator.userAgent,
-        _bIsWebKit = _UA.indexOf('AppleWebKit'),
-    	_aContext=[],         //请求上下文堆栈
-    	_requestingNum=0,     //正在请求(还未返回)的数量
-	    _oCache={};           //缓存
 	
 	var Loader= {
 		traceLog                : false,                     //是否打印跟踪信息
@@ -937,30 +952,72 @@ function(Debug){
 	    require                 : fRequire                  //获取所需资源后执行回调
 	}
 	
+	var _LOADER_PRE='[Handy Loader] ',
+		_RESOURCE_NOT_FOUND= _LOADER_PRE+'not found: ',
+		_eHead=document.head ||document.getElementsByTagName('head')[0] ||document.documentElement,
+		_UA = navigator.userAgent,
+        _bIsWebKit = _UA.indexOf('AppleWebKit'),
+    	_aContext=[],         //请求上下文堆栈
+    	_requestingNum=0,     //正在请求(还未返回)的数量
+	    _oCache={};           //缓存
+	    
 	window.define=Loader.define;
 	window.require=Loader.require;
 	
+	/**
+	 * 缓存请求上下文
+	 * @param {object}oContext 上下文参数{
+	 * 		{string} id: 模块id
+	 * 		{array} deps: 依赖资源
+	 * 		{function} callback: 回调
+	 * }
+	 */
+	function _fSaveContext(oContext){
+		var aDeps=oContext.deps;
+		_aContext[oContext.id]=oContext;
+	    _aContext.push(oContext);
+	}
+	/**
+	 * 检查是否有循环依赖
+	 * @param {string} sId 要检查的id
+	 * @param {string=}sDepId 被检查依赖的id，仅用于内部递归的时候
+	 * @param {object=}oChked 保存已递归检查的属性，避免死循环，仅用于内部递归的时候
+	 * @return {boolean=} 如果有循环依赖返回true
+	 */
+	function _fChkCycle(sId,sDepId,oChked){
+		var sCurId=sDepId||sId;
+		var oRefContext=_aContext[sCurId];
+		var aRefDeps=oRefContext&&oRefContext.deps;
+		if(!aRefDeps){
+			return;
+		}
+		oChked=oChked||{};
+		for(var i=0,len=aRefDeps.length;i<len;i++){
+			sDepId=aRefDeps[i];
+			if(sDepId==sId){
+				//有循环引用
+				Debug.warn(_LOADER_PRE+'cycle depend:'+sCurId+" <=> "+sId);
+				return true;
+			}else if(!oChked[sDepId]){
+				oChked[sDepId]=1;
+				//递归检查间接依赖
+				var result=_fChkCycle(sId,sDepId,oChked);
+				if(result){
+					return result;
+				}
+			}
+		}
+	}
      /**
 	 * 检查对应的资源是否已加载，只要检测到一个不存在的资源就立刻返回
 	 * @param {string|Array}id 被检查的资源id
+	 * @param {boolean=}bIgnoreCycle 仅当为true时忽略循环引用
 	 * @return {Object}  {
 	 * 		{Array}exist: 存在的资源列表
 	 * 		{string}notExist: 不存在的资源id
 	 * }
 	 */
-    function _fChkExisted(id){
-    	function _fChk(sId){
-    		//css和js文件只验证是否加载完
-    		if(/\.(css|js)/.test(sId)){
-    			return _oCache[sId]&&_oCache[sId].status=='loaded';
-    		}else if(Loader.sourceMap&&Loader.sourceMap[sId]){
-    			//自定义资源使用自定义方法验证
-    			return Loader.sourceMap[sId].chkExist();
-    		}else{
-    			//标准命名空间规则验证
-	    		return $H.ns(sId);
-    		}
-    	}
+    function _fChkExisted(id,bIgnoreCycle){
     	var oResult={}
     	var aExist=[];
     	var aNotExist=[];
@@ -970,7 +1027,21 @@ function(Debug){
     	for(var i=0,nLen=id.length;i<nLen;i++){
     		var sId=id[i];
  			sId=$H.alias(sId);
-    		var result=_fChk(sId);
+    		var result;
+			//css和js文件只验证是否加载完
+			if(/\.(css|js)/.test(sId)){
+				result= _oCache[sId]&&_oCache[sId].status=='loaded';
+			}else if(Loader.sourceMap&&Loader.sourceMap[sId]){
+				//自定义资源使用自定义方法验证
+				result= Loader.sourceMap[sId].chkExist();
+			}else{
+				//标准命名空间规则验证
+	    		result= $H.ns(sId);
+			}
+			if(result===undefined&&bIgnoreCycle){
+				//如果有循环依赖，将当前资源放入已存在的结果中，避免执行不下去
+				result=_fChkCycle(sId);
+			}
     		if(!result){
     			aNotExist.push(sId);
     		}else{
@@ -1301,7 +1372,7 @@ function(Debug){
     	//每次回调都循环上下文列表
    		for(var i=_aContext.length-1;i>=0;i--){
 	    	var oContext=_aContext[i];
-	    	var oResult=_fChkExisted(oContext.deps);
+	    	var oResult=_fChkExisted(oContext.deps,true);
 	    	if(oResult.notExist.length===0){
 	    		_aContext.splice(i,1);
 	    		oContext.callback.apply(null,oResult.exist);
@@ -1328,12 +1399,12 @@ function(Debug){
 	    				}
 	    			}
 	    			if(!bHasDepds){
-						Debug.error(_RESOURCE_NOT_FOUND+oContext.id);
+						Debug.error(_LOADER_PRE+_RESOURCE_NOT_FOUND+oContext.id);
 	    			}
-    				Debug.warn(oContext.id);
-    				Debug.warn("----notExist : "+oResult.notExist);
+    				Debug.warn(_LOADER_PRE+oContext.id);
+    				Debug.warn(_LOADER_PRE+"----notExist : "+oResult.notExist);
 	    		}
-	    		Debug.error(_RESOURCE_NOT_FOUND+oResult.notExist);
+	    		Debug.error(_LOADER_PRE+_RESOURCE_NOT_FOUND+oResult.notExist);
 	    	}
    		}
     }
@@ -1416,15 +1487,19 @@ function(Debug){
     	var bNeedContext=true;
     	for(var i=0,nLen=aIds.length;i<nLen;i++){
     		var sId=aIds[i];
-			//读取实名
+			//替换为实名
 			sId=$H.alias(sId);
+			aIds.splice(i,1,sId);
+    	}
+    	for(var i=0,nLen=aIds.length;i<nLen;i++){
+    		var sId=aIds[i];
     		var oResult=_fChkExisted(sId);
     		if(oResult.notExist.length>0){
     			//未加载资源放进队列中
     			aRequestIds.push(sId);
     			if(bNeedContext){
     				bNeedContext=false;
-	    			_aContext.push({
+	    			_fSaveContext({
 	    				id        : sDefineId,
 	    				deps      : aIds,
 	    				callback  : fCallback
@@ -3018,6 +3093,7 @@ define('B.Util','B.Object',function(Obj){
 		em2px            : fEm2px,             //em转化为px
 		px2em            : fPx2em,             //px转化为em
 		position         : fPosition,          //获取节点位置
+		scrollTop        : fScrollTop,         //获取节点scrollTop
 		result           : fResult             //如果对象中的指定属性是函数, 则调用它, 否则, 返回它
 	}
 	
@@ -3113,6 +3189,19 @@ define('B.Util','B.Object',function(Obj){
 			el = el.offsetParent;
 　　　　 }
 　　　　 return {top:nTop,left:nLeft};
+	}
+	/**
+	 * 获取节点scrollTop
+	 * @param {element}el
+	 * @return {number} 返回scrollTop
+	 */
+	function fScrollTop(el){
+		var nTop=0;
+　　　　 while(el){
+			nTop+=el.scrollTop||0;
+			el = el.parentNode;
+　　　　 }
+　　　　 return nTop;
 	}
 	/**
 	 * 如果对象中的指定属性是函数, 则调用它, 否则, 返回它
@@ -4411,7 +4500,7 @@ define('B.Support','L.Browser',function(Browser){
 	
 	var Support={
 //		testSvg               : fTestSvg          //检查是否支持svg
-		perf                  : fPerf,            //返回设备性能等级，用于移动设备，分为'low'，'middle'，'high'
+		perf                  : fPerf,            //返回设备性能等级，分为'low'，'middle'，'high'
 		testPerf              : fTestPerf,        //测试硬件性能
 		ifSupportStyle        : fIfSupportStyle,  //检测样式是否支持
 		normalizeEvent        : fNormalizeEvent,  //获取前缀正确的事件名
@@ -4471,12 +4560,15 @@ define('B.Support','L.Browser',function(Browser){
 	}
 	*/
 	/**
-	 * 返回设备性能等级，用于移动设备，分为'low'，'middle'，'high'
+	 * 返回设备性能等级，分为'low'，'middle'，'high'
 	 * @return {string} low表示低性能设备，middle表示中等设备，high表示高性能设备
 	 */
 	function fPerf(){
 		if(_sPerf){
 			return _sPerf;
+		}
+		if(Browser.pc()){
+			return _sPerf= 'high';
 		}
 		var nScreenWidth=Math.max(_oDoc.body?_oDoc.body.clientWidth:0,window.screen.width);
 		var sAndVersion=Browser.android();
@@ -10977,8 +11069,8 @@ define('C.AbstractComponent',
 			theme           : '',                //主题
 			cls             : '',                //组件css命名前缀
 			radius          : null,         	 //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
-			shadow          : false,        	 //外阴影
-			shadowInset     : false,        	 //内阴影
+			shadow          : false,             //外阴影
+			shadowInset     : false,             //内阴影
 			gradient        : false,             //渐变
 			shadowSurround  : false,             //外围亮阴影，主要用于黑色工具栏内的按钮
 			shadowOverlay   : false,             //遮罩层里组件的阴影效果，主要用于弹出层
@@ -11268,11 +11360,14 @@ function(AC){
 define('C.Button',
 [
 'B.Object',
+'B.Support',
 'C.AbstractComponent'
 ],
-function(Obj,AC){
+function(Obj,Support,AC){
 	
 	var Button=AC.define('Button');
+	
+	var _bHighPerf=Support.perf()=='high';
 	
 	Button.extend({
 		//初始配置
@@ -11287,7 +11382,8 @@ function(Obj,AC){
 			activeCls       : 'hui-btn-active',    //激活样式
 			isBack          : false,               //是否是后退按钮
 			radius          : 'little',            //圆角，null：无圆角，little：小圆角，normal：普通圆角，big：大圆角
-			gradient        : false,               //渐变效果
+			shadow          : _bHighPerf,
+			gradient        : _bHighPerf,          //渐变效果
 			isInline        : true,                //宽度自适应
 			noTxtCls        : {
 				deps : ['text','tType'],
@@ -11699,18 +11795,20 @@ function(Browser,Util,Event,AC){
 	function fFollowEl(oFollowEl){
 		var me=this;
 		oFollowEl=oFollowEl||me.parent.getEl();
-		var oPos=Util.position(oFollowEl[0]);
+		oFollowEl=oFollowEl[0];
+		var oPos=Util.position(oFollowEl);
 		var oEl=me.getEl();
 		var oDoc=document;
 		var oDocEl=oDoc.documentElement;
 		var oBody=oDoc.body;
 		var nHeight=oEl[0].clientHeight;
 		var nClientHeight=oDocEl.clientHeight || oBody.clientHeight;
-		var nScrollTop= oDocEl.scrollTop||oBody.scrollTop;
+		var nScrollTop=Util.scrollTop(oFollowEl);
+		oPos.top-=nScrollTop;
 		//弹出层底部位置
 		var oElBotttom=oPos.top+nHeight;
 		//弹出层底部超出可视范围
-		var nOfffset=oElBotttom-nScrollTop-nClientHeight;
+		var nOfffset=oElBotttom-nClientHeight;
 		//网上调整以显示完整的弹出层
 		if(nOfffset>0){
 		    oPos.top=oPos.top-nOfffset;
@@ -13232,9 +13330,9 @@ function(AC){
 		
 //		scrollHide       : false,                  //是否在页面滚动时自动收起
 		defItem          : {
-			xtype        : 'Button',
-			theme        : 'black',
-			xrole        : 'content'
+			xtype           : 'Button',
+			theme           : 'black',
+			xrole           : 'content'
 		},
 		
 		tmpl             : [
@@ -15197,7 +15295,7 @@ function(Browser,Util,Obj,Date,Support,AC,Draggable){
 					'<div class="hui-list-container js-item-container">{{placeItem}}</div>',
 					'{{#if hasMoreBtn}}',
 						'<div {{bindAttr class="#hui-list-more showMoreBtn:hui-hidden"}}>',
-							'<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-shadow hui-inline hui-radius-little">',
+							'<a href="javascript:;" hidefocus="true" class="hui-btn hui-btn-gray hui-shadow hui-gradient hui-inline hui-radius-little">',
 								'<span class="hui-btn-txt">{{moreBtnTxt}}</span>',
 							'</a>',
 						'</div>',

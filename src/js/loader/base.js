@@ -11,31 +11,48 @@
 		//return new handy.base.Element(selector,context);
 	};
 	
-	handy.version    = '1.0.0';    //版本号
-	handy.env        = typeof gEnv=='undefined'?'online':gEnv         //默认是线上环境
-	handy.isDebug    = handy.env=='dev';                              //是否是开发环境
-	handy.isOnline   = handy.env=='online';                           //是否是线上环境
-	handy.expando    = ("handy-" +  handy.version).replace(/\./g,'_'); //自定义属性名
-	handy.base={};
-	handy.noConflict = fNoConflict;     //处理命名冲突
-	handy.noop       = function(){};    //空函数
-	handy._alias     = {                //存储别名，公共库建议大写，以便更好地与普通名称区别开，具体项目的别名建议小写
-		'L'             : 'handy.loader',
-		'B'             : 'handy.base',
-		'C'             : 'handy.component',
-		'M'             : 'handy.module',
-		'U'             : 'handy.util',
-		'E'             : 'handy.effect',
-		'CM'            : 'handy.common',
-		'D'             : 'handy.data',
-		'V'             : 'handy.view',
-		'P'             : 'handy.plugin'
-	};              
-	handy.ns         = fNamespace;    //创建或读取命名空间，可以传入用以初始化该命名空间的对象
-	handy.alias      = fAlias;        //创建别名/读取实名
-	handy.generateMethod = fGenerateMethod   //归纳生成方法
+	handy.extend = fExtend;
+	var sVersion='1.0.0';
+	var sEnv=typeof gEnv=='undefined'?'online':gEnv;
+	fExtend(handy,{
+		version    : sVersion,    //版本号
+		env        : sEnv,        //默认是线上环境
+		isDebug    : sEnv=='dev',                              //是否是开发环境
+		isTest     : sEnv=='test',                             //是否是测试环境
+		isOnline   : sEnv=='online',                           //是否是线上环境
+		expando    : ("handy-" +  sVersion).replace(/\./g,'_'), //自定义属性名
+		base       : {},
+		noConflict : fNoConflict,     //处理命名冲突
+		noop       : function(){},    //空函数
+		_alias     : {                //存储别名，公共库建议大写，以便更好地与普通名称区别开，具体项目的别名建议小写
+			'L'             : 'handy.loader',
+			'B'             : 'handy.base',
+			'C'             : 'handy.component',
+			'M'             : 'handy.module',
+			'U'             : 'handy.util',
+			'E'             : 'handy.effect',
+			'CM'            : 'handy.common',
+			'D'             : 'handy.data',
+			'V'             : 'handy.view',
+			'P'             : 'handy.plugin'
+		},              
+		ns         : fNamespace,    //创建或读取命名空间，可以传入用以初始化该命名空间的对象
+		alias      : fAlias,        //创建别名/读取实名
+		generateMethod : fGenerateMethod   //归纳生成方法
+	});
 	oWin.define=handy.add = fAdd;            //添加子模块
 	
+	/**
+	 * @param {Object} oDestination 目标对象
+	 * @param {Object} oSource 源对象
+	 * @return {Object} 扩展后的对象
+	*/
+	function fExtend(oDestination,oSource){
+		for(var k in oSource){
+			oDestination[k]=oSource[k];
+		}
+		return oDestination;
+	}
 	/**
 	 * 处理命名冲突
 	 * @param {boolean}isDeep 是否处理window.handy冲突
@@ -171,6 +188,8 @@
 			oModule=factory.apply(oWin,args);
 		}
 		handy.ns(sName,oModule);
+		return;
+		//将base库里的所有方法挂载到handy下方便使用
 		for(var method in oModule){
 			//!Function[method]专为bind方法
 			if(handy.isDebug&&typeof handy[method]!="undefined"&&('console' in oWin)&&!Function[method]){
