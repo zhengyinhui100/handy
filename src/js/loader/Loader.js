@@ -4,7 +4,12 @@
  * 1、define('a',['b','c'],function(b,c){});
  * 2、define('b',['a','d'],function(a,d){});
  * Loader检测到循环依赖，会在第二句执行时忽略依赖项a是否已加载，直接以{}替换a，从而使代码继续执行下去，
- * 这时候需要在b模块里异步require('a')来真正使用a模块，但是,我们应该尽量避免出现循环依赖
+ * 这时候需要在b模块里异步require('a')来真正使用a模块。
+ * 但是,我们应该尽量避免出现显示的循环依赖，遇到相互引用的情况，先尽可能的将依赖后置，
+ * 既尽可能使用运行时异步require的方式引入依赖，已化解模块定义时的循环引用
+ * TODO:实际上，终归要采用依赖后置才能解决相互引用的问题，我们应该避免显示的相互引用，是否考虑只在的开发模式下检查相互引用以提升性能？
+ * PS：模块里的同步require('a')方法的依赖会被提取到模块定义时的依赖列表里，如果不希望被提取，可以采用$H.ns方法，
+ * 或者var id='a';var a=require(id)的方式
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 define("L.Loader",
@@ -78,7 +83,7 @@ function(Debug){
 			if(sDepId==sId){
 				//有循环引用
 				Debug.warn(_LOADER_PRE+'cycle depend:'+sCurId+" <=> "+sId);
-				return true;
+				return {};
 			}else if(!oChked[sDepId]){
 				oChked[sDepId]=1;
 				//递归检查间接依赖
