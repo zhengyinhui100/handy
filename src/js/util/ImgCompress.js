@@ -95,11 +95,11 @@ function(Browser,Obj,Class){
         	var nCropH=oOptions.cropH;
         	var nCropX=oOptions.cropX;
         	var nCropY=oOptions.cropY;
-        	var bIOS=Browser.ios();
+        	var bIOSFix=Browser.ios()<7;
             //需要裁剪
             if(bCrop){
             	var oSize=_fFixSize(nCropW,nCropH);
-            	if(bIOS){
+            	if(bIOSFix){
             		//需要第三方库修正图片，canvas先绘制原图，等修正后再进行截取
             		nCropW=oSize.w;
             		nCropH=oSize.h;
@@ -140,7 +140,7 @@ function(Browser,Obj,Class){
 			var base64;
 
             // 修复IOS
-            if(bIOS) {
+            if(bIOSFix) {
                 var mpImg = new MegaPixImage(oImg);
                 mpImg.render(oCanvas, { maxWidth: w, maxHeight: h, quality: nQuality, orientation: 6 });
                 if(bCrop){

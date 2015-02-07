@@ -62,8 +62,8 @@ function(Browser,Obj,Util,AC,ImgCompress,Device,Camera){
 					}
 					file= oFiles[0];
 					oInput.value='';
-					name=file.name
-					var oURL = URL || webkitURL;
+					name=file.name;
+					var oURL = window.URL || window.webkitURL;
 					imgSrc = oURL.createObjectURL(file);
 				}else{
 					oInput.select(); 
