@@ -26,6 +26,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		error		        : fError,		//输出错误信息
 		time                : fTime,        //输出统计时间,info级别
 		trace               : fTrace,       //追踪统计时间
+		count               : fCount,       //统计调用次数
 		debugLog            : $H.noop,      //线上错误处理
 		throwExp            : fThrowExp,            //处理异常
 		listenCtrlEvts      : fListenCtrlEvts       //监听连续点击事件打开控制面板
@@ -263,6 +264,16 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		}else{
 			oItem.total=(oItem.total||0)+nTime-oItem.start;
 		}
+	}
+	/**
+	 * 统计调用次数
+	 * @return {number} 返回统计次数
+	 */
+	function fCount(){
+		if(!Debug._times){
+			Debug._times=0;
+		}
+		return ++Debug._times;
 	}
 	/**
 	 * 处理异常

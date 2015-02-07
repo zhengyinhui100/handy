@@ -923,7 +923,12 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
  * 1、define('a',['b','c'],function(b,c){});
  * 2、define('b',['a','d'],function(a,d){});
  * Loader检测到循环依赖，会在第二句执行时忽略依赖项a是否已加载，直接以{}替换a，从而使代码继续执行下去，
- * 这时候需要在b模块里异步require('a')来真正使用a模块，但是,我们应该尽量避免出现循环依赖
+ * 这时候需要在b模块里异步require('a')来真正使用a模块。
+ * 但是,我们应该尽量避免出现显示的循环依赖，遇到相互引用的情况，先尽可能的将依赖后置，
+ * 既尽可能使用运行时异步require的方式引入依赖，已化解模块定义时的循环引用
+ * TODO:实际上，终归要采用依赖后置才能解决相互引用的问题，我们应该避免显示的相互引用，是否考虑只在的开发模式下检查相互引用以提升性能？
+ * PS：模块里的同步require('a')方法的依赖会被提取到模块定义时的依赖列表里，如果不希望被提取，可以采用$H.ns方法，
+ * 或者var id='a';var a=require(id)的方式
  * @author 郑银辉(zhengyinhui100@gmail.com)
  */
 define("L.Loader",
@@ -997,7 +1002,7 @@ function(Debug){
 			if(sDepId==sId){
 				//有循环引用
 				Debug.warn(_LOADER_PRE+'cycle depend:'+sCurId+" <=> "+sId);
-				return true;
+				return {};
 			}else if(!oChked[sDepId]){
 				oChked[sDepId]=1;
 				//递归检查间接依赖
@@ -6222,11 +6227,15 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     /**
      * 处理计算/依赖属性
      * @param {object}oChanges 当前操作改变的属性
-     * @param {boolean}bSilent 是否不触发事件
+     * @param {object=}oOptions 选项{
+     * 		{boolean=}silent 是否不触发事件
+     * 		{object=}stack 调用堆栈，避免循环调用
+     * }
      * @return {object=}如果需要改变，返回改变的属性列表，否则返回undefined
      */
-    function _fDoDepends(oChanges,bSilent){
+    function _fDoDepends(oChanges,oOptions){
     	var me=this;
+    	oOptions=oOptions||{};
     	//处理计算属性
 	    var oFields=me.fields,oField,aDeps,oSets={},bNeed,fParseDeps;
 	    for(var key in oFields){
@@ -6252,7 +6261,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 			}
 	    }
 	    if(bNeed){
-		    return me.set(oSets,null,{silent:bSilent}).changed;
+		    return me.set(oSets,oOptions).changed;
 	    }
     }
     /**
@@ -6283,6 +6292,8 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 					val=val?parseFloat(val):0;
 				}else if(type=='boolean'||type=='bool'){
 					val=val&&val!=='false';
+				}else if(type.indexOf('.')>0){
+					type=require(type);
 				}
 			}
 			if(Obj.isClass(type)&&!(val instanceof type)){
@@ -6325,15 +6336,34 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     	}
     	var me=this;
     	var oVal=me.get(sAttr);
-    	var args=Obj.toArray(arguments,1);
-    	me.trigger.apply(me,['change:'+sAttr,me,oVal].concat(args));
-    	me.trigger.apply(me,['change',me].concat(args));
-    	//me.trigger.apply(me, arguments);
-    	//标记已触发对应属性change事件，通知set方法不必再触发
-    	me._attrEvts[sAttr]=1;
-    	var oChange={};
-    	oChange[sAttr]=oVal;
-    	me._doDepends(oChange);
+    	var aArgs=Obj.toArray(arguments,1);
+    	var oStack=aArgs[aArgs.length-1];
+    	if(!oStack||!oStack.$isStack){
+    		oStack={
+    			uuid:oModel.uuid+',',
+    			$isStack:true
+    		}
+    		aArgs.push(oStack);
+    	}
+    	var sUuid=oStack.uuid;
+    	var sCurUuid=me.uuid+',';
+    	//不是循环事件才触发
+    	if(sUuid.indexOf(sCurUuid)<0){
+    		//将当前uuid加上，到外层事件时检查是否是循环事件
+    		oStack.uuid+=sCurUuid;
+	    	me.trigger.apply(me,['change:'+sAttr,me,oVal].concat(aArgs));
+	    	me.trigger.apply(me,['change',me,oStack].concat(aArgs));
+	    	//me.trigger.apply(me, arguments);
+	    	//标记已触发对应属性change事件，通知set方法不必再触发
+	    	me._attrEvts[sAttr]=1;
+    	}
+    	var sCurDepsUuid=sAttr+sCurUuid;
+    	if(sUuid.indexOf(sCurDepsUuid)<0){
+    		oStack.uuid+=sCurDepsUuid;
+	    	var oChange={};
+	    	oChange[sAttr]=oVal;
+	    	me._doDepends(oChange,{stack:oStack});
+    	}
     }
 	/**
 	 * 初始化
@@ -6391,6 +6421,10 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 						}else{
 							var type=field.type;
 							if(type){
+								//命名空间
+								if(typeof type=='string'&&type.indexOf('.')>0){
+									type=field.type=require(type);
+								}
 								//TODO:对于嵌套类型，只有Collection默认会初始化，方便使用，
 								//模型由于可能自引用造成死循环，这里暂不自动初始化，还是自定义不初始化？
 								if(type.prototype){
@@ -6461,6 +6495,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	 * 		{boolean=}unset: 是否清除设置
 	 * 		{boolean=}saved:是否是已保存的值
 	 * 		{boolean=}silent: 是否不触发事件
+	 * 		{object=}stack 调用堆栈，避免循环调用
 	 * }
 	 * @return {object}{
 	 * 		{boolean}changed : 此次设置改变了的属性列表，false表示未改变
@@ -6491,6 +6526,7 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	
 	    var bUnset= oOptions.unset;
 	    var bSilent= oOptions.silent;
+	    var oStack=oOptions.stack;
 	    //所以本次设置所改变的属性
 	    var oChanges={};
 	
@@ -6579,17 +6615,17 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
 	        for (var k in oChanges) {
 	        	//_onAttrEvent里触发过了的属性事件，这里不需要再触发
 	        	if(!me._attrEvts[k]){
-		      	    me.trigger('change:' + k, me, oCurrent[k], oOptions);
+		      	    me.trigger('change:' + k, me, oCurrent[k], oOptions,oStack);
 	        	}
 	        }
 	    }
 	
 	    //触发模型对象change事件
-	    if (!bSilent) {
+	    if (bHasChange&&!bSilent) {
 	        if(me._pending) {
 	       		oOptions = me._pending;
 //	            me._pending = false;
-	            me.trigger('change', me, oOptions);
+	            me.trigger('change', me, oOptions,oStack);
 	        }
 	    }
 	    //处理依赖属性
@@ -7162,7 +7198,23 @@ function(Obj,Arr,Func,AbstractData,Model){
             	me._byId[oModel.id] = oModel;
             }
         }
-        me.trigger.apply(me, arguments);
+        var aArgs=Obj.toArray(arguments);
+    	var oStack=aArgs[aArgs.length-1];
+    	if(!oStack||!oStack.$isStack){
+    		oStack={
+    			uuid:oModel.uuid+',',
+    			$isStack:true
+    		}
+    		aArgs.push(oStack);
+    	}
+    	var sUuid=oStack.uuid;
+    	var sCurUuid=me.uuid+',';
+    	//不是循环事件才触发
+    	if(sUuid.indexOf(sCurUuid)<0){
+    		//将当前uuid加上，到外层事件时检查是否是循环事件
+    		oStack.uuid+=sCurUuid;
+        	me.trigger.apply(me, aArgs);
+    	}
     }
 	/**
 	 * 初始化
@@ -9575,6 +9627,7 @@ function(Obj,Template,ViewManager,ModelView,Model){
 		var oXmodel=me.xmodel;
 		function _fBind(sAttr,sRefAttr){
 			//嵌套属性
+			//TODO:多重嵌套？
 			var sNestedAttr;
 			if(sRefAttr.indexOf('.')>0){
 				var attrs=sRefAttr.split('.');
