@@ -749,8 +749,10 @@ function(Obj,Template,ViewManager,ModelView,Model){
 			//绑定引用模型
 			if(sType=='both'||sType=='bindRef'){
 				me.listenTo(oRefModel,'change:'+sRefAttr,function(sEvt,oModel,value,sSubEvt){
-					if(sSubEvt==='change:'+sNestedAttr){
-						value=value&&value.get(sNestedAttr);
+					if(!sNestedAttr||sSubEvt==='change:'+sNestedAttr){
+						if(sNestedAttr){
+							value=value&&value.get(sNestedAttr);
+						}
 						me.set(sAttr,value);
 					}
 				});
