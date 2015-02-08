@@ -1698,10 +1698,11 @@
 }
 .hui-input-zone .hui-btn {
   position: absolute;
-  padding-left: 0.5em;
-  padding-right: 0.5em;
+  padding-left: 0.313em;
+  padding-right: 0.313em;
   right: 0.188em;
-  bottom: 0.5em;
+  top: 50%;
+  margin: -1.125em 0 0;
 }
 .hui-mask {
   position: absolute;
