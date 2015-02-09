@@ -643,6 +643,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		error		        : fError,		//输出错误信息
 		time                : fTime,        //输出统计时间,info级别
 		trace               : fTrace,       //追踪统计时间
+		count               : fCount,       //统计调用次数
 		debugLog            : $H.noop,      //线上错误处理
 		throwExp            : fThrowExp,            //处理异常
 		listenCtrlEvts      : fListenCtrlEvts       //监听连续点击事件打开控制面板
@@ -880,6 +881,16 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 		}else{
 			oItem.total=(oItem.total||0)+nTime-oItem.start;
 		}
+	}
+	/**
+	 * 统计调用次数
+	 * @return {number} 返回统计次数
+	 */
+	function fCount(){
+		if(!Debug._times){
+			Debug._times=0;
+		}
+		return ++Debug._times;
 	}
 	/**
 	 * 处理异常
@@ -2805,6 +2816,7 @@ define("B.String",function(){
 		decodeHTML		: fDecodeHTML,	    // html解码
 		htmlToTxt       : fHtmlToTxt,       // htlm转换为纯文本
 		TxtToHtml       : fTxtToHtml,       // 纯文本转换为html
+		isEqualsHtml    : fIsEqualsHtml,    // 比较html是否相同，忽略空格和换行符
 		trim			: fTrim,            // 删除字符串两边的空格
 		check			: fCheck,		    // 检查特殊字符串
 		len				: fLen,         	// 计算字符串打印长度,一个中文字符长度为2
@@ -2907,6 +2919,16 @@ define("B.String",function(){
 	 */
 	function fTxtToHtml(sContent){
 		return String.encodeHTML(sContent);
+	}
+	/**
+	 * 比较html是否相同，忽略空格和换行符
+	 * @param {string} sHtml1 参数html1
+	 * @param {string} sHtml2 参数html2
+	 * @return {string} true表示两个相等
+	 */
+	function fIsEqualsHtml(sHtml1,sHtml2){
+		var oReg=/[\s\n]+/g;
+		return sHtml1.replace(oReg,'')==sHtml2.replace(oReg,'');
 	}
 	/**
 	 * 去掉字符串两边的空格
@@ -5147,11 +5169,11 @@ function(Browser,Obj,Class){
         	var nCropH=oOptions.cropH;
         	var nCropX=oOptions.cropX;
         	var nCropY=oOptions.cropY;
-        	var bIOS=Browser.ios();
+        	var bIOSFix=Browser.ios()<7;
             //需要裁剪
             if(bCrop){
             	var oSize=_fFixSize(nCropW,nCropH);
-            	if(bIOS){
+            	if(bIOSFix){
             		//需要第三方库修正图片，canvas先绘制原图，等修正后再进行截取
             		nCropW=oSize.w;
             		nCropH=oSize.h;
@@ -5192,7 +5214,7 @@ function(Browser,Obj,Class){
 			var base64;
 
             // 修复IOS
-            if(bIOS) {
+            if(bIOSFix) {
                 var mpImg = new MegaPixImage(oImg);
                 mpImg.render(oCanvas, { maxWidth: w, maxHeight: h, quality: nQuality, orientation: 6 });
                 if(bCrop){
@@ -9636,7 +9658,7 @@ function(Obj,Template,ViewManager,ModelView,Model){
 			}
 			//绑定引用模型
 			if(sType=='both'||sType=='bindRef'){
-				me.listenTo(oRefModel,'change:'+sRefAttr,function(sEvt,oModel,value){
+				me.listenTo(oRefModel,'change:'+sRefAttr,function(sEvt,oModel,value,sSubEvt){
 					if(sNestedAttr){
 						value=value&&value.get(sNestedAttr);
 					}
@@ -14418,8 +14440,8 @@ function(Browser,Obj,Util,AC,ImgCompress,Device,Camera){
 					}
 					file= oFiles[0];
 					oInput.value='';
-					name=file.name
-					var oURL = URL || webkitURL;
+					name=file.name;
+					var oURL = window.URL || window.webkitURL;
 					imgSrc = oURL.createObjectURL(file);
 				}else{
 					oInput.select(); 
