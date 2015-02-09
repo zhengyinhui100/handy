@@ -328,8 +328,8 @@
   background-image: linear-gradient(#34e589, #24b44d);
 }
 .hui-btn.hui-btn-active,
-.hui-pc .hui-btn-active:hover,
-.hui-mobile .hui-btn-active:active {
+.hui-pc .hui-btn.hui-btn-active:hover,
+.hui-mobile .hui-btn.hui-btn-active:active {
   border: 1px solid #2373a5;
   background: #2987CF;
   color: #fff;
@@ -341,17 +341,17 @@
   background: #5393c5;
 }
 .hui-btn-active.hui-gradient {
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#5f9cc5), to(#6facd5));
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#429fdd), to(#3b8bc2));
   /* old webkit,Saf4+, Chrome */
-  background-image: -webkit-linear-gradient(#5f9cc5, #6facd5);
+  background-image: -webkit-linear-gradient(#429fdd, #3b8bc2);
   /* Chrome 10+, Saf5.1+ */
-  background-image: -moz-linear-gradient(#5f9cc5, #6facd5);
+  background-image: -moz-linear-gradient(#429fdd, #3b8bc2);
   /* FF3.6 */
-  background-image: -ms-linear-gradient(#5f9cc5, #6facd5);
+  background-image: -ms-linear-gradient(#429fdd, #3b8bc2);
   /* IE10 */
-  background-image: -o-linear-gradient(#5f9cc5, #6facd5);
+  background-image: -o-linear-gradient(#429fdd, #3b8bc2);
   /* Opera 11.10+ */
-  background-image: linear-gradient(#5f9cc5, #6facd5);
+  background-image: linear-gradient(#429fdd, #3b8bc2);
 }
 .hui-btn.hui-btn-active-b {
   color: #548805;
@@ -1222,13 +1222,13 @@
 .hui-tab-no-border .hui-tabitem.hui-item-last .hui-btn {
   border-right-width: 0;
 }
-.hui-tab-border-top .hui-tab-titles .hui-btn {
+.hui-tab-border-top .hui-tab-titles .hui-tabitem .hui-btn {
   border-bottom: 0;
 }
-.hui-tab-border-bottom .hui-tab-titles .hui-btn {
+.hui-tab-border-bottom .hui-tab-titles .hui-tabitem .hui-btn {
   border-top: 0;
 }
-.hui-tab-no-border .hui-tab-titles .hui-btn {
+.hui-tab-no-border .hui-tab-titles .hui-tabitem .hui-btn {
   border-top: 0;
 }
 .hui-tips {
