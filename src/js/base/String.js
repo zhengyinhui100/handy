@@ -12,6 +12,7 @@ define("B.String",function(){
 		decodeHTML		: fDecodeHTML,	    // html解码
 		htmlToTxt       : fHtmlToTxt,       // htlm转换为纯文本
 		TxtToHtml       : fTxtToHtml,       // 纯文本转换为html
+		isEqualsHtml    : fIsEqualsHtml,    // 比较html是否相同，忽略空格和换行符
 		trim			: fTrim,            // 删除字符串两边的空格
 		check			: fCheck,		    // 检查特殊字符串
 		len				: fLen,         	// 计算字符串打印长度,一个中文字符长度为2
@@ -114,6 +115,16 @@ define("B.String",function(){
 	 */
 	function fTxtToHtml(sContent){
 		return String.encodeHTML(sContent);
+	}
+	/**
+	 * 比较html是否相同，忽略空格和换行符
+	 * @param {string} sHtml1 参数html1
+	 * @param {string} sHtml2 参数html2
+	 * @return {string} true表示两个相等
+	 */
+	function fIsEqualsHtml(sHtml1,sHtml2){
+		var oReg=/[\s\n]+/g;
+		return sHtml1.replace(oReg,'')==sHtml2.replace(oReg,'');
 	}
 	/**
 	 * 去掉字符串两边的空格
