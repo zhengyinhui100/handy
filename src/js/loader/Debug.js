@@ -130,8 +130,16 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 			}else{
 				sStyle=' style="color:'+(sType=='error'?'red':sType=='warn'?'yellow':'green');
 			}
+			//自动保持滚动到底部
+			var bStayBottom=true;
+			//当手动往上滚动过时，保持滚动位置不变
+			if(oAppender.scrollHeight-oAppender.scrollTop-oAppender.clientHeight>10){
+				bStayBottom=false;
+			}
 			oAppender.innerHTML += '<div'+sStyle+'">'+sType+":<br/>"+sMsg+"</div><br/><br/>";
-			oAppender.scrollTop=oAppender.scrollHeight;
+			if(bStayBottom){
+				oAppender.scrollTop=oAppender.scrollHeight;
+			}
 		}
 		//尝试获取调用位置
 		var fCaller=arguments.callee.caller;
