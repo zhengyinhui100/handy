@@ -181,13 +181,13 @@ function(Obj,Arr,Func,AbstractData,Model){
     	var oStack=aArgs[aArgs.length-1];
     	if(!oStack||!oStack.$isStack){
     		oStack={
-    			uuid:oModel.uuid+',',
+    			uuid:','+oModel.uuid+',',
     			$isStack:true
     		}
     		aArgs.push(oStack);
     	}
     	var sUuid=oStack.uuid;
-    	var sCurUuid=me.uuid+',';
+    	var sCurUuid=','+me.uuid+',';
     	//不是循环事件才触发
     	if(sUuid.indexOf(sCurUuid)<0){
     		//将当前uuid加上，到外层事件时检查是否是循环事件
@@ -337,7 +337,6 @@ function(Obj,Arr,Func,AbstractData,Model){
         	} else {
          		id = cTargetModel.getId(oAttrs);
         	}
-
         	//如果已经存在对应id的模型
         	if (oExisting = me.get(id)) {
         		//移除

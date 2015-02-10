@@ -173,6 +173,7 @@ function(Browser,Util,Obj,Date,Support,AC,Draggable){
 				var sReleaseCls='hui-pd-release';
 				
 				var bIsMobile=Browser.mobile();
+				//TODO
 				if(1||bIsMobile){
 					me.draggable=new Draggable(oInner,{
 						preventDefault:false,
