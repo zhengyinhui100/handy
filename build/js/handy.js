@@ -747,8 +747,16 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 			}else{
 				sStyle=' style="color:'+(sType=='error'?'red':sType=='warn'?'yellow':'green');
 			}
+			//自动保持滚动到底部
+			var bStayBottom=true;
+			//当手动往上滚动过时，保持滚动位置不变
+			if(oAppender.scrollHeight-oAppender.scrollTop-oAppender.clientHeight>10){
+				bStayBottom=false;
+			}
 			oAppender.innerHTML += '<div'+sStyle+'">'+sType+":<br/>"+sMsg+"</div><br/><br/>";
-			oAppender.scrollTop=oAppender.scrollHeight;
+			if(bStayBottom){
+				oAppender.scrollTop=oAppender.scrollHeight;
+			}
 		}
 		//尝试获取调用位置
 		var fCaller=arguments.callee.caller;
@@ -6362,13 +6370,13 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     	var oStack=aArgs[aArgs.length-1];
     	if(!oStack||!oStack.$isStack){
     		oStack={
-    			uuid:oModel.uuid+',',
+    			uuid:','+oModel.uuid+',',
     			$isStack:true
     		}
     		aArgs.push(oStack);
     	}
     	var sUuid=oStack.uuid;
-    	var sCurUuid=me.uuid+',';
+    	var sCurUuid=','+me.uuid+',';
     	//不是循环事件才触发
     	if(sUuid.indexOf(sCurUuid)<0){
     		//将当前uuid加上，到外层事件时检查是否是循环事件
@@ -7224,13 +7232,13 @@ function(Obj,Arr,Func,AbstractData,Model){
     	var oStack=aArgs[aArgs.length-1];
     	if(!oStack||!oStack.$isStack){
     		oStack={
-    			uuid:oModel.uuid+',',
+    			uuid:','+oModel.uuid+',',
     			$isStack:true
     		}
     		aArgs.push(oStack);
     	}
     	var sUuid=oStack.uuid;
-    	var sCurUuid=me.uuid+',';
+    	var sCurUuid=','+me.uuid+',';
     	//不是循环事件才触发
     	if(sUuid.indexOf(sCurUuid)<0){
     		//将当前uuid加上，到外层事件时检查是否是循环事件
@@ -7380,7 +7388,6 @@ function(Obj,Arr,Func,AbstractData,Model){
         	} else {
          		id = cTargetModel.getId(oAttrs);
         	}
-
         	//如果已经存在对应id的模型
         	if (oExisting = me.get(id)) {
         		//移除
@@ -15472,6 +15479,7 @@ function(Browser,Util,Obj,Date,Support,AC,Draggable){
 				var sReleaseCls='hui-pd-release';
 				
 				var bIsMobile=Browser.mobile();
+				//TODO
 				if(1||bIsMobile){
 					me.draggable=new Draggable(oInner,{
 						preventDefault:false,
