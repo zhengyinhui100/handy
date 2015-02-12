@@ -191,6 +191,7 @@
 			oModule=factory.apply(oWin,args);
 		}
 		handy.ns(sName,oModule);
+		//TODO:
 		return;
 		//将base库里的所有方法挂载到handy下方便使用
 		for(var method in oModule){

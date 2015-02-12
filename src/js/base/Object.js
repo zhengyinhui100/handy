@@ -49,49 +49,56 @@ define('B.Object',function(){
     * @return {Object} 扩展后的对象
     */
     function fExtend(oDestination, oSource, oOptions) {
-    	if(!oSource||Obj.isStr(oSource)||Obj.isNum(oSource)){
+    	if(!oSource){
     		return oDestination;
     	}
-    	var notCover=false;
-    	var oAttrs=null;
-    	var bIsClone=false;
-    	var bDeep=false;
-    	if(oOptions){
-    		notCover=oOptions.notCover;
-    		bDeep=oOptions.deep;
-    		oAttrs=oOptions.attrs;
-    		bIsClone=oOptions.IsClone;
-    	}
+    	
     	oDestination=oDestination||{};
     	//如果是类扩展，添加方法元数据
     	var oConstructor=oDestination.constructor;
     	var bAddMeta=oConstructor.$isClass;
-    	var value;
-    	var oTmp=oAttrs||oSource;
-        for (var sProperty in oTmp) {
-        	value=oSource[sProperty];
-        	//不复制深层prototype
-        	if(bDeep||oSource.hasOwnProperty(sProperty)){
-	        	var bHas=oDestination[sProperty]!==undefined;
-	        	var bNotCover=notCover===true?bHas:false;
-	        	//当此参数为数组时，仅不覆盖数组中的原有属性
-	        	if(Obj.isArr(notCover)){
-	        		bNotCover=Obj.contains(notCover,sProperty)&&bHas;
-	        	}else if(Obj.isFunc(notCover)){
-	        		//当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
-	        		bNotCover=notCover(sProperty,value);
+    	if(!oOptions&&!bAddMeta){
+    		for(var k in oSource){
+				oDestination[k]=oSource[k];
+			}
+    	}else{
+	    	var notCover=false;
+	    	var oAttrs=null;
+	    	var bIsClone=false;
+	    	var bDeep=false;
+	    	if(oOptions){
+	    		notCover=oOptions.notCover;
+	    		bDeep=oOptions.deep;
+	    		oAttrs=oOptions.attrs;
+	    		bIsClone=oOptions.IsClone;
+	    	}
+	    	var value;
+	    	var oTmp=oAttrs||oSource;
+	        for (var sProperty in oTmp) {
+	        	value=oSource[sProperty];
+	        	//不复制深层prototype
+	        	if(bDeep||oSource.hasOwnProperty(sProperty)){
+		        	var bHas=oDestination[sProperty]!==undefined;
+		        	var bNotCover=notCover===true?bHas:false;
+		        	//当此参数为数组时，仅不覆盖数组中的原有属性
+		        	if(Obj.isArr(notCover)){
+		        		bNotCover=Obj.contains(notCover,sProperty)&&bHas;
+		        	}else if(Obj.isFunc(notCover)){
+		        		//当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
+		        		bNotCover=notCover(sProperty,value);
+		        	}
+		            if (!bNotCover) {
+		            	var value=bIsClone?Obj.clone(value):value;
+		            	//为方法添加元数据：方法名和声明此方法的类
+						if(bAddMeta&&Obj.isFunc(value)&&!value.$name){
+							value.$name=sProperty;
+							value.$owner=oConstructor;
+						}
+						oDestination[sProperty] = value;
+		            }
 	        	}
-	            if (!bNotCover) {
-	            	var value=bIsClone?Obj.clone(value):value;
-	            	//为方法添加元数据：方法名和声明此方法的类
-					if(bAddMeta&&Obj.isFunc(value)&&!value.$name){
-						value.$name=sProperty;
-						value.$owner=oConstructor;
-					}
-					oDestination[sProperty] = value;
-	            }
-        	}
-        }
+	        }
+    	}
         return oDestination;
     };
     /**
