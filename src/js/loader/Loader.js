@@ -22,7 +22,7 @@ function(Debug){
 		traceLog                : false,                     //是否打印跟踪信息
 		combine                 : !bIsDev,                   //是否合并请求
 		isMin                   : false,                     //是否请求*.min.css和*.min.js
-		chkCycle                : false,                     //是否检查循环引用
+		parseCycle              : false,                     //是否处理循环引用，这里建议不开启或者只在开发模式下开启
 //		rootPath                : {
 //			'handy'        : 'http://localhost:8081/handy/src',
 //			'com.example'  : 'http://example.com:8082/js'
@@ -460,7 +460,7 @@ function(Debug){
     	//每次回调都循环上下文列表
    		for(var i=_aContext.length-1;i>=0;i--){
 	    	var oContext=_aContext[i];
-	    	var oResult=_fChkExisted(oContext.deps,Loader.chkCycle);
+	    	var oResult=_fChkExisted(oContext.deps,Loader.parseCycle);
 	    	if(oResult.notExist.length===0){
 	    		_aContext.splice(i,1);
 	    		oContext.callback.apply(null,oResult.exist);
@@ -471,7 +471,7 @@ function(Debug){
 	    		//输出错误分析
 	    		for(var i=_aContext.length-1;i>=0;i--){
 	    			var oContext=_aContext[i];
-	    			var oResult=_fChkExisted(oContext.deps,Loader.chkCycle);
+	    			var oResult=_fChkExisted(oContext.deps,true);
 	    			var aNotExist=oResult.notExist;
 	    			var bHasDepds=false;
 	    			for(var j=_aContext.length-1;j>=0;j--){
