@@ -48,7 +48,8 @@ function(Debug){
         _bIsWebKit = _UA.indexOf('AppleWebKit'),
     	_aContext=[],         //请求上下文堆栈
     	_requestingNum=0,     //正在请求(还未返回)的数量
-	    _oCache={};           //缓存
+	    _oCache={},           //缓存
+	    _oExistedCache={};    //已存在的资源缓存，加速读取
 	    
 	window.define=Loader.define;
 	window.require=Loader.require;
@@ -115,21 +116,24 @@ function(Debug){
     	}
     	for(var i=0,nLen=id.length;i<nLen;i++){
     		var sId=id[i];
-    		var result;
-			//css和js文件只验证是否加载完
-			if(/\.(css|js)/.test(sId)){
-				result= _oCache[sId]&&_oCache[sId].status=='loaded';
-			}else if(Loader.sourceMap&&Loader.sourceMap[sId]){
-				//自定义资源使用自定义方法验证
-				result= Loader.sourceMap[sId].chkExist();
-			}else{
-				//标准命名空间规则验证
-	    		result= $H.ns({path:sId});
-			}
-			if(result===undefined&&bChkCycle){
-				//如果有循环依赖，将当前资源放入已存在的结果中，避免执行不下去
-				result=_fChkCycle(sId);
-			}
+    		var result=_oExistedCache[sId];
+    		if(!result){
+				//css和js文件只验证是否加载完
+				if(/\.(css|js)/.test(sId)){
+					result= _oCache[sId]&&_oCache[sId].status=='loaded';
+				}else if(Loader.sourceMap&&Loader.sourceMap[sId]){
+					//自定义资源使用自定义方法验证
+					result= Loader.sourceMap[sId].chkExist();
+				}else{
+					//标准命名空间规则验证
+		    		result= $H.ns({path:sId});
+				}
+				if(result===undefined&&bChkCycle){
+					//如果有循环依赖，将当前资源放入已存在的结果中，避免执行不下去
+					result=_fChkCycle(sId);
+				}
+				_oExistedCache[sId]=result;
+    		}
     		if(!result){
     			aNotExist.push(sId);
     		}else{

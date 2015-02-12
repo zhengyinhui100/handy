@@ -40,7 +40,10 @@
 		alias      : fAlias,        //创建别名/读取实名
 		generateMethod : fGenerateMethod   //归纳生成方法
 	});
-	oWin.define=handy.add = fAdd;            //添加子模块
+	oWin.define=handy.add = fAdd;            //添加子模块，等到Loader定义后define会被替换掉
+	
+	//命名空间缓存
+	var _oNsCache={};
 	
 	/**
 	 * @param {Object} oDestination 目标对象
@@ -85,19 +88,20 @@
 			//尝试转换别名
 			path=handy.alias(path);
 		}
-        aPath=path.split(".");  
-        root = aPath[0]; 
         bIsCreate=arguments.length==2;
+        //读取操作直接读缓存
         if(!bIsCreate){
-        	oObject=oWin[root];
+        	return path==='handy'?handy:_oNsCache[path];
         }else{
+	        aPath=path.split(".");  
+	        root = aPath[0]; 
         	oObject=oWin[root]||(oWin[root]={});
         }
         //循环命名路径
         for (j=1,len=aPath.length; j<len; ++j) { 
         	//obj非空
         	if(j==len-1&&bIsCreate){
-        		oObject[aPath[j]]=obj;
+        		_oNsCache[path]=oObject[aPath[j]]=obj;
         	}else if(bIsCreate||(oObject&&oObject[aPath[j]])){
 	            oObject[aPath[j]]=oObject[aPath[j]]||{};  
         	}else{
@@ -105,12 +109,6 @@
         	}
             oObject=oObject[aPath[j]];  
         } 
-        
-//        //base库特殊处理，直接添加到handy下
-//		var sBase='handy.base.';
-//		if(bIsCreate&&path.indexOf(sBase)===0){
-//			handy.add(path.replace(sBase,''),oObject);
-//		}
     	return oObject;
 	}
 	/**

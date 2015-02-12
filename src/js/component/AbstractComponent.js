@@ -15,7 +15,7 @@ define('C.AbstractComponent',
 ],function(Class,Obj,Validator,ViewManager,View,ComponentManager){
 	
 	//访问component包内容的快捷别名
-	$C=$H.ns('C');
+	$C=$H.ns('C',{});
 	
 	var AC=View.derive({
 		//实例属性、方法
