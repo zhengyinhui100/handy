@@ -17,7 +17,7 @@
 	fExtend(handy,{
 		version    : sVersion,    //版本号
 		env        : sEnv,        //默认是线上环境
-		isDebug    : sEnv=='dev',                              //是否是开发环境
+		isDev    : sEnv=='dev',                              //是否是开发环境
 		isTest     : sEnv=='test',                             //是否是测试环境
 		isOnline   : sEnv=='online',                           //是否是线上环境
 		expando    : ("handy-" +  sVersion).replace(/\./g,'_'), //自定义属性名
@@ -40,7 +40,10 @@
 		alias      : fAlias,        //创建别名/读取实名
 		generateMethod : fGenerateMethod   //归纳生成方法
 	});
-	oWin.define=handy.add = fAdd;            //添加子模块
+	oWin.define=handy.add = fAdd;            //添加子模块，等到Loader定义后define会被替换掉
+	
+	//命名空间缓存
+	var _oNsCache={};
 	
 	/**
 	 * @param {Object} oDestination 目标对象
@@ -72,27 +75,33 @@
 	/**
     * 创建或读取命名空间
     * @method ns (sPath,obj=)
-    * @param {string}sPath 命名空间路径字符串
+    * @param {string|object}path 命名空间路径字符串或对{string}path:路径}，
+    * 				传入对象表示传入的是实际路径，不需要再执行alias去获取实际路径，节省开销
     * @param {*=}obj (可选)用以初始化该命名空间的对象，不传表示读取命名空间
     * @return {?*} 返回该路径的命名空间，不存在则返回undefined
     */
-	function fNamespace(sPath,obj){
+	function fNamespace(path,obj){
 		var oObject=null, j, aPath, root,bIsCreate,len; 
-		//尝试转换别名
-		sPath=handy.alias(sPath);
-        aPath=sPath.split(".");  
-        root = aPath[0]; 
+		if(path.path){
+			path=path.path;
+		}else{
+			//尝试转换别名
+			path=handy.alias(path);
+		}
         bIsCreate=arguments.length==2;
+        //读取操作直接读缓存
         if(!bIsCreate){
-        	oObject=oWin[root];
+        	return path==='handy'?handy:_oNsCache[path];
         }else{
+	        aPath=path.split(".");  
+	        root = aPath[0]; 
         	oObject=oWin[root]||(oWin[root]={});
         }
         //循环命名路径
         for (j=1,len=aPath.length; j<len; ++j) { 
         	//obj非空
         	if(j==len-1&&bIsCreate){
-        		oObject[aPath[j]]=obj;
+        		_oNsCache[path]=oObject[aPath[j]]=obj;
         	}else if(bIsCreate||(oObject&&oObject[aPath[j]])){
 	            oObject[aPath[j]]=oObject[aPath[j]]||{};  
         	}else{
@@ -100,12 +109,6 @@
         	}
             oObject=oObject[aPath[j]];  
         } 
-        
-        //base库特殊处理，直接添加到handy下
-		var sBase='handy.base.';
-		if(bIsCreate&&sPath.indexOf(sBase)===0){
-			handy.add(sPath.replace(sBase,''),oObject);
-		}
     	return oObject;
 	}
 	/**
@@ -188,11 +191,12 @@
 			oModule=factory.apply(oWin,args);
 		}
 		handy.ns(sName,oModule);
+		//TODO:
 		return;
 		//将base库里的所有方法挂载到handy下方便使用
 		for(var method in oModule){
 			//!Function[method]专为bind方法
-			if(handy.isDebug&&typeof handy[method]!="undefined"&&('console' in oWin)&&!Function[method]){
+			if(handy.isDev&&typeof handy[method]!="undefined"&&('console' in oWin)&&!Function[method]){
 				console.log(handy[method]);
 				console.log(sName+"命名冲突:"+method);
 			}
@@ -623,7 +627,7 @@ define("L.Browser",function(){
 define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	
 	var Debug=window.$D={
-		level	            : $H.isDebug?0:5,  //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
+		level	            : $H.isDev?0:5,  //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
 		LOG_LEVEL	        : 1,            //日志级别
 		DEBUG_LEVEL         : 2,            //调试级别
 		INFO_LEVEL          : 3,            //信息级别
@@ -651,6 +655,8 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	
 	//手动开启控制面板
 	Debug.listenCtrlEvts();
+	
+	var _oTime={};
 	
 	/**
 	 * 监听事件
@@ -826,7 +832,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 			return;
 		}
 		Debug._out(oVar,!!bShowInPage,"error");
-		if($H.isDebug){
+		if($H.isDev){
 			if(oVar instanceof Error){
 				//抛出异常，主要是为了方便调试，如果异常被catch住的话，控制台不会输出具体错误位置
 				typeof console!=='undefined'&&console.error(oVar.stack)
@@ -840,22 +846,26 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	/**
 	 * 输出统计时间
 	 * @param {boolean=}bOut 为true时，计算时间并输出信息，只有此参数为true时，后面两个参数才有意义
-	 * @param {string=}sMsg 输出的信息
+	 * @param {string=}sName 统计名
 	 * @param {boolean=}bShowInPage 参照Debug.showInPage
 	 */
-	function fTime(bOut,sMsg,bShowInPage){
+	function fTime(bOut,sName,bShowInPage){
 		if(Debug.level>Debug.INFO_LEVEL){
 			return;
 		}
 		var nTime=window.performance&&window.performance.now?window.performance.now():(new Date().getTime());
+		if(typeof bOut==='string'){
+			sName=bOut;
+			bOut=false;
+		}
 		if(bOut){
-			if(typeof sMsg=='boolean'){
-				bShowInPage=sMsg;
-				sMsg='';
+			if(typeof sName=='boolean'){
+				bShowInPage=sName;
+				sName='';
 			}
-			Debug._out((sMsg||'')+(nTime-(Debug.lastTime||0)),!!bShowInPage);
+			Debug._out((sName?sName+':':'')+(nTime-(_oTime[sName||'_lastTime']||0)),!!bShowInPage);
 		}else{
-			Debug.lastTime=nTime;
+			_oTime[[sName||'_lastTime']]=nTime;
 		}
 	}
 	/**
@@ -945,7 +955,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
  * 这时候需要在b模块里异步require('a')来真正使用a模块。
  * 但是,我们应该尽量避免出现显示的循环依赖，遇到相互引用的情况，先尽可能的将依赖后置，
  * 既尽可能使用运行时异步require的方式引入依赖，已化解模块定义时的循环引用
- * TODO:实际上，终归要采用依赖后置才能解决相互引用的问题，我们应该避免显示的相互引用，是否考虑只在的开发模式下检查相互引用以提升性能？
+ * 实际上，终归要采用依赖后置才能解决相互引用的问题，我们应该避免显示的相互引用，所以只在的开发模式下检查相互引用以提升性能
  * PS：模块里的同步require('a')方法的依赖会被提取到模块定义时的依赖列表里，如果不希望被提取，可以采用$H.ns方法，
  * 或者var id='a';var a=require(id)的方式
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -954,10 +964,13 @@ define("L.Loader",
 ["L.Debug"],
 function(Debug){
 	
+	var bIsDev=$H.isDev;
+	
 	var Loader= {
 		traceLog                : false,                     //是否打印跟踪信息
-		combine                 : $H.isDebug?false:true,     //是否合并请求
+		combine                 : !bIsDev,                   //是否合并请求
 		isMin                   : false,                     //是否请求*.min.css和*.min.js
+		parseCycle              : false,                     //是否处理循环引用，这里建议不开启或者只在开发模式下开启
 //		rootPath                : {
 //			'handy'        : 'http://localhost:8081/handy/src',
 //			'com.example'  : 'http://example.com:8082/js'
@@ -983,7 +996,8 @@ function(Debug){
         _bIsWebKit = _UA.indexOf('AppleWebKit'),
     	_aContext=[],         //请求上下文堆栈
     	_requestingNum=0,     //正在请求(还未返回)的数量
-	    _oCache={};           //缓存
+	    _oCache={},           //缓存
+	    _oExistedCache={};    //已存在的资源缓存，加速读取
 	    
 	window.define=Loader.define;
 	window.require=Loader.require;
@@ -1035,13 +1049,13 @@ function(Debug){
      /**
 	 * 检查对应的资源是否已加载，只要检测到一个不存在的资源就立刻返回
 	 * @param {string|Array}id 被检查的资源id
-	 * @param {boolean=}bIgnoreCycle 仅当为true时忽略循环引用
+	 * @param {boolean=}bChkCycle 仅当为true时检查循环引用
 	 * @return {Object}  {
 	 * 		{Array}exist: 存在的资源列表
 	 * 		{string}notExist: 不存在的资源id
 	 * }
 	 */
-    function _fChkExisted(id,bIgnoreCycle){
+    function _fChkExisted(id,bChkCycle){
     	var oResult={}
     	var aExist=[];
     	var aNotExist=[];
@@ -1050,22 +1064,24 @@ function(Debug){
     	}
     	for(var i=0,nLen=id.length;i<nLen;i++){
     		var sId=id[i];
- 			sId=$H.alias(sId);
-    		var result;
-			//css和js文件只验证是否加载完
-			if(/\.(css|js)/.test(sId)){
-				result= _oCache[sId]&&_oCache[sId].status=='loaded';
-			}else if(Loader.sourceMap&&Loader.sourceMap[sId]){
-				//自定义资源使用自定义方法验证
-				result= Loader.sourceMap[sId].chkExist();
-			}else{
-				//标准命名空间规则验证
-	    		result= $H.ns(sId);
-			}
-			if(result===undefined&&bIgnoreCycle){
-				//如果有循环依赖，将当前资源放入已存在的结果中，避免执行不下去
-				result=_fChkCycle(sId);
-			}
+    		var result=_oExistedCache[sId];
+    		if(!result){
+				//css和js文件只验证是否加载完
+				if(/\.(css|js)/.test(sId)){
+					result= _oCache[sId]&&_oCache[sId].status=='loaded';
+				}else if(Loader.sourceMap&&Loader.sourceMap[sId]){
+					//自定义资源使用自定义方法验证
+					result= Loader.sourceMap[sId].chkExist();
+				}else{
+					//标准命名空间规则验证
+		    		result= $H.ns({path:sId});
+				}
+				if(result===undefined&&bChkCycle){
+					//如果有循环依赖，将当前资源放入已存在的结果中，避免执行不下去
+					result=_fChkCycle(sId);
+				}
+				_oExistedCache[sId]=result;
+    		}
     		if(!result){
     			aNotExist.push(sId);
     		}else{
@@ -1396,7 +1412,7 @@ function(Debug){
     	//每次回调都循环上下文列表
    		for(var i=_aContext.length-1;i>=0;i--){
 	    	var oContext=_aContext[i];
-	    	var oResult=_fChkExisted(oContext.deps,true);
+	    	var oResult=_fChkExisted(oContext.deps,Loader.parseCycle);
 	    	if(oResult.notExist.length===0){
 	    		_aContext.splice(i,1);
 	    		oContext.callback.apply(null,oResult.exist);
@@ -1407,7 +1423,7 @@ function(Debug){
 	    		//输出错误分析
 	    		for(var i=_aContext.length-1;i>=0;i--){
 	    			var oContext=_aContext[i];
-	    			var oResult=_fChkExisted(oContext.deps);
+	    			var oResult=_fChkExisted(oContext.deps,true);
 	    			var aNotExist=oResult.notExist;
 	    			var bHasDepds=false;
 	    			for(var j=_aContext.length-1;j>=0;j--){
@@ -1509,6 +1525,7 @@ function(Debug){
     	var aExisteds=[];
     	//是否保存到上下文列表中，保证callback只执行一次
     	var bNeedContext=true;
+    	//在内部，全部先转换为实名
     	for(var i=0,nLen=aIds.length;i<nLen;i++){
     		var sId=aIds[i];
 			//替换为实名
@@ -1600,49 +1617,56 @@ define('B.Object',function(){
     * @return {Object} 扩展后的对象
     */
     function fExtend(oDestination, oSource, oOptions) {
-    	if(!oSource||Obj.isStr(oSource)||Obj.isNum(oSource)){
+    	if(!oSource){
     		return oDestination;
     	}
-    	var notCover=false;
-    	var oAttrs=null;
-    	var bIsClone=false;
-    	var bDeep=false;
-    	if(oOptions){
-    		notCover=oOptions.notCover;
-    		bDeep=oOptions.deep;
-    		oAttrs=oOptions.attrs;
-    		bIsClone=oOptions.IsClone;
-    	}
+    	
     	oDestination=oDestination||{};
     	//如果是类扩展，添加方法元数据
     	var oConstructor=oDestination.constructor;
     	var bAddMeta=oConstructor.$isClass;
-    	var value;
-    	var oTmp=oAttrs||oSource;
-        for (var sProperty in oTmp) {
-        	value=oSource[sProperty];
-        	//不复制深层prototype
-        	if(bDeep||oSource.hasOwnProperty(sProperty)){
-	        	var bHas=oDestination[sProperty]!==undefined;
-	        	var bNotCover=notCover===true?bHas:false;
-	        	//当此参数为数组时，仅不覆盖数组中的原有属性
-	        	if(Obj.isArr(notCover)){
-	        		bNotCover=Obj.contains(notCover,sProperty)&&bHas;
-	        	}else if(Obj.isFunc(notCover)){
-	        		//当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
-	        		bNotCover=notCover(sProperty,value);
+    	if(!oOptions&&!bAddMeta){
+    		for(var k in oSource){
+				oDestination[k]=oSource[k];
+			}
+    	}else{
+	    	var notCover=false;
+	    	var oAttrs=null;
+	    	var bIsClone=false;
+	    	var bDeep=false;
+	    	if(oOptions){
+	    		notCover=oOptions.notCover;
+	    		bDeep=oOptions.deep;
+	    		oAttrs=oOptions.attrs;
+	    		bIsClone=oOptions.IsClone;
+	    	}
+	    	var value;
+	    	var oTmp=oAttrs||oSource;
+	        for (var sProperty in oTmp) {
+	        	value=oSource[sProperty];
+	        	//不复制深层prototype
+	        	if(bDeep||oSource.hasOwnProperty(sProperty)){
+		        	var bHas=oDestination[sProperty]!==undefined;
+		        	var bNotCover=notCover===true?bHas:false;
+		        	//当此参数为数组时，仅不覆盖数组中的原有属性
+		        	if(Obj.isArr(notCover)){
+		        		bNotCover=Obj.contains(notCover,sProperty)&&bHas;
+		        	}else if(Obj.isFunc(notCover)){
+		        		//当此参数为函数时，仅当此函数返回true时不执行拷贝，PS：不论目标对象有没有该属性
+		        		bNotCover=notCover(sProperty,value);
+		        	}
+		            if (!bNotCover) {
+		            	var value=bIsClone?Obj.clone(value):value;
+		            	//为方法添加元数据：方法名和声明此方法的类
+						if(bAddMeta&&Obj.isFunc(value)&&!value.$name){
+							value.$name=sProperty;
+							value.$owner=oConstructor;
+						}
+						oDestination[sProperty] = value;
+		            }
 	        	}
-	            if (!bNotCover) {
-	            	var value=bIsClone?Obj.clone(value):value;
-	            	//为方法添加元数据：方法名和声明此方法的类
-					if(bAddMeta&&Obj.isFunc(value)&&!value.$name){
-						value.$name=sProperty;
-						value.$owner=oConstructor;
-					}
-					oDestination[sProperty] = value;
-	            }
-        	}
-        }
+	        }
+    	}
         return oDestination;
     };
     /**
@@ -2316,22 +2340,26 @@ define('B.Event','B.Object',function(Obj){
 	 * 分析事件对象
 	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}
 	 * 							事件名称支持命名空间(".name")，如：change.one
-	 * @param {Function}fCall({Array}aParams) 回调函数，参数aParams是事件名和事件函数，如果aParams长度为1则表示没有事件函数
+	 * @param {Function=}fCall({Array}aParams) 回调函数，参数aParams是事件名和事件函数，如果aParams长度为1则表示没有事件函数
 	 * @return {boolean} true表示已成功处理事件，false表示未处理
 	 */
 	function _fParseEvents(name,fCall){
 		var me=this;
 		var rSpace=/\s+/;
 		if(typeof name=='object'){
-			for(var key in name){
-				fCall([key,name[key]]);
+			if(fCall){
+				for(var key in name){
+					fCall([key,name[key]]);
+				}
 			}
 			return true;
 		}else if(typeof name=='string'&&rSpace.test(name)){
-			//多个空格相隔的事件
-			var aName=name.split(rSpace);
-			for(var i=0,len=aName.length;i<len;i++){
-				fCall([aName[i]]);
+			if(fCall){
+				//多个空格相隔的事件
+				var aName=name.split(rSpace);
+				for(var i=0,len=aName.length;i<len;i++){
+					fCall([aName[i]]);
+				}
 			}
 			return true;
 		}
@@ -2414,7 +2442,7 @@ define('B.Event','B.Object',function(Obj){
 	 */
 	function fOn(name,fHandler,context,nTimes){
 		var me=this;
-		if(me._parseCustomEvents('on',name,fHandler,context,nTimes)){
+		if(me._parseEvents(name)&&me._parseCustomEvents('on',name,fHandler,context,nTimes)){
 			return;
 		}
 		if(typeof context=='number'){
@@ -2462,7 +2490,7 @@ define('B.Event','B.Object',function(Obj){
 			me._eventCache={};
 			return true;
 		}
-		if(me._parseCustomEvents('off',name,fHandler)){
+		if(me._parseEvents(name)&&me._parseCustomEvents('off',name,fHandler)){
 			return;
 		}
 		var oCache=me._eventCache;
@@ -2512,13 +2540,15 @@ define('B.Event','B.Object',function(Obj){
 	 */
 	function fTrigger(name,data){
 		var me=this;
-		var aNewArgs=Obj.toArray(arguments);
-		aNewArgs.unshift('trigger');
-		if(me._parseCustomEvents.apply(me,aNewArgs)){
-			return;
+		if(me._parseEvents(name)){
+			var aNewArgs=Obj.toArray(arguments);
+			aNewArgs.unshift('trigger');
+			if(me._parseCustomEvents.apply(me,aNewArgs)){
+				return;
+			}
 		}
 		var oCache=me._eventCache;
-		var aArgs=Obj.toArray(arguments);
+		var aArgs=arguments;
 		var aCache;
 		var aExecEvts=[];
 		//内部函数，执行事件队列
@@ -3123,8 +3153,8 @@ define('B.Util','B.Object',function(Obj){
 	var Util={
 		isWindow         : fIsWindow,          //检查是否是window对象
 		uuid             : fUuid,              //获取handy内部uuid
-		getDefFontSize   : fGetDefFontSize,    //获取默认字体大小
-		setDefFontSize   : fSetDefFontSize,    //设置默认字体大小
+		getDefFontsize   : fGetDefFontsize,    //获取默认字体大小
+		setDefFontsize   : fSetDefFontsize,    //设置默认字体大小
 		em2px            : fEm2px,             //em转化为px
 		px2em            : fPx2em,             //px转化为em
 		position         : fPosition,          //获取节点位置
@@ -3155,16 +3185,18 @@ define('B.Util','B.Object',function(Obj){
 	 * @param {element=}oParent 需要检测的父元素，默认是body
 	 * @return {number} 返回默认字体大小(px单位)
 	 */
-	function fGetDefFontSize(oParent) {
+	function fGetDefFontsize(oParent) {
 		var bGlobal=!oParent;
 		if(bGlobal&&_defFontSize){
 			return _defFontSize;
 		}
 		oParent = oParent || document.body;
 		var oDiv = document.createElement('div');
-		oDiv.style.cssText = 'display:inline-block; padding:0; line-height:1; position:absolute; visibility:hidden; font-size:1em';
-		oDiv.appendChild(document.createTextNode('M'));
+		oDiv.style.cssText = 'display:inline-block;padding:0;line-height:1em;position:absolute;top:0;visibility:hidden;font-size:1em';
+		var oText=document.createTextNode('M');
+		oDiv.appendChild(oText);
 		oParent.appendChild(oDiv);
+		//TODO:这里在chrome下页面节点多的时候(可参考组件页面)读取速度特别慢，已经绝对定位了，还会引起repaint?
 		var nSize = oDiv.offsetHeight;
 		if(bGlobal){
 			_defFontSize=nSize;
@@ -3177,7 +3209,7 @@ define('B.Util','B.Object',function(Obj){
 	 * @param {number|string}size 需要设置的字体大小
 	 * @param {element=}oParent 需要检测的父元素，默认是body
 	 */
-	function fSetDefFontSize(size,oParent){
+	function fSetDefFontsize(size,oParent){
 		oParent = oParent || document.body;
 		if(typeof size=='number'){
 			size+='px';
@@ -3193,7 +3225,7 @@ define('B.Util','B.Object',function(Obj){
 		if(typeof nEm==='string'){
 			nEm=parseFloat(nEm.replace('em',''));
 		}
-		var nDef=Util.getDefFontSize();
+		var nDef=Util.getDefFontsize();
 		return Math.floor(nEm*nDef);
 	}
 	/**
@@ -3202,7 +3234,7 @@ define('B.Util','B.Object',function(Obj){
 	 * @return {number} 返回相应em值
 	 */
 	function fPx2em(nPx){
-		var nDef=Util.getDefFontSize();
+		var nDef=Util.getDefFontsize();
 		var nEm=1/nDef*nPx;
   		nEm=Math.ceil(nEm*1000)/1000;
   		return nEm;
@@ -6366,14 +6398,14 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     	}
     	var me=this;
     	var oVal=me.get(sAttr);
-    	var aArgs=Obj.toArray(arguments,1);
-    	var oStack=aArgs[aArgs.length-1];
+    	var oStack=arguments[arguments.length-1];
+    	var bNew;
     	if(!oStack||!oStack.$isStack){
     		oStack={
     			uuid:','+oModel.uuid+',',
     			$isStack:true
     		}
-    		aArgs.push(oStack);
+    		bNew=true;
     	}
     	var sUuid=oStack.uuid;
     	var sCurUuid=','+me.uuid+',';
@@ -6381,6 +6413,8 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     	if(sUuid.indexOf(sCurUuid)<0){
     		//将当前uuid加上，到外层事件时检查是否是循环事件
     		oStack.uuid+=sCurUuid;
+    		var aArgs=Obj.toArray(arguments,1);
+    		bNew&&aArgs.push(oStack);
 	    	me.trigger.apply(me,['change:'+sAttr,me,oVal].concat(aArgs));
 	    	me.trigger.apply(me,['change',me,oStack].concat(aArgs));
 	    	//me.trigger.apply(me, arguments);
@@ -7228,14 +7262,14 @@ function(Obj,Arr,Func,AbstractData,Model){
             	me._byId[oModel.id] = oModel;
             }
         }
-        var aArgs=Obj.toArray(arguments);
-    	var oStack=aArgs[aArgs.length-1];
+    	var oStack=arguments[arguments.length-1];
+    	var bNew;
     	if(!oStack||!oStack.$isStack){
     		oStack={
     			uuid:','+oModel.uuid+',',
     			$isStack:true
     		}
-    		aArgs.push(oStack);
+    		bNew=true;
     	}
     	var sUuid=oStack.uuid;
     	var sCurUuid=','+me.uuid+',';
@@ -7243,6 +7277,8 @@ function(Obj,Arr,Func,AbstractData,Model){
     	if(sUuid.indexOf(sCurUuid)<0){
     		//将当前uuid加上，到外层事件时检查是否是循环事件
     		oStack.uuid+=sCurUuid;
+    		var aArgs=Obj.toArray(arguments);
+    		bNew&&aArgs.push(oStack);
         	me.trigger.apply(me, aArgs);
     	}
     }
@@ -11135,7 +11171,7 @@ define('C.AbstractComponent',
 ],function(Class,Obj,Validator,ViewManager,View,ComponentManager){
 	
 	//访问component包内容的快捷别名
-	$C=$H.ns('C');
+	$C=$H.ns('C',{});
 	
 	var AC=View.derive({
 		//实例属性、方法
