@@ -17,7 +17,7 @@
 	fExtend(handy,{
 		version    : sVersion,    //版本号
 		env        : sEnv,        //默认是线上环境
-		isDebug    : sEnv=='dev',                              //是否是开发环境
+		isDev    : sEnv=='dev',                              //是否是开发环境
 		isTest     : sEnv=='test',                             //是否是测试环境
 		isOnline   : sEnv=='online',                           //是否是线上环境
 		expando    : ("handy-" +  sVersion).replace(/\./g,'_'), //自定义属性名
@@ -72,15 +72,20 @@
 	/**
     * 创建或读取命名空间
     * @method ns (sPath,obj=)
-    * @param {string}sPath 命名空间路径字符串
+    * @param {string|object}path 命名空间路径字符串或对{string}path:路径}，
+    * 				传入对象表示传入的是实际路径，不需要再执行alias去获取实际路径，节省开销
     * @param {*=}obj (可选)用以初始化该命名空间的对象，不传表示读取命名空间
     * @return {?*} 返回该路径的命名空间，不存在则返回undefined
     */
-	function fNamespace(sPath,obj){
+	function fNamespace(path,obj){
 		var oObject=null, j, aPath, root,bIsCreate,len; 
-		//尝试转换别名
-		sPath=handy.alias(sPath);
-        aPath=sPath.split(".");  
+		if(path.path){
+			path=path.path;
+		}else{
+			//尝试转换别名
+			path=handy.alias(path);
+		}
+        aPath=path.split(".");  
         root = aPath[0]; 
         bIsCreate=arguments.length==2;
         if(!bIsCreate){
@@ -101,11 +106,11 @@
             oObject=oObject[aPath[j]];  
         } 
         
-        //base库特殊处理，直接添加到handy下
-		var sBase='handy.base.';
-		if(bIsCreate&&sPath.indexOf(sBase)===0){
-			handy.add(sPath.replace(sBase,''),oObject);
-		}
+//        //base库特殊处理，直接添加到handy下
+//		var sBase='handy.base.';
+//		if(bIsCreate&&path.indexOf(sBase)===0){
+//			handy.add(path.replace(sBase,''),oObject);
+//		}
     	return oObject;
 	}
 	/**
@@ -192,7 +197,7 @@
 		//将base库里的所有方法挂载到handy下方便使用
 		for(var method in oModule){
 			//!Function[method]专为bind方法
-			if(handy.isDebug&&typeof handy[method]!="undefined"&&('console' in oWin)&&!Function[method]){
+			if(handy.isDev&&typeof handy[method]!="undefined"&&('console' in oWin)&&!Function[method]){
 				console.log(handy[method]);
 				console.log(sName+"命名冲突:"+method);
 			}

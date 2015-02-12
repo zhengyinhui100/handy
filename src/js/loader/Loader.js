@@ -7,7 +7,7 @@
  * 这时候需要在b模块里异步require('a')来真正使用a模块。
  * 但是,我们应该尽量避免出现显示的循环依赖，遇到相互引用的情况，先尽可能的将依赖后置，
  * 既尽可能使用运行时异步require的方式引入依赖，已化解模块定义时的循环引用
- * TODO:实际上，终归要采用依赖后置才能解决相互引用的问题，我们应该避免显示的相互引用，是否考虑只在的开发模式下检查相互引用以提升性能？
+ * 实际上，终归要采用依赖后置才能解决相互引用的问题，我们应该避免显示的相互引用，所以只在的开发模式下检查相互引用以提升性能
  * PS：模块里的同步require('a')方法的依赖会被提取到模块定义时的依赖列表里，如果不希望被提取，可以采用$H.ns方法，
  * 或者var id='a';var a=require(id)的方式
  * @author 郑银辉(zhengyinhui100@gmail.com)
@@ -16,10 +16,13 @@ define("L.Loader",
 ["L.Debug"],
 function(Debug){
 	
+	var bIsDev=$H.isDev;
+	
 	var Loader= {
 		traceLog                : false,                     //是否打印跟踪信息
-		combine                 : $H.isDebug?false:true,     //是否合并请求
+		combine                 : !bIsDev,                   //是否合并请求
 		isMin                   : false,                     //是否请求*.min.css和*.min.js
+		chkCycle                : false,                     //是否检查循环引用
 //		rootPath                : {
 //			'handy'        : 'http://localhost:8081/handy/src',
 //			'com.example'  : 'http://example.com:8082/js'
@@ -97,13 +100,13 @@ function(Debug){
      /**
 	 * 检查对应的资源是否已加载，只要检测到一个不存在的资源就立刻返回
 	 * @param {string|Array}id 被检查的资源id
-	 * @param {boolean=}bIgnoreCycle 仅当为true时忽略循环引用
+	 * @param {boolean=}bChkCycle 仅当为true时检查循环引用
 	 * @return {Object}  {
 	 * 		{Array}exist: 存在的资源列表
 	 * 		{string}notExist: 不存在的资源id
 	 * }
 	 */
-    function _fChkExisted(id,bIgnoreCycle){
+    function _fChkExisted(id,bChkCycle){
     	var oResult={}
     	var aExist=[];
     	var aNotExist=[];
@@ -112,7 +115,6 @@ function(Debug){
     	}
     	for(var i=0,nLen=id.length;i<nLen;i++){
     		var sId=id[i];
- 			sId=$H.alias(sId);
     		var result;
 			//css和js文件只验证是否加载完
 			if(/\.(css|js)/.test(sId)){
@@ -122,9 +124,9 @@ function(Debug){
 				result= Loader.sourceMap[sId].chkExist();
 			}else{
 				//标准命名空间规则验证
-	    		result= $H.ns(sId);
+	    		result= $H.ns({path:sId});
 			}
-			if(result===undefined&&bIgnoreCycle){
+			if(result===undefined&&bChkCycle){
 				//如果有循环依赖，将当前资源放入已存在的结果中，避免执行不下去
 				result=_fChkCycle(sId);
 			}
@@ -458,7 +460,7 @@ function(Debug){
     	//每次回调都循环上下文列表
    		for(var i=_aContext.length-1;i>=0;i--){
 	    	var oContext=_aContext[i];
-	    	var oResult=_fChkExisted(oContext.deps,true);
+	    	var oResult=_fChkExisted(oContext.deps,Loader.chkCycle);
 	    	if(oResult.notExist.length===0){
 	    		_aContext.splice(i,1);
 	    		oContext.callback.apply(null,oResult.exist);
@@ -469,7 +471,7 @@ function(Debug){
 	    		//输出错误分析
 	    		for(var i=_aContext.length-1;i>=0;i--){
 	    			var oContext=_aContext[i];
-	    			var oResult=_fChkExisted(oContext.deps);
+	    			var oResult=_fChkExisted(oContext.deps,Loader.chkCycle);
 	    			var aNotExist=oResult.notExist;
 	    			var bHasDepds=false;
 	    			for(var j=_aContext.length-1;j>=0;j--){
@@ -571,6 +573,7 @@ function(Debug){
     	var aExisteds=[];
     	//是否保存到上下文列表中，保证callback只执行一次
     	var bNeedContext=true;
+    	//在内部，全部先转换为实名
     	for(var i=0,nLen=aIds.length;i<nLen;i++){
     		var sId=aIds[i];
 			//替换为实名

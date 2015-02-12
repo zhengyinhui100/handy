@@ -6,7 +6,7 @@
 define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	
 	var Debug=window.$D={
-		level	            : $H.isDebug?0:5,  //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
+		level	            : $H.isDev?0:5,  //当前调试调试日志级别，只有级别不低于此标志位的调试方法能执行
 		LOG_LEVEL	        : 1,            //日志级别
 		DEBUG_LEVEL         : 2,            //调试级别
 		INFO_LEVEL          : 3,            //信息级别
@@ -209,7 +209,7 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 			return;
 		}
 		Debug._out(oVar,!!bShowInPage,"error");
-		if($H.isDebug){
+		if($H.isDev){
 			if(oVar instanceof Error){
 				//抛出异常，主要是为了方便调试，如果异常被catch住的话，控制台不会输出具体错误位置
 				typeof console!=='undefined'&&console.error(oVar.stack)
