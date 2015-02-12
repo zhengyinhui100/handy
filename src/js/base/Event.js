@@ -26,22 +26,26 @@ define('B.Event','B.Object',function(Obj){
 	 * 分析事件对象
 	 * @param {Object|string}name 事件名称，'event1 event2'或{event1:func1,event:func2}
 	 * 							事件名称支持命名空间(".name")，如：change.one
-	 * @param {Function}fCall({Array}aParams) 回调函数，参数aParams是事件名和事件函数，如果aParams长度为1则表示没有事件函数
+	 * @param {Function=}fCall({Array}aParams) 回调函数，参数aParams是事件名和事件函数，如果aParams长度为1则表示没有事件函数
 	 * @return {boolean} true表示已成功处理事件，false表示未处理
 	 */
 	function _fParseEvents(name,fCall){
 		var me=this;
 		var rSpace=/\s+/;
 		if(typeof name=='object'){
-			for(var key in name){
-				fCall([key,name[key]]);
+			if(fCall){
+				for(var key in name){
+					fCall([key,name[key]]);
+				}
 			}
 			return true;
 		}else if(typeof name=='string'&&rSpace.test(name)){
-			//多个空格相隔的事件
-			var aName=name.split(rSpace);
-			for(var i=0,len=aName.length;i<len;i++){
-				fCall([aName[i]]);
+			if(fCall){
+				//多个空格相隔的事件
+				var aName=name.split(rSpace);
+				for(var i=0,len=aName.length;i<len;i++){
+					fCall([aName[i]]);
+				}
 			}
 			return true;
 		}
@@ -124,7 +128,7 @@ define('B.Event','B.Object',function(Obj){
 	 */
 	function fOn(name,fHandler,context,nTimes){
 		var me=this;
-		if(me._parseCustomEvents('on',name,fHandler,context,nTimes)){
+		if(me._parseEvents(name)&&me._parseCustomEvents('on',name,fHandler,context,nTimes)){
 			return;
 		}
 		if(typeof context=='number'){
@@ -172,7 +176,7 @@ define('B.Event','B.Object',function(Obj){
 			me._eventCache={};
 			return true;
 		}
-		if(me._parseCustomEvents('off',name,fHandler)){
+		if(me._parseEvents(name)&&me._parseCustomEvents('off',name,fHandler)){
 			return;
 		}
 		var oCache=me._eventCache;
@@ -222,13 +226,15 @@ define('B.Event','B.Object',function(Obj){
 	 */
 	function fTrigger(name,data){
 		var me=this;
-		var aNewArgs=Obj.toArray(arguments);
-		aNewArgs.unshift('trigger');
-		if(me._parseCustomEvents.apply(me,aNewArgs)){
-			return;
+		if(me._parseEvents(name)){
+			var aNewArgs=Obj.toArray(arguments);
+			aNewArgs.unshift('trigger');
+			if(me._parseCustomEvents.apply(me,aNewArgs)){
+				return;
+			}
 		}
 		var oCache=me._eventCache;
-		var aArgs=Obj.toArray(arguments);
+		var aArgs=arguments;
 		var aCache;
 		var aExecEvts=[];
 		//内部函数，执行事件队列

@@ -177,14 +177,14 @@ function(Obj,Arr,Func,AbstractData,Model){
             	me._byId[oModel.id] = oModel;
             }
         }
-        var aArgs=Obj.toArray(arguments);
-    	var oStack=aArgs[aArgs.length-1];
+    	var oStack=arguments[arguments.length-1];
+    	var bNew;
     	if(!oStack||!oStack.$isStack){
     		oStack={
     			uuid:','+oModel.uuid+',',
     			$isStack:true
     		}
-    		aArgs.push(oStack);
+    		bNew=true;
     	}
     	var sUuid=oStack.uuid;
     	var sCurUuid=','+me.uuid+',';
@@ -192,6 +192,8 @@ function(Obj,Arr,Func,AbstractData,Model){
     	if(sUuid.indexOf(sCurUuid)<0){
     		//将当前uuid加上，到外层事件时检查是否是循环事件
     		oStack.uuid+=sCurUuid;
+    		var aArgs=Obj.toArray(arguments);
+    		bNew&&aArgs.push(oStack);
         	me.trigger.apply(me, aArgs);
     	}
     }

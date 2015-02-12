@@ -285,14 +285,14 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     	}
     	var me=this;
     	var oVal=me.get(sAttr);
-    	var aArgs=Obj.toArray(arguments,1);
-    	var oStack=aArgs[aArgs.length-1];
+    	var oStack=arguments[arguments.length-1];
+    	var bNew;
     	if(!oStack||!oStack.$isStack){
     		oStack={
     			uuid:','+oModel.uuid+',',
     			$isStack:true
     		}
-    		aArgs.push(oStack);
+    		bNew=true;
     	}
     	var sUuid=oStack.uuid;
     	var sCurUuid=','+me.uuid+',';
@@ -300,6 +300,8 @@ function(Obj,Dat,Str,Util,Func,AbstractData,DataStore){
     	if(sUuid.indexOf(sCurUuid)<0){
     		//将当前uuid加上，到外层事件时检查是否是循环事件
     		oStack.uuid+=sCurUuid;
+    		var aArgs=Obj.toArray(arguments,1);
+    		bNew&&aArgs.push(oStack);
 	    	me.trigger.apply(me,['change:'+sAttr,me,oVal].concat(aArgs));
 	    	me.trigger.apply(me,['change',me,oStack].concat(aArgs));
 	    	//me.trigger.apply(me, arguments);
