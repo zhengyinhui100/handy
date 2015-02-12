@@ -7,8 +7,8 @@ define('B.Util','B.Object',function(Obj){
 	var Util={
 		isWindow         : fIsWindow,          //检查是否是window对象
 		uuid             : fUuid,              //获取handy内部uuid
-		getDefFontSize   : fGetDefFontSize,    //获取默认字体大小
-		setDefFontSize   : fSetDefFontSize,    //设置默认字体大小
+		getDefFontsize   : fGetDefFontsize,    //获取默认字体大小
+		setDefFontsize   : fSetDefFontsize,    //设置默认字体大小
 		em2px            : fEm2px,             //em转化为px
 		px2em            : fPx2em,             //px转化为em
 		position         : fPosition,          //获取节点位置
@@ -39,23 +39,23 @@ define('B.Util','B.Object',function(Obj){
 	 * @param {element=}oParent 需要检测的父元素，默认是body
 	 * @return {number} 返回默认字体大小(px单位)
 	 */
-	function fGetDefFontSize(oParent) {
+	function fGetDefFontsize(oParent) {
 		var bGlobal=!oParent;
-		$D.time('fontTime');
 		if(bGlobal&&_defFontSize){
 			return _defFontSize;
 		}
 		oParent = oParent || document.body;
 		var oDiv = document.createElement('div');
-		oDiv.style.cssText = 'display:inline-block; padding:0; line-height:1; position:absolute; visibility:hidden; font-size:1em';
-		oDiv.appendChild(document.createTextNode('M'));
+		oDiv.style.cssText = 'display:inline-block;padding:0;line-height:1em;position:absolute;top:0;visibility:hidden;font-size:1em';
+		var oText=document.createTextNode('M');
+		oDiv.appendChild(oText);
 		oParent.appendChild(oDiv);
+		//TODO:这里在chrome下页面节点多的时候(可参考组件页面)读取速度特别慢，已经绝对定位了，还会引起repaint?
 		var nSize = oDiv.offsetHeight;
 		if(bGlobal){
 			_defFontSize=nSize;
 		}
 		oParent.removeChild(oDiv);
-		$D.time(true,'fontTime');
 		return nSize;
 	}
 	/**
@@ -63,7 +63,7 @@ define('B.Util','B.Object',function(Obj){
 	 * @param {number|string}size 需要设置的字体大小
 	 * @param {element=}oParent 需要检测的父元素，默认是body
 	 */
-	function fSetDefFontSize(size,oParent){
+	function fSetDefFontsize(size,oParent){
 		oParent = oParent || document.body;
 		if(typeof size=='number'){
 			size+='px';
@@ -79,7 +79,7 @@ define('B.Util','B.Object',function(Obj){
 		if(typeof nEm==='string'){
 			nEm=parseFloat(nEm.replace('em',''));
 		}
-		var nDef=Util.getDefFontSize();
+		var nDef=Util.getDefFontsize();
 		return Math.floor(nEm*nDef);
 	}
 	/**
@@ -88,7 +88,7 @@ define('B.Util','B.Object',function(Obj){
 	 * @return {number} 返回相应em值
 	 */
 	function fPx2em(nPx){
-		var nDef=Util.getDefFontSize();
+		var nDef=Util.getDefFontsize();
 		var nEm=1/nDef*nPx;
   		nEm=Math.ceil(nEm*1000)/1000;
   		return nEm;
