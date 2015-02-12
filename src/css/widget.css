@@ -1503,7 +1503,6 @@
 }
 .hui-hcard {
   position: relative;
-  padding: 0.5em;
 }
 .hui-hcard.hui-hcard-hasimg {
   padding-left: 4.375em;
@@ -1511,6 +1510,9 @@
 .hui-hcard.hui-hcard-padding-right,
 .hui-hcard.hui-clickable {
   padding-right: 1.5em;
+}
+.hui-hcard .hui-hcard-content {
+  padding: 0.5em;
 }
 .hui-hcard .hui-hcard-img {
   position: absolute;
