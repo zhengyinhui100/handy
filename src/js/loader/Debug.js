@@ -35,6 +35,8 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	//手动开启控制面板
 	Debug.listenCtrlEvts();
 	
+	var _oTime={};
+	
 	/**
 	 * 监听事件
 	 * @param {element}oTarget 参数节点
@@ -223,22 +225,26 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 	/**
 	 * 输出统计时间
 	 * @param {boolean=}bOut 为true时，计算时间并输出信息，只有此参数为true时，后面两个参数才有意义
-	 * @param {string=}sMsg 输出的信息
+	 * @param {string=}sName 统计名
 	 * @param {boolean=}bShowInPage 参照Debug.showInPage
 	 */
-	function fTime(bOut,sMsg,bShowInPage){
+	function fTime(bOut,sName,bShowInPage){
 		if(Debug.level>Debug.INFO_LEVEL){
 			return;
 		}
 		var nTime=window.performance&&window.performance.now?window.performance.now():(new Date().getTime());
+		if(typeof bOut==='string'){
+			sName=bOut;
+			bOut=false;
+		}
 		if(bOut){
-			if(typeof sMsg=='boolean'){
-				bShowInPage=sMsg;
-				sMsg='';
+			if(typeof sName=='boolean'){
+				bShowInPage=sName;
+				sName='';
 			}
-			Debug._out((sMsg||'')+(nTime-(Debug.lastTime||0)),!!bShowInPage);
+			Debug._out((sName?sName+':':'')+(nTime-(_oTime[sName||'_lastTime']||0)),!!bShowInPage);
 		}else{
-			Debug.lastTime=nTime;
+			_oTime[[sName||'_lastTime']]=nTime;
 		}
 	}
 	/**

@@ -41,6 +41,7 @@ define('B.Util','B.Object',function(Obj){
 	 */
 	function fGetDefFontSize(oParent) {
 		var bGlobal=!oParent;
+		$D.time('fontTime');
 		if(bGlobal&&_defFontSize){
 			return _defFontSize;
 		}
@@ -54,6 +55,7 @@ define('B.Util','B.Object',function(Obj){
 			_defFontSize=nSize;
 		}
 		oParent.removeChild(oDiv);
+		$D.time(true,'fontTime');
 		return nSize;
 	}
 	/**

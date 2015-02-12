@@ -65,8 +65,8 @@ define('test','handy.All',function(){
 	for(var i=0;i<1;i++){
 		example();
 	}
-	
-	$D.time(true,'组件初始化时间：');
+	$D.log('组件初始化时间:');
+	$D.time(true);
 	var num=0;
 	$CM.eachInEl($(document.body),function(){
 		num++;
