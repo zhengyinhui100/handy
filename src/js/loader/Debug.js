@@ -310,8 +310,8 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 			var nNow=new Date().getTime();
 			if(nNow-nLast<500){
 				nTimes++;
-				//连续点击4次弹出控制面板
-				if(nTimes>2){
+				//连续点击5次(开发环境下)弹出控制面板
+				if(nTimes>($H.isDev?3:6)){
 					Debug._out('open console',true);
 					nTimes=0;
 				}
