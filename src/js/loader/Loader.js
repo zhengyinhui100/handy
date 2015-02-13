@@ -491,12 +491,12 @@ function(Debug){
 	    				}
 	    			}
 	    			if(!bHasDepds){
-						Debug.error(_LOADER_PRE+_RESOURCE_NOT_FOUND+oContext.id);
+						Debug.error(_RESOURCE_NOT_FOUND+oContext.id);
 	    			}
     				Debug.warn(_LOADER_PRE+oContext.id);
     				Debug.warn(_LOADER_PRE+"----notExist : "+oResult.notExist);
 	    		}
-	    		Debug.error(_LOADER_PRE+_RESOURCE_NOT_FOUND+oResult.notExist);
+	    		Debug.error(_RESOURCE_NOT_FOUND+oResult.notExist);
 	    	}
    		}
     }
