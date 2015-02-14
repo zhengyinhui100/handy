@@ -16,7 +16,7 @@ function(Util,Date,Class,AbstractDao,AbstractEvents){
 	var AbstractData=AbstractEvents.derive({
 		_isDirty        : true,
 		dirtyTime       : 30*60*1000,     //数据失效时间，超出则标记为脏数据
-//		lastSyncTime    : null,           //上次同步时间
+//		lastFetchTime    : null,           //上次同步时间
 //		dao             : null,           //数据访问对象，默认为common.AbstractDao
 		initialize      : fInitialize,    //初始化
 		isDirty         : fIsDirty,       //返回是否是脏数据
@@ -44,9 +44,9 @@ function(Util,Date,Class,AbstractDao,AbstractEvents){
 		var me=this;
 		var bDirty=me._isDirty;
 		if(!bDirty){
-			if(me.lastSyncTime){
+			if(me.lastFetchTime){
 				var now=Date.now();
-				bDirty=now.getTime()-me.lastSyncTime.getTime()>=me.dirtyTime;
+				bDirty=now.getTime()-me.lastFetchTime.getTime()>=me.dirtyTime;
 			}
 		}
 		return bDirty;
@@ -66,8 +66,10 @@ function(Util,Date,Class,AbstractDao,AbstractEvents){
 	 */
     function fSync(sMethod,oData,oOptions) {
     	var me=this;
-    	me.lastSyncTime=Date.now();
-    	this._isDirty=false;
+    	if(sMethod==='read'){
+	    	me.lastFetchTime=Date.now();
+	    	this._isDirty=false;
+    	}
         return me.dao.sync(sMethod,oData,oOptions);
     }
     /**

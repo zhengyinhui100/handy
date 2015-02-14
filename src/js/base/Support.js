@@ -98,7 +98,6 @@ define('B.Support','L.Browser',function(Browser){
 			new Object().toString();
 		}
 		var performance = 1 / (Date.now() - now);
-		$D.log(performance);
 	}
 	/**
 	 * 检测样式是否支持

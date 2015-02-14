@@ -242,7 +242,6 @@ function(Browser,Evt,Obj,Func,History,AbstractManager){
 				//当前模块及其父模块不能删除，直接跳过
 				if(oItem.modId!=oModule.modId&&oItem.modId!=(oModule.referer&&oModule.referer.modId)){
 					me.destroy(oMods[oItem.modId]);
-//					$D.info('destroy:'+oItem.modId);
 				}
 				break;
 			}
