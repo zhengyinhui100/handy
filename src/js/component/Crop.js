@@ -54,7 +54,7 @@ function(Browser,Obj,Util,AC,AbstractImage,Draggable){
 		cropWidth       : '9.375em',           //剪切框宽度
 		cropHeight      : '9.375em',           //剪切框高度
 //		cropImgSize     : false,               //true时裁剪框跟图片一样大小，忽略cropWidth和cropHeight的值
-//		fixedScale      : 1,                   //固定宽高比
+		fixedScale      : 1,                   //固定宽高比
 		
 		tmpl            : [
 			'<div>',
@@ -112,8 +112,8 @@ function(Browser,Obj,Util,AC,AbstractImage,Draggable){
 		var nLeftOffset=me.leftOffset=oSize.left;
 		var nTopOffset=me.topOffset=oSize.top;
 		//裁剪框居中显示
-		var nWidth=oSize.width;
-		var nHeight=oSize.height;
+		var nWidth=me.imgWidth=oSize.width;
+		var nHeight=me.imgHeight=oSize.height;
 		//缩放比例
 		me.scale=nHeight/oSize.origH;
 		var nLeft=me.cropX=Math.ceil((nWidth-me.cropWidth)/2);
@@ -191,16 +191,33 @@ function(Browser,Obj,Util,AC,AbstractImage,Draggable){
 	 */
 	function fDragCrop(oPos){
 		var me=this;
-		me.cropX=me.initCropX+oPos.offsetX;
-		me.cropY=me.initCropY+oPos.offsetY;
+		var nCropX=me.initCropX+oPos.offsetX;
+		var nCropY=me.initCropY+oPos.offsetY;
+		//不能超出图片边界
+		if(nCropX<0){
+			nCropX=0;
+		}
+		var nMaxX=me.imgWidth-me.cropWidth;
+		if(nCropX>nMaxX){
+			nCropX=nMaxX;
+		}
+		if(nCropY<0){
+			nCropY=0;
+		}
+		var nMaxY=me.imgHeight-me.cropHeight;
+		if(nCropY>nMaxY){
+			nCropY=nMaxY;
+		}
 		me.cropImg.css({
-			marginLeft:-me.cropX,
-			marginTop:-me.cropY
+			marginLeft:-nCropX,
+			marginTop:-nCropY
 		});
 		me.cropBox.css({
-			left:me.leftOffset+me.cropX,
-			top:me.topOffset+me.cropY
+			left:me.leftOffset+nCropX,
+			top:me.topOffset+nCropY
 		});
+		me.cropX=nCropX;
+		me.cropY=nCropY;
 	}
 	/**
 	 * 缩放选择框
@@ -210,22 +227,57 @@ function(Browser,Obj,Util,AC,AbstractImage,Draggable){
 		var me=this;
 		var sDirection=me.zoomDirect;
 		var nFixedScale=me.fixedScale;
-		var nOffsetX,nOffsetY;
-		if(sDirection==='n'||sDirection==='s'){
-			nOffsetY=oPos.offsetY;
-			nOffsetX=nFixedScale?nOffsetY*nFixedScale:oPos.offsetX;
-		}else{
-			nOffsetX=oPos.offsetX;
-			nOffsetY=nFixedScale?nOffsetX/nFixedScale:oPos.offsetY;
-		}
+		var nOffsetX=oPos.offsetX;
+		var nOffsetY=oPos.offsetY;
 		//向上或向左
 		if(sDirection==='n'||sDirection==='w'){
+			var nMaxX=me.initCropX;
+			var nMaxY=me.initCropY;
+			if(sDirection==='n'){
+				if(nFixedScale){
+					nMaxY=Math.min(nMaxY,nMaxX/nFixedScale);
+				}
+				//不能超过图片边界
+				if(nMaxY+nOffsetY<0){
+					nOffsetY=-nMaxY;
+				}
+				nOffsetX=nFixedScale?nOffsetY*nFixedScale:0;
+			}else{
+				if(nFixedScale){
+					nMaxX=Math.min(nMaxX,nMaxY*nFixedScale);
+				}
+				if(nMaxX+nOffsetX<0){
+					nOffsetX=-nMaxX;
+				}
+				nOffsetY=nFixedScale?nOffsetX/nFixedScale:0;
+			}
 			me.dragCrop({
 				offsetX:nOffsetX,
 				offsetY:nOffsetY
 			});
 			nOffsetX=-nOffsetX;
 			nOffsetY=-nOffsetY;
+		}else{
+			var nMaxX=me.imgWidth-me.cropX-me.initCropWidth;
+			var nMaxY=me.imgHeight-me.cropY-me.initCropHeight;
+			if(sDirection==='e'){
+				if(nFixedScale){
+					nMaxX=Math.min(nMaxX,nMaxY*nFixedScale);
+				}
+				//不能超过图片边界
+				if(nOffsetX>nMaxX){
+					nOffsetX=nMaxX;
+				}
+				nOffsetY=nFixedScale?nOffsetX/nFixedScale:0;
+			}else{
+				if(nFixedScale){
+					nMaxY=Math.min(nMaxY,nMaxX/nFixedScale);
+				}
+				if(nOffsetY>nMaxY){
+					nOffsetY=nMaxY;
+				}
+				nOffsetX=nFixedScale?nOffsetY*nFixedScale:0;
+			}
 		}
 		me.cropWidth=me.initCropWidth+nOffsetX;
 		me.cropHeight=me.initCropHeight+nOffsetY;
