@@ -23,10 +23,11 @@ function(Debug){
 		combine                 : !bIsDev,                   //是否合并请求
 		isMin                   : false,                     //是否请求*.min.css和*.min.js
 		parseCycle              : false,                     //是否处理循环引用，这里建议不开启或者只在开发模式下开启
-//		rootPath                : {
-//			'handy'        : 'http://localhost:8081/handy/src',
+		rootPath                : {
+			'handyRoot'    : '../../',
+			'handy'        : '../'
 //			'com.example'  : 'http://example.com:8082/js'
-//		},                       //根url，根据命名空间前缀匹配替换，如果没有匹配则是空字符串''；如果rootPath是字符串则直接使用
+		},                       //根url，根据命名空间前缀匹配替换，如果没有匹配则是空字符串''；如果rootPath是字符串则直接使用
 		timeout                 : 15000,
 		skinName                : 'skin',                   //皮肤名称，皮肤css的url里包含的字符串片段，用于检查css是否是皮肤
 //		sourceMap               : {
@@ -151,9 +152,6 @@ function(Debug){
 	 * @return {string}sUrl 实际url
 	 */
     function _fGetUrl(sId){
-    	if(/\/+/.test(sId)){
-    		return sId;
-    	}
     	var sUrl=Loader.sourceMap&&Loader.sourceMap[sId]&&Loader.sourceMap[sId].url;
     	if(!sUrl){
     		var sRoot='';
@@ -380,9 +378,11 @@ function(Debug){
 					status:'loading'
 				}
 				if(!bCombine){
-					var _fCallback=function(){
-						_fResponse(sId);
-					}
+					var _fCallback=(function(id){
+						return function(){
+							_fResponse(id);
+						}
+					})(sId);
 		    		if(Loader.traceLog){
 						Debug.log(_LOADER_PRE+"request:\n"+sUrl);
 			   		}
@@ -420,9 +420,11 @@ function(Debug){
     		for(var host in oCombine){
 				var oItem=oCombine[host];
 				var aUris=oItem.uris;
-    			var _fCallback=function(){
-    				_fResponse(oItem.ids);
-    			}
+    			var _fCallback=(function(aIds){
+    				return function(){
+	    				_fResponse(aIds);
+    				}
+    			})(oItem.ids)
     			var sUrl=host+(aUris.length>1?('??'+aUris.join(',')):aUris[0]);
 	    		if(Loader.traceLog){
 					Debug.log(_LOADER_PRE+"request:\n"+sUrl);
