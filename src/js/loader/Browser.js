@@ -27,6 +27,9 @@ define("L.Browser",function(){
 		function(sName){
 			return function(bNotInt){
 				var sValue=_oInfo[sName];
+				if(typeof sValue==='string'){
+					sValue=sValue.replace(/_/g,'');
+				}
 				return !bNotInt&&typeof sValue==='string'&&/^[\d\.]+$/.test(sValue)?parseInt(sValue):sValue;
 			}
 		}
