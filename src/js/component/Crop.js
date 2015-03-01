@@ -17,6 +17,7 @@ function(Browser,Obj,Util,AC,AbstractImage,Draggable){
 	var Crop=AC.define('Crop',AbstractImage);
 	
 	var _startEvent=Browser.hasTouch()?'touchstart':'mousedown';
+	var _sCropSize=Browser.phone()?'9.375em':'15em';
 	
 	Crop.extend({
 		//初始配置
@@ -51,10 +52,10 @@ function(Browser,Obj,Util,AC,AbstractImage,Draggable){
 		}],
 		
 		imgSrc          : '',                  //图片源
-		cropWidth       : '9.375em',           //剪切框宽度
-		cropHeight      : '9.375em',           //剪切框高度
+		cropWidth       : _sCropSize,          //剪切框宽度
+		cropHeight      : _sCropSize,          //剪切框高度
 //		cropImgSize     : false,               //true时裁剪框跟图片一样大小，忽略cropWidth和cropHeight的值
-		fixedScale      : 1,                   //固定宽高比
+		fixedScale      : true,                //是否固定宽高比,true时会自动根据cropWidth和cropHeight计算
 		
 		tmpl            : [
 			'<div>',
@@ -107,6 +108,9 @@ function(Browser,Obj,Util,AC,AbstractImage,Draggable){
 			if(Obj.isStr(me.cropHeight)){
 				me.cropHeight=Util.em2px(me.cropHeight);
 			}
+		}
+		if(me.fixedScale){
+			me.fixedScale=me.cropWidth/me.cropHeight;
 		}
 		//图片居中显示的偏移量
 		var nLeftOffset=me.leftOffset=oSize.left;

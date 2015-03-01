@@ -46,7 +46,7 @@ function(Browser,Obj,Util,AC,ImgCompress,Device,Camera){
 				'{{/unless}}',
 				'<input type="hidden" class="js-file-content" {{bindAttr name="inputName"}}>',
 				'{{#if useFileInput}}',
-					'<input type="file" class="js-file-input hui-file-input">',
+					'<input type="file" class="js-file-input hui-file-input" accept="image/*">',
 				'{{/if}}',
 			'</div>'].join(''),
 		
@@ -75,11 +75,11 @@ function(Browser,Obj,Util,AC,ImgCompress,Device,Camera){
 					}
 					name=imgSrc;
 				}
-				if(!/.+\.(jpg|gif|png|jpeg|bmp)$/.test(name)){
+				if(!/.+\.(jpg|gif|png|jpeg|bmp)$/i.test(name)){
 					$C.Tips({text:"您选择的文件不是图片",theme:'error'});
 					return;
 				}
-				this.processImg(imgSrc);
+				this.processImg(imgSrc,file);
 			}
 		},{
 			name:'click',
@@ -179,8 +179,9 @@ function(Browser,Obj,Util,AC,ImgCompress,Device,Camera){
 	/**
 	 * 处理图片
 	 * @param {object|string}imgSrc 图片源
+	 * @param {object=}oFile 图片文件对象，移动端压缩需要使用
 	 */
-	function fProcessImg(imgSrc){
+	function fProcessImg(imgSrc,oFile){
 		var me=this;
 		if(me.crop){
 			var oCropOptions=me.cropOptions||{};
@@ -193,12 +194,12 @@ function(Browser,Obj,Util,AC,ImgCompress,Device,Camera){
 					success:function(oResult){
 						oWin.hide();
 						var oOptions=Obj.extend(oResult,me.compressOptions);
-						ImgCompress.compress(imgSrc,oOptions);
+						ImgCompress.compress(oFile||imgSrc,oOptions);
 					}
 				});
 			});
 		}else{
-			ImgCompress.compress(imgSrc,me.compressOptions);
+			ImgCompress.compress(oFile||imgSrc,me.compressOptions);
 		}
 	}
 	/**

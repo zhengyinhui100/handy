@@ -1103,6 +1103,10 @@ function(Debug){
 	 * @return {string}sUrl 实际url
 	 */
     function _fGetUrl(sId){
+    	//url直接返回
+    	if(/^(\w+:\/\/)/.test(sId)){
+    		return sId;
+    	}
     	var sUrl=Loader.sourceMap&&Loader.sourceMap[sId]&&Loader.sourceMap[sId].url;
     	if(!sUrl){
     		var sRoot='';
@@ -5136,72 +5140,129 @@ function(Browser,Obj,Class){
 	});
 	
 	/**
+	 * 
+	 */
+	function _fDrawImageIOSFix(ctx, img, sx, sy, sw, sh, dx, dy, dw, dh) {
+		//TODO iphone 4s 可能需要检测
+		//ios6不需要检测，因为使用了megapix-image
+		var nVertSquashRatio = Browser.ios()==7?detectVerticalSquash(img):1;
+		alert(nVertSquashRatio)
+		var aArgs=arguments;
+		var nLen = aArgs.length;
+		switch (nLen) {
+			case 4 :
+				ctx.drawImage(img, aArgs[2], aArgs[3]/ nVertSquashRatio);
+				break
+			case 6 :
+				ctx.drawImage(img, aArgs[2], aArgs[3], aArgs[4],aArgs[5] / nVertSquashRatio);
+				break
+			case 8 :
+				ctx.drawImage(img, aArgs[2], aArgs[3], aArgs[4],aArgs[5], aArgs[6], aArgs[7]/ nVertSquashRatio);
+				break
+			case 10 :
+				ctx.drawImage(img, aArgs[2], aArgs[3], aArgs[4],aArgs[5], aArgs[6], aArgs[7], aArgs[8],aArgs[9] / nVertSquashRatio);
+				break
+		}
+		 // Detects vertical squash in loaded image.
+		// Fixes a bug which squash image vertically while drawing into canvas
+		// for some images.
+		// This is a bug in iOS6 (and IOS7) devices. This function from
+		// https://github.com/stomita/ios-imagefile-megapixel
+		function detectVerticalSquash(img) {
+			var iw = img.naturalWidth, ih = img.naturalHeight
+			var canvas = document.createElement("canvas")
+			canvas.width = 1
+			canvas.height = ih
+			var ctx = canvas.getContext('2d')
+			ctx.drawImage(img, 0, 0)
+			var data = ctx.getImageData(0, 0, 1, ih).data
+			// search image edge pixel position in case it is squashed
+			// vertically.
+			var sy = 0, ey = ih, py = ih
+			while (py > sy) {
+				var alpha = data[(py - 1) * 4 + 3]
+				if (alpha === 0) {
+					ey = py
+				} else {
+					sy = py
+				}
+				py = (ey + sy) >> 1
+			}
+			var ratio = (py / ih)
+			return (ratio === 0) ? 1 : ratio
+		}
+	}
+	/**
 	 * 压缩
-	 * @param {object|string}image 参数图片，可以是File对象、base64图片字符串，URL.createObjectURL的对象，或者其他可以设置在img.src上的对象
-	 * @param {object}oOptions 选项{
-	 * 		{number=}width:压缩后图片宽度，不传表示使用原图的宽度，优先级高于maxWidth
-	 * 		{number=}height:压缩后图片高度，不传表示使用原图的高度，优先级高于maxHeight，宽度和高度如果只提供一个则另一个根据实际尺寸等比例计算得出
-	 * 		{number=}maxWidth:压缩后最大宽度
-	 * 		{number=}maxHeight:压缩后最大高度
-	 * 		{number=}cropX:裁剪图片的起始横坐标
-	 * 		{number=}cropY:裁剪图片的起始纵坐标
-	 * 		{number=}cropW:裁剪图片的宽度
-	 * 		{number=}cropH:裁剪图片的高度
-	 * 		{number=}quality:压缩率，默认是0.5
-	 * 		{function({object})}success:回调函数，参数说明:{
-	 * 			{object|string}orig:原图对象
-	 * 			{string}base64:压缩后的base64字符串
-	 * 			{string}clearBase64:去除data前缀的压缩后的base64字符串
-	 * 		}
-	 * }
+	 * 
+	 * @param {object|string}image
+	 *            参数图片，可以是File对象、base64图片字符串，URL.createObjectURL的对象
+	 *            (PS:ios6下不能使用ObjectURL对象，因为会使exif读取失败)，或者其他可以设置在img.src上的对象
+	 * @param {object}oOptions
+	 *            选项{ {number=}width:压缩后图片宽度，不传表示使用原图的宽度，优先级高于maxWidth
+	 *            {number=}height:压缩后图片高度，不传表示使用原图的高度，优先级高于maxHeight，宽度和高度如果只提供一个则另一个根据实际尺寸等比例计算得出
+	 *            {number=}maxWidth:压缩后最大宽度 {number=}maxHeight:压缩后最大高度
+	 *            {number=}cropX:裁剪图片的起始横坐标 {number=}cropY:裁剪图片的起始纵坐标
+	 *            {number=}cropW:裁剪图片的宽度 {number=}cropH:裁剪图片的高度
+	 *            {number=}quality:压缩率，默认是0.5
+	 *            {function({object})}success:回调函数，参数说明:{
+	 *            {object|string}orig:原图对象 {string}base64:压缩后的base64字符串
+	 *            {string}clearBase64:去除data前缀的压缩后的base64字符串 } }
 	 */
 	function fCompress(image,oOptions){
 		if(!image){
 			return;
 		}
 		var oImgSrc=image;
-		if(typeof File==='object'&&image instanceof File){
-			var oURL = URL || webkitURL;
+		if(typeof File!=='undefined'&&image instanceof File){
+			var oURL = window.URL || window.webkitURL;
 			oImgSrc = oURL.createObjectURL(image);
 		}
-            
 		var oImg = new Image();
             oImg.src = oImgSrc;
+       var oImg2 = new Image();
+            oImg2.src = oImgSrc;
+            document.body.appendChild(oImg2);
            
+        var bIOSFix=Browser.ios()<7;
+        var bAndroidEncoder=Browser.android();
+        
         oImg.onload = function () {
         	//获取图片exif信息，判断图片方向
-            var bIOSFix=Browser.ios()<7;
             var aRequires=[];
-            //修复ios6图片扭曲压缩问题
+            //修复ios6、7图片扭曲压缩问题
             if(bIOSFix){
             	aRequires.push('handyRoot/lib/megapix-image.js');
             }
-            var bNeedExif=Browser.mobile();
+            //Android下能顺利截图，不需要处理图片方向问题，引入exif还会导致应用崩溃，重新刷新
+            var bNeedExif=Browser.ios();
             //读取照片方向
             if(bNeedExif){
             	aRequires.push('handyRoot/lib/exif.js');
             }
             //修复Android图片压缩问题
-            if(Browser.android()){
+            if(bAndroidEncoder){
             	aRequires.push('handyRoot/lib/jpeg_encoder_basic.js');
             }
             require(aRequires,function(){
             	if(bNeedExif){
-		        	EXIF.getData(oImg, function() {
+		        	EXIF.getData(image, function() {
 			            var nOrientation=EXIF.getTag(this,'Orientation');
-			            fComp(nOrientation);
+			            _fComp(nOrientation);
 			        });
             	}else{
-            		fComp();
+            		_fComp();
             	}
             })
         }
         
-        function fComp(nOrientation){
+        function _fComp(nOrientation){
         	nOrientation=nOrientation||1;
         	// 生成比例
             var w = oImg.width,
                 h = oImg.height,
+                nImgW=w,
+                nImgH=h,
                 bCrop=oOptions.cropX!==undefined,
                 nMaxW=oOptions.maxWidth,
                 nMaxH=oOptions.maxHeight,
@@ -5240,48 +5301,66 @@ function(Browser,Obj,Class){
             var oCanvas = document.createElement('canvas');
             document.body.appendChild(oCanvas);
             var oCtx = oCanvas.getContext('2d');
-            var jCanvas=$(oCanvas);
         	var nCropW=oOptions.cropW;
         	var nCropH=oOptions.cropH;
         	var nCropX=oOptions.cropX;
         	var nCropY=oOptions.cropY;
-        	var nImgW=w;
-        	var nImgH=h;
         	//绘制起始坐标
         	var x=0;
         	var y=0;
         	
     		// 根据exif中照片的旋转信息对图片进行旋转
-			var nRotation;
-        	switch (nOrientation) { 
-				case 3 :
-					nRotation = 180;
-					x=-w;
-					y=-h;
-					break;
-				case 6 :
-					nRotation = 90;
-					//y=-h;
-					break;
-				case 8 :
-					nRotation = 270;
-					x=-w;
-					break;
-				default :
-					nRotation = 0;
+			//MegaPixImage可以传入Orientation，因此这里不需要额外处理
+			var _fRotateIf=function(){
+			    if(!bIOSFix||!bCrop){
+			    	var tmp;
+					if (nOrientation === 6 || nOrientation === 8) {
+						if (!bCrop) {
+							tmp=h;
+							h=w;
+							w=tmp;
+						}else{
+							tmp = nCropH;
+							nCropH = nCropW;
+							nCropW = tmp;
+						}
+					}
+			    	oCanvas.width = w;
+					oCanvas.height = h;
+			    }
+				var nRotation,tmp;
+				if(!bIOSFix){
+		        	switch (nOrientation) { 
+						case 3 :
+							nRotation = 180;
+							x=-w;
+							y=-h;
+							if(bCrop){
+							}
+							break;
+						case 6 :
+							nRotation = 90;
+							y=-h;
+							if(bCrop){
+								tmp=nCropX;
+								nCropX=nCropY;
+								nCropY=nImgH-nCropX-nCropH;
+							}
+							break;
+						case 8 :
+							nRotation = 270;
+							x=-w;
+							break;
+						default :
+							nRotation = 0;
+					}
+					if(nRotation){
+						oCtx.rotate(nRotation*Math.PI/180);
+					}
+				}
 			}
-        	
-			if(nRotation===90||nRotation===270){
-				nImgW=h;
-				nImgH=w;
-			}
-			jCanvas.attr({width : nImgW, height : nImgH});
-			
-			if(nRotation!=0){
-				//oCtx.rotate(nRotation*Math.PI/180);
-			}
-			bCrop=false;
-			bIOSFix=false;
+		    
+            //drawImage参数图文详解:http://jingyan.baidu.com/article/ed15cb1b2e642a1be369813e.html
             //需要裁剪
             if(bCrop){
             	var oSize=_fFixSize(nCropW,nCropH);
@@ -5299,19 +5378,24 @@ function(Browser,Obj,Class){
             			h=_fCeil(h*nCropScale);
             			nCropY=_fCeil(nCropY*nCropScale);
             		}
-	            	oCtx.drawImage(oImg, x, y, w, h);
+            		//iphone4s的ios7.04下最大约w=2560,h=1920;超过会无法绘图
+            		_fDrawImageIOSFix(oCtx,oImg, x, y , w, h);
             	}else{
 	            	w=oSize.w;
 	            	h=oSize.h;
-	            	oCtx.drawImage(oImg,nCropX,nCropY,nCropW,nCropH,x,y,w,h);
+	            	_fRotateIf();
+	            	_fDrawImageIOSFix(oCtx,oImg,nCropX,nCropY,nCropW,nCropH,x,y,2*w,h);
             	}
             }else{
             	var oSize=_fFixSize(w,h);
             	w=oSize.w;
             	h=oSize.h;
-	            oCtx.drawImage(oImg, x, y,w,h);
+            	_fRotateIf();
+	            _fDrawImageIOSFix(oCtx,oImg, x, y,w,h);
             }
-            
+			alert(bIOSFix+";"+nOrientation+";"+nImgW+";"+nImgH+"\n"+x+";"+y+";"+w+";"+h+";"
+			+"\n"+nCropX+';'+nCropY+';'+nCropW+';'+nCropH)
+			
             //图片背景如果是透明的，默认保存成base64会变成黑色的，这里把白色图片跟原图合并，这样保存后透明背景就变成指定颜色(#ffffff)的了
 			oCtx.globalCompositeOperation = "destination-over";
 			oCtx.fillStyle = '#ffffff';
@@ -5323,14 +5407,15 @@ function(Browser,Obj,Class){
             // 修复IOS
             if(bIOSFix) {
                 var mpImg = new MegaPixImage(oImg);
-                mpImg.render(oCanvas, { maxWidth: nImgW, maxHeight: nImgH, quality: nQuality, orientation: nOrientation });
+                mpImg.render(oCanvas, { maxWidth: w, maxHeight: h, quality: nQuality, orientation: nOrientation });
                 if(bCrop){
                 	var oData=oCtx.getImageData(nCropX,nCropY,nCropW,nCropH);
-                	jCanvas.attr({width : nCropW, height : nCropH});
+                	oCanvas.width = nCropW;
+                	oCanvas.height = nCropH;
                 	oCtx.putImageData(oData,0,0);
                 }
                 base64 = oCanvas.toDataURL('image/jpeg', nQuality);
-            }else if(Browser.android()) {
+            }else if(bAndroidEncoder) {
 	            // 修复android
                 var encoder = new JPEGEncoder();
                 base64 = encoder.encode(oCtx.getImageData(0,0,w,h), nQuality * 100 );
@@ -5340,6 +5425,7 @@ function(Browser,Obj,Class){
             }
 
             // 生成结果
+            //TODO 节省内存
             var oResult = {
                 orig : image,
                 base64 : base64,
@@ -14563,7 +14649,7 @@ function(Browser,Obj,Util,AC,ImgCompress,Device,Camera){
 					$C.Tips({text:"您选择的文件不是图片",theme:'error'});
 					return;
 				}
-				this.processImg(imgSrc);
+				this.processImg(imgSrc,file);
 			}
 		},{
 			name:'click',
@@ -14663,8 +14749,9 @@ function(Browser,Obj,Util,AC,ImgCompress,Device,Camera){
 	/**
 	 * 处理图片
 	 * @param {object|string}imgSrc 图片源
+	 * @param {object=}oFile 图片文件对象，移动端压缩需要使用
 	 */
-	function fProcessImg(imgSrc){
+	function fProcessImg(imgSrc,oFile){
 		var me=this;
 		if(me.crop){
 			var oCropOptions=me.cropOptions||{};
@@ -14677,12 +14764,12 @@ function(Browser,Obj,Util,AC,ImgCompress,Device,Camera){
 					success:function(oResult){
 						oWin.hide();
 						var oOptions=Obj.extend(oResult,me.compressOptions);
-						ImgCompress.compress(imgSrc,oOptions);
+						ImgCompress.compress(oFile||imgSrc,oOptions);
 					}
 				});
 			});
 		}else{
-			ImgCompress.compress(imgSrc,me.compressOptions);
+			ImgCompress.compress(oFile||imgSrc,me.compressOptions);
 		}
 	}
 	/**
@@ -14858,10 +14945,10 @@ function(Browser,Obj,Util,AC,AbstractImage,Draggable){
 		}],
 		
 		imgSrc          : '',                  //图片源
-		cropWidth       : '9.375em',           //剪切框宽度
+		cropWidth       : '5.375em',           //剪切框宽度
 		cropHeight      : '9.375em',           //剪切框高度
 //		cropImgSize     : false,               //true时裁剪框跟图片一样大小，忽略cropWidth和cropHeight的值
-		fixedScale      : 1,                   //固定宽高比
+		fixedScale      : true,                //是否固定宽高比,true时会自动根据cropWidth和cropHeight计算
 		
 		tmpl            : [
 			'<div>',
@@ -14914,6 +15001,9 @@ function(Browser,Obj,Util,AC,AbstractImage,Draggable){
 			if(Obj.isStr(me.cropHeight)){
 				me.cropHeight=Util.em2px(me.cropHeight);
 			}
+		}
+		if(me.fixedScale){
+			me.fixedScale=me.cropWidth/me.cropHeight;
 		}
 		//图片居中显示的偏移量
 		var nLeftOffset=me.leftOffset=oSize.left;
