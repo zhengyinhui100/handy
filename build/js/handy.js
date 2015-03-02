@@ -5145,8 +5145,7 @@ function(Browser,Obj,Class){
 	function _fDrawImageIOSFix(ctx, img, sx, sy, sw, sh, dx, dy, dw, dh) {
 		//TODO iphone 4s 可能需要检测
 		//ios6不需要检测，因为使用了megapix-image
-		var nVertSquashRatio = Browser.ios()==7?detectVerticalSquash(img):1;
-		alert(nVertSquashRatio)
+		var nVertSquashRatio = 0&&Browser.ios()==7?detectVerticalSquash(img):1;
 		var aArgs=arguments;
 		var nLen = aArgs.length;
 		switch (nLen) {
@@ -5194,7 +5193,6 @@ function(Browser,Obj,Class){
 	}
 	/**
 	 * 压缩
-	 * 
 	 * @param {object|string}image
 	 *            参数图片，可以是File对象、base64图片字符串，URL.createObjectURL的对象
 	 *            (PS:ios6下不能使用ObjectURL对象，因为会使exif读取失败)，或者其他可以设置在img.src上的对象
@@ -5220,9 +5218,6 @@ function(Browser,Obj,Class){
 		}
 		var oImg = new Image();
             oImg.src = oImgSrc;
-       var oImg2 = new Image();
-            oImg2.src = oImgSrc;
-            document.body.appendChild(oImg2);
            
         var bIOSFix=Browser.ios()<7;
         var bAndroidEncoder=Browser.android();
@@ -5299,7 +5294,6 @@ function(Browser,Obj,Class){
             
             // 生成canvas
             var oCanvas = document.createElement('canvas');
-            document.body.appendChild(oCanvas);
             var oCtx = oCanvas.getContext('2d');
         	var nCropW=oOptions.cropW;
         	var nCropH=oOptions.cropH;
@@ -5311,6 +5305,7 @@ function(Browser,Obj,Class){
         	
     		// 根据exif中照片的旋转信息对图片进行旋转
 			//MegaPixImage可以传入Orientation，因此这里不需要额外处理
+        	//HTML5 Canvas平移，放缩，旋转演示：http://blog.csdn.net/jia20003/article/details/9235813
 			var _fRotateIf=function(){
 			    if(!bIOSFix||!bCrop){
 			    	var tmp;
@@ -5332,22 +5327,38 @@ function(Browser,Obj,Class){
 				if(!bIOSFix){
 		        	switch (nOrientation) { 
 						case 3 :
+							//截图要转换坐标
+							if(bCrop){
+								nCropX=nImgW-nCropX-nCropW;
+								nCropY=nImgH-nCropY-nCropH;
+							}
 							nRotation = 180;
 							x=-w;
 							y=-h;
-							if(bCrop){
-							}
 							break;
 						case 6 :
-							nRotation = 90;
-							y=-h;
+							//截图要转换坐标
 							if(bCrop){
 								tmp=nCropX;
 								nCropX=nCropY;
-								nCropY=nImgH-nCropX-nCropH;
+								nCropY=nImgH-tmp-nCropH;
+								tmp=h;
+								h=w;
+								w=tmp;
 							}
+							nRotation = 90;
+							y=-h;
 							break;
 						case 8 :
+							//截图要转换坐标
+							if(bCrop){
+								tmp=nCropY;
+								nCropY=nCropX;
+								nCropX=nImgW-tmp-nCropW;
+								tmp=h;
+								h=w;
+								w=tmp;
+							}
 							nRotation = 270;
 							x=-w;
 							break;
@@ -5384,7 +5395,7 @@ function(Browser,Obj,Class){
 	            	w=oSize.w;
 	            	h=oSize.h;
 	            	_fRotateIf();
-	            	_fDrawImageIOSFix(oCtx,oImg,nCropX,nCropY,nCropW,nCropH,x,y,2*w,h);
+	            	_fDrawImageIOSFix(oCtx,oImg,nCropX,nCropY,nCropW,nCropH,x,y,w,h);
             	}
             }else{
             	var oSize=_fFixSize(w,h);
@@ -5393,8 +5404,7 @@ function(Browser,Obj,Class){
             	_fRotateIf();
 	            _fDrawImageIOSFix(oCtx,oImg, x, y,w,h);
             }
-			alert(bIOSFix+";"+nOrientation+";"+nImgW+";"+nImgH+"\n"+x+";"+y+";"+w+";"+h+";"
-			+"\n"+nCropX+';'+nCropY+';'+nCropW+';'+nCropH)
+//			alert(bIOSFix+";"+nOrientation+";"+nImgW+";"+nImgH+"\n"+x+";"+y+";"+w+";"+h+";"+"\n"+nCropX+';'+nCropY+';'+nCropW+';'+nCropH)
 			
             //图片背景如果是透明的，默认保存成base64会变成黑色的，这里把白色图片跟原图合并，这样保存后透明背景就变成指定颜色(#ffffff)的了
 			oCtx.globalCompositeOperation = "destination-over";
@@ -11898,7 +11908,7 @@ function(Browser,Util,Event,AC){
 		}
 		//Android下弹出遮罩层时，点击仍能聚焦到到输入框，暂时只能在弹出时disable掉，虽然能避免聚焦及弹出输入法，
 		//不过，仍旧会有光标竖线停留在点击的输入框里，要把延迟加到几秒之后才能避免，但又会影响使用
-		if(Browser.android()){
+		if(!me.noMask&&Browser.android()){
 			me.listeners.push({
 				name:'show',
 				custom:true,
@@ -14945,10 +14955,9 @@ function(Browser,Obj,Util,AC,AbstractImage,Draggable){
 		}],
 		
 		imgSrc          : '',                  //图片源
-		cropWidth       : '5.375em',           //剪切框宽度
-		cropHeight      : '9.375em',           //剪切框高度
-//		cropImgSize     : false,               //true时裁剪框跟图片一样大小，忽略cropWidth和cropHeight的值
-		fixedScale      : true,                //是否固定宽高比,true时会自动根据cropWidth和cropHeight计算
+		cropWidth       : '70%',               //剪切框宽度，可以是百分比、或者是像素值数字或者是em单位的尺寸
+		cropHeight      : '70%',               //剪切框高度，传入fixedScale时，会根据fixedScale分别计算宽度和高度，以小的结果为准
+		fixedScale      : 1,                   //固定宽高比,true时会自动根据cropWidth和cropHeight计算
 		
 		tmpl            : [
 			'<div>',
@@ -14990,20 +14999,32 @@ function(Browser,Obj,Util,AC,AbstractImage,Draggable){
 		var oSize=me.fixImgSize(oImg[0],true);
 		me.origW=oSize.origW;
 		me.origH=oSize.origH;
-		//裁剪框大小
-		if(me.cropImgSize){
-			me.cropWidth=oSize.width;
-			me.cropHeight=oSize.height;
-		}else{
-			if(Obj.isStr(me.cropWidth)){
-				me.cropWidth=Util.em2px(me.cropWidth);
-			}
-			if(Obj.isStr(me.cropHeight)){
-				me.cropHeight=Util.em2px(me.cropHeight);
+		var cropW=me.cropWidth;
+		if(Obj.isStr(cropW)){
+			if(cropW.indexOf('%')>0){
+				me.cropWidth=oSize.width*parseInt(cropW.replace('%',''))/100;
+			}else{
+				me.cropWidth=Util.em2px(cropW);
 			}
 		}
-		if(me.fixedScale){
+		var cropH=me.cropHeight;
+		if(Obj.isStr(cropH)){
+			if(cropW.indexOf('%')>0){
+				me.cropHeight=oSize.height*parseInt(cropH.replace('%',''))/100;
+			}else{
+				me.cropHeight=Util.em2px(cropH);
+			}
+		}
+		var fixedScale=me.fixedScale;
+		if(fixedScale===true){
 			me.fixedScale=me.cropWidth/me.cropHeight;
+		}else if(fixedScale){
+			var cropH=me.cropWidth/fixedScale;
+			if(me.cropHeight>cropH){
+				me.cropHeight=cropH;
+			}else{
+				me.cropWidth=me.cropHeight*fixedScale;
+			}
 		}
 		//图片居中显示的偏移量
 		var nLeftOffset=me.leftOffset=oSize.left;
