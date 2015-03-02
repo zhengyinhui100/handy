@@ -14,7 +14,8 @@ function(AC){
 		xConfig         : {
 			cls         : 'conversation',
 			theme       : 'left',         //会话类型，"left"左边对齐，"right"右边对齐
-			time        : '',             //会话时间
+			title       : '',             //会话抬头
+			extTitle    : '',             //会话副标题
 			image       : '',             //头像图标
 			content     : ''              //会话内容
 		},
@@ -23,7 +24,10 @@ function(AC){
 		
 		tmpl            : [
 			'<div class="c-clear">',
-				'<div class="hui-conver-time">{{time}}</div>',
+				'<div class="hui-conver-title c-clear">',
+					'<span class="hui-title-txt">{{title}}</span>',
+					'<span class="hui-title-ext">{{extTitle}}</span>',
+				'</div>',
 				'<div class="hui-conver-img js-conver-img">',
 					'{{#if image}}',
 						'<img {{bindAttr src="image"}}>',

@@ -1263,37 +1263,58 @@ define('test',['B.String','B.Date'],function(Str,Dat){
 			}
 		});
 		
-		
+		var _fSendMsg=function(){
+			var oInput=oConvPanel.find('Input')[0];
+			if(oInput.valid()){
+				var sVal=Str.encodeHTML(oInput.val());
+				oConvPanel.find('.conversation')[0].add({
+					xtype:'Conversation',
+					theme:'right',
+					image:'../../html/img.jpg',
+					title:'田田',
+					extTitle:Dat.now(true),
+					content:sVal
+				});
+				oInput.update({
+					value:'',
+					inputHeight:35
+				});
+			}
+		}
 		var oConvPanel=new Panel({
 			renderTo:'#conversationDv',
 			items:[{
 				xtype:'Panel',
 				cClass:'conversation',
+				style:{
+					padding:'0 0.5em 4em 0.5em'
+				},
 				items:[{
 					xtype:'Conversation',
-					time:'08-08 08:08',
+					title:'c罗',
+					extTitle:'08-08 08:08',
 					image:'../../html/img.jpg',
 					content:'啊啊啊啊'
 				},{
 					xtype:'Conversation',
-					time:'08-08 08:18',
+					title:'田田',
+					extTitle:'08-08 08:18',
 					theme:'right',
 					image:'../../html/img.jpg',
 					content:'什么？'
 				}]
 			},{
 				xtype:'Panel',
-				cClass:'fixCmp',
 				extCls:'hui-input-zone',
-				style:{
-					bottom:50
-				},
 				items:[{
 					xtype:'Input',
 					isTextarea:true,
 					inputHeight:35,
 					placeholder:'会话输入框',
 					name:'content',
+					enterSubmit:function(){
+						_fSendMsg();
+					},
 					validator:{
 						name:'发送内容',
 						rules:{
@@ -1303,24 +1324,10 @@ define('test',['B.String','B.Date'],function(Str,Dat){
 					}
 				},{
 					xtype:'Button',
-					size:'mini',
+					theme:'green',
 					text:'发送',
 					click:function(){
-						var oInput=oConvPanel.find('Input')[0];
-						if(oInput.valid()){
-							var sVal=Str.encodeHTML(oInput.val());
-							oConvPanel.find('.conversation')[0].add({
-								xtype:'Conversation',
-								theme:'right',
-								image:'../../html/img.jpg',
-								createTime:Dat.now(true),
-								content:sVal
-							});
-							oInput.update({
-								value:'',
-								inputHeight:35
-							});
-						}
+						_fSendMsg();
 					}
 				}]
 			}]

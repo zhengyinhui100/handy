@@ -1468,11 +1468,16 @@
 .hui-conversation{
 	position:relative;
 	padding:0.938em 2.813em;
-	.hui-conver-time{
-		text-align:center;
-		font-size:0.563em;
+	.hui-conver-title{
+		font-size:0.75em;
 		color:#888;
-		padding:0.063em;
+		padding:0.375em 0;
+	}
+	.hui-title-txt{
+		float:left;
+	}
+	.hui-title-ext{
+		float:right;
 	}
 	.hui-conver-img{
 		position:absolute;
@@ -1511,6 +1516,12 @@
 		}
 	}
 	&.hui-conversation-right{
+		.hui-title-txt{
+			float:right;
+		}
+		.hui-title-ext{
+			float:left;
+		}
 		.hui-conver-img{
 			right:0;
 			text-align:right;

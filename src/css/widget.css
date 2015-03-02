@@ -1625,11 +1625,16 @@
   position: relative;
   padding: 0.938em 2.813em;
 }
-.hui-conversation .hui-conver-time {
-  text-align: center;
-  font-size: 0.563em;
+.hui-conversation .hui-conver-title {
+  font-size: 0.75em;
   color: #888;
-  padding: 0.063em;
+  padding: 0.375em 0;
+}
+.hui-conversation .hui-title-txt {
+  float: left;
+}
+.hui-conversation .hui-title-ext {
+  float: right;
 }
 .hui-conversation .hui-conver-img {
   position: absolute;
@@ -1672,6 +1677,12 @@
   border-right-width: 0.438em;
   border-left: 0;
   border-right-color: #ccccff;
+}
+.hui-conversation.hui-conversation-right .hui-title-txt {
+  float: right;
+}
+.hui-conversation.hui-conversation-right .hui-title-ext {
+  float: left;
 }
 .hui-conversation.hui-conversation-right .hui-conver-img {
   right: 0;

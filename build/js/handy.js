@@ -8375,12 +8375,12 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 				}
 			}
 			var fFunc=oEvent.delegation=me._delegateHandler(fHandler,context,nDelay);
-			//TODO 暂时在这里统一转换移动事件
 			if(Browser.mobile()&&oEl.tap){
 				var oMap={
+					//TODO 暂时在这里统一转换移动事件
 					//tap事件待优化，用户点击有时会触发不了，如：点击时长比较长又有点滑动的情况
 					//tap事件会有事件穿透现象，比如点击遮罩层隐藏，后面的input会聚焦，
-					//所以click暂时使用fastclick
+					//所以click暂时使用fastclick，fastclick在ios中有性能问题？待验证
 //					'click'    : 'tap',
 					'dblclick' : 'doubleTap'
 				}
@@ -15520,7 +15520,8 @@ function(AC){
 		xConfig         : {
 			cls         : 'conversation',
 			theme       : 'left',         //会话类型，"left"左边对齐，"right"右边对齐
-			time        : '',             //会话时间
+			title       : '',             //会话抬头
+			extTitle    : '',             //会话副标题
 			image       : '',             //头像图标
 			content     : ''              //会话内容
 		},
@@ -15529,7 +15530,10 @@ function(AC){
 		
 		tmpl            : [
 			'<div class="c-clear">',
-				'<div class="hui-conver-time">{{time}}</div>',
+				'<div class="hui-conver-title c-clear">',
+					'<span class="hui-title-txt">{{title}}</span>',
+					'<span class="hui-title-ext">{{extTitle}}</span>',
+				'</div>',
 				'<div class="hui-conver-img js-conver-img">',
 					'{{#if image}}',
 						'<img {{bindAttr src="image"}}>',
