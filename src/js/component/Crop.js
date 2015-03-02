@@ -17,7 +17,6 @@ function(Browser,Obj,Util,AC,AbstractImage,Draggable){
 	var Crop=AC.define('Crop',AbstractImage);
 	
 	var _startEvent=Browser.hasTouch()?'touchstart':'mousedown';
-	var _sCropSize=Browser.phone()?'9.375em':'15em';
 	
 	Crop.extend({
 		//初始配置
@@ -52,10 +51,9 @@ function(Browser,Obj,Util,AC,AbstractImage,Draggable){
 		}],
 		
 		imgSrc          : '',                  //图片源
-		cropWidth       : _sCropSize,          //剪切框宽度
-		cropHeight      : _sCropSize,          //剪切框高度
-//		cropImgSize     : false,               //true时裁剪框跟图片一样大小，忽略cropWidth和cropHeight的值
-		fixedScale      : true,                //是否固定宽高比,true时会自动根据cropWidth和cropHeight计算
+		cropWidth       : '70%',               //剪切框宽度，可以是百分比、或者是像素值数字或者是em单位的尺寸
+		cropHeight      : '70%',               //剪切框高度，传入fixedScale时，会根据fixedScale分别计算宽度和高度，以小的结果为准
+		fixedScale      : 1,                   //固定宽高比,true时会自动根据cropWidth和cropHeight计算
 		
 		tmpl            : [
 			'<div>',
@@ -97,20 +95,32 @@ function(Browser,Obj,Util,AC,AbstractImage,Draggable){
 		var oSize=me.fixImgSize(oImg[0],true);
 		me.origW=oSize.origW;
 		me.origH=oSize.origH;
-		//裁剪框大小
-		if(me.cropImgSize){
-			me.cropWidth=oSize.width;
-			me.cropHeight=oSize.height;
-		}else{
-			if(Obj.isStr(me.cropWidth)){
-				me.cropWidth=Util.em2px(me.cropWidth);
-			}
-			if(Obj.isStr(me.cropHeight)){
-				me.cropHeight=Util.em2px(me.cropHeight);
+		var cropW=me.cropWidth;
+		if(Obj.isStr(cropW)){
+			if(cropW.indexOf('%')>0){
+				me.cropWidth=oSize.width*parseInt(cropW.replace('%',''))/100;
+			}else{
+				me.cropWidth=Util.em2px(cropW);
 			}
 		}
-		if(me.fixedScale){
+		var cropH=me.cropHeight;
+		if(Obj.isStr(cropH)){
+			if(cropW.indexOf('%')>0){
+				me.cropHeight=oSize.height*parseInt(cropH.replace('%',''))/100;
+			}else{
+				me.cropHeight=Util.em2px(cropH);
+			}
+		}
+		var fixedScale=me.fixedScale;
+		if(fixedScale===true){
 			me.fixedScale=me.cropWidth/me.cropHeight;
+		}else if(fixedScale){
+			var cropH=me.cropWidth/fixedScale;
+			if(me.cropHeight>cropH){
+				me.cropHeight=cropH;
+			}else{
+				me.cropWidth=me.cropHeight*fixedScale;
+			}
 		}
 		//图片居中显示的偏移量
 		var nLeftOffset=me.leftOffset=oSize.left;
