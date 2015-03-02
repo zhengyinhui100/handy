@@ -8379,6 +8379,8 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 			if(Browser.mobile()&&oEl.tap){
 				var oMap={
 					//tap事件待优化，用户点击有时会触发不了，如：点击时长比较长又有点滑动的情况
+					//tap事件会有事件穿透现象，比如点击遮罩层隐藏，后面的input会聚焦，
+					//所以click暂时使用fastclick
 					'click'    : 'tap',
 					'dblclick' : 'doubleTap'
 				}
@@ -11906,35 +11908,36 @@ function(Browser,Util,Event,AC){
 				}
 			});
 		}
-		//Android下弹出遮罩层时，点击仍能聚焦到到输入框，暂时只能在弹出时disable掉，虽然能避免聚焦及弹出输入法，
+		//TODO:这里暂时使用fastclick解决，不然，disabled会使oForm.serializeArray()获取不到数据
+		//移动端弹出遮罩层时，点击仍能聚焦到到输入框，暂时只能在弹出时disable掉，虽然能避免聚焦及弹出输入法，
 		//不过，仍旧会有光标竖线停留在点击的输入框里，要把延迟加到几秒之后才能避免，但又会影响使用
-		if(!me.noMask&&Browser.android()){
-			me.listeners.push({
-				name:'show',
-				custom:true,
-				handler:function(){
-					//外部可以通过监听器自行处理这个问题，只需要返回true即可不调用此处的方法
-					var bHasDone=Event.trigger("component.popup.show");
-					if(bHasDone!=true){
-						$("input,textarea,select").attr("disabled","disabled");
-					}
-				}
-			});
-			me.listeners.push({
-				name:'hide',
-				custom:true,
-				handler:function(){
-					//外部可以通过监听器自行处理这个问题，只需要返回true即可不调用此处的方法
-					var bHasDone=Event.trigger("component.popup.hide");
-					if(bHasDone!=true){
-						//ps:这里延迟300ms执行还是有可能会有聚焦效果，所以设个保险的500ms
-						setTimeout(function(){
-							$("input,textarea,select").removeAttr("disabled");
-						},500);
-					}
-				}
-			});
-		}
+//		if(Browser.mobile()){
+//			me.listeners.push({
+//				name:'show',
+//				custom:true,
+//				handler:function(){
+//					//外部可以通过监听器自行处理这个问题，只需要返回true即可不调用此处的方法
+//					var bHasDone=Event.trigger("component.popup.show");
+//					if(bHasDone!=true){
+//						$("input,textarea,select").attr("disabled","disabled");
+//					}
+//				}
+//			});
+//			me.listeners.push({
+//				name:'hide',
+//				custom:true,
+//				handler:function(){
+//					//外部可以通过监听器自行处理这个问题，只需要返回true即可不调用此处的方法
+//					var bHasDone=Event.trigger("component.popup.hide");
+//					if(bHasDone!=true){
+//						//ps:这里延迟300ms执行还是有可能会有聚焦效果，所以设个保险的500ms
+//						setTimeout(function(){
+//							$("input,textarea,select").removeAttr("disabled");
+//						},500);
+//					}
+//				}
+//			});
+//		}
 	}
 	/**
 	 * 显示后工作

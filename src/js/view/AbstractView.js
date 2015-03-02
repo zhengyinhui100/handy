@@ -235,6 +235,8 @@ function(Browser,Obj,Class,Support,ViewManager,AbstractEvents){
 			if(Browser.mobile()&&oEl.tap){
 				var oMap={
 					//tap事件待优化，用户点击有时会触发不了，如：点击时长比较长又有点滑动的情况
+					//tap事件会有事件穿透现象，比如点击遮罩层隐藏，后面的input会聚焦，
+					//所以click暂时使用fastclick
 					'click'    : 'tap',
 					'dblclick' : 'doubleTap'
 				}
