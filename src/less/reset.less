@@ -83,6 +83,8 @@ input,textarea{
 	-webkit-user-select: text;
 	-ms-user-select: auto;
 	-moz-user-select: text;
+	//解决Android4.0下input输入框聚焦时错位的问题，注意，该属性会导致中文不能输入词组，只能单个字。所以，实际不能使用
+	//-webkit-user-modify: read-write-plaintext-only;
 }
 //IE6/7/8/9/10 默认是overflow:scroll，有滚动条，其它浏览器则不是
 textarea{

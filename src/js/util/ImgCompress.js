@@ -71,7 +71,6 @@ function(Browser,Obj,Class){
 	}
 	/**
 	 * 压缩
-	 * 
 	 * @param {object|string}image
 	 *            参数图片，可以是File对象、base64图片字符串，URL.createObjectURL的对象
 	 *            (PS:ios6下不能使用ObjectURL对象，因为会使exif读取失败)，或者其他可以设置在img.src上的对象
@@ -184,6 +183,7 @@ function(Browser,Obj,Class){
         	
     		// 根据exif中照片的旋转信息对图片进行旋转
 			//MegaPixImage可以传入Orientation，因此这里不需要额外处理
+        	//HTML5 Canvas平移，放缩，旋转演示：http://blog.csdn.net/jia20003/article/details/9235813
 			var _fRotateIf=function(){
 			    if(!bIOSFix||!bCrop){
 			    	var tmp;
