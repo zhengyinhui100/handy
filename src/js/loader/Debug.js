@@ -143,18 +143,23 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 				oAppender.scrollTop=oAppender.scrollHeight;
 			}
 		}
-		//尝试获取调用位置
-		var fCaller=arguments.callee.caller;
-		if(!fCaller.$owner){
-			fCaller=fCaller.caller;
-		}
 		try{
-			//如果是类方法，输出方法定位信息
-			if(fCaller.$owner){
-				console[sType]('['+fCaller.$owner.$ns+'->'+fCaller.$name+']');
+			//尝试获取调用位置
+			var fCaller=arguments.callee.caller;
+			if(!fCaller.$owner){
+				//TODO:ipad mini2会发生错误：function.caller used to retrieve strict caller，所以需要catch住，原因待研究
+				//fCaller=fCaller.caller;
 			}
-			console[sType](oVar);
+			
+			//如果是类方法，输出方法定位信息
+			if(typeof console!='undefined'){
+				if(fCaller&&fCaller.$owner){
+					console[sType]('['+fCaller.$owner.$ns+'->'+fCaller.$name+']');
+				}
+				console[sType](oVar);
+			}
 		}catch(e){
+			$D.error(e.message);
 		}
 	}
 	/**
