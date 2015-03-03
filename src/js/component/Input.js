@@ -154,8 +154,8 @@ function(Browser,Util,Evt,AC){
 				name:'touchend',
 				el:$(document),
 				handler:function(oEvt){
-					//点击其他输入框输入焦点会转移，这里不需额外处理
-					if(me.focused&&!/(input|textarea)/.test(oEvt.target.nodeName)){
+					//点击其他输入框输入焦点会转移，这里不需额外处理，另外，使用fastclick时，点击输入框时，会先focus，再执行这里，但oEvt.target等于自身，这里的逻辑也是适用的
+					if(me.focused&&!/(input|textarea)/i.test(oEvt.target.nodeName)){
 						me.blur();
 					}
 				}

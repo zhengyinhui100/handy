@@ -767,18 +767,23 @@ define("L.Debug",['L.Json','L.Browser'],function(Json,Browser){
 				oAppender.scrollTop=oAppender.scrollHeight;
 			}
 		}
-		//尝试获取调用位置
-		var fCaller=arguments.callee.caller;
-		if(!fCaller.$owner){
-			fCaller=fCaller.caller;
-		}
 		try{
-			//如果是类方法，输出方法定位信息
-			if(fCaller.$owner){
-				console[sType]('['+fCaller.$owner.$ns+'->'+fCaller.$name+']');
+			//尝试获取调用位置
+			var fCaller=arguments.callee.caller;
+			if(!fCaller.$owner){
+				//TODO:ipad mini2会发生错误：function.caller used to retrieve strict caller，所以需要catch住，原因待研究
+				//fCaller=fCaller.caller;
 			}
-			console[sType](oVar);
+			
+			//如果是类方法，输出方法定位信息
+			if(typeof console!='undefined'){
+				if(fCaller&&fCaller.$owner){
+					console[sType]('['+fCaller.$owner.$ns+'->'+fCaller.$name+']');
+				}
+				console[sType](oVar);
+			}
 		}catch(e){
+			$D.error(e.message);
 		}
 	}
 	/**
@@ -12536,7 +12541,7 @@ function(Browser,Obj,AC){
 			renderTo    : "body"              //子组件须设置renderTo才会自动render
 		},
 		
-		_customEvents   : {change:1},
+		_customEvents   : {beforeChange:1,change:1},
 		tmpl            : [
 			'<div {{bindAttr class="#hui-btn #hui-btn-gray iconPosCls"}}>',
 				'<span class="hui-icon hui-alt-icon hui-icon-carat-d hui-light"></span>',
@@ -12614,12 +12619,15 @@ function(Browser,Obj,AC){
 				var oMenu=me.children[0];
 				var oItem=oMenu.find('> [value='+sValue+']');
 				if(oItem.length>0){
-					oItem=oItem[0];
-					me.set('value',sValue);
-					me.txt(oItem.get('text'));
-					//更新菜单选中状态
-					oMenu.select(oItem);
-					me.trigger("change",sValue,oItem);
+					var r=me.trigger("beforeChange",sValue,oItem);
+					if(r!==false){
+						oItem=oItem[0];
+						me.set('value',sValue);
+						me.txt(oItem.get('text'));
+						//更新菜单选中状态
+						oMenu.select(oItem);
+						me.trigger("change",sValue,oItem);
+					}
 				}
 			}
 		}else{
@@ -12796,8 +12804,8 @@ function(Browser,Util,Evt,AC){
 				name:'touchend',
 				el:$(document),
 				handler:function(oEvt){
-					//点击其他输入框输入焦点会转移，这里不需额外处理
-					if(me.focused&&!/(input|textarea)/.test(oEvt.target.nodeName)){
+					//点击其他输入框输入焦点会转移，这里不需额外处理，另外，使用fastclick时，点击输入框时，会先focus，再执行这里，但oEvt.target等于自身，这里的逻辑也是适用的
+					if(me.focused&&!/(input|textarea)/i.test(oEvt.target.nodeName)){
 						me.blur();
 					}
 				}
