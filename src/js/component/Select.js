@@ -42,7 +42,7 @@ function(Browser,Obj,AC){
 			renderTo    : "body"              //子组件须设置renderTo才会自动render
 		},
 		
-		_customEvents   : {change:1},
+		_customEvents   : {beforeChange:1,change:1},
 		tmpl            : [
 			'<div {{bindAttr class="#hui-btn #hui-btn-gray iconPosCls"}}>',
 				'<span class="hui-icon hui-alt-icon hui-icon-carat-d hui-light"></span>',
@@ -120,12 +120,15 @@ function(Browser,Obj,AC){
 				var oMenu=me.children[0];
 				var oItem=oMenu.find('> [value='+sValue+']');
 				if(oItem.length>0){
-					oItem=oItem[0];
-					me.set('value',sValue);
-					me.txt(oItem.get('text'));
-					//更新菜单选中状态
-					oMenu.select(oItem);
-					me.trigger("change",sValue,oItem);
+					var r=me.trigger("beforeChange",sValue,oItem);
+					if(r!==false){
+						oItem=oItem[0];
+						me.set('value',sValue);
+						me.txt(oItem.get('text'));
+						//更新菜单选中状态
+						oMenu.select(oItem);
+						me.trigger("change",sValue,oItem);
+					}
 				}
 			}
 		}else{
