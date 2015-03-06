@@ -50,6 +50,8 @@ function(Browser,Util,Evt,AC){
 		withClear       : false,               //带有清除按钮
 		enterKey        : '',                  //默认是ctrl+enter，设置为'enter'时表示只监听enter
 //		enterSubmit     : $H.noop,             //回车事件回调函数
+//		blurValid       : true,                //blur时是否进行校验
+//		keepFocus       : false,               //仅用于ios，点击页面其它地方时是否保持聚焦
 		
 		tmpl            : [
 		'<div {{bindAttr class="iconPosCls btnPosCls"}}>',
@@ -92,6 +94,10 @@ function(Browser,Util,Evt,AC){
 					var me=this;
 					me.getEl().removeClass('hui-focus');
 					me.focused=false;
+					//TODO：blur时进行验证，不默认不验证空值，不过这里当用户放弃编辑点击返回时也提示，逻辑不好处理，暂时放弃此功能
+//					if(me.blurValid&&me.val()&&!me.valid()){
+//						me.focus();
+//					}
 				}
 			}
 		],
@@ -151,13 +157,14 @@ function(Browser,Util,Evt,AC){
 		//ios设备中点击页面其他地方不会失去焦点，这里需要手动失去焦点
 		if(Browser.ios()){
 			me.listen({
-				name:'touchend',
+				name:'click',
 				el:$(document),
 				handler:function(oEvt){
 					//点击其他输入框输入焦点会转移，这里不需额外处理，另外，使用fastclick时，点击输入框时，会先focus，再执行这里，但oEvt.target等于自身，这里的逻辑也是适用的
-					if(me.focused&&!/(input|textarea)/i.test(oEvt.target.nodeName)){
+					if(me.focused&&!me.keepFocus&&!/(input|textarea)/i.test(oEvt.target.nodeName)){
 						me.blur();
 					}
+					me.keepFocus=false;
 				}
 			})
 		}
