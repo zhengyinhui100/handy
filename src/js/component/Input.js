@@ -71,6 +71,11 @@ function(Browser,Util,Evt,AC){
 					me.getEl().addClass('hui-focus');
 					me.focused=true;
 					if(Browser.mobile()){
+						//tmp
+//						setTimeout(function(){
+//							me.parents().getEl()[0].clientHeight;
+//							alert(me.parents().getEl()[0].clientHeight);
+//						},500)
 						//用户点击后退时先失去焦点，隐藏输入菜单，这里主要是考虑移动设备的操作习惯
 						me.listen({
 							name:'hisoryChange',

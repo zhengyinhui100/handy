@@ -171,6 +171,9 @@ define('B.Support','L.Browser',function(Browser){
 		if(Browser.ios()){
 			sCls+=' hui-ios';
 		}
+//		if(Browser.android(true)<4.4){
+//			sCls+=' hui-body-scroll';
+//		}
 		if(Browser.phone()){
 			sCls+=' hui-phone';
 		}
