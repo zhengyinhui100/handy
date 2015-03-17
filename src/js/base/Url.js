@@ -25,13 +25,14 @@ define("B.Url","B.Object",function(Obj){
 	 * @return {boolean} true表示是url
 	 */
 	function fIsUrl(sParam){
-		return /^(\w+:\/\/)?(\w+\.\w+)?[\w\/\.]+/.test(sParam);
+		return /^(\w+:\/\/)?([\-\w\u4E00-\u9FA5]+\.[\w\u4E00-\u9FA5]+)?[\w\-\u4E00-\u9FA5\/\.]+$/.test(sParam);
 	}
 	/**
 	 * 是否是绝对路径url
 	 * @param {string}sParam 参数字符串
 	 * @return {boolean} true表示是绝对路径url
 	 */
+	//TODO 待完善
 	function fIsAbsUrl(sParam){
 		return /^(\w+:\/\/)?\w+\.\w+/.test(sParam);
 	}

@@ -173,8 +173,8 @@ function(Browser,Util,Evt,AC){
 				}
 			})
 		}
-		//回车事件
 		
+		//回车事件
 		if(oSettings.enterSubmit){
 			me.listen({
 				name:'keypress',
@@ -188,6 +188,22 @@ function(Browser,Util,Evt,AC){
 				}
 			});
 		}
+		
+		//TODO:android4.4webview及chrome回退无法删除表情，也无法检测到delete/backspace键，keydown事件里keyCode都是0
+//		if(Browser.mobile()){
+//			me.listen({
+//				name:'keydown',
+//				el:'.js-input',
+//				handler:function(oEvt){
+//					var me=this;
+//					$D.log(oEvt.which +";"+ oEvt.keyCode +";"+ oEvt.charCode)
+//					var sValue=me.val();
+//					$D.log(sValue)
+//					$D.log(/([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/.test(sValue))
+//					oEvt.preventDefault();
+//				}
+//			});
+//		}
 	}
 	/**
 	 * 分析处理子组件

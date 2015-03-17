@@ -690,16 +690,19 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 设置配置属性
-	 * @param {string}sKey 属性名称
+	 * @param {string|object}sKey 属性名称或属性表
 	 * @param {*}value 属性值
 	 */
 	function fSet(sKey,value){
 		var me=this;
-		var o={};
-		o[sKey]=value;
+		var oAttrs=sKey;
+		if(typeof sKey==='string'){
+			oAttrs={};
+			oAttrs[sKey]=value;
+		}
 		//fastUpdate不成功则直接设置类属性
-		if(!me.fastUpdate(o)){
-			me[sKey]=value;
+		if(!me.fastUpdate(oAttrs)){
+			Obj.extend(me,oAttrs);
 		}
 	}
 	/**

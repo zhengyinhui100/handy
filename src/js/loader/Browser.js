@@ -17,7 +17,7 @@ define("L.Browser",function(){
 			'sogou','maxthon','tt','theWorld','is360',  //浏览器壳类型，@return{boolean}
 			'pc',                                       //是否是pc
 			'mobile',                                   //移动设备类型，@return{string}'ios'|'android'|'nokian'|'webos'
-			'android','ios',                            //android或者ios版本，@return{string}
+			'android','ios','wp',                       //android、ios、windows phone版本，@return{string}
 			'iPhone','iPod','iPad',                     //ios设备版本，@return{string}
 			'tablet',                                   //是否是平板电脑
 			'phone',                                    //是否是手机
@@ -143,6 +143,9 @@ define("L.Browser",function(){
 				_oInfo.mobile = m[0].toLowerCase(); // Nokia N-series, Android, webOS,
 												// ex: NokiaN95
 			}
+		}else if((m = ua.match(/Windows Phone ([\d.]*)/)) && m[1]){
+			_oInfo.mobile = 'wp';
+			_oInfo.wp=m[1];
 		}
 		_oInfo.pc=!_oInfo.mobile;
 	}
