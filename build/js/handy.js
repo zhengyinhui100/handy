@@ -455,7 +455,7 @@ define("L.Browser",function(){
 			'sogou','maxthon','tt','theWorld','is360',  //浏览器壳类型，@return{boolean}
 			'pc',                                       //是否是pc
 			'mobile',                                   //移动设备类型，@return{string}'ios'|'android'|'nokian'|'webos'
-			'android','ios',                            //android或者ios版本，@return{string}
+			'android','ios','wp',                       //android、ios、windows phone版本，@return{string}
 			'iPhone','iPod','iPad',                     //ios设备版本，@return{string}
 			'tablet',                                   //是否是平板电脑
 			'phone',                                    //是否是手机
@@ -483,7 +483,7 @@ define("L.Browser",function(){
 		_fParseOs(userAgent);
 		_fParseShell(userAgent);
 		_fParseMobile(userAgent);
-		_fParseFlash();
+		//_fParseFlash();
 		if("ontouchend" in document){
 			_oInfo.hasTouch=true;
 		}
@@ -581,6 +581,15 @@ define("L.Browser",function(){
 				_oInfo.mobile = m[0].toLowerCase(); // Nokia N-series, Android, webOS,
 												// ex: NokiaN95
 			}
+		}else if((m = ua.match(/Windows Phone (OS )?([\d.]*)/)) && m[2]){
+			_oInfo.mobile = 'wp';
+			_oInfo.phone='wp';
+			_oInfo.wp=m[2];
+		}else if(ua.indexOf('Touch')>0&&(m = ua.match(/Windows NT ([\d.]*)/)) && m[1]){
+			//TODO 待校验
+			_oInfo.mobile = 'wp';
+			_oInfo.tablet='wp';
+			_oInfo.wp=m[1];
 		}
 		_oInfo.pc=!_oInfo.mobile;
 	}
@@ -3329,13 +3338,14 @@ define("B.Url","B.Object",function(Obj){
 	 * @return {boolean} true表示是url
 	 */
 	function fIsUrl(sParam){
-		return /^(\w+:\/\/)?(\w+\.\w+)?[\w\/\.]+/.test(sParam);
+		return /^(\w+:\/\/)?([\-\w\u4E00-\u9FA5]+\.[\w\u4E00-\u9FA5]+)?[\w\-\u4E00-\u9FA5\/\.]+$/.test(sParam);
 	}
 	/**
 	 * 是否是绝对路径url
 	 * @param {string}sParam 参数字符串
 	 * @return {boolean} true表示是绝对路径url
 	 */
+	//TODO 待完善
 	function fIsAbsUrl(sParam){
 		return /^(\w+:\/\/)?\w+\.\w+/.test(sParam);
 	}
@@ -4745,6 +4755,9 @@ define('B.Support','L.Browser',function(Browser){
 		if(Browser.ios()){
 			sCls+=' hui-ios';
 		}
+//		if(Browser.android(true)<4.4){
+//			sCls+=' hui-body-scroll';
+//		}
 		if(Browser.phone()){
 			sCls+=' hui-phone';
 		}
@@ -9810,16 +9823,19 @@ function(Obj,Template,ViewManager,ModelView,Model){
 	}
 	/**
 	 * 设置配置属性
-	 * @param {string}sKey 属性名称
+	 * @param {string|object}sKey 属性名称或属性表
 	 * @param {*}value 属性值
 	 */
 	function fSet(sKey,value){
 		var me=this;
-		var o={};
-		o[sKey]=value;
+		var oAttrs=sKey;
+		if(typeof sKey==='string'){
+			oAttrs={};
+			oAttrs[sKey]=value;
+		}
 		//fastUpdate不成功则直接设置类属性
-		if(!me.fastUpdate(o)){
-			me[sKey]=value;
+		if(!me.fastUpdate(oAttrs)){
+			Obj.extend(me,oAttrs);
 		}
 	}
 	/**
@@ -12700,6 +12716,8 @@ function(Browser,Util,Evt,AC){
 		withClear       : false,               //带有清除按钮
 		enterKey        : '',                  //默认是ctrl+enter，设置为'enter'时表示只监听enter
 //		enterSubmit     : $H.noop,             //回车事件回调函数
+//		blurValid       : true,                //blur时是否进行校验
+//		keepFocus       : false,               //仅用于ios，点击页面其它地方时是否保持聚焦
 		
 		tmpl            : [
 		'<div {{bindAttr class="iconPosCls btnPosCls"}}>',
@@ -12719,6 +12737,11 @@ function(Browser,Util,Evt,AC){
 					me.getEl().addClass('hui-focus');
 					me.focused=true;
 					if(Browser.mobile()){
+						//tmp
+//						setTimeout(function(){
+//							me.parents().getEl()[0].clientHeight;
+//							alert(me.parents().getEl()[0].clientHeight);
+//						},500)
 						//用户点击后退时先失去焦点，隐藏输入菜单，这里主要是考虑移动设备的操作习惯
 						me.listen({
 							name:'hisoryChange',
@@ -12742,6 +12765,10 @@ function(Browser,Util,Evt,AC){
 					var me=this;
 					me.getEl().removeClass('hui-focus');
 					me.focused=false;
+					//TODO：blur时进行验证，不默认不验证空值，不过这里当用户放弃编辑点击返回时也提示，逻辑不好处理，暂时放弃此功能
+//					if(me.blurValid&&me.val()&&!me.valid()){
+//						me.focus();
+//					}
 				}
 			}
 		],
@@ -12801,18 +12828,19 @@ function(Browser,Util,Evt,AC){
 		//ios设备中点击页面其他地方不会失去焦点，这里需要手动失去焦点
 		if(Browser.ios()){
 			me.listen({
-				name:'touchend',
+				name:'click',
 				el:$(document),
 				handler:function(oEvt){
 					//点击其他输入框输入焦点会转移，这里不需额外处理，另外，使用fastclick时，点击输入框时，会先focus，再执行这里，但oEvt.target等于自身，这里的逻辑也是适用的
-					if(me.focused&&!/(input|textarea)/i.test(oEvt.target.nodeName)){
+					if(me.focused&&!me.keepFocus&&!/(input|textarea)/i.test(oEvt.target.nodeName)){
 						me.blur();
 					}
+					me.keepFocus=false;
 				}
 			})
 		}
-		//回车事件
 		
+		//回车事件
 		if(oSettings.enterSubmit){
 			me.listen({
 				name:'keypress',
@@ -12826,6 +12854,22 @@ function(Browser,Util,Evt,AC){
 				}
 			});
 		}
+		
+		//TODO:android4.4webview及chrome回退无法删除表情，也无法检测到delete/backspace键，keydown事件里keyCode都是0
+//		if(Browser.mobile()){
+//			me.listen({
+//				name:'keydown',
+//				el:'.js-input',
+//				handler:function(oEvt){
+//					var me=this;
+//					$D.log(oEvt.which +";"+ oEvt.keyCode +";"+ oEvt.charCode)
+//					var sValue=me.val();
+//					$D.log(sValue)
+//					$D.log(/([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/.test(sValue))
+//					oEvt.preventDefault();
+//				}
+//			});
+//		}
 	}
 	/**
 	 * 分析处理子组件

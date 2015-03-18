@@ -160,7 +160,13 @@ a:active {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-touch-callout: none;
   -webkit-user-drag: none;
-  -ms-touch-action: none;
+}
+.hui-mobile *,
+.hui-mobile *:after,
+.hui-mobile *:before {
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  -moz-user-select: -moz-none;
 }
 input,
 textarea {

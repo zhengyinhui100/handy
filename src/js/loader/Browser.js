@@ -45,7 +45,7 @@ define("L.Browser",function(){
 		_fParseOs(userAgent);
 		_fParseShell(userAgent);
 		_fParseMobile(userAgent);
-		_fParseFlash();
+		//_fParseFlash();
 		if("ontouchend" in document){
 			_oInfo.hasTouch=true;
 		}
@@ -143,8 +143,14 @@ define("L.Browser",function(){
 				_oInfo.mobile = m[0].toLowerCase(); // Nokia N-series, Android, webOS,
 												// ex: NokiaN95
 			}
-		}else if((m = ua.match(/Windows Phone ([\d.]*)/)) && m[1]){
+		}else if((m = ua.match(/Windows Phone (OS )?([\d.]*)/)) && m[2]){
 			_oInfo.mobile = 'wp';
+			_oInfo.phone='wp';
+			_oInfo.wp=m[2];
+		}else if(ua.indexOf('Touch')>0&&(m = ua.match(/Windows NT ([\d.]*)/)) && m[1]){
+			//TODO 待校验
+			_oInfo.mobile = 'wp';
+			_oInfo.tablet='wp';
 			_oInfo.wp=m[1];
 		}
 		_oInfo.pc=!_oInfo.mobile;

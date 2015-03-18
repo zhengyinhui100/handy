@@ -72,10 +72,13 @@ a:focus,a:active{border:none;outline:none;}
 	-webkit-tap-highlight-color: rgba(0,0,0,0);
 	-webkit-touch-callout: none;
 	-webkit-user-drag: none;
-	-ms-touch-action: none;
-	//-webkit-user-select: none;
-	//-ms-user-select: none;
-	//-moz-user-select: -moz-none;
+	//-ms-touch-action: none;  /*会导致wp8不能滚动*/
+}
+
+.hui-mobile{
+	*, *:after, *:before {
+		.fn_user_select_none();
+	}
 }
 
 //input添加了-webkit-user-select: none;样式后，点击聚焦光标会自动跳到开始位置而不是现有文字后面
