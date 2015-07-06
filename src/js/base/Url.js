@@ -25,6 +25,8 @@ define("B.Url","B.Object",function(Obj){
 	 * @return {boolean} true表示是url
 	 */
 	function fIsUrl(sParam){
+		//TODO
+		//  /^((http|https|ftp):\/\/)?(\w(\:\w)?@)?([0-9a-z_-]+\.)*?([a-z0-9-]+\.[a-z]{2,6}(\.[a-z]{2})?(\:[0-9]{2,6})?)((\/[^?#<>\/\\*":]*)+(\?[^#]*)?(#.*)?)?$/i
 		return /^(\w+:\/\/)?([\-\w\u4E00-\u9FA5]+\.[\w\u4E00-\u9FA5]+)?[\w\-\u4E00-\u9FA5\/\.]+$/.test(sParam);
 	}
 	/**
