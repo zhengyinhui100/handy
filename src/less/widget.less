@@ -1,4 +1,4 @@
-//组件，class以"hui-"开头，次级以上级名称为命名前缀，如上级名为hui-list-item,则次级以hui-item-为前缀，
+//组件，class以"hui-"开头，与第三方库隔离，次级以上级名称为命名前缀，如上级名为hui-list-item,则次级以hui-item-为前缀，
 //不允许在二级css里使用没有前缀的class，因为组件相互嵌套时会冲突
 
 //这里编译会导入common的内容,1.5以后版本可用@import (reference) url('/client/views/mixins.import.less');http://lesscss.org/features/#import-options-reference
@@ -626,9 +626,6 @@
 //滑动选择框
 .hui-slidesel{
 	position:relative;
-	.hui-slidesel-btn{
-		
-	}
 	.hui-slidesel-selector{
 		.fn_inline_block();
 		height:1.75em;
@@ -859,6 +856,7 @@
 	.hui-form-tips{
 		text-align:center;
 	}
+}
 	.hui-form-vt{
 		vertical-align:top;
 	}
