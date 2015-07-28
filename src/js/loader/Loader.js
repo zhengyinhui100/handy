@@ -64,7 +64,6 @@ function(Debug){
 	 * }
 	 */
 	function _fSaveContext(oContext){
-		var aDeps=oContext.deps;
 		_aContext[oContext.id]=oContext;
 	    _aContext.push(oContext);
 	}
@@ -145,7 +144,42 @@ function(Debug){
     	oResult.notExist=aNotExist;
     	return oResult;
     }
-    
+    /**
+     * 初始化模块
+     */
+    function _fInitModule(sRealId){
+    	var resource;
+    	var module=_aContext[sRealId];
+		if(typeof factory=="function"){
+			try{
+				if(Loader.traceLog){
+					Debug.log(_LOADER_PRE+"define:\n"+sId);
+				}
+				//考虑到传入依赖是数组，这里回调参数形式依然是数组
+				resource=factory.apply(null,arguments);
+			}catch(e){
+				//资源定义错误
+				e.message=_LOADER_PRE+sId+":\nfactory define error:\n"+e.message;
+				Debug.error(e);
+				return;
+			}
+		}else{
+			resource=factory;
+		}
+		
+		if(resource){
+			$H.ns(sRealId,resource);
+			//添加命名空间元数据
+			var sType=typeof resource;
+			if(sType=="object"||sType=="function"){
+				resource.$ns=sId;
+				resource.$rns=sRealId;
+			}
+		}else{
+			Debug.warn(_LOADER_PRE+'factory no return:\n'+sId);
+		}
+		return resource;
+    }
     /**
 	 * 通过id获取实际url
 	 * @param {string}sId 资源id，可以是命名空间，也可以是url
@@ -535,35 +569,12 @@ function(Debug){
 		}
 		
 		Loader.require(deps,function(){
-			var resource;
-			if(typeof factory=="function"){
-				try{
-					if(Loader.traceLog){
-						Debug.log(_LOADER_PRE+"define:\n"+sId);
-					}
-					//考虑到传入依赖是数组，这里回调参数形式依然是数组
-					resource=factory.apply(null,arguments);
-				}catch(e){
-					//资源定义错误
-					e.message=_LOADER_PRE+sId+":\nfactory define error:\n"+e.message;
-					Debug.error(e);
-					return;
-				}
-			}else{
-				resource=factory;
-			}
-			
-			if(resource){
-				$H.ns(sRealId,resource);
-				//添加命名空间元数据
-				var sType=typeof resource;
-				if(sType=="object"||sType=="function"){
-					resource.$ns=sId;
-					resource.$rns=sRealId;
-				}
-			}else{
-				Debug.warn(_LOADER_PRE+'factory no return:\n'+sId);
-			}
+			var deps=arguments;
+			_fSaveContext({
+				id        : sRealId,
+				deps      : deps,
+				factory   : factory
+			});
 		},sRealId);
 	}
     /**

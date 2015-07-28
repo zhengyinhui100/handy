@@ -6,6 +6,8 @@ define('B.Performance',function(){
 	
 	var Performance={
 		
+		
+		
 	};
 	
 	
