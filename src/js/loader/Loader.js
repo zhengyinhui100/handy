@@ -47,9 +47,17 @@ function(Debug){
 		_eHead=document.head ||document.getElementsByTagName('head')[0] ||document.documentElement,
 		_UA = navigator.userAgent,
         _bIsWebKit = _UA.indexOf('AppleWebKit'),
-    	_aContext=[],         //请求上下文堆栈
+    	_modules=[],          //模块缓存
+    	/**
+    	 * {
+    	 * 		{string}id:模块id,
+    	 * 		{*}factory:模块工厂(函数),
+    	 * 		{array}args:模块工厂函数执行参数,
+    	 * 		{string}status:模块状态：loading(正在加载中)、loaded(已加载)、ready(可以初始化)、inited(已初始化),
+    	 * 		{}
+    	 * }
+    	 */
     	_requestingNum=0,     //正在请求(还未返回)的数量
-	    _oCache={},           //缓存
 	    _oExistedCache={};    //已存在的资源缓存，加速读取
 	    
 	window.define=Loader.define;
@@ -64,8 +72,8 @@ function(Debug){
 	 * }
 	 */
 	function _fSaveContext(oContext){
-		_aContext[oContext.id]=oContext;
-	    _aContext.push(oContext);
+		_modules[oContext.id]=oContext;
+	    _modules.push(oContext);
 	}
 	/**
 	 * 检查是否有循环依赖
@@ -76,7 +84,7 @@ function(Debug){
 	 */
 	function _fChkCycle(sId,sDepId,oChked){
 		var sCurId=sDepId||sId;
-		var oRefContext=_aContext[sCurId];
+		var oRefContext=_modules[sCurId];
 		var aRefDeps=oRefContext&&oRefContext.deps;
 		if(!aRefDeps){
 			return;
@@ -119,14 +127,20 @@ function(Debug){
     		var result=_oExistedCache[sId];
     		if(!result){
 				//css和js文件只验证是否加载完
+    			var oModule=_modules[sId];
 				if(/\.(css|js)/.test(sId)){
-					result= _oCache[sId]&&_oCache[sId].status=='loaded';
+					result= oModule&&oModule.status=='loaded';
 				}else if(Loader.sourceMap&&Loader.sourceMap[sId]){
 					//自定义资源使用自定义方法验证
 					result= Loader.sourceMap[sId].chkExist();
 				}else{
-					//标准命名空间规则验证
-		    		result= $H.ns({path:sId});
+					//标准模块
+//		    		result= $H.ns({path:sId});
+		    		if(oModule.status.inited){
+						result=oModule.exports;		    			
+		    		}else if(oModule.status.ready){
+						result=_fInitModule(oModule);
+					}
 				}
 				if(result===undefined&&bChkCycle){
 					//如果有循环依赖，将当前资源放入已存在的结果中，避免执行不下去
@@ -147,9 +161,8 @@ function(Debug){
     /**
      * 初始化模块
      */
-    function _fInitModule(sRealId){
+    function _fInitModule(oModule){
     	var resource;
-    	var module=_aContext[sRealId];
 		if(typeof factory=="function"){
 			try{
 				if(Loader.traceLog){
@@ -166,9 +179,11 @@ function(Debug){
 		}else{
 			resource=factory;
 		}
+		oModule.status.inited=true;
 		
 		if(resource){
 			$H.ns(sRealId,resource);
+			oModule.exports=resource;
 			//添加命名空间元数据
 			var sType=typeof resource;
 			if(sType=="object"||sType=="function"){
@@ -408,10 +423,10 @@ function(Debug){
     	for(var i=0,nLen=aRequestIds.length;i<nLen;i++){
     		var sId=aRequestIds[i];
     		//不处理已经在请求列表里的资源
-    		if(!_oCache[sId]){
+    		if(!_modules[sId]){
 	    		var sUrl=_fGetUrl(sId);
     			bNeedRequest=true;
-	    		_oCache[sId]={
+	    		_modules[sId]={
 					id:sId,
 					status:'loading'
 				}
@@ -490,7 +505,7 @@ function(Debug){
     	id=typeof id==='string'?[id]:id;
     	//标记资源已加载
     	for(var i=0;i<id.length;i++){
-	    	_oCache[id[i]].status='loaded';
+	    	_modules[id[i]].status='loaded';
     	}
     	if(Loader.traceLog){
 			Debug.log(_LOADER_PRE+"Response:\n"+id.join('\n'));
@@ -502,24 +517,24 @@ function(Debug){
      */
     function _fExecContext(){
     	//每次回调都循环上下文列表
-   		for(var i=_aContext.length-1;i>=0;i--){
-	    	var oContext=_aContext[i];
+   		for(var i=_modules.length-1;i>=0;i--){
+	    	var oContext=_modules[i];
 	    	var oResult=_fChkExisted(oContext.deps,Loader.parseCycle);
 	    	if(oResult.notExist.length===0){
-	    		_aContext.splice(i,1);
+	    		_modules.splice(i,1);
 	    		oContext.callback.apply(null,oResult.exist);
 	    		//定义成功后重新执行上下文
 	    		_fExecContext();
 	    		break;
 	    	}else if(i==0&&_requestingNum==0){
 	    		//输出错误分析
-	    		for(var i=_aContext.length-1;i>=0;i--){
-	    			var oContext=_aContext[i];
+	    		for(var i=_modules.length-1;i>=0;i--){
+	    			var oContext=_modules[i];
 	    			var oResult=_fChkExisted(oContext.deps,true);
 	    			var aNotExist=oResult.notExist;
 	    			var bHasDepds=false;
-	    			for(var j=_aContext.length-1;j>=0;j--){
-	    				var sId=_aContext[j].id;
+	    			for(var j=_modules.length-1;j>=0;j--){
+	    				var sId=_modules[j].id;
 	    				for(var k=aNotExist.length-1;k>=0;k--){
 	    					if(aNotExist[k]===sId){
 		    					bHasDepds=true;
@@ -569,12 +584,9 @@ function(Debug){
 		}
 		
 		Loader.require(deps,function(){
-			var deps=arguments;
-			_fSaveContext({
-				id        : sRealId,
-				deps      : deps,
-				factory   : factory
-			});
+			var oModule=_modules[sRealId];
+			oModule.args=arguments;
+			oModule.factory=factory;
 		},sRealId);
 	}
     /**
