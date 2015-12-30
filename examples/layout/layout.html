@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title>细边框布局</title>
+    <link rel="stylesheet" type="text/css" href="../../src/css/reset.css" />
+    <script type="text/javascript" src="../../src/js/init/layout.js"></script>
+    <style type="text/css">
+    	.content{
+    		border:1px solid #ccc;
+    		margin:30px;
+    		padding:10px;
+    	}
+    	.cell{
+    		float:left;
+    		background:#eee;
+    		border:1px solid #ccc;
+    		border-right:0;
+    		height:2.8rem;
+    	}
+    	.grid{
+    		clear:both;
+    		margin:10px 0;
+			  zoom: 1;
+    	}
+		.grid:after {
+		  clear: both;
+		  content: ".";
+		  display: block;
+		  height: 0;
+		  visibility: hidden;
+		  overflow: hidden;
+		}
+    	.two-grid .cell{
+    		width:50%;
+    	}
+    	.three-grid .cell{
+    		width:33.33%;
+    	}
+    	.two-grid-rem .cell{
+    		width:50%;
+    	}
+    	.three-grid-rem .cell{
+    		width:33.33%;
+    	}
+    </style>
+  </head>
+  <body>
+  	<div class="content">看看是不是细边框</div>
+  	<div class="grid two-grid">
+  		<div class="cell">
+  		</div>
+  		<div class="cell">
+  		</div>
+	</div>
+	<div class="grid three-grid">
+  		<div class="cell">
+  		</div>
+  		<div class="cell">
+  		</div>
+  		<div class="cell">
+  		</div>
+	</div>
+	<div class="grid two-grid-rem">
+  		<div class="cell">
+  		</div>
+  		<div class="cell">
+  		</div>
+	</div>
+	<div class="grid three-grid-rem">
+  		<div class="cell">
+  		</div>
+  		<div class="cell">
+  		</div>
+  		<div class="cell">
+  		</div>
+	</div>
+  </body>
+</html>
