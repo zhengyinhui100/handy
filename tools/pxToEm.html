@@ -13,12 +13,24 @@
 </style>
 </head>
 <body>
-  默认字体大小:<input id="base" name="name" value="16"/>px
-  <br>
-  px:<input id="px" name="name" value="1"/>
-  <br>
-  em:<input id="em" name="name"/>
-  <div id="list"></div>
+	<div class="">
+	  默认字体大小:<input id="base" name="name" value="16"/>px
+	  <br>
+	  px:<input id="px" name="name" value="1"/>
+	  <br>
+	  em:<input id="em" name="name"/>
+	  <div id="list"></div>
+	  <br/><br/><br/><br/>
+	</div>
+  	
+  	<div class="">
+	  rem计算:<br/>
+	  设计稿宽度<input id="designWidth" name="name" value="640"/>px<br/>
+	  屏幕rem宽度<input id="totalRem" name="name" value="20"/>rem<br/>
+	  px:<input id="remPx" name="name" value="10"/>
+	  <br>
+	  rem:<input id="rem" name="name"/>
+  	</div>
   <script type="text/javascript">
   	function px2em(px){
   		var base=$('#base').val();
@@ -50,7 +62,7 @@
   		em=parseFloat(em);
   		$("#px").val(em2px(em));
   	}
-  	list();
+  	//list();
   	getEm();
   	$("#base").bind('input propertychange',function(){
   		list();
@@ -61,6 +73,38 @@
   	})
   	$("#em").bind('input propertychange',function(){
   		getPx();
+  	})
+  	
+  	
+  	function px2rem(px){
+  		var base=$('#designWidth').val();
+	  	base=parseInt(base);
+  		var rem=px*parseInt($("#totalRem").val())/base;
+  		rem=Math.round(rem*100)/100;
+  		return rem;
+  	}
+  	function rem2px(rem){
+  		var base=$('#designWidth').val();
+	  	base=parseInt(base);
+	  	var px=Math.floor(rem*base/parseInt($("#totalRem").val()));
+  		return px;
+  	}
+  	function getRem(){
+  		var px=$("#remPx").val();
+  		px=parseInt(px);
+  		$("#rem").val(px2rem(px));
+  	}
+  	function getRemPx(){
+  		var rem=$("#rem").val();
+  		rem=parseFloat(rem);
+  		$("#remPx").val(rem2px(rem));
+  	}
+  	getRem();
+  	$("#designWidth,#remPx,#totalRem").bind('input propertychange',function(){
+  		getRem();
+  	})
+  	$("#rem").bind('input propertychange',function(){
+  		getRemPx();
   	})
   </script>
 </body>

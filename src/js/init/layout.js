@@ -9,7 +9,7 @@
 	_docEl=document.documentElement,
 	_eHead=document.head ||document.getElementsByTagName('head')[0] ||document.documentElement;
 	
-	var Layout={
+	var Layout=oWin.hLayout={
 		init          : fInit,
 		initViewport  : fInitViewport,
 		setFontsize   : fSetFontsize
@@ -33,7 +33,8 @@
 	function fInitViewport() {
 		oWin.gZoom=1;
 		oWin.gFontSize=16;
-		console.log(document.documentElement.getBoundingClientRect().width)
+		var nWidth=Layout.initW=_docEl.clientWidth;
+		var nDpr=Layout.dpr=Layout.vdpr=oWin.devicePixelRatio||1;
 		if(_bIsMobile){
 			var sViewPort='user-scalable=no';
 			//Android浏览器中添加了initial-scale、width等属性后宽度会变成viewport一般宽度344，
@@ -44,13 +45,18 @@
 				//web中加上无法显示最高分辨率
 				sViewPort+=',initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width,height=device-height,target-densitydpi=device-dpi';
 			}
-			var sViewPort='width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0,user-scalable=no';
+//			sViewPort='width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0,user-scalable=no';
 			_fAddMeta('viewport',sViewPort);
-			
+			Layout.setedW=_docEl.clientWidth;
 			Layout.setFontsize();
 			oWin.addEventListener('orientationchange',function(){
 				setTimeout(Layout.setFontsize,0);
 			});
+			setTimeout(function(){
+				alert('dpr:'+Layout.dpr+';\n'+'vdpr:'+Layout.vdpr+';\n'+
+				'initW:'+Layout.initW+';\n'+'setedW:'+Layout.setedW+
+				'\n'+document.body.clientWidth+'\n'+document.documentElement.getBoundingClientRect().width)
+			},2000)
 		}
 	}
 	
@@ -60,7 +66,11 @@
 	function fSetFontsize(){
 		//计算默认字体大小
 		var nOrigWidth=_docEl.clientWidth;
-		var dpr=oWin.devicePixelRatio||1;
+		var nDpr=Layout.dpr;
+		//检测是否已经还原设备分辨率，除以系统默认dpr后，如果小于320，说明实际dpr是1
+		if(nOrigWidth/nDpr<320){
+			Layout.vdpr=1;
+		}
 		//使用screen.width有时会不准确，比如Android上的chrome36，小米3数值是360
 		//var nOrigWidth=oWin.screen.width;
 		//屏幕宽高比
@@ -85,7 +95,7 @@
 		}
 		//通知zepto touch，事件边界检测
 		oWin.fixDevicePixelRatio=gZoom;
-		var nNewSize=Math.ceil(gZoom*16);
+		var nNewSize=Math.round(nOrigWidth/20*100)/100;
 		if(gFontSize!=nNewSize){
 			gFontSize=nNewSize;
 //			alert(nOrient+"\n"+oWin.screen.width+";"+oWin.screen.height+"\n"+_docEl.clientWidth+";"+nActWidth+";"+gFontSize);

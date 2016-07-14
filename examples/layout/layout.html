@@ -8,15 +8,19 @@
     <style type="text/css">
     	.content{
     		border:1px solid #ccc;
-    		margin:30px;
-    		padding:10px;
+    		margin:5px 30px;
+    		padding:5px;
+    	}
+    	.content-rem{
+    		font-size:1rem;
     	}
     	.cell{
     		float:left;
     		background:#eee;
     		border:1px solid #ccc;
     		border-right:0;
-    		height:2.8rem;
+    		text-align:center;
+    		padding:0.4rem;
     	}
     	.grid{
     		clear:both;
@@ -35,45 +39,91 @@
     		width:50%;
     	}
     	.three-grid .cell{
-    		width:33.33%;
+    		width:33.333%;
     	}
     	.two-grid-rem .cell{
-    		width:50%;
+    		width:10rem;
     	}
     	.three-grid-rem .cell{
-    		width:33.33%;
+    		width:6.6666rem;
     	}
     </style>
   </head>
   <body>
-  	<div class="content">看看是不是细边框</div>
+  	<div class="content">
+  	默认字体<span id="txtSpn">计算的字体</span>
+  	<span>1rem字体</span>
+  	<span id="text"></span>
+  	<span style="font-size:49px">1.6rem字体</span>
+  	<span style="font-size:1.3333rem">1.3333rem字体</span>
+  	<span style="font-size:12px">12px字体</span>
+  	</div>
   	<div class="grid two-grid">
   		<div class="cell">
+  		50%
   		</div>
   		<div class="cell">
+  		50%
   		</div>
 	</div>
 	<div class="grid three-grid">
   		<div class="cell">
+  		33.333%
   		</div>
   		<div class="cell">
+  		33.333%
   		</div>
   		<div class="cell">
+  		33.333%
   		</div>
 	</div>
 	<div class="grid two-grid-rem">
   		<div class="cell">
+  		10rem
   		</div>
   		<div class="cell">
+  		10rem
   		</div>
 	</div>
 	<div class="grid three-grid-rem">
   		<div class="cell">
+  		6.6666rem
   		</div>
   		<div class="cell">
+  		6.6666rem
   		</div>
   		<div class="cell">
+  		6.6666rem
   		</div>
 	</div>
+	<div class="grid three-grid-rem">
+  		<div class="cell" style="width:6.66rem">
+  		6.66rem
+  		</div>
+  		<div class="cell" style="width:6.66rem">
+  		6.66rem
+  		</div>
+  		<div class="cell" style="width:6.66rem">
+  		6.66rem
+  		</div>
+	</div>
+	<div class="grid three-grid-rem">
+  		<div class="cell" style="width:6.67rem">
+  		6.67rem
+  		</div>
+  		<div class="cell" style="width:6.67rem">
+  		6.67rem
+  		</div>
+  		<div class="cell" style="width:6.67rem">
+  		6.67rem
+  		</div>
+	</div>
+	<script type="text/javascript">
+		var size=hLayout.vdpr*16;
+		var text=document.getElementById('text');
+		document.getElementById('txtSpn').style.fontSize=size+'px';
+		text.innerHTML='固定大小字体:'+size+'px';
+		text.style.fontSize=size+'px';
+    </script>
   </body>
 </html>
