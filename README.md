@@ -19,6 +19,8 @@ handy
 <a href="http://htmlpreview.github.io/?https://rawgit.com/zhengyinhui100/handy/blob/master/examples/component/crop.html" target="_blank">图片裁剪</a>
 <br>
 <a href="http://htmlpreview.github.io/?https://rawgit.com/zhengyinhui100/handy/blob/master/examples/component/waterfall.html" target="_blank">瀑布流</a>
+<p>应用架构示例：</p>
+<img src="./docs/img/handy-class.png"/>
 <p>案例展示：</p>
 <a target="_blank" href="http://www.17lejia.com/">乐加球友(网页版、app)</a>
 <br>
