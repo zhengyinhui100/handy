@@ -19,6 +19,7 @@ handy
 <a href="http://htmlpreview.github.io/?https://rawgit.com/zhengyinhui100/handy/blob/master/examples/component/crop.html" target="_blank">图片裁剪</a>
 <br>
 <a href="http://htmlpreview.github.io/?https://rawgit.com/zhengyinhui100/handy/blob/master/examples/component/waterfall.html" target="_blank">瀑布流</a>
+<img src="./docs/img/handy-fe.png"/>
 <p>应用架构示例：</p>
 <img src="./docs/img/sportapp-bs.png"/>
 <p>案例展示：</p>
